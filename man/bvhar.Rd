@@ -7,6 +7,8 @@
 \alias{bvhar-package}
 \title{bvhar: Bayesian VHAR model}
 \description{
+\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+
 Beta package to
         model VAR, VHAR, BVAR, and Bayesian VHAR.
 }
