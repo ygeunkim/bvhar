@@ -1,0 +1,152 @@
+---
+title: "bvhar"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{bvhar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618,
+  fig.pos = "H"
+  )
+options(digits = 3)
+```
+
+```{r pkgs}
+library(bvhar)
+```
+
+```{r addpkgs}
+# for this vignette--------------
+library(dplyr)
+```
+
+# Simple Setting
+
+## ETF Dataset
+
+```{r etfdat}
+etf_vix
+```
+
+Gold, crude oil, euro currency, and china ETF.
+
+```{r etfidx}
+var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
+```
+
+Train and test: 19
+
+```{r}
+h <- 19
+#-------------------
+etf <- 
+  etf_vix %>% 
+  select(var_idx)
+etf_train <- 
+  etf %>% 
+  slice(seq_len(n() - h))
+#-------------------
+etf_test <- setdiff(etf, etf_train)
+#-------------------
+m <- ncol(etf)
+```
+
+# VAR
+
+## Fit
+
+```{r}
+p <- 5
+```
+
+Perform VAR(p = `p`):
+
+```{r}
+(fit_var <- var_lm(etf_train, p))
+```
+
+```{r}
+class(fit_var)
+names(fit_var)
+```
+
+Coefficient matrices:
+
+```{r}
+coef(fit_var)
+```
+
+Residuals:
+
+```{r}
+resid(fit_var) %>% head()
+```
+
+Fitted values:
+
+```{r}
+fitted(fit_var) %>% head()
+```
+
+## Summary
+
+```{r}
+summary(fit_var)
+```
+
+## Forecasting
+
+```{r}
+(pred_var <- predict(fit_var, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2)))
+```
+
+# VHAR
+
+## Fit
+
+```{r}
+(fit_har <- vhar_lm(etf_train))
+```
+
+## Forecasting
+
+```{r}
+(pred_har <- predict(fit_har, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2)))
+```
+
+Comparint MSE:
+
+```{r}
+# VAR-------------
+mean(mse_var)
+# VHAR------------
+mean(mse_har)
+```
+
+
+
+
+
+
+
