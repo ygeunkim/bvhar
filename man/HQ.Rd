@@ -2,12 +2,9 @@
 % Please edit documentation in R/summary-varlse.R
 \name{HQ}
 \alias{HQ}
-\alias{HQ.varlse}
 \title{HQ}
 \usage{
 HQ(object, ...)
-
-\method{HQ}{varlse}(object, ...)
 }
 \arguments{
 \item{object}{model fit}
@@ -17,8 +14,3 @@ HQ(object, ...)
 \description{
 HQ
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{varlse}: of VAR(p)
-}}
-

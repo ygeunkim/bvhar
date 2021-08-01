@@ -3,13 +3,19 @@
 \name{print.vharlse}
 \alias{print.vharlse}
 \alias{vhar_lm}
-\title{Fit Vector HAR}
+\title{Print Method for \code{vhar} Object}
 \usage{
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 vhar_lm(y)
 }
 \arguments{
+\item{x}{\code{vharlse} object}
+
+\item{digits}{digit option}
+
+\item{...}{not used}
+
 \item{y}{matrix, Time series data of which columns indicate the variables}
 }
 \value{

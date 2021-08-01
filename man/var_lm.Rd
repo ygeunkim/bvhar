@@ -3,13 +3,19 @@
 \name{print.varlse}
 \alias{print.varlse}
 \alias{var_lm}
-\title{Fit VAR(p)}
+\title{Print method for \code{varlse} object}
 \usage{
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 var_lm(y, p)
 }
 \arguments{
+\item{x}{\code{vhar} object}
+
+\item{digits}{digit option}
+
+\item{...}{not used}
+
 \item{y}{matrix, Time series data of which columns indicate the variables}
 
 \item{p}{integer, lags of VAR}

@@ -1,3 +1,8 @@
+#' Print method for \code{varlse} object
+#' @param x \code{vhar} object
+#' @param digits digit option
+#' @param ... not used
+#' 
 #' @rdname var_lm
 #' @export
 print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {

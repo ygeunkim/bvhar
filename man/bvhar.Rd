@@ -15,6 +15,14 @@ Beta package to
 \details{
 bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/ygeunkim/bvhar}
+  \item Report bugs at \url{https://github.com/ygeunkim/bvhar/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu}
 

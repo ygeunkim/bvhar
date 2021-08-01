@@ -2,6 +2,8 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 SEXP compute_var (Eigen::MatrixXd z, int s, int k) {
@@ -10,6 +12,8 @@ SEXP compute_var (Eigen::MatrixXd z, int s, int k) {
   return Rcpp::wrap(Sig);
 }
 
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 SEXP kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {

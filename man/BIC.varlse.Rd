@@ -7,7 +7,7 @@
 \method{BIC}{varlse}(object, ...)
 }
 \arguments{
-\item{object}{varlse}
+\item{object}{\code{varlse} object}
 
 \item{...}{not used}
 }

@@ -1,6 +1,25 @@
 ---
 title: "bvhar"
 output: rmarkdown::html_vignette
+header-includes:
+- \newcommand{\R}{\mathbb{R}}
+- \newcommand{\B}{\boldsymbol\beta}
+- \newcommand{\hb}{\boldsymbol{\hat\beta}}
+- \newcommand{\E}{\boldsymbol\epsilon}
+- \DeclareMathOperator*{\argmin}{argmin}
+- \DeclareMathOperator*{\argmax}{argmax}
+- \newcommand{\defn}{\mathpunct{:}=}
+- \newcommand{\X}{\mathbf{X}}
+- \newcommand{\Y}{\mathbf{Y}}
+- \newcommand{\by}{\mathbf{y}}
+- \newcommand{\bz}{\mathbf{Z}}
+- \newcommand{\ba}{\boldsymbol{\alpha}}
+- \newcommand{\bc}{\mathbf{c}}
+- \newcommand{\bu}{\mathbf{u}}
+- \def\Cov{\mathrm{Cov}}
+- \def\Var{\mathrm{Var}}
+- \def\Corr{\mathrm{Corr}}
+- \def\vec{\mathrm{vec}}
 vignette: >
   %\VignetteIndexEntry{bvhar}
   %\VignetteEngine{knitr::rmarkdown}
@@ -60,6 +79,12 @@ etf_test <- setdiff(etf, etf_train)
 m <- ncol(etf)
 ```
 
+- n: Total number of observation
+- p: VAR lag
+- m: Dimension of variable
+- s = n - p
+- k = m * p + 1
+
 # VAR
 
 ## Fit
@@ -68,16 +93,56 @@ m <- ncol(etf)
 p <- 5
 ```
 
-Perform VAR(p = `p`):
+The package perform VAR(p = `p`) based on
+
+$$Y_0 = X_0 B + Z$$
+
+where
+
+$$
+Y_0 = \begin{bmatrix}
+  \by_{p + 1}^T \\
+  \by_{p + 2}^T \\
+  \vdots \\
+  \by_n^T
+\end{bmatrix}_{s \times m} \equiv Y_{p + 1}
+$$
+
+
+$$
+X_0 = \left[\begin{array}{c|c|c|c}
+  \by_p^T & \cdots & \by_1^T & 1 \\
+  \by_{p + 1}^T & \cdots & \by_2^T & 1 \\
+  \vdots & \vdots & \cdots & \vdots \\
+  \by_{n - 1}^T & \cdots & \by_{n - p}^T & 1
+\end{array}\right]_{s \times k} = \begin{bmatrix}
+  Y_p & Y_{p - 1} & \cdots & \mathbf{1}_{n - p}
+\end{bmatrix}
+$$
 
 ```{r}
 (fit_var <- var_lm(etf_train, p))
 ```
 
+You can see the estimate for
+
+$$
+B = \begin{bmatrix}
+  B_1^T \\
+  \vdots \\
+  B_p^T \\
+  \bc^T
+\end{bmatrix}
+$$
+
+The package provide `S3` object.
+
 ```{r}
 class(fit_var)
 names(fit_var)
 ```
+
+As `lm`, you can extract the values such as
 
 Coefficient matrices:
 
@@ -99,11 +164,17 @@ fitted(fit_var) %>% head()
 
 ## Summary
 
+For more information, use `summary()` function.
+
 ```{r}
 summary(fit_var)
 ```
 
+
 ## Forecasting
+
+In VAR modeling, `vars` package is famous.
+We refer to its argument `n.ahead` and you can forecast using `predict()` function with above `varlse` object.
 
 ```{r}
 (pred_var <- predict(fit_var, n.ahead = h))
@@ -116,6 +187,8 @@ MSE:
 ```
 
 # VHAR
+
+Consider Vector HAR (VHAR) model. The process is the same.
 
 ## Fit
 
@@ -135,7 +208,7 @@ MSE:
 (mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2)))
 ```
 
-Comparint MSE:
+Compare the two MSE:
 
 ```{r}
 # VAR-------------

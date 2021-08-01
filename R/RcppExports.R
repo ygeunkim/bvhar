@@ -82,11 +82,15 @@ estimate_har <- function(x, y) {
     .Call('_bvhar_estimate_har', PACKAGE = 'bvhar', x, y)
 }
 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
 #' @export
 compute_var <- function(z, s, k) {
     .Call('_bvhar_compute_var', PACKAGE = 'bvhar', z, s, k)
 }
 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
 #' @export
 kroneckerprod <- function(x, y) {
     .Call('_bvhar_kroneckerprod', PACKAGE = 'bvhar', x, y)

@@ -12,7 +12,7 @@
 \arguments{
 \item{...}{not used}
 
-\item{object}{varlse}
+\item{object}{\code{varlse} object}
 }
 \description{
 Summary of varlse

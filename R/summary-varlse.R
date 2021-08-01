@@ -1,11 +1,18 @@
 #' Roots of characteristic polynomial
 #' @param x object
 #' @param ... not used
+#' 
+#' @export
 stableroot <- function(x, ...) {
   UseMethod("stableroot", x)
 }
 
-#' @describeIn Characteristic polynomial roots for VAR(p)
+#' Characteristic polynomial roots for VAR(p)
+#' 
+#' @param x \code{varlse} object
+#' @param ... not used
+#' 
+#' @export
 stableroot.varlse <- function(x, ...) {
   m <- x$m
   p <- x$p
@@ -21,14 +28,22 @@ stableroot.varlse <- function(x, ...) {
     Mod()
 }
 
-#' Stability
+#' Stability of the process
+#' 
 #' @param x object
 #' @param ... not used
+#' 
+#' @export
 is.stable <- function(x, ...) {
   UseMethod("is.stable", x)
 }
 
-#' @describeIn Stability of VAR(p)
+#' Stability of VAR(p)
+#' 
+#' @param x \code{varlse} object
+#' @param ... not used
+#' 
+#' @export
 is.stable.varlse <- function(x, ...) {
   all(stableroot(x) < 1)
 }
@@ -39,6 +54,7 @@ is.stable.varlse <- function(x, ...) {
 #' @param object fit
 #' @param ... not used
 #' 
+#' @importFrom stats AIC
 #' @export
 AIC.varlse <- function(object, ...) {
   COV <- object$resid
@@ -52,6 +68,8 @@ AIC.varlse <- function(object, ...) {
 #' FPE
 #' @param object model fit
 #' @param ... not used
+#' 
+#' @export
 FPE <- function(object, ...) {
   UseMethod("FPE", object)
 }
@@ -69,8 +87,10 @@ FPE.varlse <- function(object, ...) {
 #' BIC of VAR(p)
 #' 
 #' Compute BIC of VAR(p)
-#' @param object varlse
+#' @param object \code{varlse} object
 #' @param ... not used
+#' 
+#' @importFrom stats BIC
 #' @export
 BIC.varlse <- function(object, ...) {
   COV <- object$resid
@@ -82,13 +102,21 @@ BIC.varlse <- function(object, ...) {
 }
 
 #' HQ
+#' 
 #' @param object model fit
 #' @param ... not used
+#' 
+#' @export
 HQ <- function(object, ...) {
   UseMethod("HQ", object)
 }
 
-#' @describeIn HQ of VAR(p)
+#' HQ of VAR(p)
+#' 
+#' @param object \code{varlse} object
+#' @param ... not used
+#' 
+#' @export
 HQ.varlse <- function(object, ...) {
   COV <- object$resid
   m <- object$m
@@ -100,7 +128,7 @@ HQ.varlse <- function(object, ...) {
 
 #' Summary of varlse
 #' 
-#' @param object varlse
+#' @param object \code{varlse} object
 #' @param ... not used
 #' 
 #' @export
