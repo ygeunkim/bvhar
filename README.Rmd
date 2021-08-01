@@ -1,0 +1,38 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# bvhar
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of bvhar is to
+VAR, VHAR, BVAR (Bayesian VAR), and the most importantly, BVHAR (Bayesian VHAR).
+
+## Installation
+
+You can install the released version of bvhar from [CRAN](https://CRAN.R-project.org) with:
+
+```{r, eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("ygeunkim/bvhar")
+```
+
+
+## Overview
+
+```{r example}
+library(bvhar)
+```
