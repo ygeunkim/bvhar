@@ -23,8 +23,6 @@ VAR, VHAR, BVAR (Bayesian VAR), and the most importantly, BVHAR (Bayesian VHAR).
 
 ## Installation
 
-You can install the released version of bvhar from [CRAN](https://CRAN.R-project.org) with:
-
 ```{r, eval=FALSE}
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar")

@@ -11,9 +11,6 @@ importantly, BVHAR (Bayesian VHAR).
 
 ## Installation
 
-You can install the released version of bvhar from
-[CRAN](https://CRAN.R-project.org) with:
-
 ``` r
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar")
