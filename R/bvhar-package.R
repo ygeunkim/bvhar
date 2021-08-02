@@ -1,4 +1,5 @@
 #' @description 
+#' `r lifecycle::badge('experimental')`
 #' bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
 #' See introduction for `browseVignettes(package = "bvhar")`
 #' 

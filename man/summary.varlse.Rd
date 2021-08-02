@@ -31,10 +31,10 @@ knit_print.summary.varlse(x, ...)
 \item{\code{is_stable}}{Whether the process is stable or not based on \code{roots}}
 \item{\code{ic}}{Information criteria vector}
 \itemize{
-    \item{\code{AIC}} - AIC
-    \item{\code{BIC}} - BIC
-    \item{\code{HQ}} - HQ
-    \item{\code{FPE}} - FPE
+\item{\code{AIC}} - AIC
+\item{\code{BIC}} - BIC
+\item{\code{HQ}} - HQ
+\item{\code{FPE}} - FPE
 }
 }
 \description{

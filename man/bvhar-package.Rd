@@ -7,8 +7,9 @@
 \alias{bvhar}
 \title{bvhar: Bayesian VHAR model}
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
-See introduction for `browseVignettes(package = "bvhar")`
+See introduction for \code{browseVignettes(package = "bvhar")}
 }
 \seealso{
 Useful links:

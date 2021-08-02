@@ -21,6 +21,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Imports: 
+    lifecycle,
     data.table,
     magrittr,
     Rcpp (>= 1.0.7)
@@ -28,3 +29,4 @@ LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
+Roxygen: list(markdown = TRUE)
