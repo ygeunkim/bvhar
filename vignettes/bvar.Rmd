@@ -66,7 +66,7 @@ m <- ncol(etf)
 - s = n - p
 - k = m * p + 1
 
-# VAR
+# Minnesota Prior
 
 ## Fit
 
@@ -121,6 +121,36 @@ mean(mse_har)
 mean(mse_bvar)
 ```
 
+# Ghosh Prior
+
+## Fit
+
+```{r}
+set.seed(1)
+U <- runif(1, 0, 10) * diag(m * p + 1) # identity matrix
+(fit_ghosh <- bvar_ghosh(etf_train, p, U))
+```
+
+## Forecasting
+
+```{r}
+(pred_ghosh <- predict(fit_ghosh, h))
+```
+
+```{r}
+(mse_ghosh <- apply(etf_test - pred_ghosh, 2, function(x) mean(x^2)))
+```
+
+```{r}
+# VAR-------------
+mean(mse_var)
+# VHAR------------
+mean(mse_har)
+# Minnesota-------
+mean(mse_bvar)
+# Ghosh-----------
+mean(mse_ghosh)
+```
 
 
 

@@ -84,7 +84,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
     m = ncol(y), # m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
-    process = "BVAR",
+    process = "Minnesota",
     call = match.call(),
     mn_mean = Bhat,
     fitted.values = yhat,

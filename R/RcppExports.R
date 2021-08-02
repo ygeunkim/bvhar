@@ -151,6 +151,28 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
     .Call('_bvhar_estimate_bvar_mn', PACKAGE = 'bvhar', x, y, x_dummy, y_dummy)
 }
 
+#' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
+#' 
+#' Point estimates for Ghosh et al. (2018) nonhierarchical model for BVAR.
+#' 
+#' @param x Matrix, X0
+#' @param y Matrix, Y0
+#' @param U Positive definite matrix, covariance matrix corresponding to the column of the model parameter B
+#' 
+#' @details
+#' In Ghosh et al. (2018), there are many models for BVAR such as hierarchical or non-hierarchical.
+#' Among these, this function chooses the most simple non-hierarchical matrix normal prior.
+#' 
+#' @references
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+estimate_bvar_ghosh <- function(x, y, U) {
+    .Call('_bvhar_estimate_bvar_ghosh', PACKAGE = 'bvhar', x, y, U)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' @param x X0 processed by \code{\link{build_design}}
