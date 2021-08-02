@@ -19,7 +19,7 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("VHAR Estimation")
   cat("====================================================\n\n")
   for (i in 1:3) {
-    cat(paste("LSE for", names(phihat_mat)[i]))
+    cat(paste0("LSE for ", names(phihat_mat)[i], ":\n"))
     # B1, ..., Bp--------------------
     print.default(
       phihat_mat[[i]],

@@ -1,0 +1,126 @@
+---
+title: "Introduction to BVAR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to BVAR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618,
+  fig.pos = "H"
+  )
+options(digits = 3)
+```
+
+```{r pkgs}
+library(bvhar)
+```
+
+```{r addpkgs}
+# for this vignette--------------
+library(dplyr)
+```
+
+# Simple Setting
+
+## ETF Dataset
+
+```{r etfdat}
+etf_vix
+```
+
+Gold, crude oil, euro currency, and china ETF.
+
+```{r etfidx}
+var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
+```
+
+Train and test: 19
+
+```{r}
+h <- 19
+#-------------------
+etf <- 
+  etf_vix %>% 
+  select(all_of(var_idx))
+etf_train <- 
+  etf %>% 
+  slice(seq_len(n() - h))
+#-------------------
+etf_test <- setdiff(etf, etf_train)
+#-------------------
+m <- ncol(etf)
+```
+
+- n: Total number of observation
+- p: VAR lag
+- m: Dimension of variable
+- s = n - p
+- k = m * p + 1
+
+# VAR
+
+## Fit
+
+```{r}
+p <- 5
+```
+
+Simple setting:
+
+```{r}
+lam <- .5
+delta <- rep(1, m)
+sig <- apply(etf_train, 2, sd)
+eps <- 1e-04
+```
+
+```{r}
+(fit_bvar <- bvar_minnesota(etf_train, p, sig, lam, delta, eps))
+```
+
+## Forecasting
+
+```{r}
+(pred_bvar <- predict(fit_bvar, h))
+```
+
+```{r}
+(mse_bvar <- apply(etf_test - pred_bvar, 2, function(x) mean(x^2)))
+```
+
+Compare:
+
+```{r}
+# VAR-------------------------
+fit_var <- var_lm(etf_train, p)
+pred_var <- predict(fit_var, h)
+mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2))
+# VHAR------------------------
+fit_har <- vhar_lm(etf_train)
+pred_har <- predict(fit_har, h)
+mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2))
+```
+
+MSE:
+
+```{r}
+# VAR-------------
+mean(mse_var)
+# VHAR------------
+mean(mse_har)
+# BVAR------------
+mean(mse_bvar)
+```
+
+
+
+

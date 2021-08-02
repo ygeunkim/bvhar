@@ -43,6 +43,114 @@ build_design <- function(x, p) {
     .Call('_bvhar_build_design', PACKAGE = 'bvhar', x, p)
 }
 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+diag_misc <- function(x) {
+    .Call('_bvhar_diag_misc', PACKAGE = 'bvhar', x)
+}
+
+#' Construct Dummy response for Minnesota Prior
+#' 
+#' Define dummy Y observations to add for Minnesota moments.
+#' 
+#' @param p integer, VAR lag. For VHAR, put 3.
+#' @param sigma vector, standard error of each variable
+#' @param lambda double, tightness of the prior around a random walk or white noise
+#' @param delta vector, prior belief about white noise (Litterman sets 1)
+#' 
+#' @details
+#' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
+#' 
+#' @references
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+build_ydummy <- function(p, sigma, lambda, delta) {
+    .Call('_bvhar_build_ydummy', PACKAGE = 'bvhar', p, sigma, lambda, delta)
+}
+
+#' Construct Dummy design matrix for Minnesota Prior
+#' 
+#' Define dummy X observation to add for Minnesota moments.
+#' 
+#' @param p integer, VAR lag. For VHAR, put 3.
+#' @param sigma vector, standard error of each variable
+#' @param lambda double, tightness of the prior around a random walk or white noise
+#' @param eps double, very small number
+#' 
+#' @details
+#' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
+#' 
+#' @references
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+build_xdummy <- function(p, lambda, sigma, eps) {
+    .Call('_bvhar_build_xdummy', PACKAGE = 'bvhar', p, lambda, sigma, eps)
+}
+
+#' Parameters of Normal Inverted Wishart Prior
+#' 
+#' Given dummy observations, compute parameters of Normal-IW prior for Minnesota.
+#' 
+#' @param x_dummy Matrix, dummy observation for X0
+#' @param y_dummy Matrix, dummy observation for Y0
+#' 
+#' @details
+#' Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance) the following distributions
+#' 
+#' \deqn{B \mid \Sigma_e, Y_0 \sim MN(B_0, \Omega_0, \Sigma_e)}
+#' \deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
+#' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+#' 
+#' Bańbura et al. (2010) provides the formula how to find each matrix to match Minnesota moments.
+#' 
+#' @references
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+minnesota_prior <- function(x_dummy, y_dummy) {
+    .Call('_bvhar_minnesota_prior', PACKAGE = 'bvhar', x_dummy, y_dummy)
+}
+
+#' BVAR(p) Point Estimates based on Minnesota Prior
+#' 
+#' Point estimates for posterior distribution
+#' 
+#' @param x Matrix, X0
+#' @param y Matrix, Y0
+#' @param x_dummy Matrix, dummy X0
+#' @param y_dummy Matrix, dummy Y0
+#' 
+#' @details
+#' Augment originally processed data and dummy observation.
+#' OLS from this set give the result.
+#' 
+#' @references
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
+    .Call('_bvhar_estimate_bvar_mn', PACKAGE = 'bvhar', x, y, x_dummy, y_dummy)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' @param x X0 processed by \code{\link{build_design}}
@@ -98,6 +206,13 @@ estimate_har <- function(x, y) {
 #' @export
 compute_var <- function(z, s, k) {
     .Call('_bvhar_compute_var', PACKAGE = 'bvhar', z, s, k)
+}
+
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+AAt_eigen <- function(x, y) {
+    .Call('_bvhar_AAt_eigen', PACKAGE = 'bvhar', x, y)
 }
 
 #' @useDynLib bvhar

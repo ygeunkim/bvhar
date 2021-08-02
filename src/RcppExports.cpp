@@ -36,6 +36,71 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// diag_misc
+SEXP diag_misc(Eigen::VectorXd x);
+RcppExport SEXP _bvhar_diag_misc(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(diag_misc(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// build_ydummy
+SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta);
+RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP deltaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type delta(deltaSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, delta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// build_xdummy
+SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps);
+RcppExport SEXP _bvhar_build_xdummy(SEXP pSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_xdummy(p, lambda, sigma, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// minnesota_prior
+SEXP minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
+RcppExport SEXP _bvhar_minnesota_prior(SEXP x_dummySEXP, SEXP y_dummySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x_dummy(x_dummySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
+    rcpp_result_gen = Rcpp::wrap(minnesota_prior(x_dummy, y_dummy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// estimate_bvar_mn
+SEXP estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
+RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x_dummy(x_dummySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_mn(x, y, x_dummy, y_dummy));
+    return rcpp_result_gen;
+END_RCPP
+}
 // estimate_var
 SEXP estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_estimate_var(SEXP xSEXP, SEXP ySEXP) {
@@ -84,6 +149,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// AAt_eigen
+SEXP AAt_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
+RcppExport SEXP _bvhar_AAt_eigen(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(AAt_eigen(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kroneckerprod
 SEXP kroneckerprod(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_kroneckerprod(SEXP xSEXP, SEXP ySEXP) {
@@ -100,10 +177,16 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
     {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 2},
+    {"_bvhar_diag_misc", (DL_FUNC) &_bvhar_diag_misc, 1},
+    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 4},
+    {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
+    {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
+    {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_compute_var", (DL_FUNC) &_bvhar_compute_var, 3},
+    {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
     {NULL, NULL, 0}
 };

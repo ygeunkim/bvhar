@@ -1,27 +1,8 @@
 ---
-title: "bvhar"
+title: "Introduction to BVHAR"
 output: rmarkdown::html_vignette
-header-includes:
-- \newcommand{\R}{\mathbb{R}}
-- \newcommand{\B}{\boldsymbol\beta}
-- \newcommand{\hb}{\boldsymbol{\hat\beta}}
-- \newcommand{\E}{\boldsymbol\epsilon}
-- \DeclareMathOperator*{\argmin}{argmin}
-- \DeclareMathOperator*{\argmax}{argmax}
-- \newcommand{\defn}{\mathpunct{:}=}
-- \newcommand{\X}{\mathbf{X}}
-- \newcommand{\Y}{\mathbf{Y}}
-- \newcommand{\by}{\mathbf{y}}
-- \newcommand{\bz}{\mathbf{Z}}
-- \newcommand{\ba}{\boldsymbol{\alpha}}
-- \newcommand{\bc}{\mathbf{c}}
-- \newcommand{\bu}{\mathbf{u}}
-- \def\Cov{\mathrm{Cov}}
-- \def\Var{\mathrm{Var}}
-- \def\Corr{\mathrm{Corr}}
-- \def\vec{\mathrm{vec}}
 vignette: >
-  %\VignetteIndexEntry{bvhar}
+  %\VignetteIndexEntry{Introduction to BVHAR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -69,7 +50,7 @@ h <- 19
 #-------------------
 etf <- 
   etf_vix %>% 
-  select(var_idx)
+  select(all_of(var_idx))
 etf_train <- 
   etf %>% 
   slice(seq_len(n() - h))
@@ -79,146 +60,47 @@ etf_test <- setdiff(etf, etf_train)
 m <- ncol(etf)
 ```
 
-- n: Total number of observation
-- p: VAR lag
-- m: Dimension of variable
-- s = n - p
-- k = m * p + 1
-
-# VAR
-
-## Fit
-
-```{r}
-p <- 5
-```
-
-The package perform VAR(p = `p`) based on
-
-$$Y_0 = X_0 B + Z$$
-
-where
-
-$$
-Y_0 = \begin{bmatrix}
-  \by_{p + 1}^T \\
-  \by_{p + 2}^T \\
-  \vdots \\
-  \by_n^T
-\end{bmatrix}_{s \times m} \equiv Y_{p + 1}
-$$
-
-
-$$
-X_0 = \left[\begin{array}{c|c|c|c}
-  \by_p^T & \cdots & \by_1^T & 1 \\
-  \by_{p + 1}^T & \cdots & \by_2^T & 1 \\
-  \vdots & \vdots & \cdots & \vdots \\
-  \by_{n - 1}^T & \cdots & \by_{n - p}^T & 1
-\end{array}\right]_{s \times k} = \begin{bmatrix}
-  Y_p & Y_{p - 1} & \cdots & \mathbf{1}_{n - p}
-\end{bmatrix}
-$$
-
-```{r}
-(fit_var <- var_lm(etf_train, p))
-```
-
-You can see the estimate for
-
-$$
-B = \begin{bmatrix}
-  B_1^T \\
-  \vdots \\
-  B_p^T \\
-  \bc^T
-\end{bmatrix}
-$$
-
-The package provide `S3` object.
-
-```{r}
-class(fit_var)
-names(fit_var)
-```
-
-As `lm`, you can extract the values such as
-
-Coefficient matrices:
-
-```{r}
-coef(fit_var)
-```
-
-Residuals:
-
-```{r}
-resid(fit_var) %>% head()
-```
-
-Fitted values:
-
-```{r}
-fitted(fit_var) %>% head()
-```
-
-## Summary
-
-For more information, use `summary()` function.
-
-```{r}
-summary(fit_var)
-```
-
-
-## Forecasting
-
-In VAR modeling, `vars` package is famous.
-We refer to its argument `n.ahead` and you can forecast using `predict()` function with above `varlse` object.
-
-```{r}
-(pred_var <- predict(fit_var, n.ahead = h))
-```
-
-MSE:
-
-```{r}
-(mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2)))
-```
-
 # VHAR
 
-Consider Vector HAR (VHAR) model. The process is the same.
+```{r}
+fit_har <- vhar_lm(etf_train)
+pred_har <- predict(fit_har, n.ahead = h)
+mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2))
+```
 
-## Fit
+# Minnesota Prior
 
 ```{r}
-(fit_har <- vhar_lm(etf_train))
+lam <- .5
+delta <- rep(1, m)
+sig <- apply(etf_train, 2, sd)
+eps <- 1e-04
+```
+
+```{r}
+(fit_bvhar <- bvhar_minnesota(etf_train, sig, lam, delta, eps))
 ```
 
 ## Forecasting
 
 ```{r}
-(pred_har <- predict(fit_har, n.ahead = h))
+(pred_bvhar <- predict(fit_bvhar, h))
 ```
 
 MSE:
 
 ```{r}
-(mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2)))
+(mse_bvhar <- apply(etf_test - pred_bvhar, 2, function(x) mean(x^2)))
 ```
 
-Compare the two MSE:
+Compare:
 
 ```{r}
-# VAR-------------
-mean(mse_var)
-# VHAR------------
+# VHAR-------------
 mean(mse_har)
+# BVHAR------------
+mean(mse_bvhar)
 ```
-
-
-
 
 
 
