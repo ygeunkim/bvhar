@@ -131,6 +131,29 @@ HQ.varlse <- function(object, ...) {
 #' @param object \code{varlse} object
 #' @param ... not used
 #' 
+#' @return \code{summary.varlse} \link{class} additionaly computes the following
+#' \item{\code{names}}{Variable names}
+#' \item{\code{totobs}}{Total number of the observation}
+#' \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
+#' \item{\code{coefficients}}{Coefficient Matrix}
+#' \item{\code{call}}{Matched call}
+#' \item{\code{process}}{Process: VAR}
+#' \item{\code{covmat}}{Covariance matrix of the residuals}
+#' \item{\code{corrmat}}{Correlation matrix of the residuals}
+#' \item{\code{roots}}{Roots of characteristic polynomials}
+#' \item{\code{is_stable}}{Whether the process is stable or not based on \code{roots}}
+#' \item{\code{ic}}{Information criteria vector}
+#' \itemize{
+#'     \item{\code{AIC}} - AIC
+#'     \item{\code{BIC}} - BIC
+#'     \item{\code{HQ}} - HQ
+#'     \item{\code{FPE}} - FPE
+#' }
+#' 
+#' @references 
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' @order 1
 #' @export
 summary.varlse <- function(object, ...) {
   var_name <- colnames(object$y0)

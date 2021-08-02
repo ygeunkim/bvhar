@@ -18,3 +18,6 @@ Compute VAR(p) Coefficient Matrices and Fitted Values
 Given Y0 and Y0, the function estimate least squares
 Y0 = X0 B + Z
 }
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+}

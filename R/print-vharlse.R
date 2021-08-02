@@ -1,10 +1,8 @@
-#' Print Method for \code{vhar} Object
-#' 
-#' @param x \code{vharlse} object
-#' @param digits digit option
-#' @param ... not used
-#' 
 #' @rdname vhar_lm
+#' @param x \code{vharlse} object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
 #' @export
 print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
@@ -44,6 +42,10 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   invisible(x)
 }
 
+#' @rdname vhar_lm
+#' @param x \code{vharlse} object
+#' @param ... not used
+#' @order 3
 #' @export
 knit_print.vharlse <- function(x, ...) {
   print(x)

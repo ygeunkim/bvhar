@@ -16,6 +16,8 @@
 //' In case of Y0, t = p + 1.
 //' This function is used when constructing X0.
 //' 
+//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' 
 //' @useDynLib bvhar
 //' @importFrom Rcpp sourceCpp
 //' @export
@@ -39,6 +41,8 @@ SEXP build_y0(Eigen::MatrixXd x, int p, int t) {
 //' X0 is
 //' \deqn{X0 = [Y_p, \ldots, Y_1, 1]}
 //' i.e. (n - p) x (mp + 1) matrix
+//' 
+//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' 
 //' @useDynLib bvhar
 //' @importFrom Rcpp sourceCpp

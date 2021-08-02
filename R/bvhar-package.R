@@ -1,10 +1,10 @@
-#' bvhar: Bayesian VHAR model
-#' 
-#' @details 
+#' @description 
 #' bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
-#' @aliases bvhar bvhar-package
+#' See introduction for `browseVignettes(package = "bvhar")`
+#' 
 #' @docType package
-#' @name bvhar
+#' @name bvhar-package
+#' @aliases bvhar
 #' @keywords internal
 "_PACKAGE"
 

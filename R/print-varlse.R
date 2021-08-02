@@ -1,9 +1,8 @@
-#' Print method for \code{varlse} object
-#' @param x \code{vhar} object
-#' @param digits digit option
-#' @param ... not used
-#' 
 #' @rdname var_lm
+#' @param x \code{varlse} object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
 #' @export
 print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
@@ -42,6 +41,10 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   invisible(x)
 }
 
+#' @rdname var_lm
+#' @param x \code{varlse} object
+#' @param ... not used
+#' @order 3
 #' @export
 knit_print.varlse <- function(x, ...) {
   print(x)
@@ -55,6 +58,7 @@ registerS3method(
 )
 
 #' @rdname summary.varlse
+#' @order 2
 #' @export
 print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
@@ -118,6 +122,8 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   print(x$ic)
 }
 
+#' @rdname summary.varlse
+#' @order 3
 #' @export
 knit_print.summary.varlse <- function(x, ...) {
   print(x)

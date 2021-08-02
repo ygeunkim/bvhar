@@ -15,6 +15,8 @@
 #' In case of Y0, t = p + 1.
 #' This function is used when constructing X0.
 #' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
@@ -32,6 +34,8 @@ build_y0 <- function(x, p, t) {
 #' \deqn{X0 = [Y_p, \ldots, Y_1, 1]}
 #' i.e. (n - p) x (mp + 1) matrix
 #' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
@@ -46,6 +50,8 @@ build_design <- function(x, p) {
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' Y0 = X0 B + Z
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
@@ -74,6 +80,11 @@ scale_har <- function(m) {
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' Y0 = X1 Phi + Z
+#' 
+#' @references
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
