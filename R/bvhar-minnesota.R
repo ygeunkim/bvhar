@@ -50,12 +50,7 @@ bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
   # X1 = X0 %*% t(HARtrans)
   HARtrans <- scale_har(ncol(y))
   X1 <- AAt_eigen(X0, HARtrans)
-  name_har <- lapply(
-    c("day", "week", "month"),
-    function(lag) paste(name_var, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   colnames(X1) <- name_har
   # dummy-----------------------------
   Yh <- build_ydummy(3, sigma, lambda, delta)
@@ -67,7 +62,7 @@ bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
   Phihat <- posterior$bhat # posterior mean
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har
-  Uhat <- posterior$mnscale
+  Uhat <- posterior$mnprec
   colnames(Uhat) <- name_har
   rownames(Uhat) <- name_har
   yhat <- posterior$fitted
@@ -88,8 +83,7 @@ bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
     call = match.call(),
     mn_mean = Phihat,
     fitted.values = yhat,
-    # residuals = Y0 - yhat,
-    mn_scale = Uhat,
+    mn_prec = Uhat,
     iw_scale = Sighat
   )
   class(res) <- "bvharmn"

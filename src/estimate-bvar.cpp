@@ -43,13 +43,13 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
   xstar.block(0, 0, s, k) = x;
   xstar.block(s, 0, Tp, k) = x_dummy;
   // point estimation
-  Uhat = (xstar.adjoint() * xstar).inverse();
-  Bhat = Uhat * xstar.adjoint() * ystar;
+  Uhat = (xstar.adjoint() * xstar); // precision hat
+  Bhat = Uhat.inverse() * xstar.adjoint() * ystar;
   yhat = xstar * Bhat;
   Sighat = (ystar - yhat).adjoint() * (ystar - yhat);
   return Rcpp::List::create(
     Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
-    Rcpp::Named("mnscale") = Rcpp::wrap(Uhat),
+    Rcpp::Named("mnprec") = Rcpp::wrap(Uhat),
     Rcpp::Named("fitted") = Rcpp::wrap(yhat),
     Rcpp::Named("iwscale") = Rcpp::wrap(Sighat)
   );

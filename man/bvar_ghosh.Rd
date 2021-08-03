@@ -17,7 +17,7 @@ knit_print.bvarghosh(x, ...)
 
 \item{p}{VAR lag}
 
-\item{U}{Positive definite matrix, covariance matrix corresponding to the column of the model parameter B}
+\item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
 
 \item{x}{\code{bvarghosh} object}
 

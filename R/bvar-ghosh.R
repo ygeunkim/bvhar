@@ -5,7 +5,7 @@
 #' 
 #' @param y matrix, Time series data of which columns indicate the variables
 #' @param p VAR lag
-#' @param U Positive definite matrix, covariance matrix corresponding to the column of the model parameter B
+#' @param U Positive definite matrix. By default, identity matrix of dimension ncol(X0)
 #' 
 #' @details 
 #' In Ghosh et al. (2018), there are many models for BVAR such as hierarchical or non-hierarchical.
@@ -45,13 +45,8 @@ bvar_ghosh <- function(y, p, U) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  if (missing(U)) U <- var(X0)
-  name_lag <- lapply(
-    p:1,
-    function(lag) paste(name_var, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+  if (missing(U)) U <- diag(ncol(X0)) # identity matrix
+  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # Matrix normal---------------------
   posterior <- estimate_bvar_ghosh(X0, Y0, U);

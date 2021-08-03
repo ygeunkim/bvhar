@@ -29,9 +29,9 @@
 #' \item{\code{call}}{Matched call}
 #' \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
 #' \item{\code{fitted.values}}{Fitted values}
-#' \item{\code{residuals}}{Residuals}
-#' \item{\code{mn_scale}}{First scale matrix of posterior matrix normal distribution}
+#' \item{\code{mn_prec}}{Precision matrix of posterior matrix normal distribution}
 #' \item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
+#' \item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
 #' 
 #' @references 
 #' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
@@ -48,12 +48,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  name_lag <- lapply(
-    p:1,
-    function(lag) paste(name_var, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # dummy-----------------------------
   Yp <- build_ydummy(p, sigma, lambda, delta)
@@ -62,35 +57,36 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   colnames(Xp) <- name_lag
   # Matrix normal---------------------
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
-  Bhat <- posterior$bhat # posterior mean
+  Bhat <- posterior$bhat # matrix normal mean
   colnames(Bhat) <- name_var
   rownames(Bhat) <- name_lag
-  Uhat <- posterior$mnscale
+  Uhat <- posterior$mnprec # matrix normal precision
   colnames(Uhat) <- name_lag
   rownames(Uhat) <- name_lag
   yhat <- posterior$fitted
   colnames(yhat) <- name_var
-  # zhat <- Y0 - yhat
   # Inverse-wishart-------------------
-  Sighat <- posterior$iwscale
+  Sighat <- posterior$iwscale # IW scale
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
+  m <- ncol(y)
+  a0 <- nrow(Xp) - m * p + 1
   # S3--------------------------------
   res <- list(
     design = X0,
     y0 = Y0,
     y = y,
     p = p, # p
-    m = ncol(y), # m
+    m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "Minnesota",
     call = match.call(),
     mn_mean = Bhat,
     fitted.values = yhat,
-    # residuals = Y0 - yhat,
-    mn_scale = Uhat,
-    iw_scale = Sighat
+    mn_prec = Uhat,
+    iw_scale = Sighat,
+    a0 = a0
   )
   class(res) <- "bvarmn"
   res

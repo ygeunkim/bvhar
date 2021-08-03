@@ -53,3 +53,8 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 }
+\seealso{
+\code{\link{build_y0}} and \code{\link{build_design}} for defining Y0 and X0 matrix,
+and \code{\link{estimate_var}} for computing coefficient VAR matrix.
+Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
+}

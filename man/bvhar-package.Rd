@@ -8,8 +8,9 @@
 \title{bvhar: Bayesian VHAR model}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
-See introduction for \code{browseVignettes(package = "bvhar")}
+
+A package aiming at reasearcing Bayesian Vector heterogeneous autoregressive process.
+You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
 \seealso{
 Useful links:

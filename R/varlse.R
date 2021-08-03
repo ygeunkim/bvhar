@@ -30,6 +30,11 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
+#' @seealso 
+#' \code{\link{build_y0}} and \code{\link{build_design}} for defining Y0 and X0 matrix,
+#' and \code{\link{estimate_var}} for computing coefficient VAR matrix.
+#' Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
+#' 
 #' @order 1
 #' @export
 var_lm <- function(y, p) {
@@ -39,12 +44,7 @@ var_lm <- function(y, p) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  name_lag <- lapply(
-    p:1,
-    function(lag) paste(name_var, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # estimate B-----------------------
   var_est <- estimate_var(X0, Y0)

@@ -21,7 +21,7 @@
 #' @importFrom Rcpp sourceCpp
 #' @export
 build_y0 <- function(x, p, t) {
-    .Call('_bvhar_build_y0', PACKAGE = 'bvhar', x, p, t)
+    .Call(`_bvhar_build_y0`, x, p, t)
 }
 
 #' Build X0 matrix in VAR(p)
@@ -40,14 +40,14 @@ build_y0 <- function(x, p, t) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 build_design <- function(x, p) {
-    .Call('_bvhar_build_design', PACKAGE = 'bvhar', x, p)
+    .Call(`_bvhar_build_design`, x, p)
 }
 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 diag_misc <- function(x) {
-    .Call('_bvhar_diag_misc', PACKAGE = 'bvhar', x)
+    .Call(`_bvhar_diag_misc`, x)
 }
 
 #' Construct Dummy response for Minnesota Prior
@@ -71,7 +71,7 @@ diag_misc <- function(x) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 build_ydummy <- function(p, sigma, lambda, delta) {
-    .Call('_bvhar_build_ydummy', PACKAGE = 'bvhar', p, sigma, lambda, delta)
+    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)
 }
 
 #' Construct Dummy design matrix for Minnesota Prior
@@ -95,7 +95,7 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 build_xdummy <- function(p, lambda, sigma, eps) {
-    .Call('_bvhar_build_xdummy', PACKAGE = 'bvhar', p, lambda, sigma, eps)
+    .Call(`_bvhar_build_xdummy`, p, lambda, sigma, eps)
 }
 
 #' Parameters of Normal Inverted Wishart Prior
@@ -123,7 +123,7 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 minnesota_prior <- function(x_dummy, y_dummy) {
-    .Call('_bvhar_minnesota_prior', PACKAGE = 'bvhar', x_dummy, y_dummy)
+    .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
 }
 
 #' BVAR(p) Point Estimates based on Minnesota Prior
@@ -148,7 +148,7 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
-    .Call('_bvhar_estimate_bvar_mn', PACKAGE = 'bvhar', x, y, x_dummy, y_dummy)
+    .Call(`_bvhar_estimate_bvar_mn`, x, y, x_dummy, y_dummy)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
@@ -170,7 +170,7 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 estimate_bvar_ghosh <- function(x, y, U) {
-    .Call('_bvhar_estimate_bvar_ghosh', PACKAGE = 'bvhar', x, y, U)
+    .Call(`_bvhar_estimate_bvar_ghosh`, x, y, U)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -187,7 +187,7 @@ estimate_bvar_ghosh <- function(x, y, U) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 estimate_var <- function(x, y) {
-    .Call('_bvhar_estimate_var', PACKAGE = 'bvhar', x, y)
+    .Call(`_bvhar_estimate_var`, x, y)
 }
 
 #' Build a Linear Transformation Matrix for Vector HAR
@@ -200,7 +200,7 @@ estimate_var <- function(x, y) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 scale_har <- function(m) {
-    .Call('_bvhar_scale_har', PACKAGE = 'bvhar', m)
+    .Call(`_bvhar_scale_har`, m)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -220,27 +220,27 @@ scale_har <- function(m) {
 #' @importFrom Rcpp sourceCpp
 #' @export
 estimate_har <- function(x, y) {
-    .Call('_bvhar_estimate_har', PACKAGE = 'bvhar', x, y)
+    .Call(`_bvhar_estimate_har`, x, y)
 }
 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 compute_var <- function(z, s, k) {
-    .Call('_bvhar_compute_var', PACKAGE = 'bvhar', z, s, k)
+    .Call(`_bvhar_compute_var`, z, s, k)
 }
 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 AAt_eigen <- function(x, y) {
-    .Call('_bvhar_AAt_eigen', PACKAGE = 'bvhar', x, y)
+    .Call(`_bvhar_AAt_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 kroneckerprod <- function(x, y) {
-    .Call('_bvhar_kroneckerprod', PACKAGE = 'bvhar', x, y)
+    .Call(`_bvhar_kroneckerprod`, x, y)
 }
 

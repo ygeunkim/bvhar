@@ -3,16 +3,34 @@
 \docType{data}
 \name{etf_vix}
 \alias{etf_vix}
-\title{ETF volatility data}
+\title{CBOE ETF Volatility Index}
 \format{
-A data frame of 1006 row and 9 columns
+A data frame of 1006 row and 9 columns:
+
+From 2015-01-02 to 2018-12-31,
+excluding NA, i.e. non-trading dates.
+\describe{
+\item{GVZCLS}{Gold ETF volatility index}
+\item{VXFXICLS}{China ETF volatility index}
+\item{OVXCLS}{Crude Oil ETF volatility index}
+\item{VXEEMCLS}{Emerging Markets ETF volatility index}
+\item{EVZCLS}{EuroCurrency ETF volatility index}
+\item{VXSLVCLS}{Silver ETF volatility index}
+\item{VXGDXCLS}{Gold Miners ETF volatility index}
+\item{VXXLECLS}{Energy Sector ETF volatility index}
+\item{VXEWZCLS}{Brazil ETF volatility index}
+}
 }
 \usage{
 etf_vix
 }
 \description{
-Exchange Traded Funds (ETFs) volatility index from FRED.
+Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
+}
+\details{
 Copyright, 2016, Chicago Board Options Exchange, Inc.
+
+Note that, in this data frame, dates column is removed.
 }
 \references{
 Chicago Board Options Exchange, CBOE Gold ETF Volatility Index \link{GVZCLS}, retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/GVZCLS}, July 31, 2021.

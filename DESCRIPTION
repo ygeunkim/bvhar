@@ -3,12 +3,16 @@ Type: Package
 Title: Bayesian VHAR model
 Version: 0.0.0.9000
 Date: 2021-08-01
-Authors@R: c(
-    person("Young Geun", "Kim", email = "dudrms33@g.skku.edu", role = c("aut", "cre")),
-    person("Changryong", "Baek", role = "ctb")
-    )
-Description: Beta package to
-    model VAR, VHAR, BVAR, and Bayesian VHAR.
+Authors@R: 
+    c(person(given = "Young Geun",
+             family = "Kim",
+             email = "dudrms33@g.skku.edu",
+             role = c("aut", "cre")),
+      person(given = "Changryong",
+             family = "Baek",
+             role = "ctb"))
+Description: Modeling package to
+    estimate and forecast VAR, VHAR, BVAR, and Bayesian VHAR.
 License: MIT + file LICENSE
 URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
@@ -24,7 +28,8 @@ Imports:
     lifecycle,
     data.table,
     magrittr,
-    Rcpp (>= 1.0.7)
+    Rcpp (>= 1.0.7),
+    mniw
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

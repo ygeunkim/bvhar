@@ -39,9 +39,9 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     quote = FALSE
   )
   # scale matrix-------------------
-  cat("\n\ndim(Matrix Normal first scale matrix):\n")
+  cat("\n\ndim(Matrix Normal precision matrix):\n")
   print.default(
-    dim(x$mn_scale),
+    dim(x$mn_prec),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -55,6 +55,8 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
+  cat("\nIW degrees of freedom:\n")
+  print.default(x$a0 + x$obs + 2)
   cat("\n\n--------------------------------------------------\n")
   cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
   invisible(x)

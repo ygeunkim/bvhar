@@ -35,12 +35,7 @@ vhar_lm <- function(y) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, 22)
-  name_har <- lapply(
-    c("day", "week", "month"),
-    function(lag) paste(name_var, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # Y0 = X1 Phi + Z------------------
   # X1 = X0 %*% t(HARtrans)
   # estimate Phi---------------------

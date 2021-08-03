@@ -40,9 +40,9 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     quote = FALSE
   )
   # scale matrix-------------------
-  cat("\n\ndim(Matrix Normal first scale matrix):\n")
+  cat("\n\ndim(Matrix Normal precision matrix):\n")
   print.default(
-    dim(x$mn_scale),
+    dim(x$mn_prec),
     digits = digits,
     print.gap = 2L,
     quote = FALSE

@@ -1,11 +1,13 @@
 #' @description 
 #' `r lifecycle::badge('experimental')`
-#' bvhar package models VAR, VHAR, BVAR, and Bayesian VHAR.
-#' See introduction for `browseVignettes(package = "bvhar")`
+#' 
+#' A package aiming at reasearcing Bayesian Vector heterogeneous autoregressive process.
+#' You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 #' 
 #' @docType package
 #' @name bvhar-package
 #' @aliases bvhar
+#' @useDynLib bvhar, .registration = TRUE
 #' @keywords internal
 "_PACKAGE"
 
