@@ -90,8 +90,13 @@ eps <- 1e-04
 ## Posterior Distribution
 
 ```{r}
-est_bvar <- gen_posterior(fit_bvar, 2)
+est_bvar <- gen_posterior(fit_bvar, 500)
 ```
+
+```{r}
+autoplot(est_bvar, "mean", "GVZCLS")
+```
+
 
 
 ## Forecasting

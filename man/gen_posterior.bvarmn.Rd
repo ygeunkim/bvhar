@@ -4,14 +4,19 @@
 \alias{gen_posterior.bvarmn}
 \title{Posterior Distribution of Minnesota BVAR(p)}
 \usage{
-\method{gen_posterior}{bvarmn}(object, n = 100, ...)
+\method{gen_posterior}{bvarmn}(object, iter = 100, ...)
 }
 \arguments{
 \item{object}{\code{bvarmn} object}
 
-\item{n}{number to generate (By default, 100)}
+\item{iter}{number to generate (By default, 100)}
 
 \item{...}{not used}
+}
+\value{
+\code{minnesota} object with:
+\item{\code{coefficients}}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
+\item{\code{covmat}}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
 }
 \description{
 Generates Parameters of Minnesota BVAR \eqn{B, \Sigma_e}.
