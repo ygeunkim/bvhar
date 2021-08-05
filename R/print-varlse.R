@@ -15,9 +15,9 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     lapply(t)
   # const term
   intercept <- x$coefficients[x$m * x$p + 1,]
-  cat(sprintf("VAR(%i) Estimation using least squares\n", p))
+  cat(sprintf("VAR(%i) Estimation using least squares\n", x$p))
   cat("====================================================\n\n")
-  for (i in 1:p) {
+  for (i in 1:(x$p)) {
     cat(sprintf("LSE for B%i:\n", i))
     # B1, ..., Bp--------------------
     print.default(
@@ -66,7 +66,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # for VAR(p)--------------------------------------------------------------------
-  cat(sprintf("VAR(p = %i)\n", p))
+  cat(sprintf("VAR(p = %i)\n", x$p))
   cat("====================================================\n")
   # variables--------------------------
   cat("Variables: ")
@@ -91,7 +91,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     paste("The process is", ifelse(x$is_stable, "stable ***", "not stable"))
   )
   cat("\n====================================================\n")
-  for (i in 1:p) {
+  for (i in 1:(x$p)) {
     cat(sprintf("OLS for B%i:\n", i))
     # print Bi----------------------
     print.default(
