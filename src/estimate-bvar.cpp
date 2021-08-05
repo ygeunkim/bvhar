@@ -31,12 +31,13 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
   int Tp = x_dummy.rows();
   int T = s + Tp;
   // initialize
-  Eigen::MatrixXd ystar(T, m);
-  Eigen::MatrixXd xstar(T, k);
-  Eigen::MatrixXd Bhat(k, m); // MN location
-  Eigen::MatrixXd Uhat(k, k); // MN scale 1
-  Eigen::MatrixXd yhat(T, m);
-  Eigen::MatrixXd Sighat(m, m); // iw scale
+  Eigen::MatrixXd ystar(T, m); // [Y0, Yp]
+  Eigen::MatrixXd xstar(T, k); // [X0, Xp]
+  Eigen::MatrixXd Bhat(k, m); // MN mean
+  Eigen::MatrixXd Uhat(k, k); // MN precision
+  Eigen::MatrixXd yhat(s, m); // x %*% bhat
+  Eigen::MatrixXd yhat_star(T, m); // xstar %*% bhat
+  Eigen::MatrixXd Sighat(m, m); // IW scale
   // augment
   ystar.block(0, 0, s, m) = y;
   ystar.block(s, 0, Tp, m) = y_dummy;
@@ -45,8 +46,9 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
   // point estimation
   Uhat = (xstar.adjoint() * xstar); // precision hat
   Bhat = Uhat.inverse() * xstar.adjoint() * ystar;
-  yhat = xstar * Bhat;
-  Sighat = (ystar - yhat).adjoint() * (ystar - yhat);
+  yhat = x * Bhat;
+  yhat_star = xstar * Bhat;
+  Sighat = (ystar - yhat_star).adjoint() * (ystar - yhat_star);
   return Rcpp::List::create(
     Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
     Rcpp::Named("mnprec") = Rcpp::wrap(Uhat),

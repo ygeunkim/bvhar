@@ -44,6 +44,7 @@ knit_print.bvarmn(x, ...)
 \item{\code{call}}{Matched call}
 \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
 \item{\code{fitted.values}}{Fitted values}
+\item{\code{residuals}}{Residuals}
 \item{\code{mn_prec}}{Precision matrix of posterior matrix normal distribution}
 \item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
 \item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}

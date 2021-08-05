@@ -29,6 +29,7 @@
 #' \item{\code{call}}{Matched call}
 #' \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
 #' \item{\code{fitted.values}}{Fitted values}
+#' \item{\code{residuals}}{Residuals}
 #' \item{\code{mn_prec}}{Precision matrix of posterior matrix normal distribution}
 #' \item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
 #' \item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
@@ -84,6 +85,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
     call = match.call(),
     mn_mean = Bhat,
     fitted.values = yhat,
+    residuals = Y0 - yhat,
     mn_prec = Uhat,
     iw_scale = Sighat,
     a0 = a0
