@@ -16,21 +16,127 @@ knitr::opts_chunk$set(
 # bvhar <img src='man/figures/logo.png' align="right" height="139" />
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of bvhar is to
-VAR, VHAR, BVAR (Bayesian VAR), and the most importantly, BVHAR (Bayesian VHAR).
+## Overview
+
+`bvhar` provides functions to analyze multivariate time series time series using
+
+- VAR
+- VHAR (Vector HAR)
+- BVAR (Bayesian VAR)
+- **BVHAR (Bayesian VHAR)**
+
+Basically, the package focuses on the research with forecasting.
 
 ## Installation
+
+You can only install the development version at this point.
 
 ```{r, eval=FALSE}
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar")
 ```
 
+## Usage
 
-## Overview
-
-```{r example}
+```{r example, message=FALSE}
 library(bvhar)
+library(dplyr)
 ```
+
+### VAR
+
+Out-of-sample forecasting:
+
+```{r}
+h <- 19
+etf_tr <-
+  etf_vix %>%
+  slice(seq_len(n() - h))
+#-------------------
+etf_te <- setdiff(etf_vix, etf_tr)
+```
+
+VAR(5):
+
+```{r}
+mod_var <- var_lm(etf_tr, 5)
+```
+
+Forecasting:
+
+```{r}
+forecast_var <- predict(mod_var, h)
+```
+
+MSE:
+
+```{r}
+(msevar <- apply(etf_te - forecast_var, 2, function(x) mean(x^2)))
+```
+
+### VHAR
+
+```{r}
+mod_vhar <- vhar_lm(etf_tr)
+```
+
+MSE:
+
+```{r}
+forecast_vhar <- predict(mod_vhar, h)
+(msevhar <- apply(etf_te - forecast_vhar, 2, function(x) mean(x^2)))
+```
+
+### BVAR
+
+Minnesota prior:
+
+```{r}
+lam <- .5
+delta <- rep(1, ncol(etf_vix)) # litterman
+sig <- apply(etf_tr, 2, sd)
+eps <- 1e-04
+```
+
+```{r}
+mod_bvar <- bvar_minnesota(etf_tr, 5, sig, lam, delta, eps)
+```
+
+MSE:
+
+```{r}
+forecast_bvar <- predict(mod_bvar, h)
+(msebvar <- apply(etf_te - forecast_bvar, 2, function(x) mean(x^2)))
+```
+
+### BVHAR
+
+```{r}
+mod_bvhar <- bvhar_minnesota(etf_tr, sig, lam, delta, eps)
+```
+
+MSE:
+
+```{r}
+forecast_bvhar <- predict(mod_bvhar, h)
+(msebvhar <- apply(etf_te - forecast_bvhar, 2, function(x) mean(x^2)))
+```
+
+Comparing:
+
+```{r}
+# VAR---------------
+mean(msevar)
+# VHAR--------------
+mean(msevhar)
+# BVAR--------------
+mean(msebvar)
+# BVHAR-------------
+mean(msebvhar)
+```
+
+
+
