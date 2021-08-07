@@ -120,15 +120,6 @@ autoplot.minnesota <- function(object, type = c("mean", "residual"), var_name = 
           x = element_blank(),
           y = element_blank()
         )
-      # p <- 
-      #   data.frame(b = X[, lag_name, var_name]) %>% # 2d
-      #   ggplot(aes(x = b)) +
-      #   geom_density() +
-      #   labs(
-      #     title = element_text(title),
-      #     x = element_blank(),
-      #     y = element_blank()
-      #   )
       p
     },
     "residual" = {

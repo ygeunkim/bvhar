@@ -15,11 +15,11 @@ print.bvarghosh <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
     lapply(t)
   # const term
   intercept <- x$mn_mean[x$m * x$p + 1,]
-  cat(sprintf("BVAR(%i) with Simple Ghosh Prior\n", p))
+  cat(sprintf("BVAR(%i) with Simple Ghosh Prior\n", x$p))
   cat("====================================================\n\n")
   cat("B ~ Matrix Normal (Mean, U^{-1}, Scale 2 = Sigma)\n")
   cat("====================================================\n")
-  for (i in 1:p) {
+  for (i in 1:(x$p)) {
     cat(sprintf("Matrix Normal Mean for B%i part:\n", i))
     # B1, ..., Bp--------------------
     print.default(

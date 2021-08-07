@@ -50,32 +50,36 @@ library(dplyr)
 
 # Simple Setting
 
+Looking at VAR and VHAR, you can learn how the models work and how to perform this package.
+
 ## ETF Dataset
 
+This package includes some datasets.
+Among them, we try CBOE ETF volatility index (`etf_vix`).
+Since this is just an example, we aribitrarily extract a small number of variables: *Gold, crude oil, euro currency, and china ETF*.
+
 ```{r etfdat}
-etf_vix
-```
-
-Gold, crude oil, euro currency, and china ETF.
-
-```{r etfidx}
 var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
-```
-
-Train and test: 19
-
-```{r}
-h <- 19
-#-------------------
 etf <- 
   etf_vix %>% 
   select(all_of(var_idx))
+etf
+```
+
+## Out-of-sample
+
+For out-of-sample forecasting, split the data.
+The last `19` observations will be test set.
+
+```{r outofsample}
+h <- 19
+# train-------------
 etf_train <- 
   etf %>% 
   slice(seq_len(n() - h))
-#-------------------
+# test--------------
 etf_test <- setdiff(etf, etf_train)
-#-------------------
+# dimension---------
 m <- ncol(etf)
 ```
 
@@ -89,11 +93,11 @@ m <- ncol(etf)
 
 ## Fit
 
-```{r}
-p <- 5
+```{r varlag}
+var_lag <- 5
 ```
 
-The package perform VAR(p = `p`) based on
+The package perform VAR(p = `r var_lag`) based on
 
 $$Y_0 = X_0 B + Z$$
 
@@ -121,7 +125,16 @@ X_0 = \left[\begin{array}{c|c|c|c}
 $$
 
 ```{r}
-(fit_var <- var_lm(etf_train, p))
+(fit_var <- var_lm(etf_train, var_lag))
+```
+
+The package provide `S3` object.
+
+```{r}
+# class---------------
+class(fit_var)
+# names---------------
+names(fit_var)
 ```
 
 You can see the estimate for
@@ -135,31 +148,24 @@ B = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-The package provide `S3` object.
+You can extract the values such as
 
-```{r}
-class(fit_var)
-names(fit_var)
-```
-
-As `lm`, you can extract the values such as
-
-Coefficient matrices:
+Coefficient matrices: $\hat{B}$ corresponding to the above form.
 
 ```{r}
 coef(fit_var)
 ```
 
-Residuals:
-
-```{r}
-resid(fit_var) %>% head()
-```
-
-Fitted values:
+Fitted values: $\hat{Y}_0 = X_0 \hat{B}$
 
 ```{r}
 fitted(fit_var) %>% head()
+```
+
+Residuals: $Y_0 - X_0 \hat{B}$
+
+```{r}
+resid(fit_var) %>% head()
 ```
 
 ## Summary
@@ -170,17 +176,20 @@ For more information, use `summary()` function.
 summary(fit_var)
 ```
 
-
 ## Forecasting
 
 In VAR modeling, `vars` package is famous.
-We refer to its argument `n.ahead` and you can forecast using `predict()` function with above `varlse` object.
+We refer to its argument `n.ahead` and you can forecast using `predict()` method with above `varlse` object.
 
 ```{r}
 (pred_var <- predict(fit_var, n.ahead = h))
 ```
 
-MSE:
+```{r}
+class(pred_var)
+```
+
+Compute MSE as follow:
 
 ```{r}
 (mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2)))
@@ -216,10 +225,4 @@ mean(mse_var)
 # VHAR------------
 mean(mse_har)
 ```
-
-
-
-
-
-
 

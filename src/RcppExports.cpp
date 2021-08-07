@@ -126,6 +126,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// VARtoVMA
+SEXP VARtoVMA(Eigen::MatrixXd var_coef, int p);
+RcppExport SEXP _bvhar_VARtoVMA(SEXP var_coefSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(VARtoVMA(var_coef, p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scale_har
 SEXP scale_har(int m);
 RcppExport SEXP _bvhar_scale_har(SEXP mSEXP) {
@@ -197,6 +209,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvar_ghosh", (DL_FUNC) &_bvhar_estimate_bvar_ghosh, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
+    {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_compute_var", (DL_FUNC) &_bvhar_compute_var, 3},

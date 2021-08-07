@@ -33,30 +33,29 @@ library(dplyr)
 
 ## ETF Dataset
 
+Among the datasets in this package, we try CBOE ETF volatility index (`etf_vix`).
+Aribitrarily, we extract a small number of variables: *Gold, crude oil, euro currency, and china ETF*.
+
 ```{r etfdat}
-etf_vix
-```
-
-Gold, crude oil, euro currency, and china ETF.
-
-```{r etfidx}
 var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
-```
-
-Train and test: 19
-
-```{r}
-h <- 19
-#-------------------
 etf <- 
   etf_vix %>% 
   select(all_of(var_idx))
+etf
+```
+
+For out-of-sample forecasting, split the data.
+The last `19` observations will be test set.
+
+```{r outofsample}
+h <- 19
+# train-------------
 etf_train <- 
   etf %>% 
   slice(seq_len(n() - h))
-#-------------------
+# test--------------
 etf_test <- setdiff(etf, etf_train)
-#-------------------
+# dimension---------
 m <- ncol(etf)
 ```
 
@@ -70,21 +69,21 @@ m <- ncol(etf)
 
 ## Fit
 
-```{r}
-p <- 5
+```{r bvarlag}
+bvar_lag <- 5
 ```
 
 Simple setting:
 
-```{r}
-lam <- .5
-delta <- rep(1, m)
-sig <- apply(etf_train, 2, sd)
-eps <- 1e-04
+```{r minnesotaset}
+lam <- .5 # lambda
+delta <- rep(1, m) # delta vector
+sig <- apply(etf_train, 2, sd) # sigma vector
+eps <- 1e-04 # very small number
 ```
 
-```{r}
-(fit_bvar <- bvar_minnesota(etf_train, p, sig, lam, delta, eps))
+```{r bvarfit}
+(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, sig, lam, delta, eps))
 ```
 
 ## Posterior Distribution
@@ -113,7 +112,7 @@ Compare:
 
 ```{r}
 # VAR-------------------------
-fit_var <- var_lm(etf_train, p)
+fit_var <- var_lm(etf_train, bvar_lag)
 pred_var <- predict(fit_var, h)
 mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2))
 # VHAR------------------------
@@ -145,8 +144,8 @@ mean(mse_bvhar)
 
 ```{r}
 set.seed(1)
-U <- runif(1, 0, 10) * diag(m * p + 1) # c * I
-(fit_ghosh <- bvar_ghosh(etf_train, p, U))
+U <- runif(1, 0, 10) * diag(m * bvar_lag + 1) # c * I
+(fit_ghosh <- bvar_ghosh(etf_train, bvar_lag, U))
 ```
 
 ## Forecasting

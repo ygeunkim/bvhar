@@ -169,6 +169,7 @@ summary.varlse <- function(object, ...) {
     names = var_name,
     totobs = object$totobs,
     obs = object$obs,
+    p = object$p,
     coefficients = bhat_mat,
     call = object$call,
     process = object$process,

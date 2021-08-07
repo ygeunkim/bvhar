@@ -43,7 +43,7 @@ The function fits VAR(p) using OLS method
 }
 \details{
 For VAR(p) model
-\deqn{Y_{t} = B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
+\deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 the function gives basic values.
 }
 \references{

@@ -93,3 +93,35 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   class(res) <- "bvarmn"
   res
 }
+
+#' Coefficients Method for \code{bvarmn} object
+#' 
+#' Matrix Normal mean of Minnesota BVAR
+#' 
+#' @param object \code{bvarmn} object
+#' @param ... not used
+#' 
+#' @export
+coefficients.bvarmn <- function(object, ...) {
+  object$mn_mean
+}
+
+#' Residuals Method for \code{bvarmn} object
+#' 
+#' @param object \code{bvarmn} object
+#' @param ... not used
+#' 
+#' @export
+residuals.bvarmn <- function(object, ...) {
+  object$residuals
+}
+
+#' Fitted Values Method for \code{bvarmn} object
+#' 
+#' @param object \code{bvarmn} object
+#' @param ... not used
+#' 
+#' @export
+fitted.bvarmn <- function(object, ...) {
+  object$fitted.values
+}
