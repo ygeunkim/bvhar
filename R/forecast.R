@@ -22,30 +22,6 @@ predict.varlse <- function(object, n.ahead, ...) {
   res
 }
 
-# predict.varlse <- function(object, n.ahead, ...) {
-#   # input required-------------------------------
-#   Y0 <- object$y0
-#   bhat <- object$coefficients
-#   m <- object$m
-#   p <- object$p
-#   k <- m * p + 1
-#   # vectorize last p observations and add constant
-#   h_vec <- t(last(Y0, n = p)[p:1,])[1:(m * p)]
-#   h_vec <- c(h_vec, 1)
-#   # forecasting (point)---------------------------
-#   # y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
-#   res <- h_vec %*% bhat
-#   if (n.ahead == 1) return(res)
-#   # recursively----------------------
-#   for (i in 1:(n.ahead - 1)) {
-#     # y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
-#     h_vec <- c(c(last(res)), h_vec[-c((k - m):(k - 1))])
-#     res <- rbind(res, h_vec %*% bhat)
-#   }
-#   class(res) <- c("matrix", "array", "predvarlse")
-#   res
-# }
-
 #' Forecast Region for VAR(p)
 #' 
 #' Compute forecast region VAR(p) model
@@ -96,31 +72,6 @@ predict.vharlse <- function(object, n.ahead, ...) {
   class(res) <- c("matrix", "array", "predvarlse")
   res
 }
-
-# predict.vharlse <- function(object, n.ahead, ...) {
-#   # input required-------------------------------
-#   Y0 <- object$y0
-#   phihat <- object$coefficients
-#   m <- object$m
-#   HARtrans <- scale_har(m)
-#   # p <- object$p
-#   # k <- m * p + 1
-#   # vectorize last p observations and add constant
-#   h_vec <- t(last(Y0, n = 22)[22:1,])[1:(m * 22)]
-#   h_vec <- c(h_vec, 1)
-#   # forecasting (point)---------------------------
-#   # y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
-#   res <- h_vec %*% t(HARtrans) %*% phihat
-#   if (n.ahead == 1) return(res)
-#   # recursively----------------------
-#   for (i in 1:(n.ahead - 1)) {
-#     # y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
-#     # remove the last m observation (except the last 1)
-#     h_vec <- c(c(last(res)), h_vec[-c((21 * m + 1):(22 * m))])
-#     res <- rbind(res, h_vec %*% t(HARtrans) %*% phihat)
-#   }
-#   res
-# }
 
 #' Predict Method for \code{bvarmn} object
 #' 
