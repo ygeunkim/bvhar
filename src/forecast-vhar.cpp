@@ -14,7 +14,7 @@
 //' @export
 // [[Rcpp::export]]
 SEXP forecast_vhar(Rcpp::List object, int step) {
-  if (! object.inherits("vharlse")) Rcpp::stop("'object' must be vharlse object.");
+  if (!object.inherits("vharlse")) Rcpp::stop("'object' must be vharlse object.");
   Eigen::MatrixXd response_mat = object["y0"]; // Y0
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat
   int dim = object["m"]; // dimension of time series

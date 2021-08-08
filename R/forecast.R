@@ -91,7 +91,7 @@ forecast_region <- function(object, h, level = .05, ...) {
 #' @importFrom data.table last
 #' @export
 predict.vharlse <- function(object, n.ahead, ...) {
-  res <- forecast_var(object, n.ahead)
+  res <- forecast_vhar(object, n.ahead)
   colnames(res) <- colnames(object$y0)
   class(res) <- c("matrix", "array", "predvarlse")
   res
