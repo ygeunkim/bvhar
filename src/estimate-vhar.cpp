@@ -59,6 +59,7 @@ SEXP estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
   yhat = x1 * Phi;
   return Rcpp::List::create(
+    Rcpp::Named("HARtrans") = Rcpp::wrap(HARtrans),
     Rcpp::Named("phihat") = Rcpp::wrap(Phi),
     Rcpp::Named("fitted") = Rcpp::wrap(yhat)
   );

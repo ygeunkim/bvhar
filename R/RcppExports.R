@@ -281,6 +281,20 @@ forecast_var <- function(object, step) {
     .Call(`_bvhar_forecast_var`, object, step)
 }
 
+#' Forecasting Vector HAR
+#' 
+#' @param object \code{varlse} object by \code{\link{vhar_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VHAR recursively.
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+forecast_vhar <- function(object, step) {
+    .Call(`_bvhar_forecast_vhar`, object, step)
+}
+
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export

@@ -58,6 +58,7 @@ vhar_lm <- function(y) {
     totobs = nrow(y), # n
     process = "VHAR",
     call = match.call(),
+    HARtrans = vhar_est$HARtrans,
     coefficients = Phihat,
     fitted.values = yhat, # X0 %*% Bhat
     residuals = zhat # Y0 - X0 %*% Bhat
