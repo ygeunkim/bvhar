@@ -190,12 +190,30 @@ estimate_var <- function(x, y) {
     .Call(`_bvhar_estimate_var`, x, y)
 }
 
+#' Covariance Estimate for Residual Covariance Matrix
+#' 
+#' Plausible estimator for residual covariance.
+#' 
+#' @param z Matrix, residual
+#' @param num_design Integer, s = n - p
+#' @param dim_design Ingeger, k = mp + 1
+#' @details
+#' See Lütkepohl (2007).
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+compute_cov <- function(z, num_design, dim_design) {
+    .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
+}
+
 #' Convert VAR to VMA(infinite)
 #' 
 #' Convert VAR process to infinite vector MA process
 #' 
-#' @param var_coef Matrix (mp + 1 x m), VAR matrix augmented
-#' @param p Integer, VAR lag
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param lag_max Maximum lag for VMA
 #' @details
 #' Let VAR(p) be stable.
 #' \deqn{Y_t = c + \sum_{j = 0} W_j Z_{t - j}}
@@ -211,8 +229,8 @@ estimate_var <- function(x, y) {
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
-VARtoVMA <- function(var_coef, p) {
-    .Call(`_bvhar_VARtoVMA`, var_coef, p)
+VARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VARtoVMA`, object, lag_max)
 }
 
 #' Build a Linear Transformation Matrix for Vector HAR
@@ -248,11 +266,19 @@ estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
 }
 
+#' Forecasting Vector Autoregression
+#' 
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
-compute_var <- function(z, s, k) {
-    .Call(`_bvhar_compute_var`, z, s, k)
+forecast_var <- function(object, step) {
+    .Call(`_bvhar_forecast_var`, object, step)
 }
 
 #' @useDynLib bvhar

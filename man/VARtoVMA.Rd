@@ -4,12 +4,12 @@
 \alias{VARtoVMA}
 \title{Convert VAR to VMA(infinite)}
 \usage{
-VARtoVMA(var_coef, p)
+VARtoVMA(object, lag_max)
 }
 \arguments{
-\item{var_coef}{Matrix (mp + 1 x m), VAR matrix augmented}
+\item{object}{\code{varlse} object by \code{\link{var_lm}}}
 
-\item{p}{Integer, VAR lag}
+\item{lag_max}{Maximum lag for VMA}
 }
 \description{
 Convert VAR process to infinite vector MA process

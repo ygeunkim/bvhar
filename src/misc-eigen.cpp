@@ -6,16 +6,6 @@
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP compute_var (Eigen::MatrixXd z, int s, int k) {
-  Eigen::MatrixXd Sig(z.cols(), z.cols());
-  Sig = z.adjoint() * z / (s - k);
-  return Rcpp::wrap(Sig);
-}
-
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
-//' @export
-// [[Rcpp::export]]
 SEXP AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), y.cols());
   res = x * y.adjoint();

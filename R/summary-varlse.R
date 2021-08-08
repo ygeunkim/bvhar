@@ -157,9 +157,10 @@ HQ.varlse <- function(object, ...) {
 #' @export
 summary.varlse <- function(object, ...) {
   var_name <- colnames(object$y0)
-  cov_resid <- compute_var(object$residuals, object$obs, object$m * object$p + 1)
-  colnames(cov_resid) <- var_name
-  rownames(cov_resid) <- var_name
+  # cov_resid <- compute_var(object$residuals, object$obs, object$m * object$p + 1)
+  # colnames(cov_resid) <- var_name
+  # rownames(cov_resid) <- var_name
+  cov_resid <- object$covmat
   # split the matrix for the print: B1, ..., Bp
   bhat_mat <- 
     split.data.frame(object$coefficients[-(object$m + object$p + 1),], gl(object$p, object$m)) %>% 

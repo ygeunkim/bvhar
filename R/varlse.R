@@ -55,6 +55,10 @@ var_lm <- function(y, p) {
   yhat <- var_est$fitted
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
+  # residual Covariance matrix------
+  covmat <- compute_cov(zhat, nrow(Y0), m * p + 1) # Sighat = z^T %*% z / (s - k)
+  colnames(covmat) <- name_var
+  rownames(covmat) <- name_var
   # return as new S3 class-----------
   res <- list(
     design = X0,
@@ -68,7 +72,8 @@ var_lm <- function(y, p) {
     call = match.call(),
     coefficients = Bhat,
     fitted.values = yhat, # X0 %*% Bhat
-    residuals = zhat # Y0 - X0 %*% Bhat
+    residuals = zhat, # Y0 - X0 %*% Bhat
+    covmat = covmat
   )
   class(res) <- "varlse"
   res

@@ -126,15 +126,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// VARtoVMA
-SEXP VARtoVMA(Eigen::MatrixXd var_coef, int p);
-RcppExport SEXP _bvhar_VARtoVMA(SEXP var_coefSEXP, SEXP pSEXP) {
+// compute_cov
+SEXP compute_cov(Eigen::MatrixXd z, int num_design, int dim_design);
+RcppExport SEXP _bvhar_compute_cov(SEXP zSEXP, SEXP num_designSEXP, SEXP dim_designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(VARtoVMA(var_coef, p));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
+    Rcpp::traits::input_parameter< int >::type dim_design(dim_designSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_cov(z, num_design, dim_design));
+    return rcpp_result_gen;
+END_RCPP
+}
+// VARtoVMA
+SEXP VARtoVMA(Rcpp::List object, int lag_max);
+RcppExport SEXP _bvhar_VARtoVMA(SEXP objectSEXP, SEXP lag_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(VARtoVMA(object, lag_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -161,16 +174,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_var
-SEXP compute_var(Eigen::MatrixXd z, int s, int k);
-RcppExport SEXP _bvhar_compute_var(SEXP zSEXP, SEXP sSEXP, SEXP kSEXP) {
+// forecast_var
+SEXP forecast_var(Rcpp::List object, int step);
+RcppExport SEXP _bvhar_forecast_var(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type z(zSEXP);
-    Rcpp::traits::input_parameter< int >::type s(sSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_var(z, s, k));
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_var(object, step));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -209,10 +221,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvar_ghosh", (DL_FUNC) &_bvhar_estimate_bvar_ghosh, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
+    {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
-    {"_bvhar_compute_var", (DL_FUNC) &_bvhar_compute_var, 3},
+    {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
     {NULL, NULL, 0}

@@ -6,35 +6,45 @@
 #' @param n.ahead step to forecast
 #' @param ... not used
 #' @details 
-#' n-step ahead forecasting using VAR(p) recursively
+#' n-step ahead forecasting using VAR(p) recursively.
+#' See pp35 of Lütkepohl (2007).
+#' 
 #' @return matrix
 #' 
-#' @importFrom data.table last
+#' @references 
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @order 1
 #' @export
 predict.varlse <- function(object, n.ahead, ...) {
-  # input required-------------------------------
-  Y0 <- object$y0
-  bhat <- object$coefficients
-  m <- object$m
-  p <- object$p
-  k <- m * p + 1
-  # vectorize last p observations and add constant
-  h_vec <- t(last(Y0, n = p)[p:1,])[1:(m * p)]
-  h_vec <- c(h_vec, 1)
-  # forecasting (point)---------------------------
-  # y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
-  res <- h_vec %*% bhat
-  if (n.ahead == 1) return(res)
-  # recursively----------------------
-  for (i in 1:(n.ahead - 1)) {
-    # y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
-    h_vec <- c(c(last(res)), h_vec[-c((k - m):(k - 1))])
-    res <- rbind(res, h_vec %*% bhat)
-  }
+  res <- forecast_var(object, n.ahead)
+  colnames(res) <- colnames(object$y0)
   class(res) <- c("matrix", "array", "predvarlse")
   res
 }
+
+# predict.varlse <- function(object, n.ahead, ...) {
+#   # input required-------------------------------
+#   Y0 <- object$y0
+#   bhat <- object$coefficients
+#   m <- object$m
+#   p <- object$p
+#   k <- m * p + 1
+#   # vectorize last p observations and add constant
+#   h_vec <- t(last(Y0, n = p)[p:1,])[1:(m * p)]
+#   h_vec <- c(h_vec, 1)
+#   # forecasting (point)---------------------------
+#   # y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
+#   res <- h_vec %*% bhat
+#   if (n.ahead == 1) return(res)
+#   # recursively----------------------
+#   for (i in 1:(n.ahead - 1)) {
+#     # y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
+#     h_vec <- c(c(last(res)), h_vec[-c((k - m):(k - 1))])
+#     res <- rbind(res, h_vec %*% bhat)
+#   }
+#   class(res) <- c("matrix", "array", "predvarlse")
+#   res
+# }
 
 #' Forecast Region for VAR(p)
 #' 

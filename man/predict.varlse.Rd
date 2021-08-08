@@ -20,5 +20,9 @@ matrix
 Forecasting VAR(p)
 }
 \details{
-n-step ahead forecasting using VAR(p) recursively
+n-step ahead forecasting using VAR(p) recursively.
+See pp35 of Lütkepohl (2007).
+}
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 }
