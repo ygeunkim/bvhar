@@ -4,19 +4,10 @@
 \alias{autoplot.minnesota}
 \title{Density Plot for \code{minnesota} Object}
 \usage{
-\method{autoplot}{minnesota}(
-  object,
-  type = c("mean", "residual"),
-  var_name = NULL,
-  NROW = NULL,
-  NCOL = NULL,
-  ...
-)
+\method{autoplot}{minnesota}(object, var_name = NULL, NROW = NULL, NCOL = NULL, ...)
 }
 \arguments{
 \item{object}{\code{minnesota} object}
-
-\item{type}{Draw whether Mean or residuals}
 
 \item{var_name}{variable name (for mean)}
 

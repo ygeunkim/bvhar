@@ -79,71 +79,74 @@ NULL
 #' Density Plot for \code{minnesota} Object
 #' 
 #' @param object \code{minnesota} object
-#' @param type Draw whether Mean or residuals
 #' @param var_name variable name (for mean)
 #' @param NROW Numer of facet row
 #' @param NCOL Numer of facet col
 #' @param ... not used
 #' 
-#' @importFrom ggplot2 ggplot aes geom_density geom_point facet_grid facet_wrap labs element_text element_blank
+#' @importFrom ggplot2 ggplot aes geom_density geom_point facet_wrap labs element_text element_blank
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble rownames_to_column
 #' @export
-autoplot.minnesota <- function(object, type = c("mean", "residual"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
-  type <- match.arg(type)
+autoplot.minnesota <- function(object, var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
   X <- object$coefficients
-  switch(type,
-    "mean" = {
-      if (is.null(var_name)) stop("Provide 'var_name'")
-      X <- 
-        lapply(
-          1:(object$N),
-          function(x) {
-            X[,, x] %>% 
-              as.data.frame() %>% 
-              rownames_to_column(var = "lags")
-          }
-        ) %>% 
-        bind_rows() %>% 
-        pivot_longer(-lags, names_to = "name", values_to = "value")
-      p <- 
-        X %>% 
-        ggplot(aes(x = value)) +
-        geom_density() +
-        facet_wrap(
-          lags ~ .,
-          nrow = NROW,
-          ncol = NCOL,
-          scales = "free"
-        ) +
-        labs(
-          x = element_blank(),
-          y = element_blank()
-        )
-      p
-    },
-    "residual" = {
-      # change this code later: residual Y0 - X0 Bhat
-      X <- apply(X, 2, function(x) x) %>% as.data.frame() # 2d
-      N <- nrow(X)
-      X[["id"]] <- 1:N
-      X <- 
-        X %>% 
-        pivot_longer(-id, names_to = "name", values_to = "value")
-      p <- 
-        X %>% 
-        ggplot(aes(x = id, y = value)) +
-        geom_point(alpha = .5) +
-        facet_grid(name ~ ., scales = "free_y") +
-        labs(
-          x = element_blank(),
-          y = element_blank()
-        )
-      p
-    }
-  )
+  if (is.null(var_name)) stop("Provide 'var_name'")
+  X <- 
+    lapply(
+      1:(object$N),
+      function(x) {
+        X[,, x] %>% 
+          as.data.frame() %>% 
+          rownames_to_column(var = "lags")
+      }
+    ) %>% 
+    bind_rows() %>% 
+    pivot_longer(-lags, names_to = "name", values_to = "value")
+  p <- 
+    X %>% 
+    ggplot(aes(x = value)) +
+    geom_density() +
+    facet_wrap(
+      lags ~ .,
+      nrow = NROW,
+      ncol = NCOL,
+      scales = "free"
+    ) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+  p
 }
 
-
-
-
+#' Residual Plot for \code{bvarmn} Object
+#' 
+#' @param object \code{bvarmn} object
+#' @param hcol color of horizontal line = 0 (By default, grey)
+#' @param hsize size of horizontal line = 0 (By default, 1.5)
+#' @param ... additional options for geom_point
+#' 
+#' @importFrom ggplot2 ggplot aes geom_point geom_hline facet_grid labs element_text element_blank
+#' @importFrom tidyr pivot_longer
+#' @export
+autoplot.bvarmn <- function(object, hcol = "grey", hsize = 1.5, ...) {
+  X <- object$residuals %>% as.data.frame()
+  X[["id"]] <- 1:object$obs
+  X <- 
+    X %>% 
+    pivot_longer(-id, names_to = "name", values_to = "value")
+  p <- 
+    X %>% 
+    ggplot(aes(x = id, y = value)) +
+    geom_hline(yintercept = 0, col = hcol, size = hsize) +
+    geom_point(...) +
+    facet_grid(
+      name ~ .,
+      scales = "free_y"
+    ) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+  p
+}

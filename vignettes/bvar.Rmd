@@ -24,7 +24,7 @@ options(digits = 3)
 library(bvhar)
 ```
 
-```{r addpkgs}
+```{r addpkgs, message=FALSE}
 # for this vignette--------------
 library(dplyr)
 ```
@@ -86,17 +86,31 @@ eps <- 1e-04 # very small number
 (fit_bvar <- bvar_minnesota(etf_train, bvar_lag, sig, lam, delta, eps))
 ```
 
+We provide residual plot with `autoplot` method:
+
+```{r}
+autoplot(fit_bvar, shape = 1, alpha = .5)
+```
+
 ## Posterior Distribution
 
 ```{r}
 est_bvar <- gen_posterior(fit_bvar, 500)
 ```
 
+This generates Normal-IW.
+
 ```{r}
-autoplot(est_bvar, "mean", "GVZCLS")
+class(est_bvar)
+names(est_bvar)
 ```
 
+Also, you can draw density plot for coefficients using `autoplot`.
+For example, corresponding to `GVZCLS`:
 
+```{r}
+autoplot(est_bvar, "GVZCLS")
+```
 
 ## Forecasting
 
