@@ -67,7 +67,7 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
 //' 
 //' @details
 //' In Ghosh et al. (2018), there are many models for BVAR such as hierarchical or non-hierarchical.
-//' Among these, this function chooses the most simple non-hierarchical matrix normal prior.
+//' Among these, this function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 //' 
 //' @references
 //' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
@@ -76,7 +76,7 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP estimate_bvar_ghosh (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
+SEXP estimate_ghosh_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
   int s = y.rows();
   int m = y.cols();
   int k = x.cols();
@@ -91,6 +91,7 @@ SEXP estimate_bvar_ghosh (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd 
   return Rcpp::List::create(
     Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
     Rcpp::Named("mnscale") = Rcpp::wrap(Uhat),
-    Rcpp::Named("iwscale") = Rcpp::wrap(Sighat)
+    Rcpp::Named("iwscale") = Rcpp::wrap(Sighat),
+    Rcpp::Named("iwshape") = Rcpp::wrap(s - m - 1)
   );
 }

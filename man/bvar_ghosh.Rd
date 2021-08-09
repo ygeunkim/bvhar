@@ -38,18 +38,28 @@ knit_print.bvarghosh(x, ...)
 \item{\code{call}}{Matched call}
 \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
 \item{\code{mn_scale}}{First scale matrix of posterior matrix normal distribution}
-\item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
+\item{\code{iw_scale}}{Scale matrix of posterior inverse-wishart distribution}
+\item{\code{iw_shape}}{Shape of posterior inverse-wishart distribution}
 }
 \description{
 This function fits BVAR(p) with Ghosh et al. (2018) nonhierarchical prior.
 }
 \details{
 In Ghosh et al. (2018), there are many models for BVAR such as hierarchical or non-hierarchical.
-Among these, this function chooses the most simple non-hierarchical matrix normal prior.
+Among these, this function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 
-\deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
+\deqn{B \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
 \eqn{\Sigma_e \sim} flat
-(MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+where U: precision matrix.
+
+Then in VAR design equation (Y0 = X0 B + Z),
+MN mean can be derived by
+\deqn{\hat{B} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
+and the MN scale matrix can be derived by
+\deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
+and IW shape by \eqn{s - m - 1}.
+
+(MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart}).
 }
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}

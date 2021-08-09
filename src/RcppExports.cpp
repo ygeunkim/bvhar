@@ -101,16 +101,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// estimate_bvar_ghosh
-SEXP estimate_bvar_ghosh(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U);
-RcppExport SEXP _bvhar_estimate_bvar_ghosh(SEXP xSEXP, SEXP ySEXP, SEXP USEXP) {
+// estimate_ghosh_mn
+SEXP estimate_ghosh_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U);
+RcppExport SEXP _bvhar_estimate_ghosh_mn(SEXP xSEXP, SEXP ySEXP, SEXP USEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type U(USEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ghosh(x, y, U));
+    rcpp_result_gen = Rcpp::wrap(estimate_ghosh_mn(x, y, U));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -231,7 +231,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
-    {"_bvhar_estimate_bvar_ghosh", (DL_FUNC) &_bvhar_estimate_bvar_ghosh, 3},
+    {"_bvhar_estimate_ghosh_mn", (DL_FUNC) &_bvhar_estimate_ghosh_mn, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},

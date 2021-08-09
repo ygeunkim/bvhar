@@ -63,8 +63,7 @@ forecast_region <- function(object, h, level = .05, ...) {
 #' @details 
 #' n-step ahead forecasting using VHAR recursively
 #' @return matrix
-#' 
-#' @importFrom data.table last
+#' @order 1
 #' @export
 predict.vharlse <- function(object, n.ahead, ...) {
   res <- forecast_vhar(object, n.ahead)
