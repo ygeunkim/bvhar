@@ -27,8 +27,10 @@
 #' \item{\code{call}}{Matched call}
 #' \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
 #' \item{\code{fitted.values}}{Fitted values}
+#' \item{\code{residuals}}{Residuals}
 #' \item{\code{mn_scale}}{First scale matrix of posterior matrix normal distribution}
 #' \item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
+#' \item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
 #' 
 #' @references 
 #' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
@@ -71,20 +73,25 @@ bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
   Sighat <- posterior$iwscale
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
+  m <- ncol(y)
+  a0 <- nrow(Xh) - 3 * m + 1
   # S3--------------------------------
   res <- list(
     design = X0,
     y0 = Y0,
     y = y,
-    m = ncol(y), # m
+    m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "BVHAR",
     call = match.call(),
+    HARtrans = HARtrans,
     mn_mean = Phihat,
     fitted.values = yhat,
+    residuals = Y0 - yhat,
     mn_prec = Uhat,
-    iw_scale = Sighat
+    iw_scale = Sighat,
+    a0 = a0
   )
   class(res) <- "bvharmn"
   res

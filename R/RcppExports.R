@@ -266,6 +266,60 @@ estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
 }
 
+#' Forecasting BVAR of Minnesota Prior
+#' 
+#' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+#' 
+#' @references
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+forecast_bvarmn <- function(object, step) {
+    .Call(`_bvhar_forecast_bvarmn`, object, step)
+}
+
+#' Forecasting BVAR of Non-hierarchical Matrix Normal Prior
+#' 
+#' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+#' 
+#' @references
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+forecast_bvarghosh <- function(object, step) {
+    .Call(`_bvhar_forecast_bvarghosh`, object, step)
+}
+
+#' Forecasting Bayesian VHAR
+#' 
+#' @param object \code{bvharmn} object by \code{\link{vhar_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VHAR recursively.
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+forecast_bvharmn <- function(object, step) {
+    .Call(`_bvhar_forecast_bvharmn`, object, step)
+}
+
 #' Forecasting Vector Autoregression
 #' 
 #' @param object \code{varlse} object by \code{\link{var_lm}}

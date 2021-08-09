@@ -25,7 +25,6 @@ LazyData: true
 RoxygenNote: 7.1.1
 Imports: 
     lifecycle,
-    data.table,
     magrittr,
     Rcpp (>= 1.0.7),
     mniw,
