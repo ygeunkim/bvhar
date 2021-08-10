@@ -4,9 +4,13 @@
 #' This function fits BVAR(p) with Minnesota prior.
 #' 
 #' @param y matrix, Time series data of which columns indicate the variables
+#' @param type Prior mean to apply. (VAR = Original Minnesota. VHAR = fills zero in the first block)
 #' @param sigma standard error for each variable
 #' @param lambda tightness of the prior around a random walk or white noise
 #' @param delta prior belief about white noise (Litterman sets 1: default)
+#' @param daily same as delta in VHAR type
+#' @param weekly fill the second part in the first block
+#' @param monthly fill the third part in the first block
 #' @param eps very small number
 #' 
 #' @details 
@@ -41,9 +45,10 @@
 #' 
 #' @order 1
 #' @export
-bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
+bvhar_minnesota <- function(y, type = c("VAR", "VHAR"), sigma, lambda, delta, daily, weekly, monthly, eps = 1e-04) {
   if (!is.matrix(y)) y <- as.matrix(y)
-  if (missing(delta)) delta <- rep(1, ncol(y))
+  type <- match.arg(type)
+  # if (missing(delta)) delta <- rep(1, ncol(y))
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)
   name_var <- colnames(y)
@@ -55,8 +60,25 @@ bvhar_minnesota <- function(y, sigma, lambda, delta, eps = 1e-04) {
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   colnames(X1) <- name_har
   # dummy-----------------------------
-  Yh <- build_ydummy(3, sigma, lambda, delta)
-  colnames(Yh) <- name_var
+  Yh <- switch(
+    type,
+    "VAR" = {
+      if (missing(delta)) delta <- rep(1, ncol(y))
+      Yh <- build_ydummy(3, sigma, lambda, delta)
+      colnames(Yh) <- name_var
+      Yh
+    },
+    "VHAR" = {
+      if (missing(daily)) daily <- rep(1, ncol(y))
+      if (missing(weekly)) weekly <- rep(1, ncol(y))
+      if (missing(monthly)) monthly <- rep(1, ncol(y))
+      Yh <- build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly)
+      colnames(Yh) <- name_var
+      Yh
+    }
+  )
+  # Yh <- build_ydummy(3, sigma, lambda, delta)
+  # colnames(Yh) <- name_var
   Xh <- build_xdummy(3, lambda, sigma, eps)
   colnames(Xh) <- name_har
   # Matrix normal---------------------

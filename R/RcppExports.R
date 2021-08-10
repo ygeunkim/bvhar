@@ -126,6 +126,32 @@ minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
 }
 
+#' Construct Dummy response for Second Version of BVHAR Minnesota Prior
+#' 
+#' Define dummy Y observations to add for Minnesota moments.
+#' This function also fills zero matrix in the first block for applying to VHAR.
+#' 
+#' @param sigma vector, standard error of each variable
+#' @param lambda double, tightness of the prior around a random walk or white noise
+#' @param daily vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
+#' @param weekly vector, this was zero in the original Minnesota design
+#' @param monthly vector, this was zero in the original Minnesota design
+#' 
+#' @details
+#' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
+#' 
+#' @references
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
+    .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
+}
+
 #' BVAR(p) Point Estimates based on Minnesota Prior
 #' 
 #' Point estimates for posterior distribution

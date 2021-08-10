@@ -7,7 +7,7 @@
 #' @param p VAR lag
 #' @param sigma standard error for each variable
 #' @param lambda tightness of the prior around a random walk or white noise
-#' @param delta prior belief about white noise (Litterman sets 1: default)
+#' @param delta Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)
 #' @param eps very small number
 #' 
 #' @details 
@@ -43,7 +43,7 @@
 #' @export
 bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   if (!is.matrix(y)) y <- as.matrix(y)
-  if (missing(delta)) delta <- rep(1, ncol(y))
+  if (missing(delta)) delta <- rep(0, ncol(y))
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   name_var <- colnames(y)

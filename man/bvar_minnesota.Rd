@@ -21,7 +21,7 @@ knit_print.bvarmn(x, ...)
 
 \item{lambda}{tightness of the prior around a random walk or white noise}
 
-\item{delta}{prior belief about white noise (Litterman sets 1: default)}
+\item{delta}{Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)}
 
 \item{eps}{very small number}
 

@@ -201,3 +201,52 @@ SEXP minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
     Rcpp::Named("alpha0") = Rcpp::wrap(a)
   );
 }
+
+//' Construct Dummy response for Second Version of BVHAR Minnesota Prior
+//' 
+//' Define dummy Y observations to add for Minnesota moments.
+//' This function also fills zero matrix in the first block for applying to VHAR.
+//' 
+//' @param sigma vector, standard error of each variable
+//' @param lambda double, tightness of the prior around a random walk or white noise
+//' @param daily vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
+//' @param weekly vector, this was zero in the original Minnesota design
+//' @param monthly vector, this was zero in the original Minnesota design
+//' 
+//' @details
+//' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
+//' 
+//' @references
+//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' 
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' 
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
+SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly) {
+  int m = sigma.size();
+  Eigen::MatrixXd res(3 * m + m + 1, m); // Yp
+  Eigen::VectorXd wt1(m); // daily * sigma
+  Eigen::VectorXd wt2(m); // weekly * sigma
+  Eigen::VectorXd wt3(m); // monthly * sigma
+  for (int i = 0; i < m; i++) {
+    wt1[i] = daily[i] * sigma[i] / lambda;
+  }
+  for (int i = 0; i < m; i++) {
+    wt2[i] = weekly[i] * sigma[i] / lambda;
+  }
+  for (int i = 0; i < m; i++) {
+    wt3[i] = monthly[i] * sigma[i] / lambda;
+  }
+  // first block
+  res.block(0, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt1));
+  res.block(m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt2));
+  res.block(2 * m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt3));
+  // second block
+  res.block(3 * m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(sigma));
+  // third block
+  res.block(3 * m + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
+  return Rcpp::wrap(res);
+}

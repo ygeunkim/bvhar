@@ -1,6 +1,25 @@
 ---
 title: "Introduction to BVHAR"
 output: rmarkdown::html_vignette
+header-includes:
+- \newcommand{\R}{\mathbb{R}}
+- \newcommand{\B}{\boldsymbol\beta}
+- \newcommand{\hb}{\boldsymbol{\hat\beta}}
+- \newcommand{\E}{\boldsymbol\epsilon}
+- \DeclareMathOperator*{\argmin}{argmin}
+- \DeclareMathOperator*{\argmax}{argmax}
+- \newcommand{\defn}{\mathpunct{:}=}
+- \newcommand{\X}{\mathbf{X}}
+- \newcommand{\Y}{\mathbf{Y}}
+- \newcommand{\by}{\mathbf{y}}
+- \newcommand{\bz}{\mathbf{Z}}
+- \newcommand{\ba}{\boldsymbol{\alpha}}
+- \newcommand{\bc}{\mathbf{c}}
+- \newcommand{\bu}{\mathbf{u}}
+- \def\Cov{\mathrm{Cov}}
+- \def\Var{\mathrm{Var}}
+- \def\Corr{\mathrm{Corr}}
+- \def\vec{\mathrm{vec}}
 vignette: >
   %\VignetteIndexEntry{Introduction to BVHAR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,7 +43,7 @@ options(digits = 3)
 library(bvhar)
 ```
 
-```{r addpkgs}
+```{r addpkgs, message=FALSE}
 # for this vignette--------------
 library(dplyr)
 ```
@@ -71,14 +90,43 @@ mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2))
 # Minnesota Prior
 
 ```{r}
-lam <- .5
-delta <- rep(1, m)
 sig <- apply(etf_train, 2, sd)
+lam <- .2
+delta <- rep(0, m)
 eps <- 1e-04
 ```
 
+Consider the VAR(22) form of VHAR.
+
+$$
+\begin{aligned}
+  \Y_t = \bc & + \left( \Phi^{(d)} + \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \Y_{t - 1} \\
+  & + \left( \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \Y_{t - 2} + \cdots \left( \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \Y_{t - 5} \\
+  & + \frac{1}{22} \Phi^{(m)} \Y_{t - 6} + \cdots + \frac{1}{22} \Phi^{(m)} \Y_{t - 22}
+\end{aligned}
+$$
+
+What does Minnesota prior mean in VHAR model?
+
+- All the equations are centered around $\Y_t + \bc + \Phi^{(d)} \Y_{t - 1} + \E_t$
+- RW form: shrink diagonal elements of $\Phi^{(d)}$ toward one
+    - $\Phi^{(w)}$ and $\Phi^{(m)}$ to zero
+- WN form: $\delta_i = 0$
+
+Minnesota moment: for more simplicity, write coefficient matrices by $\Phi^{(1)}, \Phi^{(2)}, \Phi^{(3)}$.
+
+$$
+E \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
+  \delta_i & j = i, \; l = 1 \\
+  0 & o/w
+\end{cases} \quad \Var \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
+  \frac{\lambda^2}{l^2} & j = i \\
+  \nu \frac{\lambda^2}{l^2} \frac{\sigma_i^2}{\sigma_j^2} & o/w
+\end{cases}
+$$
+
 ```{r}
-(fit_bvhar <- bvhar_minnesota(etf_train, sig, lam, delta, eps))
+(fit_bvhar <- bvhar_minnesota(etf_train, sigma = sig, lambda = lam, delta = delta, eps = eps))
 ```
 
 ## Forecasting
@@ -103,5 +151,70 @@ mean(mse_bvhar)
 ```
 
 
+# Other Prior
+
+Set $\delta_i$ for weekly and monthly coefficient matrices:
+
+$$
+E \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
+  d_i & j = i, \; l = 1 \\
+  w_i & j = i, \; l = 2 \\
+  m_i & j = i, \; l = 3
+\end{cases}
+$$
+
+i.e. instead of one `delta` vector, set three vector
+
+- `daily`
+- `weekly`
+- `monthly`
+
+## Fit
+
+You can use this prior in the same function (`bvhar_minnesota()`) with `type = "VHAR"`. (cf. In the case of the default Minnesota, it is `type = "VAR"`.)
+
+```{r}
+daily <- rep(.1, m)
+weekly <- rep(.1, m)
+monthly <- rep(.1, m)
+```
+
+With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
+`delta` option does not work.
+
+```{r}
+fit_bvhar_other <- bvhar_minnesota(
+  etf_train, 
+  type = "VHAR", 
+  sigma = sig, 
+  lambda = lam, 
+  daily = daily, 
+  weekly = weekly, 
+  monthly = monthly, 
+  eps = eps
+)
+```
+
+## Forecast
+
+```{r}
+(pred_bvhar_other <- predict(fit_bvhar_other, h))
+```
+
+MSE:
+
+```{r}
+(mse_bvhar_other <- apply(etf_test - pred_bvhar_other, 2, function(x) mean(x^2)))
+```
+
+Compare:
+
+```{r}
+# Original Minnesota----------------------
+mse_bvhar
+mean(mse_bvhar)
+# New Minnesota---------------------------
+mean(mse_bvhar_other)
+```
 
 

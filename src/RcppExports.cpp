@@ -87,6 +87,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// build_ydummy_bvhar
+SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
+RcppExport SEXP _bvhar_build_ydummy_bvhar(SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type daily(dailySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type weekly(weeklySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type monthly(monthlySEXP);
+    rcpp_result_gen = Rcpp::wrap(build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly));
+    return rcpp_result_gen;
+END_RCPP
+}
 // estimate_bvar_mn
 SEXP estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
 RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP) {
@@ -266,6 +281,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 4},
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
+    {"_bvhar_build_ydummy_bvhar", (DL_FUNC) &_bvhar_build_ydummy_bvhar, 5},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_ghosh_mn", (DL_FUNC) &_bvhar_estimate_ghosh_mn, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},

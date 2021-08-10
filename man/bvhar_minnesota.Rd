@@ -6,7 +6,17 @@
 \alias{knit_print.bvharmn}
 \title{Fit Bayesian BVHAR of Minnesota Prior}
 \usage{
-bvhar_minnesota(y, sigma, lambda, delta, eps = 1e-04)
+bvhar_minnesota(
+  y,
+  type = c("VAR", "VHAR"),
+  sigma,
+  lambda,
+  delta,
+  daily,
+  weekly,
+  monthly,
+  eps = 1e-04
+)
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,11 +25,19 @@ knit_print.bvharmn(x, ...)
 \arguments{
 \item{y}{matrix, Time series data of which columns indicate the variables}
 
+\item{type}{Prior mean to apply. (VAR = Original Minnesota. VHAR = fills zero in the first block)}
+
 \item{sigma}{standard error for each variable}
 
 \item{lambda}{tightness of the prior around a random walk or white noise}
 
 \item{delta}{prior belief about white noise (Litterman sets 1: default)}
+
+\item{daily}{same as delta in VHAR type}
+
+\item{weekly}{fill the second part in the first block}
+
+\item{monthly}{fill the third part in the first block}
 
 \item{eps}{very small number}
 
