@@ -55,6 +55,8 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 }
 \seealso{
 \code{\link{build_y0}} and \code{\link{build_design}} for defining Y0 and X0 matrix,
+
 and \code{\link{estimate_var}} for computing coefficient VAR matrix.
+
 Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
 }

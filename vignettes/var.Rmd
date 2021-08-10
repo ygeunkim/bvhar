@@ -204,12 +204,14 @@ We refer to its argument `n.ahead` and you can forecast using `predict()` method
 
 ```{r}
 class(pred_var)
+names(pred_var)
 ```
 
 Compute MSE as follow:
 
 ```{r}
-(mse_var <- apply(etf_test - pred_var, 2, function(x) mean(x^2)))
+pred_varmat <- pred_var$forecast
+(mse_var <- apply(etf_test - pred_varmat, 2, function(x) mean(x^2)))
 ```
 
 # VHAR
@@ -286,13 +288,14 @@ This package fits VHAR by scaling VAR(p) using $\widetilde{T}$ (`scale_har(m)`).
 VHAR also follows `varlse` basically. Use `predict` method with `n.ahead` option.
 
 ```{r}
-(pred_har <- predict(fit_har, n.ahead = h))
+pred_har <- predict(fit_har, n.ahead = h)
+(pred_harmat <- pred_har$forecast)
 ```
 
 MSE:
 
 ```{r}
-(mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2)))
+(mse_har <- apply(etf_test - pred_harmat, 2, function(x) mean(x^2)))
 ```
 
 Compare the two MSE:

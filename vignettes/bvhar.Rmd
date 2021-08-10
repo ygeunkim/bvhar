@@ -84,7 +84,8 @@ m <- ncol(etf)
 ```{r}
 fit_har <- vhar_lm(etf_train)
 pred_har <- predict(fit_har, n.ahead = h)
-mse_har <- apply(etf_test - pred_har, 2, function(x) mean(x^2))
+pred_harmat <- pred_har$forecast
+mse_har <- apply(etf_test - pred_harmat, 2, function(x) mean(x^2))
 ```
 
 # Minnesota Prior
@@ -133,12 +134,15 @@ $$
 
 ```{r}
 (pred_bvhar <- predict(fit_bvhar, h))
+class(pred_bvhar)
+names(pred_bvhar)
 ```
 
 MSE:
 
 ```{r}
-(mse_bvhar <- apply(etf_test - pred_bvhar, 2, function(x) mean(x^2)))
+pred_bvharmat <- pred_bvhar$forecast
+(mse_bvhar <- apply(etf_test - pred_bvharmat, 2, function(x) mean(x^2)))
 ```
 
 Compare:
@@ -204,7 +208,8 @@ fit_bvhar_other <- bvhar_minnesota(
 MSE:
 
 ```{r}
-(mse_bvhar_other <- apply(etf_test - pred_bvhar_other, 2, function(x) mean(x^2)))
+pred_bvhar_othermat <- pred_bvhar_other$forecast
+(mse_bvhar_other <- apply(etf_test - pred_bvhar_othermat, 2, function(x) mean(x^2)))
 ```
 
 Compare:
@@ -217,4 +222,7 @@ mean(mse_bvhar)
 mean(mse_bvhar_other)
 ```
 
+```{r}
+autoplot(pred_bvhar_other, show.legend = FALSE)
+```
 

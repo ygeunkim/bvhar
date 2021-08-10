@@ -4,7 +4,7 @@
 \alias{bvhar_minnesota}
 \alias{print.bvharmn}
 \alias{knit_print.bvharmn}
-\title{Fit Bayesian BVHAR of Minnesota Prior}
+\title{Fit Bayesian VHAR of Minnesota Prior}
 \usage{
 bvhar_minnesota(
   y,
@@ -23,23 +23,23 @@ bvhar_minnesota(
 knit_print.bvharmn(x, ...)
 }
 \arguments{
-\item{y}{matrix, Time series data of which columns indicate the variables}
+\item{y}{Time series data of which columns indicate the variables}
 
-\item{type}{Prior mean to apply. (VAR = Original Minnesota. VHAR = fills zero in the first block)}
+\item{type}{Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)}
 
-\item{sigma}{standard error for each variable}
+\item{sigma}{Standard error vector for each variable}
 
-\item{lambda}{tightness of the prior around a random walk or white noise}
+\item{lambda}{Tightness of the prior around a random walk or white noise}
 
-\item{delta}{prior belief about white noise (Litterman sets 1: default)}
+\item{delta}{Prior belief about white noise (Litterman sets 1: default)}
 
-\item{daily}{same as delta in VHAR type}
+\item{daily}{Same as delta in VHAR type}
 
-\item{weekly}{fill the second part in the first block}
+\item{weekly}{Fill the second part in the first block}
 
-\item{monthly}{fill the third part in the first block}
+\item{monthly}{Fill the third part in the first block}
 
-\item{eps}{very small number}
+\item{eps}{Very small number}
 
 \item{x}{\code{bvarmn} object}
 
@@ -48,31 +48,43 @@ knit_print.bvharmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvarmn} object with
-\item{\code{design}}{\eqn{X_0}}
-\item{\code{y0}}{\eqn{Y_0}}
-\item{\code{y}}{raw input}
-\item{\code{m}}{Dimension of the data}
-\item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-\item{\code{totobs}}{Total number of the observation}
-\item{\code{process}}{Process: VAR}
-\item{\code{call}}{Matched call}
-\item{\code{mn_mean}}{Location of posterior matrix normal distribution}
-\item{\code{fitted.values}}{Fitted values}
-\item{\code{residuals}}{Residuals}
-\item{\code{mn_scale}}{First scale matrix of posterior matrix normal distribution}
-\item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
-\item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+\code{bvhar_minnesota} returns an object \code{bvharmn} \link{class}.
+
+It is a list with the following components:
+
+\describe{
+\item{design}{\eqn{X_0}}
+\item{y0}{\eqn{Y_0}}
+\item{y}{Raw input}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{totobs}{Total number of the observation}
+\item{process}{Process: BVHAR}
+\item{call}{Matched call}
+\item{mn_mean}{Location of posterior matrix normal distribution}
+\item{fitted.values}{Fitted values}
+\item{residuals}{Residuals}
+\item{mn_scale}{First scale matrix of posterior matrix normal distribution}
+\item{iw_mean}{Scale matrix of posterior inverse-wishart distribution}
+\item{a0}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+}
 }
 \description{
-This function fits BVAR(p) with Minnesota prior.
+This function fits BVHAR with Minnesota prior.
 }
 \details{
 Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
 
-\deqn{\Phi \mid \Sigma_e, Y_0 \sim MN(B_0, \Omega_0, \Sigma_e)}
-\deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
+\deqn{\Phi \mid \Sigma_e, Y_0 \sim MN(P_0, \Psi_0, \Sigma_e)}
+\deqn{\Sigma_e \mid Y_0 \sim IW(U_0, d_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+
+Two types of Minnesota priors builds different dummy variables for Y0.
+\code{type = "VAR"} constructs dummy Y0 with \code{p = 3} of \code{\link{build_ydummy}}.
+The only difference from BVAR is dimension.
+
+On the other hand, dummy Y0 for \code{type = "VHAR"} has its own function \code{\link{build_ydummy_bvhar}}.
+It fills the zero matrix in the first block in Bańbura et al. (2010).
 }
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
@@ -80,4 +92,9 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 
 Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+}
+\seealso{
+\code{\link{build_ydummy}}, \code{\link{build_xdummy}}, and \code{\link{build_ydummy_bvhar}} for defining dummy observation.
+
+\code{\link{estimate_bvar_mn}} to compute Minnesota posterior estimates.
 }
