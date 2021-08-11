@@ -81,6 +81,17 @@ var_lm <- function(y, p) {
   res
 }
 
+#' Is an object \code{varlse}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.varlse <- function(x) {
+  inherits(x, "varlse")
+}
+
 #' Coefficients Method for \code{varlse} object
 #' 
 #' @param object \code{varlse} object

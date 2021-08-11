@@ -157,6 +157,16 @@ predict.bvarghosh <- function(object, n.ahead, ...) {
   res
 }
 
+#' Is an object \code{predbvhar}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.predbvhar <- function(x) {
+  inherits(x, "predbvhar")
+}
 
 #' Plot Forecast Result
 #' 

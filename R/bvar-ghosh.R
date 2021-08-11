@@ -91,3 +91,15 @@ bvar_ghosh <- function(y, p, U) {
   class(res) <- "bvarghosh"
   res
 }
+
+#' Is an object \code{bvarghosh}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.bvarghosh <- function(x) {
+  inherits(x, "bvarghosh")
+}
+

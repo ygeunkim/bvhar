@@ -144,6 +144,8 @@ The package provide `S3` object.
 ```{r}
 # class---------------
 class(fit_var)
+# inheritance---------
+is.varlse(fit_var)
 # names---------------
 names(fit_var)
 ```
@@ -282,6 +284,17 @@ This package fits VHAR by scaling VAR(p) using $\widetilde{T}$ (`scale_har(m)`).
 ```{r}
 (fit_har <- vhar_lm(etf_train))
 ```
+
+```{r}
+# class----------------
+class(fit_har)
+# inheritance----------
+is.varlse(fit_har)
+is.vharlse(fit_har)
+# complements----------
+names(fit_har)
+```
+
 
 ## Forecasting
 

@@ -94,6 +94,17 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   res
 }
 
+#' Is an object \code{bvarmn}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.bvarmn <- function(x) {
+  inherits(x, "bvarmn")
+}
+
 #' Coefficients Method for \code{bvarmn} object
 #' 
 #' Matrix Normal mean of Minnesota BVAR

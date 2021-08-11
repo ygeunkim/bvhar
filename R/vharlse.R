@@ -67,6 +67,17 @@ vhar_lm <- function(y) {
   res
 }
 
+#' Is an object \code{vharlse}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.vharlse <- function(x) {
+  inherits(x, "vharlse")
+}
+
 #' Coefficients Method for \code{vharlse} object
 #' 
 #' @param object varlse

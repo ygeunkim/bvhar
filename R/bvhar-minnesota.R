@@ -140,3 +140,46 @@ bvhar_minnesota <- function(y,
   class(res) <- "bvharmn"
   res
 }
+
+#' Is an object \code{bvharmn}?
+#' 
+#' True or FALSE
+#' 
+#' @param x
+#' 
+#' @export
+is.bvharmn <- function(x) {
+  inherits(x, "bvharmn")
+}
+
+#' Coefficients Method for \code{bvharmn} object
+#' 
+#' Matrix Normal mean of Minnesota BVHAR
+#' 
+#' @param object \code{bvharmn} object
+#' @param ... not used
+#' 
+#' @export
+coefficients.bvharmn <- function(object, ...) {
+  object$mn_mean
+}
+
+#' Residuals Method for \code{bvharmn} object
+#' 
+#' @param object \code{bvharmn} object
+#' @param ... not used
+#' 
+#' @export
+residuals.bvharmn <- function(object, ...) {
+  object$residuals
+}
+
+#' Fitted Values Method for \code{bvharmn} object
+#' 
+#' @param object \code{bvharmn} object
+#' @param ... not used
+#' 
+#' @export
+fitted.bvharmn <- function(object, ...) {
+  object$fitted.values
+}
