@@ -22,18 +22,23 @@ knit_print.vharlse(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{vharlse} \link{class} with
-\item{\code{design}}{\eqn{X_0}}
-\item{\code{y0}}{\eqn{Y_0}}
-\item{\code{y}}{raw input}
-\item{\code{m}}{Dimension of the data}
-\item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-\item{\code{totobs}}{Total number of the observation}
-\item{\code{process}}{Process: VHAR}
-\item{\code{call}}{Matched call}
-\item{\code{coefficients}}{Coefficient Matrix}
-\item{\code{fitted.values}}{Fitted response values}
-\item{\code{residuals}}{Residuals}
+\code{vhar_lm} returns an object named \code{vharlse} \link{class}.
+
+It is a list with the following components:
+
+\describe{
+\item{design}{\eqn{X_0}}
+\item{y0}{\eqn{Y_0}}
+\item{y}{Raw input}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{totobs}{Total number of the observation}
+\item{process}{Process: VHAR}
+\item{call}{Matched call}
+\item{coefficients}{Coefficient Matrix}
+\item{fitted.values}{Fitted response values}
+\item{residuals}{Residuals}
+}
 }
 \description{
 This function fits VHAR using OLS method

@@ -14,9 +14,11 @@
 \item{...}{not used}
 }
 \value{
-\code{minnesota} object with:
-\item{\code{coefficients}}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
-\item{\code{covmat}}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
+\code{gen_posterior} for \code{bvarmn} object returns \code{minnesota} \link{class}.
+\describe{
+\item{coefficients}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
+\item{covmat}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
+}
 }
 \description{
 Generates Parameters of Minnesota BVAR \eqn{B, \Sigma_e}.

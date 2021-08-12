@@ -76,21 +76,24 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP estimate_ghosh_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
+SEXP estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
   int s = y.rows();
   int m = y.cols();
   int k = x.cols();
   Eigen::MatrixXd Bhat(k, m); // MN mean
-  Eigen::MatrixXd Uhat(k, k); // MN scale 1
+  Eigen::MatrixXd Uhat(k, k); // MN precision
   Eigen::MatrixXd Sighat(m, m); // IW scale
+  Eigen::MatrixXd yhat(s, m); // x %*% bhat
   Eigen::MatrixXd Is(s, s);
   Is.setIdentity(s, s);
   Uhat = (x.adjoint() * x + U).inverse();
   Bhat = Uhat * x.adjoint() * y;
+  yhat = x * Bhat;
   Sighat = y.adjoint() * (Is - x * Uhat * x.adjoint()) * y;
   return Rcpp::List::create(
     Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
     Rcpp::Named("mnscale") = Rcpp::wrap(Uhat),
+    Rcpp::Named("fitted") = Rcpp::wrap(yhat),
     Rcpp::Named("iwscale") = Rcpp::wrap(Sighat),
     Rcpp::Named("iwshape") = Rcpp::wrap(s - m - 1)
   );

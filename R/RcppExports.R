@@ -195,8 +195,8 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
-estimate_ghosh_mn <- function(x, y, U) {
-    .Call(`_bvhar_estimate_ghosh_mn`, x, y, U)
+estimate_mn_flat <- function(x, y, U) {
+    .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

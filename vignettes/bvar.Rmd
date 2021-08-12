@@ -203,7 +203,7 @@ Its selection might be the user's decision.
 
 ```{r}
 U <- 5000 * diag(m * bvar_lag + 1) # c * I
-(fit_ghosh <- bvar_ghosh(etf_train, bvar_lag, U))
+(fit_ghosh <- bvar_flat(etf_train, bvar_lag, U))
 ```
 
 ## Forecasting

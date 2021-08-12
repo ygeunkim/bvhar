@@ -17,22 +17,27 @@
 #' \deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
 #' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 #' 
-#' @return \code{bvarmn} object with
-#' \item{\code{design}}{\eqn{X_0}}
-#' \item{\code{y0}}{\eqn{Y_0}}
-#' \item{\code{y}}{raw input}
-#' \item{\code{p}}{lag of VAR: p}
-#' \item{\code{m}}{Dimension of the data}
-#' \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-#' \item{\code{totobs}}{Total number of the observation}
-#' \item{\code{process}}{Process: VAR}
-#' \item{\code{call}}{Matched call}
-#' \item{\code{mn_mean}}{Location of posterior matrix normal distribution}
-#' \item{\code{fitted.values}}{Fitted values}
-#' \item{\code{residuals}}{Residuals}
-#' \item{\code{mn_prec}}{Precision matrix of posterior matrix normal distribution}
-#' \item{\code{iw_mean}}{Scale matrix of posterior inverse-wishart distribution}
-#' \item{\code{a0}}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+#' @return \code{bvar_minnesota} returns an object \code{bvarmn} \link{class}.
+#' 
+#' It is a list with the following components:
+#' 
+#' \describe{
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{y}{Raw input}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{process}{Process: Minnesota}
+#'   \item{call}{Matched call}
+#'   \item{mn_mean}{Location of posterior matrix normal distribution}
+#'   \item{fitted.values}{Fitted values}
+#'   \item{residuals}{Residuals}
+#'   \item{mn_prec}{Precision matrix of posterior matrix normal distribution}
+#'   \item{iw_scale}{Scale matrix of posterior inverse-wishart distribution}
+#'   \item{a0}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+#' }
 #' 
 #' @references 
 #' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
@@ -115,7 +120,7 @@ is.bvarmn <- function(x) {
 #' @param ... not used
 #' 
 #' @export
-coefficients.bvarmn <- function(object, ...) {
+coef.bvarmn <- function(object, ...) {
   object$mn_mean
 }
 

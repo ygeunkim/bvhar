@@ -8,18 +8,23 @@
 #' \deqn{Y_{t} = Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
 #' the function gives basic values.
 #' 
-#' @return \code{vharlse} \link{class} with
-#' \item{\code{design}}{\eqn{X_0}}
-#' \item{\code{y0}}{\eqn{Y_0}}
-#' \item{\code{y}}{raw input}
-#' \item{\code{m}}{Dimension of the data}
-#' \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-#' \item{\code{totobs}}{Total number of the observation}
-#' \item{\code{process}}{Process: VHAR}
-#' \item{\code{call}}{Matched call}
-#' \item{\code{coefficients}}{Coefficient Matrix}
-#' \item{\code{fitted.values}}{Fitted response values}
-#' \item{\code{residuals}}{Residuals}
+#' @return \code{vhar_lm} returns an object named \code{vharlse} \link{class}.
+#' 
+#' It is a list with the following components:
+#' 
+#' \describe{
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{y}{Raw input}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{process}{Process: VHAR}
+#'   \item{call}{Matched call}
+#'   \item{coefficients}{Coefficient Matrix}
+#'   \item{fitted.values}{Fitted response values}
+#'   \item{residuals}{Residuals}
+#' }
 #' 
 #' @references 
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -86,7 +91,7 @@ is.vharlse <- function(x) {
 #' @param ... not used
 #' 
 #' @export
-coefficients.vharlse <- function(object, ...) {
+coef.vharlse <- function(object, ...) {
   object$coefficients
 }
 

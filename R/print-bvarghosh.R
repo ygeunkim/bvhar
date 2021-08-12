@@ -1,4 +1,4 @@
-#' @rdname bvar_ghosh
+#' @rdname bvar_flat
 #' @param x \code{bvarghosh} object
 #' @param digits digit option to print
 #' @param ... not used
@@ -60,7 +60,7 @@ print.bvarghosh <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   invisible(x)
 }
 
-#' @rdname bvar_ghosh
+#' @rdname bvar_flat
 #' @param x \code{bvarghosh} object
 #' @param ... not used
 #' @order 3

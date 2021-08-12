@@ -9,19 +9,24 @@
 #' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 #' the function gives basic values.
 #' 
-#' @return \code{varlse} \link{class} with
-#' \item{\code{design}}{\eqn{X_0}}
-#' \item{\code{y0}}{\eqn{Y_0}}
-#' \item{\code{y}}{raw input}
-#' \item{\code{p}}{lag of VAR: p}
-#' \item{\code{m}}{Dimension of the data}
-#' \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-#' \item{\code{totobs}}{Total number of the observation}
-#' \item{\code{process}}{Process: VAR}
-#' \item{\code{call}}{Matched call}
-#' \item{\code{coefficients}}{Coefficient Matrix}
-#' \item{\code{fitted.values}}{Fitted response values}
-#' \item{\code{residuals}}{Residuals}
+#' @return \code{var_lm} returns an object named \code{varlse} \link{class}.
+#' 
+#' It is a list with the following components:
+#' 
+#' \describe{
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{y}{Raw input}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{process}{Process: VAR}
+#'   \item{call}{Matched call}
+#'   \item{coefficients}{Coefficient Matrix}
+#'   \item{fitted.values}{Fitted response values}
+#'   \item{residuals}{Residuals}
+#' }
 #' 
 #' @references 
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -101,7 +106,7 @@ is.varlse <- function(x) {
 #' @param ... not used
 #' 
 #' @export
-coefficients.varlse <- function(object, ...) {
+coef.varlse <- function(object, ...) {
   object$coefficients
 }
 

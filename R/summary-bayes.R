@@ -22,9 +22,11 @@ gen_posterior <- function(x, ...) {
 #' 
 #' \deqn{(B, \Sigma) \sim MNIW(\hat{B}, \hat{U}, \hat{\Sigma}, \alpha_0 + n + 2)}
 #' 
-#' @return \code{minnesota} object with:
-#' \item{\code{coefficients}}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
-#' \item{\code{covmat}}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
+#' @return \code{gen_posterior} for \code{bvarmn} object returns \code{minnesota} \link{class}.
+#' \describe{
+#'   \item{coefficients}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
+#'   \item{covmat}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
+#' }
 #' 
 #' @references 
 #' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
