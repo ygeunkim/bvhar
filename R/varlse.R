@@ -58,6 +58,7 @@ var_lm <- function(y, p) {
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
   # residual Covariance matrix------
+  m <- ncol(y)
   covmat <- compute_cov(zhat, nrow(Y0), m * p + 1) # Sighat = z^T %*% z / (s - k)
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
@@ -67,7 +68,7 @@ var_lm <- function(y, p) {
     y0 = Y0,
     y = y,
     p = p, # p
-    m = ncol(y), # m
+    m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VAR",
@@ -81,11 +82,13 @@ var_lm <- function(y, p) {
   res
 }
 
-#' Is an object \code{varlse}?
+#' See if the Object \code{varlse}
 #' 
-#' True or FALSE
+#' This function returns \code{TRUE} if the input is the output of \code{\link{var_lm}}.
 #' 
-#' @param x
+#' @param x Object
+#' 
+#' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
 is.varlse <- function(x) {

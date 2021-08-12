@@ -2,13 +2,16 @@
 % Please edit documentation in R/bvar-minnesota.R
 \name{is.bvarmn}
 \alias{is.bvarmn}
-\title{Is an object \code{bvarmn}?}
+\title{See if the Object \code{bvarmn}}
 \usage{
 is.bvarmn(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{Object}
+}
+\value{
+\code{TRUE} or \code{FALSE}
 }
 \description{
-True or FALSE
+This function returns \code{TRUE} if the input is the output of \code{\link{bvar_minnesota}}.
 }

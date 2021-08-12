@@ -67,11 +67,13 @@ vhar_lm <- function(y) {
   res
 }
 
-#' Is an object \code{vharlse}?
+#' See if the Object \code{vharlse}
 #' 
-#' True or FALSE
+#' This function returns \code{TRUE} if the input is the output of \code{\link{vhar_lm}}.
 #' 
-#' @param x
+#' @param x Object
+#' 
+#' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
 is.vharlse <- function(x) {

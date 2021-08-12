@@ -2,13 +2,16 @@
 % Please edit documentation in R/varlse.R
 \name{is.varlse}
 \alias{is.varlse}
-\title{Is an object \code{varlse}?}
+\title{See if the Object \code{varlse}}
 \usage{
 is.varlse(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{Object}
+}
+\value{
+\code{TRUE} or \code{FALSE}
 }
 \description{
-True or FALSE
+This function returns \code{TRUE} if the input is the output of \code{\link{var_lm}}.
 }

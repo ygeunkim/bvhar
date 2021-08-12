@@ -92,11 +92,13 @@ bvar_ghosh <- function(y, p, U) {
   res
 }
 
-#' Is an object \code{bvarghosh}?
+#' See if the Object \code{bvarghosh}
 #' 
-#' True or FALSE
+#' This function returns \code{TRUE} if the input is the output of \code{\link{bvar_ghosh}}.
 #' 
-#' @param x
+#' @param x Object
+#' 
+#' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
 is.bvarghosh <- function(x) {

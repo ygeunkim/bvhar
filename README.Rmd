@@ -68,7 +68,7 @@ mod_var <- var_lm(etf_tr, 5)
 Forecasting:
 
 ```{r}
-forecast_var <- predict(mod_var, h)
+forecast_var <- predict(mod_var, h)$forecast
 ```
 
 MSE:
@@ -86,7 +86,7 @@ mod_vhar <- vhar_lm(etf_tr)
 MSE:
 
 ```{r}
-forecast_vhar <- predict(mod_vhar, h)
+forecast_vhar <- predict(mod_vhar, h)$forecast
 (msevhar <- apply(etf_te - forecast_vhar, 2, function(x) mean(x^2)))
 ```
 
@@ -95,8 +95,8 @@ forecast_vhar <- predict(mod_vhar, h)
 Minnesota prior:
 
 ```{r}
-lam <- .5
-delta <- rep(1, ncol(etf_vix)) # litterman
+lam <- .2
+delta <- rep(0, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
 eps <- 1e-04
 ```
@@ -108,20 +108,20 @@ mod_bvar <- bvar_minnesota(etf_tr, 5, sig, lam, delta, eps)
 MSE:
 
 ```{r}
-forecast_bvar <- predict(mod_bvar, h)
+forecast_bvar <- predict(mod_bvar, h)$forecast
 (msebvar <- apply(etf_te - forecast_bvar, 2, function(x) mean(x^2)))
 ```
 
 ### BVHAR
 
 ```{r}
-mod_bvhar <- bvhar_minnesota(etf_tr, sig, lam, delta, eps)
+mod_bvhar <- bvhar_minnesota(etf_tr, sigma = sig, lambda = lam, delta = delta, eps = eps)
 ```
 
 MSE:
 
 ```{r}
-forecast_bvhar <- predict(mod_bvhar, h)
+forecast_bvhar <- predict(mod_bvhar, h)$forecast
 (msebvhar <- apply(etf_te - forecast_bvhar, 2, function(x) mean(x^2)))
 ```
 

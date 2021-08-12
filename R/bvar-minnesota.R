@@ -94,11 +94,13 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   res
 }
 
-#' Is an object \code{bvarmn}?
+#' See if the Object \code{bvarmn}
 #' 
-#' True or FALSE
+#' This function returns \code{TRUE} if the input is the output of \code{\link{bvar_minnesota}}.
 #' 
-#' @param x
+#' @param x Object
+#' 
+#' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
 is.bvarmn <- function(x) {

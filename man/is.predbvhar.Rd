@@ -2,13 +2,17 @@
 % Please edit documentation in R/forecast.R
 \name{is.predbvhar}
 \alias{is.predbvhar}
-\title{Is an object \code{predbvhar}?}
+\title{See if the Object \code{predbvhar}}
 \usage{
 is.predbvhar(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{object}
+}
+\value{
+\code{TRUE} or \code{FALSE}
 }
 \description{
-True or FALSE
+This function returns \code{TRUE}
+if the input is the output of \code{\link{predict.varlse}}, \code{\link{predict.vharlse}}, \code{\link{predict.bvarmn}}, \code{\link{predict.bvharmn}}, and \code{\link{predict.bvarghosh}}.
 }

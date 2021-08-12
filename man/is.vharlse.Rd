@@ -2,13 +2,16 @@
 % Please edit documentation in R/vharlse.R
 \name{is.vharlse}
 \alias{is.vharlse}
-\title{Is an object \code{vharlse}?}
+\title{See if the Object \code{vharlse}}
 \usage{
 is.vharlse(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{Object}
+}
+\value{
+\code{TRUE} or \code{FALSE}
 }
 \description{
-True or FALSE
+This function returns \code{TRUE} if the input is the output of \code{\link{vhar_lm}}.
 }

@@ -59,7 +59,7 @@ mod_var <- var_lm(etf_tr, 5)
 Forecasting:
 
 ``` r
-forecast_var <- predict(mod_var, h)
+forecast_var <- predict(mod_var, h)$forecast
 ```
 
 MSE:
@@ -81,7 +81,7 @@ mod_vhar <- vhar_lm(etf_tr)
 MSE:
 
 ``` r
-forecast_vhar <- predict(mod_vhar, h)
+forecast_vhar <- predict(mod_vhar, h)$forecast
 (msevhar <- apply(etf_te - forecast_vhar, 2, function(x) mean(x^2)))
 #>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
 #>  2.574746  6.387274 70.829157  4.321342  3.086089  5.341502  4.378567  7.636454 
@@ -94,8 +94,8 @@ forecast_vhar <- predict(mod_vhar, h)
 Minnesota prior:
 
 ``` r
-lam <- .5
-delta <- rep(1, ncol(etf_vix)) # litterman
+lam <- .2
+delta <- rep(0, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
 eps <- 1e-04
 ```
@@ -107,29 +107,29 @@ mod_bvar <- bvar_minnesota(etf_tr, 5, sig, lam, delta, eps)
 MSE:
 
 ``` r
-forecast_bvar <- predict(mod_bvar, h)
+forecast_bvar <- predict(mod_bvar, h)$forecast
 (msebvar <- apply(etf_te - forecast_bvar, 2, function(x) mean(x^2)))
 #>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.327767  2.662904 60.885287  3.916111  2.438599  3.149206  5.512043  8.357264 
+#>  1.675226  3.007671 53.085572  4.233823  5.998921  3.847304  4.247299  8.387925 
 #>  VXXLECLS 
-#> 40.869852
+#> 42.483580
 ```
 
 ### BVHAR
 
 ``` r
-mod_bvhar <- bvhar_minnesota(etf_tr, sig, lam, delta, eps)
+mod_bvhar <- bvhar_minnesota(etf_tr, sigma = sig, lambda = lam, delta = delta, eps = eps)
 ```
 
 MSE:
 
 ``` r
-forecast_bvhar <- predict(mod_bvhar, h)
+forecast_bvhar <- predict(mod_bvhar, h)$forecast
 (msebvhar <- apply(etf_te - forecast_bvhar, 2, function(x) mean(x^2)))
 #>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.960471  3.853074 62.398445  3.428544  3.848926  4.202243  5.966213  6.767652 
+#>  1.707028  3.453921 48.813705  3.388200  8.974295  5.351510  4.725564  6.815297 
 #>  VXXLECLS 
-#> 39.659892
+#> 41.515688
 ```
 
 Comparing:
@@ -143,8 +143,8 @@ mean(msevhar)
 #> [1] 17.4101
 # BVAR--------------
 mean(msebvar)
-#> [1] 14.34656
+#> [1] 14.10748
 # BVHAR-------------
 mean(msebvhar)
-#> [1] 14.67616
+#> [1] 13.86058
 ```

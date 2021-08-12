@@ -2,13 +2,16 @@
 % Please edit documentation in R/bvar-ghosh.R
 \name{is.bvarghosh}
 \alias{is.bvarghosh}
-\title{Is an object \code{bvarghosh}?}
+\title{See if the Object \code{bvarghosh}}
 \usage{
 is.bvarghosh(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{Object}
+}
+\value{
+\code{TRUE} or \code{FALSE}
 }
 \description{
-True or FALSE
+This function returns \code{TRUE} if the input is the output of \code{\link{bvar_ghosh}}.
 }

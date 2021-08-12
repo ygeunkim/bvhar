@@ -141,11 +141,13 @@ bvhar_minnesota <- function(y,
   res
 }
 
-#' Is an object \code{bvharmn}?
+#' See if the Object \code{bvharmn}
 #' 
-#' True or FALSE
+#' This function returns \code{TRUE} if the input is the output of \code{\link{bvhar_minnesota}}.
 #' 
-#' @param x
+#' @param x Object
+#' 
+#' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
 is.bvharmn <- function(x) {
