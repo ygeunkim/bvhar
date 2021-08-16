@@ -2,12 +2,9 @@
 % Please edit documentation in R/summary-varlse.R
 \name{FPE}
 \alias{FPE}
-\alias{FPE.varlse}
 \title{FPE}
 \usage{
 FPE(object, ...)
-
-\method{FPE}{varlse}(object, ...)
 }
 \arguments{
 \item{object}{model fit}
@@ -17,8 +14,3 @@ FPE(object, ...)
 \description{
 FPE
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{varlse}: of VAR(p)
-}}
-

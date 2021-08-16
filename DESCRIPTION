@@ -31,7 +31,8 @@ Imports:
     ggplot2,
     tidyr,
     tibble,
-    dplyr
+    dplyr,
+    foreach
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

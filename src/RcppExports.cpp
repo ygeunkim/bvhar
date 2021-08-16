@@ -261,6 +261,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// tAA_eigen
+SEXP tAA_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
+RcppExport SEXP _bvhar_tAA_eigen(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(tAA_eigen(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kroneckerprod
 SEXP kroneckerprod(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_kroneckerprod(SEXP xSEXP, SEXP ySEXP) {
@@ -295,6 +307,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
+    {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
     {NULL, NULL, 0}
 };

@@ -16,6 +16,16 @@ SEXP AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
+SEXP tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+  Eigen::MatrixXd res(x.cols(), y.rows());
+  res = x.adjoint() * y;
+  return Rcpp::wrap(res);
+}
+
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
 SEXP kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows() * y.rows(), x.cols() * y.cols());
   res = kroneckerProduct(x, y).eval();

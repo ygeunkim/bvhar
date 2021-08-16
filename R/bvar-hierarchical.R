@@ -5,7 +5,10 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
+#' @param iter The number of iterations for Gibbs sampler
 #' @param type Prior types ("wishart": default, "lasso": Bayesian Group Lasso, "t": Multivariate t-distribution). See the detail.
+#' @param Psi Scale matrix for Wishart prior when \code{type = "wishart"}
+#' @param d Degrees of freedom of Wishart prior becomes d + k when \code{type = "wishart"}. d > -(k + 1)
 #' 
 #' @details 
 #' Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
@@ -19,7 +22,7 @@
 #' As in the paper, this function provides the three types of hyper-prior,
 #' 
 #' \enumerate{
-#'   \item Wishart prior
+#'   \item Wishart prior: \eqn{U \sim W(\Psi, d + k)}, Psi and d prespecified
 #'   \item Bayesian Group Lasso
 #'   \item Multivariate t-Distribution
 #' }
@@ -52,7 +55,7 @@
 #' @importFrom mniw rwish
 #' @order 1
 #' @export
-bvar_mixture <- function(y, p, type = c("wishart", "lasso", "t")) {
+bvar_mixture <- function(y, p, iter = 1000L, type = c("wishart", "lasso", "t"), Psi = NULL, d = NULL) {
   if (!is.matrix(y)) y <- as.matrix(y)
   type <- match.arg(type)
   # Y0 = X0 B + Z---------------------
@@ -60,6 +63,31 @@ bvar_mixture <- function(y, p, type = c("wishart", "lasso", "t")) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  # fill later
-  name_var
+  # initialize------------------------
+  switch(
+    type,
+    "wishart" = {
+      k <- ncol(X0)
+      if (missing(Psi)) Psi <- diag(k)
+      if (missing(d)) d <- 0
+      # initialize U
+      U <- rwish(Psi, d + k)
+      # initialize B and Sigma
+      init <- estimate_mn_flat(X0, Y0, U)
+      B <- init$bhat
+      Sig <- init$iwscale
+      # Block gibbs
+      
+      # fill later
+      name_var
+    },
+    "lasso" = {
+      # fill later
+      name_var
+    },
+    "t" = {
+      # fill later
+      name_var
+    }
+  )
 }

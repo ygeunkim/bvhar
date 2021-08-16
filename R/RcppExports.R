@@ -385,6 +385,13 @@ AAt_eigen <- function(x, y) {
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
+tAA_eigen <- function(x, y) {
+    .Call(`_bvhar_tAA_eigen`, x, y)
+}
+
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
 kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
 }

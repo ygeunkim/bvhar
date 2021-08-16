@@ -57,12 +57,12 @@ is.stable.varlse <- function(x, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.varlse <- function(object, ...) {
-  COV <- object$resid
+  SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  p <- object$p
+  k <- m * object$p + 1
   s <- object$obs
-  sig_det <- det(crossprod(COV) / s)
-  log(sig_det) + 2 / s * m * (p * m + 1)
+  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+  log(sig_det) + 2 / s * m * k # penalty = (2 / s) * m * k
 }
 
 #' FPE
@@ -74,14 +74,18 @@ FPE <- function(object, ...) {
   UseMethod("FPE", object)
 }
 
-#' @describeIn FPE of VAR(p)
+#' FPE of VAR(p)
+#' 
+#' @param object \code{varlse} object
+#' @param ... not used
+#' 
+#' @export
 FPE.varlse <- function(object, ...) {
-  COV <- object$resid
+  SIG <- object$covmat # SIG = crossprod(resid) / (s - k), FPE = ((s + k) / (s - k))^m * det(crossprod(resid) / s)
   m <- object$m
   k <- m * object$p + 1
   s <- object$obs
-  sig_det <- det(crossprod(COV) / s)
-  ((s + k) / (s - k))^m * sig_det
+  ((s + k) / s)^m * det(SIG) # FPE = ((s + k) / (s - k))^m * det = ((s + k) / s)^m * det(crossprod(resid) / (s - k))
 }
 
 #' BIC of VAR(p)
@@ -93,12 +97,12 @@ FPE.varlse <- function(object, ...) {
 #' @importFrom stats BIC
 #' @export
 BIC.varlse <- function(object, ...) {
-  COV <- object$resid
+  SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  p <- object$p
+  k <- m * object$p + 1
   s <- object$obs
-  sig_det <- det(crossprod(COV) / s)
-  log(sig_det) + log(s) / s * m * (p * m + 1)
+  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+  log(sig_det) + log(s) / s * m * k # penalty = (log(s) / s) * m * k
 }
 
 #' HQ
@@ -118,12 +122,12 @@ HQ <- function(object, ...) {
 #' 
 #' @export
 HQ.varlse <- function(object, ...) {
-  COV <- object$resid
+  SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  p <- object$p
+  k <- m * object$p + 1
   s <- object$obs
-  sig_det <- det(crossprod(COV) / s)
-  log(sig_det) + 2 * log(log(s)) / s * m * (p * m + 1)
+  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+  log(sig_det) + 2 * log(log(s)) / s * m * k # penalty = (2 * log(log(s)) / s) * m * k
 }
 
 #' Summary of varlse

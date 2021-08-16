@@ -195,13 +195,27 @@ For more information, use `summary()` function.
 summary(fit_var)
 ```
 
+## Select the Model
+
+Explore information criteria up to `lag_max`.
+
+```{r}
+choose_var(etf_train, 10)
+```
+
+In VAR literature, BIC is quite safe suggestion, so in this document, we try VAR(1).
+
+```{r}
+fit_best <- var_lm(etf_train, 1)
+```
+
 ## Forecasting
 
 In VAR modeling, `vars` package is famous.
 We refer to its argument `n.ahead` and you can forecast using `predict()` method with above `varlse` object.
 
 ```{r}
-(pred_var <- predict(fit_var, n.ahead = h))
+(pred_var <- predict(fit_best, n.ahead = h))
 ```
 
 ```{r}
@@ -215,6 +229,7 @@ Compute MSE as follow:
 pred_varmat <- pred_var$forecast
 (mse_var <- apply(etf_test - pred_varmat, 2, function(x) mean(x^2)))
 ```
+
 
 # VHAR
 

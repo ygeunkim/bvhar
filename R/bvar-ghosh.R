@@ -68,7 +68,7 @@ bvar_flat <- function(y, p, U) {
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # Matrix normal---------------------
-  posterior <- estimate_mn_flat(X0, Y0, U);
+  posterior <- estimate_mn_flat(X0, Y0, U)
   Bhat <- posterior$bhat # posterior mean
   colnames(Bhat) <- name_var
   rownames(Bhat) <- name_lag

@@ -2,7 +2,7 @@
 #' 
 #' @description 
 #' The function fits VAR(p) using OLS method
-#' @param y matrix, Time series data of which columns indicate the variables
+#' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
 #' @details 
 #' For VAR(p) model
@@ -129,3 +129,50 @@ residuals.varlse <- function(object, ...) {
 fitted.varlse <- function(object, ...) {
   object$fitted.values
 }
+
+#' Choose the Best VAR based on Information Criteria
+#' 
+#' This function computes AIC, FPE, BIC, and HQ up to p = \code{lag_max} of VAR model.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag_max Maximum Var lag to explore (default = 5)
+#' @param parallel Parallel computation using \code{\link[foreach]{foreach}}? By default, \code{FALSE}.
+#' 
+#' 
+#' @return Minimum order and information criteria values
+#' 
+#' @importFrom foreach foreach %do% %dopar%
+#' @export
+choose_var <- function(y, lag_max = 5, parallel = FALSE) {
+  if (!is.matrix(y)) y <- as.matrix(y)
+  var_list <- NULL
+  # compute IC-----------------------
+  if (parallel) {
+    res <- foreach(p = 1:lag_max, .combine = rbind) %dopar% {
+      var_list <- var_lm(y, p)
+      c(
+        "AIC" = AIC(var_list),
+        "BIC" = BIC(var_list),
+        "HQ" = HQ(var_list),
+        "FPE" = FPE(var_list)
+      )
+    }
+  } else {
+    res <- foreach(p = 1:lag_max, .combine = rbind) %do% {
+      var_list <- var_lm(y, p)
+      c(
+        "AIC" = AIC(var_list),
+        "BIC" = BIC(var_list),
+        "HQ" = HQ(var_list),
+        "FPE" = FPE(var_list)
+      )
+    }
+  }
+  rownames(res) <- 1:lag_max
+  # find minimum-----------------------
+  list(
+    ic = res,
+    min_lag = apply(res, 2, which.min)
+  )
+}
+

@@ -4,14 +4,27 @@
 \alias{bvar_mixture}
 \title{Fit Bayesian VAR(p) of Hierarchical Normal-Mixture Prior}
 \usage{
-bvar_mixture(y, p, type = c("wishart", "lasso", "t"))
+bvar_mixture(
+  y,
+  p,
+  iter = 1000L,
+  type = c("wishart", "lasso", "t"),
+  Psi = NULL,
+  d = NULL
+)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
 
+\item{iter}{The number of iterations for Gibbs sampler}
+
 \item{type}{Prior types ("wishart": default, "lasso": Bayesian Group Lasso, "t": Multivariate t-distribution). See the detail.}
+
+\item{Psi}{Scale matrix for Wishart prior when \code{type = "wishart"}}
+
+\item{d}{Degrees of freedom of Wishart prior becomes d + k when \code{type = "wishart"}. d > -(k + 1)}
 }
 \value{
 \code{bvar_mixture} returns an object \code{bvarghosh} \link{class}.
@@ -51,7 +64,7 @@ while it has prior distribution in hierarchical model.
 As in the paper, this function provides the three types of hyper-prior,
 
 \enumerate{
-\item Wishart prior
+\item Wishart prior: \eqn{U \sim W(\Psi, d + k)}, Psi and d prespecified
 \item Bayesian Group Lasso
 \item Multivariate t-Distribution
 }

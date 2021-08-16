@@ -13,7 +13,7 @@ var_lm(y, p)
 knit_print.varlse(x, ...)
 }
 \arguments{
-\item{y}{matrix, Time series data of which columns indicate the variables}
+\item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{integer, lags of VAR}
 
