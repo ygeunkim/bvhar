@@ -167,7 +167,7 @@ Compare:
 
 ```{r}
 # VAR----------------------------
-fit_var <- var_lm(etf_train, bvar_lag)
+fit_var <- var_lm(etf_train, p = 1)
 pred_varmat <- predict(fit_var, h)$forecast
 mse_var <- apply(etf_test - pred_varmat, 2, function(x) mean(x^2))
 # VHAR---------------------------

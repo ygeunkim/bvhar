@@ -70,14 +70,24 @@ bvar_mixture <- function(y, p, iter = 1000L, type = c("wishart", "lasso", "t"), 
       k <- ncol(X0)
       if (missing(Psi)) Psi <- diag(k)
       if (missing(d)) d <- 0
-      # initialize U
-      U <- rwish(Psi, d + k)
-      # initialize B and Sigma
+      # initialize U(0)
+      U <- rwish(1, Psi, d + k) # k x k
+      # initialize B(0) and Sig(0)
       init <- estimate_mn_flat(X0, Y0, U)
       B <- init$bhat
       Sig <- init$iwscale
+      B_list <- list()
       # Block gibbs
-      
+      for (i in 1:iter) {
+        U <- rwish(1, B %*% solve(Sig) %*% t(B) + solve(Psi), d + 2 * k) # posterior of U
+        init <- estimate_bvar_mn(X0, Y0, U)
+        B_list[[i]] <- init$bhat
+        Sig <- init$iwscale
+      }
+      B <- 
+        B_list %>% 
+        simplify2array() %>% 
+        apply(c(1, 2), mean)
       # fill later
       name_var
     },
