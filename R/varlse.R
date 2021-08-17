@@ -1,7 +1,7 @@
-#' Fit VAR(p)
+#' Fit Vector Autoregressive Model of Order p Model
 #' 
 #' @description 
-#' The function fits VAR(p) using OLS method
+#' This function fits VAR(p) using OLS method
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
 #' @details 
@@ -28,6 +28,8 @@
 #'   \item{residuals}{Residuals}
 #' }
 #' 
+#' @author Young Geun Kim \email{dudrms33@@g.skku.edu}
+#' 
 #' @references 
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
@@ -41,6 +43,20 @@
 #' and \code{\link{estimate_var}} for computing coefficient VAR matrix.
 #' 
 #' Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
+#' @examples 
+#' # Perform the function using etf_vix dataset
+#' \dontrun{
+#'   fit <- var_lm(y = etf_vix, p = 5)
+#'   class(fit)
+#'   str(fit)
+#' }
+#' 
+#' # Extract coef, fitted values, and residuals
+#' \dontrun{
+#'   coef(fit)
+#'   residuals(fit)
+#'   fitted(fit)
+#' }
 #' 
 #' @order 1
 #' @export

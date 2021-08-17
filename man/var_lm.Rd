@@ -4,7 +4,7 @@
 \alias{var_lm}
 \alias{print.varlse}
 \alias{knit_print.varlse}
-\title{Fit VAR(p)}
+\title{Fit Vector Autoregressive Model of Order p Model}
 \usage{
 var_lm(y, p)
 
@@ -44,12 +44,28 @@ It is a list with the following components:
 }
 }
 \description{
-The function fits VAR(p) using OLS method
+This function fits VAR(p) using OLS method
 }
 \details{
 For VAR(p) model
 \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 the function gives basic values.
+}
+\examples{
+# Perform the function using etf_vix dataset
+\dontrun{
+  fit <- var_lm(y = etf_vix, p = 5)
+  class(fit)
+  str(fit)
+}
+
+# Extract coef, fitted values, and residuals
+\dontrun{
+  coef(fit)
+  residuals(fit)
+  fitted(fit)
+}
+
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -64,4 +80,7 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 and \code{\link{estimate_var}} for computing coefficient VAR matrix.
 
 Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
+}
+\author{
+Young Geun Kim \email{dudrms33@g.skku.edu}
 }
