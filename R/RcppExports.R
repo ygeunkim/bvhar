@@ -376,21 +376,24 @@ forecast_vhar <- function(object, step) {
 }
 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 AAt_eigen <- function(x, y) {
     .Call(`_bvhar_AAt_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 tAA_eigen <- function(x, y) {
     .Call(`_bvhar_tAA_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
+#' @export
+AtAit_eigen <- function(x, y) {
+    .Call(`_bvhar_AtAit_eigen`, x, y)
+}
+
+#' @useDynLib bvhar
 #' @export
 kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
