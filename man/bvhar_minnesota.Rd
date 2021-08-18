@@ -75,8 +75,8 @@ This function fits BVHAR with Minnesota prior.
 \details{
 Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
 
-\deqn{\Phi \mid \Sigma_e, Y_0 \sim MN(P_0, \Psi_0, \Sigma_e)}
-\deqn{\Sigma_e \mid Y_0 \sim IW(U_0, d_0)}
+\deqn{\Phi \mid \Sigma_e \sim MN(P_0, \Psi_0, \Sigma_e)}
+\deqn{\Sigma_e \sim IW(U_0, d_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 
 Two types of Minnesota priors builds different dummy variables for Y0.

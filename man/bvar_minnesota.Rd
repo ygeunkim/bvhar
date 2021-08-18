@@ -60,8 +60,8 @@ This function fits BVAR(p) with Minnesota prior.
 \details{
 Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
 
-\deqn{B \mid \Sigma_e, Y_0 \sim MN(B_0, \Omega_0, \Sigma_e)}
-\deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
+\deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
+\deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 }
 \references{
