@@ -75,15 +75,18 @@ SEXP VARtoVMA(Rcpp::List object, int lag_max) {
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat(k, m) = [B1^T, B2^T, ..., Bp^T, c^T]^T
   int dim = object["m"]; // dimension of time series
   int var_lag = object["p"];
-  if (lag_max < var_lag) Rcpp::stop("'lag_max' must larger than 'object$p'"); // <------ should remove for forecasting function
+  if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
   int ma_rows = dim * (lag_max + 1);
-  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(ma_rows, dim); // same size with VMA coefficient matrix
+  int num_full_brows = ma_rows;
+  if (lag_max < var_lag) num_full_brows = dim * var_lag; // for VMA coefficient q < VAR(p)
+  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
   FullB.block(0, 0, dim * var_lag, dim) = coef_mat.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
   Eigen::MatrixXd Im(dim, dim); // identity matrix
   Im.setIdentity(dim, dim);
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
   ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
+  if (lag_max == 1) return Rcpp::wrap(ma);
   for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
     for (int k = 0; k < i; k++) {
       ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
