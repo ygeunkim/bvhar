@@ -247,9 +247,9 @@ compute_cov <- function(z, num_design, dim_design) {
 #' \deqn{I = (W_0 + W_1 L + W_2 L^2 + \cdots + ) (I - B_1 L - B_2 L^2 - \cdots - B_p L^p)}
 #' Recursively,
 #' \deqn{W_0 = I}
-#' \deqn{W_1 = W_0 B_1}
-#' \deqn{W_2 = W_1 B_1 + W_0 B_2}
-#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j}
+#' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
+#' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
+#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
