@@ -91,3 +91,37 @@ SEXP VARtoVMA(Rcpp::List object, int lag_max) {
   }
   return Rcpp::wrap(ma);
 }
+
+//' Compute Forecast MSE Matrices
+//' 
+//' Compute the forecast MSE matrices using VMA coefficients
+//' 
+//' @param object \code{varlse} object by \code{\link{var_lm}}
+//' @param step Integer, Step to forecast
+//' @details
+//' See pp38 of Lütkepohl (2007).
+//' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
+//' Recursively,
+//' \deqn{\Sigma_y(1) = \Sigma}
+//' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+//' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+//' 
+//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
+SEXP compute_covmse(Rcpp::List object, int step) {
+  if (!object.inherits("varlse")) Rcpp::stop("'object' must be varlse object.");
+  int dim = object["m"]; // dimension of time series
+  Eigen::MatrixXd cov_mat = object["covmat"]; // sigma
+  Eigen::MatrixXd vma_mat = Rcpp::as<Eigen::MatrixXd>(VARtoVMA(object, step));
+  Eigen::MatrixXd mse(dim * step, dim);
+  mse.block(0, 0, dim, dim) = cov_mat; // sig(y) = sig
+  for (int i = 1; i < step; i++) {
+    mse.block(i * dim, 0, dim, dim) = mse.block((i - 1) * dim, 0, dim, dim) + 
+      vma_mat.block(i * dim, 0, dim, dim).adjoint() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
+  }
+  return Rcpp::wrap(mse);
+}
+

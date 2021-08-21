@@ -166,6 +166,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_covmse
+SEXP compute_covmse(Rcpp::List object, int step);
+RcppExport SEXP _bvhar_compute_covmse(SEXP objectSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_covmse(object, step));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scale_har
 SEXP scale_har(int m);
 RcppExport SEXP _bvhar_scale_har(SEXP mSEXP) {
@@ -311,6 +323,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
+    {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_forecast_bvarmn", (DL_FUNC) &_bvhar_forecast_bvarmn, 2},

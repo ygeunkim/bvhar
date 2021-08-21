@@ -259,6 +259,28 @@ VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
 }
 
+#' Compute Forecast MSE Matrices
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+compute_covmse <- function(object, step) {
+    .Call(`_bvhar_compute_covmse`, object, step)
+}
+
 #' Build a Linear Transformation Matrix for Vector HAR
 #' 
 #' @param m integer, dimension
