@@ -320,14 +320,13 @@ names(fit_har)
 VHAR also follows `varlse` basically. Use `predict` method with `n.ahead` option.
 
 ```{r}
-pred_har <- predict(fit_har, n.ahead = h)
-(pred_harmat <- pred_har$forecast)
+(pred_har <- predict(fit_har, n.ahead = h))
 ```
 
 MSE:
 
 ```{r}
-(mse_har <- apply(etf_test - pred_harmat, 2, function(x) mean(x^2)))
+(mse_har <- mse(pred_har, etf_test))
 ```
 
 Compare the two MSE:

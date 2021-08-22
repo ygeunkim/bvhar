@@ -155,12 +155,11 @@ autoplot(est_bvar, "GVZCLS")
 ## Forecasting
 
 ```{r}
-pred_bvar <- predict(fit_bvar, h)
-(pred_bvarmat <- pred_bvar$forecast)
+(pred_bvar <- predict(fit_bvar, h))
 ```
 
 ```{r}
-(mse_bvar <- apply(etf_test - pred_bvarmat, 2, function(x) mean(x^2)))
+(mse_bvar <- mse(pred_bvar, etf_test))
 ```
 
 Compare:
@@ -168,16 +167,16 @@ Compare:
 ```{r}
 # VAR----------------------------
 fit_var <- var_lm(etf_train, p = 1)
-pred_varmat <- predict(fit_var, h)$forecast
-mse_var <- apply(etf_test - pred_varmat, 2, function(x) mean(x^2))
+pred_var <- predict(fit_var, h)
+mse_var <- mse(pred_var, etf_test)
 # VHAR---------------------------
 fit_har <- vhar_lm(etf_train)
-pred_harmat <- predict(fit_har, h)$forecast
-mse_har <- apply(etf_test - pred_harmat, 2, function(x) mean(x^2))
+pred_har <- predict(fit_har, h)
+mse_har <- mse(pred_har, etf_test)
 # BVHAR (original Minnesota)-----
 fit_bvhar <- bvhar_minnesota(etf_train, sigma = sig, lambda = lam, delta = delta, eps = eps)
-pred_bvharmat <- predict(fit_bvhar, h)$forecast
-mse_bvhar <- apply(etf_test - pred_bvharmat, 2, function(x) mean(x^2))
+pred_bvhar <- predict(fit_bvhar, h)
+mse_bvhar <- mse(pred_bvhar, etf_test)
 ```
 
 MSE:
@@ -209,12 +208,11 @@ U <- 5000 * diag(m * bvar_lag + 1) # c * I
 ## Forecasting
 
 ```{r}
-pred_ghosh <- predict(fit_ghosh, h)
-(pred_ghoshmat <- pred_ghosh$forecast)
+(pred_ghosh <- predict(fit_ghosh, h))
 ```
 
 ```{r}
-(mse_ghosh <- apply(etf_test - pred_ghoshmat, 2, function(x) mean(x^2)))
+(mse_ghosh <- mse(pred_ghosh, etf_test))
 ```
 
 ```{r}
@@ -229,6 +227,4 @@ mean(mse_bvhar)
 # Ghosh-----------
 mean(mse_ghosh)
 ```
-
-
 
