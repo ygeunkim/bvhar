@@ -32,6 +32,7 @@ jobs:
       - name: Restore R package cache
         uses: actions/cache@v2
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
@@ -46,5 +47,3 @@ jobs:
       - name: Test coverage
         run: covr::codecov()
         shell: Rscript {0}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
