@@ -7,6 +7,10 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Travis build
+status](https://travis-ci.com/ygeunkim/bvhar.svg?branch=master)](https://travis-ci.com/github/ygeunkim/bvhar)
+[![Codecov test
+coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg)](https://codecov.io/gh/ygeunkim/bvhar?branch=master)
 <!-- badges: end -->
 
 ## Overview

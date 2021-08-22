@@ -8,5 +8,12 @@ sudo: false
 r_packages:
   - covr
 
-after_success:
-  - Rscript -e 'covr::codecov()'
+jobs:
+  include:
+  - r: devel
+  - os: osx
+  - r: release
+    after_success:
+    - Rscript -e 'covr::codecov()'
+    before_cache:
+    - Rscript -e 'remotes::install_github("ygeunkim/bvhar")'
