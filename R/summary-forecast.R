@@ -69,7 +69,7 @@ autoplot.predbvhar <- function(object, type = c("facet", "shape"), ci_fill = "gr
   )
 }
 
-#' Evaluate the Model Based on MSE
+#' Evaluate the Model Based on MSPE (Mean Squared Prediction Error)
 #' @param x \code{predbvhar} object
 #' @param y test data to be compared
 #' @param ... not used
@@ -79,7 +79,7 @@ mse <- function(x, y, ...) {
   UseMethod("mse", x)
 }
 
-#' Evaluate the Result of Prediction
+#' Compute MSE
 #' 
 #' @param x \code{predbvhar} object
 #' @param y test data to be compared. should be the same format with the train data and predict$forecast.
@@ -88,4 +88,25 @@ mse <- function(x, y, ...) {
 #' @export
 mse.predbvhar <- function(x, y, ...) {
   apply(y - x$forecast, 2, function(x) mean(x^2))
+}
+
+#' Evaluate the Model Based on MAPE (Mean Absolute Percentage Error)
+#' @param x \code{predbvhar} object
+#' @param y test data to be compared
+#' @param ... not used
+#' 
+#' @export
+mape <- function(x, y, ...) {
+  UseMethod("mape", x)
+}
+
+#' Compute MAPE
+#' 
+#' @param x \code{predbvhar} object
+#' @param y test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param ... not used
+#' 
+#' @export
+mape.predbvhar <- function(x, y, ...) {
+  apply((y - x$forecast) / y, 2, function(x) mean(abs(x)))
 }
