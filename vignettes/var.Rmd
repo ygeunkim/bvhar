@@ -223,11 +223,15 @@ class(pred_var)
 names(pred_var)
 ```
 
+```{r}
+autoplot(pred_var)
+```
+
+The package provides the evaluation function that computes MSE: `mse(predbvhar, test)`.
 Compute MSE as follow:
 
 ```{r}
-pred_varmat <- pred_var$forecast
-(mse_var <- apply(etf_test - pred_varmat, 2, function(x) mean(x^2)))
+(mse_var <- mse(pred_var, etf_test))
 ```
 
 
