@@ -17,8 +17,10 @@ License: MIT + file LICENSE
 URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
+    covr,
     knitr,
     rmarkdown,
+    testthat (>= 3.0.0),
     tinytest
 Encoding: UTF-8
 LazyData: true
@@ -39,3 +41,4 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
