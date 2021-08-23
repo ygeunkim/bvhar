@@ -18,9 +18,3 @@
 \description{
 Plots the forecasting result with forecast regions.
 }
-\details{
-For h-step forecasting (e.g. n + 1, ... n + h),
-joint forecast region of \eqn{100(1-\alpha)}\\% can be computed by
-\deqn{\left\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \right\}}
-See the pp41 of Lütkepohl (2007).
-}

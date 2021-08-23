@@ -6,11 +6,6 @@
 #' @param type Divide variables using \code{\link[ggplot2]{facet_grid}} ("facet": default) or just line type ("color")
 #' @param ci_fill color of CI
 #' @param ... additional option for \code{\link[ggplot2]{geom_path}}
-#' @details 
-#' For h-step forecasting (e.g. n + 1, ... n + h),
-#' joint forecast region of \eqn{100(1-\alpha)}\% can be computed by
-#' \deqn{\left\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \right\}}
-#' See the pp41 of Lütkepohl (2007).
 #' 
 #' @importFrom ggplot2 ggplot aes geom_path geom_ribbon facet_grid labs element_blank
 #' @importFrom dplyr bind_rows mutate n left_join

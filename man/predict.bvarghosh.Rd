@@ -14,7 +14,12 @@
 \item{...}{not used}
 }
 \value{
-matrix
+\code{predbvhar} \link{class} with the following components:
+\describe{
+\item{process}{object class: bvarghosh}
+\item{forecast}{forecast matrix}
+\item{y}{bvarghosh$y}
+}
 }
 \description{
 Point forecasting for Nonhierarchical Ghosh BVAR(p)

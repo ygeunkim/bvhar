@@ -14,7 +14,12 @@
 \item{...}{not used}
 }
 \value{
-matrix
+\code{predbvhar} \link{class} with the following components:
+\describe{
+\item{process}{object class: bvharmn}
+\item{forecast}{forecast matrix}
+\item{y}{bvharmn$y}
+}
 }
 \description{
 Forecasting BVHAR

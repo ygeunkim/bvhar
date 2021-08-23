@@ -16,7 +16,17 @@
 \item{...}{not used}
 }
 \value{
-matrix
+\code{predbvhar} \link{class} with the following components:
+\describe{
+\item{process}{object class: varlse}
+\item{forecast}{forecast matrix}
+\item{se}{standard error matrix}
+\item{lower}{lower confidence interval}
+\item{upper}{upper confidence interval}
+\item{lower_joint}{lower CI adjusted (Bonferroni)}
+\item{upper_joint}{upper CI adjusted (Bonferroni)}
+\item{y}{varlse$y}
+}
 }
 \description{
 Forecasting VAR(p)
@@ -24,12 +34,13 @@ Forecasting VAR(p)
 \details{
 n-step ahead forecasting using VAR(p) recursively.
 See pp35 of Lütkepohl (2007).
+Consider h-step forecasting (e.g. n + 1, ... n + h).
 
 Confidence interval at h-period is
 \deqn{y_{k,t}(h) \pm z_(\alpha / 2) \sigma_k (h)}
 
-Joint forecast region of \eqn{100(1-\alpha)}\\% can be computed by
-\deqn{\left\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \right\}}
+Joint forecast region of \eqn{100(1-\alpha)}\% can be computed by
+\deqn{\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \}}
 See the pp41 of Lütkepohl (2007).
 
 To compute covariance matrix, it needs VMA representation:
@@ -37,7 +48,7 @@ To compute covariance matrix, it needs VMA representation:
 
 Then
 
-\deqn{\Sigma_y(h) = MSE \left[ y_t(h) \right] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
+\deqn{\Sigma_y(h) = MSE [ y_t(h) ] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

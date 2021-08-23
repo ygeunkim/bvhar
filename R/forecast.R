@@ -9,12 +9,13 @@
 #' @details 
 #' n-step ahead forecasting using VAR(p) recursively.
 #' See pp35 of Lütkepohl (2007).
+#' Consider h-step forecasting (e.g. n + 1, ... n + h).
 #' 
 #' Confidence interval at h-period is
 #' \deqn{y_{k,t}(h) \pm z_(\alpha / 2) \sigma_k (h)}
 #' 
-#' Joint forecast region of \eqn{100(1-\alpha)}\% can be computed by
-#' \deqn{\left\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \right\}}
+#' Joint forecast region of \eqn{100(1-\alpha)}% can be computed by
+#' \deqn{\{ (y_{k, 1}, y_{k, h}) \mid y_{k, n}(i) - z_{(\alpha / 2h)} \sigma_n(i) \le y_{n, i} \le y_{k, n}(i) + z_{(\alpha / 2h)} \sigma_k(i), i = 1, \ldots, h \}}
 #' See the pp41 of Lütkepohl (2007).
 #' 
 #' To compute covariance matrix, it needs VMA representation:
@@ -22,9 +23,19 @@
 #' 
 #' Then
 #' 
-#' \deqn{\Sigma_y(h) = MSE \left[ y_t(h) \right] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
+#' \deqn{\Sigma_y(h) = MSE [ y_t(h) ] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
 #' 
-#' @return matrix
+#' @return \code{predbvhar} \link{class} with the following components:
+#' \describe{
+#'   \item{process}{object class: varlse}
+#'   \item{forecast}{forecast matrix}
+#'   \item{se}{standard error matrix}
+#'   \item{lower}{lower confidence interval}
+#'   \item{upper}{upper confidence interval}
+#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
+#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
+#'   \item{y}{varlse$y}
+#' }
 #' 
 #' @references 
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -65,7 +76,13 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #' @param ... not used
 #' @details 
 #' n-step ahead forecasting using VHAR recursively
-#' @return matrix
+#' @return \code{predbvhar} \link{class} with the following components:
+#' \describe{
+#'   \item{process}{object class: vharlse}
+#'   \item{forecast}{forecast matrix}
+#'   \item{y}{vharlse$y}
+#' }
+#' 
 #' @order 1
 #' @export
 predict.vharlse <- function(object, n.ahead, ...) {
@@ -86,20 +103,68 @@ predict.vharlse <- function(object, n.ahead, ...) {
 #' 
 #' @param object \code{bvarmn} object
 #' @param n.ahead step to forecast
+#' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
 #' @details 
-#' n-step ahead forecasting using BVAR recursively
-#' @return matrix
+#' n-step ahead forecasting using BVAR recursively.
+#' Let \eqn{\hat{B}} be the posterior MN mean
+#' and let \eqn{\hat{V}} be the posterior MN precision.
 #' 
+#' Then predictive posterior for each step
+#' 
+#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \hat{B}), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
+#' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
+#' and recursively,
+#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h)}^T \hat{V}^{-1} \hat{y}_{(n + h)}) )}
+#' 
+#' @return \code{predbvhar} \link{class} with the following components:
+#' \describe{
+#'   \item{process}{object class: bvarmn}
+#'   \item{forecast}{forecast matrix}
+#'   \item{y}{bvarmn$y}
+#' }
+#' 
+#' @importFrom mniw riwish
 #' @order 1
 #' @export
-predict.bvarmn <- function(object, n.ahead, ...) {
+predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   pred_res <- forecast_bvarmn(object, n.ahead)
-  colnames(pred_res) <- colnames(object$y0)
+  # Point forecasting (Posterior mean)--------------
+  pred_mean <- pred_res$posterior_mean
+  colnames(pred_mean) <- colnames(object$y0)
+  # Standard error----------------------------------
+  pred_variance <- pred_res$posterior_var_closed
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$a0 + object$obs + 2)
+  # Compute CI--------------------------------------
+  ci_simul <- 
+    lapply(
+      1:n_iter,
+      function(i) {
+        lapply(
+          pred_variance,
+          function(v) {
+            kronecker(sig_rand[,, i], v) %>% diag()
+          }
+        ) %>% 
+          do.call(rbind, .)
+      }
+    ) %>% 
+    simplify2array() %>% 
+    apply(1:2, quantile, probs = c(level / 2, (1 - level / 2))) %>% 
+    sqrt()
+  dimnames(ci_simul)[[3]] <- colnames(object$y0)
+  lower_se <- ci_simul[1,,]
+  upper_se <- ci_simul[2,,]
   res <- list(
     process = "bvarmn",
-    forecast = pred_res,
+    forecast = pred_mean,
+    se = ci_simul,
+    lower = pred_mean - lower_se,
+    upper = pred_mean + upper_se,
+    lower_joint = pred_mean - lower_se, # for autoplot
+    upper_joint = pred_mean - upper_se, # for autoplot
     y = object$y
   )
   class(res) <- "predbvhar"
@@ -115,7 +180,12 @@ predict.bvarmn <- function(object, n.ahead, ...) {
 #' @param ... not used
 #' @details 
 #' n-step ahead forecasting using VHAR recursively
-#' @return matrix
+#' @return \code{predbvhar} \link{class} with the following components:
+#' \describe{
+#'   \item{process}{object class: bvharmn}
+#'   \item{forecast}{forecast matrix}
+#'   \item{y}{bvharmn$y}
+#' }
 #' 
 #' @order 1
 #' @export
@@ -141,7 +211,12 @@ predict.bvharmn <- function(object, n.ahead, ...) {
 #' 
 #' @details 
 #' n-step ahead forecasting using BVAR recursively
-#' @return matrix
+#' @return \code{predbvhar} \link{class} with the following components:
+#' \describe{
+#'   \item{process}{object class: bvarghosh}
+#'   \item{forecast}{forecast matrix}
+#'   \item{y}{bvarghosh$y}
+#' }
 #' 
 #' @export
 predict.bvarghosh <- function(object, n.ahead, ...) {

@@ -4,21 +4,39 @@
 \alias{predict.bvarmn}
 \title{Predict Method for \code{bvarmn} object}
 \usage{
-\method{predict}{bvarmn}(object, n.ahead, ...)
+\method{predict}{bvarmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
 }
 \arguments{
 \item{object}{\code{bvarmn} object}
 
 \item{n.ahead}{step to forecast}
 
+\item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
+
+\item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
+
 \item{...}{not used}
 }
 \value{
-matrix
+\code{predbvhar} \link{class} with the following components:
+\describe{
+\item{process}{object class: bvarmn}
+\item{forecast}{forecast matrix}
+\item{y}{bvarmn$y}
+}
 }
 \description{
 Point forecasting for Minnesota BVAR
 }
 \details{
-n-step ahead forecasting using BVAR recursively
+n-step ahead forecasting using BVAR recursively.
+Let \eqn{\hat{B}} be the posterior MN mean
+and let \eqn{\hat{V}} be the posterior MN precision.
+
+Then predictive posterior for each step
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \hat{B}), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
+\deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
+and recursively,
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h)}^T \hat{V}^{-1} \hat{y}_{(n + h)}) )}
 }

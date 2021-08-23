@@ -76,7 +76,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
   m <- ncol(y)
-  a0 <- nrow(Xp) - m * p + 1
+  a0 <- nrow(Xp) - (m * p + 1)
   # S3--------------------------------
   res <- list(
     design = X0,
