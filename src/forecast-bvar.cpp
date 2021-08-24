@@ -47,7 +47,7 @@ SEXP forecast_bvarmn(Rcpp::List object, int step) {
     tmp_vec = last_pvec.block(0, 0, 1, (var_lag - 1) * dim); // remove the last m (except 1)
     last_pvec.block(0, dim, 1, (var_lag - 1) * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
-    sig_closed.block(i, 0, 1, 1) += last_pvec * posterior_prec_mat * last_pvec.adjoint();
+    sig_closed.block(i, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.adjoint();
     // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
     res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat;
   }

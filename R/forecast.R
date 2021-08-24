@@ -152,19 +152,27 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
       }
     ) %>% 
     simplify2array() %>% 
-    apply(1:2, quantile, probs = c(level / 2, (1 - level / 2))) %>% 
-    sqrt()
-  dimnames(ci_simul)[[3]] <- colnames(object$y0)
-  lower_se <- ci_simul[1,,]
-  upper_se <- ci_simul[2,,]
+    sqrt() %>% 
+    # apply(1:2, quantile, probs = c(level / 2, (1 - level / 2)))
+    apply(1:2, mean)
+  # dimnames(ci_simul)[[3]] <- colnames(object$y0)
+  colnames(ci_simul) <- colnames(object$y0)
+  z_quant <- qnorm(level / 2, lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  # lower_se <- ci_simul[1,,]
+  # upper_se <- ci_simul[2,,]
   res <- list(
     process = "bvarmn",
     forecast = pred_mean,
     se = ci_simul,
-    lower = pred_mean - lower_se,
-    upper = pred_mean + upper_se,
-    lower_joint = pred_mean - lower_se, # for autoplot
-    upper_joint = pred_mean - upper_se, # for autoplot
+    lower = pred_mean - z_quant * ci_simul,
+    upper = pred_mean + z_quant * ci_simul,
+    lower_joint = pred_mean - z_bonferroni * ci_simul,
+    upper_joint = pred_mean + z_bonferroni * ci_simul,
+    # lower = pred_mean - lower_se,
+    # upper = pred_mean + upper_se,
+    # lower_joint = pred_mean - lower_se, # for autoplot
+    # upper_joint = pred_mean + upper_se, # for autoplot
     y = object$y
   )
   class(res) <- "predbvhar"

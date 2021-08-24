@@ -159,6 +159,10 @@ autoplot(est_bvar, "GVZCLS")
 ```
 
 ```{r}
+autoplot(pred_bvar)
+```
+
+```{r}
 (mse_bvar <- mse(pred_bvar, etf_test))
 ```
 

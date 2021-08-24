@@ -228,7 +228,6 @@ estimate_var <- function(x, y) {
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
@@ -253,7 +252,6 @@ compute_cov <- function(z, num_design, dim_design) {
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
@@ -275,7 +273,6 @@ VARtoVMA <- function(object, lag_max) {
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)

@@ -142,7 +142,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_cov
-SEXP compute_cov(Eigen::MatrixXd z, int num_design, int dim_design);
+Eigen::MatrixXd compute_cov(Eigen::MatrixXd z, int num_design, int dim_design);
 RcppExport SEXP _bvhar_compute_cov(SEXP zSEXP, SEXP num_designSEXP, SEXP dim_designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -155,7 +155,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // VARtoVMA
-SEXP VARtoVMA(Rcpp::List object, int lag_max);
+Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max);
 RcppExport SEXP _bvhar_VARtoVMA(SEXP objectSEXP, SEXP lag_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -167,7 +167,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_covmse
-SEXP compute_covmse(Rcpp::List object, int step);
+Eigen::MatrixXd compute_covmse(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_compute_covmse(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

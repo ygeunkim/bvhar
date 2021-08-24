@@ -39,13 +39,12 @@ SEXP estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
+Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
   Eigen::MatrixXd cov_mat(z.cols(), z.cols());
   cov_mat = z.adjoint() * z / (num_design - dim_design);
-  return Rcpp::wrap(cov_mat);
+  return cov_mat;
 }
 
 //' Convert VAR to VMA(infinite)
@@ -67,10 +66,9 @@ SEXP compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP VARtoVMA(Rcpp::List object, int lag_max) {
+Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
   if (!object.inherits("varlse")) Rcpp::stop("'object' must be varlse object.");
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat(k, m) = [B1^T, B2^T, ..., Bp^T, c^T]^T
   int dim = object["m"]; // dimension of time series
@@ -86,13 +84,13 @@ SEXP VARtoVMA(Rcpp::List object, int lag_max) {
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
   ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
-  if (lag_max == 1) return Rcpp::wrap(ma);
+  if (lag_max == 1) return ma;
   for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
     for (int k = 0; k < i; k++) {
       ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
     }
   }
-  return Rcpp::wrap(ma);
+  return ma;
 }
 
 //' Compute Forecast MSE Matrices
@@ -111,20 +109,19 @@ SEXP VARtoVMA(Rcpp::List object, int lag_max) {
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP compute_covmse(Rcpp::List object, int step) {
+Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   if (!object.inherits("varlse")) Rcpp::stop("'object' must be varlse object.");
   int dim = object["m"]; // dimension of time series
   Eigen::MatrixXd cov_mat = object["covmat"]; // sigma
-  Eigen::MatrixXd vma_mat = Rcpp::as<Eigen::MatrixXd>(VARtoVMA(object, step));
+  Eigen::MatrixXd vma_mat = VARtoVMA(object, step);
   Eigen::MatrixXd mse(dim * step, dim);
   mse.block(0, 0, dim, dim) = cov_mat; // sig(y) = sig
   for (int i = 1; i < step; i++) {
     mse.block(i * dim, 0, dim, dim) = mse.block((i - 1) * dim, 0, dim, dim) + 
       vma_mat.block(i * dim, 0, dim, dim).adjoint() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
   }
-  return Rcpp::wrap(mse);
+  return mse;
 }
 
