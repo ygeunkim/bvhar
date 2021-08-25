@@ -4,12 +4,14 @@
 \alias{predict.vharlse}
 \title{Predict Method for \code{vharlse} object}
 \usage{
-\method{predict}{vharlse}(object, n.ahead, ...)
+\method{predict}{vharlse}(object, n.ahead, level = 0.05, ...)
 }
 \arguments{
 \item{object}{\code{vharlse} object}
 
 \item{n.ahead}{step to forecast}
+
+\item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
 \item{...}{not used}
 }

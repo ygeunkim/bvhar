@@ -323,6 +323,10 @@ VHAR also follows `varlse` basically. Use `predict` method with `n.ahead` option
 (pred_har <- predict(fit_har, n.ahead = h))
 ```
 
+```{r}
+autoplot(pred_har)
+```
+
 MSE:
 
 ```{r}

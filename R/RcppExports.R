@@ -311,6 +311,51 @@ estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
 }
 
+#' Convert VHAR to VMA(infinite)
+#' 
+#' Convert VHAR process to infinite vector MA process
+#' 
+#' @param object \code{vharlse} object by \code{\link{vhar_lm}}
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Let VAR(p) be stable
+#' and let VAR(p) be
+#' \eqn{Y_0 = X_0 B + Z}
+#' 
+#' VHAR is VAR(22) with
+#' \deqn{Y_0 = X_1 B + Z = ((X_0 \tilde{T}^T)) \Phi + Z}
+#' 
+#' Observe that
+#' \deqn{B = \tilde{T}^T \Phi}
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+VHARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VHARtoVMA`, object, lag_max)
+}
+
+#' Compute Forecast MSE Matrices for VHAR
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VHAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+compute_covmse_har <- function(object, step) {
+    .Call(`_bvhar_compute_covmse_har`, object, step)
+}
+
 #' Forecasting BVAR of Minnesota Prior
 #' 
 #' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}

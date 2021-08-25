@@ -19,6 +19,7 @@
 #'   \item{y}{Raw input}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the data}
+#'   \item{df}{Numer of Coefficients: mp + 1}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: VAR}
@@ -80,7 +81,8 @@ var_lm <- function(y, p) {
   zhat <- Y0 - yhat
   # residual Covariance matrix------
   m <- ncol(y)
-  covmat <- compute_cov(zhat, nrow(Y0), m * p + 1) # Sighat = z^T %*% z / (s - k)
+  k <- m * p + 1
+  covmat <- compute_cov(zhat, nrow(Y0), k) # Sighat = z^T %*% z / (s - k)
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
   # return as new S3 class-----------
@@ -90,6 +92,7 @@ var_lm <- function(y, p) {
     y = y,
     p = p, # p
     m = m, # m
+    df = k, # k = m * p + 1
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VAR",

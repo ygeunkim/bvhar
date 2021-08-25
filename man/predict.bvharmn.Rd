@@ -4,12 +4,16 @@
 \alias{predict.bvharmn}
 \title{Predict Method for \code{bvharmn} object}
 \usage{
-\method{predict}{bvharmn}(object, n.ahead, ...)
+\method{predict}{bvharmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
 }
 \arguments{
 \item{object}{\code{vharlse} object}
 
 \item{n.ahead}{step to forecast}
+
+\item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
+
+\item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
 \item{...}{not used}
 }

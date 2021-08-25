@@ -137,6 +137,10 @@ class(pred_bvhar)
 names(pred_bvhar)
 ```
 
+```{r}
+autoplot(pred_bvhar)
+```
+
 MSE:
 
 ```{r}

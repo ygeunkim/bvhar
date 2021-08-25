@@ -73,6 +73,7 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #' 
 #' @param object \code{vharlse} object
 #' @param n.ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @details 
 #' n-step ahead forecasting using VHAR recursively
@@ -85,12 +86,26 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #' 
 #' @order 1
 #' @export
-predict.vharlse <- function(object, n.ahead, ...) {
+predict.vharlse <- function(object, n.ahead, level = .05, ...) {
   pred_res <- forecast_vhar(object, n.ahead)
   colnames(pred_res) <- colnames(object$y0)
+  SE <- 
+    compute_covmse_har(object, n.ahead) %>% # concatenated matrix
+    split.data.frame(gl(n.ahead, object$m)) %>% # list of forecast MSE covariance matrix
+    sapply(diag) %>% 
+    sqrt() %>% 
+    t() # extract only diagonal element to compute CIs
+  colnames(SE) <- colnames(object$y0)
+  z_quant <- qnorm(level / 2, lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   res <- list(
     process = "vharlse",
     forecast = pred_res,
+    se = SE,
+    lower = pred_res - z_quant * SE,
+    upper = pred_res + z_quant * SE,
+    lower_joint = pred_res - z_bonferroni * SE,
+    upper_joint = pred_res + z_bonferroni * SE,
     y = object$y
   )
   class(res) <- "predbvhar"
@@ -185,6 +200,8 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' 
 #' @param object \code{vharlse} object
 #' @param n.ahead step to forecast
+#' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @details 
 #' n-step ahead forecasting using VHAR recursively
@@ -197,12 +214,43 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' 
 #' @order 1
 #' @export
-predict.bvharmn <- function(object, n.ahead, ...) {
+predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   pred_res <- forecast_bvharmn(object, n.ahead)
-  colnames(pred_res) <- colnames(object$y0)
+  # Point forecasting (Posterior mean)--------------
+  pred_mean <- pred_res$posterior_mean
+  colnames(pred_mean) <- colnames(object$y0)
+  # Standard error----------------------------------
+  pred_variance <- pred_res$posterior_var_closed
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$a0 + object$totobs + 2)
+  # Compute CI--------------------------------------
+  ci_simul <- 
+    lapply(
+      1:n_iter,
+      function(i) {
+        lapply(
+          pred_variance,
+          function(v) {
+            kronecker(sig_rand[,, i], v) %>% diag()
+          }
+        ) %>% 
+          do.call(rbind, .)
+      }
+    ) %>% 
+    simplify2array() %>% 
+    sqrt() %>% 
+    apply(1:2, mean)
+  colnames(ci_simul) <- colnames(object$y0)
+  z_quant <- qnorm(level / 2, lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  # return-----------------------------------------
   res <- list(
     process = "bvharmn",
-    forecast = pred_res,
+    forecast = pred_mean,
+    se = ci_simul,
+    lower = pred_mean - z_quant * ci_simul,
+    upper = pred_mean + z_quant * ci_simul,
+    lower_joint = pred_mean - z_bonferroni * ci_simul,
+    upper_joint = pred_mean + z_bonferroni * ci_simul,
     y = object$y
   )
   class(res) <- "predbvhar"

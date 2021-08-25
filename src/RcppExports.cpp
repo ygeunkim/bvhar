@@ -201,8 +201,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// VHARtoVMA
+Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max);
+RcppExport SEXP _bvhar_VHARtoVMA(SEXP objectSEXP, SEXP lag_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(VHARtoVMA(object, lag_max));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_covmse_har
+Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step);
+RcppExport SEXP _bvhar_compute_covmse_har(SEXP objectSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_covmse_har(object, step));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvarmn
-SEXP forecast_bvarmn(Rcpp::List object, int step);
+Rcpp::List forecast_bvarmn(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_forecast_bvarmn(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -226,7 +250,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // forecast_bvharmn
-SEXP forecast_bvharmn(Rcpp::List object, int step);
+Rcpp::List forecast_bvharmn(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_forecast_bvharmn(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -326,6 +350,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
+    {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
+    {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},
     {"_bvhar_forecast_bvarmn", (DL_FUNC) &_bvhar_forecast_bvarmn, 2},
     {"_bvhar_forecast_bvarghosh", (DL_FUNC) &_bvhar_forecast_bvarghosh, 2},
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 2},

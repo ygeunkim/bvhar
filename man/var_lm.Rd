@@ -34,6 +34,7 @@ It is a list with the following components:
 \item{y}{Raw input}
 \item{p}{Lag of VAR}
 \item{m}{Dimension of the data}
+\item{df}{Numer of Coefficients: mp + 1}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: VAR}

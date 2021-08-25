@@ -108,9 +108,9 @@ bvhar_minnesota <- function(y,
   Phihat <- posterior$bhat # posterior mean
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har
-  Uhat <- posterior$mnprec
-  colnames(Uhat) <- name_har
-  rownames(Uhat) <- name_har
+  Psihat <- posterior$mnprec
+  colnames(Psihat) <- name_har
+  rownames(Psihat) <- name_har
   yhat <- posterior$fitted
   colnames(yhat) <- name_var
   # Inverse-wishart-------------------
@@ -133,7 +133,7 @@ bvhar_minnesota <- function(y,
     mn_mean = Phihat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_prec = Uhat,
+    mn_prec = Psihat,
     iw_scale = Sighat,
     a0 = a0
   )

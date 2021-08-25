@@ -52,6 +52,12 @@ vhar_lm <- function(y) {
   yhat <- vhar_est$fitted
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
+  # residual Covariance matrix------
+  m <- ncol(y)
+  num_coef <- 3 * m + 1
+  covmat <- compute_cov(zhat, nrow(Y0), num_coef) # Sighat = z^T %*% z / (s - (3m + 1))
+  colnames(covmat) <- name_var
+  rownames(covmat) <- name_var
   # return as new S3 class-----------
   res <- list(
     design = X0,
@@ -59,14 +65,16 @@ vhar_lm <- function(y) {
     y = y,
     # p = p, # p
     m = ncol(y), # m
+    df = num_coef, # nrow(Phihat) = 3 * m + 1
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VHAR",
     call = match.call(),
     HARtrans = vhar_est$HARtrans,
     coefficients = Phihat,
-    fitted.values = yhat, # X0 %*% Bhat
-    residuals = zhat # Y0 - X0 %*% Bhat
+    fitted.values = yhat, # X1 %*% Phihat
+    residuals = zhat, # Y0 - X1 %*% Phihat
+    covmat = covmat
   )
   class(res) <- "vharlse"
   res
