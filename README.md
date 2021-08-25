@@ -7,7 +7,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions)
+[![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions?workflow=R-CMD-check)
 [![Codecov test
 coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg)](https://codecov.io/gh/ygeunkim/bvhar?branch=master)
 <!-- badges: end -->
@@ -36,12 +36,26 @@ remotes::install_github("ygeunkim/bvhar")
 ## Usage
 
 ``` r
-library(bvhar)
+library(bvhar) # this package
 library(dplyr)
 library(ggplot2)
 ```
 
-### VAR
+Repeatedly, `bvhar` is a research tool to analyze multivariate time
+series model above
+
+| Model |     function      |     S3      |
+|:-----:|:-----------------:|:-----------:|
+|  VAR  |     `var_lm`      |  `varlse`   |
+| VHAR  |     `vhar_lm`     |  `vharlse`  |
+| BVAR  | `bvar_minnesota`  |  `bvarmn`   |
+| BVAR  |    `bvar_flat`    | `bvarghosh` |
+| BVHAR | `bvhar_minnesota` |  `bvharmn`  |
+
+As the other analyzing using S3 such as `lm`, this package use method
+`coef`, `predict`, etc. This readme document shows out-of-sample
+forecasting briefly. Details about each function are in vignettes and
+help documents.
 
 Out-of-sample forecasting:
 
@@ -54,10 +68,12 @@ etf_tr <-
 etf_te <- setdiff(etf_vix, etf_tr)
 ```
 
-VAR(1):
+### VAR
+
+VAR(5):
 
 ``` r
-mod_var <- var_lm(etf_tr, 1)
+mod_var <- var_lm(etf_tr, 5)
 ```
 
 Forecasting:
@@ -70,10 +86,10 @@ MSE:
 
 ``` r
 (msevar <- mse(forecast_var, etf_te))
-#>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.920100  2.767665 56.480501  6.909928  1.884014  2.844713  4.448146  9.536520 
-#>  VXXLECLS 
-#> 45.142567
+#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
+#>     1.63     4.01    71.27     3.01     1.91     3.82     4.60    10.27 
+#> VXXLECLS 
+#>    38.12
 ```
 
 ### VHAR
@@ -87,10 +103,10 @@ MSE:
 ``` r
 forecast_vhar <- predict(mod_vhar, h)
 (msevhar <- mse(forecast_vhar, etf_te))
-#>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  2.574746  6.387274 70.829157  4.321342  3.086089  5.341502  4.378567  7.636454 
-#>  VXXLECLS 
-#> 52.135727
+#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
+#>     2.57     6.39    70.83     4.32     3.09     5.34     4.38     7.64 
+#> VXXLECLS 
+#>    52.14
 ```
 
 ### BVAR
@@ -98,8 +114,8 @@ forecast_vhar <- predict(mod_vhar, h)
 Minnesota prior:
 
 ``` r
-lam <- .2
-delta <- rep(0, ncol(etf_vix)) # litterman
+lam <- .3
+delta <- rep(1, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
 eps <- 1e-04
 ```
@@ -113,10 +129,10 @@ MSE:
 ``` r
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
-#>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.675226  3.007671 53.085572  4.233823  5.998921  3.847304  4.247299  8.387925 
-#>  VXXLECLS 
-#> 42.483580
+#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
+#>     1.36     2.45    59.34     4.23     2.37     3.05     5.75     8.15 
+#> VXXLECLS 
+#>    42.36
 ```
 
 ### BVHAR
@@ -132,10 +148,10 @@ MSE:
 ``` r
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
-#>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.707028  3.453921 48.813705  3.388200  8.974295  5.351510  4.725564  6.815297 
-#>  VXXLECLS 
-#> 41.515688
+#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
+#>     1.73     3.24    60.58     3.40     3.78     3.66     6.01     6.89 
+#> VXXLECLS 
+#>    39.26
 ```
 
 Minnesota-v2:
@@ -160,10 +176,10 @@ mod_bvhar_v2 <- bvhar_minnesota(
 ``` r
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
-#>    EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS 
-#>  1.568791  2.903725 43.408822  2.895090  7.916399  5.961531  5.411489  6.573031 
-#>  VXXLECLS 
-#> 37.812749
+#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
+#>     1.74     2.97    49.28     3.00     5.78     5.86     6.98     6.41 
+#> VXXLECLS 
+#>    36.94
 ```
 
 Comparing:
@@ -173,16 +189,16 @@ Comparing:
 ``` r
 # VAR---------------
 mean(msevar)
-#> [1] 14.65935
+#> [1] 15.4
 # VHAR--------------
 mean(msevhar)
-#> [1] 17.4101
+#> [1] 17.4
 # BVAR--------------
 mean(msebvar)
-#> [1] 14.10748
+#> [1] 14.3
 # BVHAR-------------
 mean(msebvhar_v1)
-#> [1] 13.86058
+#> [1] 14.3
 mean(msebvhar_v2)
-#> [1] 12.71685
+#> [1] 13.2
 ```
