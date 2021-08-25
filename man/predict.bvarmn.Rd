@@ -22,6 +22,11 @@
 \describe{
 \item{process}{object class: bvarmn}
 \item{forecast}{forecast matrix}
+\item{se}{standard error matrix}
+\item{lower}{lower confidence interval}
+\item{upper}{upper confidence interval}
+\item{lower_joint}{lower CI adjusted (Bonferroni)}
+\item{upper_joint}{upper CI adjusted (Bonferroni)}
 \item{y}{bvarmn$y}
 }
 }
@@ -38,5 +43,5 @@ Then predictive posterior for each step
 \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \hat{B}), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 and recursively,
-\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h)}^T \hat{V}^{-1} \hat{y}_{(n + h)}) )}
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
 }

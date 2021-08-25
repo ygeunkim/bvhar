@@ -159,7 +159,7 @@ autoplot(est_bvar, "GVZCLS")
 ```
 
 ```{r}
-autoplot(pred_bvar)
+autoplot(pred_bvar, x_cut = 500)
 ```
 
 ```{r}

@@ -22,6 +22,11 @@
 \describe{
 \item{process}{object class: bvharmn}
 \item{forecast}{forecast matrix}
+\item{se}{standard error matrix}
+\item{lower}{lower confidence interval}
+\item{upper}{upper confidence interval}
+\item{lower_joint}{lower CI adjusted (Bonferroni)}
+\item{upper_joint}{upper CI adjusted (Bonferroni)}
 \item{y}{bvharmn$y}
 }
 }
@@ -29,5 +34,14 @@
 Forecasting BVHAR
 }
 \details{
-n-step ahead forecasting using VHAR recursively
+n-step ahead forecasting using VHAR recursively.
+Let \eqn{\hat\Phi} be the posterior MN mean
+and let \eqn{\hat\Psi} be the posterior MN precision.
+
+Then predictive posterior for each step
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+\deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
+and recursively,
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 }

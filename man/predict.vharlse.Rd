@@ -20,6 +20,11 @@
 \describe{
 \item{process}{object class: vharlse}
 \item{forecast}{forecast matrix}
+\item{se}{standard error matrix}
+\item{lower}{lower confidence interval}
+\item{upper}{upper confidence interval}
+\item{lower_joint}{lower CI adjusted (Bonferroni)}
+\item{upper_joint}{upper CI adjusted (Bonferroni)}
 \item{y}{vharlse$y}
 }
 }

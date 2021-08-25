@@ -224,7 +224,7 @@ names(pred_var)
 ```
 
 ```{r}
-autoplot(pred_var)
+autoplot(pred_var, x_cut = 500)
 ```
 
 The package provides the evaluation function that computes MSE: `mse(predbvhar, test)`.
@@ -324,7 +324,7 @@ VHAR also follows `varlse` basically. Use `predict` method with `n.ahead` option
 ```
 
 ```{r}
-autoplot(pred_har)
+autoplot(pred_har, x_cut = 500)
 ```
 
 MSE:

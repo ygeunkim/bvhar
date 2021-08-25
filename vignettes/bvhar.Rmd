@@ -138,7 +138,7 @@ names(pred_bvhar)
 ```
 
 ```{r}
-autoplot(pred_bvhar)
+autoplot(pred_bvhar, x_cut = 500)
 ```
 
 MSE:
@@ -207,6 +207,10 @@ fit_bvhar_other <- bvhar_minnesota(
 (pred_bvhar_other <- predict(fit_bvhar_other, h))
 ```
 
+```{r}
+autoplot(pred_bvhar_other, x_cut = 500)
+```
+
 MSE:
 
 ```{r}
@@ -221,9 +225,5 @@ mse_bvhar
 mean(mse_bvhar)
 # New Minnesota---------------------------
 mean(mse_bvhar_other)
-```
-
-```{r}
-autoplot(pred_bvhar_other, show.legend = FALSE)
 ```
 
