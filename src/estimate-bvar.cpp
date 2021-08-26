@@ -82,17 +82,19 @@ SEXP estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) 
   int k = x.cols();
   Eigen::MatrixXd Bhat(k, m); // MN mean
   Eigen::MatrixXd Uhat(k, k); // MN precision
+  Eigen::MatrixXd Uhat_inv(k, k);
   Eigen::MatrixXd Sighat(m, m); // IW scale
   Eigen::MatrixXd yhat(s, m); // x %*% bhat
   Eigen::MatrixXd Is(s, s);
   Is.setIdentity(s, s);
-  Uhat = (x.adjoint() * x + U).inverse();
-  Bhat = Uhat * x.adjoint() * y;
+  Uhat = (x.adjoint() * x + U);
+  Uhat_inv = Uhat.inverse();
+  Bhat = Uhat_inv * x.adjoint() * y;
   yhat = x * Bhat;
-  Sighat = y.adjoint() * (Is - x * Uhat * x.adjoint()) * y;
+  Sighat = y.adjoint() * (Is - x * Uhat_inv * x.adjoint()) * y;
   return Rcpp::List::create(
     Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
-    Rcpp::Named("mnscale") = Rcpp::wrap(Uhat),
+    Rcpp::Named("mnprec") = Rcpp::wrap(Uhat),
     Rcpp::Named("fitted") = Rcpp::wrap(yhat),
     Rcpp::Named("iwscale") = Rcpp::wrap(Sighat),
     Rcpp::Named("iwshape") = Rcpp::wrap(s - m - 1)

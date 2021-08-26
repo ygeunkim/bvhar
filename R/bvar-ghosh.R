@@ -72,7 +72,7 @@ bvar_flat <- function(y, p, U) {
   Bhat <- posterior$bhat # posterior mean
   colnames(Bhat) <- name_var
   rownames(Bhat) <- name_lag
-  Uhat <- posterior$mnscale
+  Uhat <- posterior$mnprec
   colnames(Uhat) <- name_lag
   rownames(Uhat) <- name_lag
   yhat <- posterior$fitted
@@ -95,7 +95,7 @@ bvar_flat <- function(y, p, U) {
     mn_mean = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_scale = Uhat,
+    mn_prec = Uhat,
     iw_scale = Sighat,
     iw_shape = posterior$iwshape
   )
