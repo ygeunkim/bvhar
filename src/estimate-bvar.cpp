@@ -24,13 +24,22 @@
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
+Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int s = y.rows();
   int m = y.cols();
   int k = x.cols();
   int Tp = x_dummy.rows();
   int T = s + Tp;
-  // initialize
+  // prior-----------------------------------------------
+  Eigen::MatrixXd prior_mean(k, m); // prior mn mean
+  Eigen::MatrixXd prior_prec(k, k); // prior mn precision
+  Eigen::MatrixXd prior_scale(m, m); // prior iw scale
+  prior_prec = x_dummy.adjoint() * x_dummy;
+  prior_mean = prior_prec.inverse() * x_dummy.adjoint() * y_dummy;
+  prior_scale = (y_dummy - x_dummy * prior_mean).adjoint() * (y_dummy - x_dummy * prior_mean);
+  int prior_shape = Tp - k; // prior iw shape
+  // posterior-------------------------------------------
+  // initialize posteriors
   Eigen::MatrixXd ystar(T, m); // [Y0, Yp]
   Eigen::MatrixXd xstar(T, k); // [X0, Xp]
   Eigen::MatrixXd Bhat(k, m); // MN mean
@@ -50,10 +59,14 @@ SEXP estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_d
   yhat_star = xstar * Bhat;
   Sighat = (ystar - yhat_star).adjoint() * (ystar - yhat_star);
   return Rcpp::List::create(
-    Rcpp::Named("bhat") = Rcpp::wrap(Bhat),
-    Rcpp::Named("mnprec") = Rcpp::wrap(Uhat),
-    Rcpp::Named("fitted") = Rcpp::wrap(yhat),
-    Rcpp::Named("iwscale") = Rcpp::wrap(Sighat)
+    Rcpp::Named("prior_mean") = prior_mean,
+    Rcpp::Named("prior_prec") = prior_prec,
+    Rcpp::Named("prior_scale") = prior_scale,
+    Rcpp::Named("prior_shape") = prior_shape,
+    Rcpp::Named("bhat") = Bhat,
+    Rcpp::Named("mnprec") = Uhat,
+    Rcpp::Named("fitted") = yhat,
+    Rcpp::Named("iwscale") = Sighat
   );
 }
 

@@ -216,6 +216,10 @@ U <- 5000 * diag(m * bvar_lag + 1) # c * I
 ```
 
 ```{r}
+autoplot(pred_ghosh, x_cut = 500)
+```
+
+```{r}
 (mse_ghosh <- mse(pred_ghosh, etf_test))
 ```
 

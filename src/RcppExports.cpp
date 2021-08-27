@@ -103,7 +103,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_mn
-SEXP estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
 RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -237,15 +237,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// forecast_bvarghosh
-SEXP forecast_bvarghosh(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_forecast_bvarghosh(SEXP objectSEXP, SEXP stepSEXP) {
+// forecast_bvarmn_flat
+Rcpp::List forecast_bvarmn_flat(Rcpp::List object, int step);
+RcppExport SEXP _bvhar_forecast_bvarmn_flat(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvarghosh(object, step));
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarmn_flat(object, step));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -353,7 +353,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
     {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},
     {"_bvhar_forecast_bvarmn", (DL_FUNC) &_bvhar_forecast_bvarmn, 2},
-    {"_bvhar_forecast_bvarghosh", (DL_FUNC) &_bvhar_forecast_bvarghosh, 2},
+    {"_bvhar_forecast_bvarmn_flat", (DL_FUNC) &_bvhar_forecast_bvarmn_flat, 2},
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 2},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},

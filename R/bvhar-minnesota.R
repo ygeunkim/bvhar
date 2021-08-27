@@ -103,8 +103,14 @@ bvhar_minnesota <- function(y,
   )
   Xh <- build_xdummy(3, lambda, sigma, eps)
   colnames(Xh) <- name_har
-  # Matrix normal---------------------
+  # estimate-bvar.cpp-----------------
   posterior <- estimate_bvar_mn(X1, Y0, Xh, Yh)
+  # Prior-----------------------------
+  P0 <- posterior$prior_mean
+  Psi0 <- posterior$prior_precision
+  U0 <- posterior$prior_scale
+  d0 <- posterior$prior_shape
+  # Matrix normal---------------------
   Phihat <- posterior$bhat # posterior mean
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har
@@ -118,7 +124,7 @@ bvhar_minnesota <- function(y,
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
   m <- ncol(y)
-  a0 <- nrow(Xh) - 3 * m + 1
+  N <- nrow(y)
   # S3--------------------------------
   res <- list(
     design = X0,
@@ -126,16 +132,23 @@ bvhar_minnesota <- function(y,
     y = y,
     m = m, # m
     obs = nrow(Y0), # s = n - p
-    totobs = nrow(y), # n
+    totobs = N, # n
     process = "Minnesota",
     call = match.call(),
+    # HAR------------------
     HARtrans = HARtrans,
+    # prior----------------
+    prior_mean = P0,
+    prior_precision = Psi0,
+    prior_scale = U0,
+    prior_shape = d0,
+    # posterior-----------
     mn_mean = Phihat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Psihat,
     iw_scale = Sighat,
-    a0 = a0
+    iw_shape = d0 + N + 2
   )
   class(res) <- "bvharmn"
   res

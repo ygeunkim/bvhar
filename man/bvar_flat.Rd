@@ -2,15 +2,15 @@
 % Please edit documentation in R/bvar-ghosh.R, R/print-bvarghosh.R
 \name{bvar_flat}
 \alias{bvar_flat}
-\alias{print.bvarghosh}
-\alias{knit_print.bvarghosh}
+\alias{print.bvarflat}
+\alias{knit_print.bvarflat}
 \title{Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior}
 \usage{
 bvar_flat(y, p, U)
 
-\method{print}{bvarghosh}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{bvarflat}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarghosh(x, ...)
+knit_print.bvarflat(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
@@ -19,7 +19,7 @@ knit_print.bvarghosh(x, ...)
 
 \item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
 
-\item{x}{\code{bvarghosh} object}
+\item{x}{\code{bvarflat} object}
 
 \item{digits}{digit option to print}
 

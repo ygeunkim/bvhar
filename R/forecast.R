@@ -161,7 +161,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$a0 + object$obs + 2)
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
@@ -237,6 +237,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #'   \item{y}{bvharmn$y}
 #' }
 #' 
+#' @importFrom mniw riwish
 #' @order 1
 #' @export
 predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
@@ -246,7 +247,7 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$a0 + object$totobs + 2)
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
@@ -288,6 +289,8 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' 
 #' @param object \code{bvarghosh} object
 #' @param n.ahead step to forecast
+#' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
 #' @details 
@@ -296,16 +299,49 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' \describe{
 #'   \item{process}{object class: bvarghosh}
 #'   \item{forecast}{forecast matrix}
-#'   \item{y}{bvarghosh$y}
+#'   \item{y}{bvarflat$y}
 #' }
 #' 
+#' @importFrom mniw riwish
+#' @order 1
 #' @export
-predict.bvarghosh <- function(object, n.ahead, ...) {
-  pred_res <- forecast_bvarghosh(object, n.ahead)
-  colnames(pred_res) <- colnames(object$y0)
+predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
+  pred_res <- forecast_bvarmn_flat(object, n.ahead)
+  # Point forecasting (Posterior mean)--------------
+  pred_mean <- pred_res$posterior_mean
+  colnames(pred_mean) <- colnames(object$y0)
+  # Standard error----------------------------------
+  pred_variance <- pred_res$posterior_var_closed
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
+  # Compute CI--------------------------------------
+  ci_simul <- 
+    lapply(
+      1:n_iter,
+      function(i) {
+        lapply(
+          pred_variance,
+          function(v) {
+            kronecker(sig_rand[,, i], v) %>% diag()
+          }
+        ) %>% 
+          do.call(rbind, .)
+      }
+    ) %>% 
+    simplify2array() %>% 
+    sqrt() %>% 
+    apply(1:2, mean)
+  colnames(ci_simul) <- colnames(object$y0)
+  z_quant <- qnorm(level / 2, lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  # return-----------------------------------------
   res <- list(
-    process = "bvarghosh",
-    forecast = pred_res,
+    process = "bvarflat",
+    forecast = pred_mean,
+    se = ci_simul,
+    lower = pred_mean - z_quant * ci_simul,
+    upper = pred_mean + z_quant * ci_simul,
+    lower_joint = pred_mean - z_bonferroni * ci_simul,
+    upper_joint = pred_mean + z_bonferroni * ci_simul,
     y = object$y
   )
   class(res) <- "predbvhar"

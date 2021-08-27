@@ -39,7 +39,7 @@ gen_posterior.bvarmn <- function(object, iter = 100, ...) {
   mn_mean <- object$mn_mean
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
-  nu <- object$a0 + object$obs + 2
+  nu <- object$iw_shape
   b_sig <- rmniw(n = iter, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = nu)
   Bhat <- b_sig$X
   Sighat <- b_sig$V

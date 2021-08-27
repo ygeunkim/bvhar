@@ -61,8 +61,14 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   colnames(Yp) <- name_var
   Xp <- build_xdummy(p, lambda, sigma, eps)
   colnames(Xp) <- name_lag
-  # Matrix normal---------------------
+  # estimate-bvar.cpp-----------------
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
+  # Prior-----------------------------
+  B0 <- posterior$prior_mean
+  U0 <- posterior$prior_precision
+  S0 <- posterior$prior_scale
+  a0 <- posterior$prior_shape
+  # Matrix normal---------------------
   Bhat <- posterior$bhat # matrix normal mean
   colnames(Bhat) <- name_var
   rownames(Bhat) <- name_lag
@@ -76,7 +82,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
   m <- ncol(y)
-  a0 <- nrow(Xp) - (m * p + 1)
+  s <- nrow(Y0)
   # S3--------------------------------
   res <- list(
     design = X0,
@@ -84,16 +90,23 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
     y = y,
     p = p, # p
     m = m, # m
-    obs = nrow(Y0), # s = n - p
+    df = m * p + 1, # k = m * p + 1
+    obs = s, # s = n - p
     totobs = nrow(y), # n
     process = "Minnesota",
     call = match.call(),
+    # prior----------------
+    prior_mean = B0, # B0
+    prior_precision = U0, # U0 = (Omega)^{-1}
+    prior_scale = S0, # S0
+    prior_shape = a0, # a0
+    # posterior------------
     mn_mean = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Uhat,
     iw_scale = Sighat,
-    a0 = a0
+    iw_shape = a0 + s + 2
   )
   class(res) <- "bvarmn"
   res

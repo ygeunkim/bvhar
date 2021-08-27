@@ -392,8 +392,8 @@ forecast_bvarmn <- function(object, step) {
 #' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
-forecast_bvarghosh <- function(object, step) {
-    .Call(`_bvhar_forecast_bvarghosh`, object, step)
+forecast_bvarmn_flat <- function(object, step) {
+    .Call(`_bvhar_forecast_bvarmn_flat`, object, step)
 }
 
 #' Forecasting Bayesian VHAR

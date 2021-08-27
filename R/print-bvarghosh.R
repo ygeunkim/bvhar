@@ -1,10 +1,10 @@
 #' @rdname bvar_flat
-#' @param x \code{bvarghosh} object
+#' @param x \code{bvarflat} object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvarghosh <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -39,9 +39,9 @@ print.bvarghosh <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
     quote = FALSE
   )
   # scale matrix-------------------
-  cat("\n\ndim(Matrix Normal first scale matrix):\n")
+  cat("\n\ndim(Matrix Normal precision matrix):\n")
   print.default(
-    dim(x$mn_scale),
+    dim(x$mn_prec),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -61,17 +61,17 @@ print.bvarghosh <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
 }
 
 #' @rdname bvar_flat
-#' @param x \code{bvarghosh} object
+#' @param x \code{bvarflat} object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvarghosh <- function(x, ...) {
+knit_print.bvarflat <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "bvarghosh",
-  knit_print.bvarghosh,
+  "knit_print", "bvarflat",
+  knit_print.bvarflat,
   envir = asNamespace("knitr")
 )

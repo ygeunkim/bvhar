@@ -56,7 +56,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     quote = FALSE
   )
   cat("\nIW degrees of freedom:\n")
-  print.default(x$a0 + x$obs + 2)
+  print.default(x$iw_shape)
   cat("\n\n--------------------------------------------------\n")
   cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
   invisible(x)

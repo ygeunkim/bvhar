@@ -99,51 +99,51 @@ bvar_flat <- function(y, p, U) {
     iw_scale = Sighat,
     iw_shape = posterior$iwshape
   )
-  class(res) <- "bvarghosh"
+  class(res) <- "bvarflat"
   res
 }
 
-#' See if the Object \code{bvarghosh}
+#' See if the Object \code{bvarflat}
 #' 
-#' This function returns \code{TRUE} if the input is the output of \code{\link{bvar_ghosh}}.
+#' This function returns \code{TRUE} if the input is the output of \code{\link{bvar_flat}}.
 #' 
 #' @param x Object
 #' 
 #' @return \code{TRUE} or \code{FALSE}
 #' 
 #' @export
-is.bvarghosh <- function(x) {
-  inherits(x, "bvarghosh")
+is.bvarflat <- function(x) {
+  inherits(x, "bvarflat")
 }
 
-#' Coefficients Method for \code{bvarghosh} object
+#' Coefficients Method for \code{bvarflat} object
 #' 
 #' Matrix Normal mean of Minnesota BVAR
 #' 
-#' @param object \code{bvarghosh} object
+#' @param object \code{bvarflat} object
 #' @param ... not used
 #' 
 #' @export
-coef.bvarghosh <- function(object, ...) {
+coef.bvarflat <- function(object, ...) {
   object$mn_mean
 }
 
-#' Residuals Method for \code{bvarghosh} object
+#' Residuals Method for \code{bvarflat} object
 #' 
 #' @param object \code{bvarghosh} object
 #' @param ... not used
 #' 
 #' @export
-residuals.bvarghosh <- function(object, ...) {
+residuals.bvarflat <- function(object, ...) {
   object$residuals
 }
 
-#' Fitted Values Method for \code{bvarghosh} object
+#' Fitted Values Method for \code{bvarflat} object
 #' 
-#' @param object \code{bvarghosh} object
+#' @param object \code{bvarflat} object
 #' @param ... not used
 #' 
 #' @export
-fitted.bvarghosh <- function(object, ...) {
+fitted.bvarflat <- function(object, ...) {
   object$fitted.values
 }
