@@ -31,10 +31,12 @@
 }
 }
 \description{
-Point forecasting for Minnesota BVAR
+Forecasting for Minnesota BVAR
 }
 \details{
-n-step ahead forecasting using BVAR recursively.
+Point forecasts are computed by posterior mean of the parameters.
+See Section 3 of Bańbura et al. (2010).
+
 Let \eqn{\hat{B}} be the posterior MN mean
 and let \eqn{\hat{V}} be the posterior MN precision.
 
@@ -44,4 +46,9 @@ Then predictive posterior for each step
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
+}
+\references{
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 }

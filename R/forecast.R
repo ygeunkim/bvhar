@@ -119,7 +119,7 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 
 #' Predict Method for \code{bvarmn} object
 #' 
-#' Point forecasting for Minnesota BVAR
+#' Forecasting for Minnesota BVAR
 #' 
 #' @param object \code{bvarmn} object
 #' @param n.ahead step to forecast
@@ -128,7 +128,9 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' @param ... not used
 #' 
 #' @details 
-#' n-step ahead forecasting using BVAR recursively.
+#' Point forecasts are computed by posterior mean of the parameters.
+#' See Section 3 of Bańbura et al. (2010).
+#' 
 #' Let \eqn{\hat{B}} be the posterior MN mean
 #' and let \eqn{\hat{V}} be the posterior MN precision.
 #' 
@@ -150,6 +152,11 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
 #'   \item{y}{bvarmn$y}
 #' }
+#' 
+#' @references 
+#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
 #' @importFrom mniw riwish
 #' @order 1
