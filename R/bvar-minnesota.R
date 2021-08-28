@@ -56,6 +56,8 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
+  m <- ncol(y)
+  s <- nrow(Y0)
   # dummy-----------------------------
   Yp <- build_ydummy(p, sigma, lambda, delta)
   colnames(Yp) <- name_var
@@ -81,25 +83,23 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   Sighat <- posterior$iwscale # IW scale
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
-  m <- ncol(y)
-  s <- nrow(Y0)
   # S3--------------------------------
   res <- list(
     design = X0,
     y0 = Y0,
     y = y,
     p = p, # p
-    m = m, # m
+    m = m, # m = dimension of Y_t
     df = m * p + 1, # k = m * p + 1
     obs = s, # s = n - p
-    totobs = nrow(y), # n
+    totobs = nrow(y), # n = total number of sample size
     process = "Minnesota",
     call = match.call(),
     # prior----------------
     prior_mean = B0, # B0
     prior_precision = U0, # U0 = (Omega)^{-1}
     prior_scale = S0, # S0
-    prior_shape = a0, # a0
+    prior_shape = a0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior------------
     mn_mean = Bhat,
     fitted.values = yhat,

@@ -78,11 +78,12 @@ bvhar_minnesota <- function(y,
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, 22)
-  # X1 = X0 %*% t(HARtrans)
   HARtrans <- scale_har(ncol(y))
-  X1 <- AAt_eigen(X0, HARtrans)
+  X1 <- X0 %*% t(HARtrans)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   colnames(X1) <- name_har
+  m <- ncol(y)
+  N <- nrow(y)
   # dummy-----------------------------
   Yh <- switch(
     type,
@@ -123,8 +124,6 @@ bvhar_minnesota <- function(y,
   Sighat <- posterior$iwscale
   colnames(Sighat) <- name_var
   rownames(Sighat) <- name_var
-  m <- ncol(y)
-  N <- nrow(y)
   # S3--------------------------------
   res <- list(
     design = X0,
@@ -141,7 +140,7 @@ bvhar_minnesota <- function(y,
     prior_mean = P0,
     prior_precision = Psi0,
     prior_scale = U0,
-    prior_shape = d0,
+    prior_shape = d0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior-----------
     mn_mean = Phihat,
     fitted.values = yhat,
