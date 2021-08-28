@@ -45,3 +45,6 @@ Then predictive posterior for each step
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 }
+\references{
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+}

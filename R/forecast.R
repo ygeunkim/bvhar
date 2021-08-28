@@ -158,6 +158,8 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+#' 
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
@@ -168,17 +170,24 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  prior_sigmean <- object$prior_scale / (object$prior_shape - object$m - 1)
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
-      pred_variance,
-      function(v) {
-        kronecker(prior_sigmean, v) %>% diag()
+      1:n_iter,
+      function(i) {
+        lapply(
+          pred_variance,
+          function(v) {
+            kronecker(sig_rand[,, i], v) %>% diag()
+          }
+        ) %>% 
+          do.call(rbind, .)
       }
     ) %>% 
-    do.call(rbind, .) %>% 
-    sqrt()
+    simplify2array() %>% 
+    sqrt() %>% 
+    apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
@@ -229,6 +238,9 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #'   \item{y}{bvharmn$y}
 #' }
 #' 
+#' @references 
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+#' 
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
@@ -239,17 +251,24 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  prior_sigmean <- object$prior_scale / (object$prior_shape - object$m - 1)
+  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
-      pred_variance,
-      function(v) {
-        kronecker(prior_sigmean, v) %>% diag()
+      1:n_iter,
+      function(i) {
+        lapply(
+          pred_variance,
+          function(v) {
+            kronecker(sig_rand[,, i], v) %>% diag()
+          }
+        ) %>% 
+          do.call(rbind, .)
       }
     ) %>% 
-    do.call(rbind, .) %>% 
-    sqrt()
+    simplify2array() %>% 
+    sqrt() %>% 
+    apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
@@ -284,8 +303,18 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' \describe{
 #'   \item{process}{object class: bvarghosh}
 #'   \item{forecast}{forecast matrix}
+#'   \item{se}{standard error matrix}
+#'   \item{lower}{lower confidence interval}
+#'   \item{upper}{upper confidence interval}
+#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
+#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
 #'   \item{y}{bvarflat$y}
 #' }
+#' 
+#' @references 
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' 
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 #' 
 #' @importFrom mniw riwish
 #' @order 1

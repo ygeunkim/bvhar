@@ -92,6 +92,10 @@ bvar_flat <- function(y, p, U) {
     totobs = nrow(y), # n
     process = "Ghosh",
     call = match.call(),
+    # prior----------------
+    prior_mean = array(0L, dim = dim(Bhat)), # zero matrix
+    prior_precision = U, # given as input
+    # posterior-----------
     mn_mean = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,

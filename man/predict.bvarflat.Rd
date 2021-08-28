@@ -22,6 +22,11 @@
 \describe{
 \item{process}{object class: bvarghosh}
 \item{forecast}{forecast matrix}
+\item{se}{standard error matrix}
+\item{lower}{lower confidence interval}
+\item{upper}{upper confidence interval}
+\item{lower_joint}{lower CI adjusted (Bonferroni)}
+\item{upper_joint}{upper CI adjusted (Bonferroni)}
 \item{y}{bvarflat$y}
 }
 }
@@ -30,4 +35,9 @@ Point forecasting for Nonhierarchical Ghosh BVAR(p)
 }
 \details{
 n-step ahead forecasting using BVAR recursively
+}
+\references{
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 }
