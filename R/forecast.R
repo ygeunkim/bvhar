@@ -168,31 +168,20 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
+  prior_sigmean <- object$prior_scale / (object$prior_shape - object$m - 1)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
-      1:n_iter,
-      function(i) {
-        lapply(
-          pred_variance,
-          function(v) {
-            kronecker(sig_rand[,, i], v) %>% diag()
-          }
-        ) %>% 
-          do.call(rbind, .)
+      pred_variance,
+      function(v) {
+        kronecker(prior_sigmean, v) %>% diag()
       }
     ) %>% 
-    simplify2array() %>% 
-    sqrt() %>% 
-    # apply(1:2, quantile, probs = c(level / 2, (1 - level / 2)))
-    apply(1:2, mean)
-  # dimnames(ci_simul)[[3]] <- colnames(object$y0)
+    do.call(rbind, .) %>% 
+    sqrt()
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
-  # lower_se <- ci_simul[1,,]
-  # upper_se <- ci_simul[2,,]
   res <- list(
     process = "bvarmn",
     forecast = pred_mean,
@@ -201,10 +190,6 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
     upper = pred_mean + z_quant * ci_simul,
     lower_joint = pred_mean - z_bonferroni * ci_simul,
     upper_joint = pred_mean + z_bonferroni * ci_simul,
-    # lower = pred_mean - lower_se,
-    # upper = pred_mean + upper_se,
-    # lower_joint = pred_mean - lower_se, # for autoplot
-    # upper_joint = pred_mean + upper_se, # for autoplot
     y = object$y
   )
   class(res) <- "predbvhar"
@@ -254,24 +239,17 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   colnames(pred_mean) <- colnames(object$y0)
   # Standard error----------------------------------
   pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
+  prior_sigmean <- object$prior_scale / (object$prior_shape - object$m - 1)
   # Compute CI--------------------------------------
   ci_simul <- 
     lapply(
-      1:n_iter,
-      function(i) {
-        lapply(
-          pred_variance,
-          function(v) {
-            kronecker(sig_rand[,, i], v) %>% diag()
-          }
-        ) %>% 
-          do.call(rbind, .)
+      pred_variance,
+      function(v) {
+        kronecker(prior_sigmean, v) %>% diag()
       }
     ) %>% 
-    simplify2array() %>% 
-    sqrt() %>% 
-    apply(1:2, mean)
+    do.call(rbind, .) %>% 
+    sqrt()
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
