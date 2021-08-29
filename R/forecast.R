@@ -179,14 +179,13 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
         lapply(
           pred_variance,
           function(v) {
-            kronecker(sig_rand[,, i], v) %>% diag()
+            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
           }
         ) %>% 
           do.call(rbind, .)
       }
     ) %>% 
     simplify2array() %>% 
-    sqrt() %>% 
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
@@ -260,14 +259,13 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
         lapply(
           pred_variance,
           function(v) {
-            kronecker(sig_rand[,, i], v) %>% diag()
+            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
           }
         ) %>% 
           do.call(rbind, .)
       }
     ) %>% 
     simplify2array() %>% 
-    sqrt() %>% 
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
@@ -335,14 +333,13 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
         lapply(
           pred_variance,
           function(v) {
-            kronecker(sig_rand[,, i], v) %>% diag()
+            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
           }
         ) %>% 
           do.call(rbind, .)
       }
     ) %>% 
     simplify2array() %>% 
-    sqrt() %>% 
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
