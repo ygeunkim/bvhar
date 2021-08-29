@@ -4,12 +4,21 @@
 \alias{autoplot.minnesota}
 \title{Density Plot for \code{minnesota} Object}
 \usage{
-\method{autoplot}{minnesota}(object, var_name = NULL, NROW = NULL, NCOL = NULL, ...)
+\method{autoplot}{minnesota}(
+  object,
+  type = c("coef", "variance"),
+  var_name = NULL,
+  NROW = NULL,
+  NCOL = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{\code{minnesota} object}
 
-\item{var_name}{variable name (for mean)}
+\item{type}{Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).}
+
+\item{var_name}{variable name (for coefficients)}
 
 \item{NROW}{Numer of facet row}
 

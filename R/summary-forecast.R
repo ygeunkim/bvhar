@@ -110,3 +110,46 @@ mape <- function(x, y, ...) {
 mape.predbvhar <- function(x, y, ...) {
   apply((y - x$forecast) / y, 2, function(x) mean(abs(x)))
 }
+
+#' Compare Lists of Models
+#' 
+#' Draw plot of test error for given models
+#' 
+#' @param mod_list lists of forecast results (\code{predbvhar} objects)
+#' @param y test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param type loss function to be used (\code{"mse"}: MSE, \code{mape}: MAPE)
+#' @param ... additional options for \code{\link[ggplot2]{geom_line}}
+#' 
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes geom_line labs element_blank
+#' @export
+plot_loss <- function(mod_list, y, type = c("mse", "mape"), ...) {
+  type <- match.arg(type)
+  mod_names <- 
+    mod_list %>% 
+    lapply(function(PRED) PRED$process) %>% 
+    unlist()
+  SCORE <- 
+    switch(
+      type,
+      "mse" = {
+        mod_list %>% 
+          lapply(mse, y = y)
+      },
+      "mape" = {
+        mod_list %>% 
+          lapply(mape, y = y)
+      }
+    )
+  SCORE %>% 
+    bind_rows() %>% 
+    mutate(Model = mod_names) %>% 
+    pivot_longer(-Model, names_to = "name", values_to = "score") %>% 
+    ggplot(aes(x = name, y = score, colour = Model)) +
+    geom_line(aes(group = Model), ...) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+}

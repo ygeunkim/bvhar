@@ -149,7 +149,13 @@ Also, you can draw density plot for coefficients using `autoplot`.
 For example, corresponding to `GVZCLS`:
 
 ```{r}
-autoplot(est_bvar, "GVZCLS")
+autoplot(est_bvar, type = "coef", var_name = "GVZCLS")
+```
+
+Density plot for variance:
+
+```{r}
+autoplot(est_bvar, type = "variance")
 ```
 
 ## Forecasting

@@ -81,31 +81,53 @@ NULL
 #' Density Plot for \code{minnesota} Object
 #' 
 #' @param object \code{minnesota} object
-#' @param var_name variable name (for mean)
+#' @param type Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).
+#' @param var_name variable name (for coefficients)
 #' @param NROW Numer of facet row
 #' @param NCOL Numer of facet col
 #' @param ... not used
 #' 
 #' @importFrom ggplot2 ggplot aes geom_density geom_point facet_wrap labs element_text element_blank
+#' @importFrom dplyr filter
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble rownames_to_column
 #' @export
-autoplot.minnesota <- function(object, var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
-  X <- object$coefficients
-  if (is.null(var_name)) stop("Provide 'var_name'")
-  X <- 
-    lapply(
-      1:(object$N),
-      function(x) {
-        X[,, x] %>% 
-          as.data.frame() %>% 
-          rownames_to_column(var = "lags")
-      }
-    ) %>% 
-    bind_rows() %>% 
-    pivot_longer(-lags, names_to = "name", values_to = "value")
-  p <- 
-    X %>% 
+autoplot.minnesota <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "coef" = {
+      X <- object$coefficients
+      if (is.null(var_name)) stop("Provide 'var_name'")
+      X <- 
+        lapply(
+          1:(object$N),
+          function(x) {
+            X[,, x] %>% 
+              as.data.frame() %>% 
+              rownames_to_column(var = "lags")
+          }
+        ) %>% 
+        bind_rows() %>% 
+        pivot_longer(-lags, names_to = "name", values_to = "value") %>% 
+        filter(name == var_name)
+    },
+    "variance" = {
+      X <- object$covmat
+      X <- 
+        lapply(
+          1:(object$N),
+          function(x) {
+            X[,, x] %>% 
+              diag()
+          }
+        ) %>% 
+        bind_rows() %>% 
+        mutate(id = 1:(object$N)) %>% 
+        pivot_longer(-id, names_to = "lags", values_to = "value")
+    }
+  )
+  X %>% 
     ggplot(aes(x = value)) +
     geom_density() +
     facet_wrap(
@@ -118,7 +140,6 @@ autoplot.minnesota <- function(object, var_name = NULL, NROW = NULL, NCOL = NULL
       x = element_blank(),
       y = element_blank()
     )
-  p
 }
 
 #' Residual Plot for \code{bvarmn} Object
@@ -137,8 +158,7 @@ autoplot.bvarmn <- function(object, hcol = "grey", hsize = 1.5, ...) {
   X <- 
     X %>% 
     pivot_longer(-id, names_to = "name", values_to = "value")
-  p <- 
-    X %>% 
+  X %>% 
     ggplot(aes(x = id, y = value)) +
     geom_hline(yintercept = 0, col = hcol, size = hsize) +
     geom_point(...) +
@@ -150,5 +170,4 @@ autoplot.bvarmn <- function(object, hcol = "grey", hsize = 1.5, ...) {
       x = element_blank(),
       y = element_blank()
     )
-  p
 }

@@ -48,8 +48,8 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
     compute_covmse(object, n.ahead) %>% # concatenated matrix
     split.data.frame(gl(n.ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
-    sqrt() %>% 
-    t() # extract only diagonal element to compute CIs
+    t() %>% # extract only diagonal element to compute CIs
+    sqrt()
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
@@ -98,8 +98,8 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
     compute_covmse_har(object, n.ahead) %>% # concatenated matrix
     split.data.frame(gl(n.ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
-    sqrt() %>% 
-    t() # extract only diagonal element to compute CIs
+    t() %>% # extract only diagonal element to compute CIs
+    sqrt()
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
