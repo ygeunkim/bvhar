@@ -463,3 +463,9 @@ kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
 }
 
+#' @useDynLib bvhar
+#' @export
+sim_mgaussian <- function(num_sim, sig) {
+    .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
+}
+

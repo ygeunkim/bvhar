@@ -333,6 +333,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sim_mgaussian
+Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::MatrixXd sig);
+RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP sigSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_mgaussian(num_sim, sig));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
@@ -361,6 +373,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
+    {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 2},
     {NULL, NULL, 0}
 };
 
