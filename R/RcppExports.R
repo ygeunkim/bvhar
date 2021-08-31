@@ -476,8 +476,8 @@ kroneckerprod <- function(x, y) {
 
 #' @useDynLib bvhar
 #' @export
-sim_mgaussian <- function(num_sim, mu, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+sim_mgaussian <- function(num_sim, sig) {
+    .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
