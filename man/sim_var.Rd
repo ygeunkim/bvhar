@@ -4,12 +4,14 @@
 \alias{sim_var}
 \title{Generate Multivariate Time Series Process Following VAR(p)}
 \usage{
-sim_var(num_sim, var_coef, var_lag, sig_error)
+sim_var(num_sim, var_coef, const_term, var_lag, sig_error)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
 
 \item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}}
+
+\item{const_term}{constand term}
 
 \item{var_lag}{Lag of VAR}
 
