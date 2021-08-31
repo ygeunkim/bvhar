@@ -1,22 +1,12 @@
 #ifndef BVHARMISC_H
 #define BVHARMISC_H
 
-SEXP build_y0(Eigen::MatrixXd x, int p, int t);
+Eigen::MatrixXd scale_har (int m);
 
-SEXP build_design(Eigen::MatrixXd x, int p);
+Eigen::MatrixXd sim_mgaussian (int num_sim, Eigen::MatrixXd sig);
 
-SEXP diag_misc(Eigen::VectorXd x);
+Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max);
 
-SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta);
-
-SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps);
-
-SEXP minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
-
-SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
-
-SEXP VARtoVMA(Rcpp::List object, int lag_max);
-
-SEXP compute_covmse(Rcpp::List object, int step);
+Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max);
 
 #endif

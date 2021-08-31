@@ -9,10 +9,9 @@
 //' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
 //' 
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP scale_har (int m) {
+Eigen::MatrixXd scale_har (int m) {
   Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, 22);
   Eigen::MatrixXd HARtrans(3 * m + 1, 22 * m + 1); // 3m x 22m
   Eigen::MatrixXd Im(m, m);
@@ -29,7 +28,7 @@ SEXP scale_har (int m) {
   HARtrans.block(0, 22 * m, 3 * m, 1) = Eigen::MatrixXd::Zero(3 * m, 1);
   HARtrans.block(3 * m, 0, 1, 22 * m) = Eigen::MatrixXd::Zero(1, 22 * m);
   HARtrans(3 * m, 22 * m) = 1.0;
-  return Rcpp::wrap(HARtrans);
+  return HARtrans;
 }
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -54,7 +53,7 @@ SEXP estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd x1(y.rows(), h); // HAR design matrix
   Eigen::MatrixXd Phi(h, y.cols()); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), y.cols());
-  Eigen::MatrixXd HARtrans = Rcpp::as<Eigen::MatrixXd>(scale_har(y.cols())); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(y.cols()); // linear transformation
   x1 = x * HARtrans.adjoint();
   Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
   yhat = x1 * Phi;
@@ -63,6 +62,32 @@ SEXP estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
     Rcpp::Named("phihat") = Rcpp::wrap(Phi),
     Rcpp::Named("fitted") = Rcpp::wrap(yhat)
   );
+}
+
+//' @useDynLib bvhar
+//' @export
+// [[Rcpp::export]]
+Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max) {
+  int dim = vhar_coef.cols(); // dimension of time series
+  Eigen::MatrixXd coef_mat = HARtrans_mat.adjoint() * vhar_coef; // bhat = tilde(T)^T * Phi
+  if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
+  int ma_rows = dim * (lag_max + 1);
+  int num_full_brows = ma_rows;
+  if (lag_max < 22) num_full_brows = dim * 22; // for VMA coefficient q < VAR(p)
+  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
+  FullB.block(0, 0, dim * 22, dim) = coef_mat.block(0, 0, dim * 22, dim); // fill first mp row with VAR coefficient matrix
+  Eigen::MatrixXd Im(dim, dim); // identity matrix
+  Im.setIdentity(dim, dim);
+  Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
+  ma.block(0, 0, dim, dim) = Im; // W0 = Im
+  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
+  if (lag_max == 1) return ma;
+  for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
+    for (int k = 0; k < i; k++) {
+      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
+    }
+  }
+  return ma;
 }
 
 //' Convert VHAR to VMA(infinite)
@@ -90,26 +115,7 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
   if (!object.inherits("vharlse")) Rcpp::stop("'object' must be vharlse object.");
   Eigen::MatrixXd har_mat = object["coefficients"]; // Phihat(3m + 1, m) = [Phi(d)^T, Phi(w)^T, Phi(m)^T, c^T]^T
   Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // tilde(T): (3m + 1, 22m + 1)
-  int dim = object["m"]; // dimension of time series
-  Eigen::MatrixXd coef_mat = hartrans_mat.adjoint() * har_mat; // bhat = tilde(T)^T * Phi
-  int var_lag = 22; // remove ----->
-  if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
-  int ma_rows = dim * (lag_max + 1);
-  int num_full_brows = ma_rows;
-  if (lag_max < var_lag) num_full_brows = dim * var_lag; // for VMA coefficient q < VAR(p)
-  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
-  FullB.block(0, 0, dim * var_lag, dim) = coef_mat.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
-  Eigen::MatrixXd Im(dim, dim); // identity matrix
-  Im.setIdentity(dim, dim);
-  Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
-  ma.block(0, 0, dim, dim) = Im; // W0 = Im
-  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
-  if (lag_max == 1) return ma;
-  for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
-    for (int k = 0; k < i; k++) {
-      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
-    }
-  }
+  Eigen::MatrixXd ma = VHARcoeftoVMA(har_mat, hartrans_mat, lag_max);
   return ma;
 }
 

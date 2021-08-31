@@ -47,6 +47,31 @@ Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) 
   return cov_mat;
 }
 
+//' @useDynLib bvhar
+//' @export
+// [[Rcpp::export]]
+Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
+  int dim = var_coef.cols(); // m
+  if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
+  int ma_rows = dim * (lag_max + 1);
+  int num_full_brows = ma_rows;
+  if (lag_max < var_lag) num_full_brows = dim * var_lag; // for VMA coefficient q < VAR(p)
+  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
+  FullB.block(0, 0, dim * var_lag, dim) = var_coef.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
+  Eigen::MatrixXd Im(dim, dim); // identity matrix
+  Im.setIdentity(dim, dim);
+  Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
+  ma.block(0, 0, dim, dim) = Im; // W0 = Im
+  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
+  if (lag_max == 1) return ma;
+  for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
+    for (int k = 0; k < i; k++) {
+      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
+    }
+  }
+  return ma;
+}
+
 //' Convert VAR to VMA(infinite)
 //' 
 //' Convert VAR process to infinite vector MA process
@@ -71,25 +96,8 @@ Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) 
 Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
   if (!object.inherits("varlse")) Rcpp::stop("'object' must be varlse object.");
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat(k, m) = [B1^T, B2^T, ..., Bp^T, c^T]^T
-  int dim = object["m"]; // dimension of time series
   int var_lag = object["p"];
-  if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
-  int ma_rows = dim * (lag_max + 1);
-  int num_full_brows = ma_rows;
-  if (lag_max < var_lag) num_full_brows = dim * var_lag; // for VMA coefficient q < VAR(p)
-  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
-  FullB.block(0, 0, dim * var_lag, dim) = coef_mat.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
-  Eigen::MatrixXd Im(dim, dim); // identity matrix
-  Im.setIdentity(dim, dim);
-  Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
-  ma.block(0, 0, dim, dim) = Im; // W0 = Im
-  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
-  if (lag_max == 1) return ma;
-  for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
-    for (int k = 0; k < i; k++) {
-      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
-    }
-  }
+  Eigen::MatrixXd ma = VARcoeftoVMA(coef_mat, var_lag, lag_max);
   return ma;
 }
 

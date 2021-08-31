@@ -233,6 +233,12 @@ compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
 }
 
+#' @useDynLib bvhar
+#' @export
+VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
+}
+
 #' Convert VAR to VMA(infinite)
 #' 
 #' Convert VAR process to infinite vector MA process
@@ -285,7 +291,6 @@ compute_covmse <- function(object, step) {
 #' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
 #' 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 scale_har <- function(m) {
     .Call(`_bvhar_scale_har`, m)
@@ -309,6 +314,12 @@ scale_har <- function(m) {
 #' @export
 estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
+}
+
+#' @useDynLib bvhar
+#' @export
+VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
+    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max)
 }
 
 #' Convert VHAR to VMA(infinite)
@@ -467,5 +478,46 @@ kroneckerprod <- function(x, y) {
 #' @export
 sim_mgaussian <- function(num_sim, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
+}
+
+#' Generate Multivariate Time Series Process Following VAR(p)
+#' 
+#' This function generates multivariate time series dataset that follows VAR(p).
+#' 
+#' @param num_sim Number to generated process
+#' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
+#' @param var_lag Lag of VAR
+#' @param sig_error Variance matrix of the error term
+#' @details
+#' Recall the relation between stable VAR(p) and VMA.
+#' 
+#' @seealso 
+#' \code{\link{VARtoVMA}} computes VMA representation.
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+sim_var <- function(num_sim, var_coef, var_lag, sig_error) {
+    .Call(`_bvhar_sim_var`, num_sim, var_coef, var_lag, sig_error)
+}
+
+#' Generate Multivariate Time Series Process Following VHAR
+#' 
+#' This function generates multivariate time series dataset that follows VHAR.
+#' 
+#' @param num_sim Number to generated process
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
+#' @param sig_error Variance matrix of the error term
+#' @details
+#' Recall the relation between stable VHAR and VMA.
+#' 
+#' @seealso 
+#' \code{\link{VHARtoVMA}} computes VMA representation.
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+sim_vhar <- function(num_sim, vhar_coef, sig_error) {
+    .Call(`_bvhar_sim_vhar`, num_sim, vhar_coef, sig_error)
 }
 
