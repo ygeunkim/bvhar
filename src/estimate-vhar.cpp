@@ -48,7 +48,7 @@ Eigen::MatrixXd scale_har (int m) {
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   int h = 3 * y.cols() + 1;
   Eigen::MatrixXd x1(y.rows(), h); // HAR design matrix
   Eigen::MatrixXd Phi(h, y.cols()); // HAR estimator

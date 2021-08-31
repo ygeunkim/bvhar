@@ -18,7 +18,6 @@
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 build_y0 <- function(x, p, t) {
     .Call(`_bvhar_build_y0`, x, p, t)
@@ -37,14 +36,12 @@ build_y0 <- function(x, p, t) {
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 build_design <- function(x, p) {
     .Call(`_bvhar_build_design`, x, p)
 }
 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 diag_misc <- function(x) {
     .Call(`_bvhar_diag_misc`, x)
@@ -68,7 +65,6 @@ diag_misc <- function(x) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
 #' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 build_ydummy <- function(p, sigma, lambda, delta) {
     .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)

@@ -16,7 +16,7 @@
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd B(x.cols(), y.cols()); // bhat
   Eigen::MatrixXd yhat(y.rows(), y.cols());
   B = (x.adjoint() * x).inverse() * x.adjoint() * y;

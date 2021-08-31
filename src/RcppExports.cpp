@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // build_y0
-SEXP build_y0(Eigen::MatrixXd x, int p, int t);
+Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int p, int t);
 RcppExport SEXP _bvhar_build_y0(SEXP xSEXP, SEXP pSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -25,7 +25,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_design
-SEXP build_design(Eigen::MatrixXd x, int p);
+Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p);
 RcppExport SEXP _bvhar_build_design(SEXP xSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -37,7 +37,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // diag_misc
-SEXP diag_misc(Eigen::VectorXd x);
+Eigen::MatrixXd diag_misc(Eigen::VectorXd x);
 RcppExport SEXP _bvhar_diag_misc(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -48,7 +48,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_ydummy
-SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta);
+Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta);
 RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP deltaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -62,7 +62,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_xdummy
-SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps);
+Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps);
 RcppExport SEXP _bvhar_build_xdummy(SEXP pSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -76,7 +76,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // minnesota_prior
-SEXP minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
+Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
 RcppExport SEXP _bvhar_minnesota_prior(SEXP x_dummySEXP, SEXP y_dummySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -88,7 +88,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_ydummy_bvhar
-SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
+Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
 RcppExport SEXP _bvhar_build_ydummy_bvhar(SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -117,7 +117,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_mn_flat
-SEXP estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U);
+Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U);
 RcppExport SEXP _bvhar_estimate_mn_flat(SEXP xSEXP, SEXP ySEXP, SEXP USEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -130,7 +130,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_var
-SEXP estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y);
+Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_estimate_var(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -203,7 +203,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_har
-SEXP estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y);
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

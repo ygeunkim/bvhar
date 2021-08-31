@@ -54,7 +54,7 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   res <- list(
-    process = "varlse",
+    process = object$process,
     forecast = pred_res,
     se = SE,
     lower = pred_res - z_quant * SE,
@@ -104,7 +104,7 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   res <- list(
-    process = "vharlse",
+    process = object$process,
     forecast = pred_res,
     se = SE,
     lower = pred_res - z_quant * SE,
@@ -191,7 +191,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   res <- list(
-    process = "bvarmn",
+    process = object$process,
     forecast = pred_mean,
     se = ci_simul,
     lower = pred_mean - z_quant * ci_simul,
@@ -272,7 +272,7 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   # return-----------------------------------------
   res <- list(
-    process = "bvharmn",
+    process = object$process,
     forecast = pred_mean,
     se = ci_simul,
     lower = pred_mean - z_quant * ci_simul,
@@ -346,7 +346,7 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
   # return-----------------------------------------
   res <- list(
-    process = "bvarflat",
+    process = object$process,
     forecast = pred_mean,
     se = ci_simul,
     lower = pred_mean - z_quant * ci_simul,

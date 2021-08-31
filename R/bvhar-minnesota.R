@@ -132,7 +132,7 @@ bvhar_minnesota <- function(y,
     m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = N, # n
-    process = "Minnesota",
+    process = ifelse(type == "VAR", "BVHAR_mn_var", "BVHAR_mn_vhar"),
     call = match.call(),
     # HAR------------------
     HARtrans = HARtrans,

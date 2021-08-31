@@ -93,7 +93,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
     df = m * p + 1, # k = m * p + 1
     obs = s, # s = n - p
     totobs = nrow(y), # n = total number of sample size
-    process = "Minnesota",
+    process = "BVAR_Minnesota",
     call = match.call(),
     # prior----------------
     prior_mean = B0, # B0

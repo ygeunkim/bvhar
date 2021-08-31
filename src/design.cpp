@@ -19,17 +19,16 @@
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' 
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP build_y0(Eigen::MatrixXd x, int p, int t) {
+Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int p, int t) {
   int s = x.rows() - p;
   int m = x.cols();
   Eigen::MatrixXd res(s, m); // Y0
   for (int i = 0; i < s; i++) {
     res.row(i) = x.row(t + i - 1);
   }
-  return Rcpp::wrap(res);
+  return res;
 }
 
 //' Build X0 matrix in VAR(p)
@@ -45,34 +44,32 @@ SEXP build_y0(Eigen::MatrixXd x, int p, int t) {
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' 
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP build_design(Eigen::MatrixXd x, int p) {
+Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
   int s = x.rows() - p;
   int m = x.cols();
   int k = m * p + 1;
   Eigen::MatrixXd res(s, k); // X0
   for (int t = 0; t < p; t++) {
-    res.block(0, t * m, s, m) = Rcpp::as<Eigen::MatrixXd>(build_y0(x, p, p - t));
+    res.block(0, t * m, s, m) = build_y0(x, p, p - t);
   }
   for (int i = 0; i < s; i++) {
     res(i, k - 1) = 1.0;
   }
-  return Rcpp::wrap(res);
+  return res;
 }
 
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP diag_misc(Eigen::VectorXd x) {
+Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
   int n = x.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(n, n);
   for (int i = 0; i < n; i++) {
     res(i, i) = x[i];
   }
-  return Rcpp::wrap(res);
+  return res;
 }
 
 //' Construct Dummy response for Minnesota Prior
@@ -93,10 +90,9 @@ SEXP diag_misc(Eigen::VectorXd x) {
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
 //' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta) {
+Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta) {
   int m = sigma.size();
   Eigen::MatrixXd res(m * p + m + 1, m); // Yp
   Eigen::VectorXd wt(m); // delta * sigma
@@ -104,13 +100,13 @@ SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd d
     wt[i] = delta[i] * sigma[i] / lambda;
   }
   // first block
-  res.block(0, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt));
+  res.block(0, 0, m, m) = diag_misc(wt);
   res.block(m, 0, m * (p - 1), m) = Eigen::MatrixXd::Zero(m * (p - 1), m);
   // second block
-  res.block(m * p, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(sigma));
+  res.block(m * p, 0, m, m) = diag_misc(sigma);
   // third block
   res.block(m * p + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
-  return Rcpp::wrap(res);
+  return res;
 }
 
 //' Construct Dummy design matrix for Minnesota Prior
@@ -134,7 +130,7 @@ SEXP build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd d
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
+Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
   int m = sigma.size();
   Eigen::VectorXd p_seq(p);
   Eigen::MatrixXd Jp(p, p);
@@ -144,8 +140,8 @@ SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
     p_seq[i] = i + 1;
   }
   // first block
-  Jp = Rcpp::as<Eigen::MatrixXd>(diag_misc(p_seq));
-  Sig = Rcpp::as<Eigen::MatrixXd>(diag_misc(sigma)) / lambda;
+  Jp = diag_misc(p_seq);
+  Sig = diag_misc(sigma) / lambda;
   res.block(0, 0, m * p, m * p) = Eigen::kroneckerProduct(Jp, Sig);
   res.block(0, m * p, m * p, 1) = Eigen::MatrixXd::Zero(m * p, 1);
   // second block
@@ -154,7 +150,7 @@ SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
   // third block
   res.block(m * p + m, 0, 1, m * p) = Eigen::MatrixXd::Zero(1, m * p);
   res(m * p + m, m * p) = eps;
-  return Rcpp::wrap(res);
+  return res;
 }
 
 //' Parameters of Normal Inverted Wishart Prior
@@ -182,7 +178,7 @@ SEXP build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
+Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int m = y_dummy.cols();
   int k = x_dummy.cols();
   Eigen::MatrixXd B(k, m); // location of matrix normal
@@ -225,7 +221,7 @@ SEXP minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly) {
+Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly) {
   int m = sigma.size();
   Eigen::MatrixXd res(3 * m + m + 1, m); // Yp
   Eigen::VectorXd wt1(m); // daily * sigma
@@ -241,12 +237,12 @@ SEXP build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd da
     wt3[i] = monthly[i] * sigma[i] / lambda;
   }
   // first block
-  res.block(0, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt1));
-  res.block(m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt2));
-  res.block(2 * m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(wt3));
+  res.block(0, 0, m, m) = diag_misc(wt1);
+  res.block(m, 0, m, m) = diag_misc(wt2);
+  res.block(2 * m, 0, m, m) = diag_misc(wt3);
   // second block
-  res.block(3 * m, 0, m, m) = Rcpp::as<Eigen::MatrixXd>(diag_misc(sigma));
+  res.block(3 * m, 0, m, m) = diag_misc(sigma);
   // third block
   res.block(3 * m + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
-  return Rcpp::wrap(res);
+  return res;
 }

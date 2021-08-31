@@ -90,7 +90,7 @@ bvar_flat <- function(y, p, U) {
     m = ncol(y), # m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
-    process = "Ghosh",
+    process = "BVAR_Flat",
     call = match.call(),
     # prior----------------
     prior_mean = array(0L, dim = dim(Bhat)), # zero matrix
