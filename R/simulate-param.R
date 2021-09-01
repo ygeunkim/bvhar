@@ -80,10 +80,14 @@ sim_mnvhar_coef <- function(type = c("VAR", "VHAR"),
   Yh <- switch(
     type,
     "VAR" = {
+      if (length(sigma) != length(delta)) stop("length of `sigma` and `delta` must be the same as the dimension of the time series")
       Yh <- build_ydummy(3, sigma, lambda, delta)
       Yh
     },
     "VHAR" = {
+      if (length(sigma) != length(daily)) stop("length of `sigma` and `daily` must be the same as the dimension of the time series")
+      if (length(sigma) != length(weekly)) stop("length of `sigma` and `weekly` must be the same as the dimension of the time series")
+      if (length(sigma) != length(monthly)) stop("length of `sigma` and `monthly` must be the same as the dimension of the time series")
       Yh <- build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly)
       Yh
     }
