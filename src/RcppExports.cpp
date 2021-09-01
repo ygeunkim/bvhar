@@ -12,15 +12,15 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // build_y0
-Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int p, int t);
-RcppExport SEXP _bvhar_build_y0(SEXP xSEXP, SEXP pSEXP, SEXP tSEXP) {
+Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t);
+RcppExport SEXP _bvhar_build_y0(SEXP xSEXP, SEXP var_lagSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< int >::type t(tSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_y0(x, p, t));
+    rcpp_result_gen = Rcpp::wrap(build_y0(x, var_lag, t));
     return rcpp_result_gen;
 END_RCPP
 }

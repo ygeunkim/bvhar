@@ -4,12 +4,12 @@
 \alias{build_y0}
 \title{Build Y0 matrix in VAR(p)}
 \usage{
-build_y0(x, p, t)
+build_y0(x, var_lag, t)
 }
 \arguments{
 \item{x}{Matrix, time series data}
 
-\item{p}{VAR lag}
+\item{var_lag}{VAR lag}
 
 \item{t}{starting index to extract}
 }

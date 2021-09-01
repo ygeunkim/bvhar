@@ -4,7 +4,7 @@
 #' Build Y0 matrix in VAR(p)
 #' 
 #' @param x Matrix, time series data
-#' @param p VAR lag
+#' @param var_lag VAR lag
 #' @param t starting index to extract
 #' 
 #' @details
@@ -19,8 +19,8 @@
 #' 
 #' @useDynLib bvhar
 #' @export
-build_y0 <- function(x, p, t) {
-    .Call(`_bvhar_build_y0`, x, p, t)
+build_y0 <- function(x, var_lag, t) {
+    .Call(`_bvhar_build_y0`, x, var_lag, t)
 }
 
 #' Build X0 matrix in VAR(p)
