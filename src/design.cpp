@@ -5,7 +5,7 @@
 //' Build Y0 matrix in VAR(p)
 //' 
 //' @param x Matrix, time series data
-//' @param p VAR lag
+//' @param var_lag VAR lag
 //' @param t starting index to extract
 //' 
 //' @details
@@ -21,11 +21,11 @@
 //' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int p, int t) {
-  int s = x.rows() - p;
-  int m = x.cols();
-  Eigen::MatrixXd res(s, m); // Y0
-  for (int i = 0; i < s; i++) {
+Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t) {
+  int num_design = x.rows() - var_lag; // s = n - p
+  int dim = x.cols(); // m: dimension of the multivariate time series
+  Eigen::MatrixXd res(num_design, dim); // Y0
+  for (int i = 0; i < num_design; i++) {
     res.row(i) = x.row(t + i - 1);
   }
   return res;
