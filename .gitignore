@@ -35,3 +35,10 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 inst/doc
+
+# C++
+*.o
+*.so
+*.dll
+# macos
+*.DS_Store
