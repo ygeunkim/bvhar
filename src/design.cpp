@@ -179,22 +179,20 @@ Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double
 //' @export
 // [[Rcpp::export]]
 Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
-  int m = y_dummy.cols();
-  int k = x_dummy.cols();
-  Eigen::MatrixXd B(k, m); // location of matrix normal
-  Eigen::MatrixXd Omega(k, k); // scale 1 of matrix normal
-  Eigen::MatrixXd Sigma(m, m); // scale 2 of matrix normal
-  Eigen::MatrixXd S(m, m); // scale of inverse wishart
-  double a;
-  Omega = (x_dummy.adjoint() * x_dummy).inverse();
-  B = Omega * x_dummy.adjoint() * y_dummy;
-  S = (y_dummy - x_dummy * B).adjoint() * (y_dummy - x_dummy * B);
-  a = y_dummy.rows() - k;
+  int dim = y_dummy.cols(); // m
+  int dim_design = x_dummy.cols(); // k
+  Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
+  Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precison
+  Eigen::MatrixXd prior_scale(dim, dim); // prior iw scale
+  int prior_shape = x_dummy.rows() - dim_design;
+  prior_prec = (x_dummy.adjoint() * x_dummy);
+  prior_mean = prior_prec.inverse() * x_dummy.adjoint() * y_dummy;
+  prior_scale = (y_dummy - x_dummy * prior_mean).adjoint() * (y_dummy - x_dummy * prior_mean);
   return Rcpp::List::create(
-    Rcpp::Named("B0") = Rcpp::wrap(B),
-    Rcpp::Named("Omega0") = Rcpp::wrap(Omega),
-    Rcpp::Named("S0") = Rcpp::wrap(S),
-    Rcpp::Named("alpha0") = Rcpp::wrap(a)
+    Rcpp::Named("prior_mean") = prior_mean,
+    Rcpp::Named("prior_prec") = prior_prec,
+    Rcpp::Named("prior_scale") = prior_scale,
+    Rcpp::Named("prior_shape") = prior_shape
   );
 }
 

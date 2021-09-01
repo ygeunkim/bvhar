@@ -27,7 +27,7 @@
 Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int s = y.rows();
   int m = y.cols();
-  int k = x.cols();
+  int k = x_dummy.cols();
   int Tp = x_dummy.rows();
   int T = s + Tp;
   // prior-----------------------------------------------
