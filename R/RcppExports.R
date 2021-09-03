@@ -482,9 +482,9 @@ sim_mgaussian <- function(num_sim, sig) {
 #' 
 #' @param num_sim Number to generated process
 #' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
-#' @param const_term constand term
 #' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term
+#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.
 #' @details
 #' Recall the relation between stable VAR(p) and VMA.
 #' 
@@ -494,8 +494,8 @@ sim_mgaussian <- function(num_sim, sig) {
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
 #' @export
-sim_var <- function(num_sim, var_coef, const_term, var_lag, sig_error) {
-    .Call(`_bvhar_sim_var`, num_sim, var_coef, const_term, var_lag, sig_error)
+sim_var <- function(num_sim, var_coef, var_lag, sig_error, init) {
+    .Call(`_bvhar_sim_var`, num_sim, var_coef, var_lag, sig_error, init)
 }
 
 #' Generate Multivariate Time Series Process Following VHAR
@@ -504,8 +504,8 @@ sim_var <- function(num_sim, var_coef, const_term, var_lag, sig_error) {
 #' 
 #' @param num_sim Number to generated process
 #' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
-#' @param const_term constand term
-#' @param sig_error Variance matrix of the error term
+#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.
 #' @details
 #' Recall the relation between stable VHAR and VMA.
 #' 
@@ -515,7 +515,7 @@ sim_var <- function(num_sim, var_coef, const_term, var_lag, sig_error) {
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
 #' @export
-sim_vhar <- function(num_sim, vhar_coef, const_term, sig_error) {
-    .Call(`_bvhar_sim_vhar`, num_sim, vhar_coef, const_term, sig_error)
+sim_vhar <- function(num_sim, vhar_coef, sig_error, init) {
+    .Call(`_bvhar_sim_vhar`, num_sim, vhar_coef, sig_error, init)
 }
 

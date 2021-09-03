@@ -9,9 +9,9 @@
 //' 
 //' @param num_sim Number to generated process
 //' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
-//' @param const_term constand term
 //' @param var_lag Lag of VAR
-//' @param sig_error Variance matrix of the error term
+//' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.
 //' @details
 //' Recall the relation between stable VAR(p) and VMA.
 //' 
@@ -22,28 +22,27 @@
 //' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, Eigen::VectorXd const_term, int var_lag, Eigen::MatrixXd sig_error) {
+Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
   int dim = sig_error.cols(); // m: dimension of time series
-  if (var_coef.cols() != dim) Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
-  if (const_term.size() != dim) Rcpp::stop("Wrong `const_term` length");
-  if (var_coef.rows() != (dim * var_lag) && var_coef.rows() != (dim * var_lag + 1)) Rcpp::stop("`var_coef` is not VAR coefficient. Check its dimension.");
-  Eigen::MatrixXd mat_var(dim, dim);
-  mat_var.setIdentity(dim, dim); // identity matrix
-  for (int i = 0; i < var_lag; i++) {
-    mat_var -= var_coef.block(dim * i, 0, dim, dim).adjoint();
-  }
-  Eigen::VectorXd sig_mean(dim); // mean of Yt
-  sig_mean = mat_var.inverse() * const_term; // mu = (I - B1 - ... Bp)^{-1} * c
-  Eigen::MatrixXd error_term = sim_mgaussian(num_sim, sig_error); // simulated error term: num_sim x m
+  int dim_design = dim * var_lag + 1; // k = mp + 1 if const_term exists
   if (num_sim < 2) Rcpp::stop("Generate more than 1 series");
-  Eigen::MatrixXd ma_coef = VARcoeftoVMA(var_coef, var_lag, num_sim - 1); // VMA representation up to VMA(num_sim - 1)
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(error_term.rows(), error_term.cols()); // Yt = sum(j = 0) Wj epsilon(t - j)
-  res.row(0) = ma_coef.block(0, 0, dim, dim) * error_term.row(0).adjoint();
+  if (var_coef.cols() != dim) Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
+  if (var_coef.rows() != dim_design) Rcpp::stop("`var_coef` is not VAR coefficient. Check its dimension.");
+  if (!(init.rows() == var_lag && init.cols() == dim)) Rcpp::stop("`init` is `var_lag` x `dim` matrix in order of y1, y2, ..., yp.");
+  Eigen::MatrixXd obs_p(1, dim_design); // row vector of X0: yp^T, ..., y1^T, 1
+  obs_p(0, dim_design - 1) = 1.0; // for constant term
+  for (int i = 0; i < var_lag; i++) {
+    obs_p.block(0, i * dim, 1, dim) = init.row(var_lag - i - 1);
+  }
+  Eigen::MatrixXd res(num_sim, dim); // Output: from y(p + 1)^T to y(n + p)^T
+  Eigen::MatrixXd error_term = sim_mgaussian(num_sim, sig_error); // simulated error term: num_sim x m
+  res.row(0) = obs_p * var_coef + error_term.row(0);
   for (int i = 1; i < num_sim; i++) {
-    res.row(i) += sig_mean;
-    for (int j = 0; j <= i; j++) {
-      res.row(i) += ma_coef.block(dim * (i - j), 0, dim, dim) * error_term.row(j).adjoint();
+    for (int t = 1; t < var_lag; t++) {
+      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
     }
+    obs_p.block(0, 0, 1, dim) = res.row(i - 1);
+    res.row(i) = obs_p * var_coef + error_term.row(i);
   }
   return res;
 }
@@ -54,8 +53,8 @@ Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, Eigen::VectorXd c
 //' 
 //' @param num_sim Number to generated process
 //' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
-//' @param const_term constand term
-//' @param sig_error Variance matrix of the error term
+//' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.
 //' @details
 //' Recall the relation between stable VHAR and VMA.
 //' 
@@ -66,29 +65,29 @@ Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, Eigen::VectorXd c
 //' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::VectorXd const_term, Eigen::MatrixXd sig_error) {
+Eigen::MatrixXd sim_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
   int dim = sig_error.cols(); // m: dimension of time series
+  int dim_design = 3 * dim + 1;
+  int var_design = 22 * dim + 1;
   if (vhar_coef.cols() != dim) Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
-  if (const_term.size() != dim) Rcpp::stop("Wrong `const_term` length");
-  if (vhar_coef.rows() != (3 * dim) && vhar_coef.rows() != (3 * dim + 1)) Rcpp::stop("`vhar_coef` is not VHAR coefficient. Check its dimension.");
-  Eigen::MatrixXd mat_var(dim, dim);
-  mat_var.setIdentity(dim, dim); // identity matrix
-  for (int i = 0; i < 3; i++) {
-    mat_var -= vhar_coef.block(dim * i, 0, dim, dim).adjoint();
-  }
-  Eigen::VectorXd sig_mean(dim);
-  sig_mean = mat_var.inverse() * const_term;
-  Eigen::MatrixXd hartrans_mat = scale_har(dim);
-  Eigen::MatrixXd error_term = sim_mgaussian(num_sim, sig_error); // simulated error term: num_sim x m
   if (num_sim < 2) Rcpp::stop("Generate more than 1 series");
-  Eigen::MatrixXd ma_coef = VHARcoeftoVMA(vhar_coef, hartrans_mat, num_sim - 1); // VMA representation up to VMA(num_sim - 1)
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(error_term.rows(), error_term.cols()); // Yt = sum(j = 0) Wj epsilon(t - j)
-  res.row(0) = ma_coef.block(0, 0, dim, dim) * error_term.row(0).adjoint();
+  if (vhar_coef.rows() != dim_design) Rcpp::stop("`vhar_coef` is not VHAR coefficient. Check its dimension.");
+  if (!(init.rows() == 22 && init.cols() == dim)) Rcpp::stop("`init` is 22 x `dim` matrix in order of y1, y2, ..., y22.");
+  Eigen::MatrixXd hartrans_mat = scale_har(dim);
+  Eigen::MatrixXd obs_p(1, var_design); // row vector of X0: y22^T, ..., y1^T, 1
+  obs_p(0, var_design - 1) = 1.0; // for constant term
+  for (int i = 0; i < 22; i++) {
+    obs_p.block(0, i * dim, 1, dim) = init.row(21 - i);
+  }
+  Eigen::MatrixXd res(num_sim, dim); // Output: from y(23)^T to y(n + 22)^T
+  Eigen::MatrixXd error_term = sim_mgaussian(num_sim, sig_error); // simulated error term: num_sim x m
+  res.row(0) = obs_p * hartrans_mat.adjoint() * vhar_coef + error_term.row(0);
   for (int i = 1; i < num_sim; i++) {
-    res.row(i) += sig_mean;
-    for (int j = 0; j <= i; j++) {
-      res.row(i) += ma_coef.block(dim * (i - j), 0, dim, dim) * error_term.row(j).adjoint();
+    for (int t = 1; t < 22; t++) {
+      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
     }
+    obs_p.block(0, 0, 1, dim) = res.row(i - 1);
+    res.row(i) = obs_p * hartrans_mat.adjoint() * vhar_coef + error_term.row(i);
   }
   return res;
 }

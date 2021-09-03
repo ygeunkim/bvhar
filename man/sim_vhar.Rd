@@ -4,16 +4,16 @@
 \alias{sim_vhar}
 \title{Generate Multivariate Time Series Process Following VHAR}
 \usage{
-sim_vhar(num_sim, vhar_coef, const_term, sig_error)
+sim_vhar(num_sim, vhar_coef, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
 
 \item{vhar_coef}{VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}}
 
-\item{const_term}{constand term}
+\item{sig_error}{Variance matrix of the error term. Try \code{diag(dim)}.}
 
-\item{sig_error}{Variance matrix of the error term}
+\item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.}
 }
 \description{
 This function generates multivariate time series dataset that follows VHAR.

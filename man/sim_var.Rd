@@ -4,18 +4,18 @@
 \alias{sim_var}
 \title{Generate Multivariate Time Series Process Following VAR(p)}
 \usage{
-sim_var(num_sim, var_coef, const_term, var_lag, sig_error)
+sim_var(num_sim, var_coef, var_lag, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
 
 \item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}}
 
-\item{const_term}{constand term}
-
 \item{var_lag}{Lag of VAR}
 
-\item{sig_error}{Variance matrix of the error term}
+\item{sig_error}{Variance matrix of the error term. Try \code{diag(dim)}.}
+
+\item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.}
 }
 \description{
 This function generates multivariate time series dataset that follows VAR(p).

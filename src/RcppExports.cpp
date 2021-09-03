@@ -372,31 +372,31 @@ BEGIN_RCPP
 END_RCPP
 }
 // sim_var
-Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, Eigen::VectorXd const_term, int var_lag, Eigen::MatrixXd sig_error);
-RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP var_coefSEXP, SEXP const_termSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP) {
+Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type const_term(const_termSEXP);
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_var(num_sim, var_coef, const_term, var_lag, sig_error));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_var(num_sim, var_coef, var_lag, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
 // sim_vhar
-Eigen::MatrixXd sim_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::VectorXd const_term, Eigen::MatrixXd sig_error);
-RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP vhar_coefSEXP, SEXP const_termSEXP, SEXP sig_errorSEXP) {
+Eigen::MatrixXd sim_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP vhar_coefSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type const_term(const_termSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, vhar_coef, const_term, sig_error));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, vhar_coef, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
