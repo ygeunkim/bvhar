@@ -58,6 +58,9 @@ registerS3method(
 )
 
 #' @rdname summary.varlse
+#' @param x \code{summary.varlse} object
+#' @param digits digit option to print
+#' @param ... not used
 #' @order 2
 #' @export
 print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
@@ -123,6 +126,8 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
 }
 
 #' @rdname summary.varlse
+#' @param x \code{summary.varlse} object
+#' @param ... not used
 #' @order 3
 #' @export
 knit_print.summary.varlse <- function(x, ...) {

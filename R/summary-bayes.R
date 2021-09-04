@@ -63,21 +63,6 @@ gen_posterior.bvarmn <- function(object, iter = 100, ...) {
   res
 }
 
-#' @inherit ggplot2::autolayer
-#' @export
-autolayer <- function(object, ...){
-  UseMethod("autolayer")
-}
-
-#' autoplot
-#' 
-#' See \code{\link[ggplot2]{ggplot2::autoplot}}.
-#' 
-#' @importFrom ggplot2 autoplot
-#' @name autoplot
-#' @export
-NULL
-
 #' Density Plot for \code{minnesota} Object
 #' 
 #' @param object \code{minnesota} object

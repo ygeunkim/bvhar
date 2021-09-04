@@ -61,7 +61,7 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
   int n = x.size();

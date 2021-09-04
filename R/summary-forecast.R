@@ -1,3 +1,23 @@
+#' Split a Time Series Dataset into Train-Test Set
+#' 
+#' Split a given time series dataset into train and test set for evaluation.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param n.ahead step to evaluate
+#' 
+#' @importFrom stats setNames
+#' @export
+divide_ts <- function(y, n.ahead) {
+  num_ts <- nrow(y)
+  fac_train <- rep(1, num_ts - n.ahead)
+  fac_test <- rep(2, n.ahead)
+  y %>% 
+    split.data.frame(
+      factor(c(fac_train, fac_test))
+    ) %>% 
+    setNames(c("train", "test"))
+}
+
 #' Plot Forecast Result
 #' 
 #' Plots the forecasting result with forecast regions.

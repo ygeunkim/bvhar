@@ -3,7 +3,7 @@
 // [[Rcpp::depends(RcppEigen)]]
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), y.cols());
@@ -12,7 +12,7 @@ Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.cols(), y.rows());
@@ -21,7 +21,7 @@ Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), x.rows());
@@ -30,7 +30,7 @@ Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows() * y.rows(), x.cols() * y.cols());
@@ -38,6 +38,13 @@ Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
+//' Generate Multivariate Normal Random Vector with Zero Mean
+//' 
+//' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+//' 
+//' @param num_sim Number to generated process
+//' @param sig Variance matrix
+//' 
 //' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]

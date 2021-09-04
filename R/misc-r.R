@@ -1,4 +1,4 @@
-#' @export
+#' @noRd
 concatenate_colnames <- function(var_name, prefix) {
   lapply(
     prefix,

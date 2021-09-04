@@ -16,6 +16,10 @@ knit_print.summary.varlse(x, ...)
 \item{object}{\code{varlse} object}
 
 \item{...}{not used}
+
+\item{x}{\code{summary.varlse} object}
+
+\item{digits}{digit option to print}
 }
 \value{
 \code{summary.varlse} \link{class} additionaly computes the following

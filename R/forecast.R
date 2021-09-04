@@ -39,6 +39,8 @@
 #' 
 #' @references 
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' @importFrom stats qnorm
 #' @order 1
 #' @export
 predict.varlse <- function(object, n.ahead, level = .05, ...) {
@@ -89,6 +91,7 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #'   \item{y}{vharlse$y}
 #' }
 #' 
+#' @importFrom stats qnorm
 #' @order 1
 #' @export
 predict.vharlse <- function(object, n.ahead, level = .05, ...) {
@@ -160,6 +163,7 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 #' 
+#' @importFrom stats qnorm
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
@@ -240,6 +244,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @references 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 #' 
+#' @importFrom stats qnorm
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
@@ -314,6 +319,7 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 #' 
+#' @importFrom stats qnorm
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
@@ -362,7 +368,7 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' See if the Object \code{predbvhar}
 #' 
 #' This function returns \code{TRUE}
-#' if the input is the output of \code{\link{predict.varlse}}, \code{\link{predict.vharlse}}, \code{\link{predict.bvarmn}}, \code{\link{predict.bvharmn}}, and \code{\link{predict.bvarghosh}}.
+#' if the input is the output of \code{\link{predict.varlse}}, \code{\link{predict.vharlse}}, \code{\link{predict.bvarmn}}, \code{\link{predict.bvharmn}}, and \code{\link{predict.bvarflat}}.
 #' 
 #' @param x object
 #' 

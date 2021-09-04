@@ -42,7 +42,7 @@ build_design <- function(x, p) {
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 diag_misc <- function(x) {
     .Call(`_bvhar_diag_misc`, x)
 }
@@ -230,7 +230,7 @@ compute_cov <- function(z, num_design, dim_design) {
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
     .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
 }
@@ -313,7 +313,7 @@ estimate_har <- function(x, y) {
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
     .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max)
 }
@@ -447,29 +447,36 @@ forecast_vhar <- function(object, step) {
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 AAt_eigen <- function(x, y) {
     .Call(`_bvhar_AAt_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 tAA_eigen <- function(x, y) {
     .Call(`_bvhar_tAA_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 AtAit_eigen <- function(x, y) {
     .Call(`_bvhar_AtAit_eigen`, x, y)
 }
 
 #' @useDynLib bvhar
-#' @export
+#' @noRd
 kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
 }
 
+#' Generate Multivariate Normal Random Vector with Zero Mean
+#' 
+#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+#' 
+#' @param num_sim Number to generated process
+#' @param sig Variance matrix
+#' 
 #' @useDynLib bvhar
 #' @export
 sim_mgaussian <- function(num_sim, sig) {

@@ -21,18 +21,11 @@ excluding NA, i.e. non-trading dates.
 \item{VXEWZCLS}{Brazil ETF volatility index}
 }
 }
-\usage{
-etf_vix
-}
-\description{
-Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
-}
-\details{
-Copyright, 2016, Chicago Board Options Exchange, Inc.
+\source{
+Source: \url{https://www.cboe.com}
 
-Note that, in this data frame, dates column is removed.
-}
-\references{
+Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
+
 Chicago Board Options Exchange, CBOE Gold ETF Volatility Index \link{GVZCLS}, retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/GVZCLS}, July 31, 2021.
 
 Chicago Board Options Exchange, CBOE China ETF Volatility Index \link{VXFXICLS}, retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/VXFXICLS}, August 1, 2021.
@@ -50,5 +43,16 @@ Chicago Board Options Exchange, CBOE Gold Miners ETF Volatility Index \link{VXGD
 Chicago Board Options Exchange, CBOE Energy Sector ETF Volatility Index \link{VXXLECLS}, retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/VXXLECLS}, August 1, 2021.
 
 Chicago Board Options Exchange, CBOE Brazil ETF Volatility Index \link{VXEWZCLS}, retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/VXEWZCLS}, August 2, 2021.
+}
+\usage{
+etf_vix
+}
+\description{
+Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
+}
+\details{
+Copyright, 2016, Chicago Board Options Exchange, Inc.
+
+Note that, in this data frame, dates column is removed.
 }
 \keyword{datasets}

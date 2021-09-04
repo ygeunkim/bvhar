@@ -65,7 +65,7 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max) {
   int dim = vhar_coef.cols(); // dimension of time series

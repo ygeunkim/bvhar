@@ -67,7 +67,7 @@ bvar_minnesota <- function(y, p, sigma, lambda, delta, eps = 1e-04) {
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
   B0 <- posterior$prior_mean
-  U0 <- posterior$prior_precision
+  U0 <- posterior$prior_prec
   S0 <- posterior$prior_scale
   a0 <- posterior$prior_shape
   # Matrix normal---------------------

@@ -48,7 +48,7 @@ Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) 
 }
 
 //' @useDynLib bvhar
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
   int dim = var_coef.cols(); // m
