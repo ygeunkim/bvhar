@@ -108,7 +108,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("OLS for constant:\n")
   # print c-------------------------
   print.default(
-    last(x$coefficients),
+    x$coefficients$intercept,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
