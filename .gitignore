@@ -37,8 +37,6 @@ vignettes/*.pdf
 inst/doc
 
 # C++
-*.o
-*.so
-*.dll
+
 # macos
 *.DS_Store
