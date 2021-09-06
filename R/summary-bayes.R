@@ -1,22 +1,8 @@
-#' Generate Coefficient Matrix and Covariance Matrix from Bayesian Model
-#' 
-#' @param x object
-#' @param ... not used
-#' 
-#' @export
-gen_posterior <- function(x, ...) {
-  UseMethod("gen_posterior", x)
-}
-
-#' Posterior Distribution of Minnesota BVAR(p)
-#' 
-#' @description 
-#' Generates Parameters of Minnesota BVAR \eqn{B, \Sigma_e}.
+#' Summary of \code{\link{bvar_minnesota}}
 #' 
 #' @param object \code{bvarmn} object
-#' @param iter number to generate (By default, 100)
+#' @param n_iter Number to sample Matrix Normal Inverse-Wishart distribution
 #' @param ... not used
-#' 
 #' @details 
 #' From Minnesota prior, set of coefficient matrices and residual covariance matrix have matrix Normal Inverse-Wishart distribution.
 #' 
@@ -35,37 +21,47 @@ gen_posterior <- function(x, ...) {
 #' 
 #' @importFrom mniw rmniw
 #' @export
-gen_posterior.bvarmn <- function(object, iter = 100, ...) {
+summary.bvarmn <- function(object, n_iter = 100, ...) {
   mn_mean <- object$mn_mean
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
   nu <- object$iw_shape
-  b_sig <- rmniw(n = iter, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = nu)
+  b_sig <- rmniw(n = n_iter, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = nu)
   Bhat <- b_sig$X
   Sighat <- b_sig$V
   # mniw returns list of 3d array---------
   dimnames(Bhat) <- list(
     rownames(mn_mean), # row
     colnames(mn_mean), # col
-    1:iter # 3rd dim
+    1:n_iter # 3rd dim
   )
   dimnames(Sighat) <- list(
     rownames(iw_scale), # row
     colnames(iw_scale), # col
-    1:iter # 3rd dim
+    1:n_iter # 3rd dim
   )
   res <- list(
+    names = colnames(object$y0),
+    p = object$p,
+    m = object$m,
+    call = object$call,
+    # posterior------------
+    mn_mean = mn_mean,
+    mn_prec = mn_prec,
+    iw_scale = iw_scale,
+    iw_shape = nu,
+    # density--------------
     coefficients = Bhat,
     covmat = Sighat,
-    N = iter
+    N = n_iter
   )
-  class(res) <- "minnesota"
+  class(res) <- "summary.bvarmn"
   res
 }
 
-#' Density Plot for \code{minnesota} Object
+#' Density Plot for \code{summary.bvarmn} Object
 #' 
-#' @param object \code{minnesota} object
+#' @param object \code{summary.bvarmn} object
 #' @param type Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).
 #' @param var_name variable name (for coefficients)
 #' @param NROW Numer of facet row
@@ -77,7 +73,7 @@ gen_posterior.bvarmn <- function(object, iter = 100, ...) {
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble rownames_to_column
 #' @export
-autoplot.minnesota <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
+autoplot.summary.bvarmn <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
   type <- match.arg(type)
   switch(
     type,

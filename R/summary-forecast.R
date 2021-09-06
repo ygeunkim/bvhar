@@ -140,7 +140,7 @@ mape.predbvhar <- function(x, y, ...) {
 #' @param type loss function to be used (\code{"mse"}: MSE, \code{mape}: MAPE)
 #' @param ... additional options for \code{\link[ggplot2]{geom_line}}
 #' 
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate bind_rows
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes geom_line labs element_blank
 #' @export

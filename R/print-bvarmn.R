@@ -17,7 +17,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   intercept <- x$mn_mean[x$m * x$p + 1,]
   cat(sprintf("BVAR(%i) with Minnesota Prior\n", x$p))
   cat("====================================================\n\n")
-  cat("B ~ Matrix Normal (Mean, Scale 1, Scale 2 = Sigma)\n")
+  cat("B ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
   cat("====================================================\n")
   for (i in 1:(x$p)) {
     cat(sprintf("Matrix Normal Mean for B%i part:\n", i))
@@ -38,7 +38,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
-  # scale matrix-------------------
+  # precision matrix---------------0
   cat("\n\ndim(Matrix Normal precision matrix):\n")
   print.default(
     dim(x$mn_prec),
@@ -77,3 +77,60 @@ registerS3method(
   knit_print.bvarmn,
   envir = asNamespace("knitr")
 )
+
+#' @rdname summary.bvarmn
+#' @param x \code{summary.bvarmn} object
+#' @param digits digit option to print
+#' @param ... not used
+#' @importFrom utils str
+#' @order 2
+#' @export
+print.summary.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
+  )
+  # Model description----------------
+  cat(sprintf("BVAR(%i) with Minnesota Prior\n", x$p))
+  cat("====================================================\n")
+  cat("B ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
+  cat("Sigma ~ Inverse-Wishart (IW Scale, IW df)\n")
+  # density--------------------------------
+  cat("\n\nAbout the Posterior Density:\n")
+  cat("====================================================\n")
+  cat("Number of iteration:\n")
+  print.default(
+    x$N,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("\nCoefficients (B):\n")
+  cat(
+    utils::capture.output(str(x$coefficients))[1:5],
+    sep = "\n"
+  )
+  cat("\nCovariance Matrix (Sigma):\n")
+  cat(
+    utils::capture.output(str(x$covmat))[1:5],
+    sep = "\n"
+  )
+  invisible(x)
+}
+
+#' @rdname summary.bvarmn
+#' @param x \code{summary.bvarmn} object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.summary.bvarmn <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "summary.bvarmn",
+  knit_print.summary.bvarmn,
+  envir = asNamespace("knitr")
+)
+
