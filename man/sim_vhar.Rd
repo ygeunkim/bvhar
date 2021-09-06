@@ -19,11 +19,14 @@ sim_vhar(num_sim, vhar_coef, sig_error, init)
 This function generates multivariate time series dataset that follows VHAR.
 }
 \details{
-Recall the relation between stable VHAR and VMA.
+Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+
+For i = 1, ... n,
+
+\eqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
+
+Then the output is \deqn{(y_{23}, \ldots, y_{n + 22})^T}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-}
-\seealso{
-\code{\link{VHARtoVMA}} computes VMA representation.
 }

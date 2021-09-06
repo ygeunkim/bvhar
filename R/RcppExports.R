@@ -475,12 +475,13 @@ kroneckerprod <- function(x, y) {
 #' This function samples n x muti-dimensional normal random matrix with zero mean vector.
 #' 
 #' @param num_sim Number to generated process
+#' @param mu Mean vector
 #' @param sig Variance matrix
 #' 
 #' @useDynLib bvhar
 #' @export
-sim_mgaussian <- function(num_sim, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
+sim_mgaussian <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
@@ -493,6 +494,30 @@ sim_mgaussian <- function(num_sim, sig) {
 #' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.
 #' @details
+#' Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+#' 
+#' For i = 1, ... n,
+#' 
+#' \eqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
+#' 
+#' Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+sim_var <- function(num_sim, var_coef, var_lag, sig_error, init) {
+    .Call(`_bvhar_sim_var`, num_sim, var_coef, var_lag, sig_error, init)
+}
+
+#' Generate Stable VAR(p) Process
+#' 
+#' This function generates stable VAR(p)
+#' 
+#' @param num_sim Number to generated process
+#' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
+#' @param var_lag Lag of VAR
+#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+#' @details
 #' Recall the relation between stable VAR(p) and VMA.
 #' 
 #' @seealso 
@@ -501,8 +526,8 @@ sim_mgaussian <- function(num_sim, sig) {
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
 #' @export
-sim_var <- function(num_sim, var_coef, var_lag, sig_error, init) {
-    .Call(`_bvhar_sim_var`, num_sim, var_coef, var_lag, sig_error, init)
+sim_stable_var <- function(num_sim, var_coef, var_lag, sig_error) {
+    .Call(`_bvhar_sim_stable_var`, num_sim, var_coef, var_lag, sig_error)
 }
 
 #' Generate Multivariate Time Series Process Following VHAR
@@ -514,7 +539,30 @@ sim_var <- function(num_sim, var_coef, var_lag, sig_error, init) {
 #' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.
 #' @details
-#' Recall the relation between stable VHAR and VMA.
+#' Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+#' 
+#' For i = 1, ... n,
+#' 
+#' \eqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
+#' 
+#' Then the output is \deqn{(y_{23}, \ldots, y_{n + 22})^T}
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @useDynLib bvhar
+#' @export
+sim_vhar <- function(num_sim, vhar_coef, sig_error, init) {
+    .Call(`_bvhar_sim_vhar`, num_sim, vhar_coef, sig_error, init)
+}
+
+#' Generate Stable VHAR Process
+#' 
+#' This function generates stable VHAR
+#' 
+#' @param num_sim Number to generated process
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
+#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
+#' @details
+#' Recall the relation between stable VAR(p) and VMA.
 #' 
 #' @seealso 
 #' \code{\link{VHARtoVMA}} computes VMA representation.
@@ -522,7 +570,7 @@ sim_var <- function(num_sim, var_coef, var_lag, sig_error, init) {
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @useDynLib bvhar
 #' @export
-sim_vhar <- function(num_sim, vhar_coef, sig_error, init) {
-    .Call(`_bvhar_sim_vhar`, num_sim, vhar_coef, sig_error, init)
+sim_stable_vhar <- function(num_sim, vhar_coef, sig_error) {
+    .Call(`_bvhar_sim_stable_vhar`, num_sim, vhar_coef, sig_error)
 }
 

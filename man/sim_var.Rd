@@ -21,11 +21,14 @@ sim_var(num_sim, var_coef, var_lag, sig_error, init)
 This function generates multivariate time series dataset that follows VAR(p).
 }
 \details{
-Recall the relation between stable VAR(p) and VMA.
+Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+
+For i = 1, ... n,
+
+\eqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
+
+Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-}
-\seealso{
-\code{\link{VARtoVMA}} computes VMA representation.
 }
