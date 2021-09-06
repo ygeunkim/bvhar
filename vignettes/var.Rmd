@@ -1,29 +1,28 @@
 ---
 title: "VAR and VHAR"
 output: rmarkdown::html_vignette
-header-includes:
-- \newcommand{\R}{\mathbb{R}}
-- \newcommand{\B}{\boldsymbol\beta}
-- \newcommand{\hb}{\boldsymbol{\hat\beta}}
-- \newcommand{\E}{\boldsymbol\epsilon}
-- \DeclareMathOperator*{\argmin}{argmin}
-- \DeclareMathOperator*{\argmax}{argmax}
-- \newcommand{\defn}{\mathpunct{:}=}
-- \newcommand{\X}{\mathbf{X}}
-- \newcommand{\Y}{\mathbf{Y}}
-- \newcommand{\by}{\mathbf{y}}
-- \newcommand{\bz}{\mathbf{Z}}
-- \newcommand{\ba}{\boldsymbol{\alpha}}
-- \newcommand{\bc}{\mathbf{c}}
-- \newcommand{\bu}{\mathbf{u}}
-- \def\Cov{\mathrm{Cov}}
-- \def\Var{\mathrm{Var}}
-- \def\Corr{\mathrm{Corr}}
-- \def\vec{\mathrm{vec}}
 vignette: >
   %\VignetteIndexEntry{VAR and VHAR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\B}{\boldsymbol\beta}
+  \newcommand{\hb}{\boldsymbol{\hat\beta}}
+  \newcommand{\E}{\boldsymbol\epsilon}
+  \DeclareMathOperator*{\argmin}{argmin}
+  \DeclareMathOperator*{\argmax}{argmax}
+  \newcommand{\defn}{\mathpunct{:}=}
+  \newcommand{\X}{\mathbf{X}}
+  \newcommand{\Y}{\mathbf{Y}}
+  \newcommand{\by}{\mathbf{y}}
+  \newcommand{\bz}{\mathbf{Z}}
+  \newcommand{\ba}{\boldsymbol{\alpha}}
+  \newcommand{\bc}{\mathbf{c}}
+  \newcommand{\bu}{\mathbf{u}}
+  \def\Cov{\mathrm{Cov}}
+  \def\Var{\mathrm{Var}}
+  \def\Corr{\mathrm{Corr}}
+  \def\vec{\mathrm{vec}}
 ---
 
 ```{r setup, include = FALSE}
