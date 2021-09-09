@@ -4,10 +4,12 @@
 \alias{sim_var}
 \title{Generate Multivariate Time Series Process Following VAR(p)}
 \usage{
-sim_var(num_sim, var_coef, var_lag, sig_error, init)
+sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
+
+\item{num_burn}{Number of burn-in}
 
 \item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}}
 

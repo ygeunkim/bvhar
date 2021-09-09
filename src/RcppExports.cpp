@@ -373,17 +373,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // sim_var
-Eigen::MatrixXd sim_var(int num_sim, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
-RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_var(num_sim, var_coef, var_lag, sig_error, init));
+    rcpp_result_gen = Rcpp::wrap(sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -402,16 +403,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // sim_vhar
-Eigen::MatrixXd sim_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
-RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP vhar_coefSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, vhar_coef, sig_error, init));
+    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -459,9 +461,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
-    {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 5},
+    {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_stable_var", (DL_FUNC) &_bvhar_sim_stable_var, 4},
-    {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 4},
+    {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},
     {"_bvhar_sim_stable_vhar", (DL_FUNC) &_bvhar_sim_stable_vhar, 3},
     {NULL, NULL, 0}
 };

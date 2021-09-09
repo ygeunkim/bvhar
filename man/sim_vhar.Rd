@@ -4,10 +4,12 @@
 \alias{sim_vhar}
 \title{Generate Multivariate Time Series Process Following VHAR}
 \usage{
-sim_vhar(num_sim, vhar_coef, sig_error, init)
+sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
+
+\item{num_burn}{Number of burn-in}
 
 \item{vhar_coef}{VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}}
 
