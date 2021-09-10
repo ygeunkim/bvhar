@@ -14,3 +14,7 @@ divide_ts(y, n.ahead)
 \description{
 Split a given time series dataset into train and test set for evaluation.
 }
+\seealso{
+\code{\link[rsample:initial_time_split]{rsample::initial_time_split}}, \code{\link[rsample:training]{rsample::training}}, and \code{\link[rsample:testing]{rsample::testing}} process
+provides tidyverse solution.
+}
