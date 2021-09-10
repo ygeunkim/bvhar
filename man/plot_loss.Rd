@@ -13,7 +13,7 @@ plot_loss(mod_list, y, type = c("mse", "mape"), ...)
 
 \item{type}{loss function to be used (\code{"mse"}: MSE, \code{mape}: MAPE)}
 
-\item{...}{additional options for \code{\link[ggplot2]{geom_line}}}
+\item{...}{additional options for \code{\link[ggplot2:geom_line]{ggplot2::geom_line}}}
 }
 \description{
 Draw plot of test error for given models
