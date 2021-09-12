@@ -35,7 +35,8 @@ Imports:
     tibble,
     dplyr,
     foreach,
-    purrr
+    purrr,
+    ggrepel
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

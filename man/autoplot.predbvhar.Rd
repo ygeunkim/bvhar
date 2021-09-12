@@ -2,15 +2,32 @@
 % Please edit documentation in R/summary-forecast.R
 \name{autoplot.predbvhar}
 \alias{autoplot.predbvhar}
+\alias{autolayer.predbvhar}
 \title{Plot Forecast Result}
 \usage{
 \method{autoplot}{predbvhar}(
   object,
   type = c("grid", "wrap"),
   ci_fill = "grey70",
+  ci_alpha = 1,
   x_cut = 1,
+  line_type = c(`FALSE` = "dotted", `TRUE` = "solid"),
+  label_nudge = c(0, 0),
+  label_size = 0.25,
+  label_alpha = 0.7,
   NROW = NULL,
   NCOL = NULL,
+  ...
+)
+
+\method{autolayer}{predbvhar}(
+  object,
+  ci_fill = "grey70",
+  ci_alpha = 1,
+  line_type = c(`FALSE` = "dotted", `TRUE` = "solid"),
+  label_nudge = c(0, 0),
+  label_size = 0.25,
+  label_alpha = 0.7,
   ...
 )
 }
@@ -21,7 +38,17 @@
 
 \item{ci_fill}{color of CI}
 
+\item{ci_alpha}{Transparency of CI}
+
 \item{x_cut}{plot x axes from \code{x_cut} for visibility}
+
+\item{line_type}{linetype regarding to forecasting. See \code{\link[ggplot2:scale_linetype_manual]{ggplot2::scale_linetype_manual}}}
+
+\item{label_nudge}{\code{nudge_x} and \code{nudge_y} for \code{\link[ggplot2:geom_label]{ggplot2::geom_label}}}
+
+\item{label_size}{\code{label_size} for \code{\link[ggplot2:geom_label]{ggplot2::geom_label}}}
+
+\item{label_alpha}{Transparency of \code{\link[ggplot2:geom_label]{ggplot2::geom_label}}}
 
 \item{NROW}{\code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}}
 
