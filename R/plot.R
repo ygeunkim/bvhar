@@ -1,3 +1,97 @@
+#' Density Plot for \code{summary.bvarmn} Object
+#' 
+#' @param object \code{summary.bvarmn} object
+#' @param type Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).
+#' @param var_name variable name (for coefficients)
+#' @param NROW Numer of facet row
+#' @param NCOL Numer of facet col
+#' @param ... not used
+#' 
+#' @importFrom ggplot2 ggplot aes geom_density geom_point facet_wrap labs element_text element_blank
+#' @importFrom dplyr filter
+#' @importFrom tidyr pivot_longer
+#' @importFrom tibble rownames_to_column
+#' @export
+autoplot.summary.bvarmn <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "coef" = {
+      X <- object$coefficients
+      if (is.null(var_name)) stop("Provide 'var_name'")
+      X <- 
+        lapply(
+          1:(object$N),
+          function(x) {
+            X[,, x] %>% 
+              as.data.frame() %>% 
+              rownames_to_column(var = "lags")
+          }
+        ) %>% 
+        bind_rows() %>% 
+        pivot_longer(-lags, names_to = "name", values_to = "value") %>% 
+        filter(name == var_name)
+    },
+    "variance" = {
+      X <- object$covmat
+      X <- 
+        lapply(
+          1:(object$N),
+          function(x) {
+            X[,, x] %>% 
+              diag()
+          }
+        ) %>% 
+        bind_rows() %>% 
+        mutate(id = 1:(object$N)) %>% 
+        pivot_longer(-id, names_to = "lags", values_to = "value")
+    }
+  )
+  X %>% 
+    ggplot(aes(x = value)) +
+    geom_density() +
+    facet_wrap(
+      lags ~ .,
+      nrow = NROW,
+      ncol = NCOL,
+      scales = "free"
+    ) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+}
+
+#' Residual Plot for \code{bvarmn} Object
+#' 
+#' @param object \code{bvarmn} object
+#' @param hcol color of horizontal line = 0 (By default, grey)
+#' @param hsize size of horizontal line = 0 (By default, 1.5)
+#' @param ... additional options for geom_point
+#' 
+#' @importFrom ggplot2 ggplot aes geom_point geom_hline facet_grid labs element_text element_blank
+#' @importFrom tidyr pivot_longer
+#' @export
+autoplot.bvarmn <- function(object, hcol = "grey", hsize = 1.5, ...) {
+  X <- object$residuals %>% as.data.frame()
+  X[["id"]] <- 1:object$obs
+  X <- 
+    X %>% 
+    pivot_longer(-id, names_to = "name", values_to = "value")
+  X %>% 
+    ggplot(aes(x = id, y = value)) +
+    geom_hline(yintercept = 0, col = hcol, size = hsize) +
+    geom_point(...) +
+    facet_grid(
+      name ~ .,
+      scales = "free_y"
+    ) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+}
+
 #' Forecasting Lines and Region
 #' 
 #' This function draws h-step ahead forecasts their confidence (credible) region.
@@ -11,7 +105,6 @@
 #' @param position Position adjustment, either as a string, or the result of a call to a position adjustment function.
 #' @param ci_param Parameter lists for \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon}}
 #' @param line_param Parameter lists for \code{\link[ggplot2:geom_path]{ggplot2::geom_path}}
-#' @param label_param Parameter lists for \code{\link[ggrepel:geom_label_repel]{ggrepel::geom_label_repel}}
 #' @param inherit.aes If \code{FALSE}, overrides the default aesthetics, rather than combining with them.
 #' This is most useful for helper functions that define both data and aesthetics and shouldn't inherit behaviour from the default plot specification,
 #' e.g. \code{\link[ggplot2:borders]{ggplot2::borders}}.
@@ -26,26 +119,22 @@
 #'   \item value_lower_joint - Lower CI
 #'   \item value_upper_joint - Upper CI
 #'   \item model - Fitting Model
-#'   \item x_label - Column to be used labeling, x-axis: Every row but one is \code{NA}
-#'   \item y_label - Column to be used labeling, y-axis: Every row but one is \code{NA}
 #' }
 #' 
 #' @importFrom ggplot2 aes layer
-#' @importFrom ggrepel GeomLabelRepel
 #' @export
 geom_predbvhar <- function(mapping = NULL, 
                            data = NULL, 
                            stat = "identity", 
                            position = "identity", 
-                           ci_param = list(fill = "grey70", alpha = .7, colour = NA, ...),
+                           ci_param = list(alpha = .7, colour = NA, ...),
                            line_param = list(...),
-                           label_param = list(na.rm = TRUE, nudge_x = 0, nudge_y = 0, label.size = .25, alpha = .7, ...),
                            inherit.aes = TRUE) {
   ci_layer <- layer(
     geom = "ribbon",
     stat = "identity",
     data = data,
-    mapping = aes(ymin = value_lower_joint, ymax = value_upper_joint),
+    mapping = aes(ymin = value_lower_joint, ymax = value_upper_joint, fill = model),
     position = position,
     params = ci_param,
     inherit.aes = inherit.aes
@@ -60,15 +149,134 @@ geom_predbvhar <- function(mapping = NULL,
     inherit.aes = inherit.aes,
     show.legend = FALSE
   )
-  label_layer <- layer(
-    geom = GeomLabelRepel,
-    stat = "identity",
-    data = data,
-    mapping = aes(x = x_label, y = y_label, label = model),
-    position = position,
-    params = label_param,
-    inherit.aes = inherit.aes,
-    show.legend = FALSE
+  list(ci_layer, line_layer)
+}
+
+#' Plot Forecast Result
+#' 
+#' Plots the forecasting result with forecast regions.
+#' 
+#' @param object \code{predbvhar} object usually generated by \code{predict()} function in this package
+#' @param type Divide variables using \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid}} ("grid": default) or \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}} ("wrap")
+#' @param ci_fill color of CI
+#' @param ci_alpha Transparency of CI
+#' @param x_cut plot x axes from \code{x_cut} for visibility
+#' @param line_type linetype regarding to forecasting. See \code{\link[ggplot2:scale_linetype_manual]{ggplot2::scale_linetype_manual}}
+#' @param NROW \code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}
+#' @param NCOL \code{ncol} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}
+#' @param ... additional option for \code{\link[ggplot2:geom_path]{ggplot2::geom_path}}
+#' 
+#' @importFrom ggplot2 ggplot aes facet_grid scale_linetype_manual labs element_blank
+#' @importFrom dplyr filter
+#' @export
+autoplot.predbvhar <- function(object, 
+                               type = c("grid", "wrap"), 
+                               ci_alpha = .7,
+                               x_cut = 1, 
+                               line_type = c("FALSE" = "dotted", "TRUE" = "solid"),
+                               NROW = NULL, 
+                               NCOL = NULL, ...) {
+  type <- match.arg(type)
+  forecast_list <- gather_predbvhar(object)
+  p <- 
+    forecast_list %>% 
+    filter(id >= x_cut) %>% 
+    ggplot(aes(x = id, y = value_forecast, colour = model))
+  switch(
+    type,
+    "grid" = {
+      p +
+        geom_predbvhar(
+          ci_param = list(alpha = ci_alpha, colour = NA),
+          line_param = list(...)
+        ) +
+        scale_linetype_manual(values = line_type) +
+        facet_grid(variable ~ ., scales = "free_y") +
+        labs(
+          x = element_blank(),
+          y = element_blank()
+        )
+    },
+    "wrap" = {
+      p +
+        geom_predbvhar(
+          ci_param = list(alpha = ci_alpha, colour = NA),
+          line_param = list(...)
+        ) +
+        scale_linetype_manual(values = line_type) +
+        facet_wrap(variable ~ ., nrow = NROW, ncol = NCOL, scales = "free_y") +
+        labs(
+          x = element_blank(),
+          y = element_blank()
+        )
+    }
   )
-  list(ci_layer, line_layer, label_layer)
+}
+
+#' @rdname autoplot.predbvhar
+#' 
+#' @importFrom dplyr bind_rows mutate filter
+#' @importFrom ggplot2 ggplot aes facet_grid scale_linetype_manual labs element_blank last_plot ggplot_build
+#' @export
+autolayer.predbvhar <- function(object, 
+                                ci_fill = "grey70", 
+                                ci_alpha = .5,
+                                line_type = c("FALSE" = "dotted", "TRUE" = "solid"), ...) {
+  aes_data <- 
+    last_plot() %>% 
+    ggplot_build() %>% 
+    .$plot %>% 
+    .$data # same form as forecast_list above
+  x_cut <- aes_data[["id"]][1]
+  NEW_list <- 
+    gather_predbvhar(object) %>% # new forecast_list
+    filter(id >= x_cut)
+  geom_predbvhar(
+    data = NEW_list,
+    ci_param = list(alpha = ci_alpha, colour = NA),
+    line_param = list(...)
+  )
+}
+
+#' Compare Lists of Models
+#' 
+#' Draw plot of test error for given models
+#' 
+#' @param mod_list lists of forecast results (\code{predbvhar} objects)
+#' @param y test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param type loss function to be used (\code{"mse"}: MSE, \code{mape}: MAPE)
+#' @param ... additional options for \code{\link[ggplot2:geom_line]{ggplot2::geom_line}}
+#' 
+#' @importFrom dplyr mutate bind_rows
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes geom_line labs element_blank
+#' @export
+plot_loss <- function(mod_list, y, type = c("mse", "mape"), ...) {
+  type <- match.arg(type)
+  mod_names <- 
+    mod_list %>% 
+    lapply(function(PRED) PRED$process) %>% 
+    unlist()
+  SCORE <- 
+    switch(
+      type,
+      "mse" = {
+        mod_list %>% 
+          lapply(mse, y = y)
+      },
+      "mape" = {
+        mod_list %>% 
+          lapply(mape, y = y)
+      }
+    )
+  SCORE %>% 
+    bind_rows() %>% 
+    mutate(Model = mod_names) %>% 
+    pivot_longer(-Model, names_to = "name", values_to = "score") %>% 
+    ggplot(aes(x = name, y = score, colour = Model)) +
+    geom_line(aes(group = Model), ...) +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
 }
