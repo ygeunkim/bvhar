@@ -59,7 +59,7 @@ is.stable.varlse <- function(x, ...) {
 AIC.varlse <- function(object, ...) {
   SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  k <- m * object$p + 1
+  k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
   log(sig_det) + 2 / s * m * k # penalty = (2 / s) * m * k
@@ -83,7 +83,7 @@ FPE <- function(object, ...) {
 FPE.varlse <- function(object, ...) {
   SIG <- object$covmat # SIG = crossprod(resid) / (s - k), FPE = ((s + k) / (s - k))^m * det(crossprod(resid) / s)
   m <- object$m
-  k <- m * object$p + 1
+  k <- object$df
   s <- object$obs
   ((s + k) / s)^m * det(SIG) # FPE = ((s + k) / (s - k))^m * det = ((s + k) / s)^m * det(crossprod(resid) / (s - k))
 }
@@ -99,7 +99,7 @@ FPE.varlse <- function(object, ...) {
 BIC.varlse <- function(object, ...) {
   SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  k <- m * object$p + 1
+  k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
   log(sig_det) + log(s) / s * m * k # penalty = (log(s) / s) * m * k
@@ -124,7 +124,7 @@ HQ <- function(object, ...) {
 HQ.varlse <- function(object, ...) {
   SIG <- object$covmat # crossprod(COV) / (s - k)
   m <- object$m
-  k <- m * object$p + 1
+  k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
   log(sig_det) + 2 * log(log(s)) / s * m * k # penalty = (2 * log(log(s)) / s) * m * k
@@ -162,15 +162,21 @@ HQ.varlse <- function(object, ...) {
 #' @export
 summary.varlse <- function(object, ...) {
   var_name <- colnames(object$y0)
-  # cov_resid <- compute_var(object$residuals, object$obs, object$m * object$p + 1)
-  # colnames(cov_resid) <- var_name
-  # rownames(cov_resid) <- var_name
   cov_resid <- object$covmat
   # split the matrix for the print: B1, ..., Bp
   bhat_mat <- 
-    split.data.frame(object$coefficients[-(object$m + object$p + 1),], gl(object$p, object$m)) %>% 
-    lapply(t)
-  bhat_mat$intercept <- object$coefficients[object$m * object$p + 1,]
+    switch(
+      object$type,
+      "const" = {
+        split.data.frame(object$coefficients[-(object$m + object$p + 1),], gl(object$p, object$m)) %>% 
+          lapply(t)
+      },
+      "none" = {
+        split.data.frame(object$coefficients, gl(object$p, object$m)) %>% 
+          lapply(t)
+      }
+    )
+  if (object$type == "const") bhat_mat$intercept <- object$coefficients[object$m * object$p + 1,]
   res <- list(
     names = var_name,
     totobs = object$totobs,
@@ -179,6 +185,7 @@ summary.varlse <- function(object, ...) {
     coefficients = bhat_mat,
     call = object$call,
     process = object$process,
+    type = object$type,
     covmat = cov_resid,
     corrmat = cor(object$residuals),
     roots = stableroot(object),

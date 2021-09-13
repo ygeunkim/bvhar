@@ -10,11 +10,17 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- 
-    split.data.frame(x$coefficients[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
-    lapply(t)
-  # const term
-  intercept <- x$coefficients[x$m * x$p + 1,]
+  bhat_mat <- switch(
+    x$type,
+    "const" = {
+      split.data.frame(x$coefficients[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
+        lapply(t)
+    },
+    "none" = {
+      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
+        lapply(t)
+    }
+  )
   cat(sprintf("VAR(%i) Estimation using least squares\n", x$p))
   cat("====================================================\n\n")
   for (i in 1:(x$p)) {
@@ -28,15 +34,19 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     )
     cat("\n\n")
   }
-  cat("LSE for constant:\n")
   # c-------------------------------
-  print.default(
-    intercept,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-  cat("\n\n--------------------------------------------------\n")
+  if (x$type == "const") {
+    # const term
+    intercept <- x$coefficients[x$m * x$p + 1,]
+    cat("LSE for constant:\n")
+    print.default(
+      intercept,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n\n--------------------------------------------------\n")
+  }
   cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
   invisible(x)
 }
@@ -105,15 +115,17 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     )
     cat("\n\n")
   }
-  cat("OLS for constant:\n")
-  # print c-------------------------
-  print.default(
-    x$coefficients$intercept,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-  cat("\n====================================================\n")
+  if (x$type == "const") {
+    cat("OLS for constant:\n")
+    # print c-------------------------
+    print.default(
+      x$coefficients$intercept,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n====================================================\n")
+  }
   # cov and corr-----------------------------
   cat("Covariance matrix of the residuals:\n")
   print(x$covmat)

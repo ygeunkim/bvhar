@@ -6,7 +6,7 @@
 \alias{knit_print.varlse}
 \title{Fit Vector Autoregressive Model of Order p Model}
 \usage{
-var_lm(y, p)
+var_lm(y, p, type = c("const", "none"))
 
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -16,6 +16,8 @@ knit_print.varlse(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{integer, lags of VAR}
+
+\item{type}{add constant term (\code{"const"}) or not (\code{"none"})}
 
 \item{x}{\code{varlse} object}
 

@@ -4,6 +4,7 @@
 #' This function fits VAR(p) using OLS method
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
+#' @param type add constant term (\code{"const"}) or not (\code{"none"})
 #' @details 
 #' For VAR(p) model
 #' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
@@ -61,7 +62,7 @@
 #' 
 #' @order 1
 #' @export
-var_lm <- function(y, p) {
+var_lm <- function(y, p, type = c("const", "none")) {
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
@@ -70,6 +71,14 @@ var_lm <- function(y, p) {
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
+  # const or none
+  type <- match.arg(type)
+  m <- ncol(y)
+  k <- m * p + 1 # df
+  if (type == "none") {
+    X0 <- X0[, -k] # exclude 1 column
+    k <- k - 1 # # df = no intercept
+  }
   # estimate B-----------------------
   var_est <- estimate_var(X0, Y0)
   Bhat <- var_est$bhat
@@ -80,8 +89,6 @@ var_lm <- function(y, p) {
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
   # residual Covariance matrix------
-  m <- ncol(y)
-  k <- m * p + 1
   covmat <- compute_cov(zhat, nrow(Y0), k) # Sighat = z^T %*% z / (s - k)
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
@@ -92,10 +99,11 @@ var_lm <- function(y, p) {
     y = y,
     p = p, # p
     m = m, # m
-    df = k, # k = m * p + 1
+    df = k, # k = m * p + 1 or m * p
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VAR",
+    type = type,
     call = match.call(),
     coefficients = Bhat,
     fitted.values = yhat, # X0 %*% Bhat
