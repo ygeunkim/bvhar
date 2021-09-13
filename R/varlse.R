@@ -1,16 +1,16 @@
 #' Fit Vector Autoregressive Model of Order p Model
 #' 
-#' @description 
 #' This function fits VAR(p) using OLS method
+#' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
-#' @param type add constant term (\code{"const"}) or not (\code{"none"})
+#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
 #' @details 
 #' For VAR(p) model
 #' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 #' the function gives basic values.
 #' 
-#' @return \code{var_lm} returns an object named \code{varlse} \link{class}.
+#' @return `var_lm` returns an object named `varlse` [class].
 #' 
 #' It is a list with the following components:
 #' 
@@ -40,11 +40,11 @@
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
 #' @seealso 
-#' \code{\link{build_y0}} and \code{\link{build_design}} for defining Y0 and X0 matrix,
+#' [build_y0()] and [build_design()] to define Y0 and X0 matrix,
 #' 
-#' and \code{\link{estimate_var}} for computing coefficient VAR matrix.
+#' and [estimate_var()] to compute coefficient VAR matrix.
 #' 
-#' Other package \code{\link[vars]{VAR}} is famous in VAR modeling.
+#' Other package [vars::VAR()] is famous in VAR modeling.
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' \dontrun{
@@ -71,13 +71,13 @@ var_lm <- function(y, p, type = c("const", "none")) {
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
-  # const or none
+  # const or none--------------------
   type <- match.arg(type)
   m <- ncol(y)
   k <- m * p + 1 # df
   if (type == "none") {
     X0 <- X0[, -k] # exclude 1 column
-    k <- k - 1 # # df = no intercept
+    k <- k - 1 # df = no intercept
   }
   # estimate B-----------------------
   var_est <- estimate_var(X0, Y0)

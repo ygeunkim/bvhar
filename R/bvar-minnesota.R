@@ -1,6 +1,5 @@
 #' Fit Bayesian VAR(p) of Minnesota Prior
 #' 
-#' @description
 #' This function fits BVAR(p) with Minnesota prior.
 #' 
 #' @param y matrix, Time series data of which columns indicate the variables

@@ -312,6 +312,26 @@ estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
 }
 
+#' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
+#' 
+#' @param x X0 processed by \code{\link{build_design}} (delete its last column)
+#' @param y Y0 processed by \code{\link{build_y0}}
+#' @details
+#' Given Y0 and Y0, the function estimate least squares
+#' Y0 = X1 Phi + Z
+#' 
+#' @references
+#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' 
+#' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+#' 
+#' @useDynLib bvhar
+#' @importFrom Rcpp sourceCpp
+#' @export
+estimate_har_none <- function(x, y) {
+    .Call(`_bvhar_estimate_har_none`, x, y)
+}
+
 #' @useDynLib bvhar
 #' @noRd
 VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {

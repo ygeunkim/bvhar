@@ -34,9 +34,8 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     )
     cat("\n\n")
   }
-  # c-------------------------------
+  # const term----------------------
   if (x$type == "const") {
-    # const term
     intercept <- x$coefficients[x$m * x$p + 1,]
     cat("LSE for constant:\n")
     print.default(
@@ -45,8 +44,9 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       print.gap = 2L,
       quote = FALSE
     )
-    cat("\n\n--------------------------------------------------\n")
+    cat("\n\n")
   }
+  cat("--------------------------------------------------\n")
   cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
   invisible(x)
 }

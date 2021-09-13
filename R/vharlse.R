@@ -1,8 +1,9 @@
 #' Fit Vector HAR
 #' 
-#' @description 
 #' This function fits VHAR using OLS method
-#' @param y matrix, Time series data of which columns indicate the variables
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param type `r lifecycle::badge("experimental")` add constant term (\code{"const"}) or not (\code{"none"})
 #' @details 
 #' For VHAR model
 #' \deqn{Y_{t} = Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
@@ -33,7 +34,7 @@
 #' 
 #' @order 1
 #' @export
-vhar_lm <- function(y) {
+vhar_lm <- function(y, type = c("const", "none")) {
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)
@@ -41,10 +42,27 @@ vhar_lm <- function(y) {
   colnames(Y0) <- name_var
   X0 <- build_design(y, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
+  # const or none--------------------
+  type <- match.arg(type)
+  m <- ncol(y)
+  num_coef <- 3 * m + 1
+  if (type == "none") {
+    X0 <- X0[, -(22 * m + 1)] # exclude 1 column
+    name_har <- name_har[-num_coef] # remove const (row)name
+    num_coef <- num_coef - 1 # df = 3 * m
+  }
   # Y0 = X1 Phi + Z------------------
   # X1 = X0 %*% t(HARtrans)
   # estimate Phi---------------------
-  vhar_est <- estimate_har(X0, Y0)
+  vhar_est <- switch(
+    type,
+    "const" = {
+      estimate_har(X0, Y0)
+    },
+    "none" = {
+      estimate_har_none(X0, Y0)
+    }
+  )
   Phihat <- vhar_est$phihat
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har
@@ -53,8 +71,6 @@ vhar_lm <- function(y) {
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
   # residual Covariance matrix------
-  m <- ncol(y)
-  num_coef <- 3 * m + 1
   covmat <- compute_cov(zhat, nrow(Y0), num_coef) # Sighat = z^T %*% z / (s - (3m + 1))
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
@@ -63,12 +79,12 @@ vhar_lm <- function(y) {
     design = X0,
     y0 = Y0,
     y = y,
-    # p = p, # p
     m = ncol(y), # m
-    df = num_coef, # nrow(Phihat) = 3 * m + 1
+    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VHAR",
+    type = type,
     call = match.call(),
     HARtrans = vhar_est$HARtrans,
     coefficients = Phihat,

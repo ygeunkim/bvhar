@@ -214,6 +214,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// estimate_har_none
+Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y);
+RcppExport SEXP _bvhar_estimate_har_none(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_har_none(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // VHARcoeftoVMA
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max);
 RcppExport SEXP _bvhar_VHARcoeftoVMA(SEXP vhar_coefSEXP, SEXP HARtrans_matSEXP, SEXP lag_maxSEXP) {
@@ -288,7 +300,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // forecast_var
-SEXP forecast_var(Rcpp::List object, int step);
+Eigen::MatrixXd forecast_var(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_forecast_var(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -300,7 +312,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // forecast_vhar
-SEXP forecast_vhar(Rcpp::List object, int step);
+Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_forecast_vhar(SEXP objectSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -448,6 +460,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
+    {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 2},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 3},
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
     {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},

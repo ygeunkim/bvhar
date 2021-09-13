@@ -9,18 +9,24 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
-  # split the matrix for the print: B1, ..., Bp
-  phihat_mat <- 
-    split.data.frame(x$coefficients[-(3 * x$m + 1),], gl(3, x$m)) %>% 
-    lapply(t)
+  # split the matrix for the print: Phi(d), Phi(w), Phi(m)
+  phihat_mat <- switch(
+    x$type,
+    "const" = {
+      split.data.frame(x$coefficients[-(3 * x$m + 1),], gl(3, x$m)) %>% 
+        lapply(t)
+    },
+    "none" = {
+      split.data.frame(x$coefficients, gl(3, x$m)) %>% 
+        lapply(t)
+    }
+  )
   names(phihat_mat) <- c("day", "week", "month")
-  # const term
-  intercept <- x$coefficients[3 * x$m + 1,]
   cat("VHAR Estimation")
   cat("====================================================\n\n")
   for (i in 1:3) {
     cat(paste0("LSE for ", names(phihat_mat)[i], ":\n"))
-    # B1, ..., Bp--------------------
+    # Phi(d), Phi(w), Phi(m)---------
     print.default(
       phihat_mat[[i]],
       digits = digits,
@@ -29,15 +35,19 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     )
     cat("\n\n")
   }
-  cat("LSE for constant:\n")
-  # c-------------------------------
-  print.default(
-    intercept,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-  cat("\n\n--------------------------------------------------\n")
+  # const term----------------------
+  if (x$type == "const") {
+    intercept <- x$coefficients[3 * x$m + 1,]
+    cat("LSE for constant:\n")
+    print.default(
+      intercept,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n\n")
+  }
+  cat("--------------------------------------------------\n")
   cat("*_day, *_week, *_month of the Coefficient matrix: daily, weekly, and monthly term in the VHAR model\n\n")
   invisible(x)
 }

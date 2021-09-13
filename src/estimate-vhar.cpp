@@ -49,18 +49,54 @@ Eigen::MatrixXd scale_har (int m) {
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
-  int h = 3 * y.cols() + 1;
-  Eigen::MatrixXd x1(y.rows(), h); // HAR design matrix
-  Eigen::MatrixXd Phi(h, y.cols()); // HAR estimator
-  Eigen::MatrixXd yhat(y.rows(), y.cols());
-  Eigen::MatrixXd HARtrans = scale_har(y.cols()); // linear transformation
+  int dim = y.cols();
+  int num_har = 3 * dim + 1; // 3m + 1
+  Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
+  Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
+  Eigen::MatrixXd yhat(y.rows(), dim);
+  Eigen::MatrixXd HARtrans = scale_har(dim); // linear transformation
   x1 = x * HARtrans.adjoint();
   Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
   yhat = x1 * Phi;
   return Rcpp::List::create(
-    Rcpp::Named("HARtrans") = Rcpp::wrap(HARtrans),
-    Rcpp::Named("phihat") = Rcpp::wrap(Phi),
-    Rcpp::Named("fitted") = Rcpp::wrap(yhat)
+    Rcpp::Named("HARtrans") = HARtrans,
+    Rcpp::Named("phihat") = Phi,
+    Rcpp::Named("fitted") = yhat
+  );
+}
+
+//' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
+//' 
+//' @param x X0 processed by \code{\link{build_design}} (delete its last column)
+//' @param y Y0 processed by \code{\link{build_y0}}
+//' @details
+//' Given Y0 and Y0, the function estimate least squares
+//' Y0 = X1 Phi + Z
+//' 
+//' @references
+//' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' 
+//' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+//' 
+//' @useDynLib bvhar
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
+Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+  int dim = y.cols(); // m
+  int num_har = 3 * dim; // 3m
+  int dim_har = 22 * dim; // 22m
+  Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
+  Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
+  Eigen::MatrixXd yhat(y.rows(), dim);
+  Eigen::MatrixXd HARtrans = scale_har(dim).block(0, 0, num_har, dim_har); // linear transformation
+  x1 = x * HARtrans.adjoint();
+  Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
+  yhat = x1 * Phi;
+  return Rcpp::List::create(
+    Rcpp::Named("HARtrans") = HARtrans,
+    Rcpp::Named("phihat") = Phi,
+    Rcpp::Named("fitted") = yhat
   );
 }
 
