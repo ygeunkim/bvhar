@@ -1,0 +1,11 @@
+template:
+  params:
+    bootswatch: cosmo
+    docsearch:
+      index_name: bvhar
+
+authors:
+  Young Geun Kim:
+    href: https://ygeunkim.github.io
+  Changryong Baek:
+    href: https://sites.google.com/view/crbaek
