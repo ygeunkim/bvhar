@@ -20,8 +20,6 @@
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
@@ -85,8 +83,6 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
 //' @references
 //' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {

@@ -23,7 +23,6 @@
 //' Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
@@ -68,7 +67,6 @@ Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int
 //' \code{\link{VARtoVMA}} computes VMA representation.
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_stable_var(int num_sim, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error) {
@@ -116,7 +114,6 @@ Eigen::MatrixXd sim_stable_var(int num_sim, Eigen::MatrixXd var_coef, int var_la
 //' Then the output is \deqn{(y_{23}, \ldots, y_{n + 22})^T}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
@@ -162,7 +159,6 @@ Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, E
 //' \code{\link{VHARtoVMA}} computes VMA representation.
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_stable_vhar(int num_sim, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error) {

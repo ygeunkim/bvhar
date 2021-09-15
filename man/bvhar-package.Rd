@@ -2,14 +2,13 @@
 % Please edit documentation in R/bvhar-package.R
 \docType{package}
 \name{bvhar-package}
-\alias{bvhar-package}
-\alias{_PACKAGE}
 \alias{bvhar}
-\title{bvhar: Bayesian VHAR model}
+\alias{bvhar-package}
+\title{bvhar: Bayesian Vector HAR Model}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-A package aiming at reasearcing Bayesian Vector heterogeneous autoregressive process.
+A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
 You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
 \seealso{
@@ -21,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu}
+\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} [copyright holder]
 
 Other contributors:
 \itemize{

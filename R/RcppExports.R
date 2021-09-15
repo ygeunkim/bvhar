@@ -17,7 +17,6 @@
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
-#' @useDynLib bvhar
 #' @export
 build_y0 <- function(x, var_lag, t) {
     .Call(`_bvhar_build_y0`, x, var_lag, t)
@@ -35,13 +34,11 @@ build_y0 <- function(x, var_lag, t) {
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
-#' @useDynLib bvhar
 #' @export
 build_design <- function(x, p) {
     .Call(`_bvhar_build_design`, x, p)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 diag_misc <- function(x) {
     .Call(`_bvhar_diag_misc`, x)
@@ -64,7 +61,6 @@ diag_misc <- function(x) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
 #' @export
 build_ydummy <- function(p, sigma, lambda, delta) {
     .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)
@@ -87,7 +83,6 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 build_xdummy <- function(p, lambda, sigma, eps) {
@@ -115,8 +110,6 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
@@ -141,8 +134,6 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
     .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
@@ -166,8 +157,6 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
     .Call(`_bvhar_estimate_bvar_mn`, x, y, x_dummy, y_dummy)
@@ -188,8 +177,6 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
 #' @references
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
@@ -204,9 +191,6 @@ estimate_mn_flat <- function(x, y, U) {
 #' Y0 = X0 B + Z
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 estimate_var <- function(x, y) {
     .Call(`_bvhar_estimate_var`, x, y)
@@ -223,13 +207,11 @@ estimate_var <- function(x, y) {
 #' See Lütkepohl (2007).
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
     .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
@@ -253,7 +235,6 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
@@ -274,7 +255,6 @@ VARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
@@ -286,7 +266,6 @@ compute_covmse <- function(object, step) {
 #' @details
 #' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
 #' 
-#' @useDynLib bvhar
 #' @export
 scale_har <- function(m) {
     .Call(`_bvhar_scale_har`, m)
@@ -305,7 +284,6 @@ scale_har <- function(m) {
 #' 
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
-#' @useDynLib bvhar
 #' @importFrom Rcpp sourceCpp
 #' @export
 estimate_har <- function(x, y) {
@@ -325,14 +303,11 @@ estimate_har <- function(x, y) {
 #' 
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 estimate_har_none <- function(x, y) {
     .Call(`_bvhar_estimate_har_none`, x, y)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
     .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max)
@@ -356,7 +331,6 @@ VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
 #' \deqn{B = \tilde{T}^T \Phi}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 VHARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VHARtoVMA`, object, lag_max)
@@ -377,7 +351,6 @@ VHARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
@@ -397,8 +370,6 @@ compute_covmse_har <- function(object, step) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 forecast_bvarmn <- function(object, step) {
     .Call(`_bvhar_forecast_bvarmn`, object, step)
@@ -416,8 +387,6 @@ forecast_bvarmn <- function(object, step) {
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 forecast_bvarmn_flat <- function(object, step) {
     .Call(`_bvhar_forecast_bvarmn_flat`, object, step)
@@ -430,8 +399,6 @@ forecast_bvarmn_flat <- function(object, step) {
 #' @details
 #' n-step ahead forecasting using VHAR recursively.
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 forecast_bvharmn <- function(object, step) {
     .Call(`_bvhar_forecast_bvharmn`, object, step)
@@ -445,8 +412,6 @@ forecast_bvharmn <- function(object, step) {
 #' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 forecast_var <- function(object, step) {
     .Call(`_bvhar_forecast_var`, object, step)
@@ -459,32 +424,26 @@ forecast_var <- function(object, step) {
 #' @details
 #' n-step ahead forecasting using VHAR recursively.
 #' 
-#' @useDynLib bvhar
-#' @importFrom Rcpp sourceCpp
 #' @export
 forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 AAt_eigen <- function(x, y) {
     .Call(`_bvhar_AAt_eigen`, x, y)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 tAA_eigen <- function(x, y) {
     .Call(`_bvhar_tAA_eigen`, x, y)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 AtAit_eigen <- function(x, y) {
     .Call(`_bvhar_AtAit_eigen`, x, y)
 }
 
-#' @useDynLib bvhar
 #' @noRd
 kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
@@ -498,7 +457,6 @@ kroneckerprod <- function(x, y) {
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' 
-#' @useDynLib bvhar
 #' @export
 sim_mgaussian <- function(num_sim, mu, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
@@ -524,7 +482,6 @@ sim_mgaussian <- function(num_sim, mu, sig) {
 #' Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
     .Call(`_bvhar_sim_var`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
@@ -545,7 +502,6 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' \code{\link{VARtoVMA}} computes VMA representation.
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 sim_stable_var <- function(num_sim, var_coef, var_lag, sig_error) {
     .Call(`_bvhar_sim_stable_var`, num_sim, var_coef, var_lag, sig_error)
@@ -570,7 +526,6 @@ sim_stable_var <- function(num_sim, var_coef, var_lag, sig_error) {
 #' Then the output is \deqn{(y_{23}, \ldots, y_{n + 22})^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
     .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, sig_error, init)
@@ -590,7 +545,6 @@ sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
 #' \code{\link{VHARtoVMA}} computes VMA representation.
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @useDynLib bvhar
 #' @export
 sim_stable_vhar <- function(num_sim, vhar_coef, sig_error) {
     .Call(`_bvhar_sim_stable_vhar`, num_sim, vhar_coef, sig_error)

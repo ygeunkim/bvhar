@@ -36,6 +36,7 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: VHAR}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{coefficients}{Coefficient Matrix}
 \item{fitted.values}{Fitted response values}
@@ -50,8 +51,31 @@ For VHAR model
 \deqn{Y_{t} = Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
 the function gives basic values.
 }
+\examples{
+# Perform the function using etf_vix dataset
+\dontrun{
+  fit <- vhar_lm(y = etf_vix)
+  class(fit)
+  str(fit)
+}
+
+# Extract coef, fitted values, and residuals
+\dontrun{
+  coef(fit)
+  residuals(fit)
+  fitted(fit)
+}
+
+}
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 
 Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+}
+\seealso{
+\code{\link[=scale_har]{scale_har()}} to linear transformation for VHAR,
+
+\code{\link[=estimate_har]{estimate_har()}} to compute coefficient VHAR matrix,
+
+and \code{\link[=estimate_har_none]{estimate_har_none()}} to compute coefficient VHAR matrix without constant term.
 }

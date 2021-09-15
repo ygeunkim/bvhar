@@ -9,8 +9,6 @@
 //' @details
 //' n-step ahead forecasting using VHAR recursively.
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {

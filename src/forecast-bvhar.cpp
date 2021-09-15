@@ -9,8 +9,6 @@
 //' @details
 //' n-step ahead forecasting using VHAR recursively.
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step) {

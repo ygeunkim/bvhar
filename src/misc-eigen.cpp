@@ -2,7 +2,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -11,7 +10,6 @@ Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -20,7 +18,6 @@ Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -29,7 +26,6 @@ Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -46,7 +42,6 @@ Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' @param mu Mean vector
 //' @param sig Variance matrix
 //' 
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_mgaussian (int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {

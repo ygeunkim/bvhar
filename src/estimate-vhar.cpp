@@ -8,7 +8,6 @@
 //' @details
 //' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
 //' 
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd scale_har (int m) {
@@ -44,7 +43,6 @@ Eigen::MatrixXd scale_har (int m) {
 //' 
 //' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 //' 
-//' @useDynLib bvhar
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
@@ -78,8 +76,6 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -100,7 +96,6 @@ Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   );
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max) {
@@ -144,7 +139,6 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 //' \deqn{B = \tilde{T}^T \Phi}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
@@ -170,7 +164,6 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
 //' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {

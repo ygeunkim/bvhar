@@ -21,6 +21,7 @@
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: VHAR}
+#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{coefficients}{Coefficient Matrix}
 #'   \item{fitted.values}{Fitted response values}
@@ -31,6 +32,27 @@
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' 
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+#' 
+#' @seealso 
+#' [scale_har()] to linear transformation for VHAR,
+#' 
+#' [estimate_har()] to compute coefficient VHAR matrix,
+#' 
+#' and [estimate_har_none()] to compute coefficient VHAR matrix without constant term.
+#' @examples 
+#' # Perform the function using etf_vix dataset
+#' \dontrun{
+#'   fit <- vhar_lm(y = etf_vix)
+#'   class(fit)
+#'   str(fit)
+#' }
+#' 
+#' # Extract coef, fitted values, and residuals
+#' \dontrun{
+#'   coef(fit)
+#'   residuals(fit)
+#'   fitted(fit)
+#' }
 #' 
 #' @order 1
 #' @export
@@ -81,7 +103,7 @@ vhar_lm <- function(y, type = c("const", "none")) {
     y = y,
     m = ncol(y), # m
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
-    obs = nrow(Y0), # s = n - p
+    obs = nrow(Y0), # s = n - 22
     totobs = nrow(y), # n
     process = "VHAR",
     type = type,

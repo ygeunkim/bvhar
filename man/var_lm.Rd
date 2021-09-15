@@ -40,6 +40,7 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: VAR}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{coefficients}{Coefficient Matrix}
 \item{fitted.values}{Fitted response values}
@@ -47,12 +48,28 @@ It is a list with the following components:
 }
 }
 \description{
-This function fits VAR(p) using OLS method
+This function fits VAR(p) using OLS method.
 }
 \details{
-For VAR(p) model
+This package specifies VAR(p) model as
 \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
-the function gives basic values.
+
+If \code{type = "const"}, there is \eqn{c} term.
+Otherwise (\code{type = "none"}), there is no \eqn{c} term.
+The function estimates every coefficient matrix \eqn{c, B_1, \ldots, B_p}.
+\itemize{
+\item \code{\link[=build_y0]{build_y0()}} gives response matrix, \eqn{Y_0}.
+\item \code{\link[=build_design]{build_design()}} gives design matrix, \eqn{X_0}.
+\item Coefficient matrix is the form of \eqn{B = [B_1, B_2, \ldots, B_p, c]^T}.
+}
+
+Then perform least squares to the following
+
+\deqn{Y_0 = X_0 B + error}
+
+which gives
+
+\deqn{\hat{B} = (X_0^T X_0)^{-1} X_0^T Y_0}
 }
 \examples{
 # Perform the function using etf_vix dataset
@@ -72,10 +89,6 @@ the function gives basic values.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
-
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 }
 \seealso{
 \code{\link[=build_y0]{build_y0()}} and \code{\link[=build_design]{build_design()}} to define Y0 and X0 matrix,

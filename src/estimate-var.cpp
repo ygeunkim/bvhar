@@ -11,9 +11,6 @@
 //' Y0 = X0 B + Z
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
@@ -38,7 +35,6 @@ Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' See Lütkepohl (2007).
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
@@ -47,7 +43,6 @@ Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) 
   return cov_mat;
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
@@ -90,7 +85,6 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
@@ -116,7 +110,6 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {

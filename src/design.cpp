@@ -18,7 +18,6 @@
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' 
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t) {
@@ -43,7 +42,6 @@ Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t) {
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' 
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
@@ -60,7 +58,6 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
   return res;
 }
 
-//' @useDynLib bvhar
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
@@ -89,7 +86,6 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
-//' @useDynLib bvhar
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta) {
@@ -126,7 +122,6 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
-//' @useDynLib bvhar
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
@@ -174,8 +169,6 @@ Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
@@ -215,8 +208,6 @@ Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 //' 
-//' @useDynLib bvhar
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly) {
