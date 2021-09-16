@@ -487,26 +487,6 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
     .Call(`_bvhar_sim_var`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
 }
 
-#' Generate Stable VAR(p) Process
-#' 
-#' This function generates stable VAR(p)
-#' 
-#' @param num_sim Number to generated process
-#' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
-#' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
-#' @details
-#' Recall the relation between stable VAR(p) and VMA.
-#' 
-#' @seealso 
-#' \code{\link{VARtoVMA}} computes VMA representation.
-#' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
-sim_stable_var <- function(num_sim, var_coef, var_lag, sig_error) {
-    .Call(`_bvhar_sim_stable_var`, num_sim, var_coef, var_lag, sig_error)
-}
-
 #' Generate Multivariate Time Series Process Following VHAR
 #' 
 #' This function generates multivariate time series dataset that follows VHAR.
@@ -529,24 +509,5 @@ sim_stable_var <- function(num_sim, var_coef, var_lag, sig_error) {
 #' @export
 sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
     .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, sig_error, init)
-}
-
-#' Generate Stable VHAR Process
-#' 
-#' This function generates stable VHAR
-#' 
-#' @param num_sim Number to generated process
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
-#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
-#' @details
-#' Recall the relation between stable VAR(p) and VMA.
-#' 
-#' @seealso 
-#' \code{\link{VHARtoVMA}} computes VMA representation.
-#' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
-sim_stable_vhar <- function(num_sim, vhar_coef, sig_error) {
-    .Call(`_bvhar_sim_stable_vhar`, num_sim, vhar_coef, sig_error)
 }
 

@@ -5,7 +5,7 @@ description: >
   `bvhar_minnesota()`.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{bvhar}
+  %\VignetteIndexEntry{Introduction to BVHAR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   \newcommand{\R}{\mathbb{R}}
@@ -39,7 +39,6 @@ knitr::opts_chunk$set(
   fig.pos = "H"
   )
 options(digits = 3)
-options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r pkgs}

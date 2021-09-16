@@ -1,11 +1,135 @@
 template:
   params:
     bootswatch: cosmo
-    docsearch:
-      index_name: bvhar
 
 authors:
   Young Geun Kim:
     href: https://ygeunkim.github.io
   Changryong Baek:
     href: https://sites.google.com/view/crbaek
+
+# navbar:
+#   type: default
+#   left:
+#   - text: Reference
+#     href: reference/index.html
+#   - text: Vignettes
+#     menu:
+#     - text: VAR and VHAR
+#       href: articles/var.html
+#     - text: Introduction to BVAR
+#       href: articles/bvar.html
+#     - text: Introduction to BVHAR
+#       href: articles/bvhar.html
+#   - text: News
+#     href: news/index.html
+#   right:
+#     - icon: fa-github fa-lg
+#       href: https://github.com/ygeunkim/bvhar
+
+# reference:
+# - title: Vector autoregressive model
+#   contents:
+#   - var_lm
+#   - coef.varlse
+#   - residuals.varlse
+#   - fitted.varlse
+#   - is.varlse
+#   - is.stable.varlse
+#   - summary.varlse
+# 
+# - title: Vector heterogeneous autoregressive model
+#   contents:
+#   - vhar_lm
+#   - coef.vharlse
+#   - residuals.vharlse
+#   - fitted.vharlse
+#   - is.vharlse
+# 
+# - title: Bayesian VAR model
+#   contents:
+#   - bvar_minnesota
+#   - coef.bvarmn
+#   - residuals.bvarmn
+#   - fitted.bvarmn
+#   - is.bvarmn
+#   - summary.bvarmn
+#   - bvar_flat
+#   - coef.bvarflat
+#   - residuals.bvarflat
+#   - fitted.bvarflat
+#   - is.bvarflat
+#   
+# - title: Bayesian VHAR model
+#   contents:
+#   - bvhar_minnesota
+#   - coef.bvharmn
+#   - residuals.bvharmn
+#   - fitted.bvharmn
+#   - is.bvharmn
+# 
+# - title: Forecasting
+#   contents:
+#   - predict.varlse
+#   - predict.vharlse
+#   - predict.bvarmn
+#   - predict.bvarflat
+#   - predict.bvharmn
+#   - is.predbvhar
+#   - divide_ts
+#   - mse.predbvhar
+#   - mape.predbvhar
+# 
+# - title: Simulation
+#   contents:
+#   - sim_mncoef
+#   - sim_mnvhar_coef
+#   - sim_var
+#   - sim_vhar
+#   - sim_mgaussian
+# 
+# - title: Information criteria
+#   contents:
+#   - AIC.varlse
+#   - BIC.varlse
+#   - FPE.varlse
+#   - HQ.varlse
+#   - choose_var
+# 
+# - title: Plot
+#   contents:
+#   - autoplot.bvarmn
+#   - autoplot.predbvhar
+#   - autoplot.summary.bvarmn
+#   - geom_predbvhar
+#   - plot_loss
+#   
+# - title: Miscellaneous functions
+#   contents:
+#   - VARtoVMA
+#   - VHARtoVMA
+#   - build_design
+#   - build_xdummy
+#   - build_y0
+#   - build_ydummy
+#   - build_ydummy_bvhar
+#   - compute_cov
+#   - compute_covmse
+#   - compute_covmse_har
+#   - estimate_har
+#   - estimate_har_none
+#   - estimate_mn_flat
+#   - estimate_var
+#   - forecast_bvarmn
+#   - forecast_bvarmn_flat
+#   - forecast_bvharmn
+#   - forecast_var
+#   - forecast_vhar
+#   - scale_har
+#   - stableroot.varlse
+# 
+# - title: Data
+#   contents:
+#   - etf_vix
+
+

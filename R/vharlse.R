@@ -6,7 +6,7 @@
 #' @param type `r lifecycle::badge("experimental")` add constant term (\code{"const"}) or not (\code{"none"})
 #' @details 
 #' For VHAR model
-#' \deqn{Y_{t} = Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
+#' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
 #' the function gives basic values.
 #' 
 #' @return \code{vhar_lm} returns an object named \code{vharlse} \link{class}.

@@ -7,7 +7,8 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions?workflow=R-CMD-check)
+[![R build
+status](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions?workflow=R-CMD-check)
 [![Codecov test
 coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg)](https://codecov.io/gh/ygeunkim/bvhar?branch=master)
 <!-- badges: end -->
@@ -33,27 +34,26 @@ You can only install the development version at this point.
 remotes::install_github("ygeunkim/bvhar")
 ```
 
-## Usage
+## Models
 
 ``` r
 library(bvhar) # this package
 library(dplyr)
-library(ggplot2)
 ```
 
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |     function      |     S3      |
-|:-----:|:-----------------:|:-----------:|
-|  VAR  |     `var_lm`      |  `varlse`   |
-| VHAR  |     `vhar_lm`     |  `vharlse`  |
-| BVAR  | `bvar_minnesota`  |  `bvarmn`   |
-| BVAR  |    `bvar_flat`    | `bvarghosh` |
-| BVHAR | `bvhar_minnesota` |  `bvharmn`  |
+| Model |     function      |     S3     |
+|:-----:|:-----------------:|:----------:|
+|  VAR  |     `var_lm`      |  `varlse`  |
+| VHAR  |     `vhar_lm`     | `vharlse`  |
+| BVAR  | `bvar_minnesota`  |  `bvarmn`  |
+| BVAR  |    `bvar_flat`    | `bvarflat` |
+| BVHAR | `bvhar_minnesota` | `bvharmn`  |
 
-As the other analyzing using S3 such as `lm`, this package use method
-`coef`, `predict`, etc. This readme document shows out-of-sample
+As the other analyzer tools use S3 such as `lm`, this package use
+methods `coef`, `predict`, etc. This readme document shows out-of-sample
 forecasting briefly. Details about each function are in vignettes and
 help documents.
 
@@ -61,11 +61,9 @@ Out-of-sample forecasting:
 
 ``` r
 h <- 19
-etf_tr <-
-  etf_vix %>%
-  slice(seq_len(n() - h))
-#-------------------
-etf_te <- setdiff(etf_vix, etf_tr)
+etf_split <- divide_ts(etf_vix, h) # Try ?divide_ts
+etf_tr <- etf_split$train
+etf_te <- etf_split$test
 ```
 
 ### VAR
@@ -182,7 +180,29 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 #>    36.94
 ```
 
-Comparing:
+## Compare Models
+
+### Layers
+
+``` r
+autoplot(forecast_var, x_cut = 750, ci_alpha = .5) +
+  autolayer(forecast_bvhar_v2, ci_alpha = .3)
+```
+
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" />
+
+### Erros
+
+``` r
+list(
+  forecast_var,
+  forecast_vhar,
+  forecast_bvar,
+  forecast_bvhar_v2
+) %>% 
+  plot_loss(y = etf_te) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
+```
 
 <img src="man/figures/README-msefig-1.png" width="70%" style="display: block; margin: auto;" />
 
@@ -202,3 +222,10 @@ mean(msebvhar_v1)
 mean(msebvhar_v2)
 #> [1] 13.2
 ```
+
+## Code of Conduct
+
+Please note that the bvhar project is released with a [Contributor Code
+of
+Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.

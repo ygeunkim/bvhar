@@ -48,7 +48,7 @@ This function fits VHAR using OLS method
 }
 \details{
 For VHAR model
-\deqn{Y_{t} = Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
+\deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
 the function gives basic values.
 }
 \examples{
