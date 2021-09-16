@@ -11,7 +11,7 @@ choose_var(y, lag_max = 5, parallel = FALSE)
 
 \item{lag_max}{Maximum Var lag to explore (default = 5)}
 
-\item{parallel}{Parallel computation using \code{\link[foreach]{foreach}}? By default, \code{FALSE}.}
+\item{parallel}{Parallel computation using \code{\link[foreach:foreach]{foreach::foreach()}}? By default, \code{FALSE}.}
 }
 \value{
 Minimum order and information criteria values

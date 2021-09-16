@@ -49,7 +49,7 @@
 #' @author Young Geun Kim \email{dudrms33@@g.skku.edu}
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @seealso 
 #' [build_y0()] and [build_design()] to define Y0 and X0 matrix,
@@ -126,56 +126,13 @@ var_lm <- function(y, p, type = c("const", "none")) {
   res
 }
 
-#' See if the Object \code{varlse}
-#' 
-#' This function returns \code{TRUE} if the input is the output of \code{\link{var_lm}}.
-#' 
-#' @param x Object
-#' 
-#' @return \code{TRUE} or \code{FALSE}
-#' 
-#' @export
-is.varlse <- function(x) {
-  inherits(x, "varlse")
-}
-
-#' Coefficients Method for \code{varlse} object
-#' 
-#' @param object \code{varlse} object
-#' @param ... not used
-#' 
-#' @export
-coef.varlse <- function(object, ...) {
-  object$coefficients
-}
-
-#' Residuals Method for \code{varlse} object
-#' 
-#' @param object \code{varlse} object
-#' @param ... not used
-#' 
-#' @export
-residuals.varlse <- function(object, ...) {
-  object$residuals
-}
-
-#' Fitted Values Method for \code{varlse} object
-#' 
-#' @param object \code{varlse} object
-#' @param ... not used
-#' 
-#' @export
-fitted.varlse <- function(object, ...) {
-  object$fitted.values
-}
-
 #' Choose the Best VAR based on Information Criteria
 #' 
-#' This function computes AIC, FPE, BIC, and HQ up to p = \code{lag_max} of VAR model.
+#' This function computes AIC, FPE, BIC, and HQ up to p = `lag_max` of VAR model.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param lag_max Maximum Var lag to explore (default = 5)
-#' @param parallel Parallel computation using \code{\link[foreach]{foreach}}? By default, \code{FALSE}.
+#' @param parallel Parallel computation using [foreach::foreach()]? By default, `FALSE`.
 #' 
 #' 
 #' @return Minimum order and information criteria values

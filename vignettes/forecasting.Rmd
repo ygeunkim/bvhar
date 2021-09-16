@@ -1,0 +1,284 @@
+---
+title: "Forecasting"
+description: >
+  See how to forecast multivariate time series
+  using this package.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forecasting}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\B}{\boldsymbol\beta}
+  \newcommand{\hb}{\boldsymbol{\hat\beta}}
+  \newcommand{\E}{\boldsymbol\epsilon}
+  \DeclareMathOperator*{\argmin}{argmin}
+  \DeclareMathOperator*{\argmax}{argmax}
+  \newcommand{\defn}{\mathpunct{:}=}
+  \newcommand{\X}{\mathbf{X}}
+  \newcommand{\Y}{\mathbf{Y}}
+  \newcommand{\by}{\mathbf{y}}
+  \newcommand{\bz}{\mathbf{Z}}
+  \newcommand{\ba}{\boldsymbol{\alpha}}
+  \newcommand{\bc}{\mathbf{c}}
+  \newcommand{\bu}{\mathbf{u}}
+  \def\Cov{\mathrm{Cov}}
+  \def\Var{\mathrm{Var}}
+  \def\Corr{\mathrm{Corr}}
+  \def\vec{\mathrm{vec}}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618,
+  fig.pos = "H"
+  )
+options(digits = 3)
+```
+
+```{r pkgs}
+library(bvhar)
+```
+
+```{r addpkgs, message=FALSE}
+# for this vignette--------------
+library(dplyr)
+```
+
+# Simulation
+
+Given VAR coefficient and VHAR coefficient each,
+
+- `sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)` generates VAR process
+- `sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)` generates VHAR process
+
+We use coefficient matrix estimated by VAR in introduction vignette.
+
+```{r, echo=FALSE}
+etf_eval <- 
+  etf_vix %>% 
+  select(GVZCLS, OVXCLS, EVZCLS, VXFXICLS) %>% 
+  divide_ts(19)
+etf_train <- etf_eval$train
+etf_test <- etf_eval$test
+ex_fit <- var_lm(etf_train, 5)
+```
+
+Consider
+
+```{r}
+coef(ex_fit)
+ex_fit$covmat
+```
+
+Then
+
+```{r}
+m <- ncol(ex_fit$coefficients)
+set.seed(1)
+# generate VAR(5)-----------------
+y <- sim_var(
+  1500, 
+  100, 
+  coef(ex_fit), 
+  5, 
+  diag(ex_fit$covmat) %>% diag(), 
+  matrix(0L, nrow = 5, ncol = m)
+)
+# colname: y1, y2, ...------------
+colnames(y) <- paste0("y", 1:m)
+head(y)
+```
+
+```{r outofsample}
+h <- 20
+y_eval <- divide_ts(y, h)
+y_train <- y_eval$train # train
+y_test <- y_eval$test # test
+```
+
+
+# Fitting Models
+
+## VAR(5) and VHAR
+
+```{r}
+# VAR(5)
+model_var <- var_lm(y_train, 5)
+# VHAR
+model_vhar <- vhar_lm(y_train)
+```
+
+## BVAR(5)
+
+Minnesota prior
+
+```{r}
+# hyper parameters---------------------------
+y_sig <- apply(y_train, 2, sd) # sigma vector
+y_lam <- .2 # lambda
+y_delta <- rep(.2, m) # delta vector (0 vector since RV stationary)
+eps <- 1e-04 # very small number
+# fit---------------------------------------
+model_bvar <- bvar_minnesota(y_train, 5, y_sig, y_lam, y_delta, eps)
+```
+
+## BVHAR
+
+VAR-type Minnesota
+
+```{r}
+model_bvhar_v1 <- bvhar_minnesota(
+  y_train, type = "VAR", y_sig, y_lam, y_delta
+)
+```
+
+HAR-type Minnesota
+
+```{r}
+# weights----------------------------------
+y_day <- rep(.2, m)
+y_week <- rep(.1, m)
+y_month <- rep(.1, m)
+# fit--------------------------------------
+model_bvhar_v2 <- bvhar_minnesota(
+  y_train, 
+  type = "VHAR", 
+  sigma = y_sig, 
+  lambda = y_lam, 
+  daily = y_day, 
+  weekly = y_week, 
+  monthly = y_month, 
+  eps = eps
+)
+```
+
+# Forecasting
+
+In VAR modeling, `vars` package is famous.
+We refer to its argument `n.ahead` and you can forecast using `predict()` method with above objects.
+
+In addition, the result of this forecast will return another class called `predbvhar`.
+
+## VAR
+
+```{r}
+(pred_var <- predict(model_var, n.ahead = h))
+```
+
+```{r}
+class(pred_var)
+names(pred_var)
+```
+
+The package provides the evaluation function
+
+- `mse(predbvhar, test)`: MSE
+- `mape(predbvhar, test)`: MAPE
+
+```{r}
+(mse_var <- mse(pred_var, y_test))
+```
+
+## VHAR
+
+```{r}
+(pred_vhar <- predict(model_vhar, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_vhar <- mse(pred_vhar, y_test))
+```
+
+## BVAR
+
+```{r}
+(pred_bvar <- predict(model_bvar, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_bvar <- mse(pred_bvar, y_test))
+```
+
+## BVHAR
+
+### VAR-type Minnesota
+
+```{r}
+(pred_bvhar_v1 <- predict(model_bvhar_v1, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_bvhar_v1 <- mse(pred_bvhar_v1, y_test))
+```
+
+### HAR-type Minnesota
+
+```{r}
+(pred_bvhar_v2 <- predict(model_bvhar_v2, n.ahead = h))
+```
+
+MSE:
+
+```{r}
+(mse_bvhar_v2 <- mse(pred_bvhar_v2, y_test))
+```
+
+## Compare
+
+### Region
+
+`autoplot(predbvhar)` and `autolayer(predbvhar)` draws the results of the forecasting.
+
+```{r}
+autoplot(pred_var, x_cut = 1400, ci_alpha = .7) +
+  autolayer(pred_vhar, ci_alpha = .5) +
+  autolayer(pred_bvar, ci_alpha = .4) +
+  autolayer(pred_bvhar_v1, ci_alpha = .2) +
+  autolayer(pred_bvhar_v2, ci_alpha = .1)
+```
+
+### Error
+
+Mean of MSE
+
+```{r}
+list(
+  VAR = mse_var,
+  VHAR = mse_vhar,
+  BVAR = mse_bvar,
+  BVHAR1 = mse_bvhar_v1,
+  BVHAR2 = mse_bvhar_v2
+) %>% 
+  lapply(mean) %>% 
+  unlist() %>% 
+  sort()
+```
+
+For each variable
+
+```{r}
+list(
+  pred_var,
+  pred_vhar,
+  pred_bvar,
+  pred_bvhar_v1,
+  pred_bvhar_v2
+) %>% 
+  plot_loss(y = y_test)
+```
+
+
+
+

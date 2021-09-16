@@ -1,0 +1,94 @@
+---
+title: "Minnesota Prior"
+description: >
+  Learn about Minnesota prior
+  and its hyperparameters.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Minnesota Prior}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\B}{\boldsymbol\beta}
+  \newcommand{\hb}{\boldsymbol{\hat\beta}}
+  \newcommand{\E}{\boldsymbol\epsilon}
+  \DeclareMathOperator*{\argmin}{argmin}
+  \DeclareMathOperator*{\argmax}{argmax}
+  \newcommand{\defn}{\mathpunct{:}=}
+  \newcommand{\X}{\mathbf{X}}
+  \newcommand{\Y}{\mathbf{Y}}
+  \newcommand{\by}{\mathbf{y}}
+  \newcommand{\bz}{\mathbf{Z}}
+  \newcommand{\ba}{\boldsymbol{\alpha}}
+  \newcommand{\bc}{\mathbf{c}}
+  \newcommand{\bu}{\mathbf{u}}
+  \def\Cov{\mathrm{Cov}}
+  \def\Var{\mathrm{Var}}
+  \def\Corr{\mathrm{Corr}}
+  \def\vec{\mathrm{vec}}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618,
+  fig.pos = "H"
+  )
+options(digits = 3)
+```
+
+```{r pkgs}
+library(bvhar)
+```
+
+```{r addpkgs, message=FALSE}
+# for this vignette--------------
+library(dplyr)
+```
+
+# Minnesota Prior
+
+$$B \sim MN(B_0, \Omega_0, \Sigma_e)$$
+
+$$\Sigma_e \sim IW(S_0, \alpha_0)$$
+
+- From Litterman (1986) and Bańbura et al. (2010)
+- Each $B_0, \Omega_0, S_0, \alpha_0$ is defined by adding dummy observations
+    - `build_xdummy()`
+    - `build_ydummy()`
+
+- `sigma`: Vector $\sigma_1, \ldots, \sigma_m$
+    - $\Sigma_e = diag(\sigma_1^2, \ldots, \sigma_m^2)$
+    - $\sigma_i^2 / \sigma_j^2$: different scale and variability of the data
+- `lambda`
+    - Controls the overall tightness of the prior distribution around the RW or WN
+    - Governs the relative importance of the prior beliefs w.r.t. the information contained in the data
+        - If $\lambda = 0$, then posterior = prior and the data do not influence the estimates.
+        - If $\lambda = \infty$, then posterior expectations = OLS.
+    - Choose in relation to the size of the system (Bańbura et al. (2010))
+        - As `m` increases, $\lambda$ should be smaller to avoid overfitting (De Mol et al. (2008))
+- `delta`: Persistence
+    - Litterman (1986) originally sets high persistence $\delta_i = 1$
+    - For Non-stationary variables: random walk prior $\delta_i = 1$
+    - For stationary variables: white noise prior $\delta_i = 0$
+- `eps`: Very small number to make matrix invertible
+
+```{r minnesotaset}
+bvar_lag <- 5
+sig <- c(3.25, 11.1, 2.2, 6.8) # sigma vector
+lam <- .2 # lambda
+delta <- rep(1, 4) # 4-dim delta vector (0 vector since RV stationary)
+eps <- 1e-04 # very small number
+```
+
+`sim_mncoef(p, sigma, lambda, delta, eps = 1e-04)` can generate $B$ coefficient.
+
+```{r}
+(sim_mncoef(bvar_lag, sig, lam, delta, eps))
+```
+
+

@@ -365,20 +365,6 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' See if the Object \code{predbvhar}
-#' 
-#' This function returns \code{TRUE}
-#' if the input is the output of \code{\link{predict.varlse}}, \code{\link{predict.vharlse}}, \code{\link{predict.bvarmn}}, \code{\link{predict.bvharmn}}, and \code{\link{predict.bvarflat}}.
-#' 
-#' @param x object
-#' 
-#' @return \code{TRUE} or \code{FALSE}
-#' 
-#' @export
-is.predbvhar <- function(x) {
-  inherits(x, "predbvhar")
-}
-
 #' Print Method for \code{predbvhar} object
 #' @rdname print.predbvhar
 #' @param x \code{predbvhar} object

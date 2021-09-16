@@ -1,8 +1,3 @@
-#' @description 
-#' `r lifecycle::badge('experimental')`
-#' 
-#' A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
-#' You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 #' @useDynLib bvhar, .registration = TRUE
 #' @keywords internal
 #' @importFrom Rcpp evalCpp
