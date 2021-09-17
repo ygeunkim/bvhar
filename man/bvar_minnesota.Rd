@@ -6,7 +6,15 @@
 \alias{knit_print.bvarmn}
 \title{Fit Bayesian VAR(p) of Minnesota Prior}
 \usage{
-bvar_minnesota(y, p, sigma, lambda, delta, eps = 1e-04)
+bvar_minnesota(
+  y,
+  p,
+  sigma,
+  lambda = 0.1,
+  delta,
+  eps = 1e-04,
+  type = c("const", "none")
+)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -17,13 +25,15 @@ knit_print.bvarmn(x, ...)
 
 \item{p}{VAR lag}
 
-\item{sigma}{standard error for each variable}
+\item{sigma}{standard error for each variable (Default: sd)}
 
-\item{lambda}{tightness of the prior around a random walk or white noise}
+\item{lambda}{tightness of the prior around a random walk or white noise (Default: .1)}
 
 \item{delta}{Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)}
 
 \item{eps}{very small number}
+
+\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
 
 \item{x}{\code{bvarmn} object}
 
@@ -45,6 +55,7 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: Minnesota}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}
 \item{fitted.values}{Fitted values}
@@ -63,6 +74,20 @@ Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_
 \deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
 \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+
+\eqn{\delta_i} are related to the belief to random walk.
+\itemize{
+\item If \eqn{\delta_i = 1} for all i, random walk prior
+\item If \eqn{\delta_i = 0} for all i, white noise prior
+}
+
+\eqn{\lambda} controls the overall tightness of the prior around these two prior beliefs.
+\itemize{
+\item If \eqn{\lambda = 0}, the posterior is equivalent to prior and the data do not influence the estimates.
+\item If \eqn{\lambda = \infty}, the posterior mean becomes OLS estimates (VAR).
+}
+
+\eqn{\sigma_i^2 / \sigma_j^2} in Minnesota moments explain the data scales.
 }
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}

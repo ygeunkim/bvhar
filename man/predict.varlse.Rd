@@ -2,37 +2,61 @@
 % Please edit documentation in R/forecast.R
 \name{predict.varlse}
 \alias{predict.varlse}
-\title{Predict Method for \code{varlse} object}
+\alias{predict.vharlse}
+\alias{predict.bvarmn}
+\alias{predict.bvharmn}
+\alias{predict.bvarflat}
+\alias{print.predbvhar}
+\alias{knit_print.predbvhar}
+\title{Forecasting Multivariate Time Series}
 \usage{
 \method{predict}{varlse}(object, n.ahead, level = 0.05, ...)
+
+\method{predict}{vharlse}(object, n.ahead, level = 0.05, ...)
+
+\method{predict}{bvarmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{predict}{bvharmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{predict}{bvarflat}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.predbvhar(x, ...)
 }
 \arguments{
-\item{object}{\code{varlse} object}
+\item{object}{Model object}
 
 \item{n.ahead}{step to forecast}
 
 \item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
 \item{...}{not used}
+
+\item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
+
+\item{x}{\code{predbvhar} object}
+
+\item{digits}{digit option to print}
 }
 \value{
 \code{predbvhar} \link{class} with the following components:
 \describe{
-\item{process}{object class: varlse}
+\item{process}{object$process}
 \item{forecast}{forecast matrix}
 \item{se}{standard error matrix}
 \item{lower}{lower confidence interval}
 \item{upper}{upper confidence interval}
 \item{lower_joint}{lower CI adjusted (Bonferroni)}
 \item{upper_joint}{upper CI adjusted (Bonferroni)}
-\item{y}{varlse$y}
+\item{y}{object$y}
 }
 }
 \description{
-Forecasting VAR(p)
+Forecasts multivariate time series using given model.
 }
 \details{
-n-step ahead forecasting using VAR(p) recursively.
+\strong{n-step ahead forecasting using VAR(p) recursively}.
 See pp35 of Lütkepohl (2007).
 Consider h-step forecasting (e.g. n + 1, ... n + h).
 
@@ -49,7 +73,49 @@ To compute covariance matrix, it needs VMA representation:
 Then
 
 \deqn{\Sigma_y(h) = MSE [ y_t(h) ] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
+
+\strong{n-step ahead forecasting using VHAR recursively}
+
+\strong{n-step ahead in BVAR model is also done recursively}.
+
+Point forecasts are computed by posterior mean of the parameters.
+See Section 3 of Bańbura et al. (2010).
+
+Let \eqn{\hat{B}} be the posterior MN mean
+and let \eqn{\hat{V}} be the posterior MN precision.
+
+Then predictive posterior for each step
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \hat{B}), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
+\deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
+and recursively,
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
+
+\strong{n-step ahead forecasting using VHAR recursively}.
+Let \eqn{\hat\Phi} be the posterior MN mean
+and let \eqn{\hat\Psi} be the posterior MN precision.
+
+Then predictive posterior for each step
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+\deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
+and recursively,
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
+
+\strong{n-step ahead forecasting using BVAR recursively}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 }

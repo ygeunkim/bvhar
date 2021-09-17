@@ -26,7 +26,8 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
   int dim = object["m"]; // dimension of time series
   int var_lag = object["p"]; // VAR(p)
   int num_design = object["obs"]; // s = n - p
-  int dim_design = dim * var_lag + 1; // k = mp + 1
+  // int dim_design = dim * var_lag + 1; // k = mp + 1
+  int dim_design = object["df"];
   Eigen::MatrixXd last_pvec(1, dim_design); // vectorize the last p observation and include 1
   Eigen::MatrixXd tmp_vec(1, (var_lag - 1) * dim);
   Eigen::MatrixXd res(step, dim); // h x m matrix
@@ -34,10 +35,10 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
   for (int i = 0; i < step; i++) {
     sig_closed(i) = 1.0;
   }
+  last_pvec(0, dim_design - 1) = 1.0;
   for (int i = 0; i < var_lag; i++) {
     last_pvec.block(0, i * dim, 1, dim) = response_mat.block(num_design - 1 - i, 0, 1, dim);
   }
-  last_pvec(0, dim_design - 1) = 1.0;
   sig_closed.block(0, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.adjoint();
   res.block(0, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
   if (step == 1) {

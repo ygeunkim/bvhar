@@ -134,7 +134,7 @@ VAR-type Minnesota
 
 ```{r}
 model_bvhar_v1 <- bvhar_minnesota(
-  y_train, type = "VAR", y_sig, y_lam, y_delta
+  y_train, mn_type = "VAR", y_sig, y_lam, y_delta
 )
 ```
 
@@ -148,7 +148,7 @@ y_month <- rep(.1, m)
 # fit--------------------------------------
 model_bvhar_v2 <- bvhar_minnesota(
   y_train, 
-  type = "VHAR", 
+  mn_type = "VHAR", 
   sigma = y_sig, 
   lambda = y_lam, 
   daily = y_day, 

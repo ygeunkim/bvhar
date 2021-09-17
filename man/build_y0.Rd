@@ -11,7 +11,7 @@ build_y0(x, var_lag, t)
 
 \item{var_lag}{VAR lag}
 
-\item{t}{starting index to extract}
+\item{t}{Starting index to extract}
 }
 \description{
 Build Y0 matrix in VAR(p)

@@ -6,7 +6,7 @@
 //' 
 //' @param x Matrix, time series data
 //' @param var_lag VAR lag
-//' @param t starting index to extract
+//' @param t Starting index to extract
 //' 
 //' @details
 //' Given data Y,
@@ -16,7 +16,7 @@
 //' In case of Y0, t = p + 1.
 //' This function is used when constructing X0.
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -40,7 +40,7 @@ Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t) {
 //' \deqn{X0 = [Y_p, \ldots, Y_1, 1]}
 //' i.e. (n - p) x (mp + 1) matrix
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -58,6 +58,12 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
   return res;
 }
 
+//' Diagonal Matrix
+//' 
+//' Construct a diagonal matrix.
+//' 
+//' @param Vector
+//' 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
@@ -73,18 +79,18 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' 
 //' Define dummy Y observations to add for Minnesota moments.
 //' 
-//' @param p integer, VAR lag. For VHAR, put 3.
-//' @param sigma vector, standard error of each variable
-//' @param lambda double, tightness of the prior around a random walk or white noise
-//' @param delta vector, prior belief about white noise (Litterman sets 1)
+//' @param p Integer, VAR lag. For VHAR, put 3.
+//' @param sigma Vector, standard error of each variable
+//' @param lambda Double, tightness of the prior around a random walk or white noise
+//' @param delta Vector, prior belief about white noise (Litterman sets 1)
 //' 
 //' @details
 //' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 //' 
 //' @references
-//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 //' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -95,12 +101,12 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
   for (int i = 0; i < m; i++) {
     wt[i] = delta[i] * sigma[i] / lambda;
   }
-  // first block
+  // first block------------------------
   res.block(0, 0, m, m) = diag_misc(wt);
   res.block(m, 0, m * (p - 1), m) = Eigen::MatrixXd::Zero(m * (p - 1), m);
-  // second block
+  // second block-----------------------
   res.block(m * p, 0, m, m) = diag_misc(sigma);
-  // third block
+  // third block------------------------
   res.block(m * p + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
   return res;
 }
@@ -109,20 +115,19 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
 //' 
 //' Define dummy X observation to add for Minnesota moments.
 //' 
-//' @param p integer, VAR lag. For VHAR, put 3.
-//' @param sigma vector, standard error of each variable
-//' @param lambda double, tightness of the prior around a random walk or white noise
-//' @param eps double, very small number
+//' @param p Integer, VAR lag. For VHAR, put 3.
+//' @param sigma Vector, standard error of each variable
+//' @param lambda Double, tightness of the prior around a random walk or white noise
+//' @param eps Double, very small number
 //' 
 //' @details
 //' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 //' 
 //' @references
-//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 //' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
-//' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
@@ -134,15 +139,15 @@ Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double
   for (int i = 0; i < p; i++) {
     p_seq[i] = i + 1;
   }
-  // first block
+  // first block------------------
   Jp = diag_misc(p_seq);
   Sig = diag_misc(sigma) / lambda;
   res.block(0, 0, m * p, m * p) = Eigen::kroneckerProduct(Jp, Sig);
   res.block(0, m * p, m * p, 1) = Eigen::MatrixXd::Zero(m * p, 1);
-  // second block
+  // second block-----------------
   res.block(m * p, 0, m, m * p) = Eigen::MatrixXd::Zero(m, m * p);
   res.block(m * p, m * p, m, 1) = Eigen::MatrixXd::Zero(m, 1);
-  // third block
+  // third block------------------
   res.block(m * p + m, 0, 1, m * p) = Eigen::MatrixXd::Zero(1, m * p);
   res(m * p + m, m * p) = eps;
   return res;
@@ -160,14 +165,14 @@ Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double
 //' 
 //' \deqn{B \mid \Sigma_e, Y_0 \sim MN(B_0, \Omega_0, \Sigma_e)}
 //' \deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
-//' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+//' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 //' 
 //' Bańbura et al. (2010) provides the formula how to find each matrix to match Minnesota moments.
 //' 
 //' @references
-//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 //' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -175,7 +180,7 @@ Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int dim = y_dummy.cols(); // m
   int dim_design = x_dummy.cols(); // k
   Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
-  Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precison
+  Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precision
   Eigen::MatrixXd prior_scale(dim, dim); // prior iw scale
   int prior_shape = x_dummy.rows() - dim_design;
   prior_prec = x_dummy.adjoint() * x_dummy;
@@ -194,19 +199,19 @@ Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
 //' Define dummy Y observations to add for Minnesota moments.
 //' This function also fills zero matrix in the first block for applying to VHAR.
 //' 
-//' @param sigma vector, standard error of each variable
-//' @param lambda double, tightness of the prior around a random walk or white noise
-//' @param daily vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
-//' @param weekly vector, this was zero in the original Minnesota design
-//' @param monthly vector, this was zero in the original Minnesota design
+//' @param sigma Vector, standard error of each variable
+//' @param lambda Double, tightness of the prior around a random walk or white noise
+//' @param daily Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
+//' @param weekly Vector, this was zero in the original Minnesota design
+//' @param monthly Vector, this was zero in the original Minnesota design
 //' 
 //' @details
 //' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 //' 
 //' @references
-//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 //' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -225,13 +230,13 @@ Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::
   for (int i = 0; i < m; i++) {
     wt3[i] = monthly[i] * sigma[i] / lambda;
   }
-  // first block
+  // first block--------------------
   res.block(0, 0, m, m) = diag_misc(wt1);
   res.block(m, 0, m, m) = diag_misc(wt2);
   res.block(2 * m, 0, m, m) = diag_misc(wt3);
-  // second block
+  // second block-------------------
   res.block(3 * m, 0, m, m) = diag_misc(sigma);
-  // third block
+  // third block--------------------
   res.block(3 * m + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
   return res;
 }

@@ -5,7 +5,7 @@
 #' 
 #' @param x Matrix, time series data
 #' @param var_lag VAR lag
-#' @param t starting index to extract
+#' @param t Starting index to extract
 #' 
 #' @details
 #' Given data Y,
@@ -15,7 +15,7 @@
 #' In case of Y0, t = p + 1.
 #' This function is used when constructing X0.
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @export
 build_y0 <- function(x, var_lag, t) {
@@ -32,13 +32,19 @@ build_y0 <- function(x, var_lag, t) {
 #' \deqn{X0 = [Y_p, \ldots, Y_1, 1]}
 #' i.e. (n - p) x (mp + 1) matrix
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @export
 build_design <- function(x, p) {
     .Call(`_bvhar_build_design`, x, p)
 }
 
+#' Diagonal Matrix
+#' 
+#' Construct a diagonal matrix.
+#' 
+#' @param Vector
+#' 
 #' @noRd
 diag_misc <- function(x) {
     .Call(`_bvhar_diag_misc`, x)
@@ -48,18 +54,18 @@ diag_misc <- function(x) {
 #' 
 #' Define dummy Y observations to add for Minnesota moments.
 #' 
-#' @param p integer, VAR lag. For VHAR, put 3.
-#' @param sigma vector, standard error of each variable
-#' @param lambda double, tightness of the prior around a random walk or white noise
-#' @param delta vector, prior belief about white noise (Litterman sets 1)
+#' @param p Integer, VAR lag. For VHAR, put 3.
+#' @param sigma Vector, standard error of each variable
+#' @param lambda Double, tightness of the prior around a random walk or white noise
+#' @param delta Vector, prior belief about white noise (Litterman sets 1)
 #' 
 #' @details
 #' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 #' 
 #' @references
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
 build_ydummy <- function(p, sigma, lambda, delta) {
@@ -70,20 +76,19 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' 
 #' Define dummy X observation to add for Minnesota moments.
 #' 
-#' @param p integer, VAR lag. For VHAR, put 3.
-#' @param sigma vector, standard error of each variable
-#' @param lambda double, tightness of the prior around a random walk or white noise
-#' @param eps double, very small number
+#' @param p Integer, VAR lag. For VHAR, put 3.
+#' @param sigma Vector, standard error of each variable
+#' @param lambda Double, tightness of the prior around a random walk or white noise
+#' @param eps Double, very small number
 #' 
 #' @details
 #' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 #' 
 #' @references
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @importFrom Rcpp sourceCpp
 #' @export
 build_xdummy <- function(p, lambda, sigma, eps) {
     .Call(`_bvhar_build_xdummy`, p, lambda, sigma, eps)
@@ -101,14 +106,14 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' 
 #' \deqn{B \mid \Sigma_e, Y_0 \sim MN(B_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \mid Y_0 \sim IW(S_0, \alpha_0)}
-#' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+#' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' 
 #' Bańbura et al. (2010) provides the formula how to find each matrix to match Minnesota moments.
 #' 
 #' @references
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
 minnesota_prior <- function(x_dummy, y_dummy) {
@@ -120,19 +125,19 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' Define dummy Y observations to add for Minnesota moments.
 #' This function also fills zero matrix in the first block for applying to VHAR.
 #' 
-#' @param sigma vector, standard error of each variable
-#' @param lambda double, tightness of the prior around a random walk or white noise
-#' @param daily vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
-#' @param weekly vector, this was zero in the original Minnesota design
-#' @param monthly vector, this was zero in the original Minnesota design
+#' @param sigma Vector, standard error of each variable
+#' @param lambda Double, tightness of the prior around a random walk or white noise
+#' @param daily Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
+#' @param weekly Vector, this was zero in the original Minnesota design
+#' @param monthly Vector, this was zero in the original Minnesota design
 #' 
 #' @details
 #' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
 #' 
 #' @references
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
 build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {

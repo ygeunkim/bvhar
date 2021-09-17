@@ -7,15 +7,15 @@
 build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly)
 }
 \arguments{
-\item{sigma}{vector, standard error of each variable}
+\item{sigma}{Vector, standard error of each variable}
 
-\item{lambda}{double, tightness of the prior around a random walk or white noise}
+\item{lambda}{Double, tightness of the prior around a random walk or white noise}
 
-\item{daily}{vector, instead of delta vector in the original Minnesota design (Litterman sets 1).}
+\item{daily}{Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).}
 
-\item{weekly}{vector, this was zero in the original Minnesota design}
+\item{weekly}{Vector, this was zero in the original Minnesota design}
 
-\item{monthly}{vector, this was zero in the original Minnesota design}
+\item{monthly}{Vector, this was zero in the original Minnesota design}
 }
 \description{
 Define dummy Y observations to add for Minnesota moments.

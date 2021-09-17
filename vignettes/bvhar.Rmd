@@ -370,7 +370,7 @@ With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
 ```{r}
 fit_bvhar_other <- bvhar_minnesota(
   etf_train, 
-  type = "VHAR", 
+  mn_type = "VHAR", 
   sigma = sig, 
   lambda = lam, 
   daily = daily, 

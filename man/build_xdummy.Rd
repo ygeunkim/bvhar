@@ -7,13 +7,13 @@
 build_xdummy(p, lambda, sigma, eps)
 }
 \arguments{
-\item{p}{integer, VAR lag. For VHAR, put 3.}
+\item{p}{Integer, VAR lag. For VHAR, put 3.}
 
-\item{lambda}{double, tightness of the prior around a random walk or white noise}
+\item{lambda}{Double, tightness of the prior around a random walk or white noise}
 
-\item{sigma}{vector, standard error of each variable}
+\item{sigma}{Vector, standard error of each variable}
 
-\item{eps}{double, very small number}
+\item{eps}{Double, very small number}
 }
 \description{
 Define dummy X observation to add for Minnesota moments.

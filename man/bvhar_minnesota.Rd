@@ -8,14 +8,15 @@
 \usage{
 bvhar_minnesota(
   y,
-  type = c("VAR", "VHAR"),
+  mn_type = c("VAR", "VHAR"),
   sigma,
   lambda,
   delta,
   daily,
   weekly,
   monthly,
-  eps = 1e-04
+  eps = 1e-04,
+  type = c("const", "none")
 )
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -25,7 +26,7 @@ knit_print.bvharmn(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{type}{Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)}
+\item{mn_type}{Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)}
 
 \item{sigma}{Standard error vector for each variable}
 
@@ -41,6 +42,8 @@ knit_print.bvharmn(x, ...)
 
 \item{eps}{Very small number}
 
+\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
+
 \item{x}{\code{bvarmn} object}
 
 \item{digits}{digit option to print}
@@ -48,7 +51,7 @@ knit_print.bvharmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvhar_minnesota} returns an object \code{bvharmn} \link{class}.
+\code{\link[=bvhar_minnesota]{bvhar_minnesota()}} returns an object \code{bvharmn} \link{class}.
 
 It is a list with the following components:
 
@@ -80,10 +83,10 @@ Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 
 Two types of Minnesota priors builds different dummy variables for Y0.
-\code{type = "VAR"} constructs dummy Y0 with \code{p = 3} of \code{\link{build_ydummy}}.
+\code{mn_type = "VAR"} constructs dummy Y0 with \code{p = 3} of \code{\link[=build_ydummy]{build_ydummy()}}.
 The only difference from BVAR is dimension.
 
-On the other hand, dummy Y0 for \code{type = "VHAR"} has its own function \code{\link{build_ydummy_bvhar}}.
+On the other hand, dummy Y0 for \code{mn_type = "VHAR"} has its own function \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}}.
 It fills the zero matrix in the first block in Bańbura et al. (2010).
 }
 \references{

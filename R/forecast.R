@@ -1,13 +1,13 @@
-#' Predict Method for \code{varlse} object
+#' Forecasting Multivariate Time Series
 #' 
-#' Forecasting VAR(p)
+#' Forecasts multivariate time series using given model.
 #' 
-#' @param object \code{varlse} object
+#' @param object Model object
 #' @param n.ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @details 
-#' n-step ahead forecasting using VAR(p) recursively.
+#' **n-step ahead forecasting using VAR(p) recursively**.
 #' See pp35 of Lütkepohl (2007).
 #' Consider h-step forecasting (e.g. n + 1, ... n + h).
 #' 
@@ -25,20 +25,20 @@
 #' 
 #' \deqn{\Sigma_y(h) = MSE [ y_t(h) ] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
 #' 
-#' @return \code{predbvhar} \link{class} with the following components:
+#' @return `predbvhar` [class] with the following components:
 #' \describe{
-#'   \item{process}{object class: varlse}
+#'   \item{process}{object$process}
 #'   \item{forecast}{forecast matrix}
 #'   \item{se}{standard error matrix}
 #'   \item{lower}{lower confidence interval}
 #'   \item{upper}{upper confidence interval}
 #'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
 #'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
-#'   \item{y}{varlse$y}
+#'   \item{y}{object$y}
 #' }
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @importFrom stats qnorm
 #' @order 1
@@ -69,28 +69,14 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
   res
 }
 
-#' Predict Method for \code{vharlse} object
-#' 
-#' Forecasting VHAR
+#' @rdname predict.varlse
 #' 
 #' @param object \code{vharlse} object
 #' @param n.ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @details 
-#' n-step ahead forecasting using VHAR recursively
-#' @return \code{predbvhar} \link{class} with the following components:
-#' \describe{
-#'   \item{process}{object class: vharlse}
-#'   \item{forecast}{forecast matrix}
-#'   \item{se}{standard error matrix}
-#'   \item{lower}{lower confidence interval}
-#'   \item{upper}{upper confidence interval}
-#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
-#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
-#'   \item{y}{vharlse$y}
-#' }
-#' 
+#' **n-step ahead forecasting using VHAR recursively**
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
@@ -120,17 +106,17 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
   res
 }
 
-#' Predict Method for \code{bvarmn} object
+#' @rdname predict.varlse
 #' 
-#' Forecasting for Minnesota BVAR
-#' 
-#' @param object \code{bvarmn} object
+#' @param object Model object
 #' @param n.ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
 #' @details 
+#' **n-step ahead in BVAR model is also done recursively**.
+#' 
 #' Point forecasts are computed by posterior mean of the parameters.
 #' See Section 3 of Bańbura et al. (2010).
 #' 
@@ -144,24 +130,12 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
 #' 
-#' @return \code{predbvhar} \link{class} with the following components:
-#' \describe{
-#'   \item{process}{object class: bvarmn}
-#'   \item{forecast}{forecast matrix}
-#'   \item{se}{standard error matrix}
-#'   \item{lower}{lower confidence interval}
-#'   \item{upper}{upper confidence interval}
-#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
-#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
-#'   \item{y}{bvarmn$y}
-#' }
-#' 
 #' @references 
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
 #' @importFrom stats qnorm
 #' @importFrom mniw riwish
@@ -208,17 +182,15 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' Predict Method for \code{bvharmn} object
+#' @rdname predict.varlse
 #' 
-#' Forecasting BVHAR
-#' 
-#' @param object \code{vharlse} object
+#' @param object Model object
 #' @param n.ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @details 
-#' n-step ahead forecasting using VHAR recursively.
+#' **n-step ahead forecasting using VHAR recursively**.
 #' Let \eqn{\hat\Phi} be the posterior MN mean
 #' and let \eqn{\hat\Psi} be the posterior MN precision.
 #' 
@@ -229,20 +201,8 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 #' 
-#' @return \code{predbvhar} \link{class} with the following components:
-#' \describe{
-#'   \item{process}{object class: bvharmn}
-#'   \item{forecast}{forecast matrix}
-#'   \item{se}{standard error matrix}
-#'   \item{lower}{lower confidence interval}
-#'   \item{upper}{upper confidence interval}
-#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
-#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
-#'   \item{y}{bvharmn$y}
-#' }
-#' 
 #' @references 
-#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
 #' @importFrom stats qnorm
 #' @importFrom mniw riwish
@@ -290,34 +250,21 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' Predict Method for \code{bvarghosh} object
+#' @rdname predict.varlse
 #' 
-#' Point forecasting for Nonhierarchical Ghosh BVAR(p)
-#' 
-#' @param object \code{bvarghosh} object
+#' @param object Model object
 #' @param n.ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
 #' @details 
-#' n-step ahead forecasting using BVAR recursively
-#' @return \code{predbvhar} \link{class} with the following components:
-#' \describe{
-#'   \item{process}{object class: bvarghosh}
-#'   \item{forecast}{forecast matrix}
-#'   \item{se}{standard error matrix}
-#'   \item{lower}{lower confidence interval}
-#'   \item{upper}{upper confidence interval}
-#'   \item{lower_joint}{lower CI adjusted (Bonferroni)}
-#'   \item{upper_joint}{upper CI adjusted (Bonferroni)}
-#'   \item{y}{bvarflat$y}
-#' }
+#' **n-step ahead forecasting using BVAR recursively**
 #' 
 #' @references 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
-#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
 #' @importFrom stats qnorm
 #' @importFrom mniw riwish
@@ -366,7 +313,7 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 }
 
 #' Print Method for \code{predbvhar} object
-#' @rdname print.predbvhar
+#' @rdname predict.varlse
 #' @param x \code{predbvhar} object
 #' @param digits digit option to print
 #' @param ... not used
@@ -377,7 +324,7 @@ print.predbvhar <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   invisible(x)
 }
 
-#' @rdname print.predbvhar
+#' @rdname predict.varlse
 #' @param x \code{predbvhar} object
 #' @param ... not used
 #' @order 3

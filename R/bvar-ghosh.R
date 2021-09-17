@@ -6,6 +6,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param U Positive definite matrix. By default, identity matrix of dimension ncol(X0)
+#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
 #' 
 #' @details 
 #' Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
@@ -57,16 +58,25 @@
 #' 
 #' @order 1
 #' @export
-bvar_flat <- function(y, p, U) {
+bvar_flat <- function(y, p, U, type = c("const", "none")) {
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  if (missing(U)) U <- diag(ncol(X0)) # identity matrix
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
+  # const or none---------------------
+  type <- match.arg(type)
+  m <- ncol(y)
+  k <- m * p + 1 # df
+  if (type == "none") {
+    X0 <- X0[, -k] # exclude 1 column
+    k <- k - 1 # df = no intercept
+    name_lag <- name_lag[1:k] # colnames(X0)
+  }
+  if (missing(U)) U <- diag(ncol(X0)) # identity matrix
   # Matrix normal---------------------
   posterior <- estimate_mn_flat(X0, Y0, U)
   Bhat <- posterior$bhat # posterior mean
@@ -87,10 +97,12 @@ bvar_flat <- function(y, p, U) {
     y0 = Y0,
     y = y,
     p = p, # p
-    m = ncol(y), # m
+    m = m, # m
+    df = k, # k = mp + 1 or mp
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "BVAR_Flat",
+    type = type,
     call = match.call(),
     # prior----------------
     prior_mean = array(0L, dim = dim(Bhat)), # zero matrix

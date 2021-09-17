@@ -7,13 +7,13 @@
 build_ydummy(p, sigma, lambda, delta)
 }
 \arguments{
-\item{p}{integer, VAR lag. For VHAR, put 3.}
+\item{p}{Integer, VAR lag. For VHAR, put 3.}
 
-\item{sigma}{vector, standard error of each variable}
+\item{sigma}{Vector, standard error of each variable}
 
-\item{lambda}{double, tightness of the prior around a random walk or white noise}
+\item{lambda}{Double, tightness of the prior around a random walk or white noise}
 
-\item{delta}{vector, prior belief about white noise (Litterman sets 1)}
+\item{delta}{Vector, prior belief about white noise (Litterman sets 1)}
 }
 \description{
 Define dummy Y observations to add for Minnesota moments.

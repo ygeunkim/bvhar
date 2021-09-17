@@ -10,11 +10,17 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- 
-    split.data.frame(x$mn_mean[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
-    lapply(t)
-  # const term
-  intercept <- x$mn_mean[x$m * x$p + 1,]
+  bhat_mat <- switch(
+    x$type,
+    "const" = {
+      split.data.frame(x$mn_mean[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
+        lapply(t)
+    },
+    "none" = {
+      split.data.frame(x$mn_mean, gl(x$p, x$m)) %>% 
+        lapply(t)
+    }
+  )
   cat(sprintf("BVAR(%i) with Simple Ghosh Prior\n", x$p))
   cat("====================================================\n\n")
   cat("B ~ Matrix Normal (Mean, U^{-1}, Scale 2 = Sigma)\n")
@@ -30,16 +36,20 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     )
     cat("\n\n")
   }
-  cat("Matrix Normal Mean for constant part:\n")
-  # c-------------------------------
-  print.default(
-    intercept,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
+  # const term-----------------------
+  if (x$type == "const") {
+    intercept <- x$mn_mean[x$m * x$p + 1,]
+    cat("Matrix Normal Mean for constant part:\n")
+    print.default(
+      intercept,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n\n")
+  }
   # scale matrix-------------------
-  cat("\n\ndim(Matrix Normal precision matrix):\n")
+  cat("dim(Matrix Normal precision matrix):\n")
   print.default(
     dim(x$mn_prec),
     digits = digits,

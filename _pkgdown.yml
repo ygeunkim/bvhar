@@ -73,14 +73,9 @@ reference:
   contents:
   - predict.varlse
   - forecast_var
-  - predict.vharlse
   - forecast_vhar
-  - predict.bvarmn
   - forecast_bvarmn
-  - predict.bvarflat
   - forecast_bvarmn_flat
-  - predict.bvharmn
-  - print.predbvhar
   - forecast_bvharmn
   - is.predbvhar
   - divide_ts

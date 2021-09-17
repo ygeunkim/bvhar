@@ -156,7 +156,7 @@ month <- rep(.1, ncol(etf_vix))
 #-------------------------------
 mod_bvhar_v2 <- bvhar_minnesota(
   etf_tr, 
-  type = "VHAR", 
+  mn_type = "VHAR", 
   sigma = sig, 
   lambda = lam, 
   daily = day, 

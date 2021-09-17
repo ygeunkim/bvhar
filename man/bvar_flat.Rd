@@ -6,7 +6,7 @@
 \alias{knit_print.bvarflat}
 \title{Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior}
 \usage{
-bvar_flat(y, p, U)
+bvar_flat(y, p, U, type = c("const", "none"))
 
 \method{print}{bvarflat}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -18,6 +18,8 @@ knit_print.bvarflat(x, ...)
 \item{p}{VAR lag}
 
 \item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
+
+\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
 
 \item{x}{\code{bvarflat} object}
 
