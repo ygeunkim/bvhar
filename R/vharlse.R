@@ -10,7 +10,6 @@
 #' the function gives basic values.
 #' 
 #' @return \code{vhar_lm} returns an object named \code{vharlse} \link{class}.
-#' 
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -57,6 +56,7 @@
 #' @order 1
 #' @export
 vhar_lm <- function(y, type = c("const", "none")) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)

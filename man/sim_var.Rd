@@ -11,7 +11,7 @@ sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)
 
 \item{num_burn}{Number of burn-in}
 
-\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}}
+\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=var_lm]{var_lm()}}}
 
 \item{var_lag}{Lag of VAR}
 
@@ -23,13 +23,12 @@ sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)
 This function generates multivariate time series dataset that follows VAR(p).
 }
 \details{
-Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-
-For i = 1, ... n,
-
-\eqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
-
-Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+\enumerate{
+\item Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+\item For i = 1, ... n,
+\deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
+\item Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

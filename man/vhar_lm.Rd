@@ -25,7 +25,6 @@ knit_print.vharlse(x, ...)
 }
 \value{
 \code{vhar_lm} returns an object named \code{vharlse} \link{class}.
-
 It is a list with the following components:
 
 \describe{

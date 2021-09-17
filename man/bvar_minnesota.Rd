@@ -43,7 +43,6 @@ knit_print.bvarmn(x, ...)
 }
 \value{
 \code{bvar_minnesota} returns an object \code{bvarmn} \link{class}.
-
 It is a list with the following components:
 
 \describe{

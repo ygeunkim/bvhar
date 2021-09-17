@@ -28,8 +28,7 @@ knit_print.bvarflat(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvar_flat} returns an object \code{bvarghosh} \link{class}.
-
+\code{bvar_flat} returns an object \code{bvarflat} \link{class}.
 It is a list with the following components:
 
 \describe{

@@ -51,8 +51,7 @@ knit_print.bvharmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{\link[=bvhar_minnesota]{bvhar_minnesota()}} returns an object \code{bvharmn} \link{class}.
-
+\code{bvhar_minnesota} returns an object \code{bvharmn} \link{class}.
 It is a list with the following components:
 
 \describe{

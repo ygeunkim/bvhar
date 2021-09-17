@@ -458,13 +458,12 @@ kroneckerprod <- function(x, y) {
 #' 
 #' This function samples n x muti-dimensional normal random matrix with zero mean vector.
 #' 
-#' @param num_sim Number to generated process
-#' @param mu Mean vector
+#' @param num_sim Number to generate process
 #' @param sig Variance matrix
 #' 
 #' @export
-sim_mgaussian <- function(num_sim, mu, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+sim_mgaussian <- function(num_sim, sig) {
+    .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
@@ -473,18 +472,15 @@ sim_mgaussian <- function(num_sim, mu, sig) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of \code{\link{var_lm}}
+#' @param var_coef VAR coefficient. The format should be the same as the output of [var_lm()]
 #' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
 #' @details
-#' Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-#' 
-#' For i = 1, ... n,
-#' 
-#' \eqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
-#' 
-#' Then the output is \deqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+#' 2. For i = 1, ... n,
+#' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
+#' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @export
@@ -498,17 +494,14 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of \code{\link{vhar_lm}}
-#' @param sig_error Variance matrix of the error term. Try \code{diag(dim)}.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [vhar_lm()]
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = 22L, ncol = dim)`.
 #' @details
-#' Generate \deqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-#' 
-#' For i = 1, ... n,
-#' 
-#' \eqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
-#' 
-#' Then the output is \deqn{(y_{23}, \ldots, y_{n + 22})^T}
+#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+#' 2. For i = 1, ... n,
+#' \deqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
+#' 3. Then the output is \eqn{(y_{23}, \ldots, y_{n + 22})^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 #' @export

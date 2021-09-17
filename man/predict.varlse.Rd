@@ -55,11 +55,23 @@ knit_print.predbvhar(x, ...)
 \description{
 Forecasts multivariate time series using given model.
 }
-\details{
-\strong{n-step ahead forecasting using VAR(p) recursively}.
-See pp35 of Lütkepohl (2007).
-Consider h-step forecasting (e.g. n + 1, ... n + h).
+\section{n-step ahead forecasting VAR(p)}{
 
+See pp35 of Lütkepohl (2007).
+Consider h-step ahead forecasting (e.g. n + 1, ... n + h).
+
+Let \eqn{y_{(n)}^T = (y_n^T, ..., y_{n - p + 1}^T, 1)}.
+Then one-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + 1}^T = y_{(n)}^T \hat{B}}
+
+Recursively, let \eqn{\hat{y}_{(n + 1)}^T = (\hat{y}_{n + 1}^T, y_n^T, ..., y_{n - p + 2}^T, 1)}.
+Then two-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + 2}^T = \hat{y}_{(n + 1)}^T \hat{B}}
+
+Similarly, h-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + h}^T = \hat{y}_{(n + h - 1)}^T \hat{B}}
+
+How about confident region?
 Confidence interval at h-period is
 \deqn{y_{k,t}(h) \pm z_(\alpha / 2) \sigma_k (h)}
 
@@ -73,10 +85,26 @@ To compute covariance matrix, it needs VMA representation:
 Then
 
 \deqn{\Sigma_y(h) = MSE [ y_t(h) ] = \sum_{i = 0}^{h - 1} W_i \Sigma_{\epsilon} W_i^T = \Sigma_y(h - 1) + W_{h - 1} \Sigma_{\epsilon} W_{h - 1}^T}
+}
 
-\strong{n-step ahead forecasting using VHAR recursively}
+\section{n-step ahead forecasting VHAR}{
 
-\strong{n-step ahead in BVAR model is also done recursively}.
+Let \eqn{T_{HAR}} is VHAR linear transformation matrix constructed by \code{\link[=scale_har]{scale_har()}}.
+Since VHAR is the linearly transformed VAR(22),
+let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
+
+Then one-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + 1}^T = y_{(n)}^T T_{HAR} \hat{\Phi}}
+
+Recursively, let \eqn{\hat{y}_{(n + 1)}^T = (\hat{y}_{n + 1}^T, y_n^T, ..., y_{n - 20}^T, 1)}.
+Then two-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + 2}^T = \hat{y}_{(n + 1)}^T T_{HAR} \hat{\Phi}}
+
+and h-step ahead (point) forecasting:
+\deqn{\hat{y}_{n + h}^T = \hat{y}_{(n + h - 1)}^T T_{HAR} \hat{\Phi}}
+}
+
+\section{n-step ahead forecasting BVAR(p) with minnesota prior}{
 
 Point forecasts are computed by posterior mean of the parameters.
 See Section 3 of Bańbura et al. (2010).
@@ -90,8 +118,10 @@ Then predictive posterior for each step
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
+}
 
-\strong{n-step ahead forecasting using VHAR recursively}.
+\section{n-step ahead forecasting BVHAR}{
+
 Let \eqn{\hat\Phi} be the posterior MN mean
 and let \eqn{\hat\Psi} be the posterior MN precision.
 
@@ -101,9 +131,8 @@ Then predictive posterior for each step
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
-
-\strong{n-step ahead forecasting using BVAR recursively}
 }
+
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 

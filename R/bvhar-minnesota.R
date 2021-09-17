@@ -28,8 +28,7 @@
 #' On the other hand, dummy Y0 for `mn_type = "VHAR"` has its own function [build_ydummy_bvhar()].
 #' It fills the zero matrix in the first block in Bańbura et al. (2010).
 #' 
-#' @return [bvhar_minnesota()] returns an object `bvharmn` [class].
-#' 
+#' @return `bvhar_minnesota` returns an object `bvharmn` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -73,6 +72,7 @@ bvhar_minnesota <- function(y,
                             monthly, 
                             eps = 1e-04, 
                             type = c("const", "none")) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   mn_type <- match.arg(mn_type)
   m <- ncol(y)

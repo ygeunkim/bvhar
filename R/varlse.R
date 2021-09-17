@@ -26,7 +26,6 @@
 #' \deqn{\hat{B} = (X_0^T X_0)^{-1} X_0^T Y_0}
 #' 
 #' @return `var_lm` returns an object named `varlse` [class].
-#' 
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -45,8 +44,6 @@
 #'   \item{fitted.values}{Fitted response values}
 #'   \item{residuals}{Residuals}
 #' }
-#' 
-#' @author Young Geun Kim \email{dudrms33@@g.skku.edu}
 #' 
 #' @references 
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
@@ -75,6 +72,7 @@
 #' @order 1
 #' @export
 var_lm <- function(y, p, type = c("const", "none")) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
@@ -140,6 +138,7 @@ var_lm <- function(y, p, type = c("const", "none")) {
 #' @importFrom foreach foreach %do% %dopar%
 #' @export
 choose_var <- function(y, lag_max = 5, parallel = FALSE) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   var_list <- NULL
   # compute IC-----------------------

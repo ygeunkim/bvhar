@@ -15,7 +15,7 @@
 #' 
 #' \deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
-#' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+#' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' 
 #' \eqn{\delta_i} are related to the belief to random walk.
 #' 
@@ -30,7 +30,6 @@
 #' \eqn{\sigma_i^2 / \sigma_j^2} in Minnesota moments explain the data scales.
 #' 
 #' @return `bvar_minnesota` returns an object `bvarmn` [class].
-#' 
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -66,6 +65,7 @@ bvar_minnesota <- function(y,
                            delta, 
                            eps = 1e-04, 
                            type = c("const", "none")) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   if (missing(sigma)) sigma <- apply(y, 2, sd)
   m <- ncol(y)

@@ -27,7 +27,6 @@ knit_print.varlse(x, ...)
 }
 \value{
 \code{var_lm} returns an object named \code{varlse} \link{class}.
-
 It is a list with the following components:
 
 \describe{
@@ -96,7 +95,4 @@ Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}.
 and \code{\link[=estimate_var]{estimate_var()}} to compute coefficient VAR matrix.
 
 Other package \code{\link[vars:VAR]{vars::VAR()}} is famous in VAR modeling.
-}
-\author{
-Young Geun Kim \email{dudrms33@g.skku.edu}
 }

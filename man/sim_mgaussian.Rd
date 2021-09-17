@@ -4,12 +4,10 @@
 \alias{sim_mgaussian}
 \title{Generate Multivariate Normal Random Vector with Zero Mean}
 \usage{
-sim_mgaussian(num_sim, mu, sig)
+sim_mgaussian(num_sim, sig)
 }
 \arguments{
-\item{num_sim}{Number to generated process}
-
-\item{mu}{Mean vector}
+\item{num_sim}{Number to generate process}
 
 \item{sig}{Variance matrix}
 }

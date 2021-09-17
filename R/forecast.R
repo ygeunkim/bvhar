@@ -6,11 +6,22 @@
 #' @param n.ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' @details 
-#' **n-step ahead forecasting using VAR(p) recursively**.
+#' @section n-step ahead forecasting VAR(p):
 #' See pp35 of Lütkepohl (2007).
-#' Consider h-step forecasting (e.g. n + 1, ... n + h).
+#' Consider h-step ahead forecasting (e.g. n + 1, ... n + h).
 #' 
+#' Let \eqn{y_{(n)}^T = (y_n^T, ..., y_{n - p + 1}^T, 1)}.
+#' Then one-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + 1}^T = y_{(n)}^T \hat{B}}
+#' 
+#' Recursively, let \eqn{\hat{y}_{(n + 1)}^T = (\hat{y}_{n + 1}^T, y_n^T, ..., y_{n - p + 2}^T, 1)}.
+#' Then two-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + 2}^T = \hat{y}_{(n + 1)}^T \hat{B}}
+#' 
+#' Similarly, h-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + h}^T = \hat{y}_{(n + h - 1)}^T \hat{B}}
+#' 
+#' How about confident region?
 #' Confidence interval at h-period is
 #' \deqn{y_{k,t}(h) \pm z_(\alpha / 2) \sigma_k (h)}
 #' 
@@ -75,8 +86,21 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #' @param n.ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' @details 
-#' **n-step ahead forecasting using VHAR recursively**
+#' @section n-step ahead forecasting VHAR:
+#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix constructed by [scale_har()].
+#' Since VHAR is the linearly transformed VAR(22),
+#' let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
+#' 
+#' Then one-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + 1}^T = y_{(n)}^T T_{HAR} \hat{\Phi}}
+#' 
+#' Recursively, let \eqn{\hat{y}_{(n + 1)}^T = (\hat{y}_{n + 1}^T, y_n^T, ..., y_{n - 20}^T, 1)}.
+#' Then two-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + 2}^T = \hat{y}_{(n + 1)}^T T_{HAR} \hat{\Phi}}
+#' 
+#' and h-step ahead (point) forecasting:
+#' \deqn{\hat{y}_{n + h}^T = \hat{y}_{(n + h - 1)}^T T_{HAR} \hat{\Phi}}
+#' 
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
@@ -114,9 +138,7 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
-#' @details 
-#' **n-step ahead in BVAR model is also done recursively**.
-#' 
+#' @section n-step ahead forecasting BVAR(p) with minnesota prior:
 #' Point forecasts are computed by posterior mean of the parameters.
 #' See Section 3 of Bańbura et al. (2010).
 #' 
@@ -189,8 +211,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' @details 
-#' **n-step ahead forecasting using VHAR recursively**.
+#' @section n-step ahead forecasting BVHAR:
 #' Let \eqn{\hat\Phi} be the posterior MN mean
 #' and let \eqn{\hat\Psi} be the posterior MN precision.
 #' 
@@ -257,9 +278,6 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' 
-#' @details 
-#' **n-step ahead forecasting using BVAR recursively**
 #' 
 #' @references 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)

@@ -25,10 +25,9 @@
 #' \deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
 #' and IW shape by \eqn{s - m - 1}.
 #' 
-#' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart}).
+#' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution)).
 #' 
-#' @return \code{bvar_flat} returns an object \code{bvarghosh} \link{class}.
-#' 
+#' @return `bvar_flat` returns an object `bvarflat` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -59,6 +58,7 @@
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, U, type = c("const", "none")) {
+  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
