@@ -12,7 +12,7 @@
 #' @param weekly Fill the second part in the first block
 #' @param monthly Fill the third part in the first block
 #' @param eps Very small number
-#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
@@ -39,6 +39,7 @@
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: Minnesota}
+#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
 #'   \item{fitted.values}{Fitted values}
@@ -71,7 +72,7 @@ bvhar_minnesota <- function(y,
                             weekly, 
                             monthly, 
                             eps = 1e-04, 
-                            type = c("const", "none")) {
+                            include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   mn_type <- match.arg(mn_type)
@@ -106,8 +107,8 @@ bvhar_minnesota <- function(y,
   Xh <- build_xdummy(3, lambda, sigma, eps)
   colnames(Xh) <- name_har
   # const or none---------------------
-  type <- match.arg(type)
-  if (type == "none") {
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!include_mean) {
     X0 <- X0[, -(22 * m + 1)] # exclude 1 column
     HARtrans <- HARtrans[-num_coef, -(22 * m + 1)] # HARtrans: 3m x 22m matrix
     Th <- nrow(Yh)
@@ -147,7 +148,7 @@ bvhar_minnesota <- function(y,
     obs = nrow(Y0), # s = n - p
     totobs = N, # n
     process = ifelse(mn_type == "VAR", "BVHAR_mn_var", "BVHAR_mn_vhar"),
-    type = type,
+    type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # HAR------------------
     HARtrans = HARtrans,

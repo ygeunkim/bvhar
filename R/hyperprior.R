@@ -1,62 +1,87 @@
-#' Hyperpriors for Minnesota BVAR
+#' Hyperparameters for Bayesian Models
 #' 
-#' Sets hyperprior for [bvar_minnesota()].
+#' See Details.
 #' 
 #' @param sigma standard error for each variable (Default: sd)
 #' @param lambda tightness of the prior around a random walk or white noise (Default: .1)
 #' @param delta Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)
 #' @param eps very small number
-#' 
+#' @details 
+#' * `set_bvar` sets hyperparameters for [bvar_minnesota()].
+#' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  list(
+  bvar_param <- list(
+    process = "BVAR",
+    prior = "Minnesota",
     sigma = sigma,
     lambda = lambda,
     delta = delta,
     eps = eps
   )
+  class(bvar_param) <- "bvharspec"
+  bvar_param
 }
 
-#' Hyperpriors for VAR-type Minnesota BHVAR
+#' @rdname set_bvar
+#' @param U Positive definite matrix. By default, identity matrix of dimension ncol(X0)
+#' @details 
+#' * `set_bvar_flat` sets hyperparameters for [bvar_flat()].
 #' 
-#' Sets hyperprior for [bvhar_minnesota()] with `mn_type = "VAR"`.
-#' 
+#' @order 1
+#' @export
+set_bvar_flat <- function(U) {
+  bvar_param <- list(
+    process = "BVAR",
+    prior = "Flat",
+    U = U
+  )
+  class(bvar_param) <- "bvharspec"
+  bvar_param
+}
+
+#' @rdname set_bvar
+#' @param sigma Standard error vector for each variable
+#' @param lambda Tightness of the prior around a random walk or white noise
+#' @param delta Prior belief about white noise (Litterman sets 1: default)
+#' @param eps very small number
+#' @details 
+#' * `set_bvhar` sets hyperparameters for [bvhar_minnesota()] with `mn_type = "VAR"` (VAR-type Minnesota BVHAR).
+#' @order 1
+#' @export
+set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
+  bvhar_param <- list(
+    process = "BVHAR",
+    prior = "MN_VAR",
+    sigma = sigma,
+    lambda = lambda,
+    delta = delta,
+    eps = eps
+  )
+  class(bvhar_param) <- "bvharspec"
+  bvhar_param
+}
+
+#' @rdname set_bvar
 #' @param sigma Standard error vector for each variable
 #' @param lambda Tightness of the prior around a random walk or white noise
 #' @param eps very small number
 #' @param daily Same as delta in VHAR type
 #' @param weekly Fill the second part in the first block
 #' @param monthly Fill the third part in the first block
-#' 
+#' @details 
+#' * `set_weight_bvhar` sets hyperparameters for [bvhar_minnesota()] with `mn_type = "VHAR"` (HAR-type Minnesota).
+#' @order 1
 #' @export
-set_bvhar_mn <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  list(
-    prior = "VAR",
-    sigma = sigma,
-    lambda = lambda,
-    delta = delta,
-    eps = eps
-  )
-}
-
-#' Hyperpriors for HAR-type Minnesota BHVAR
-#' 
-#' Sets hyperprior for [bvhar_minnesota()] with `mn_type = "VHAR"`.
-#' 
-#' @param sigma Standard error vector for each variable
-#' @param lambda Tightness of the prior around a random walk or white noise
-#' @param delta Prior belief about white noise (Litterman sets 1: default)
-#' @param eps very small number
-#' 
-#' @export
-set_bvhar_har <- function(sigma,
+set_weight_bvhar <- function(sigma,
                           lambda = .1,
                           eps = 1e-04,
                           daily,
                           weekly,
                           monthly) {
-  list(
-    prior = "VHAR",
+  bvhar_param <- list(
+    process = "BVHAR",
+    prior = "MN_VHAR",
     sigma = sigma,
     lambda = lambda,
     eps = eps,
@@ -64,4 +89,98 @@ set_bvhar_har <- function(sigma,
     weekly = weekly,
     monthly = monthly
   )
+  class(bvhar_param) <- "bvharspec"
+  bvhar_param
 }
+
+#' @rdname set_bvar
+#' @param x `bvharspec` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, "\n\n"))
+  cat("Parameters: Coefficent matrice and Covariance matrix\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  cat("**Read corresponding document for the details of the distribution.**\n")
+  cat("====================================================================\n\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    if (is.matrix(param[[i]])) {
+      type <- "a" # not large
+      if (nrow(param[[i]]) > 10 & ncol(param[[i]]) > 5) {
+        type <- "b" # both large
+      } else if (nrow(param[[i]]) > 10 & ncol(param[[i]]) <= 5) {
+        type <- "c" # large row
+      } else if (nrow(param[[i]]) <= 10 & ncol(param[[i]]) > 5) {
+        type <- "d" # large column
+      }
+      switch(
+        type,
+        "a" = {
+          print.default(
+            param[[i]],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat("\n")
+        },
+        "b" = {
+          cat(paste0("A matrix: "), dim(param[[i]]), "\n")
+          print.default(
+            param[[i]][1:10, 1:5],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat(paste0("... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
+        },
+        "c" = {
+          print.default(
+            param[[i]][1:10,],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat(paste0("... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
+        },
+        "d" = {
+          cat(paste0("A matrix: "), dim(param[[i]]), "\n")
+          print.default(
+            param[[i]][1:10, 1:5],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat("\n")
+        }
+      )
+    } else {
+      print.default(
+        param[[i]],
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+      cat("\n")
+    }
+  }
+}
+
+#' @rdname set_bvar
+#' @param x `bvharspec` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvharspec <- function(x, ...) {
+  print(x)
+}
+
+registerS3method(
+  "knit_print", "bvharspec",
+  knit_print.bvharspec,
+  envir = asNamespace("knitr")
+)

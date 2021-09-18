@@ -13,7 +13,7 @@ bvar_minnesota(
   lambda = 0.1,
   delta,
   eps = 1e-04,
-  type = c("const", "none")
+  include_mean = TRUE
 )
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -33,7 +33,7 @@ knit_print.bvarmn(x, ...)
 
 \item{eps}{very small number}
 
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
+\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{bvarmn} object}
 

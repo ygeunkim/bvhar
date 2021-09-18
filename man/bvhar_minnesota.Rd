@@ -16,7 +16,7 @@ bvhar_minnesota(
   weekly,
   monthly,
   eps = 1e-04,
-  type = c("const", "none")
+  include_mean = TRUE
 )
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -42,7 +42,7 @@ knit_print.bvharmn(x, ...)
 
 \item{eps}{Very small number}
 
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
+\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{bvarmn} object}
 
@@ -62,6 +62,7 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: Minnesota}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}
 \item{fitted.values}{Fitted values}

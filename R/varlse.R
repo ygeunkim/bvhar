@@ -4,13 +4,13 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
-#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' This package specifies VAR(p) model as
 #' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 #' 
-#' If `type = "const"`, there is \eqn{c} term.
-#' Otherwise (`type = "none"`), there is no \eqn{c} term.
+#' If `include_type = TRUE`, there is \eqn{c} term.
+#' Otherwise (`include_type = FALSE`), there is no \eqn{c} term.
 #' The function estimates every coefficient matrix \eqn{c, B_1, \ldots, B_p}.
 #' 
 #' * [build_y0()] gives response matrix, \eqn{Y_0}.
@@ -71,7 +71,7 @@
 #' 
 #' @order 1
 #' @export
-var_lm <- function(y, p, type = c("const", "none")) {
+var_lm <- function(y, p, include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
@@ -82,10 +82,10 @@ var_lm <- function(y, p, type = c("const", "none")) {
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none--------------------
-  type <- match.arg(type)
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
   m <- ncol(y)
   k <- m * p + 1 # df
-  if (type == "none") {
+  if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
     k <- k - 1 # df = no intercept
   }
@@ -113,7 +113,7 @@ var_lm <- function(y, p, type = c("const", "none")) {
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "VAR",
-    type = type,
+    type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     coefficients = Bhat,
     fitted.values = yhat, # X0 %*% Bhat
@@ -130,8 +130,8 @@ var_lm <- function(y, p, type = c("const", "none")) {
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param lag_max Maximum Var lag to explore (default = 5)
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel Parallel computation using [foreach::foreach()]? By default, `FALSE`.
-#' 
 #' 
 #' @return Minimum order and information criteria values
 #' 
@@ -144,7 +144,7 @@ choose_var <- function(y, lag_max = 5, parallel = FALSE) {
   # compute IC-----------------------
   if (parallel) {
     res <- foreach(p = 1:lag_max, .combine = rbind) %dopar% {
-      var_list <- var_lm(y, p)
+      var_list <- var_lm(y, p, include_mean = include_mean)
       c(
         "AIC" = AIC(var_list),
         "BIC" = BIC(var_list),
@@ -154,7 +154,7 @@ choose_var <- function(y, lag_max = 5, parallel = FALSE) {
     }
   } else {
     res <- foreach(p = 1:lag_max, .combine = rbind) %do% {
-      var_list <- var_lm(y, p)
+      var_list <- var_lm(y, p, include_mean = include_mean)
       c(
         "AIC" = AIC(var_list),
         "BIC" = BIC(var_list),

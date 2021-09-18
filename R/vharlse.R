@@ -3,7 +3,7 @@
 #' This function fits VHAR using OLS method
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param type `r lifecycle::badge("experimental")` add constant term (\code{"const"}) or not (\code{"none"})
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' For VHAR model
 #' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
@@ -55,7 +55,7 @@
 #' 
 #' @order 1
 #' @export
-vhar_lm <- function(y, type = c("const", "none")) {
+vhar_lm <- function(y, include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
@@ -65,10 +65,10 @@ vhar_lm <- function(y, type = c("const", "none")) {
   X0 <- build_design(y, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # const or none--------------------
-  type <- match.arg(type)
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
   m <- ncol(y)
   num_coef <- 3 * m + 1
-  if (type == "none") {
+  if (!include_mean) {
     X0 <- X0[, -(22 * m + 1)] # exclude 1 column
     name_har <- name_har[-num_coef] # remove const (row)name
     num_coef <- num_coef - 1 # df = 3 * m
@@ -76,6 +76,7 @@ vhar_lm <- function(y, type = c("const", "none")) {
   # Y0 = X1 Phi + Z------------------
   # X1 = X0 %*% t(HARtrans)
   # estimate Phi---------------------
+  type <- ifelse(include_mean, "const", "none")
   vhar_est <- switch(
     type,
     "const" = {

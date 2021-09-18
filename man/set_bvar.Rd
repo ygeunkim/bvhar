@@ -2,19 +2,65 @@
 % Please edit documentation in R/hyperprior.R
 \name{set_bvar}
 \alias{set_bvar}
-\title{Hyperpriors for Minnesota BVAR}
+\alias{set_bvar_flat}
+\alias{set_bvhar}
+\alias{set_weight_bvhar}
+\alias{print.bvharspec}
+\alias{knit_print.bvharspec}
+\title{Hyperparameters for Bayesian Models}
 \usage{
 set_bvar(sigma, lambda = 0.1, delta, eps = 1e-04)
+
+set_bvar_flat(U)
+
+set_bvhar(sigma, lambda = 0.1, delta, eps = 1e-04)
+
+set_weight_bvhar(sigma, lambda = 0.1, eps = 1e-04, daily, weekly, monthly)
+
+\method{print}{bvharspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.bvharspec(x, ...)
 }
 \arguments{
-\item{sigma}{standard error for each variable (Default: sd)}
+\item{sigma}{Standard error vector for each variable}
 
-\item{lambda}{tightness of the prior around a random walk or white noise (Default: .1)}
+\item{lambda}{Tightness of the prior around a random walk or white noise}
 
-\item{delta}{Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)}
+\item{delta}{Prior belief about white noise (Litterman sets 1: default)}
 
 \item{eps}{very small number}
+
+\item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
+
+\item{daily}{Same as delta in VHAR type}
+
+\item{weekly}{Fill the second part in the first block}
+
+\item{monthly}{Fill the third part in the first block}
+
+\item{x}{\code{bvharspec} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \description{
-Sets hyperprior for \code{\link[=bvar_minnesota]{bvar_minnesota()}}.
+See Details.
+}
+\details{
+\itemize{
+\item \code{set_bvar} sets hyperparameters for \code{\link[=bvar_minnesota]{bvar_minnesota()}}.
+}
+
+\itemize{
+\item \code{set_bvar_flat} sets hyperparameters for \code{\link[=bvar_flat]{bvar_flat()}}.
+}
+
+\itemize{
+\item \code{set_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with \code{mn_type = "VAR"} (VAR-type Minnesota BVHAR).
+}
+
+\itemize{
+\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with \code{mn_type = "VHAR"} (HAR-type Minnesota).
+}
 }

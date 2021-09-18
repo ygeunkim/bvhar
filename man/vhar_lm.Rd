@@ -6,7 +6,7 @@
 \alias{knit_print.vharlse}
 \title{Fit Vector HAR}
 \usage{
-vhar_lm(y, type = c("const", "none"))
+vhar_lm(y, include_mean = TRUE)
 
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,7 +15,7 @@ knit_print.vharlse(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
+\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{vharlse} object}
 

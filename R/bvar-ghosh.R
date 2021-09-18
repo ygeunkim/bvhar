@@ -6,7 +6,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param U Positive definite matrix. By default, identity matrix of dimension ncol(X0)
-#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
@@ -38,7 +38,8 @@
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: Ghosh}
+#'   \item{process}{Process: BVAR_Flat}
+#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
 #'   \item{fitted.values}{Fitted values}
@@ -57,7 +58,7 @@
 #' 
 #' @order 1
 #' @export
-bvar_flat <- function(y, p, U, type = c("const", "none")) {
+bvar_flat <- function(y, p, U, include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   # Y0 = X0 B + Z---------------------
@@ -68,10 +69,10 @@ bvar_flat <- function(y, p, U, type = c("const", "none")) {
   name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
-  type <- match.arg(type)
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
   m <- ncol(y)
   k <- m * p + 1 # df
-  if (type == "none") {
+  if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
     k <- k - 1 # df = no intercept
     name_lag <- name_lag[1:k] # colnames(X0)
@@ -102,7 +103,7 @@ bvar_flat <- function(y, p, U, type = c("const", "none")) {
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
     process = "BVAR_Flat",
-    type = type,
+    type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # prior----------------
     prior_mean = array(0L, dim = dim(Bhat)), # zero matrix

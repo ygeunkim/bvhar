@@ -37,6 +37,11 @@ reference:
   - estimate_har_none
   - VHARtoVMA
 
+- title: Bayesian Model
+  desc: ~
+  contents:
+  - set_bvar
+
 - title: BVAR
   desc: >
     Bayesian VAR model.

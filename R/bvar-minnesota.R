@@ -8,7 +8,7 @@
 #' @param lambda tightness of the prior around a random walk or white noise (Default: .1)
 #' @param delta Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)
 #' @param eps very small number
-#' @param type `r lifecycle::badge("experimental")` add constant term (`"const"`) or not (`"none"`)
+#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
@@ -56,6 +56,7 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
+#' @importFrom stats sd
 #' @order 1
 #' @export
 bvar_minnesota <- function(y, 
@@ -64,7 +65,7 @@ bvar_minnesota <- function(y,
                            lambda = .1, 
                            delta, 
                            eps = 1e-04, 
-                           type = c("const", "none")) {
+                           include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   if (missing(sigma)) sigma <- apply(y, 2, sd)
@@ -85,8 +86,8 @@ bvar_minnesota <- function(y,
   Xp <- build_xdummy(p, lambda, sigma, eps)
   colnames(Xp) <- name_lag
   # const or none---------------------
-  type <- match.arg(type)
-  if (type == "none") {
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
     Tp <- nrow(Yp)
     Yp <- Yp[-Tp,] # exclude intercept block from Yp (last row)
@@ -125,7 +126,7 @@ bvar_minnesota <- function(y,
     obs = s, # s = n - p
     totobs = nrow(y), # n = total number of sample size
     process = "BVAR_Minnesota",
-    type = type,
+    type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # prior----------------
     prior_mean = B0, # B0

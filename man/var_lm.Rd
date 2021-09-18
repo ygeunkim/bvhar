@@ -6,7 +6,7 @@
 \alias{knit_print.varlse}
 \title{Fit Vector Autoregressive Model of Order p Model}
 \usage{
-var_lm(y, p, type = c("const", "none"))
+var_lm(y, p, include_mean = TRUE)
 
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -17,7 +17,7 @@ knit_print.varlse(x, ...)
 
 \item{p}{integer, lags of VAR}
 
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} add constant term (\code{"const"}) or not (\code{"none"})}
+\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{varlse} object}
 
@@ -53,8 +53,8 @@ This function fits VAR(p) using OLS method.
 This package specifies VAR(p) model as
 \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
 
-If \code{type = "const"}, there is \eqn{c} term.
-Otherwise (\code{type = "none"}), there is no \eqn{c} term.
+If \code{include_type = TRUE}, there is \eqn{c} term.
+Otherwise (\code{include_type = FALSE}), there is no \eqn{c} term.
 The function estimates every coefficient matrix \eqn{c, B_1, \ldots, B_p}.
 \itemize{
 \item \code{\link[=build_y0]{build_y0()}} gives response matrix, \eqn{Y_0}.
