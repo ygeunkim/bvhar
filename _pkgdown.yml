@@ -65,10 +65,6 @@ reference:
 - title: Inference
   desc: ~
   contents:
-  - coef.varlse
-  - residuals.varlse
-  - fitted.varlse
-  - is.varlse
   - compute_cov
   - compute_covmse
   - compute_covmse_har
@@ -82,7 +78,6 @@ reference:
   - forecast_bvarmn
   - forecast_bvarmn_flat
   - forecast_bvharmn
-  - is.predbvhar
   - divide_ts
   - mse
   - mse.predbvhar
@@ -122,3 +117,10 @@ reference:
   contents:
   - etf_vix
 
+- title: Other generic functions
+  desc: ~
+  contents:
+  - coef.varlse
+  - residuals.varlse
+  - fitted.varlse
+  - is.varlse

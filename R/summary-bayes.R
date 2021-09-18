@@ -1,6 +1,8 @@
-#' Summary of \code{\link{bvar_minnesota}}
+#' Summarizing Bayesian VAR of Minnesota Prior Model
 #' 
-#' @param object \code{bvarmn} object
+#' `summary` method for `bvarmn` class.
+#' 
+#' @param object `bvarmn` object
 #' @param n_iter Number to sample Matrix Normal Inverse-Wishart distribution
 #' @param ... not used
 #' @details 
@@ -8,20 +10,21 @@
 #' 
 #' \deqn{(B, \Sigma) \sim MNIW(\hat{B}, \hat{U}, \hat{\Sigma}, \alpha_0 + n + 2)}
 #' 
-#' @return \code{gen_posterior} for \code{bvarmn} object returns \code{minnesota} \link{class}.
+#' @return `summary` for `bvarmn` object returns `summary.bvarmn` [class].
 #' \describe{
 #'   \item{coefficients}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
 #'   \item{covmat}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
 #' }
 #' 
 #' @references 
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @importFrom mniw rmniw
+#' @order 1
 #' @export
-summary.bvarmn <- function(object, n_iter = 100, ...) {
+summary.bvarmn <- function(object, n_iter = 100L, ...) {
   mn_mean <- object$mn_mean
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale

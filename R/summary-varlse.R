@@ -130,7 +130,9 @@ HQ.varlse <- function(object, ...) {
   log(sig_det) + 2 * log(log(s)) / s * m * k # penalty = (2 * log(log(s)) / s) * m * k
 }
 
-#' Summary of varlse
+#' Summarizing Vector Autoregressive Model
+#' 
+#' `summary` method for `varlse` class.
 #' 
 #' @param object \code{varlse} object
 #' @param ... not used
