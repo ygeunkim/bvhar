@@ -137,10 +137,11 @@ var_lm <- function(y, p, include_mean = TRUE) {
 #' 
 #' @importFrom foreach foreach %do% %dopar%
 #' @export
-choose_var <- function(y, lag_max = 5, parallel = FALSE) {
+choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
   var_list <- NULL
+  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
   # compute IC-----------------------
   if (parallel) {
     res <- foreach(p = 1:lag_max, .combine = rbind) %dopar% {
