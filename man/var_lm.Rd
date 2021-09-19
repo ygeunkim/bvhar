@@ -90,9 +90,9 @@ which gives
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 }
 \seealso{
-\code{\link[=build_y0]{build_y0()}} and \code{\link[=build_design]{build_design()}} to define Y0 and X0 matrix,
-
-and \code{\link[=estimate_var]{estimate_var()}} to compute coefficient VAR matrix.
-
-Other package \code{\link[vars:VAR]{vars::VAR()}} is famous in VAR modeling.
+\itemize{
+\item \code{\link[=build_y0]{build_y0()}} and \code{\link[=build_design]{build_design()}} to define Y0 and X0 matrix.
+\item \code{\link[=estimate_var]{estimate_var()}} to compute coefficient VAR matrix.
+\item Other package \code{\link[vars:VAR]{vars::VAR()}} is famous in VAR modeling.
+}
 }

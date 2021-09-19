@@ -49,11 +49,9 @@
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @seealso 
-#' [build_y0()] and [build_design()] to define Y0 and X0 matrix,
-#' 
-#' and [estimate_var()] to compute coefficient VAR matrix.
-#' 
-#' Other package [vars::VAR()] is famous in VAR modeling.
+#' * [build_y0()] and [build_design()] to define Y0 and X0 matrix.
+#' * [estimate_var()] to compute coefficient VAR matrix.
+#' * Other package [vars::VAR()] is famous in VAR modeling.
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' \dontrun{

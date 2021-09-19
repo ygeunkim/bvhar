@@ -160,4 +160,3 @@ is.predbvhar <- function(x) {
 is.bvharspec <- function(x) {
   inherits(x, "bvharspec")
 }
-

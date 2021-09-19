@@ -54,6 +54,26 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
+#' @seealso 
+#' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
+#' * [build_ydummy()] and [build_xdummy()] to construct dummy observations.
+#' * [estimate_bvar_mn()] to compute BVAR prior and posterior.
+#' 
+#' @examples
+#' # Perform the function using etf_vix dataset
+#' \dontrun{
+#'   fit <- bvar_minnesota(y = etf_vix, p = 5)
+#'   class(fit)
+#'   str(fit)
+#' }
+#' 
+#' # Extract coef, fitted values, and residuals
+#' \dontrun{
+#'   coef(fit)
+#'   residuals(fit)
+#'   fitted(fit)
+#' }
+#' 
 #' @importFrom stats sd
 #' @order 1
 #' @export
@@ -65,7 +85,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
   sigma <- bayes_spec$sigma
   m <- ncol(y)
-  if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(0, m)
+  if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(1, m)
   delta <- bayes_spec$delta
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps

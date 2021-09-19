@@ -2,10 +2,10 @@
 #' 
 #' See Details.
 #' 
-#' @param sigma standard error for each variable (Default: sd)
-#' @param lambda tightness of the prior around a random walk or white noise (Default: .1)
-#' @param delta Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)
-#' @param eps very small number
+#' @param sigma Standard error vector for each variable (Default: sd)
+#' @param lambda Tightness of the prior around a random walk or white noise (Default: .1)
+#' @param delta Persistence (Default: Litterman sets 1 = random walk prior, White noise prior = 0)
+#' @param eps Very small number (Default: 1e-04)
 #' @details 
 #' * `set_bvar` sets hyperparameters for [bvar_minnesota()].
 #' @return Every function returns `bvharspec` [class].
@@ -68,12 +68,12 @@ set_bvar_flat <- function(U) {
 }
 
 #' @rdname set_bvar
-#' @param sigma Standard error vector for each variable
-#' @param lambda Tightness of the prior around a random walk or white noise
-#' @param delta Prior belief about white noise (Litterman sets 1: default)
-#' @param eps very small number
+#' @param sigma Standard error vector for each variable (Default: sd)
+#' @param lambda Tightness of the prior around a random walk or white noise (Default: .1)
+#' @param delta Persistence (Default: Litterman sets 1 = random walk prior, White noise prior = 0)
+#' @param eps Very small number (Default: 1e-04)
 #' @details 
-#' * `set_bvhar` sets hyperparameters for [bvhar_minnesota()] with `mn_type = "VAR"` (VAR-type Minnesota BVHAR).
+#' * `set_bvhar` sets hyperparameters for [bvhar_minnesota()] with VAR-type Minnesota prior.
 #' @examples 
 #' # VAR-type Minnesota BVHAR specification
 #' # m = 3
@@ -105,14 +105,14 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 }
 
 #' @rdname set_bvar
-#' @param sigma Standard error vector for each variable
-#' @param lambda Tightness of the prior around a random walk or white noise
-#' @param eps very small number
-#' @param daily Same as delta in VHAR type
-#' @param weekly Fill the second part in the first block
-#' @param monthly Fill the third part in the first block
+#' @param sigma Standard error vector for each variable (Default: sd)
+#' @param lambda Tightness of the prior around a random walk or white noise (Default: .1)
+#' @param eps Very small number (Default: 1e-04)
+#' @param daily Same as delta in VHAR type (Default: 1 as Litterman)
+#' @param weekly Fill the second part in the first block (Default: 1)
+#' @param monthly Fill the third part in the first block (Default: 1)
 #' @details 
-#' * `set_weight_bvhar` sets hyperparameters for [bvhar_minnesota()] with `mn_type = "VHAR"` (HAR-type Minnesota).
+#' * `set_weight_bvhar` sets hyperparameters for [bvhar_minnesota()] with HAR-type Minnesota prior.
 #' @examples 
 #' # HAR-type Minnesota BVHAR specification
 #' # m = 3

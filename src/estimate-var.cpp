@@ -26,13 +26,20 @@ Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' Covariance Estimate for Residual Covariance Matrix
 //' 
-//' Plausible estimator for residual covariance.
+//' Compute ubiased estimator for residual covariance.
 //' 
 //' @param z Matrix, residual
-//' @param num_design Integer, s = n - p
-//' @param dim_design Ingeger, k = mp + 1
+//' @param num_design Integer, Number of sample used (s = n - p)
+//' @param dim_design Ingeger, Number of parameter for each dimension (k = mp + 1)
 //' @details
-//' See Lütkepohl (2007).
+//' See pp75 Lütkepohl (2007).
+//' 
+//' * s = n - p: sample used (`num_design`)
+//' * k = mp + 1 (m: dimension, p: VAR lag): number of parameter for each dimension (`dim_design`)
+//' 
+//' Then an unbiased estimator for \eqn{\Sigma_e} is
+//' 
+//' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{B} X_0)^T (Y_0 - \hat{B} X_0)}
 //' 
 //' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
 //' @export

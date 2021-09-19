@@ -65,6 +65,22 @@ The only difference from BVAR is dimension.
 On the other hand, dummy Y0 for \code{mn_type = "VHAR"} has its own function \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}}.
 It fills the zero matrix in the first block in Bańbura et al. (2010).
 }
+\examples{
+# Perform the function using etf_vix dataset
+\dontrun{
+  fit <- bvhar_minnesota(y = etf_vix)
+  class(fit)
+  str(fit)
+}
+
+# Extract coef, fitted values, and residuals
+\dontrun{
+  coef(fit)
+  residuals(fit)
+  fitted(fit)
+}
+
+}
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
 
@@ -73,7 +89,10 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 }
 \seealso{
-\code{\link{build_ydummy}}, \code{\link{build_xdummy}}, and \code{\link{build_ydummy_bvhar}} for defining dummy observation.
-
-\code{\link{estimate_bvar_mn}} to compute Minnesota posterior estimates.
+\itemize{
+\item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
+\item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
+\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}}, and \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}} to add dummy observations.
+\item \code{\link[=estimate_bvar_mn]{estimate_bvar_mn()}} to compute Minnesota prior and posterior.
+}
 }

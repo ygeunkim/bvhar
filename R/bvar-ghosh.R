@@ -57,6 +57,25 @@
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 #' 
+#' @seealso 
+#' * [set_bvar_flat()] to specify the hyperparameters of BVAR flat prior.
+#' * [estimate_mn_flat()] to compute BVAR flat prior and posterior.
+#' 
+#' @examples
+#' # Perform the function using etf_vix dataset
+#' \dontrun{
+#'   fit <- bvar_flat(y = etf_vix, p = 2)
+#'   class(fit)
+#'   str(fit)
+#' }
+#' 
+#' # Extract coef, fitted values, and residuals
+#' \dontrun{
+#'   coef(fit)
+#'   residuals(fit)
+#'   fitted(fit)
+#' }
+#' 
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
@@ -83,7 +102,6 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   # spec------------------------------
   if (is.null(bayes_spec$U)) bayes_spec$U <- diag(ncol(X0)) # identity matrix
   U <- bayes_spec$U
-  # if (missing(U)) U <- diag(ncol(X0)) # identity matrix
   # Matrix normal---------------------
   posterior <- estimate_mn_flat(X0, Y0, U)
   Bhat <- posterior$bhat # posterior mean
@@ -108,7 +126,6 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     df = k, # k = mp + 1 or mp
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
-    # process = "BVAR_Flat",
     process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
     spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),

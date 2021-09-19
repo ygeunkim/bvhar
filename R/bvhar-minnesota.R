@@ -43,17 +43,33 @@
 #'   \item{a0}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
 #' }
 #' 
-#' @seealso 
-#' \code{\link{build_ydummy}}, \code{\link{build_xdummy}}, and \code{\link{build_ydummy_bvhar}} for defining dummy observation.
-#' 
-#' \code{\link{estimate_bvar_mn}} to compute Minnesota posterior estimates.
-#' 
 #' @references 
 #' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 #' 
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+#' 
+#' @seealso 
+#' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
+#' * [set_weight_bvhar()] to specify the hyperparameters of HAR-type Minnesota prior.
+#' * [build_ydummy()] and [build_xdummy()], and [build_ydummy_bvhar()] to add dummy observations.
+#' * [estimate_bvar_mn()] to compute Minnesota prior and posterior.
+#' 
+#' @examples
+#' # Perform the function using etf_vix dataset
+#' \dontrun{
+#'   fit <- bvhar_minnesota(y = etf_vix)
+#'   class(fit)
+#'   str(fit)
+#' }
+#' 
+#' # Extract coef, fitted values, and residuals
+#' \dontrun{
+#'   coef(fit)
+#'   residuals(fit)
+#'   fitted(fit)
+#' }
 #' 
 #' @order 1
 #' @export
@@ -144,7 +160,6 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = N, # n
-    # process = ifelse(mn_type == "VAR", "BVHAR_mn_var", "BVHAR_mn_vhar"),
     process = paste(bayes_spec$process, minnesota_type, sep = "_"),
     spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),

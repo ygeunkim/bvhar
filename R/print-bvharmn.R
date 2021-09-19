@@ -66,8 +66,6 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
-  cat("\n\n--------------------------------------------------\n")
-  cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
   invisible(x)
 }
 

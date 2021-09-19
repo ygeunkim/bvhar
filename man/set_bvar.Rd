@@ -22,21 +22,21 @@ set_weight_bvhar(sigma, lambda = 0.1, eps = 1e-04, daily, weekly, monthly)
 knit_print.bvharspec(x, ...)
 }
 \arguments{
-\item{sigma}{Standard error vector for each variable}
+\item{sigma}{Standard error vector for each variable (Default: sd)}
 
-\item{lambda}{Tightness of the prior around a random walk or white noise}
+\item{lambda}{Tightness of the prior around a random walk or white noise (Default: .1)}
 
-\item{delta}{Prior belief about white noise (Litterman sets 1: default)}
+\item{delta}{Persistence (Default: Litterman sets 1 = random walk prior, White noise prior = 0)}
 
-\item{eps}{very small number}
+\item{eps}{Very small number (Default: 1e-04)}
 
 \item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
 
-\item{daily}{Same as delta in VHAR type}
+\item{daily}{Same as delta in VHAR type (Default: 1 as Litterman)}
 
-\item{weekly}{Fill the second part in the first block}
+\item{weekly}{Fill the second part in the first block (Default: 1)}
 
-\item{monthly}{Fill the third part in the first block}
+\item{monthly}{Fill the third part in the first block (Default: 1)}
 
 \item{x}{\code{bvharspec} object}
 
@@ -61,11 +61,11 @@ See Details.
 }
 
 \itemize{
-\item \code{set_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with \code{mn_type = "VAR"} (VAR-type Minnesota BVHAR).
+\item \code{set_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VAR-type Minnesota prior.
 }
 
 \itemize{
-\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with \code{mn_type = "VHAR"} (HAR-type Minnesota).
+\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with HAR-type Minnesota prior.
 }
 }
 \examples{

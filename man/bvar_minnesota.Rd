@@ -75,8 +75,31 @@ Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_
 
 \eqn{\sigma_i^2 / \sigma_j^2} in Minnesota moments explain the data scales.
 }
+\examples{
+# Perform the function using etf_vix dataset
+\dontrun{
+  fit <- bvar_minnesota(y = etf_vix, p = 5)
+  class(fit)
+  str(fit)
+}
+
+# Extract coef, fitted values, and residuals
+\dontrun{
+  coef(fit)
+  residuals(fit)
+  fitted(fit)
+}
+
+}
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+}
+\seealso{
+\itemize{
+\item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
+\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}} to construct dummy observations.
+\item \code{\link[=estimate_bvar_mn]{estimate_bvar_mn()}} to compute BVAR prior and posterior.
+}
 }
