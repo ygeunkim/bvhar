@@ -6,18 +6,7 @@
 \alias{knit_print.bvharmn}
 \title{Fit Bayesian VHAR of Minnesota Prior}
 \usage{
-bvhar_minnesota(
-  y,
-  mn_type = c("VAR", "VHAR"),
-  sigma,
-  lambda,
-  delta,
-  daily,
-  weekly,
-  monthly,
-  eps = 1e-04,
-  include_mean = TRUE
-)
+bvhar_minnesota(y, bayes_spec = set_bvhar(), include_mean = TRUE)
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -26,21 +15,7 @@ knit_print.bvharmn(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{mn_type}{Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)}
-
-\item{sigma}{Standard error vector for each variable}
-
-\item{lambda}{Tightness of the prior around a random walk or white noise}
-
-\item{delta}{Prior belief about white noise (Litterman sets 1: default)}
-
-\item{daily}{Same as delta in VHAR type}
-
-\item{weekly}{Fill the second part in the first block}
-
-\item{monthly}{Fill the third part in the first block}
-
-\item{eps}{Very small number}
+\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
 \item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -61,7 +36,8 @@ It is a list with the following components:
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
-\item{process}{Process: Minnesota}
+\item{process}{Process: BVHAR_MN_VAR or BVHAR_MN_VHAR}
+\item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}

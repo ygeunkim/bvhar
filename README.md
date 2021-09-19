@@ -115,10 +115,32 @@ lam <- .3
 delta <- rep(1, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
 eps <- 1e-04
+(bvar_spec <- set_bvar(sig, lam, delta, eps))
+#> Model Specification for BVAR
+#> 
+#> Parameters: Coefficent matrice and Covariance matrix
+#> Prior: Minnesota
+#> **Read corresponding document for the details of the distribution.**
+#> ====================================================================
+#> 
+#> Setting for 'sigma':
+#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
+#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#> VXXLECLS  
+#>     6.23  
+#> 
+#> Setting for 'lambda':
+#> [1]  0.3
+#> 
+#> Setting for 'delta':
+#> [1]  1  1  1  1  1  1  1  1  1
+#> 
+#> Setting for 'eps':
+#> [1]  1e-04
 ```
 
 ``` r
-mod_bvar <- bvar_minnesota(etf_tr, 5, sig, lam, delta, eps)
+mod_bvar <- bvar_minnesota(etf_tr, 5, bvar_spec)
 ```
 
 MSE:
@@ -137,7 +159,32 @@ forecast_bvar <- predict(mod_bvar, h)
 Minnesota-v1:
 
 ``` r
-mod_bvhar_v1 <- bvhar_minnesota(etf_tr, sigma = sig, lambda = lam, delta = delta, eps = eps)
+(bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
+#> Model Specification for BVHAR
+#> 
+#> Parameters: Coefficent matrice and Covariance matrix
+#> Prior: MN_VAR
+#> **Read corresponding document for the details of the distribution.**
+#> ====================================================================
+#> 
+#> Setting for 'sigma':
+#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
+#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#> VXXLECLS  
+#>     6.23  
+#> 
+#> Setting for 'lambda':
+#> [1]  0.3
+#> 
+#> Setting for 'delta':
+#> [1]  1  1  1  1  1  1  1  1  1
+#> 
+#> Setting for 'eps':
+#> [1]  1e-04
+```
+
+``` r
+mod_bvhar_v1 <- bvhar_minnesota(etf_tr, bvhar_spec_v1)
 ```
 
 MSE:
@@ -157,17 +204,39 @@ Minnesota-v2:
 day <- rep(.1, ncol(etf_vix))
 week <- rep(.1, ncol(etf_vix))
 month <- rep(.1, ncol(etf_vix))
-#-------------------------------
-mod_bvhar_v2 <- bvhar_minnesota(
-  etf_tr, 
-  mn_type = "VHAR", 
-  sigma = sig, 
-  lambda = lam, 
-  daily = day, 
-  weekly = week, 
-  monthly = month, 
-  eps = eps
-)
+#----------------------------------
+(bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, day, week, month))
+#> Model Specification for BVHAR
+#> 
+#> Parameters: Coefficent matrice and Covariance matrix
+#> Prior: MN_VHAR
+#> **Read corresponding document for the details of the distribution.**
+#> ====================================================================
+#> 
+#> Setting for 'sigma':
+#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
+#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#> VXXLECLS  
+#>     6.23  
+#> 
+#> Setting for 'lambda':
+#> [1]  0.3
+#> 
+#> Setting for 'eps':
+#> [1]  1e-04
+#> 
+#> Setting for 'daily':
+#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
+#> 
+#> Setting for 'weekly':
+#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
+#> 
+#> Setting for 'monthly':
+#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
+```
+
+``` r
+mod_bvhar_v2 <- bvhar_minnesota(etf_tr, bvhar_spec_v2)
 ```
 
 ``` r
@@ -188,7 +257,7 @@ autoplot(forecast_var, x_cut = 750, ci_alpha = .5) +
   autolayer(forecast_bvhar_v2, ci_alpha = .3)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" />
 
 ### Erros
 

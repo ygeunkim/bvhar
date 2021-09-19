@@ -6,15 +6,7 @@
 \alias{knit_print.bvarmn}
 \title{Fit Bayesian VAR(p) of Minnesota Prior}
 \usage{
-bvar_minnesota(
-  y,
-  p,
-  sigma,
-  lambda = 0.1,
-  delta,
-  eps = 1e-04,
-  include_mean = TRUE
-)
+bvar_minnesota(y, p, bayes_spec = set_bvar(), include_mean = TRUE)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -25,13 +17,7 @@ knit_print.bvarmn(x, ...)
 
 \item{p}{VAR lag}
 
-\item{sigma}{standard error for each variable (Default: sd)}
-
-\item{lambda}{tightness of the prior around a random walk or white noise (Default: .1)}
-
-\item{delta}{Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)}
-
-\item{eps}{very small number}
+\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
 \item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -53,7 +39,8 @@ It is a list with the following components:
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
-\item{process}{Process: Minnesota}
+\item{process}{Process: BVAR_Minnesota}
+\item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}

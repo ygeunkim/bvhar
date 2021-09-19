@@ -4,14 +4,7 @@
 #' This function fits BVHAR with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param mn_type Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)
-#' @param sigma Standard error vector for each variable
-#' @param lambda Tightness of the prior around a random walk or white noise
-#' @param delta Prior belief about white noise (Litterman sets 1: default)
-#' @param daily Same as delta in VHAR type
-#' @param weekly Fill the second part in the first block
-#' @param monthly Fill the third part in the first block
-#' @param eps Very small number
+#' @param bayes_spec `r lifecycle::badge("experimental")` A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
 #' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
@@ -38,7 +31,8 @@
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: Minnesota}
+#'   \item{process}{Process: BVHAR_MN_VAR or BVHAR_MN_VHAR}
+#'   \item{spec}{Model specification (\code{bvharspec})}
 #'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
@@ -63,22 +57,19 @@
 #' 
 #' @order 1
 #' @export
-bvhar_minnesota <- function(y, 
-                            mn_type = c("VAR", "VHAR"), 
-                            sigma, 
-                            lambda, 
-                            delta, 
-                            daily, 
-                            weekly, 
-                            monthly, 
-                            eps = 1e-04, 
-                            include_mean = TRUE) {
+bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
-  mn_type <- match.arg(mn_type)
+  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
+  if (bayes_spec$process != "BVHAR") stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
+  minnesota_type <- bayes_spec$prior
   m <- ncol(y)
   N <- nrow(y)
   num_coef <- 3 * m + 1
+  if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
+  sigma <- bayes_spec$sigma
+  lambda <- bayes_spec$lambda
+  eps <- bayes_spec$eps
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)
   name_var <- colnames(y)
@@ -88,18 +79,24 @@ bvhar_minnesota <- function(y,
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # dummy-----------------------------
   Yh <- switch(
-    mn_type,
-    "VAR" = {
-      if (missing(delta)) delta <- rep(1, m)
-      Yh <- build_ydummy(3, sigma, lambda, delta)
+    minnesota_type,
+    "MN_VAR" = {
+      if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(1, m)
+      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta)
       colnames(Yh) <- name_var
       Yh
     },
-    "VHAR" = {
-      if (missing(daily)) daily <- rep(1, m)
-      if (missing(weekly)) weekly <- rep(1, m)
-      if (missing(monthly)) monthly <- rep(1, m)
-      Yh <- build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly)
+    "MN_VHAR" = {
+      if (is.null(bayes_spec$daily)) bayes_spec$daily <- rep(1, m)
+      if (is.null(bayes_spec$weekly)) bayes_spec$weekly <- rep(1, m)
+      if (is.null(bayes_spec$monthly)) bayes_spec$monthly <- rep(1, m)
+      Yh <- build_ydummy_bvhar(
+        sigma, 
+        lambda, 
+        bayes_spec$daily, 
+        bayes_spec$weekly, 
+        bayes_spec$monthly
+      )
       colnames(Yh) <- name_var
       Yh
     }
@@ -147,7 +144,9 @@ bvhar_minnesota <- function(y,
     m = m, # m
     obs = nrow(Y0), # s = n - p
     totobs = N, # n
-    process = ifelse(mn_type == "VAR", "BVHAR_mn_var", "BVHAR_mn_vhar"),
+    # process = ifelse(mn_type == "VAR", "BVHAR_mn_var", "BVHAR_mn_vhar"),
+    process = paste(bayes_spec$process, minnesota_type, sep = "_"),
+    spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # HAR------------------

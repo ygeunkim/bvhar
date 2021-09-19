@@ -118,10 +118,11 @@ lam <- .3
 delta <- rep(1, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
 eps <- 1e-04
+(bvar_spec <- set_bvar(sig, lam, delta, eps))
 ```
 
 ```{r}
-mod_bvar <- bvar_minnesota(etf_tr, 5, sig, lam, delta, eps)
+mod_bvar <- bvar_minnesota(etf_tr, 5, bvar_spec)
 ```
 
 MSE:
@@ -136,7 +137,11 @@ forecast_bvar <- predict(mod_bvar, h)
 Minnesota-v1:
 
 ```{r}
-mod_bvhar_v1 <- bvhar_minnesota(etf_tr, sigma = sig, lambda = lam, delta = delta, eps = eps)
+(bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
+```
+
+```{r}
+mod_bvhar_v1 <- bvhar_minnesota(etf_tr, bvhar_spec_v1)
 ```
 
 MSE:
@@ -153,17 +158,12 @@ Minnesota-v2:
 day <- rep(.1, ncol(etf_vix))
 week <- rep(.1, ncol(etf_vix))
 month <- rep(.1, ncol(etf_vix))
-#-------------------------------
-mod_bvhar_v2 <- bvhar_minnesota(
-  etf_tr, 
-  mn_type = "VHAR", 
-  sigma = sig, 
-  lambda = lam, 
-  daily = day, 
-  weekly = week, 
-  monthly = month, 
-  eps = eps
-)
+#----------------------------------
+(bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, day, week, month))
+```
+
+```{r}
+mod_bvhar_v2 <- bvhar_minnesota(etf_tr, bvhar_spec_v2)
 ```
 
 ```{r}

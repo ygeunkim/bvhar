@@ -26,6 +26,8 @@
 #' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
+  if (missing(sigma)) sigma <- NULL
+  if (missing(delta)) delta <- NULL
   bvar_param <- list(
     process = "BVAR",
     prior = "Minnesota",
@@ -55,6 +57,7 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @order 1
 #' @export
 set_bvar_flat <- function(U) {
+  if (missing(U)) U <- NULL
   bvar_param <- list(
     process = "BVAR",
     prior = "Flat",
@@ -87,6 +90,8 @@ set_bvar_flat <- function(U) {
 #' @order 1
 #' @export
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
+  if (missing(sigma)) sigma <- NULL
+  if (missing(delta)) delta <- NULL
   bvhar_param <- list(
     process = "BVHAR",
     prior = "MN_VAR",
@@ -131,6 +136,10 @@ set_weight_bvhar <- function(sigma,
                              daily,
                              weekly,
                              monthly) {
+  if (missing(sigma)) sigma <- NULL
+  if (missing(daily)) daily <- NULL
+  if (missing(weekly)) weekly <- NULL
+  if (missing(monthly)) monthly <- NULL
   bvhar_param <- list(
     process = "BVHAR",
     prior = "MN_VHAR",

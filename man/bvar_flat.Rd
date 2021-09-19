@@ -6,7 +6,7 @@
 \alias{knit_print.bvarflat}
 \title{Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior}
 \usage{
-bvar_flat(y, p, U, include_mean = TRUE)
+bvar_flat(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE)
 
 \method{print}{bvarflat}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -17,7 +17,7 @@ knit_print.bvarflat(x, ...)
 
 \item{p}{VAR lag}
 
-\item{U}{Positive definite matrix. By default, identity matrix of dimension ncol(X0)}
+\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar_flat]{set_bvar_flat()}}.}
 
 \item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -40,6 +40,7 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: BVAR_Flat}
+\item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}

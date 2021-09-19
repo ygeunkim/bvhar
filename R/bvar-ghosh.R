@@ -5,7 +5,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
-#' @param U Positive definite matrix. By default, identity matrix of dimension ncol(X0)
+#' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar_flat()].
 #' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
@@ -39,6 +39,7 @@
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: BVAR_Flat}
+#'   \item{spec}{Model specification (\code{bvharspec})}
 #'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
@@ -58,9 +59,11 @@
 #' 
 #' @order 1
 #' @export
-bvar_flat <- function(y, p, U, include_mean = TRUE) {
+bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
+  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
+  if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   name_var <- colnames(y)
@@ -77,7 +80,10 @@ bvar_flat <- function(y, p, U, include_mean = TRUE) {
     k <- k - 1 # df = no intercept
     name_lag <- name_lag[1:k] # colnames(X0)
   }
-  if (missing(U)) U <- diag(ncol(X0)) # identity matrix
+  # spec------------------------------
+  if (is.null(bayes_spec$U)) bayes_spec$U <- diag(ncol(X0)) # identity matrix
+  U <- bayes_spec$U
+  # if (missing(U)) U <- diag(ncol(X0)) # identity matrix
   # Matrix normal---------------------
   posterior <- estimate_mn_flat(X0, Y0, U)
   Bhat <- posterior$bhat # posterior mean
@@ -102,7 +108,9 @@ bvar_flat <- function(y, p, U, include_mean = TRUE) {
     df = k, # k = mp + 1 or mp
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
-    process = "BVAR_Flat",
+    # process = "BVAR_Flat",
+    process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
+    spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # prior----------------

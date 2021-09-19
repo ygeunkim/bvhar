@@ -261,10 +261,11 @@ sig <- apply(etf_train, 2, sd) # sigma vector
 lam <- .2 # lambda
 delta <- rep(0, m) # delta vector (0 vector since RV stationary)
 eps <- 1e-04 # very small number
+(bvar_spec <- set_bvar(sig, lam, delta, eps))
 ```
 
 ```{r bvarfit}
-(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, sig, lam, delta, eps))
+(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, bvar_spec))
 ```
 
 ```{r}
@@ -282,8 +283,11 @@ Ghosh et al. (2018) provides flat prior for covariance matrix, i.e. non-informat
 Use `bvar_flat(y, p, U)`.
 
 ```{r}
-U <- 5000 * diag(m * bvar_lag + 1) # c * I
-(fit_ghosh <- bvar_flat(etf_train, bvar_lag, U))
+(flat_spec <- set_bvar_flat(U = 5000 * diag(m * bvar_lag + 1))) # c * I
+```
+
+```{r}
+(fit_ghosh <- bvar_flat(etf_train, bvar_lag, flat_spec))
 ```
 
 ```{r}
@@ -335,7 +339,12 @@ We call this VAR-type Minnesota prior.
 This is the default prior setting.
 
 ```{r}
-(fit_bvhar <- bvhar_minnesota(etf_train, sigma = sig, lambda = lam, delta = delta, eps = eps))
+(bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
+```
+
+
+```{r}
+(fit_bvhar <- bvhar_minnesota(etf_train, bvhar_spec_v1))
 ```
 
 ### HAR-type Minnesota
@@ -362,6 +371,7 @@ You can use this prior in the same function (`bvhar_minnesota()`) with `type = "
 daily <- rep(.1, m)
 weekly <- rep(.1, m)
 monthly <- rep(.1, m)
+(bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, daily, weekly, monthly))
 ```
 
 With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
@@ -370,13 +380,7 @@ With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
 ```{r}
 fit_bvhar_other <- bvhar_minnesota(
   etf_train, 
-  mn_type = "VHAR", 
-  sigma = sig, 
-  lambda = lam, 
-  daily = daily, 
-  weekly = weekly, 
-  monthly = monthly, 
-  eps = eps
+  bvhar_spec_v2
 )
 fit_bvhar_other
 ```

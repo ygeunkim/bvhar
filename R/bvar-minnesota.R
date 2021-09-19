@@ -4,10 +4,7 @@
 #' 
 #' @param y matrix, Time series data of which columns indicate the variables
 #' @param p VAR lag
-#' @param sigma standard error for each variable (Default: sd)
-#' @param lambda tightness of the prior around a random walk or white noise (Default: .1)
-#' @param delta Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)
-#' @param eps very small number
+#' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar()].
 #' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
@@ -40,7 +37,8 @@
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: Minnesota}
+#'   \item{process}{Process: BVAR_Minnesota}
+#'   \item{spec}{Model specification (\code{bvharspec})}
 #'   \item{type}{include constant term (\code{const}) or not (\code{none})}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
@@ -59,18 +57,18 @@
 #' @importFrom stats sd
 #' @order 1
 #' @export
-bvar_minnesota <- function(y, 
-                           p, 
-                           sigma, 
-                           lambda = .1, 
-                           delta, 
-                           eps = 1e-04, 
-                           include_mean = TRUE) {
+bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
-  if (missing(sigma)) sigma <- apply(y, 2, sd)
+  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
+  if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar()'.")
+  if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
+  sigma <- bayes_spec$sigma
   m <- ncol(y)
-  if (missing(delta)) delta <- rep(0, m)
+  if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(0, m)
+  delta <- bayes_spec$delta
+  lambda <- bayes_spec$lambda
+  eps <- bayes_spec$eps
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   name_var <- colnames(y)
@@ -125,7 +123,8 @@ bvar_minnesota <- function(y,
     df = k, # k = m * p + 1
     obs = s, # s = n - p
     totobs = nrow(y), # n = total number of sample size
-    process = "BVAR_Minnesota",
+    process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
+    spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # prior----------------
