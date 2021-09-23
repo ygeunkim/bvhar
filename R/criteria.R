@@ -1,3 +1,65 @@
+#' Extract Log-Likelihood of Multivariate Time Series Model
+#' 
+#' Compute log-likelihood function value of VAR(p), VHAR, BVAR(p), and BVHAR
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' @details 
+#' Consider Y0 matrix from [build_y0()].
+#' Likelihood of VAR(p) has
+#' 
+#' \deqn{Y_0 \sim MN(X_0 B, I_s, \Sigma_e)}
+#' 
+#' where X0 from [build_design()].
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' 
+#' @importFrom stats logLik
+#' @importFrom mniw dMNorm
+#' @export
+logLik.varlse <- function(object, ...) {
+  obs <- object$obs
+  k <- object$df
+  cov_mle <- object$covmat * (obs - k) / object$totobs # MLE = (s - k) / n * LS
+  log_lik <- dMNorm(
+    X = object$y0,
+    Lambda = object$fitted.values,
+    SigmaR = diag(obs),
+    SigmaC = cov_mle,
+    log = TRUE
+  )
+  class(log_lik) <- "logLik"
+  attr(log_lik, "df") <- k * object$m
+  attr(log_lik, "nobs") <- obs
+  log_lik
+}
+
+#' @rdname logLik.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' @details 
+#' 
+#' @importFrom stats logLik
+#' @importFrom mniw dMNorm
+#' @export
+logLik.vharlse <- function(object, ...) {
+  obs <- object$obs
+  k <- object$df
+  cov_mle <- object$covmat * (obs - k) / object$totobs
+  log_lik <- dMNorm(
+    X = object$y0,
+    Lambda = object$fitted.values,
+    SigmaR = diag(obs),
+    SigmaC = cov_mle,
+    log = TRUE
+  )
+  class(log_lik) <- "logLik"
+  attr(log_lik, "df") <- k * object$m
+  attr(log_lik, "nobs") <- obs
+  log_lik
+}
+
 #' Akaike's Information Criterion of Multivariate Time Series Model
 #' 
 #' Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR

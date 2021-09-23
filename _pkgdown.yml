@@ -93,6 +93,7 @@ reference:
   - FPE.varlse
   - HQ
   - HQ.varlse
+  - logLik.varlse
 
 - title: Plots
   desc: ~
