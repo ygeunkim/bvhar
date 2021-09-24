@@ -32,4 +32,6 @@ where the number of freely estimated parameters is \eqn{pm^2}.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+
+Gideon Schwarz. (1978). \emph{Estimating the Dimension of a Model}. Ann. Statist. 6 (2) 461 - 464. \url{https://doi.org/10.1214/aos/1176344136}
 }

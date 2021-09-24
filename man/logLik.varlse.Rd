@@ -3,11 +3,20 @@
 \name{logLik.varlse}
 \alias{logLik.varlse}
 \alias{logLik.vharlse}
+\alias{logLik.bvarmn}
+\alias{logLik.bvarflat}
+\alias{logLik.bvharmn}
 \title{Extract Log-Likelihood of Multivariate Time Series Model}
 \usage{
 \method{logLik}{varlse}(object, ...)
 
 \method{logLik}{vharlse}(object, ...)
+
+\method{logLik}{bvarmn}(object, ...)
+
+\method{logLik}{bvarflat}(object, ...)
+
+\method{logLik}{bvharmn}(object, ...)
 }
 \arguments{
 \item{object}{Model fit}
@@ -25,8 +34,18 @@ Likelihood of VAR(p) has
 
 where X0 from \code{\link[=build_design]{build_design()}}.
 
+In case of VHAR, just consider the linear relationship.
 
+While frequentist models use OLS and MLE for coefficient and covariance matrices, Bayesian models implement posterior means.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+
+Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 }
