@@ -32,6 +32,7 @@ reference:
     Vector heterogeneous autoregressive model.
   contents:
   - vhar_lm
+  - summary.vharlse
   - scale_har
   - estimate_har
   - estimate_har_none
@@ -94,6 +95,8 @@ reference:
   - HQ
   - HQ.varlse
   - logLik.varlse
+  - compute_dic
+  - compute_dic.bvarmn
 
 - title: Plots
   desc: ~

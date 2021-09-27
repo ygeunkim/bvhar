@@ -2,9 +2,12 @@
 % Please edit documentation in R/criteria.R
 \name{HQ}
 \alias{HQ}
+\alias{HQ.logLik}
 \title{Hannan-Quinn Criterion}
 \usage{
 HQ(object, ...)
+
+\method{HQ}{logLik}(object, ...)
 }
 \arguments{
 \item{object}{Model fit}
@@ -13,4 +16,15 @@ HQ(object, ...)
 }
 \description{
 Generic function that computes HQ criterion.
+}
+\details{
+The formula is
+
+\deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(n)}
+
+whic can be computed by
+\code{AIC(object, ..., k = 2 * log(log(nobs(object))))} with \code{\link[stats:AIC]{stats::AIC()}}.
+}
+\references{
+Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195. \url{https://doi.org/10.1111/j.2517-6161.1979.tb01072.x}
 }

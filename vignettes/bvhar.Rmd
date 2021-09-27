@@ -1,7 +1,5 @@
 ---
 title: "Introduction to bvhar"
-description: >
-  Brief introduction to the package.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to bvhar}
@@ -13,7 +11,6 @@ vignette: >
   \newcommand{\E}{\boldsymbol\epsilon}
   \DeclareMathOperator*{\argmin}{argmin}
   \DeclareMathOperator*{\argmax}{argmax}
-  \newcommand{\defn}{\mathpunct{:}=}
   \newcommand{\X}{\mathbf{X}}
   \newcommand{\Y}{\mathbf{Y}}
   \newcommand{\by}{\mathbf{y}}
@@ -25,6 +22,7 @@ vignette: >
   \def\Var{\mathrm{Var}}
   \def\Corr{\mathrm{Corr}}
   \def\vec{\mathrm{vec}}
+  \newcommand{\defn}{\mathpunct{:}=}
 ---
 
 ```{r rmdsetup, include = FALSE}
@@ -34,8 +32,7 @@ knitr::opts_chunk$set(
   out.width = "70%",
   fig.align = "center",
   fig.width = 6,
-  fig.asp = .618,
-  fig.pos = "H"
+  fig.asp = .618
   )
 options(digits = 3)
 ```

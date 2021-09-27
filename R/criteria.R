@@ -184,6 +184,7 @@ logLik.bvharmn <- function(object, ...) {
 #' Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -212,13 +213,52 @@ logLik.bvharmn <- function(object, ...) {
 #' @importFrom stats AIC
 #' 
 #' @export
-AIC.varlse <- function(object, ...) {
-  SIG <- object$covmat # crossprod(COV) / (s - k)
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + 2 / s * m * k # penalty = (2 / s) * number of freely estimated parameters
+AIC.varlse <- function(object, type = c("loglik", "rss"), ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        AIC()
+    },
+    "rss" = {
+      SIG <- object$covmat # crossprod(COV) / (s - k)
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+      log(sig_det) + 2 / s * m * k # penalty = (2 / s) * number of freely estimated parameters
+    }
+  )
+}
+
+#' @rdname AIC.varlse
+#' 
+#' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
+#' @param ... not used
+#' 
+#' @importFrom stats AIC
+#' @export
+AIC.vharlse <- function(object, type = c("loglik", "rss"), ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        AIC()
+    },
+    "rss" = {
+      SIG <- object$covmat
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m
+      log(sig_det) + 2 / s * m * k
+    }
+  )
 }
 
 #' @rdname AIC.varlse
@@ -228,13 +268,36 @@ AIC.varlse <- function(object, ...) {
 #' 
 #' @importFrom stats AIC
 #' @export
-AIC.vharlse <- function(object, ...) {
-  SIG <- object$covmat
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + 2 / s * m * k
+AIC.bvarmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
+}
+
+#' @rdname AIC.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @importFrom stats AIC
+#' @export
+AIC.bvarflat <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
+}
+
+#' @rdname AIC.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @importFrom stats AIC
+#' @export
+AIC.bvharmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
 }
 
 #' Final Prediction Error Criterion
@@ -296,6 +359,7 @@ FPE.vharlse <- function(object, ...) {
 #' Compute BIC of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -318,13 +382,52 @@ FPE.vharlse <- function(object, ...) {
 #' @importFrom stats BIC
 #' 
 #' @export
-BIC.varlse <- function(object, ...) {
-  SIG <- object$covmat # crossprod(COV) / (s - k)
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + log(s) / s * m * k # replace 2 / s with log(s) / s
+BIC.varlse <- function(object, type = c("loglik", "rss"), ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        BIC()
+    },
+    "rss" = {
+      SIG <- object$covmat # crossprod(COV) / (s - k)
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+      log(sig_det) + log(s) / s * m * k # replace 2 / s with log(s) / s
+    }
+  )
+}
+
+#' @rdname BIC.varlse
+#' 
+#' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
+#' @param ... not used
+#' 
+#' @importFrom stats BIC
+#' @export
+BIC.vharlse <- function(object, type = c("loglik", "rss"), ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        BIC()
+    },
+    "rss" = {
+      SIG <- object$covmat
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m
+      log(sig_det) + log(s) / s * m * k
+    }
+  )
 }
 
 #' @rdname BIC.varlse
@@ -334,13 +437,36 @@ BIC.varlse <- function(object, ...) {
 #' 
 #' @importFrom stats BIC
 #' @export
-BIC.vharlse <- function(object, ...) {
-  SIG <- object$covmat
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + log(s) / s * m * k
+BIC.bvarmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    BIC()
+}
+
+#' @rdname BIC.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @importFrom stats BIC
+#' @export
+BIC.bvarflat <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    BIC()
+}
+
+#' @rdname BIC.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @importFrom stats BIC
+#' @export
+BIC.bvharmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    BIC()
 }
 
 #' Hannan-Quinn Criterion
@@ -355,11 +481,30 @@ HQ <- function(object, ...) {
   UseMethod("HQ", object)
 }
 
+#' @rdname HQ
+#' 
+#' @details 
+#' The formula is
+#' 
+#' \deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(n)}
+#' 
+#' whic can be computed by
+#' `AIC(object, ..., k = 2 * log(log(nobs(object))))` with [stats::AIC()].
+#' 
+#' @references Hannan, E.J. and Quinn, B.G. (1979). *The Determination of the Order of an Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195. [https://doi.org/10.1111/j.2517-6161.1979.tb01072.x](https://doi.org/10.1111/j.2517-6161.1979.tb01072.x)
+#' 
+#' @importFrom stats AIC
+#' @export
+HQ.logLik <- function(object, ...) {
+  AIC(object, k = 2 * log(log(nobs(object))))
+}
+
 #' Hannan-Quinn Criterion of Multivariate Time Series Model
 #' 
 #' Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -382,13 +527,51 @@ HQ <- function(object, ...) {
 #' Quinn, B.G. (1980). *Order Determination for a Multivariate Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185. [https://doi.org/10.1111/j.2517-6161.1980.tb01116.x](https://doi.org/10.1111/j.2517-6161.1980.tb01116.x)
 #' 
 #' @export
-HQ.varlse <- function(object, ...) {
-  SIG <- object$covmat # crossprod(COV) / (s - k)
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + 2 * log(log(s)) / s * m * k # replace log(s) / s with log(log(s)) / s
+HQ.varlse <- function(object, type = c("loglik", "rss"), ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        HQ()
+    },
+    "rss" = {
+      SIG <- object$covmat # crossprod(COV) / (s - k)
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
+      log(sig_det) + 2 * log(log(s)) / s * m * k # replace log(s) / s with log(log(s)) / s
+    }
+  )
+}
+
+#' @rdname HQ.varlse
+#' 
+#' @param object Model fit
+#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
+#' @param ... not used
+#' 
+#' @export
+HQ.vharlse <- function(object, ...) {
+  type <- match.arg(type)
+  switch(
+    type,
+    "loglik" = {
+      object %>% 
+        logLik() %>% 
+        HQ()
+    },
+    "rss" = {
+      SIG <- object$covmat
+      m <- object$m
+      k <- object$df
+      s <- object$obs
+      sig_det <- det(SIG) * ((s - k) / s)^m
+      log(sig_det) + 2 * log(log(s)) / s * m * k
+    }
+  )
 }
 
 #' @rdname HQ.varlse
@@ -397,11 +580,98 @@ HQ.varlse <- function(object, ...) {
 #' @param ... not used
 #' 
 #' @export
-HQ.vharlse <- function(object, ...) {
-  SIG <- object$covmat
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + 2 * log(log(s)) / s * m * k
+HQ.bvarmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    HQ()
 }
+
+#' @rdname HQ.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @export
+HQ.bvarflat <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    HQ()
+}
+
+#' @rdname HQ.varlse
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @export
+HQ.bvharmn <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
+}
+
+#' Deviance Information Criterion
+#' 
+#' Generic function that computes DIC.
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' 
+#' @export
+compute_dic <- function(object, ...) {
+  UseMethod("compute_dic", object)
+}
+
+#' Deviance Information Criterion of Multivariate Time Series Model
+#' 
+#' Compute DIC of BVAR and BVHAR
+#' 
+#' @param object Model fit
+#' @param n_iter Number to sample
+#' @param ... not used
+#' @details 
+#' Deviance information criteria (DIC) is
+#' 
+#' \deqn{- 2 \log p(y \mid \hat\theta_{bayes}) + 2 p_{DIC}}
+#' 
+#' where \eqn{p_{DIC}} is the effective number of parameters defined by
+#' 
+#' \deqn{p_{DIC} = 2 ( \log p(y \mid \hat\theta_{bayes}) - E_{post} \log p(y \mid \theta) )}
+#' 
+#' Random sampling from posterior distribution gives its computation, \eqn{\theta_i \sim \theta \mid y, i = 1, \ldots, M}
+#' 
+#' \deqn{p_{DIC}^{computed} = 2 ( \log p(y \mid \hat\theta_{bayes}) - \frac{1}{M} \sum_i \log p(y \mid \theta_i) )}
+#' 
+#' @references 
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
+#' 
+#' Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and Van Der Linde, A. (2002). *Bayesian measures of model complexity and fit*. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 64: 583-639. [https://doi.org/10.1111/1467-9868.00353](https://doi.org/10.1111/1467-9868.00353)
+#' 
+#' @importFrom mniw dMNorm
+#' @export
+compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
+  rand_gen <- summary(object, n_iter = n_iter)
+  bmat_gen <- rand_gen$coefficients
+  covmat_gen <- rand_gen$covmat
+  log_lik <- 
+    object %>% 
+    logLik() %>% 
+    as.numeric()
+  post_mean <- 
+    lapply(
+      1:n_iter,
+      function(i) {
+        dMNorm(
+          X = object$y0,
+          Lambda = object$design %*% bmat_gen[,, i],
+          SigmaR = diag(object$obs),
+          SigmaC = covmat_gen[,, i] / (object$iw_shape - object$m - 1),
+          log = TRUE
+        )
+      }
+    ) %>% 
+    unlist()
+  eff_num <- 2 * (log_lik - mean(post_mean))
+  -2 * log_lik + 2 * eff_num
+}
+

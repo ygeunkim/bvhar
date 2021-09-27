@@ -1,8 +1,5 @@
 ---
 title: "Forecasting"
-description: >
-  See how to forecast multivariate time series
-  using this package.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Forecasting}
@@ -28,26 +25,21 @@ vignette: >
   \def\vec{\mathrm{vec}}
 ---
 
-```{r setup, include = FALSE}
+```{r rmdsetup, include = FALSE}
 knitr::opts_chunk$set(
   comment = "#>",
   collapse = TRUE,
   out.width = "70%",
   fig.align = "center",
   fig.width = 6,
-  fig.asp = .618,
-  fig.pos = "H"
+  fig.asp = .618
   )
 options(digits = 3)
+set.seed(1)
 ```
 
-```{r pkgs}
+```{r setup}
 library(bvhar)
-```
-
-```{r addpkgs, message=FALSE}
-# for this vignette--------------
-library(dplyr)
 ```
 
 # Simulation
@@ -62,7 +54,7 @@ We use coefficient matrix estimated by VAR in introduction vignette.
 ```{r, echo=FALSE}
 etf_eval <- 
   etf_vix %>% 
-  select(GVZCLS, OVXCLS, EVZCLS, VXFXICLS) %>% 
+  dplyr::select(GVZCLS, OVXCLS, EVZCLS, VXFXICLS) %>% 
   divide_ts(19)
 etf_train <- etf_eval$train
 etf_test <- etf_eval$test
@@ -80,7 +72,6 @@ Then
 
 ```{r}
 m <- ncol(ex_fit$coefficients)
-set.seed(1)
 # generate VAR(5)-----------------
 y <- sim_var(
   1500, 
@@ -244,9 +235,9 @@ MSE:
 
 ```{r}
 autoplot(pred_var, x_cut = 1400, ci_alpha = .7) +
-  autolayer(pred_vhar, ci_alpha = .5) +
-  # autolayer(pred_bvar, ci_alpha = .4) +
-  autolayer(pred_bvhar_v1, ci_alpha = .2) +
+  # autolayer(pred_vhar, ci_alpha = .5) +
+  autolayer(pred_bvar, ci_alpha = .4) +
+  # autolayer(pred_bvhar_v1, ci_alpha = .2) +
   autolayer(pred_bvhar_v2, ci_alpha = .1)
 ```
 

@@ -75,7 +75,7 @@ is.stable.varlse <- function(x, ...) {
 #' }
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @importFrom stats cor
 #' @order 1
@@ -97,6 +97,7 @@ summary.varlse <- function(object, ...) {
       }
     )
   if (object$type == "const") bhat_mat$intercept <- object$coefficients[object$m * object$p + 1,]
+  log_lik <- logLik(object)
   res <- list(
     names = var_name,
     totobs = object$totobs,
@@ -110,11 +111,11 @@ summary.varlse <- function(object, ...) {
     corrmat = cor(object$residuals),
     roots = stableroot(object),
     is_stable = is.stable(object),
+    log_lik = log_lik,
     ic = c(
-      AIC = AIC(object),
-      BIC = BIC(object),
-      HQ = HQ(object),
-      FPE = FPE(object)
+      AIC = AIC(log_lik),
+      BIC = BIC(log_lik),
+      HQ = HQ(log_lik)
     )
   )
   class(res) <- "summary.varlse"

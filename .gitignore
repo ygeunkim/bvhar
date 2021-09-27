@@ -36,8 +36,7 @@ vignettes/*.pdf
 *.knit.md
 inst/doc
 
-# C++
-
-# macos
 *.DS_Store
 docs
+doc
+Meta

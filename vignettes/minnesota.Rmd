@@ -1,53 +1,27 @@
 ---
 title: "Minnesota Prior"
-description: >
-  Learn about Minnesota prior
-  and its hyperparameters.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Minnesota Prior}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  \newcommand{\R}{\mathbb{R}}
-  \newcommand{\B}{\boldsymbol\beta}
-  \newcommand{\hb}{\boldsymbol{\hat\beta}}
-  \newcommand{\E}{\boldsymbol\epsilon}
-  \DeclareMathOperator*{\argmin}{argmin}
-  \DeclareMathOperator*{\argmax}{argmax}
-  \newcommand{\defn}{\mathpunct{:}=}
-  \newcommand{\X}{\mathbf{X}}
-  \newcommand{\Y}{\mathbf{Y}}
-  \newcommand{\by}{\mathbf{y}}
-  \newcommand{\bz}{\mathbf{Z}}
-  \newcommand{\ba}{\boldsymbol{\alpha}}
-  \newcommand{\bc}{\mathbf{c}}
-  \newcommand{\bu}{\mathbf{u}}
-  \def\Cov{\mathrm{Cov}}
-  \def\Var{\mathrm{Var}}
-  \def\Corr{\mathrm{Corr}}
-  \def\vec{\mathrm{vec}}
 ---
 
-```{r setup, include = FALSE}
+```{r rmdsetup, include = FALSE}
 knitr::opts_chunk$set(
   comment = "#>",
   collapse = TRUE,
   out.width = "70%",
   fig.align = "center",
   fig.width = 6,
-  fig.asp = .618,
-  fig.pos = "H"
+  fig.asp = .618
   )
 options(digits = 3)
+set.seed(1)
 ```
 
-```{r pkgs}
+```{r setup}
 library(bvhar)
-```
-
-```{r addpkgs, message=FALSE}
-# for this vignette--------------
-library(dplyr)
 ```
 
 # Minnesota Prior

@@ -84,7 +84,9 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   # variables--------------------------
   cat("Variables: ")
   cat(paste(x$names, collapse = ", "))
-  cat("\nwith const added\n")
+  if (x$type == "const") {
+    cat("\nwith const added\n")
+  }
   cat(
     paste("Number of variables:", "m =", length(x$names))
   )
@@ -95,7 +97,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   )
   cat("\n")
   cat(
-    paste("Number of sample used for fitting:", "n - p =", x$obs)
+    paste("Number of sample used for fitting:", "s = n - p =", x$obs)
   )
   # stability--------------------------
   cat("\n\nCharacteristic polynomial roots:\n")
@@ -105,7 +107,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   )
   cat("\n====================================================\n")
   for (i in 1:(x$p)) {
-    cat(sprintf("OLS for B%i:\n", i))
+    cat(sprintf("LSE for B%i:\n", i))
     # print Bi----------------------
     print.default(
       x$coefficients[[i]],
@@ -116,7 +118,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     cat("\n\n")
   }
   if (x$type == "const") {
-    cat("OLS for constant:\n")
+    cat("LSE for constant:\n")
     # print c-------------------------
     print.default(
       x$coefficients$intercept,
@@ -127,12 +129,14 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     cat("\n====================================================\n")
   }
   # cov and corr-----------------------------
-  cat("Covariance matrix of the residuals:\n")
+  cat("LS Estimate for Covariance matrix:\n")
   print(x$covmat)
-  cat("\nCorrelation matrix of the residuals:\n")
+  cat("\nLS Estimate for Correlation matrix:\n")
   print(x$corrmat)
   # information criteria--------------------
   cat("\n====================================================\n")
+  cat("log-likelihood:\n")
+  print(x$log_lik)
   cat("Information criteria:\n")
   print(x$ic)
 }
