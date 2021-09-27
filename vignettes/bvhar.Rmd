@@ -27,7 +27,7 @@ vignette: >
   \def\vec{\mathrm{vec}}
 ---
 
-```{r setup, include = FALSE}
+```{r rmdsetup, include = FALSE}
 knitr::opts_chunk$set(
   comment = "#>",
   collapse = TRUE,
@@ -40,13 +40,8 @@ knitr::opts_chunk$set(
 options(digits = 3)
 ```
 
-```{r pkgs}
+```{r setup}
 library(bvhar)
-```
-
-```{r addpkgs, message=FALSE}
-# for this vignette--------------
-library(dplyr)
 ```
 
 # Data
@@ -63,7 +58,7 @@ Since this is just an example, we aribitrarily extract a small number of variabl
 var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
 etf <- 
   etf_vix %>% 
-  select(all_of(var_idx))
+  dplyr::select(dplyr::all_of(var_idx))
 etf
 ```
 

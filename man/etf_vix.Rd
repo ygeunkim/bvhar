@@ -3,7 +3,7 @@
 \docType{data}
 \name{etf_vix}
 \alias{etf_vix}
-\title{CBOE ETF Volatility Index}
+\title{CBOE ETF Volatility Index Dataset}
 \format{
 A data frame of 1006 row and 9 columns:
 

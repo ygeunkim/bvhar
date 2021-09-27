@@ -22,13 +22,13 @@ Let \eqn{\tilde{\Sigma}_e} be the MLE
 and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from \code{\link[=compute_cov]{compute_cov()}} and the member named \code{covmat}) for \eqn{\Sigma_e}.
 Note that
 
-\deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
+\deqn{\tilde{\Sigma}_e = \frac{s - k}{s} \hat{\Sigma}_e}
 
 Then
 
 \deqn{AIC(p) = \log \det \Sigma_e + \frac{2}{s}(\text{number of freely estimated parameters})}
 
-where the number of freely estimated parameters is \eqn{pm^2}.
+where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

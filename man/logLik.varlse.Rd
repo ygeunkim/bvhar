@@ -27,12 +27,28 @@
 Compute log-likelihood function value of VAR(p), VHAR, BVAR(p), and BVHAR
 }
 \details{
-Consider Y0 matrix from \code{\link[=build_y0]{build_y0()}}.
+Consider \eqn{Y_0} matrix from \code{\link[=build_y0]{build_y0()}}.
+Let \eqn{n} be the total number of sample,
+let \eqn{m} be the dimension of the time series,
+let \eqn{p} be the order of the model,
+and let \eqn{s = n - p}.
 Likelihood of VAR(p) has
 
-\deqn{Y_0 \sim MN(X_0 B, I_s, \Sigma_e)}
+\deqn{Y_0 \mid B, \Sigma_e \sim MN(X_0 B, I_s, \Sigma_e)}
 
-where X0 from \code{\link[=build_design]{build_design()}}.
+where \eqn{X_0} from \code{\link[=build_design]{build_design()}},
+and MN is \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal distribution}.
+
+Then log-likelihood of vector autoregressive model family is specified by
+
+\deqn{\log p(Y_0 \mid B, \Sigma_e) = - \frac{sm}{2} \log 2\pi - \frac{s}{2} \log \det \Sigma_e - \frac{1}{2} tr( (Y_0 - X_0 B) \Sigma_e^{-1} (Y_0 - X_0 B)^T )}
+
+In addition, recall that the OLS estimator for the matrix coefficient matrix is the same as MLE under the Gaussian assumption.
+MLE for \eqn{\Sigma_e} has different denominator, \eqn{s}.
+
+\deqn{\hat{B} = \hat{B}^{LS} = \hat{B}^{ML} = (X_0^T X_0)^{-1} X_0^T Y_0}
+\deqn{\hat\Sigma_e = \frac{1}{s - k} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B})}
+\deqn{\tilde\Sigma_e = \frac{1}{s} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B}) = \frac{s - k}{s} \hat\Sigma_e}
 
 In case of VHAR, just consider the linear relationship.
 
@@ -48,4 +64,15 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+}
+\seealso{
+\code{\link[=var_lm]{var_lm()}}
+
+\code{\link[=vhar_lm]{vhar_lm()}}
+
+\code{\link[=bvar_minnesota]{bvar_minnesota()}}
+
+\code{\link[=bvar_flat]{bvar_flat()}}
+
+\code{\link[=bvhar_minnesota]{bvhar_minnesota()}}
 }

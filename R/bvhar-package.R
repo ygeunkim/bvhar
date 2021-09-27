@@ -1,5 +1,5 @@
-#' @useDynLib bvhar, .registration = TRUE
 #' @keywords internal
+#' @useDynLib bvhar, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @details 
 #' `r lifecycle::badge("experimental")`
@@ -30,5 +30,6 @@
 # The following block is used by usethis to automatically manage
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
+#' @importFrom lifecycle deprecated is_present deprecate_warn deprecate_soft
 ## usethis namespace: end
 NULL

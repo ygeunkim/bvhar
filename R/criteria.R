@@ -5,22 +5,42 @@
 #' @param object Model fit
 #' @param ... not used
 #' @details 
-#' Consider Y0 matrix from [build_y0()].
+#' Consider \eqn{Y_0} matrix from [build_y0()].
+#' Let \eqn{n} be the total number of sample,
+#' let \eqn{m} be the dimension of the time series,
+#' let \eqn{p} be the order of the model,
+#' and let \eqn{s = n - p}.
 #' Likelihood of VAR(p) has
 #' 
-#' \deqn{Y_0 \sim MN(X_0 B, I_s, \Sigma_e)}
+#' \deqn{Y_0 \mid B, \Sigma_e \sim MN(X_0 B, I_s, \Sigma_e)}
 #' 
-#' where X0 from [build_design()].
+#' where \eqn{X_0} from [build_design()],
+#' and MN is [matrix normal distribution](https://en.wikipedia.org/wiki/Matrix_normal_distribution).
+#' 
+#' Then log-likelihood of vector autoregressive model family is specified by
+#' 
+#' \deqn{\log p(Y_0 \mid B, \Sigma_e) = - \frac{sm}{2} \log 2\pi - \frac{s}{2} \log \det \Sigma_e - \frac{1}{2} tr( (Y_0 - X_0 B) \Sigma_e^{-1} (Y_0 - X_0 B)^T )}
+#' 
+#' In addition, recall that the OLS estimator for the matrix coefficient matrix is the same as MLE under the Gaussian assumption.
+#' MLE for \eqn{\Sigma_e} has different denominator, \eqn{s}.
+#' 
+#' \deqn{\hat{B} = \hat{B}^{LS} = \hat{B}^{ML} = (X_0^T X_0)^{-1} X_0^T Y_0}
+#' \deqn{\hat\Sigma_e = \frac{1}{s - k} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B})}
+#' \deqn{\tilde\Sigma_e = \frac{1}{s} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B}) = \frac{s - k}{s} \hat\Sigma_e}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
+#' @seealso [var_lm()]
+#' 
 #' @importFrom stats logLik
 #' @importFrom mniw dMNorm
+#' 
 #' @export
 logLik.varlse <- function(object, ...) {
   obs <- object$obs
   k <- object$df
-  cov_mle <- object$covmat * (obs - k) / object$totobs # MLE = (s - k) / n * LS
+  m <- object$m
+  cov_mle <- object$covmat * (obs - k) / obs # MLE = (s - k) / s * LS
   log_lik <- dMNorm(
     X = object$y0,
     Lambda = object$fitted.values,
@@ -29,7 +49,7 @@ logLik.varlse <- function(object, ...) {
     log = TRUE
   )
   class(log_lik) <- "logLik"
-  attr(log_lik, "df") <- k * object$m
+  attr(log_lik, "df") <- k * m + m^2 # cf, mk + m if iid
   attr(log_lik, "nobs") <- obs
   log_lik
 }
@@ -43,13 +63,16 @@ logLik.varlse <- function(object, ...) {
 #' 
 #' @references Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. [https://doi:10.1093/jjfinec/nbp001](https://doi:10.1093/jjfinec/nbp001)
 #' 
+#' @seealso [vhar_lm()]
+#' 
 #' @importFrom stats logLik
 #' @importFrom mniw dMNorm
 #' @export
 logLik.vharlse <- function(object, ...) {
   obs <- object$obs
   k <- object$df
-  cov_mle <- object$covmat * (obs - k) / object$totobs
+  m <- object$m
+  cov_mle <- object$covmat * (obs - k) / obs
   log_lik <- dMNorm(
     X = object$y0,
     Lambda = object$fitted.values,
@@ -58,7 +81,7 @@ logLik.vharlse <- function(object, ...) {
     log = TRUE
   )
   class(log_lik) <- "logLik"
-  attr(log_lik, "df") <- k * object$m
+  attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
   log_lik
 }
@@ -74,6 +97,8 @@ logLik.vharlse <- function(object, ...) {
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' 
+#' @seealso [bvar_minnesota()]
 #' 
 #' @importFrom stats logLik
 #' @importFrom mniw dMNorm
@@ -91,7 +116,7 @@ logLik.bvarmn <- function(object, ...) {
     log = TRUE
   )
   class(log_lik) <- "logLik"
-  attr(log_lik, "df") <- k * m
+  attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
   log_lik
 }
@@ -102,6 +127,8 @@ logLik.bvarmn <- function(object, ...) {
 #' @param ... not used
 #' 
 #' @references Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' 
+#' @seealso [bvar_flat()]
 #' 
 #' @importFrom stats logLik
 #' @importFrom mniw dMNorm
@@ -119,7 +146,7 @@ logLik.bvarflat <- function(object, ...) {
     log = TRUE
   )
   class(log_lik) <- "logLik"
-  attr(log_lik, "df") <- k * m
+  attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
   log_lik
 }
@@ -128,6 +155,8 @@ logLik.bvarflat <- function(object, ...) {
 #' 
 #' @param object Model fit
 #' @param ... not used
+#' 
+#' @seealso [bvhar_minnesota()]
 #' 
 #' @importFrom stats logLik
 #' @importFrom mniw dMNorm
@@ -145,7 +174,7 @@ logLik.bvharmn <- function(object, ...) {
     log = TRUE
   )
   class(log_lik) <- "logLik"
-  attr(log_lik, "df") <- k * m
+  attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
   log_lik
 }
@@ -161,13 +190,13 @@ logLik.bvharmn <- function(object, ...) {
 #' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from [compute_cov()] and the member named `covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
-#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
+#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{s} \hat{\Sigma}_e}
 #' 
 #' Then
 #' 
 #' \deqn{AIC(p) = \log \det \Sigma_e + \frac{2}{s}(\text{number of freely estimated parameters})}
 #' 
-#' where the number of freely estimated parameters is \eqn{pm^2}.
+#' where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
 #' 
 #' @references
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
@@ -181,6 +210,7 @@ logLik.bvharmn <- function(object, ...) {
 #' Akaike H. (1974). *A new look at the statistical model identification*. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723. doi: [10.1109/TAC.1974.1100705](https://ieeexplore.ieee.org/document/1100705).
 #' 
 #' @importFrom stats AIC
+#' 
 #' @export
 AIC.varlse <- function(object, ...) {
   SIG <- object$covmat # crossprod(COV) / (s - k)
@@ -188,7 +218,7 @@ AIC.varlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + 2 / s * object$p * m^2 # penalty = (2 / s) * p * m^2
+  log(sig_det) + 2 / s * m * k # penalty = (2 / s) * number of freely estimated parameters
 }
 
 #' @rdname AIC.varlse
@@ -204,7 +234,7 @@ AIC.vharlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + 2 / s * 3 * m^2
+  log(sig_det) + 2 / s * m * k
 }
 
 #' Final Prediction Error Criterion
@@ -286,6 +316,7 @@ FPE.vharlse <- function(object, ...) {
 #' Gideon Schwarz. (1978). *Estimating the Dimension of a Model*. Ann. Statist. 6 (2) 461 - 464. [https://doi.org/10.1214/aos/1176344136](https://doi.org/10.1214/aos/1176344136)
 #' 
 #' @importFrom stats BIC
+#' 
 #' @export
 BIC.varlse <- function(object, ...) {
   SIG <- object$covmat # crossprod(COV) / (s - k)
@@ -293,7 +324,7 @@ BIC.varlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + log(s) / s * object$p * m^2 # penalty = (log(s) / s) * p * m^2
+  log(sig_det) + log(s) / s * m * k # replace 2 / s with log(s) / s
 }
 
 #' @rdname BIC.varlse
@@ -309,7 +340,7 @@ BIC.vharlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + log(s) / s * 3 * m^2
+  log(sig_det) + log(s) / s * m * k
 }
 
 #' Hannan-Quinn Criterion
@@ -357,7 +388,7 @@ HQ.varlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-  log(sig_det) + 2 * log(log(s)) / s * object$p * m^2 # penalty = (2 * log(log(s)) / s) * p * m^2
+  log(sig_det) + 2 * log(log(s)) / s * m * k # replace log(s) / s with log(log(s)) / s
 }
 
 #' @rdname HQ.varlse
@@ -372,5 +403,5 @@ HQ.vharlse <- function(object, ...) {
   k <- object$df
   s <- object$obs
   sig_det <- det(SIG) * ((s - k) / s)^m
-  log(sig_det) + 2 * log(log(s)) / s * 3 * m^2
+  log(sig_det) + 2 * log(log(s)) / s * m * k
 }
