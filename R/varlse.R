@@ -145,9 +145,9 @@ choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
     res <- foreach(p = 1:lag_max, .combine = rbind) %dopar% {
       var_list <- var_lm(y, p, include_mean = include_mean)
       c(
-        "AIC" = AIC(var_list),
-        "BIC" = BIC(var_list),
-        "HQ" = HQ(var_list),
+        "AIC" = AIC(var_list, type = "rss"),
+        "BIC" = BIC(var_list, type = "rss"),
+        "HQ" = HQ(var_list, type = "rss"),
         "FPE" = FPE(var_list)
       )
     }
@@ -155,9 +155,9 @@ choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
     res <- foreach(p = 1:lag_max, .combine = rbind) %do% {
       var_list <- var_lm(y, p, include_mean = include_mean)
       c(
-        "AIC" = AIC(var_list),
-        "BIC" = BIC(var_list),
-        "HQ" = HQ(var_list),
+        "AIC" = AIC(var_list, type = "rss"),
+        "BIC" = BIC(var_list, type = "rss"),
+        "HQ" = HQ(var_list, type = "rss"),
         "FPE" = FPE(var_list)
       )
     }

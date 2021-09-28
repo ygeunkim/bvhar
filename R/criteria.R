@@ -33,21 +33,21 @@
 #' @seealso [var_lm()]
 #' 
 #' @importFrom stats logLik
-#' @importFrom mniw dMNorm
-#' 
 #' @export
 logLik.varlse <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
   cov_mle <- object$covmat * (obs - k) / obs # MLE = (s - k) / s * LS
-  log_lik <- dMNorm(
-    X = object$y0,
-    Lambda = object$fitted.values,
-    SigmaR = diag(obs),
-    SigmaC = cov_mle,
-    log = TRUE
-  )
+  zhat <- object$residuals
+  log_lik <- 
+    -obs * m / 2 * log(2 * pi) - 
+    obs / 2 * log(det(cov_mle)) - 
+    sum(
+      diag(
+        zhat %*% solve(cov_mle) %*% t(zhat)
+      )
+    ) / 2
   class(log_lik) <- "logLik"
   attr(log_lik, "df") <- k * m + m^2 # cf, mk + m if iid
   attr(log_lik, "nobs") <- obs
@@ -66,20 +66,21 @@ logLik.varlse <- function(object, ...) {
 #' @seealso [vhar_lm()]
 #' 
 #' @importFrom stats logLik
-#' @importFrom mniw dMNorm
 #' @export
 logLik.vharlse <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
   cov_mle <- object$covmat * (obs - k) / obs
-  log_lik <- dMNorm(
-    X = object$y0,
-    Lambda = object$fitted.values,
-    SigmaR = diag(obs),
-    SigmaC = cov_mle,
-    log = TRUE
-  )
+  zhat <- object$residuals
+  log_lik <- 
+    -obs * m / 2 * log(2 * pi) - 
+    obs / 2 * log(det(cov_mle)) - 
+    sum(
+      diag(
+        zhat %*% solve(cov_mle) %*% t(zhat)
+      )
+    ) / 2
   class(log_lik) <- "logLik"
   attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
@@ -101,20 +102,21 @@ logLik.vharlse <- function(object, ...) {
 #' @seealso [bvar_minnesota()]
 #' 
 #' @importFrom stats logLik
-#' @importFrom mniw dMNorm
 #' @export
 logLik.bvarmn <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
   posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
-  log_lik <- dMNorm(
-    X = object$y0,
-    Lambda = object$fitted.values,
-    SigmaR = diag(obs),
-    SigmaC = posterior_cov,
-    log = TRUE
-  )
+  zhat <- object$residuals
+  log_lik <- 
+    -obs * m / 2 * log(2 * pi) - 
+    obs / 2 * log(det(posterior_cov)) - 
+    sum(
+      diag(
+        zhat %*% solve(posterior_cov) %*% t(zhat)
+      )
+    ) / 2
   class(log_lik) <- "logLik"
   attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
@@ -131,20 +133,21 @@ logLik.bvarmn <- function(object, ...) {
 #' @seealso [bvar_flat()]
 #' 
 #' @importFrom stats logLik
-#' @importFrom mniw dMNorm
 #' @export
 logLik.bvarflat <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
   posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
-  log_lik <- dMNorm(
-    X = object$y0,
-    Lambda = object$fitted.values,
-    SigmaR = diag(obs),
-    SigmaC = posterior_cov,
-    log = TRUE
-  )
+  zhat <- object$residuals
+  log_lik <- 
+    -obs * m / 2 * log(2 * pi) - 
+    obs / 2 * log(det(posterior_cov)) - 
+    sum(
+      diag(
+        zhat %*% solve(posterior_cov) %*% t(zhat)
+      )
+    ) / 2
   class(log_lik) <- "logLik"
   attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
@@ -159,20 +162,21 @@ logLik.bvarflat <- function(object, ...) {
 #' @seealso [bvhar_minnesota()]
 #' 
 #' @importFrom stats logLik
-#' @importFrom mniw dMNorm
 #' @export
 logLik.bvharmn <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
   posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
-  log_lik <- dMNorm(
-    X = object$y0,
-    Lambda = object$fitted.values,
-    SigmaR = diag(obs),
-    SigmaC = posterior_cov,
-    log = TRUE
-  )
+  zhat <- object$residuals
+  log_lik <- 
+    -obs * m / 2 * log(2 * pi) - 
+    obs / 2 * log(det(posterior_cov)) - 
+    sum(
+      diag(
+        zhat %*% solve(posterior_cov) %*% t(zhat)
+      )
+    ) / 2
   class(log_lik) <- "logLik"
   attr(log_lik, "df") <- k * m + m^2
   attr(log_lik, "nobs") <- obs
@@ -493,7 +497,7 @@ HQ <- function(object, ...) {
 #' 
 #' @references Hannan, E.J. and Quinn, B.G. (1979). *The Determination of the Order of an Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195. [https://doi.org/10.1111/j.2517-6161.1979.tb01072.x](https://doi.org/10.1111/j.2517-6161.1979.tb01072.x)
 #' 
-#' @importFrom stats AIC
+#' @importFrom stats AIC nobs
 #' @export
 HQ.logLik <- function(object, ...) {
   AIC(object, k = 2 * log(log(nobs(object))))
@@ -647,7 +651,6 @@ compute_dic <- function(object, ...) {
 #' 
 #' Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and Van Der Linde, A. (2002). *Bayesian measures of model complexity and fit*. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 64: 583-639. [https://doi.org/10.1111/1467-9868.00353](https://doi.org/10.1111/1467-9868.00353)
 #' 
-#' @importFrom mniw dMNorm
 #' @export
 compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
   rand_gen <- summary(object, n_iter = n_iter)
@@ -657,17 +660,21 @@ compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
     object %>% 
     logLik() %>% 
     as.numeric()
+  obs <- object$obs
+  m <- object$m
   post_mean <- 
     lapply(
       1:n_iter,
       function(i) {
-        dMNorm(
-          X = object$y0,
-          Lambda = object$design %*% bmat_gen[,, i],
-          SigmaR = diag(object$obs),
-          SigmaC = covmat_gen[,, i] / (object$iw_shape - object$m - 1),
-          log = TRUE
-        )
+        zhat <- object$y0 - object$design %*% bmat_gen[,, i]
+        posterior_cov <- covmat_gen[,, i] / (object$iw_shape - m - 1)
+        -obs * m / 2 * log(2 * pi) - 
+          obs / 2 * log(det(posterior_cov)) - 
+          sum(
+            diag(
+              zhat %*% solve(posterior_cov) %*% t(zhat)
+            )
+          ) / 2
       }
     ) %>% 
     unlist()
