@@ -7,8 +7,8 @@
 \format{
 A data frame of 1006 row and 9 columns:
 
-From 2015-01-02 to 2018-12-31,
-excluding NA, i.e. non-trading dates.
+From 2015-01-05 to 2018-12-28,
+36 missing observations were interpolated by \code{\link[stats:approxfun]{stats::approx()}} with \code{linear}.
 \describe{
 \item{GVZCLS}{Gold ETF volatility index}
 \item{VXFXICLS}{China ETF volatility index}
@@ -36,6 +36,7 @@ Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility ind
 Copyright, 2016, Chicago Board Options Exchange, Inc.
 
 Note that, in this data frame, dates column is removed.
+This dataset interpolated 36 missing observations (nontrading dates) using \code{\link[imputeTS:na_interpolation]{imputeTS::na_interpolation()}}.
 }
 \references{
 Chicago Board Options Exchange, CBOE Gold ETF Volatility Index (GVZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/GVZCLS}, July 31, 2021.

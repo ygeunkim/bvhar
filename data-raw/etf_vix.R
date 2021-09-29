@@ -2,15 +2,20 @@
 library(readr)
 library(dplyr)
 library(purrr)
-# lists of files---------
+# lists of files------------------------------
 file_list <- list.files(
   "data-raw/etf",
   full.names = TRUE
 )
 data_list <- lapply(file_list, read_csv, na = c("", "NA", "."))
+# DATE, variables-----------------------------
+etf_vix_raw <- reduce(data_list, left_join, by = "DATE")
+# only variables and impute missing-----------
 etf_vix <- 
-  reduce(data_list, left_join, by = "DATE") %>% 
+  etf_vix_raw %>% 
   select(-DATE) %>% 
-  na.omit()
+  apply(2, imputeTS::na_interpolation) %>% 
+  as_tibble()
 
+usethis::use_data(etf_vix_raw, overwrite = TRUE)
 usethis::use_data(etf_vix, overwrite = TRUE)
