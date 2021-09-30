@@ -1,4 +1,4 @@
-#' Summarizing Vector HAR
+#' Summarizing Vector HAR Model
 #' 
 #' `summary` method for `vharlse` class.
 #' 

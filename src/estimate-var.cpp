@@ -132,4 +132,3 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   }
   return mse;
 }
-

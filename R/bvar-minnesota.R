@@ -153,7 +153,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     prior_scale = S0, # S0
     prior_shape = a0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior------------
-    mn_mean = Bhat,
+    coefficients = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Uhat,

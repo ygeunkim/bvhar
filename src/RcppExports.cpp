@@ -323,6 +323,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_stablemat
+Eigen::MatrixXd compute_stablemat(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_stablemat(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_stablemat(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // AAt_eigen
 Eigen::MatrixXd AAt_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_AAt_eigen(SEXP xSEXP, SEXP ySEXP) {
@@ -441,6 +452,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 2},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
+    {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
     {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},

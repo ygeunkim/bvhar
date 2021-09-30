@@ -13,11 +13,11 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   phihat_mat <- switch(
     x$type,
     "const" = {
-      split.data.frame(x$mn_mean[-(3 * x$m + 1),], gl(3, x$m)) %>% 
+      split.data.frame(x$coefficients[-(3 * x$m + 1),], gl(3, x$m)) %>% 
         lapply(t)
     },
     "none" = {
-      split.data.frame(x$mn_mean, gl(3, x$m)) %>% 
+      split.data.frame(x$coefficients, gl(3, x$m)) %>% 
         lapply(t)
     }
   )
@@ -39,7 +39,7 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
   # const term----------------------
   if (x$type == "const") {
-    intercept <- x$mn_mean[3 * x$m + 1,]
+    intercept <- x$coefficients[3 * x$m + 1,]
     cat("Matrix Normal Mean for constant part:\n")
     print.default(
       intercept,

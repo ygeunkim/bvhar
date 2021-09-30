@@ -25,7 +25,7 @@
 #' @order 1
 #' @export
 summary.bvarmn <- function(object, n_iter = 100L, ...) {
-  mn_mean <- object$mn_mean
+  mn_mean <- object$coefficients
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
   nu <- object$iw_shape

@@ -159,6 +159,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     design = X0,
     y0 = Y0,
     y = y,
+    p = 3, # add for other function (df = 3m + 1 = mp + 1)
     m = m, # m
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     obs = nrow(Y0), # s = n - p
@@ -175,7 +176,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     prior_scale = U0,
     prior_shape = d0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior-----------
-    mn_mean = Phihat,
+    coefficients = Phihat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Psihat,

@@ -134,7 +134,7 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     prior_mean = array(0L, dim = dim(Bhat)), # zero matrix
     prior_precision = U, # given as input
     # posterior-----------
-    mn_mean = Bhat,
+    coefficients = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Uhat,

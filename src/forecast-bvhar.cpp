@@ -14,7 +14,7 @@
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step) {
   if (!object.inherits("bvharmn")) Rcpp::stop("'object' must be bvharmn object.");
   Eigen::MatrixXd response_mat = object["y0"]; // Y0
-  Eigen::MatrixXd posterior_mean_mat = object["mn_mean"]; // Phihat = posterior mean of MN
+  Eigen::MatrixXd posterior_mean_mat = object["coefficients"]; // Phihat = posterior mean of MN
   Eigen::MatrixXd posterior_prec_mat = object["mn_prec"]; // Psihat = posterior precision of MN to compute SE
   Eigen::MatrixXd HARtrans = object["HARtrans"]; // HAR transformation
   Eigen::MatrixXd transformed_prec_mat = HARtrans.adjoint() * posterior_prec_mat.inverse() * HARtrans; // to compute SE: play a role V in BVAR

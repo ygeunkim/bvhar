@@ -21,19 +21,19 @@ coef.vharlse <- function(object, ...) {
 #' @rdname coef.varlse
 #' @export
 coef.bvarmn <- function(object, ...) {
-  object$mn_mean
+  object$coefficients
 }
 
 #' @rdname coef.varlse
 #' @export
 coef.bvarflat <- function(object, ...) {
-  object$mn_mean
+  object$coefficients
 }
 
 #' @rdname coef.varlse
 #' @export
 coef.bvharmn <- function(object, ...) {
-  object$mn_mean
+  object$coefficients
 }
 
 #' Residual Matrix from Multivariate Time Series Models

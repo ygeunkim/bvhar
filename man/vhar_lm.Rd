@@ -31,6 +31,7 @@ It is a list with the following components:
 \item{design}{\eqn{X_0}}
 \item{y0}{\eqn{Y_0}}
 \item{y}{Raw input}
+\item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}

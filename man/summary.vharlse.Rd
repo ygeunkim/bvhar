@@ -4,7 +4,7 @@
 \alias{summary.vharlse}
 \alias{print.summary.vharlse}
 \alias{knit_print.summary.vharlse}
-\title{Summarizing Vector HAR}
+\title{Summarizing Vector HAR Model}
 \usage{
 \method{summary}{vharlse}(object, ...)
 

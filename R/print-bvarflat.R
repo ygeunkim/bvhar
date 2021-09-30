@@ -13,11 +13,11 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   bhat_mat <- switch(
     x$type,
     "const" = {
-      split.data.frame(x$mn_mean[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
+      split.data.frame(x$coefficients[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
         lapply(t)
     },
     "none" = {
-      split.data.frame(x$mn_mean, gl(x$p, x$m)) %>% 
+      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
         lapply(t)
     }
   )
@@ -38,7 +38,7 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
   # const term-----------------------
   if (x$type == "const") {
-    intercept <- x$mn_mean[x$m * x$p + 1,]
+    intercept <- x$coefficients[x$m * x$p + 1,]
     cat("Matrix Normal Mean for constant part:\n")
     print.default(
       intercept,

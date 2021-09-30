@@ -16,6 +16,7 @@
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{y}{Raw input}
+#'   \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
@@ -104,6 +105,7 @@ vhar_lm <- function(y, include_mean = TRUE) {
     design = X0,
     y0 = Y0,
     y = y,
+    p = 3, # add for other function (df = 3m + 1 = mp + 1)
     m = ncol(y), # m
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     obs = nrow(Y0), # s = n - 22

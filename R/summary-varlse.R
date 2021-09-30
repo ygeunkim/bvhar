@@ -1,53 +1,3 @@
-#' Roots of characteristic polynomial
-#' @param x object
-#' @param ... not used
-#' 
-#' @export
-stableroot <- function(x, ...) {
-  UseMethod("stableroot", x)
-}
-
-#' Characteristic polynomial roots for VAR(p)
-#' 
-#' @param x \code{varlse} object
-#' @param ... not used
-#' 
-#' @export
-stableroot.varlse <- function(x, ...) {
-  m <- x$m
-  p <- x$p
-  rbind(
-    t(x$coefficients[-(m * p + 1),]), # without const term
-    cbind(
-      diag(m * (p - 1)),
-      matrix(0L, nrow = m * (p - 1), ncol = m)
-    )
-  ) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
-}
-
-#' Stability of the process
-#' 
-#' @param x object
-#' @param ... not used
-#' 
-#' @export
-is.stable <- function(x, ...) {
-  UseMethod("is.stable", x)
-}
-
-#' Stability of VAR(p)
-#' 
-#' @param x \code{varlse} object
-#' @param ... not used
-#' 
-#' @export
-is.stable.varlse <- function(x, ...) {
-  all(stableroot(x) < 1)
-}
-
 #' Summarizing Vector Autoregressive Model
 #' 
 #' `summary` method for `varlse` class.
@@ -88,7 +38,7 @@ summary.varlse <- function(object, ...) {
     switch(
       object$type,
       "const" = {
-        split.data.frame(object$coefficients[-(object$m + object$p + 1),], gl(object$p, object$m)) %>% 
+        split.data.frame(object$coefficients[-(object$m * object$p + 1),], gl(object$p, object$m)) %>% 
           lapply(t)
       },
       "none" = {

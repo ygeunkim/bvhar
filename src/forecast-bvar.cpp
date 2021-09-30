@@ -21,7 +21,7 @@
 Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
   if (!object.inherits("bvarmn")) Rcpp::stop("'object' must be bvarmn object.");
   Eigen::MatrixXd response_mat = object["y0"]; // Y0
-  Eigen::MatrixXd posterior_mean_mat = object["mn_mean"]; // bhat = posterior mean of MN
+  Eigen::MatrixXd posterior_mean_mat = object["coefficients"]; // bhat = posterior mean of MN
   Eigen::MatrixXd posterior_prec_mat = object["mn_prec"]; // vhat = posterior precision of MN to compute SE
   int dim = object["m"]; // dimension of time series
   int var_lag = object["p"]; // VAR(p)
@@ -79,7 +79,7 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
 Rcpp::List forecast_bvarmn_flat(Rcpp::List object, int step) {
   if (!object.inherits("bvarflat")) Rcpp::stop("'object' must be bvarflat object.");
   Eigen::MatrixXd response_mat = object["y0"]; // Y0
-  Eigen::MatrixXd posterior_mean_mat = object["mn_mean"]; // bhat = posterior mean of MN
+  Eigen::MatrixXd posterior_mean_mat = object["coefficients"]; // bhat = posterior mean of MN
   Eigen::MatrixXd posterior_prec_mat = object["mn_prec"]; // vhat = posterior precision of MN to compute SE
   int dim = object["m"]; // dimension of time series
   int var_lag = object["p"]; // VAR(p)
