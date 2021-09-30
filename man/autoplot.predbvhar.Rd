@@ -9,6 +9,7 @@
   object,
   type = c("grid", "wrap"),
   ci_alpha = 0.7,
+  alpha_scale = 0.3,
   x_cut = 1,
   line_type = c(`FALSE` = "dotted", `TRUE` = "solid"),
   NROW = NULL,
@@ -20,6 +21,7 @@
   object,
   ci_fill = "grey70",
   ci_alpha = 0.5,
+  alpha_scale = 0.3,
   line_type = c(`FALSE` = "dotted", `TRUE` = "solid"),
   ...
 )
@@ -30,6 +32,8 @@
 \item{type}{Divide variables using \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid}} ("grid": default) or \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}} ("wrap")}
 
 \item{ci_alpha}{Transparency of CI}
+
+\item{alpha_scale}{Scale of transparency parameter (\code{alpha}) between the two layers. \code{alpha} of CI ribbon = \code{alpha_scale} * \code{alpha} of path (By default, .5)}
 
 \item{x_cut}{plot x axes from \code{x_cut} for visibility}
 
