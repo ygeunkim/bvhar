@@ -4,7 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' This package specifies VAR(p) model as
 #' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
@@ -29,20 +29,21 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{design}{\eqn{X_0}}
-#'   \item{y0}{\eqn{Y_0}}
-#'   \item{y}{Raw input}
-#'   \item{p}{Lag of VAR}
-#'   \item{m}{Dimension of the data}
-#'   \item{df}{Numer of Coefficients: mp + 1}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: VAR}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
-#'   \item{call}{Matched call}
 #'   \item{coefficients}{Coefficient Matrix}
 #'   \item{fitted.values}{Fitted response values}
 #'   \item{residuals}{Residuals}
+#'   \item{covmat}{LS estimate for covariance matrix}
+#'   \item{df}{Numer of Coefficients: mp + 1 or mp}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process: VAR}
+#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
 #' }
 #' 
 #' @references 
@@ -102,23 +103,27 @@ var_lm <- function(y, p, include_mean = TRUE) {
   rownames(covmat) <- name_var
   # return as new S3 class-----------
   res <- list(
-    design = X0,
-    y0 = Y0,
-    y = y,
-    p = p, # p
-    m = m, # m
-    df = k, # k = m * p + 1 or m * p
-    obs = nrow(Y0), # s = n - p
-    totobs = nrow(y), # n
-    process = "VAR",
-    type = ifelse(include_mean, "const", "none"),
-    call = match.call(),
+    # estimation-----------
     coefficients = Bhat,
     fitted.values = yhat, # X0 %*% Bhat
     residuals = zhat, # Y0 - X0 %*% Bhat
-    covmat = covmat
+    covmat = covmat,
+    # variables------------
+    df = k, # k = m * p + 1 or m * p
+    p = p, # p
+    m = m, # m
+    obs = nrow(Y0), # s = n - p
+    totobs = nrow(y), # n
+    # about model---------
+    call = match.call(),
+    process = "VAR",
+    type = ifelse(include_mean, "const", "none"),
+    # data----------------
+    y0 = Y0,
+    design = X0,
+    y = y
   )
-  class(res) <- "varlse"
+  class(res) <- c("varlse", "bvharmod")
   res
 }
 

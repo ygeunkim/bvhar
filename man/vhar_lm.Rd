@@ -4,7 +4,7 @@
 \alias{vhar_lm}
 \alias{print.vharlse}
 \alias{knit_print.vharlse}
-\title{Fit Vector HAR}
+\title{Fit Vector HAR Model}
 \usage{
 vhar_lm(y, include_mean = TRUE)
 
@@ -28,23 +28,25 @@ knit_print.vharlse(x, ...)
 It is a list with the following components:
 
 \describe{
-\item{design}{\eqn{X_0}}
-\item{y0}{\eqn{Y_0}}
-\item{y}{Raw input}
+\item{coefficients}{Coefficient Matrix}
+\item{fitted.values}{Fitted response values}
+\item{residuals}{Residuals}
+\item{covmat}{LS estimate for covariance matrix}
+\item{df}{Numer of Coefficients: 3m + 1 or 3m}
 \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
+\item{call}{Matched call}
 \item{process}{Process: VHAR}
 \item{type}{include constant term (\code{const}) or not (\code{none})}
-\item{call}{Matched call}
-\item{coefficients}{Coefficient Matrix}
-\item{fitted.values}{Fitted response values}
-\item{residuals}{Residuals}
+\item{y0}{\eqn{Y_0}}
+\item{design}{\eqn{X_0}}
+\item{y}{Raw input}
 }
 }
 \description{
-This function fits VHAR using OLS method
+This function fits VHAR using OLS method.
 }
 \details{
 For VHAR model

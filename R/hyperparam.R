@@ -190,14 +190,18 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
           cat("\n")
         },
         "b" = {
-          cat(paste0("A matrix: "), dim(param[[i]]), "\n")
+          cat(
+            paste0("# A matrix: "), 
+            paste(nrow(param[[i]]), "x", ncol(param[[i]])),
+            "\n"
+          )
           print.default(
             param[[i]][1:10, 1:5],
             digits = digits,
             print.gap = 2L,
             quote = FALSE
           )
-          cat(paste0("... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
+          cat(paste0("# ... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
         },
         "c" = {
           print.default(
@@ -206,10 +210,14 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
             print.gap = 2L,
             quote = FALSE
           )
-          cat(paste0("... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
+          cat(paste0("# ... with ", nrow(param[[i]]) - 10, " more rows", "\n"))
         },
         "d" = {
-          cat(paste0("A matrix: "), dim(param[[i]]), "\n")
+          cat(
+            paste0("# A matrix: "), 
+            paste(nrow(param[[i]]), "x", ncol(param[[i]])), 
+            "\n"
+          )
           print.default(
             param[[i]][1:10, 1:5],
             digits = digits,

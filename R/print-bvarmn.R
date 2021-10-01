@@ -10,17 +10,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- switch(
-    x$type,
-    "const" = {
-      split.data.frame(x$coefficients[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
-        lapply(t)
-    }
-  )
+  bhat_mat <- split_coef(x)
   cat(sprintf("BVAR(%i) with Minnesota Prior\n", x$p))
   cat("====================================================\n\n")
   cat("B ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
@@ -38,7 +28,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
   # const term----------------------
   if (x$type == "const") {
-    intercept <- x$coefficients[x$m * x$p + 1,]
+    intercept <- x$coefficients[x$df,]
     cat("Matrix Normal Mean for constant part:\n")
     print.default(
       intercept,

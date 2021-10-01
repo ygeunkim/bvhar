@@ -156,33 +156,35 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   rownames(Sighat) <- name_var
   # S3--------------------------------
   res <- list(
-    design = X0,
-    y0 = Y0,
-    y = y,
-    p = 3, # add for other function (df = 3m + 1 = mp + 1)
-    m = m, # m
-    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
-    obs = nrow(Y0), # s = n - p
-    totobs = N, # n
-    process = paste(bayes_spec$process, minnesota_type, sep = "_"),
-    spec = bayes_spec,
-    type = ifelse(include_mean, "const", "none"),
-    call = match.call(),
-    # HAR------------------
-    HARtrans = HARtrans,
-    # prior----------------
-    prior_mean = P0,
-    prior_precision = Psi0,
-    prior_scale = U0,
-    prior_shape = d0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior-----------
     coefficients = Phihat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Psihat,
     iw_scale = Sighat,
-    iw_shape = d0 + N + 2
+    iw_shape = d0 + N + 2,
+    # variables-----------
+    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
+    p = 3, # add for other function (df = 3m + 1 = mp + 1)
+    m = m, # m
+    obs = nrow(Y0), # s = n - p
+    totobs = N, # n
+    # about model---------
+    call = match.call(),
+    process = paste(bayes_spec$process, minnesota_type, sep = "_"),
+    spec = bayes_spec,
+    type = ifelse(include_mean, "const", "none"),
+    # prior----------------
+    prior_mean = P0,
+    prior_precision = Psi0,
+    prior_scale = U0,
+    prior_shape = d0 + (m + 3), # add (m + 3) for prior mean existence
+    # data----------------
+    HARtrans = HARtrans,
+    y0 = Y0,
+    design = X0,
+    y = y
   )
-  class(res) <- "bvharmn"
+  class(res) <- c("bvharmn", "bvharmod")
   res
 }

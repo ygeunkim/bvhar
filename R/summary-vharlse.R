@@ -38,19 +38,9 @@ summary.vharlse <- function(object, ...) {
   vhar_name <- colnames(object$y0)
   cov_resid <- object$covmat
   # split the matrix for the print: Phi(d), Phi(w), Phi(m)
-  phihat_mat <- switch(
-    object$type,
-    "const" = {
-      split.data.frame(object$coefficients[-(3 * object$m + 1),], gl(3, object$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(object$coefficients, gl(3, object$m)) %>% 
-        lapply(t)
-    }
-  )
+  phihat_mat <- split_coef(object)
   names(phihat_mat) <- c("day", "week", "month")
-  if (object$type == "const") phihat_mat$intercept <- object$coefficients[3 * object$m + 1,]
+  if (object$type == "const") phihat_mat$intercept <- object$coefficients[object$df,]
   log_lik <- logLik(object)
   res <- list(
     names = vhar_name,

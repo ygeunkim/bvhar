@@ -118,14 +118,20 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   rownames(Sighat) <- name_var
   # S3--------------------------------
   res <- list(
-    design = X0,
-    y0 = Y0,
-    y = y,
+    # posterior-----------
+    coefficients = Bhat,
+    fitted.values = yhat,
+    residuals = Y0 - yhat,
+    mn_prec = Uhat,
+    iw_scale = Sighat,
+    iw_shape = posterior$iwshape,
+    # variables-----------
+    df = k, # k = mp + 1 or mp
     p = p, # p
     m = m, # m
-    df = k, # k = mp + 1 or mp
     obs = nrow(Y0), # s = n - p
     totobs = nrow(y), # n
+    # about model---------
     process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
     spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
@@ -133,14 +139,11 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     # prior----------------
     prior_mean = array(0L, dim = dim(Bhat)), # zero matrix
     prior_precision = U, # given as input
-    # posterior-----------
-    coefficients = Bhat,
-    fitted.values = yhat,
-    residuals = Y0 - yhat,
-    mn_prec = Uhat,
-    iw_scale = Sighat,
-    iw_shape = posterior$iwshape
+    # data----------------
+    y0 = Y0,
+    design = X0,
+    y = y
   )
-  class(res) <- "bvarflat"
+  class(res) <- c("bvarflat", "bvharmod")
   res
 }

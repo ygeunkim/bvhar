@@ -30,23 +30,24 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{design}{\eqn{X_0}}
-#'   \item{y0}{\eqn{Y_0}}
-#'   \item{y}{Raw input}
-#'   \item{p}{Lag of VAR}
-#'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: BVAR_Minnesota}
-#'   \item{spec}{Model specification (\code{bvharspec})}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
-#'   \item{call}{Matched call}
-#'   \item{mn_mean}{Location of posterior matrix normal distribution}
+#'   \item{coefficients}{Mean of posterior matrix normal distribution}
 #'   \item{fitted.values}{Fitted values}
 #'   \item{residuals}{Residuals}
 #'   \item{mn_prec}{Precision matrix of posterior matrix normal distribution}
 #'   \item{iw_scale}{Scale matrix of posterior inverse-wishart distribution}
-#'   \item{a0}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+#'   \item{iw_shape}{Shape of posterior inverse-wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
+#'   \item{df}{Numer of Coefficients: mp + 1 or mp}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process: BVAR_Minnesota}
+#'   \item{spec}{Model specification (\code{bvharspec})}
+#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
 #' }
 #' 
 #' @references 
@@ -135,31 +136,34 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   rownames(Sighat) <- name_var
   # S3--------------------------------
   res <- list(
-    design = X0,
-    y0 = Y0,
-    y = y,
-    p = p, # p
-    m = m, # m = dimension of Y_t
-    df = k, # k = m * p + 1
-    obs = s, # s = n - p
-    totobs = nrow(y), # n = total number of sample size
-    process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
-    spec = bayes_spec,
-    type = ifelse(include_mean, "const", "none"),
-    call = match.call(),
-    # prior----------------
-    prior_mean = B0, # B0
-    prior_precision = U0, # U0 = (Omega)^{-1}
-    prior_scale = S0, # S0
-    prior_shape = a0 + (m + 3), # add (m + 3) for prior mean existence
     # posterior------------
     coefficients = Bhat,
     fitted.values = yhat,
     residuals = Y0 - yhat,
     mn_prec = Uhat,
     iw_scale = Sighat,
-    iw_shape = a0 + s + 2
+    iw_shape = a0 + s + 2,
+    # variables------------
+    df = k, # k = m * p + 1
+    p = p, # p
+    m = m, # m = dimension of Y_t
+    obs = s, # s = n - p
+    totobs = nrow(y), # n = total number of sample size
+    # about model----------
+    call = match.call(),
+    process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
+    spec = bayes_spec,
+    type = ifelse(include_mean, "const", "none"),
+    # prior----------------
+    prior_mean = B0, # B0
+    prior_precision = U0, # U0 = (Omega)^{-1}
+    prior_scale = S0, # S0
+    prior_shape = a0 + (m + 3), # add (m + 3) for prior mean existence
+    # data-----------------
+    y0 = Y0,
+    design = X0,
+    y = y
   )
-  class(res) <- "bvarmn"
+  class(res) <- c("bvarmn", "bvharmod")
   res
 }

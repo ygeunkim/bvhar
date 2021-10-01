@@ -1,6 +1,6 @@
-#' Fit Vector HAR
+#' Fit Vector HAR Model
 #' 
-#' This function fits VHAR using OLS method
+#' This function fits VHAR using OLS method.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -9,23 +9,25 @@
 #' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
 #' the function gives basic values.
 #' 
-#' @return \code{vhar_lm} returns an object named \code{vharlse} \link{class}.
+#' @return `vhar_lm` returns an object named `vharlse` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{design}{\eqn{X_0}}
-#'   \item{y0}{\eqn{Y_0}}
-#'   \item{y}{Raw input}
+#'   \item{coefficients}{Coefficient Matrix}
+#'   \item{fitted.values}{Fitted response values}
+#'   \item{residuals}{Residuals}
+#'   \item{covmat}{LS estimate for covariance matrix}
+#'   \item{df}{Numer of Coefficients: 3m + 1 or 3m}
 #'   \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 #'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
 #'   \item{process}{Process: VHAR}
 #'   \item{type}{include constant term (\code{const}) or not (\code{none})}
-#'   \item{call}{Matched call}
-#'   \item{coefficients}{Coefficient Matrix}
-#'   \item{fitted.values}{Fitted response values}
-#'   \item{residuals}{Residuals}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
 #' }
 #' 
 #' @references 
@@ -102,23 +104,27 @@ vhar_lm <- function(y, include_mean = TRUE) {
   rownames(covmat) <- name_var
   # return as new S3 class-----------
   res <- list(
-    design = X0,
-    y0 = Y0,
-    y = y,
-    p = 3, # add for other function (df = 3m + 1 = mp + 1)
-    m = ncol(y), # m
-    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
-    obs = nrow(Y0), # s = n - 22
-    totobs = nrow(y), # n
-    process = "VHAR",
-    type = type,
-    call = match.call(),
-    HARtrans = vhar_est$HARtrans,
+    # estimation---------------
     coefficients = Phihat,
     fitted.values = yhat, # X1 %*% Phihat
     residuals = zhat, # Y0 - X1 %*% Phihat
-    covmat = covmat
+    covmat = covmat,
+    # variables---------------
+    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
+    p = 3, # add for other function (df = 3m + 1 = mp + 1)
+    m = ncol(y), # m
+    obs = nrow(Y0), # s = n - 22
+    totobs = nrow(y), # n
+    # about model------------
+    call = match.call(),
+    process = "VHAR",
+    type = type,
+    # data-------------------
+    HARtrans = vhar_est$HARtrans,
+    y0 = Y0,
+    design = X0,
+    y = y
   )
-  class(res) <- "vharlse"
+  class(res) <- c("vharlse", "bvharmod")
   res
 }

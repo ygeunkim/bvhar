@@ -1,5 +1,5 @@
 #' @rdname var_lm
-#' @param x \code{varlse} object
+#' @param x `varlse` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
@@ -10,17 +10,7 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- switch(
-    x$type,
-    "const" = {
-      split.data.frame(x$coefficients[-(x$m * x$p + 1),], gl(x$p, x$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
-        lapply(t)
-    }
-  )
+  bhat_mat <- split_coef(x)
   cat(sprintf("VAR(%i) Estimation using least squares\n", x$p))
   cat("====================================================\n\n")
   for (i in 1:(x$p)) {
@@ -36,7 +26,7 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
   # const term----------------------
   if (x$type == "const") {
-    intercept <- x$coefficients[x$m * x$p + 1,]
+    intercept <- x$coefficients[x$df,]
     cat("LSE for constant:\n")
     print.default(
       intercept,

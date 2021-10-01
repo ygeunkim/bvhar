@@ -10,21 +10,22 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   # split the matrix for the print: Phi(d), Phi(w), Phi(m)
-  phihat_mat <- switch(
-    x$type,
-    "const" = {
-      split.data.frame(x$coefficients[-(3 * x$m + 1),], gl(3, x$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(x$coefficients, gl(3, x$m)) %>% 
-        lapply(t)
-    }
-  )
+  # phihat_mat <- switch(
+  #   x$type,
+  #   "const" = {
+  #     split.data.frame(x$coefficients[-(3 * x$m + 1),], gl(3, x$m)) %>% 
+  #       lapply(t)
+  #   },
+  #   "none" = {
+  #     split.data.frame(x$coefficients, gl(3, x$m)) %>% 
+  #       lapply(t)
+  #   }
+  # )
+  phihat_mat <- split_coef(x)
   names(phihat_mat) <- c("day", "week", "month")
   cat("VHAR Estimation")
   cat("====================================================\n\n")
-  for (i in 1:3) {
+  for (i in 1:x$p) {
     cat(paste0("LSE for ", names(phihat_mat)[i], ":\n"))
     # Phi(d), Phi(w), Phi(m)---------
     print.default(
@@ -37,7 +38,7 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
   # const term----------------------
   if (x$type == "const") {
-    intercept <- x$coefficients[3 * x$m + 1,]
+    intercept <- x$coefficients[x$df,]
     cat("LSE for constant:\n")
     print.default(
       intercept,

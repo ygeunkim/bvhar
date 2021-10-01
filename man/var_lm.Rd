@@ -17,7 +17,7 @@ knit_print.varlse(x, ...)
 
 \item{p}{integer, lags of VAR}
 
-\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+\item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{varlse} object}
 
@@ -30,20 +30,21 @@ knit_print.varlse(x, ...)
 It is a list with the following components:
 
 \describe{
-\item{design}{\eqn{X_0}}
-\item{y0}{\eqn{Y_0}}
-\item{y}{Raw input}
-\item{p}{Lag of VAR}
-\item{m}{Dimension of the data}
-\item{df}{Numer of Coefficients: mp + 1}
-\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
-\item{totobs}{Total number of the observation}
-\item{process}{Process: VAR}
-\item{type}{include constant term (\code{const}) or not (\code{none})}
-\item{call}{Matched call}
 \item{coefficients}{Coefficient Matrix}
 \item{fitted.values}{Fitted response values}
 \item{residuals}{Residuals}
+\item{covmat}{LS estimate for covariance matrix}
+\item{df}{Numer of Coefficients: mp + 1 or mp}
+\item{p}{Lag of VAR}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{totobs}{Total number of the observation}
+\item{call}{Matched call}
+\item{process}{Process: VAR}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{y0}{\eqn{Y_0}}
+\item{design}{\eqn{X_0}}
+\item{y}{Raw input}
 }
 }
 \description{

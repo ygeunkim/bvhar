@@ -34,19 +34,8 @@ summary.varlse <- function(object, ...) {
   var_name <- colnames(object$y0)
   cov_resid <- object$covmat
   # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- 
-    switch(
-      object$type,
-      "const" = {
-        split.data.frame(object$coefficients[-(object$m * object$p + 1),], gl(object$p, object$m)) %>% 
-          lapply(t)
-      },
-      "none" = {
-        split.data.frame(object$coefficients, gl(object$p, object$m)) %>% 
-          lapply(t)
-      }
-    )
-  if (object$type == "const") bhat_mat$intercept <- object$coefficients[object$m * object$p + 1,]
+  bhat_mat <- split_coef(object)
+  if (object$type == "const") bhat_mat$intercept <- object$coefficients[object$df,]
   log_lik <- logLik(object)
   res <- list(
     names = var_name,
