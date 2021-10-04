@@ -68,3 +68,94 @@
 #' 
 #' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix_raw"
+
+#' Oxford-Man Institute Realized Library
+#' 
+#' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://www.oxford-man.ox.ac.uk).
+#' 
+#' @details 
+#' * As a raw dataset, we provide long format `oxfordman_long`. It contains every realized measure.
+#' * Denote that non-trading dates are excluded in `oxfordman_long`, not in `NA`. So be careful when dealing this set directly.
+#' * For analysis, we widened the data for 5-min realized volatility (`rv5`) and realized kernel variance (`rk_parzen`), respectively.
+#'     * `oxfordman_wide_rv`
+#'     * `oxfordman_wide_rk`
+#' * `oxford_rv` and `oxford_rk` are the sets whose `NA` values interpolated using [imputeTS::na_interpolation()].
+#' 
+#' @format A data frame of 53507 rows and 20 columns (`oxfordman_long`):
+#' 
+#' \describe{
+#'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+#'     \item{Symbol}{Name of the Assets}
+#'     \itemize{
+#'         \item{AEX - AEX index}
+#'         \item{AORD - All Ordinaries}
+#'         \item{BFX -	Bell 20 Index}
+#'         \item{BSESN -	S&P BSE Sensex}
+#'         \item{BVLG - PSI All-Share Index}
+#'         \item{BVSP - BVSP BOVESPA Index}
+#'         \item{DJI - Dow Jones Industrial Average}
+#'         \item{FCHI - CAC 40}
+#'         \item{FTMIB - FTSE MIB}
+#'         \item{FTSE - FTSE 100}
+#'         \item{GDAXI - DAX}
+#'         \item{GSPTSE - S&P/TSX Composite index}
+#'         \item{HSI -	HANG SENG Index}
+#'         \item{IBEX - IBEX 35 Index}
+#'         \item{IXIC - Nasdaq 100}
+#'         \item{KS11 - Korea Composite Stock Price Index (KOSPI)}
+#'         \item{KSE - Karachi SE 100 Index}
+#'         \item{MXX - IPC Mexico}
+#'         \item{N225 - Nikkei 225}
+#'         \item{NSEI - NIFTY 50}
+#'         \item{OMXC20 - OMX Copenhagen 20 Index}
+#'         \item{OMXHPI - OMX Helsinki All Share Index}
+#'         \item{OMXSPI - OMX Stockholm All Share Index}
+#'         \item{OSEAX - Oslo Exchange All-share Index}
+#'         \item{RUT - Russel 2000}
+#'         \item{SMSI - Madrid General Index}
+#'         \item{SPX - S&P 500 Index}
+#'         \item{SSEC - Shanghai Composite Index}
+#'         \item{SSMI - Swiss Stock Market Index}
+#'         \item{STI - Straits Times Index}
+#'         \item{STOXX50E - EURO STOXX 50}
+#'     }
+#'     \item{nobs}{Number of observations}
+#'     \item{by_ss}{Bipower Variation (5-min Sub-sampled)}
+#'     \item{rsv}{Realized Semi-variance (5-min)}
+#'     \item{rk_parzen}{Realized Kernel Variance (Non-Flat Parzen)}
+#'     \item{rv10}{Realized Variance (10-min)}
+#'     \item{rv5_ss}{Realized Variance (5-min Sub-sampled)}
+#'     \item{rv5}{Realized Variance (5-min)}
+#'     \item{rv10_ss}{Realized Variance (10-min Sub-sampled)}
+#'     \item{rk_twoscale}{Realized Kernel Variance (Two-Scale/Bartlett)}
+#'     \item{close_price}{Closing (Last) Price}
+#'     \item{rsv_ss}{Realized Semi-variance (5-min Sub-sampled)}
+#'     \item{rk_th2}{Realized Kernel Variance (Tukey-Hanning(2))}
+#'     \item{open_time}{Opening Time}
+#'     \item{medrv}{Median Realized Variance (5-min)}
+#'     \item{open_price}{Opening (First) Price}
+#'     \item{bv}{Bipower Variation (5-min)}
+#'     \item{open_to_close}{Open to Close Return}
+#'     \item{close_time}{Closing Time}
+#' }
+#' @source 
+#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
+#' 
+#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
+#' 
+#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
+#' 
+#' @name oxfordman
+"oxfordman_long"
+
+#' @rdname oxfordman
+"oxfordman_wide_rv"
+
+#' @rdname oxfordman
+"oxfordman_wide_rk"
+
+#' @rdname oxfordman
+"oxfordman_rv"
+
+#' @rdname oxfordman
+"oxfordman_rk"

@@ -8,8 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
-A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
-    You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
+A package aiming at researching Bayesian Vector heterogeneous autoregressive process. You can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
 \details{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

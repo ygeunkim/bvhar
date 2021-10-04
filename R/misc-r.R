@@ -8,18 +8,24 @@ concatenate_colnames <- function(var_name, prefix) {
     c(., "const")
 }
 
-#' Split Coefficient Matrix into List
+#' Splitting Coefficient Matrix into List
 #' 
 #' Split `coefficients` into matrix list.
 #' 
 #' @param object `bvharmod` object
 #' @param ... not used
+#' @details 
+#' Each result of [var_lm()], [vhar_lm()], [bvar_minnesota()], [bvar_flat()], and [bvhar_minnesota()] is a subclass of `bvharmod`.
+#' For example,
+#' `c("varlse", "bvharmod")`.
 #' 
-#' @noRd
+#' @export
 split_coef <- function(object, ...) {
   UseMethod("split_coef", object)
 }
 
+#' @rdname split_coef
+#' @export
 split_coef.bvharmod <- function(object, ...) {
   switch(
     object$type,
