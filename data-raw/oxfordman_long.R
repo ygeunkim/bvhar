@@ -19,7 +19,7 @@ oxfordman_long <-
 spread_oxford <- function(x = oxfordman_long, var = "rv5") {
   rv <- sym(var)
   x %>% 
-    mutate(realized = log(!!rv)) %>% 
+    mutate(realized = !!rv) %>% 
     select(DATE, Symbol, realized) %>% 
     filter(Symbol != "STI") %>% # STI has too many NAs
     tidyr::pivot_wider(names_from = "Symbol", values_from = "realized") %>% 
