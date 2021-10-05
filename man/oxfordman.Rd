@@ -10,7 +10,7 @@
 \alias{oxfordman_rk}
 \title{Oxford-Man Institute Realized Library}
 \format{
-A data frame of 53507 rows and 20 columns (\code{oxfordman_long}):
+\code{oxfordman_long} is a data frame of 53507 rows and 20 columns:
 
 \describe{
 \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -68,13 +68,17 @@ A data frame of 53507 rows and 20 columns (\code{oxfordman_long}):
 \item{close_time}{Closing Time}
 }
 
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 1826 rows and 31 columns.
+\code{oxfordman_wide_rv} is widened data frame of which values are 5-min RV (\code{rv5}).
+The number of rows is 1826 and the number of columns is 31.
 
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 1826 rows and 31 columns.
+\code{oxfordman_wide_rv} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
+The number of rows is 1826 and the number of columns is 31.
 
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 1826 rows and 30 columns.
+\code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
+Also, it does not have \code{DATE} column for fitting.
 
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 1826 rows and 30 columns.
+\code{oxfordman_rk} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rk}.
+Also, it does not have \code{DATE} column for fitting.
 }
 \source{
 \url{https://realized.oxford-man.ox.ac.uk/data}

@@ -49,24 +49,11 @@
 #' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix"
 
-#' CBOE ETF Volatility Index Raw Dataset
-#' 
-#' Raw dataset for Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
-#' 
-#' @details 
-#' This dataset is included for convenience of usage of the CBOE ETF dataset when academic researching.
-#' For the details of the data, see [etf_vix] documentation.
-#' 
-#' @format A data frmae of 1006 row and 10 columns,
-#' including date column (`DATE`)
+#' @rdname etf_vix
+#' @format `etf_vix_raw` is a raw dataset that includes date column (`DATE`).
 #' 
 #' From 2015-01-05 to 2018-12-28,
 #' there exists 36 missing obervations.
-#' 
-#' @source 
-#' Source: \url{https://www.cboe.com}
-#' 
-#' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix_raw"
 
 #' Oxford-Man Institute Realized Library
@@ -81,7 +68,7 @@
 #'     * `oxfordman_wide_rk`
 #' * `oxford_rv` and `oxford_rk` are the sets whose `NA` values interpolated using [imputeTS::na_interpolation()].
 #' 
-#' @format A data frame of 53507 rows and 20 columns (`oxfordman_long`):
+#' @format `oxfordman_long` is a data frame of 53507 rows and 20 columns:
 #' 
 #' \describe{
 #'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -149,13 +136,58 @@
 "oxfordman_long"
 
 #' @rdname oxfordman
+#' @format `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
+#' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_wide_rv"
 
 #' @rdname oxfordman
+#' @format `oxfordman_wide_rv` is widened data frame of which values are realized kernel variance (`rk_parzen`).
+#' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_wide_rk"
 
 #' @rdname oxfordman
+#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
+#' Also, it does not have `DATE` column for fitting.
 "oxfordman_rv"
 
 #' @rdname oxfordman
+#' @format `oxfordman_rk` is a data frame that interpolates `NA` values of `oxfordman_wide_rk`.
+#' Also, it does not have `DATE` column for fitting.
 "oxfordman_rk"
+
+#' Estimated Energy Consumption
+#' 
+#' US estimated energy consumption (in Megawatts) in each region.
+#' 
+#' @format `est_energy` is realized kernel variance dataset computed by parzen kernel.
+#' Since `NI` and `PJM_Load` observations are too old, they are excluded.
+#' The observations are subset of the raw data, from 2014-08-03 to 2018-08-01.
+#' \describe{
+#'     \item{AEP}{\href{https://en.wikipedia.org/wiki/American_Electric_Power}{American Electric Power}}
+#'     \item{COMED}{\href{https://en.wikipedia.org/wiki/Commonwealth_Edison}{Commonwealth Edison}}
+#'     \item{DAYTON}{\href{https://en.wikipedia.org/wiki/DPL_Inc.}{The Dayton Power and Light Company}}
+#'     \item{DEOK}{\href{https://en.wikipedia.org/wiki/Duke_Energy}{Duke Energy Ohio/Kentucky}}
+#'     \item{DOM}{\href{https://en.wikipedia.org/wiki/Dominion_Energy}{Dominion Virginia Power}}
+#'     \item{DUQ}{\href{https://en.wikipedia.org/wiki/DQE}{Duquesne Light Co.}}
+#'     \item{EKPC}{\href{http://www.ekpc.coop/}{East Kentucky Power Cooperative}}
+#'     \item{FE}{\href{https://en.wikipedia.org/wiki/FirstEnergy}{FirstEnergy}}
+#'     \item{NI}{Northern Illinois Hub}
+#'     \item{PJME}{PJM East Region: 2001-2018}
+#'     \item{PJMW}{PJM West Region: 2001-2018}
+#'     \item{PJM_Load}{PJM Load Combined: 1998-2001}
+#' }
+#' 
+#' @source 
+#' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)
+"est_energy"
+
+#' @rdname est_energy
+#' @format `est_energy_raw` is a raw dataset that contains hourly date and corresponding energy consumption.
+#' \describe{
+#'     \item{Datetime}{From 1998-04-01 10:00:00 to 2018-08-03 09:00:00}
+#' }
+"est_energy_raw"
+
+#' @rdname est_energy
+#' @format `est_energy_rt` is a log-return dataset of `est_energy_raw`.
+"est_energy_rt"

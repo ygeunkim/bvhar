@@ -120,9 +120,9 @@ reference:
 - title: Data
   desc: ~
   contents:
-  - etf_vix_raw
   - etf_vix
   - oxfordman
+  - est_energy
 
 - title: Other generic functions
   desc: ~
