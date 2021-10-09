@@ -2,27 +2,27 @@
 % Please edit documentation in R/RcppExports.R
 \name{build_y0}
 \alias{build_y0}
-\title{Build Y0 matrix in VAR(p)}
+\title{Build Response Matrix of VAR(p)}
 \usage{
-build_y0(x, var_lag, t)
+build_y0(y, var_lag, index)
 }
 \arguments{
-\item{x}{Matrix, time series data}
+\item{y}{Matrix, multivariate time series data.}
 
-\item{var_lag}{VAR lag}
+\item{var_lag}{Integer, VAR lag.}
 
-\item{t}{Starting index to extract}
+\item{index}{Integer, Starting index to extract}
 }
 \description{
-Build Y0 matrix in VAR(p)
+This function constructs response matrix of multivariate regression model formulation of VAR(p).
 }
 \details{
-Given data Y,
-\deqn{Y0 = [y_t^T, y_{t + 1}^T, \ldots, y_{t + n - p - 1}^T]^T}
-is the (n - p) x m matrix.
+Let s = n - p.
+\deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + s - 1})^T}
+is the s x m matrix.
 
-In case of Y0, t = p + 1.
-This function is used when constructing X0.
+In case of response matrix, t = p + 1 (i.e. \eqn{Y_0 = Y_{p + 1}}).
+This function is also used when constructing design matrix.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

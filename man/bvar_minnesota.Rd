@@ -96,6 +96,10 @@ Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+
+KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132. \url{https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}
+
+Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968. \url{https://doi.org/10.2307/2527347}
 }
 \seealso{
 \itemize{

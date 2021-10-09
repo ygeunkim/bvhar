@@ -12,27 +12,27 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // build_y0
-Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t);
-RcppExport SEXP _bvhar_build_y0(SEXP xSEXP, SEXP var_lagSEXP, SEXP tSEXP) {
+Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index);
+RcppExport SEXP _bvhar_build_y0(SEXP ySEXP, SEXP var_lagSEXP, SEXP indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    Rcpp::traits::input_parameter< int >::type t(tSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_y0(x, var_lag, t));
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_y0(y, var_lag, index));
     return rcpp_result_gen;
 END_RCPP
 }
 // build_design
-Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p);
-RcppExport SEXP _bvhar_build_design(SEXP xSEXP, SEXP pSEXP) {
+Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag);
+RcppExport SEXP _bvhar_build_design(SEXP ySEXP, SEXP var_lagSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_design(x, p));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_design(y, var_lag));
     return rcpp_result_gen;
 END_RCPP
 }

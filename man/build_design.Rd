@@ -2,21 +2,21 @@
 % Please edit documentation in R/RcppExports.R
 \name{build_design}
 \alias{build_design}
-\title{Build X0 matrix in VAR(p)}
+\title{Build Design Matrix of VAR(p)}
 \usage{
-build_design(x, p)
+build_design(y, var_lag)
 }
 \arguments{
-\item{x}{Matrix, time series data}
+\item{y}{Matrix, time series data}
 
-\item{p}{VAR lag}
+\item{var_lag}{VAR lag}
 }
 \description{
-Build X0 matrix in VAR(p)
+This function constructs design matrix of multivariate regression model formulation of VAR(p).
 }
 \details{
 X0 is
-\deqn{X0 = [Y_p, \ldots, Y_1, 1]}
+\deqn{X_0 = [Y_p, \ldots, Y_1, 1]}
 i.e. (n - p) x (mp + 1) matrix
 }
 \references{

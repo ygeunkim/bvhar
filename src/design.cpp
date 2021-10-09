@@ -2,58 +2,62 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Build Y0 matrix in VAR(p)
+//' Build Response Matrix of VAR(p)
 //' 
-//' @param x Matrix, time series data
-//' @param var_lag VAR lag
-//' @param t Starting index to extract
+//' This function constructs response matrix of multivariate regression model formulation of VAR(p).
+//' 
+//' @param y Matrix, multivariate time series data.
+//' @param var_lag Integer, VAR lag.
+//' @param index Integer, Starting index to extract
 //' 
 //' @details
-//' Given data Y,
-//' \deqn{Y0 = [y_t^T, y_{t + 1}^T, \ldots, y_{t + n - p - 1}^T]^T}
-//' is the (n - p) x m matrix.
+//' Let s = n - p.
+//' \deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + s - 1})^T}
+//' is the s x m matrix.
 //' 
-//' In case of Y0, t = p + 1.
-//' This function is used when constructing X0.
+//' In case of response matrix, t = p + 1 (i.e. \eqn{Y_0 = Y_{p + 1}}).
+//' This function is also used when constructing design matrix.
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd build_y0(Eigen::MatrixXd x, int var_lag, int t) {
-  int num_design = x.rows() - var_lag; // s = n - p
-  int dim = x.cols(); // m: dimension of the multivariate time series
-  Eigen::MatrixXd res(num_design, dim); // Y0
+Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index) {
+  int num_design = y.rows() - var_lag; // s = n - p
+  int dim = y.cols(); // m: dimension of the multivariate time series
+  Eigen::MatrixXd res(num_design, dim); // Yj (or Y0)
   for (int i = 0; i < num_design; i++) {
-    res.row(i) = x.row(t + i - 1);
+    res.row(i) = y.row(index + i - 1);
   }
   return res;
 }
 
-//' Build X0 matrix in VAR(p)
+//' Build Design Matrix of VAR(p)
 //' 
-//' @param x Matrix, time series data
-//' @param p VAR lag
+//' This function constructs design matrix of multivariate regression model formulation of VAR(p).
+//' 
+//' @param y Matrix, time series data
+//' @param var_lag VAR lag
 //' 
 //' @details
 //' X0 is
-//' \deqn{X0 = [Y_p, \ldots, Y_1, 1]}
+//' \deqn{X_0 = [Y_p, \ldots, Y_1, 1]}
 //' i.e. (n - p) x (mp + 1) matrix
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd build_design(Eigen::MatrixXd x, int p) {
-  int s = x.rows() - p;
-  int m = x.cols();
-  int k = m * p + 1;
-  Eigen::MatrixXd res(s, k); // X0
-  for (int t = 0; t < p; t++) {
-    res.block(0, t * m, s, m) = build_y0(x, p, p - t);
+Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag) {
+  int num_design = y.rows() - var_lag; // s = n - p
+  int dim = y.cols(); // m: dimension of the multivariate time series
+  int dim_design = dim * var_lag + 1; // k = mp + 1
+  Eigen::MatrixXd res(num_design, dim_design); // X0 = [Yp, ... Y1, 1]: s x k
+  for (int t = 0; t < var_lag; t++) {
+    res.block(0, t * dim, num_design, dim) = build_y0(y, var_lag, var_lag - t); // Yp to Y1
   }
-  for (int i = 0; i < s; i++) {
-    res(i, k - 1) = 1.0;
+  for (int i = 0; i < num_design; i++) {
+    res(i, dim_design - 1) = 1.0; // the last column for constant term
   }
   return res;
 }

@@ -17,7 +17,7 @@
 #' * [build_design()] gives design matrix, \eqn{X_0}.
 #' * Coefficient matrix is the form of \eqn{B = [B_1, B_2, \ldots, B_p, c]^T}.
 #' 
-#' Then perform least squares to the following
+#' Then perform least squares to the following multivariate regression model
 #' 
 #' \deqn{Y_0 = X_0 B + error}
 #' 
