@@ -234,10 +234,10 @@ MSE:
 `autoplot(predbvhar)` and `autolayer(predbvhar)` draws the results of the forecasting.
 
 ```{r}
-autoplot(pred_var, x_cut = 1400, ci_alpha = .7) +
-  # autolayer(pred_vhar, ci_alpha = .5) +
+autoplot(pred_var, x_cut = 1450, ci_alpha = .7) +
+  autolayer(pred_vhar, ci_alpha = .5) +
   autolayer(pred_bvar, ci_alpha = .4) +
-  # autolayer(pred_bvhar_v1, ci_alpha = .2) +
+  autolayer(pred_bvhar_v1, ci_alpha = .2) +
   autolayer(pred_bvhar_v2, ci_alpha = .1)
 ```
 

@@ -84,9 +84,9 @@ MSE:
 ``` r
 (msevar <- mse(forecast_var, etf_te))
 #>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     1.63     4.01    71.27     3.01     1.91     3.82     4.60    10.27 
+#>    0.675    1.817   42.797   14.652    4.376   14.686    9.149    4.947 
 #> VXXLECLS 
-#>    38.12
+#>   80.670
 ```
 
 ### VHAR
@@ -101,9 +101,9 @@ MSE:
 forecast_vhar <- predict(mod_vhar, h)
 (msevhar <- mse(forecast_vhar, etf_te))
 #>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     2.57     6.39    70.83     4.32     3.09     5.34     4.38     7.64 
+#>     2.34     4.69    57.58    14.73     6.07     5.45     8.94     4.36 
 #> VXXLECLS 
-#>    52.14
+#>    95.97
 ```
 
 ### BVAR
@@ -125,9 +125,9 @@ eps <- 1e-04
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
 #> VXXLECLS  
-#>     6.23  
+#>     6.25  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -149,14 +149,14 @@ MSE:
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
 #>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     1.36     2.45    59.34     4.23     2.37     3.05     5.75     8.15 
+#>    0.534    1.337   50.211   17.453    3.441   15.745   16.552    4.098 
 #> VXXLECLS 
-#>    42.36
+#>   88.957
 ```
 
 ### BVHAR
 
-Minnesota-v1:
+VAR-type Minnesota prior:
 
 ``` r
 (bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
@@ -169,9 +169,9 @@ Minnesota-v1:
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
 #> VXXLECLS  
-#>     6.23  
+#>     6.25  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -193,12 +193,12 @@ MSE:
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
 #>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     1.73     3.24    60.58     3.40     3.78     3.66     6.01     6.89 
+#>    0.952    1.937   47.983   14.109    1.775    9.288   15.379    3.836 
 #> VXXLECLS 
-#>    39.26
+#>   79.779
 ```
 
-Minnesota-v2:
+VHAR-type Minnesota prior:
 
 ``` r
 day <- rep(.1, ncol(etf_vix))
@@ -215,9 +215,9 @@ month <- rep(.1, ncol(etf_vix))
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.19      3.26     11.08      5.10      7.81      6.82     11.05      4.94  
+#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
 #> VXXLECLS  
-#>     6.23  
+#>     6.25  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -243,9 +243,9 @@ mod_bvhar_v2 <- bvhar_minnesota(etf_tr, bvhar_spec_v2)
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
 #>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     1.74     2.97    49.28     3.00     5.78     5.86     6.98     6.41 
+#>     1.11     1.83    42.50    12.94     1.56     3.54    17.02     3.55 
 #> VXXLECLS 
-#>    36.94
+#>    71.88
 ```
 
 ## Compare Models
@@ -253,8 +253,11 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 ### Layers
 
 ``` r
-autoplot(forecast_var, x_cut = 750, ci_alpha = .5) +
-  autolayer(forecast_bvhar_v2, ci_alpha = .3)
+autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
+  autolayer(forecast_vhar, ci_alpha = .6) +
+  autolayer(forecast_bvar, ci_alpha = .4) +
+  autolayer(forecast_bvhar_v1, ci_alpha = .2) +
+  autolayer(forecast_bvhar_v2, ci_alpha = .1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" />
@@ -269,27 +272,11 @@ list(
   forecast_bvhar_v2
 ) %>% 
   plot_loss(y = etf_te) +
+  ggplot2::theme_minimal() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
 ```
 
 <img src="man/figures/README-msefig-1.png" width="70%" style="display: block; margin: auto;" />
-
-``` r
-# VAR---------------
-mean(msevar)
-#> [1] 15.4
-# VHAR--------------
-mean(msevhar)
-#> [1] 17.4
-# BVAR--------------
-mean(msebvar)
-#> [1] 14.3
-# BVHAR-------------
-mean(msebvhar_v1)
-#> [1] 14.3
-mean(msebvhar_v2)
-#> [1] 13.2
-```
 
 ## Code of Conduct
 

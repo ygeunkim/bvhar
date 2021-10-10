@@ -134,7 +134,7 @@ forecast_bvar <- predict(mod_bvar, h)
 
 ### BVHAR
 
-Minnesota-v1:
+VAR-type Minnesota prior:
 
 ```{r}
 (bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
@@ -151,8 +151,7 @@ forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
 ```
 
-
-Minnesota-v2:
+VHAR-type Minnesota prior:
 
 ```{r}
 day <- rep(.1, ncol(etf_vix))
@@ -176,8 +175,11 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 ### Layers
 
 ```{r}
-autoplot(forecast_var, x_cut = 750, ci_alpha = .5) +
-  autolayer(forecast_bvhar_v2, ci_alpha = .3)
+autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
+  autolayer(forecast_vhar, ci_alpha = .6) +
+  autolayer(forecast_bvar, ci_alpha = .4) +
+  autolayer(forecast_bvhar_v1, ci_alpha = .2) +
+  autolayer(forecast_bvhar_v2, ci_alpha = .1)
 ```
 
 ### Erros
@@ -190,20 +192,10 @@ list(
   forecast_bvhar_v2
 ) %>% 
   plot_loss(y = etf_te) +
+  ggplot2::theme_minimal() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
 ```
 
-```{r}
-# VAR---------------
-mean(msevar)
-# VHAR--------------
-mean(msevhar)
-# BVAR--------------
-mean(msebvar)
-# BVHAR-------------
-mean(msebvhar_v1)
-mean(msebvhar_v2)
-```
 
 ## Code of Conduct
   
