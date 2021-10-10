@@ -14,40 +14,7 @@
 
 \describe{
 \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
-\item{Symbol}{Name of the Assets}
-\itemize{
-\item{AEX - AEX index}
-\item{AORD - All Ordinaries}
-\item{BFX -	Bell 20 Index}
-\item{BSESN -	S&P BSE Sensex}
-\item{BVLG - PSI All-Share Index}
-\item{BVSP - BVSP BOVESPA Index}
-\item{DJI - Dow Jones Industrial Average}
-\item{FCHI - CAC 40}
-\item{FTMIB - FTSE MIB}
-\item{FTSE - FTSE 100}
-\item{GDAXI - DAX}
-\item{GSPTSE - S&P/TSX Composite index}
-\item{HSI -	HANG SENG Index}
-\item{IBEX - IBEX 35 Index}
-\item{IXIC - Nasdaq 100}
-\item{KS11 - Korea Composite Stock Price Index (KOSPI)}
-\item{KSE - Karachi SE 100 Index}
-\item{MXX - IPC Mexico}
-\item{N225 - Nikkei 225}
-\item{NSEI - NIFTY 50}
-\item{OMXC20 - OMX Copenhagen 20 Index}
-\item{OMXHPI - OMX Helsinki All Share Index}
-\item{OMXSPI - OMX Stockholm All Share Index}
-\item{OSEAX - Oslo Exchange All-share Index}
-\item{RUT - Russel 2000}
-\item{SMSI - Madrid General Index}
-\item{SPX - S&P 500 Index}
-\item{SSEC - Shanghai Composite Index}
-\item{SSMI - Swiss Stock Market Index}
-\item{STI - Straits Times Index}
-\item{STOXX50E - EURO STOXX 50}
-}
+\item{Symbol}{Name of the Assets - See below for each name}
 \item{nobs}{Number of observations}
 \item{by_ss}{Bipower Variation (5-min Sub-sampled)}
 \item{rsv}{Realized Semi-variance (5-min)}
@@ -70,9 +37,43 @@
 
 \code{oxfordman_wide_rv} is widened data frame of which values are 5-min RV (\code{rv5}).
 The number of rows is 1826 and the number of columns is 31.
+\describe{
+\item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+\item{AEX}{AEX index}
+\item{AORD}{All Ordinaries}
+\item{BFX}{Bell 20 Index}
+\item{BSESN}{S&P BSE Sensex}
+\item{BVLG}{PSI All-Share Index}
+\item{BVSP}{BVSP BOVESPA Index}
+\item{DJI}{Dow Jones Industrial Average}
+\item{FCHI}{CAC 40}
+\item{FTMIB}{FTSE MIB}
+\item{FTSE}{FTSE 100}
+\item{GDAXI}{DAX}
+\item{GSPTSE}{S&P/TSX Composite index}
+\item{HSI}{HANG SENG Index}
+\item{IBEX}{IBEX 35 Index}
+\item{IXIC}{Nasdaq 100}
+\item{KS11}{Korea Composite Stock Price Index (KOSPI)}
+\item{KSE}{Karachi SE 100 Index}
+\item{MXX}{IPC Mexico}
+\item{N225}{Nikkei 225}
+\item{NSEI}{NIFTY 50}
+\item{OMXC20}{OMX Copenhagen 20 Index}
+\item{OMXHPI}{OMX Helsinki All Share Index}
+\item{OMXSPI}{OMX Stockholm All Share Index}
+\item{OSEAX}{Oslo Exchange All-share Index}
+\item{RUT}{Russel 2000}
+\item{SMSI}{Madrid General Index}
+\item{SPX}{S&P 500 Index}
+\item{SSEC}{Shanghai Composite Index}
+\item{SSMI}{Swiss Stock Market Index}
+\item{STI}{Straits Times Index}
+\item{STOXX50E}{EURO STOXX 50}
+}
 
 \code{oxfordman_wide_rv} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
-The number of rows is 1826 and the number of columns is 31.
+The number of rows is 1826 and the number of columns is 31, which are the same variables as \code{oxfordman_wide_rv}.
 
 \code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
 Also, it does not have \code{DATE} column for fitting.
