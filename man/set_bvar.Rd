@@ -49,7 +49,7 @@ Every function returns \code{bvharspec} \link{class}.
 It is the list of which the components are the same as the arguments provided.
 }
 \description{
-See Details.
+Set hyperparameters of Bayesian VAR and VHAR models.
 }
 \details{
 \itemize{
@@ -65,7 +65,7 @@ See Details.
 }
 
 \itemize{
-\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with HAR-type Minnesota prior.
+\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VHAR-type Minnesota prior.
 }
 }
 \examples{

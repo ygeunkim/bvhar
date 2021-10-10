@@ -49,12 +49,12 @@ This function draws h-step ahead forecasts their confidence (credible) region.
 \code{gather_predbvhar} produces a \code{tibble} with columns named
 
 \itemize{
-\item forecast - If the row is observed one or forecasted one
-\item id - Index of the row
-\item variable - Name of the variable
-\item value_forecast - Point forecasts
-\item value_lower_joint - Lower CI
-\item value_upper_joint - Upper CI
-\item model - Fitting Model
+\item \code{forecast} - If the row is observed one or forecasted one
+\item \code{id} - Index of the row
+\item \code{variable} - Name of the variable
+\item \code{value_forecast} - Point forecasts
+\item \code{value_lower_joint} - Lower CI
+\item \code{value_upper_joint} - Upper CI
+\item \code{model} - Fitting Model
 }
 }

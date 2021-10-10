@@ -123,7 +123,7 @@ gather_predbvhar <- function(object) {
     }
   ) %>% 
     reduce(left_join, by = c("id", "variable", "forecast")) %>% 
-    mutate(model = object$process)
+    mutate(Model = object$process)
 }
 
 #' Forecasting Lines and Region
@@ -147,16 +147,16 @@ gather_predbvhar <- function(object) {
 #' * `alpha_scale` is recommended to be smaller than 1.
 #' * In case of `ci_param`, since it is controlling CI, try to specify `alpha` and `colour`.
 #' 
-#' \code{gather_predbvhar} produces a \code{tibble} with columns named
+#' `gather_predbvhar` produces a `tibble` with columns named
 #' 
 #' \itemize{
-#'   \item forecast - If the row is observed one or forecasted one
-#'   \item id - Index of the row
-#'   \item variable - Name of the variable
-#'   \item value_forecast - Point forecasts
-#'   \item value_lower_joint - Lower CI
-#'   \item value_upper_joint - Upper CI
-#'   \item model - Fitting Model
+#'   \item `forecast` - If the row is observed one or forecasted one
+#'   \item `id` - Index of the row
+#'   \item `variable` - Name of the variable
+#'   \item `value_forecast` - Point forecasts
+#'   \item `value_lower_joint` - Lower CI
+#'   \item `value_upper_joint` - Upper CI
+#'   \item `model` - Fitting Model
 #' }
 #' 
 #' @importFrom ggplot2 aes layer
@@ -175,7 +175,11 @@ geom_predbvhar <- function(mapping = NULL,
     geom = "ribbon",
     stat = "identity",
     data = data,
-    mapping = aes(ymin = value_lower_joint, ymax = value_upper_joint, fill = model),
+    mapping = aes(
+      ymin = value_lower_joint, 
+      ymax = value_upper_joint, 
+      fill = Model
+    ),
     position = position,
     params = ci_param,
     inherit.aes = inherit.aes
@@ -184,7 +188,7 @@ geom_predbvhar <- function(mapping = NULL,
     geom = "path",
     stat = "identity",
     data = data,
-    mapping = aes(linetype = forecast),
+    mapping = aes(colour = Model),
     position = position,
     params = line_param,
     inherit.aes = inherit.aes,
@@ -203,38 +207,38 @@ geom_predbvhar <- function(mapping = NULL,
 #' @param ci_alpha Transparency of CI
 #' @param alpha_scale Scale of transparency parameter (`alpha`) between the two layers. `alpha` of CI ribbon = `alpha_scale` * `alpha` of path (By default, .5)
 #' @param x_cut plot x axes from \code{x_cut} for visibility
-#' @param line_type linetype regarding to forecasting. See \code{\link[ggplot2:scale_linetype_manual]{ggplot2::scale_linetype_manual}}
 #' @param NROW \code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}
 #' @param NCOL \code{ncol} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}
 #' @param ... additional option for \code{\link[ggplot2:geom_path]{ggplot2::geom_path}}
 #' 
-#' @importFrom ggplot2 ggplot aes facet_grid scale_linetype_manual labs element_blank
+#' @importFrom ggplot2 ggplot aes facet_grid geom_path labs element_blank
 #' @importFrom dplyr filter
 #' @export
 autoplot.predbvhar <- function(object, 
                                type = c("grid", "wrap"), 
                                ci_alpha = .7,
                                alpha_scale = .3,
-                               x_cut = 1, 
-                               line_type = c("FALSE" = "dotted", "TRUE" = "solid"),
+                               x_cut = 1,
                                NROW = NULL, 
                                NCOL = NULL, ...) {
   type <- match.arg(type)
-  forecast_list <- gather_predbvhar(object)
+  forecast_list <- 
+    gather_predbvhar(object) %>% 
+    filter(id >= x_cut)
   p <- 
     forecast_list %>% 
-    filter(id >= x_cut) %>% 
-    ggplot(aes(x = id, y = value_forecast, colour = model))
+    ggplot(aes(x = id, y = value_forecast)) +
+    geom_path(data = forecast_list %>% filter(forecast == FALSE))
   switch(
     type,
     "grid" = {
       p +
         geom_predbvhar(
+          data = forecast_list %>% filter(forecast == TRUE),
           alpha_scale = alpha_scale,
           ci_param = list(alpha = ci_alpha, colour = NA),
           line_param = list(...)
         ) +
-        scale_linetype_manual(values = line_type) +
         facet_grid(variable ~ ., scales = "free_y") +
         labs(
           x = element_blank(),
@@ -244,11 +248,11 @@ autoplot.predbvhar <- function(object,
     "wrap" = {
       p +
         geom_predbvhar(
+          data = forecast_list %>% filter(forecast == TRUE),
           alpha_scale = alpha_scale,
           ci_param = list(alpha = ci_alpha, colour = NA),
           line_param = list(...)
         ) +
-        scale_linetype_manual(values = line_type) +
         facet_wrap(variable ~ ., nrow = NROW, ncol = NCOL, scales = "free_y") +
         labs(
           x = element_blank(),
@@ -261,13 +265,12 @@ autoplot.predbvhar <- function(object,
 #' @rdname autoplot.predbvhar
 #' 
 #' @importFrom dplyr bind_rows mutate filter
-#' @importFrom ggplot2 ggplot aes facet_grid scale_linetype_manual labs element_blank last_plot ggplot_build
+#' @importFrom ggplot2 ggplot aes facet_grid labs element_blank last_plot ggplot_build geom_path
 #' @export
 autolayer.predbvhar <- function(object, 
                                 ci_fill = "grey70", 
                                 ci_alpha = .5,
-                                alpha_scale = .3,
-                                line_type = c("FALSE" = "dotted", "TRUE" = "solid"), ...) {
+                                alpha_scale = .3, ...) {
   aes_data <- 
     last_plot() %>% 
     ggplot_build() %>% 
@@ -278,7 +281,7 @@ autolayer.predbvhar <- function(object,
     gather_predbvhar(object) %>% # new forecast_list
     filter(id >= x_cut)
   geom_predbvhar(
-    data = NEW_list,
+    data = NEW_list %>% filter(forecast == TRUE),
     alpha_scale = alpha_scale,
     ci_param = list(alpha = ci_alpha, colour = NA),
     line_param = list(...)
