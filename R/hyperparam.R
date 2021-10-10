@@ -1,6 +1,6 @@
 #' Hyperparameters for Bayesian Models
 #' 
-#' See Details.
+#' Set hyperparameters of Bayesian VAR and VHAR models.
 #' 
 #' @param sigma Standard error vector for each variable (Default: sd)
 #' @param lambda Tightness of the prior around a random walk or white noise (Default: .1)
@@ -112,7 +112,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @param weekly Fill the second part in the first block (Default: 1)
 #' @param monthly Fill the third part in the first block (Default: 1)
 #' @details 
-#' * `set_weight_bvhar` sets hyperparameters for [bvhar_minnesota()] with HAR-type Minnesota prior.
+#' * `set_weight_bvhar` sets hyperparameters for [bvhar_minnesota()] with VHAR-type Minnesota prior.
 #' @examples 
 #' # HAR-type Minnesota BVHAR specification
 #' # m = 3
