@@ -19,7 +19,7 @@ knit_print.bvarmn(x, ...)
 
 \item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
-\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+\item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{bvarmn} object}
 
@@ -46,7 +46,7 @@ It is a list with the following components:
 \item{call}{Matched call}
 \item{process}{Process: BVAR_Minnesota}
 \item{spec}{Model specification (\code{bvharspec})}
-\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}

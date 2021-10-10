@@ -5,7 +5,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param bayes_spec `r lifecycle::badge("experimental")` A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
@@ -29,11 +29,11 @@
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{y}{Raw input}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: BVHAR_MN_VAR or BVHAR_MN_VHAR}
-#'   \item{spec}{Model specification (\code{bvharspec})}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{spec}{Model specification (`bvharspec`)}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{call}{Matched call}
 #'   \item{mn_mean}{Location of posterior matrix normal distribution}
 #'   \item{fitted.values}{Fitted values}
@@ -84,6 +84,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   m <- ncol(y)
   N <- nrow(y)
   num_coef <- 3 * m + 1
+  # model specification---------------
   if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
   sigma <- bayes_spec$sigma
   lambda <- bayes_spec$lambda
@@ -92,6 +93,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   Y0 <- build_y0(y, 22, 23)
   name_var <- colnames(y)
   colnames(Y0) <- name_var
+  s <- nrow(Y0)
   X0 <- build_design(y, 22)
   HARtrans <- scale_har(m)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
@@ -162,12 +164,12 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     residuals = Y0 - yhat,
     mn_prec = Psihat,
     iw_scale = Sighat,
-    iw_shape = d0 + N + 2,
+    iw_shape = d0 + s, # if adding improper prior, d0 + s + 2
     # variables-----------
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     p = 3, # add for other function (df = 3m + 1 = mp + 1)
     m = m, # m
-    obs = nrow(Y0), # s = n - p
+    obs = s, # s = n - 22
     totobs = N, # n
     # about model---------
     call = match.call(),
@@ -178,7 +180,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     prior_mean = P0,
     prior_precision = Psi0,
     prior_scale = U0,
-    prior_shape = d0 + (m + 3), # add (m + 3) for prior mean existence
+    prior_shape = d0,
     # data----------------
     HARtrans = HARtrans,
     y0 = Y0,

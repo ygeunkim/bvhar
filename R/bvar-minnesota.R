@@ -5,7 +5,7 @@
 #' @param y matrix, Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar()].
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
@@ -39,12 +39,12 @@
 #'   \item{df}{Numer of Coefficients: mp + 1 or mp}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: BVAR_Minnesota}
-#'   \item{spec}{Model specification (\code{bvharspec})}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{spec}{Model specification (`bvharspec`)}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
@@ -85,6 +85,7 @@
 bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
   if (!is.matrix(y)) y <- as.matrix(y)
+  # model specification---------------
   if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
   if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar()'.")
   if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
@@ -141,14 +142,14 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   # S3--------------------------------
   res <- list(
     # posterior------------
-    coefficients = Bhat,
+    coefficients = Bhat, # posterior mean of MN
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_prec = Uhat,
-    iw_scale = Sighat,
-    iw_shape = a0 + s + 2,
+    mn_prec = Uhat, # posterior precision of MN
+    iw_scale = Sighat, # posterior scale of IW
+    iw_shape = a0 + s, # posterior shape of IW (if adding improper prior, a0 + s + 2)
     # variables------------
-    df = k, # k = m * p + 1
+    df = k, # k = m * p + 1 or m * p
     p = p, # p
     m = m, # m = dimension of Y_t
     obs = s, # s = n - p
@@ -162,7 +163,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     prior_mean = B0, # B0
     prior_precision = U0, # U0 = (Omega)^{-1}
     prior_scale = S0, # S0
-    prior_shape = a0 + (m + 3), # add (m + 3) for prior mean existence
+    prior_shape = a0,
     # data-----------------
     y0 = Y0,
     design = X0,

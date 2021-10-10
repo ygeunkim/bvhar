@@ -17,7 +17,7 @@ knit_print.bvharmn(x, ...)
 
 \item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
-\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+\item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{bvarmn} object}
 
@@ -38,7 +38,7 @@ It is a list with the following components:
 \item{totobs}{Total number of the observation}
 \item{process}{Process: BVHAR_MN_VAR or BVHAR_MN_VHAR}
 \item{spec}{Model specification (\code{bvharspec})}
-\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{call}{Matched call}
 \item{mn_mean}{Location of posterior matrix normal distribution}
 \item{fitted.values}{Fitted values}
