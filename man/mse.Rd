@@ -2,17 +2,28 @@
 % Please edit documentation in R/summary-forecast.R
 \name{mse}
 \alias{mse}
-\title{Evaluate the Model Based on MSPE (Mean Squared Prediction Error)}
+\alias{mse.predbvhar}
+\title{Evaluate the Model Based on MSE (Mean Square Error)}
 \usage{
 mse(x, y, ...)
+
+\method{mse}{predbvhar}(x, y, ...)
 }
 \arguments{
 \item{x}{\code{predbvhar} object}
 
-\item{y}{test data to be compared}
+\item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
 
 \item{...}{not used}
 }
 \description{
-Evaluate the Model Based on MSPE (Mean Squared Prediction Error)
+This function computes MSE given prediction result versus evaluation set.
+}
+\details{
+MSE is the most used accuracy measure.
+
+\deqn{MSE = mean(e_t^2)}
+}
+\references{
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688. doi:\href{https://doi.org/10.1016/j.ijforecast.2006.03.001}{10.1016/j.ijforecast.2006.03.001}
 }

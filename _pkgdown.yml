@@ -82,9 +82,9 @@ reference:
   - forecast_bvharmn
   - divide_ts
   - mse
-  - mse.predbvhar
   - mape
-  - mape.predbvhar
+  - mase
+  - mrae
 
 - title: Information criteria
   desc: ~
