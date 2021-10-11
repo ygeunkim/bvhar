@@ -13,10 +13,10 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   bhat_mat <- split_coef(x)
   cat(sprintf("BVAR(%i) with Minnesota Prior\n", x$p))
   cat("====================================================\n\n")
-  cat("B ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
+  cat("A ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
   cat("====================================================\n")
   for (i in 1:(x$p)) {
-    cat(sprintf("Matrix Normal Mean for B%i part:\n", i))
+    cat(sprintf("Matrix Normal Mean for A%i part:\n", i))
     # B1, ..., Bp--------------------
     print.default(
       bhat_mat[[i]],
@@ -93,7 +93,7 @@ print.summary.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), 
   # Model description----------------
   cat(sprintf("BVAR(%i) with Minnesota Prior\n", x$p))
   cat("====================================================\n")
-  cat("B ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
+  cat("A ~ Matrix Normal (Mean, Precision, Scale = Sigma)\n")
   cat("Sigma ~ Inverse-Wishart (IW Scale, IW df)\n")
   # density--------------------------------
   cat("\n\nAbout the Posterior Density:\n")
@@ -105,7 +105,7 @@ print.summary.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), 
     print.gap = 2L,
     quote = FALSE
   )
-  cat("\nCoefficients (B):\n")
+  cat("\nCoefficients (A):\n")
   cat(
     utils::capture.output(str(x$coefficients))[1:5],
     sep = "\n"

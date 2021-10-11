@@ -11,12 +11,12 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   # split the matrix for the print: B1, ..., Bp
   bhat_mat <- split_coef(x)
-  cat(sprintf("BVAR(%i) with Simple Ghosh Prior\n", x$p))
+  cat(sprintf("BVAR(%i) with Flat Prior\n", x$p))
   cat("====================================================\n\n")
-  cat("B ~ Matrix Normal (Mean, U^{-1}, Scale 2 = Sigma)\n")
+  cat("A ~ Matrix Normal (Mean, U^{-1}, Scale 2 = Sigma)\n")
   cat("====================================================\n")
   for (i in 1:(x$p)) {
-    cat(sprintf("Matrix Normal Mean for B%i part:\n", i))
+    cat(sprintf("Matrix Normal Mean for A%i part:\n", i))
     # B1, ..., Bp--------------------
     print.default(
       bhat_mat[[i]],

@@ -7,7 +7,7 @@
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' This package specifies VAR(p) model as
-#' \deqn{Y_{t} = c + B_1 Y_{t - 1} + \cdots + B_p Y_{t - p} + \epsilon_t}
+#' \deqn{Y_{t} = c + A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + \epsilon_t}
 #' 
 #' If `include_type = TRUE`, there is \eqn{c} term.
 #' Otherwise (`include_type = FALSE`), there is no \eqn{c} term.
@@ -15,11 +15,11 @@
 #' 
 #' * [build_y0()] gives response matrix, \eqn{Y_0}.
 #' * [build_design()] gives design matrix, \eqn{X_0}.
-#' * Coefficient matrix is the form of \eqn{B = [B_1, B_2, \ldots, B_p, c]^T}.
+#' * Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 #' 
 #' Then perform least squares to the following multivariate regression model
 #' 
-#' \deqn{Y_0 = X_0 B + error}
+#' \deqn{Y_0 = X_0 A + error}
 #' 
 #' which gives
 #' 

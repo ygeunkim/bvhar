@@ -14,7 +14,7 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(sprintf("VAR(%i) Estimation using least squares\n", x$p))
   cat("====================================================\n\n")
   for (i in 1:(x$p)) {
-    cat(sprintf("LSE for B%i:\n", i))
+    cat(sprintf("LSE for A%i:\n", i))
     # B1, ..., Bp--------------------
     print.default(
       bhat_mat[[i]],
@@ -97,7 +97,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   )
   cat("\n====================================================\n")
   for (i in 1:(x$p)) {
-    cat(sprintf("LSE for B%i:\n", i))
+    cat(sprintf("LSE for A%i:\n", i))
     # print Bi----------------------
     print.default(
       x$coefficients[[i]],
