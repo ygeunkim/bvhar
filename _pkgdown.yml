@@ -82,6 +82,7 @@ reference:
   - forecast_bvharmn
   - divide_ts
   - mse
+  - mae
   - mape
   - mase
   - mrae

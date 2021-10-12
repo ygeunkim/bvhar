@@ -4,17 +4,25 @@
 \alias{plot_loss}
 \title{Compare Lists of Models}
 \usage{
-plot_loss(mod_list, y, type = c("mse", "mape"), ...)
+plot_loss(mod_list, y, type = c("mse", "mae", "mape", "mase"), ...)
 }
 \arguments{
-\item{mod_list}{lists of forecast results (\code{predbvhar} objects)}
+\item{mod_list}{Lists of forecast results (\code{predbvhar} objects)}
 
-\item{y}{test data to be compared. should be the same format with the train data and predict$forecast.}
+\item{y}{Test data to be compared. should be the same format with the train data and predict$forecast.}
 
-\item{type}{loss function to be used (\code{"mse"}: MSE, \code{mape}: MAPE)}
+\item{type}{Loss function to be used (\code{"mse"}: MSE, \code{"mae"}: MAE, \code{mape}: MAPE, \code{"mase"}: MASE)}
 
-\item{...}{additional options for \code{\link[ggplot2:geom_line]{ggplot2::geom_line}}}
+\item{...}{Additional options for \code{\link[ggplot2:geom_line]{ggplot2::geom_line}}}
 }
 \description{
 Draw plot of test error for given models
+}
+\seealso{
+\itemize{
+\item \code{\link[=mse]{mse()}} to compute MSE for given forecast result
+\item \code{\link[=mae]{mae()}} to compute MAE for given forecast result
+\item \code{\link[=mape]{mape()}} to compute MAPE for given forecast result
+\item \code{\link[=mase]{mase()}} to compute MASE for given forecast result
+}
 }

@@ -53,6 +53,7 @@ Set hyperparameters of Bayesian VAR and VHAR models.
 }
 \details{
 \itemize{
+\item Missing arguments will be set to be default values in each model function mentioned above.
 \item \code{set_bvar} sets hyperparameters for \code{\link[=bvar_minnesota]{bvar_minnesota()}}.
 }
 

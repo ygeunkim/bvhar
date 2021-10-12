@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{autoplot.bvarmn}
 \alias{autoplot.bvarmn}
-\title{Residual Plot for \code{bvarmn} Object}
+\title{Residual Plot for Minnesota Prior VAR Model}
 \usage{
 \method{autoplot}{bvarmn}(object, hcol = "grey", hsize = 1.5, ...)
 }
@@ -16,5 +16,5 @@
 \item{...}{additional options for geom_point}
 }
 \description{
-Residual Plot for \code{bvarmn} Object
+This function draww residual plot for covariance matrix of Minnesota prior VAR model.
 }

@@ -1,6 +1,5 @@
 #' Fit Bayesian VHAR of Minnesota Prior
 #' 
-#' @description
 #' This function fits BVHAR with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables

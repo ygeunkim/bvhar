@@ -2,11 +2,12 @@
 #' 
 #' Set hyperparameters of Bayesian VAR and VHAR models.
 #' 
-#' @param sigma Standard error vector for each variable (Default: sd)
+#' @param sigma Standard error vector for each variable (Default: sd of each variable)
 #' @param lambda Tightness of the prior around a random walk or white noise (Default: .1)
-#' @param delta Persistence (Default: Litterman sets 1 = random walk prior, White noise prior = 0)
+#' @param delta Persistence (Litterman sets 1 = random walk prior (default: rep(1, number of variables)), White noise prior = 0)
 #' @param eps Very small number (Default: 1e-04)
 #' @details 
+#' * Missing arguments will be set to be default values in each model function mentioned above.
 #' * `set_bvar` sets hyperparameters for [bvar_minnesota()].
 #' @return Every function returns `bvharspec` [class].
 #' It is the list of which the components are the same as the arguments provided.
@@ -164,8 +165,16 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   cat(paste0("Model Specification for ", x$process, "\n\n"))
   cat("Parameters: Coefficent matrice and Covariance matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
-  cat("**Read corresponding document for the details of the distribution.**\n")
-  cat("====================================================================\n\n")
+  fit_func <- switch(
+    x$prior,
+    "Minnesota" = "?bvar_minnesota",
+    "Flat" = "?bvar_flat",
+    "MN_VAR" = "?bvhar_minnesota",
+    "MN_VHAR" = "?bvhar_minnesota",
+    stop("Invalid 'x$prior' element")
+  )
+  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  cat("========================================================\n\n")
   param <- x[!(names(x) %in% c("process", "prior"))]
   for (i in seq_along(param)) {
     cat(paste0("Setting for '", names(param)[i], "':\n"))

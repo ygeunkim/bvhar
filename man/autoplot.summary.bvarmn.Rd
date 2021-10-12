@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{autoplot.summary.bvarmn}
 \alias{autoplot.summary.bvarmn}
-\title{Density Plot for \code{summary.bvarmn} Object}
+\title{Density Plot for Minnesota Prior VAR Model}
 \usage{
 \method{autoplot}{summary.bvarmn}(
   object,
@@ -27,5 +27,5 @@
 \item{...}{not used}
 }
 \description{
-Density Plot for \code{summary.bvarmn} Object
+This function draws density plot for coefficient matrices of Minnesota prior VAR model.
 }
