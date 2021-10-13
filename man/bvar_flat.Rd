@@ -19,7 +19,7 @@ knit_print.bvarflat(x, ...)
 
 \item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar_flat]{set_bvar_flat()}}.}
 
-\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+\item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{x}{\code{bvarflat} object}
 
@@ -60,13 +60,13 @@ Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
 Under this setting, there are many models such as hierarchical or non-hierarchical.
 This function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 
-\deqn{B \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
+\deqn{A \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
 \eqn{\Sigma_e \sim} flat
 where U: precision matrix.
 
 Then in VAR design equation (Y0 = X0 B + Z),
 MN mean can be derived by
-\deqn{\hat{B} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
+\deqn{\hat{A} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
 and the MN scale matrix can be derived by
 \deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
 and IW shape by \eqn{s - m - 1}.

@@ -10,7 +10,7 @@
 #' @details 
 #' Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
 #' 
-#' \deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
+#' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' 
@@ -100,7 +100,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
+  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   s <- nrow(Y0)
   k <- m * p + 1
@@ -122,32 +122,32 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   # estimate-bvar.cpp-----------------
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
-  B0 <- posterior$prior_mean
-  U0 <- posterior$prior_prec
-  S0 <- posterior$prior_scale
-  a0 <- posterior$prior_shape
+  prior_mean <- posterior$prior_mean # A0
+  prior_prec <- posterior$prior_prec # U0
+  prior_scale <- posterior$prior_scale # S0
+  prior_shape <- posterior$prior_shape # a0
   # Matrix normal---------------------
-  Bhat <- posterior$bhat # matrix normal mean
-  colnames(Bhat) <- name_var
-  rownames(Bhat) <- name_lag
-  Uhat <- posterior$mnprec # matrix normal precision
-  colnames(Uhat) <- name_lag
-  rownames(Uhat) <- name_lag
+  mn_mean <- posterior$mnmean # matrix normal mean
+  colnames(mn_mean) <- name_var
+  rownames(mn_mean) <- name_lag
+  mn_prec <- posterior$mnprec # matrix normal precision
+  colnames(mn_prec) <- name_lag
+  rownames(mn_prec) <- name_lag
   yhat <- posterior$fitted
   colnames(yhat) <- name_var
   # Inverse-wishart-------------------
-  Sighat <- posterior$iwscale # IW scale
-  colnames(Sighat) <- name_var
-  rownames(Sighat) <- name_var
+  iw_scale <- posterior$iwscale # IW scale
+  colnames(iw_scale) <- name_var
+  rownames(iw_scale) <- name_var
   # S3--------------------------------
   res <- list(
     # posterior------------
-    coefficients = Bhat, # posterior mean of MN
+    coefficients = mn_mean, # posterior mean of MN
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_prec = Uhat, # posterior precision of MN
-    iw_scale = Sighat, # posterior scale of IW
-    iw_shape = a0 + s, # posterior shape of IW (if adding improper prior, a0 + s + 2)
+    mn_prec = mn_prec, # posterior precision of MN
+    iw_scale = iw_scale, # posterior scale of IW
+    iw_shape = prior_shape + s, # posterior shape of IW (if adding improper prior, a0 + s + 2)
     # variables------------
     df = k, # k = m * p + 1 or m * p
     p = p, # p
@@ -160,10 +160,10 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
     # prior----------------
-    prior_mean = B0, # B0
-    prior_precision = U0, # U0 = (Omega)^{-1}
-    prior_scale = S0, # S0
-    prior_shape = a0,
+    prior_mean = prior_mean, # A0
+    prior_precision = prior_prec, # U0 = (Omega)^{-1}
+    prior_scale = prior_scale, # S0
+    prior_shape = prior_shape,
     # data-----------------
     y0 = Y0,
     design = X0,

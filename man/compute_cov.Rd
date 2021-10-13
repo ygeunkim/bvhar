@@ -25,7 +25,7 @@ See pp75 Lütkepohl (2007).
 
 Then an unbiased estimator for \eqn{\Sigma_e} is
 
-\deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{B} X_0)^T (Y_0 - \hat{B} X_0)}
+\deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

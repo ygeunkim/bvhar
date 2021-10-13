@@ -78,7 +78,7 @@ var_lm <- function(y, p, include_mean = TRUE) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
+  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none--------------------
   if (!is.logical(include_mean)) stop("'include_mean' is logical.")
@@ -90,9 +90,9 @@ var_lm <- function(y, p, include_mean = TRUE) {
   }
   # estimate B-----------------------
   var_est <- estimate_var(X0, Y0)
-  Bhat <- var_est$bhat
-  colnames(Bhat) <- colnames(Y0)
-  rownames(Bhat) <- colnames(X0)
+  coef_est <- var_est$coef # Ahat
+  colnames(coef_est) <- colnames(Y0)
+  rownames(coef_est) <- colnames(X0)
   # fitted values and residuals-----
   yhat <- var_est$fitted
   colnames(yhat) <- colnames(Y0)
@@ -104,9 +104,9 @@ var_lm <- function(y, p, include_mean = TRUE) {
   # return as new S3 class-----------
   res <- list(
     # estimation-----------
-    coefficients = Bhat,
-    fitted.values = yhat, # X0 %*% Bhat
-    residuals = zhat, # Y0 - X0 %*% Bhat
+    coefficients = coef_est,
+    fitted.values = yhat, # X0 %*% Ahat
+    residuals = zhat, # Y0 - X0 %*% Ahat
     covmat = covmat,
     # variables------------
     df = k, # k = m * p + 1 or m * p

@@ -3,7 +3,7 @@
 #' This function fits VHAR using OLS method.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' For VHAR model
 #' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}

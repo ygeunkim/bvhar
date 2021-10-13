@@ -2,11 +2,17 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Build a Linear Transformation Matrix for Vector HAR
+//' Building a Linear Transformation Matrix for Vector HAR
+//' 
+//' This function produces a linear transformation matrix for VHAR for given dimension.
 //' 
 //' @param m integer, dimension
 //' @details
-//' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
+//' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
+//' 
+//' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
+//' 
+//' This function computes above \eqn{T_{HAR}}.
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -32,11 +38,13 @@ Eigen::MatrixXd scale_har (int m) {
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
 //' 
+//' This function fits VHAR given response and design matrices of multivariate time series.
+//' 
 //' @param x X0 processed by \code{\link{build_design}}
 //' @param y Y0 processed by \code{\link{build_y0}}
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
-//' Y0 = X1 Phi + Z
+//' \deqn{Y_0 = X_1 \Phi + Z}
 //' 
 //' @references
 //' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -65,11 +73,13 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
 //' 
+//' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
+//' 
 //' @param x X0 processed by \code{\link{build_design}} (delete its last column)
 //' @param y Y0 processed by \code{\link{build_y0}}
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
-//' Y0 = X1 Phi + Z
+//' \deqn{Y_0 = X_1 \Phi + Z}
 //' 
 //' @references
 //' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -103,19 +113,19 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
   Eigen::MatrixXd coef_mat = HARtrans_mat.adjoint() * vhar_coef; // bhat = tilde(T)^T * Phi
   if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
   int ma_rows = dim * (lag_max + 1);
-  int num_full_brows = ma_rows;
-  if (lag_max < 22) num_full_brows = dim * 22; // for VMA coefficient q < VAR(p)
-  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
-  FullB.block(0, 0, dim * 22, dim) = coef_mat.block(0, 0, dim * 22, dim); // fill first mp row with VAR coefficient matrix
+  int num_full_arows = ma_rows;
+  if (lag_max < 22) num_full_arows = dim * 22; // for VMA coefficient q < VAR(p)
+  Eigen::MatrixXd FullA = Eigen::MatrixXd::Zero(num_full_arows, dim); // same size with VMA coefficient matrix
+  FullA.block(0, 0, dim * 22, dim) = coef_mat.block(0, 0, dim * 22, dim); // fill first mp row with VAR coefficient matrix
   Eigen::MatrixXd Im(dim, dim); // identity matrix
   Im.setIdentity(dim, dim);
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
-  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
+  ma.block(dim, 0, dim, dim) = FullA.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
   if (lag_max == 1) return ma;
   for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
     for (int k = 0; k < i; k++) {
-      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
+      ma.block(i * dim, 0, dim, dim) += FullA.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
     }
   }
   return ma;

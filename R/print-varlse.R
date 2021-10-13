@@ -37,7 +37,7 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     cat("\n\n")
   }
   cat("--------------------------------------------------\n")
-  cat("*_j of the Coefficient matrix: j-th observation is the first observation corresponding to the coefficient\n\n")
+  cat("*_j of the Coefficient matrix: corresponding to the j-th VAR lag\n\n")
   invisible(x)
 }
 

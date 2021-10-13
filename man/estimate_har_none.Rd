@@ -12,11 +12,11 @@ estimate_har_none(x, y)
 \item{y}{Y0 processed by \code{\link{build_y0}}}
 }
 \description{
-Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
+This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
 }
 \details{
 Given Y0 and Y0, the function estimate least squares
-Y0 = X1 Phi + Z
+\deqn{Y_0 = X_1 \Phi + Z}
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

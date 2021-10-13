@@ -11,7 +11,7 @@
 #' 
 #' \deqn{\Phi \mid \Sigma_e \sim MN(P_0, \Psi_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(U_0, d_0)}
-#' (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
+#' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' 
 #' Two types of Minnesota priors builds different dummy variables for Y0.
 #' `mn_type = "VAR"` constructs dummy Y0 with `p = 3` of [build_ydummy()].

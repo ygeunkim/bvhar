@@ -20,7 +20,7 @@ Point estimates for posterior distribution
 }
 \details{
 Augment originally processed data and dummy observation.
-OLS from this set give the result.
+OLS from this set gives the result.
 }
 \references{
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}

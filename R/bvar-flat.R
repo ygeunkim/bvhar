@@ -1,12 +1,11 @@
 #' Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior
 #' 
-#' @description
 #' This function fits BVAR(p) with Ghosh et al. (2018) nonhierarchical prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar_flat()].
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
 #' Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
@@ -14,13 +13,13 @@
 #' Under this setting, there are many models such as hierarchical or non-hierarchical.
 #' This function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 #' 
-#' \deqn{B \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
+#' \deqn{A \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
 #' \eqn{\Sigma_e \sim} flat
 #' where U: precision matrix.
 #' 
 #' Then in VAR design equation (Y0 = X0 B + Z),
 #' MN mean can be derived by
-#' \deqn{\hat{B} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
+#' \deqn{\hat{A} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
 #' and the MN scale matrix can be derived by
 #' \deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
 #' and IW shape by \eqn{s - m - 1}.
@@ -88,7 +87,7 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   name_var <- colnames(y)
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, p:1) # in misc-r.R file
+  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
   if (!is.logical(include_mean)) stop("'include_mean' is logical.")
@@ -101,29 +100,29 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   }
   # spec------------------------------
   if (is.null(bayes_spec$U)) bayes_spec$U <- diag(ncol(X0)) # identity matrix
-  U <- bayes_spec$U
+  prior_prec <- bayes_spec$U
   # Matrix normal---------------------
-  posterior <- estimate_mn_flat(X0, Y0, U)
-  Bhat <- posterior$bhat # posterior mean
-  colnames(Bhat) <- name_var
-  rownames(Bhat) <- name_lag
-  Uhat <- posterior$mnprec
-  colnames(Uhat) <- name_lag
-  rownames(Uhat) <- name_lag
+  posterior <- estimate_mn_flat(X0, Y0, prior_prec)
+  mn_mean <- posterior$mnmean # posterior mean
+  colnames(mn_mean) <- name_var
+  rownames(mn_mean) <- name_lag
+  mn_prec <- posterior$mnprec
+  colnames(mn_prec) <- name_lag
+  rownames(mn_prec) <- name_lag
   yhat <- posterior$fitted
   colnames(yhat) <- name_var
   # Inverse-wishart-------------------
-  Sighat <- posterior$iwscale
-  colnames(Sighat) <- name_var
-  rownames(Sighat) <- name_var
+  iw_scale <- posterior$iwscale
+  colnames(iw_scale) <- name_var
+  rownames(iw_scale) <- name_var
   # S3--------------------------------
   res <- list(
     # posterior-----------
-    coefficients = Bhat,
+    coefficients = mn_mean,
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_prec = Uhat,
-    iw_scale = Sighat,
+    mn_prec = mn_prec,
+    iw_scale = iw_scale,
     iw_shape = posterior$iwshape,
     # variables-----------
     df = k, # k = mp + 1 or mp
@@ -137,8 +136,8 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     type = ifelse(include_mean, "const", "none"),
     call = match.call(),
     # prior----------------
-    prior_mean = array(0L, dim = dim(Bhat)), # zero matrix
-    prior_precision = U, # given as input
+    prior_mean = array(0L, dim = dim(mn_mean)), # zero matrix
+    prior_precision = prior_prec, # given as input
     # data----------------
     y0 = Y0,
     design = X0,

@@ -4,23 +4,25 @@
 
 //' Compute VAR(p) Coefficient Matrices and Fitted Values
 //' 
-//' @param x X0 processed by \code{\link{build_design}}
-//' @param y Y0 processed by \code{\link{build_y0}}
+//' This function fits VAR(p) given response and design matrices of multivariate time series.
+//' 
+//' @param x X0 processed by [build_design()]
+//' @param y Y0 processed by [build_y0()]
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
-//' Y0 = X0 B + Z
+//' Y0 = X0 A + Z
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
-  Eigen::MatrixXd B(x.cols(), y.cols()); // bhat
+  Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
   Eigen::MatrixXd yhat(y.rows(), y.cols());
-  B = (x.adjoint() * x).inverse() * x.adjoint() * y;
-  yhat = x * B;
+  coef_mat = (x.adjoint() * x).inverse() * x.adjoint() * y;
+  yhat = x * coef_mat;
   return Rcpp::List::create(
-    Rcpp::Named("bhat") = Rcpp::wrap(B),
-    Rcpp::Named("fitted") = Rcpp::wrap(yhat)
+    Rcpp::Named("coef") = coef_mat,
+    Rcpp::Named("fitted") = yhat
   );
 }
 
@@ -39,9 +41,9 @@ Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' Then an unbiased estimator for \eqn{\Sigma_e} is
 //' 
-//' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{B} X_0)^T (Y_0 - \hat{B} X_0)}
+//' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
@@ -56,19 +58,19 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
   int dim = var_coef.cols(); // m
   if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
   int ma_rows = dim * (lag_max + 1);
-  int num_full_brows = ma_rows;
-  if (lag_max < var_lag) num_full_brows = dim * var_lag; // for VMA coefficient q < VAR(p)
-  Eigen::MatrixXd FullB = Eigen::MatrixXd::Zero(num_full_brows, dim); // same size with VMA coefficient matrix
-  FullB.block(0, 0, dim * var_lag, dim) = var_coef.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
+  int num_full_arows = ma_rows;
+  if (lag_max < var_lag) num_full_arows = dim * var_lag; // for VMA coefficient q < VAR(p)
+  Eigen::MatrixXd FullA = Eigen::MatrixXd::Zero(num_full_arows, dim); // same size with VMA coefficient matrix
+  FullA.block(0, 0, dim * var_lag, dim) = var_coef.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
   Eigen::MatrixXd Im(dim, dim); // identity matrix
   Im.setIdentity(dim, dim);
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
-  ma.block(dim, 0, dim, dim) = FullB.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
+  ma.block(dim, 0, dim, dim) = FullA.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T
   if (lag_max == 1) return ma;
   for (int i = 2; i < (lag_max + 1); i++) { // from W2: m-th row
     for (int k = 0; k < i; k++) {
-      ma.block(i * dim, 0, dim, dim) += FullB.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
+      ma.block(i * dim, 0, dim, dim) += FullA.block(k * dim, 0, dim, dim) * ma.block((i - k - 1) * dim, 0, dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
     }
   }
   return ma;
@@ -78,7 +80,7 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' 
 //' Convert VAR process to infinite vector MA process
 //' 
-//' @param object \code{varlse} object by \code{\link{var_lm}}
+//' @param `varlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Let VAR(p) be stable.
@@ -91,7 +93,7 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
 //' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
@@ -106,7 +108,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' 
 //' Compute the forecast MSE matrices using VMA coefficients
 //' 
-//' @param object \code{varlse} object by \code{\link{var_lm}}
+//' @param `varlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' See pp38 of Lütkepohl (2007).
@@ -116,7 +118,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
 //' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {

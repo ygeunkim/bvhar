@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{scale_har}
 \alias{scale_har}
-\title{Build a Linear Transformation Matrix for Vector HAR}
+\title{Building a Linear Transformation Matrix for Vector HAR}
 \usage{
 scale_har(m)
 }
@@ -10,8 +10,12 @@ scale_har(m)
 \item{m}{integer, dimension}
 }
 \description{
-Build a Linear Transformation Matrix for Vector HAR
+This function produces a linear transformation matrix for VHAR for given dimension.
 }
 \details{
-VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
+VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
+
+\deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
+
+This function computes above \eqn{T_{HAR}}.
 }

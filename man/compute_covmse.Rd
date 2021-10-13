@@ -7,9 +7,9 @@
 compute_covmse(object, step)
 }
 \arguments{
-\item{object}{\code{varlse} object by \code{\link{var_lm}}}
-
 \item{step}{Integer, Step to forecast}
+
+\item{`varlse`}{object}
 }
 \description{
 Compute the forecast MSE matrices using VMA coefficients

@@ -159,12 +159,12 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
 #' 
 #' @details
 #' Augment originally processed data and dummy observation.
-#' OLS from this set give the result.
+#' OLS from this set gives the result.
 #' 
 #' @references
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
 estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
@@ -193,13 +193,15 @@ estimate_mn_flat <- function(x, y, U) {
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
-#' @param x X0 processed by \code{\link{build_design}}
-#' @param y Y0 processed by \code{\link{build_y0}}
+#' This function fits VAR(p) given response and design matrices of multivariate time series.
+#' 
+#' @param x X0 processed by [build_design()]
+#' @param y Y0 processed by [build_y0()]
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
-#' Y0 = X0 B + Z
+#' Y0 = X0 A + Z
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 estimate_var <- function(x, y) {
     .Call(`_bvhar_estimate_var`, x, y)
@@ -220,9 +222,9 @@ estimate_var <- function(x, y) {
 #' 
 #' Then an unbiased estimator for \eqn{\Sigma_e} is
 #' 
-#' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{B} X_0)^T (Y_0 - \hat{B} X_0)}
+#' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
@@ -237,7 +239,7 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' 
 #' Convert VAR process to infinite vector MA process
 #' 
-#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param `varlse` object
 #' @param lag_max Maximum lag for VMA
 #' @details
 #' Let VAR(p) be stable.
@@ -250,7 +252,7 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
 #' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
@@ -260,7 +262,7 @@ VARtoVMA <- function(object, lag_max) {
 #' 
 #' Compute the forecast MSE matrices using VMA coefficients
 #' 
-#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param `varlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' See pp38 of Lütkepohl (2007).
@@ -270,17 +272,23 @@ VARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
 }
 
-#' Build a Linear Transformation Matrix for Vector HAR
+#' Building a Linear Transformation Matrix for Vector HAR
+#' 
+#' This function produces a linear transformation matrix for VHAR for given dimension.
 #' 
 #' @param m integer, dimension
 #' @details
-#' VHAR is linearly restricted VAR(22) in Y0 = X0 B + Z.
+#' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
+#' 
+#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
+#' 
+#' This function computes above \eqn{T_{HAR}}.
 #' 
 #' @export
 scale_har <- function(m) {
@@ -289,11 +297,13 @@ scale_har <- function(m) {
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
 #' 
+#' This function fits VHAR given response and design matrices of multivariate time series.
+#' 
 #' @param x X0 processed by \code{\link{build_design}}
 #' @param y Y0 processed by \code{\link{build_y0}}
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
-#' Y0 = X1 Phi + Z
+#' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
@@ -308,11 +318,13 @@ estimate_har <- function(x, y) {
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
 #' 
+#' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
+#' 
 #' @param x X0 processed by \code{\link{build_design}} (delete its last column)
 #' @param y Y0 processed by \code{\link{build_y0}}
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
-#' Y0 = X1 Phi + Z
+#' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
 #' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
