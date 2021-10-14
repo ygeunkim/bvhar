@@ -1,4 +1,4 @@
-#' Fit Vector HAR Model
+#' Fitting Vector HAR Model
 #' 
 #' This function fits VHAR using OLS method.
 #' 

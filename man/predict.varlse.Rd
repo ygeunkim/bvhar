@@ -10,15 +10,15 @@
 \alias{knit_print.predbvhar}
 \title{Forecasting Multivariate Time Series}
 \usage{
-\method{predict}{varlse}(object, n.ahead, level = 0.05, ...)
+\method{predict}{varlse}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{vharlse}(object, n.ahead, level = 0.05, ...)
+\method{predict}{vharlse}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvarmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
-\method{predict}{bvharmn}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvharmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
-\method{predict}{bvarflat}(object, n.ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -27,7 +27,7 @@ knit_print.predbvhar(x, ...)
 \arguments{
 \item{object}{Model object}
 
-\item{n.ahead}{step to forecast}
+\item{n_ahead}{step to forecast}
 
 \item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 

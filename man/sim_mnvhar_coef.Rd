@@ -4,33 +4,10 @@
 \alias{sim_mnvhar_coef}
 \title{Generate Minnesota BVAR Parameters}
 \usage{
-sim_mnvhar_coef(
-  type = c("VAR", "VHAR"),
-  sigma,
-  lambda,
-  delta,
-  daily,
-  weekly,
-  monthly,
-  eps = 1e-04
-)
+sim_mnvhar_coef(bayes_spec = set_bvhar())
 }
 \arguments{
-\item{type}{Prior mean type to apply. ("VAR" = Original Minnesota. "VHAR" = fills zero in the first block)}
-
-\item{sigma}{Standard error vector for each variable}
-
-\item{lambda}{Tightness of the prior around a random walk or white noise}
-
-\item{delta}{Prior belief about white noise (Litterman sets 1: default)}
-
-\item{daily}{Same as delta in VHAR type}
-
-\item{weekly}{Fill the second part in the first block}
-
-\item{monthly}{Fill the third part in the first block}
-
-\item{eps}{Very small number}
+\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.
@@ -45,8 +22,14 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
+
 Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 }
 \seealso{
-\code{\link{build_ydummy}}, \code{\link{build_xdummy}}, and \code{\link{build_ydummy_bvhar}} for defining dummy observation.
+\itemize{
+\item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
+\item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
+\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}}, and \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}} to add dummy observations.
+}
 }

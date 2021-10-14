@@ -4,18 +4,12 @@
 \alias{sim_mncoef}
 \title{Generate Minnesota BVAR Parameters}
 \usage{
-sim_mncoef(p, sigma, lambda, delta, eps = 1e-04)
+sim_mncoef(p, bayes_spec = set_bvar())
 }
 \arguments{
 \item{p}{VAR lag}
 
-\item{sigma}{standard error for each variable}
-
-\item{lambda}{tightness of the prior around a random walk or white noise}
-
-\item{delta}{Persistence (Litterman sets 1 = random walk prior, Default: White noise prior = 0)}
-
-\item{eps}{very small number}
+\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.
@@ -23,7 +17,7 @@ This function generates parameters of BVAR with Minnesota prior.
 \details{
 Implementing dummy observation constructions,
 Bańbura et al. (2010) sets Normal-IW prior.
-\deqn{B \mid \Sigma_e \sim MN(B_0, \Omega_0, \Sigma_e)}
+\deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 }
 \references{
@@ -32,5 +26,8 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 }
 \seealso{
-\code{\link{build_ydummy}} and \code{\link{build_xdummy}} for defining dummy observations
+\itemize{
+\item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
+\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}} to construct dummy observations.
+}
 }

@@ -4,7 +4,7 @@
 \alias{vhar_lm}
 \alias{print.vharlse}
 \alias{knit_print.vharlse}
-\title{Fit Vector HAR Model}
+\title{Fitting Vector HAR Model}
 \usage{
 vhar_lm(y, include_mean = TRUE)
 

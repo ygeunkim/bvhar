@@ -292,6 +292,41 @@ autolayer.predbvhar <- function(object,
   )
 }
 
+#' Adding Test Data Layer
+#' 
+#' This function adds a layer of test dataset.
+#' 
+#' @param data Test data to draw.
+#' @param colour Colour of the line (By default, `"red"`).
+#' @param num_train `r lifecycle::badge("experimental")` Size of the train data.
+#' @param ... Other arguments passed on the [ggplot2::geom_path()].
+#' 
+#' @importFrom ggplot2 aes geom_path
+#' @importFrom dplyr mutate n
+#' @importFrom tidyr pivot_longer
+#' @export
+geom_eval <- function(data, colour = "red", num_train = 1, ...) {
+  if (is.matrix(data)) {
+    data <- as.data.frame(data)
+  }
+  if (!is.data.frame(data)) {
+    stop("'data' should be a data frame or matrix.")
+  }
+  if (!all(apply(data, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  new_data <- 
+    data %>% 
+    mutate(id = 1:n() + num_train) %>% 
+    pivot_longer(-id, names_to = "variable", values_to = "value")
+  geom_path(
+    aes(x = id, y = value),
+    data = new_data,
+    colour = colour,
+    ...
+  )
+}
+
 #' Compare Lists of Models
 #' 
 #' Draw plot of test error for given models

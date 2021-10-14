@@ -20,6 +20,7 @@ mape(x, y, ...)
 This function computes MAPE given prediction result versus evaluation set.
 }
 \details{
+Let \eqn{e_t = y_t - \hat{y}_t}.
 Percentage error is defined by \eqn{p_t = 100 e_t / Y_t} (100 can be omitted since comparison is the focus).
 
 \deqn{MAPE = mean(\lvert p_t \rvert)}

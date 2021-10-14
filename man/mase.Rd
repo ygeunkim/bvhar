@@ -20,6 +20,7 @@ mase(x, y, ...)
 This function computes MASE given prediction result versus evaluation set.
 }
 \details{
+Let \eqn{e_t = y_t - \hat{y}_t}.
 Scaled error is defined by
 \deqn{q_t = \frac{e_t}{\sum_{i = 2}^{n} \lvert Y_i - Y_{i - 1} \rvert / (n - 1)}}
 so that the error can be free of the data scale.

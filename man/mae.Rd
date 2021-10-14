@@ -20,6 +20,7 @@ mae(x, y, ...)
 This function computes MAE given prediction result versus evaluation set.
 }
 \details{
+Let \eqn{e_t = y_t - \hat{y}_t}.
 MAE is defined by
 
 \deqn{MSE = mean(\lvert e_t \rvert)}

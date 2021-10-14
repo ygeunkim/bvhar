@@ -115,9 +115,9 @@ y_sig <- apply(y_train, 2, sd) # sigma vector
 y_lam <- .2 # lambda
 y_delta <- rep(.2, m) # delta vector (0 vector since RV stationary)
 eps <- 1e-04 # very small number
-y_bvar <- set_bvar(y_sig, y_lam, y_delta, eps)
+spec_bvar <- set_bvar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvar <- bvar_minnesota(y_train, 5, y_bvar)
+model_bvar <- bvar_minnesota(y_train, 5, spec_bvar)
 ```
 
 ## BVHAR
@@ -125,12 +125,12 @@ model_bvar <- bvar_minnesota(y_train, 5, y_bvar)
 VAR-type Minnesota
 
 ```{r}
-y_bvhar <- set_bvhar(y_sig, y_lam, y_delta, eps)
+spec_bvhar_v1 <- set_bvhar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvhar_v1 <- bvhar_minnesota(y_train, y_bvhar)
+model_bvhar_v1 <- bvhar_minnesota(y_train, spec_bvhar_v1)
 ```
 
-HAR-type Minnesota
+VHAR-type Minnesota
 
 ```{r}
 # weights----------------------------------
@@ -138,7 +138,7 @@ y_day <- rep(.2, m)
 y_week <- rep(.1, m)
 y_month <- rep(.1, m)
 # spec-------------------------------------
-y_bvhar_wt <- set_weight_bvhar(
+spec_bvhar_v2 <- set_weight_bvhar(
   y_sig,
   y_lam,
   eps,
@@ -147,20 +147,20 @@ y_bvhar_wt <- set_weight_bvhar(
   y_month
 )
 # fit--------------------------------------
-model_bvhar_v2 <- bvhar_minnesota(y_train, y_bvhar_wt)
+model_bvhar_v2 <- bvhar_minnesota(y_train, spec_bvhar_v2)
 ```
 
 # Forecasting
 
-In VAR modeling, `vars` package is famous.
-We refer to its argument `n.ahead` and you can forecast using `predict()` method with above objects.
+You can forecast using `predict()` method with above objects.
+You should set the step of the forecasting using `n_ahead` argument.
 
 In addition, the result of this forecast will return another class called `predbvhar`.
 
 ## VAR
 
 ```{r}
-(pred_var <- predict(model_var, n.ahead = h))
+(pred_var <- predict(model_var, n_ahead = h))
 ```
 
 ```{r}
@@ -180,7 +180,7 @@ The package provides the evaluation function
 ## VHAR
 
 ```{r}
-(pred_vhar <- predict(model_vhar, n.ahead = h))
+(pred_vhar <- predict(model_vhar, n_ahead = h))
 ```
 
 MSE:
@@ -192,7 +192,7 @@ MSE:
 ## BVAR
 
 ```{r}
-(pred_bvar <- predict(model_bvar, n.ahead = h))
+(pred_bvar <- predict(model_bvar, n_ahead = h))
 ```
 
 MSE:
@@ -206,7 +206,7 @@ MSE:
 ### VAR-type Minnesota
 
 ```{r}
-(pred_bvhar_v1 <- predict(model_bvhar_v1, n.ahead = h))
+(pred_bvhar_v1 <- predict(model_bvhar_v1, n_ahead = h))
 ```
 
 MSE:
@@ -215,10 +215,10 @@ MSE:
 (mse_bvhar_v1 <- mse(pred_bvhar_v1, y_test))
 ```
 
-### HAR-type Minnesota
+### VHAR-type Minnesota
 
 ```{r}
-(pred_bvhar_v2 <- predict(model_bvhar_v2, n.ahead = h))
+(pred_bvhar_v2 <- predict(model_bvhar_v2, n_ahead = h))
 ```
 
 MSE:

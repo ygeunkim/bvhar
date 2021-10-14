@@ -1,6 +1,6 @@
-#' Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior
+#' Fitting Bayesian VAR(p) of Flat Prior
 #' 
-#' This function fits BVAR(p) with Ghosh et al. (2018) nonhierarchical prior.
+#' This function fits BVAR(p) with flat prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag

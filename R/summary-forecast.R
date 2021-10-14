@@ -3,18 +3,17 @@
 #' Split a given time series dataset into train and test set for evaluation.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param n.ahead step to evaluate
+#' @param n_ahead step to evaluate
 #' 
 #' @seealso 
-#' \code{\link[rsample:initial_time_split]{rsample::initial_time_split}}, \code{\link[rsample:training]{rsample::training}}, and \code{\link[rsample:testing]{rsample::testing}} process
-#' provides tidyverse solution.
+#' [rsample::initial_time_split()], [rsample::training()], and [rsample::testing()] process provides tidyverse solution.
 #' 
 #' @importFrom stats setNames
 #' @export
-divide_ts <- function(y, n.ahead) {
+divide_ts <- function(y, n_ahead) {
   num_ts <- nrow(y)
-  fac_train <- rep(1, num_ts - n.ahead)
-  fac_test <- rep(2, n.ahead)
+  fac_train <- rep(1, num_ts - n_ahead)
+  fac_test <- rep(2, n_ahead)
   y %>% 
     split.data.frame(
       factor(c(fac_train, fac_test))
@@ -26,7 +25,7 @@ divide_ts <- function(y, n.ahead) {
 #' 
 #' This function computes MSE given prediction result versus evaluation set.
 #' 
-#' @param x \code{predbvhar} object
+#' @param x `predbvhar` object
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' 
@@ -41,9 +40,9 @@ mse <- function(x, y, ...) {
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' @details 
-#' MSE is the most used accuracy measure.
-#' 
+#' Let \eqn{e_t = y_t - \hat{y}_t}. Then
 #' \deqn{MSE = mean(e_t^2)}
+#' MSE is the most used accuracy measure.
 #' 
 #' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
 #' 
@@ -62,7 +61,7 @@ mse.predbvhar <- function(x, y, ...) {
 #' 
 #' This function computes MAE given prediction result versus evaluation set.
 #' 
-#' @param x \code{predbvhar} object
+#' @param x `predbvhar` object
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' 
@@ -77,6 +76,7 @@ mae <- function(x, y, ...) {
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' MAE is defined by
 #' 
 #' \deqn{MSE = mean(\lvert e_t \rvert)}
@@ -115,6 +115,7 @@ mape <- function(x, y, ...) {
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' Percentage error is defined by \eqn{p_t = 100 e_t / Y_t} (100 can be omitted since comparison is the focus).
 #' 
 #' \deqn{MAPE = mean(\lvert p_t \rvert)}
@@ -151,6 +152,7 @@ mase <- function(x, y, ...) {
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' Scaled error is defined by
 #' \deqn{q_t = \frac{e_t}{\sum_{i = 2}^{n} \lvert Y_i - Y_{i - 1} \rvert / (n - 1)}}
 #' so that the error can be free of the data scale.
@@ -199,6 +201,7 @@ mrae <- function(x, pred_bench, y, ...) {
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' MRAE implements benchmark model as scaling method.
 #' Relative error is defined by
 #' \deqn{r_t = \frac{e_t}{e_t^{\ast}}}

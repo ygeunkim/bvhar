@@ -4,17 +4,16 @@
 \alias{divide_ts}
 \title{Split a Time Series Dataset into Train-Test Set}
 \usage{
-divide_ts(y, n.ahead)
+divide_ts(y, n_ahead)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{n.ahead}{step to evaluate}
+\item{n_ahead}{step to evaluate}
 }
 \description{
 Split a given time series dataset into train and test set for evaluation.
 }
 \seealso{
-\code{\link[rsample:initial_time_split]{rsample::initial_time_split}}, \code{\link[rsample:training]{rsample::training}}, and \code{\link[rsample:testing]{rsample::testing}} process
-provides tidyverse solution.
+\code{\link[rsample:initial_split]{rsample::initial_time_split()}}, \code{\link[rsample:initial_split]{rsample::training()}}, and \code{\link[rsample:initial_split]{rsample::testing()}} process provides tidyverse solution.
 }

@@ -4,7 +4,7 @@
 \alias{bvar_minnesota}
 \alias{print.bvarmn}
 \alias{knit_print.bvarmn}
-\title{Fit Bayesian VAR(p) of Minnesota Prior}
+\title{Fitting Bayesian VAR(p) of Minnesota Prior}
 \usage{
 bvar_minnesota(y, p, bayes_spec = set_bvar(), include_mean = TRUE)
 
@@ -13,7 +13,7 @@ bvar_minnesota(y, p, bayes_spec = set_bvar(), include_mean = TRUE)
 knit_print.bvarmn(x, ...)
 }
 \arguments{
-\item{y}{matrix, Time series data of which columns indicate the variables}
+\item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
 

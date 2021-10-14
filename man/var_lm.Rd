@@ -4,7 +4,7 @@
 \alias{var_lm}
 \alias{print.varlse}
 \alias{knit_print.varlse}
-\title{Fit Vector Autoregressive Model of Order p Model}
+\title{Fitting Vector Autoregressive Model of Order p Model}
 \usage{
 var_lm(y, p, include_mean = TRUE)
 

@@ -1,8 +1,8 @@
-#' Fit Bayesian VAR(p) of Minnesota Prior
+#' Fitting Bayesian VAR(p) of Minnesota Prior
 #' 
 #' This function fits BVAR(p) with Minnesota prior.
 #' 
-#' @param y matrix, Time series data of which columns indicate the variables
+#' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)

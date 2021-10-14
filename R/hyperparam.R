@@ -29,6 +29,11 @@
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(sigma)) sigma <- NULL
   if (missing(delta)) delta <- NULL
+  if (length(sigma) > 0 & length(delta) > 0) {
+    if (length(sigma) != length(delta)) {
+      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+    }
+  }
   bvar_param <- list(
     process = "BVAR",
     prior = "Minnesota",
@@ -93,6 +98,11 @@ set_bvar_flat <- function(U) {
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(sigma)) sigma <- NULL
   if (missing(delta)) delta <- NULL
+  if (length(sigma) > 0 & length(delta) > 0) {
+    if (length(sigma) != length(delta)) {
+      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+    }
+  }
   bvhar_param <- list(
     process = "BVHAR",
     prior = "MN_VAR",
@@ -141,6 +151,23 @@ set_weight_bvhar <- function(sigma,
   if (missing(daily)) daily <- NULL
   if (missing(weekly)) weekly <- NULL
   if (missing(monthly)) monthly <- NULL
+  if (length(sigma) > 0) {
+    if (length(daily) > 0) {
+      if (length(sigma) != length(daily)) {
+        stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+      }
+    }
+    if (length(weekly) > 0) {
+      if (length(sigma) != length(weekly)) {
+        stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
+      }
+    }
+    if (length(monthly) > 0) {
+      if (length(sigma) != length(monthly)) {
+        stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
+      }
+    }
+  }
   bvhar_param <- list(
     process = "BVHAR",
     prior = "MN_VHAR",

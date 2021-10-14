@@ -1,4 +1,4 @@
-#' Fit Vector Autoregressive Model of Order p Model
+#' Fitting Vector Autoregressive Model of Order p Model
 #' 
 #' This function fits VAR(p) using OLS method.
 #' 

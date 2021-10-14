@@ -22,6 +22,7 @@ mrae(x, pred_bench, y, ...)
 This function computes MRAE given prediction result versus evaluation set.
 }
 \details{
+Let \eqn{e_t = y_t - \hat{y}_t}.
 MRAE implements benchmark model as scaling method.
 Relative error is defined by
 \deqn{r_t = \frac{e_t}{e_t^{\ast}}}

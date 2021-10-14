@@ -26,12 +26,12 @@ library(bvhar)
 
 # Minnesota Prior
 
-$$B \sim MN(B_0, \Omega_0, \Sigma_e)$$
+$$A \sim MN(A_0, \Omega_0, \Sigma_e)$$
 
 $$\Sigma_e \sim IW(S_0, \alpha_0)$$
 
 - From Litterman (1986) and Bańbura et al. (2010)
-- Each $B_0, \Omega_0, S_0, \alpha_0$ is defined by adding dummy observations
+- Each $A_0, \Omega_0, S_0, \alpha_0$ is defined by adding dummy observations
     - `build_xdummy()`
     - `build_ydummy()`
 
@@ -53,16 +53,18 @@ $$\Sigma_e \sim IW(S_0, \alpha_0)$$
 
 ```{r minnesotaset}
 bvar_lag <- 5
-sig <- c(3.25, 11.1, 2.2, 6.8) # sigma vector
-lam <- .2 # lambda
-delta <- rep(1, 4) # 4-dim delta vector (0 vector since RV stationary)
-eps <- 1e-04 # very small number
+(spec_to_sim <- set_bvar(
+  sigma = c(3.25, 11.1, 2.2, 6.8), # sigma vector
+  lambda = .2, # lambda
+  delta = rep(1, 4), # 4-dim delta vector (0 vector since RV stationary)
+  eps = 1e-04 # very small number
+))
 ```
 
 `sim_mncoef(p, sigma, lambda, delta, eps = 1e-04)` can generate $B$ coefficient.
 
 ```{r}
-(sim_mncoef(bvar_lag, sig, lam, delta, eps))
+(sim_mncoef(bvar_lag, spec_to_sim))
 ```
 
 

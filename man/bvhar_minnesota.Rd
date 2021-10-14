@@ -4,7 +4,7 @@
 \alias{bvhar_minnesota}
 \alias{print.bvharmn}
 \alias{knit_print.bvharmn}
-\title{Fit Bayesian VHAR of Minnesota Prior}
+\title{Fitting Bayesian VHAR of Minnesota Prior}
 \usage{
 bvhar_minnesota(y, bayes_spec = set_bvhar(), include_mean = TRUE)
 
@@ -58,11 +58,17 @@ Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_
 \deqn{\Sigma_e \sim IW(U_0, d_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 
+There are two types of Minnesota priors for BVHAR:
+\itemize{
+\item VAR-type Minnesota prior specified by \code{\link[=set_bvhar]{set_bvhar()}}
+\item VHAR-type Minnesota prior specified by \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}
+}
+
 Two types of Minnesota priors builds different dummy variables for Y0.
-\code{mn_type = "VAR"} constructs dummy Y0 with \code{p = 3} of \code{\link[=build_ydummy]{build_ydummy()}}.
+VAR-type Minnesota prior constructs dummy Y0 with \code{p = 3} of \code{\link[=build_ydummy]{build_ydummy()}}.
 The only difference from BVAR is dimension.
 
-On the other hand, dummy Y0 for \code{mn_type = "VHAR"} has its own function \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}}.
+On the other hand, dummy Y0 for VHAR-type Minnesota prior has its own function \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}}.
 It fills the zero matrix in the first block in Bańbura et al. (2010).
 }
 \examples{

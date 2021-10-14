@@ -1,4 +1,4 @@
-#' Fit Bayesian VHAR of Minnesota Prior
+#' Fitting Bayesian VHAR of Minnesota Prior
 #' 
 #' This function fits BVHAR with Minnesota prior.
 #' 
@@ -13,11 +13,16 @@
 #' \deqn{\Sigma_e \sim IW(U_0, d_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' 
+#' There are two types of Minnesota priors for BVHAR:
+#' 
+#' * VAR-type Minnesota prior specified by [set_bvhar()]
+#' * VHAR-type Minnesota prior specified by [set_weight_bvhar()]
+#' 
 #' Two types of Minnesota priors builds different dummy variables for Y0.
-#' `mn_type = "VAR"` constructs dummy Y0 with `p = 3` of [build_ydummy()].
+#' VAR-type Minnesota prior constructs dummy Y0 with `p = 3` of [build_ydummy()].
 #' The only difference from BVAR is dimension.
 #' 
-#' On the other hand, dummy Y0 for `mn_type = "VHAR"` has its own function [build_ydummy_bvhar()].
+#' On the other hand, dummy Y0 for VHAR-type Minnesota prior has its own function [build_ydummy_bvhar()].
 #' It fills the zero matrix in the first block in Bańbura et al. (2010).
 #' 
 #' @return `bvhar_minnesota` returns an object `bvharmn` [class].
@@ -75,20 +80,28 @@
 #' @order 1
 #' @export
 bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
   if (!is.matrix(y)) y <- as.matrix(y)
-  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
-  if (bayes_spec$process != "BVHAR") stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
+  }
+  if (bayes_spec$process != "BVHAR") {
+    stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
+  }
   minnesota_type <- bayes_spec$prior
   m <- ncol(y)
   N <- nrow(y)
   num_coef <- 3 * m + 1
   # model specification---------------
-  if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
+  if (is.null(bayes_spec$sigma)) {
+    bayes_spec$sigma <- apply(y, 2, sd)
+  }
   sigma <- bayes_spec$sigma
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
-  # Y0 = X0 B + Z---------------------
+  # Y0 = X0 A + Z---------------------
   Y0 <- build_y0(y, 22, 23)
   name_var <- colnames(y)
   colnames(Y0) <- name_var
@@ -123,7 +136,9 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   Xh <- build_xdummy(3, lambda, sigma, eps)
   colnames(Xh) <- name_har
   # const or none---------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   if (!include_mean) {
     X0 <- X0[, -(22 * m + 1)] # exclude 1 column
     HARtrans <- HARtrans[-num_coef, -(22 * m + 1)] # HARtrans: 3m x 22m matrix
@@ -138,32 +153,32 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   # estimate-bvar.cpp-----------------
   posterior <- estimate_bvar_mn(X1, Y0, Xh, Yh)
   # Prior-----------------------------
-  P0 <- posterior$prior_mean
-  Psi0 <- posterior$prior_precision
-  U0 <- posterior$prior_scale
-  d0 <- posterior$prior_shape
+  prior_mean <- posterior$prior_mean
+  prior_prec <- posterior$prior_prec
+  prior_scale <- posterior$prior_scale
+  prior_shape <- posterior$prior_shape
   # Matrix normal---------------------
-  Phihat <- posterior$bhat # posterior mean
-  colnames(Phihat) <- name_var
-  rownames(Phihat) <- name_har
-  Psihat <- posterior$mnprec
-  colnames(Psihat) <- name_har
-  rownames(Psihat) <- name_har
+  mn_mean <- posterior$mnmean # posterior mean
+  colnames(mn_mean) <- name_var
+  rownames(mn_mean) <- name_har
+  mn_prec <- posterior$mnprec
+  colnames(mn_prec) <- name_har
+  rownames(mn_prec) <- name_har
   yhat <- posterior$fitted
   colnames(yhat) <- name_var
   # Inverse-wishart-------------------
-  Sighat <- posterior$iwscale
-  colnames(Sighat) <- name_var
-  rownames(Sighat) <- name_var
+  iw_scale <- posterior$iwscale
+  colnames(iw_scale) <- name_var
+  rownames(iw_scale) <- name_var
   # S3--------------------------------
   res <- list(
     # posterior-----------
-    coefficients = Phihat,
+    coefficients = mn_mean,
     fitted.values = yhat,
     residuals = Y0 - yhat,
-    mn_prec = Psihat,
-    iw_scale = Sighat,
-    iw_shape = d0 + s, # if adding improper prior, d0 + s + 2
+    mn_prec = mn_prec,
+    iw_scale = iw_scale,
+    iw_shape = prior_shape + s, # if adding improper prior, d0 + s + 2
     # variables-----------
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     p = 3, # add for other function (df = 3m + 1 = mp + 1)
@@ -176,10 +191,10 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     spec = bayes_spec,
     type = ifelse(include_mean, "const", "none"),
     # prior----------------
-    prior_mean = P0,
-    prior_precision = Psi0,
-    prior_scale = U0,
-    prior_shape = d0,
+    prior_mean = prior_mean,
+    prior_precision = prior_prec,
+    prior_scale = prior_scale,
+    prior_shape = prior_shape,
     # data----------------
     HARtrans = HARtrans,
     y0 = Y0,

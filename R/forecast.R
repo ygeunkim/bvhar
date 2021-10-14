@@ -3,7 +3,7 @@
 #' Forecasts multivariate time series using given model.
 #' 
 #' @param object Model object
-#' @param n.ahead step to forecast
+#' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @section n-step ahead forecasting VAR(p):
@@ -54,18 +54,18 @@
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
-predict.varlse <- function(object, n.ahead, level = .05, ...) {
-  pred_res <- forecast_var(object, n.ahead)
+predict.varlse <- function(object, n_ahead, level = .05, ...) {
+  pred_res <- forecast_var(object, n_ahead)
   colnames(pred_res) <- colnames(object$y0)
   SE <- 
-    compute_covmse(object, n.ahead) %>% # concatenated matrix
-    split.data.frame(gl(n.ahead, object$m)) %>% # list of forecast MSE covariance matrix
+    compute_covmse(object, n_ahead) %>% # concatenated matrix
+    split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
     t() %>% # extract only diagonal element to compute CIs
     sqrt()
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
   res <- list(
     process = object$process,
     forecast = pred_res,
@@ -82,8 +82,8 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 
 #' @rdname predict.varlse
 #' 
-#' @param object \code{vharlse} object
-#' @param n.ahead step to forecast
+#' @param object `vharlse` object
+#' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @section n-step ahead forecasting VHAR:
@@ -107,18 +107,18 @@ predict.varlse <- function(object, n.ahead, level = .05, ...) {
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
-predict.vharlse <- function(object, n.ahead, level = .05, ...) {
-  pred_res <- forecast_vhar(object, n.ahead)
+predict.vharlse <- function(object, n_ahead, level = .05, ...) {
+  pred_res <- forecast_vhar(object, n_ahead)
   colnames(pred_res) <- colnames(object$y0)
   SE <- 
-    compute_covmse_har(object, n.ahead) %>% # concatenated matrix
-    split.data.frame(gl(n.ahead, object$m)) %>% # list of forecast MSE covariance matrix
+    compute_covmse_har(object, n_ahead) %>% # concatenated matrix
+    split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
     t() %>% # extract only diagonal element to compute CIs
     sqrt()
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
   res <- list(
     process = object$process,
     forecast = pred_res,
@@ -136,7 +136,7 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' @rdname predict.varlse
 #' 
 #' @param object Model object
-#' @param n.ahead step to forecast
+#' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
@@ -166,8 +166,8 @@ predict.vharlse <- function(object, n.ahead, level = .05, ...) {
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
-predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvarmn(object, n.ahead)
+predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
+  pred_res <- forecast_bvarmn(object, n_ahead)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
   colnames(pred_mean) <- colnames(object$y0)
@@ -192,7 +192,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
   res <- list(
     process = object$process,
     forecast = pred_mean,
@@ -210,7 +210,7 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @rdname predict.varlse
 #' 
 #' @param object Model object
-#' @param n.ahead step to forecast
+#' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
@@ -229,8 +229,8 @@ predict.bvarmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
-predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvharmn(object, n.ahead)
+predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
+  pred_res <- forecast_bvharmn(object, n_ahead)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
   colnames(pred_mean) <- colnames(object$y0)
@@ -255,7 +255,7 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
   # return-----------------------------------------
   res <- list(
     process = object$process,
@@ -274,7 +274,7 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @rdname predict.varlse
 #' 
 #' @param object Model object
-#' @param n.ahead step to forecast
+#' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
@@ -286,8 +286,8 @@ predict.bvharmn <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 #' @importFrom mniw riwish
 #' @order 1
 #' @export
-predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvarmn_flat(object, n.ahead)
+predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
+  pred_res <- forecast_bvarmn_flat(object, n_ahead)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
   colnames(pred_mean) <- colnames(object$y0)
@@ -312,7 +312,7 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
     apply(1:2, mean)
   colnames(ci_simul) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n.ahead), lower.tail = FALSE)
+  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
   # return-----------------------------------------
   res <- list(
     process = object$process,
@@ -330,7 +330,7 @@ predict.bvarflat <- function(object, n.ahead, n_iter = 100L, level = .05, ...) {
 
 #' Print Method for \code{predbvhar} object
 #' @rdname predict.varlse
-#' @param x \code{predbvhar} object
+#' @param x `predbvhar` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2

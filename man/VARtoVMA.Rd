@@ -7,9 +7,9 @@
 VARtoVMA(object, lag_max)
 }
 \arguments{
-\item{lag_max}{Maximum lag for VMA}
+\item{object}{\code{varlse} object}
 
-\item{`varlse`}{object}
+\item{lag_max}{Maximum lag for VMA}
 }
 \description{
 Convert VAR process to infinite vector MA process

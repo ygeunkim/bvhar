@@ -80,7 +80,7 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' 
 //' Convert VAR process to infinite vector MA process
 //' 
-//' @param `varlse` object
+//' @param object `varlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Let VAR(p) be stable.
@@ -108,7 +108,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' 
 //' Compute the forecast MSE matrices using VMA coefficients
 //' 
-//' @param `varlse` object
+//' @param object `varlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' See pp38 of Lütkepohl (2007).

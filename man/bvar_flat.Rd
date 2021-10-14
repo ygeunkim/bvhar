@@ -4,7 +4,7 @@
 \alias{bvar_flat}
 \alias{print.bvarflat}
 \alias{knit_print.bvarflat}
-\title{Fit Bayesian VAR(p) of Nonhiearchical Matrix Normal Prior}
+\title{Fitting Bayesian VAR(p) of Flat Prior}
 \usage{
 bvar_flat(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE)
 
@@ -52,7 +52,7 @@ It is a list with the following components:
 }
 }
 \description{
-This function fits BVAR(p) with Ghosh et al. (2018) nonhierarchical prior.
+This function fits BVAR(p) with flat prior.
 }
 \details{
 Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
