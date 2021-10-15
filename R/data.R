@@ -162,7 +162,7 @@
 #' 
 #' @format `est_energy` is realized kernel variance dataset computed by parzen kernel.
 #' Since `NI` and `PJM_Load` observations are too old, they are excluded.
-#' The observations are subset of the raw data, from 2014-08-03 to 2018-08-01.
+#' The observations are subset of the raw data, from 2014-08-04 (Monday) to 2018-08-03 (Friday).
 #' \describe{
 #'     \item{AEP}{\href{https://en.wikipedia.org/wiki/American_Electric_Power}{American Electric Power}}
 #'     \item{COMED}{\href{https://en.wikipedia.org/wiki/Commonwealth_Edison}{Commonwealth Edison}}

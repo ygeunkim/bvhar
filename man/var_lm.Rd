@@ -41,7 +41,7 @@ It is a list with the following components:
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
 \item{process}{Process: VAR}
-\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}

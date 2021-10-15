@@ -30,23 +30,26 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{design}{\eqn{X_0}}
-#'   \item{y0}{\eqn{Y_0}}
-#'   \item{y}{Raw input}
-#'   \item{p}{Lag of VAR}
-#'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: BVAR_Flat}
-#'   \item{spec}{Model specification (\code{bvharspec})}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
-#'   \item{call}{Matched call}
-#'   \item{mn_mean}{Location of posterior matrix normal distribution}
+#'   \item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
 #'   \item{fitted.values}{Fitted values}
 #'   \item{residuals}{Residuals}
-#'   \item{mn_prec}{Precision matrix of posterior matrix normal distribution}
-#'   \item{iw_scale}{Scale matrix of posterior inverse-wishart distribution}
-#'   \item{iw_shape}{Shape of posterior inverse-wishart distribution}
+#'   \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
+#'   \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
+#'   \item{iw_shape}{Posterior shape of inverse-wishart distribution}
+#'   \item{df}{Numer of Coefficients: mp + 1 or mp}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the time series}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Flat"`}
+#'   \item{spec}{Model specification (`bvharspec`)}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: zero matrix}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{U^{-1}}}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
 #' }
 #' 
 #' @references 

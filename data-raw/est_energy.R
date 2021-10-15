@@ -17,10 +17,12 @@ est_energy_tmp <-
   est_energy_raw %>% 
   filter(between(
     Datetime,
-    lubridate::as_datetime("2014-08-03"),
-    lubridate::as_datetime("2018-08-02")
+    lubridate::as_datetime("2014-08-04"), # Monday
+    lubridate::as_datetime("2018-08-03") # Friday
   )) %>% 
-  select(-NI, -PJM_Load)
+  select(-NI, -PJM_Load) %>% 
+  filter(!chron::is.weekend(Datetime)) %>% # use only weekdays
+  arrange(Datetime)
 # log-return-------------------------------------
 compute_rt <- function(x) {
   log(x / lead(x))

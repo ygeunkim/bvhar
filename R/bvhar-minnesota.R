@@ -29,22 +29,29 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{design}{\eqn{X_0}}
-#'   \item{y0}{\eqn{Y_0}}
-#'   \item{y}{Raw input}
-#'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = `totobs` - `p`}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process: BVHAR_MN_VAR or BVHAR_MN_VHAR}
-#'   \item{spec}{Model specification (`bvharspec`)}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{call}{Matched call}
-#'   \item{mn_mean}{Location of posterior matrix normal distribution}
+#'   \item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
 #'   \item{fitted.values}{Fitted values}
 #'   \item{residuals}{Residuals}
-#'   \item{mn_prec}{Precision matrix of posterior matrix normal distribution}
-#'   \item{iw_scale}{Scale matrix of posterior inverse-wishart distribution}
-#'   \item{a0}{\eqn{\alpha_0}: nrow(Dummy observation) - k}
+#'   \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
+#'   \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
+#'   \item{iw_shape}{Posterior shape of inverse-wishart distribution (\eqn{d_0} - obs + 2). \eqn{d_0}: nrow(Dummy observation) - k}
+#'   \item{df}{Numer of Coefficients: 3m + 1 or 3m}
+#'   \item{p}{3, this element exists to run the other functions}
+#'   \item{m}{Dimension of the time series}
+#'   \item{obs}{Sample size used when training = `totobs` - 22}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process string in the `bayes_spec`: `"BVHAR_MN_VAR"` or `"BVHAR_MN_VHAR"`}
+#'   \item{spec}{Model specification (`bvharspec`)}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{P_0}}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Psi_0}}
+#'   \item{prior_scale}{Prior scale matrix of inverse-wishart distribution: \eqn{U_0}}
+#'   \item{prior_shape}{Prior shape of inverse-wishart distribution: \eqn{d_0}}
+#'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{T_{HAR}}}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
 #' }
 #' 
 #' @references 
@@ -83,7 +90,9 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
-  if (!is.matrix(y)) y <- as.matrix(y)
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
   }
@@ -113,15 +122,23 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   Yh <- switch(
     minnesota_type,
     "MN_VAR" = {
-      if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(1, m)
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(1, m)
+      }
       Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta)
       colnames(Yh) <- name_var
       Yh
     },
     "MN_VHAR" = {
-      if (is.null(bayes_spec$daily)) bayes_spec$daily <- rep(1, m)
-      if (is.null(bayes_spec$weekly)) bayes_spec$weekly <- rep(1, m)
-      if (is.null(bayes_spec$monthly)) bayes_spec$monthly <- rep(1, m)
+      if (is.null(bayes_spec$daily)) {
+        bayes_spec$daily <- rep(1, m)
+      }
+      if (is.null(bayes_spec$weekly)) {
+        bayes_spec$weekly <- rep(1, m)
+      }
+      if (is.null(bayes_spec$monthly)) {
+        bayes_spec$monthly <- rep(1, m)
+      }
       Yh <- build_ydummy_bvhar(
         sigma, 
         lambda, 

@@ -18,13 +18,13 @@
 #'   \item{residuals}{Residuals}
 #'   \item{covmat}{LS estimate for covariance matrix}
 #'   \item{df}{Numer of Coefficients: 3m + 1 or 3m}
-#'   \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
+#'   \item{p}{3 (The number of terms. `vharlse` contains this element for usage in other functions.)}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: VHAR}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
@@ -61,8 +61,12 @@
 #' @order 1
 #' @export
 vhar_lm <- function(y, include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
-  if (!is.matrix(y)) y <- as.matrix(y)
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)
   name_var <- colnames(y)
@@ -70,7 +74,9 @@ vhar_lm <- function(y, include_mean = TRUE) {
   X0 <- build_design(y, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # const or none--------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   m <- ncol(y)
   num_coef <- 3 * m + 1
   if (!include_mean) {

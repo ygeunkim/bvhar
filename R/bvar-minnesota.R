@@ -30,21 +30,25 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{coefficients}{Mean of posterior matrix normal distribution}
+#'   \item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
 #'   \item{fitted.values}{Fitted values}
 #'   \item{residuals}{Residuals}
-#'   \item{mn_prec}{Precision matrix of posterior matrix normal distribution}
-#'   \item{iw_scale}{Scale matrix of posterior inverse-wishart distribution}
-#'   \item{iw_shape}{Shape of posterior inverse-wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
+#'   \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
+#'   \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
+#'   \item{iw_shape}{Posterior shape of inverse-wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
 #'   \item{df}{Numer of Coefficients: mp + 1 or mp}
 #'   \item{p}{Lag of VAR}
-#'   \item{m}{Dimension of the data}
+#'   \item{m}{Dimension of the time series}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Process: BVAR_Minnesota}
+#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Minnesota"`}
 #'   \item{spec}{Model specification (`bvharspec`)}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}}
+#'   \item{prior_scale}{Prior scale matrix of inverse-wishart distribution: \eqn{S_0}}
+#'   \item{prior_shape}{Prior shape of inverse-wishart distribution: \eqn{\alpha_0}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
@@ -83,15 +87,27 @@
 #' @order 1
 #' @export
 bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
-  if (!is.matrix(y)) y <- as.matrix(y)
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
   # model specification---------------
-  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
-  if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar()'.")
-  if (is.null(bayes_spec$sigma)) bayes_spec$sigma <- apply(y, 2, sd)
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
+  }
+  if (bayes_spec$process != "BVAR") {
+    stop("'bayes_spec' must be the result of 'set_bvar()'.")
+  }
+  if (is.null(bayes_spec$sigma)) {
+    bayes_spec$sigma <- apply(y, 2, sd)
+  }
   sigma <- bayes_spec$sigma
   m <- ncol(y)
-  if (is.null(bayes_spec$delta)) bayes_spec$delta <- rep(1, m)
+  if (is.null(bayes_spec$delta)) {
+    bayes_spec$delta <- rep(1, m)
+  }
   delta <- bayes_spec$delta
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
@@ -110,7 +126,9 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   Xp <- build_xdummy(p, lambda, sigma, eps)
   colnames(Xp) <- name_lag
   # const or none---------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
     Tp <- nrow(Yp)

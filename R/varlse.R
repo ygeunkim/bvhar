@@ -36,11 +36,11 @@
 #'   \item{df}{Numer of Coefficients: mp + 1 or mp}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: VAR}
-#'   \item{type}{include constant term (\code{const}) or not (\code{none})}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
@@ -71,8 +71,12 @@
 #' @order 1
 #' @export
 var_lm <- function(y, p, include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
-  if (!is.matrix(y)) y <- as.matrix(y)
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   name_var <- colnames(y)
@@ -81,7 +85,9 @@ var_lm <- function(y, p, include_mean = TRUE) {
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none--------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   m <- ncol(y)
   k <- m * p + 1 # df
   if (!include_mean) {

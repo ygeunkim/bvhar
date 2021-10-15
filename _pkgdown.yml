@@ -107,6 +107,7 @@ reference:
   - autoplot.summary.bvarmn
   - geom_predbvhar
   - autoplot.predbvhar
+  - geom_eval
   - plot_loss
 
 - title: Simulation
