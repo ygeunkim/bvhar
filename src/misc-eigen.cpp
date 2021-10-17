@@ -6,7 +6,7 @@
 // [[Rcpp::export]]
 Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), y.cols());
-  res = x * y.adjoint();
+  res = x * y.transpose();
   return res;
 }
 
@@ -14,7 +14,7 @@ Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 // [[Rcpp::export]]
 Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.cols(), y.rows());
-  res = x.adjoint() * y;
+  res = x.transpose() * y;
   return res;
 }
 
@@ -22,7 +22,7 @@ Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 // [[Rcpp::export]]
 Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), x.rows());
-  res = x * y.inverse() * x.adjoint();
+  res = x * y.inverse() * x.transpose();
   return res;
 }
 

@@ -26,13 +26,13 @@ Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
   for (int i = 0; i < 22; i++) {
     last_pvec.block(0, i * dim, 1, dim) = response_mat.block(num_design - 1 - i, 0, 1, dim);
   }
-  res.block(0, 0, 1, dim) = last_pvec * HARtrans.adjoint() * coef_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
+  res.block(0, 0, 1, dim) = last_pvec * HARtrans.transpose() * coef_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
   if (step == 1) return res;
   for (int i = 1; i < step; i++) { // Next h - 1: recursively
     tmp_vec = last_pvec.block(0, 0, 1, 21 * dim); // remove the last m (except 1)
     last_pvec.block(0, dim, 1, 21 * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
-    res.block(i, 0, 1, dim) = last_pvec * HARtrans.adjoint() * coef_mat; // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
+    res.block(i, 0, 1, dim) = last_pvec * HARtrans.transpose() * coef_mat; // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
   }
   return res;
 }

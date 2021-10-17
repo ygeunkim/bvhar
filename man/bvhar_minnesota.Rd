@@ -99,6 +99,8 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
 
+Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; \emph{Prior Selection for Vector Autoregressions}. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: \url{https://doi.org/10.1162/REST_a_00483}
+
 Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
 
 Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}

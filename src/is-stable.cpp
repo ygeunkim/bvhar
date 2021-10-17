@@ -40,7 +40,7 @@ Eigen::MatrixXd compute_stablemat(Rcpp::List object) {
   Eigen::MatrixXd Im(dim, dim); // identity matrix
   Im.setIdentity(dim, dim);
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * var_lag, dim * var_lag);
-  res.block(0, 0, dim, dim * var_lag) = coef_mat.block(0, 0, dim * var_lag, dim).adjoint();
+  res.block(0, 0, dim, dim * var_lag) = coef_mat.block(0, 0, dim * var_lag, dim).transpose();
   for (int i = 1; i < var_lag; i++) {
     res.block(dim * i, dim * (i - 1), dim, dim) = Im;
   }

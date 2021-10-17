@@ -84,13 +84,13 @@ Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, E
   }
   Eigen::MatrixXd res(num_rand, dim); // Output: from y(23)^T to y(n + 22)^T
   Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_error); // simulated error term: num_rand x m
-  res.row(0) = obs_p * hartrans_mat.adjoint() * vhar_coef + error_term.row(0);
+  res.row(0) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(0);
   for (int i = 1; i < num_rand; i++) {
     for (int t = 1; t < 22; t++) {
       obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
     }
     obs_p.block(0, 0, 1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * hartrans_mat.adjoint() * vhar_coef + error_term.row(i);
+    res.row(i) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(i);
   }
   return res.bottomRows(num_rand - num_burn);
 }

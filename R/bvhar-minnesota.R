@@ -59,6 +59,8 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
+#' Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; *Prior Selection for Vector Autoregressions*. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: [https://doi.org/10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' 
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. [https://doi.org/10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. [https://doi:10.1093/jjfinec/nbp001](https://doi:10.1093/jjfinec/nbp001)
@@ -211,7 +213,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     prior_mean = prior_mean,
     prior_precision = prior_prec,
     prior_scale = prior_scale,
-    prior_shape = prior_shape,
+    prior_shape = prior_shape + 2, # add 2 for existence of prior mean
     # data----------------
     HARtrans = HARtrans,
     y0 = Y0,

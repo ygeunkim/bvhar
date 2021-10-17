@@ -18,7 +18,7 @@
 Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
   Eigen::MatrixXd yhat(y.rows(), y.cols());
-  coef_mat = (x.adjoint() * x).inverse() * x.adjoint() * y;
+  coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
   yhat = x * coef_mat;
   return Rcpp::List::create(
     Rcpp::Named("coef") = coef_mat,
@@ -48,7 +48,7 @@ Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
   Eigen::MatrixXd cov_mat(z.cols(), z.cols());
-  cov_mat = z.adjoint() * z / (num_design - dim_design);
+  cov_mat = z.transpose() * z / (num_design - dim_design);
   return cov_mat;
 }
 
@@ -130,7 +130,7 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   mse.block(0, 0, dim, dim) = cov_mat; // sig(y) = sig
   for (int i = 1; i < step; i++) {
     mse.block(i * dim, 0, dim, dim) = mse.block((i - 1) * dim, 0, dim, dim) + 
-      vma_mat.block(i * dim, 0, dim, dim).adjoint() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
+      vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
   }
   return mse;
 }

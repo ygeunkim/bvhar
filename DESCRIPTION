@@ -36,7 +36,8 @@ Imports:
     foreach,
     purrr,
     utils,
-    stats
+    stats,
+    CholWishart
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

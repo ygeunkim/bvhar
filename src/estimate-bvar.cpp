@@ -35,9 +35,9 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
   Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
   Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precision
   Eigen::MatrixXd prior_scale(dim, dim); // prior iw scale
-  prior_prec = x_dummy.adjoint() * x_dummy;
-  prior_mean = prior_prec.inverse() * x_dummy.adjoint() * y_dummy;
-  prior_scale = (y_dummy - x_dummy * prior_mean).adjoint() * (y_dummy - x_dummy * prior_mean);
+  prior_prec = x_dummy.transpose() * x_dummy;
+  prior_mean = prior_prec.inverse() * x_dummy.transpose() * y_dummy;
+  prior_scale = (y_dummy - x_dummy * prior_mean).transpose() * (y_dummy - x_dummy * prior_mean);
   int prior_shape = num_dummy - dim_design; // prior iw shape = Tp - k = m
   // posterior-------------------------------------------
   // initialize posteriors
@@ -54,11 +54,11 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
   xstar.block(0, 0, num_design, dim_design) = x;
   xstar.block(num_design, 0, num_dummy, dim_design) = x_dummy;
   // point estimation
-  prec_mat = (xstar.adjoint() * xstar); // precision hat
-  coef_mat = prec_mat.inverse() * xstar.adjoint() * ystar;
+  prec_mat = (xstar.transpose() * xstar); // precision hat
+  coef_mat = prec_mat.inverse() * xstar.transpose() * ystar;
   yhat = x * coef_mat;
   yhat_star = xstar * coef_mat;
-  scale_mat = (ystar - yhat_star).adjoint() * (ystar - yhat_star);
+  scale_mat = (ystar - yhat_star).transpose() * (ystar - yhat_star);
   return Rcpp::List::create(
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
@@ -101,11 +101,11 @@ Rcpp::List estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
   Eigen::MatrixXd yhat(num_design, dim); // x %*% bhat
   Eigen::MatrixXd Is(num_design, num_design);
   Is.setIdentity(num_design, num_design);
-  prec_mat = (x.adjoint() * x + U);
+  prec_mat = (x.transpose() * x + U);
   mn_scale_mat = prec_mat.inverse();
-  coef_mat = mn_scale_mat * x.adjoint() * y;
+  coef_mat = mn_scale_mat * x.transpose() * y;
   yhat = x * coef_mat;
-  scale_mat = y.adjoint() * (Is - x * mn_scale_mat * x.adjoint()) * y;
+  scale_mat = y.transpose() * (Is - x * mn_scale_mat * x.transpose()) * y;
   return Rcpp::List::create(
     Rcpp::Named("mnmean") = coef_mat,
     Rcpp::Named("mnprec") = prec_mat,

@@ -104,6 +104,8 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132. \url{https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}
 
 Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968. \url{https://doi.org/10.2307/2527347}
+
+Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; \emph{Prior Selection for Vector Autoregressions}. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: \url{https://doi.org/10.1162/REST_a_00483}
 }
 \seealso{
 \itemize{

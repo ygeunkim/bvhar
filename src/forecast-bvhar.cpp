@@ -17,7 +17,7 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step) {
   Eigen::MatrixXd posterior_mean_mat = object["coefficients"]; // Phihat = posterior mean of MN
   Eigen::MatrixXd posterior_prec_mat = object["mn_prec"]; // Psihat = posterior precision of MN to compute SE
   Eigen::MatrixXd HARtrans = object["HARtrans"]; // HAR transformation
-  Eigen::MatrixXd transformed_prec_mat = HARtrans.adjoint() * posterior_prec_mat.inverse() * HARtrans; // to compute SE: play a role V in BVAR
+  Eigen::MatrixXd transformed_prec_mat = HARtrans.transpose() * posterior_prec_mat.inverse() * HARtrans; // to compute SE: play a role V in BVAR
   int dim = object["m"]; // dimension of time series
   int num_design = object["obs"]; // s = n - p
   int dim_har = HARtrans.cols(); // 22m + 1 (const) or 22m (none)
@@ -32,8 +32,8 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step) {
   for (int i = 0; i < 22; i++) {
     last_pvec.block(0, i * dim, 1, dim) = response_mat.block(num_design - 1 - i, 0, 1, dim);
   }
-  sig_closed.block(0, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.adjoint();
-  res.block(0, 0, 1, dim) = last_pvec * HARtrans.adjoint() * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
+  sig_closed.block(0, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.transpose();
+  res.block(0, 0, 1, dim) = last_pvec * HARtrans.transpose() * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
   if (step == 1) {
     return Rcpp::List::create(
       Rcpp::Named("posterior_mean") = res,
@@ -45,9 +45,9 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step) {
     tmp_vec = last_pvec.block(0, 0, 1, 21 * dim); // remove the last m (except 1)
     last_pvec.block(0, dim, 1, 21 * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
-    sig_closed.block(i, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.adjoint();
+    sig_closed.block(i, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.transpose();
     // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
-    res.block(i, 0, 1, dim) = last_pvec * HARtrans.adjoint() * posterior_mean_mat;
+    res.block(i, 0, 1, dim) = last_pvec * HARtrans.transpose() * posterior_mean_mat;
   }
   return Rcpp::List::create(
     Rcpp::Named("posterior_mean") = res,

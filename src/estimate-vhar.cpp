@@ -61,8 +61,8 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
   Eigen::MatrixXd HARtrans = scale_har(dim); // linear transformation
-  x1 = x * HARtrans.adjoint();
-  Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
+  x1 = x * HARtrans.transpose();
+  Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
   return Rcpp::List::create(
     Rcpp::Named("HARtrans") = HARtrans,
@@ -96,8 +96,8 @@ Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
   Eigen::MatrixXd HARtrans = scale_har(dim).block(0, 0, num_har, dim_har); // linear transformation
-  x1 = x * HARtrans.adjoint();
-  Phi = (x1.adjoint() * x1).inverse() * x1.adjoint() * y; // estimation
+  x1 = x * HARtrans.transpose();
+  Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
   return Rcpp::List::create(
     Rcpp::Named("HARtrans") = HARtrans,
@@ -110,7 +110,7 @@ Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max) {
   int dim = vhar_coef.cols(); // dimension of time series
-  Eigen::MatrixXd coef_mat = HARtrans_mat.adjoint() * vhar_coef; // bhat = tilde(T)^T * Phi
+  Eigen::MatrixXd coef_mat = HARtrans_mat.transpose() * vhar_coef; // bhat = tilde(T)^T * Phi
   if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
@@ -185,7 +185,7 @@ Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {
   mse.block(0, 0, dim, dim) = cov_mat; // sig(y) = sig
   for (int i = 1; i < step; i++) {
     mse.block(i * dim, 0, dim, dim) = mse.block((i - 1) * dim, 0, dim, dim) + 
-      vma_mat.block(i * dim, 0, dim, dim).adjoint() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
+      vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
   }
   return mse;
 }

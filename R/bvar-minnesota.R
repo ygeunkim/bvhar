@@ -63,6 +63,8 @@
 #' 
 #' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968. [https://doi.org/10.2307/2527347](https://doi.org/10.2307/2527347)
 #' 
+#' Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; *Prior Selection for Vector Autoregressions*. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: [https://doi.org/10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' 
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [build_ydummy()] and [build_xdummy()] to construct dummy observations.
@@ -165,7 +167,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     residuals = Y0 - yhat,
     mn_prec = mn_prec, # posterior precision of MN
     iw_scale = iw_scale, # posterior scale of IW
-    iw_shape = prior_shape + s, # posterior shape of IW (if adding improper prior, a0 + s + 2)
+    iw_shape = prior_shape + s, # posterior shape of IW
     # variables------------
     df = k, # k = m * p + 1 or m * p
     p = p, # p
@@ -181,7 +183,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     prior_mean = prior_mean, # A0
     prior_precision = prior_prec, # U0 = (Omega)^{-1}
     prior_scale = prior_scale, # S0
-    prior_shape = prior_shape,
+    prior_shape = prior_shape + 2, # add 2 for existence of prior mean
     # data-----------------
     y0 = Y0,
     design = X0,
