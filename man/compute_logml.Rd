@@ -3,11 +3,14 @@
 \name{compute_logml}
 \alias{compute_logml}
 \alias{compute_logml.bvarmn}
+\alias{compute_logml.bvharmn}
 \title{Extracting Log of Marginal Likelihood}
 \usage{
 compute_logml(object, ...)
 
 \method{compute_logml}{bvarmn}(object, ...)
+
+\method{compute_logml}{bvharmn}(object, ...)
 }
 \arguments{
 \item{object}{Model fit}
@@ -20,5 +23,9 @@ Compute log of marginal likelihood of Bayesian Fit
 \details{
 Closed form of Marginal Likelihood of BVAR can be derived by
 
-\deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
+\deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha_0 / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
+
+Closed form of Marginal Likelihood of BVHAR can be derived by
+
+\deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + s) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + s) / 2}}
 }

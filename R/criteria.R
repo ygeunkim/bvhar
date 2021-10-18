@@ -701,7 +701,7 @@ compute_logml <- function(object, ...) {
 #' @details 
 #' Closed form of Marginal Likelihood of BVAR can be derived by
 #' 
-#' \deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
+#' \deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha_0 / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
 #' 
 #' @importFrom CholWishart lmvgamma
 #' @export
@@ -721,3 +721,29 @@ compute_logml.bvarmn <- function(object, ...) {
   )
 }
 
+#' @rdname compute_logml
+#' 
+#' @param object Model fit
+#' @param ... not used
+#' @details 
+#' Closed form of Marginal Likelihood of BVHAR can be derived by
+#' 
+#' \deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + s) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + s) / 2}}
+#' 
+#' @importFrom CholWishart lmvgamma
+#' @export
+compute_logml.bvharmn <- function(object, ...) {
+  dim_data <- object$m # m
+  prior_shape <- object$prior_shape # d0
+  num_obs <- object$obs # s
+  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma(((prior_shape + num_obs) / 2), dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  const_term - dim_data / 2 * log(
+    det(object$prior_precision)
+  ) + prior_shape / 2 * log(
+    det(object$prior_scale)
+  ) - dim_data / 2 * log(
+    det(object$mn_prec)
+  ) - (prior_shape + num_obs) / 2 * log(
+    det(object$iw_scale)
+  )
+}
