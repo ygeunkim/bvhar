@@ -125,7 +125,6 @@ choose_bvar <- function(bayes_spec = set_bvar(),
   }
   # lambda-----------------------
   lambda <- bayes_spec$lambda
-  
   # delta------------------------
   if (is.null(bayes_spec$delta)) {
     delta <- rep(.1, dim_data)

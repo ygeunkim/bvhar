@@ -709,13 +709,26 @@ compute_logml.bvarmn <- function(object, ...) {
   dim_data <- object$m # m
   prior_shape <- object$prior_shape # alpha0
   num_obs <- object$obs # s
-  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma(((prior_shape + num_obs) / 2), dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  # constant term-------------
+  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  # eigenvalues---------------
+  ml_prec_eigenvalues <- eigen(
+    object$ml_prec,
+    symmetric = TRUE,
+    only.values = TRUE
+  )$values
+  ml_scale_eigenvalues <- eigen(
+    object$ml_scale,
+    symmetric = TRUE,
+    only.values = TRUE
+  )$values
+  # compute log ML-----------
   const_term - num_obs / 2 * log(
     det(object$prior_scale)
-  ) + sum(
-    log(object$ml_prec_eigenvalues + 1)
-  ) + sum(
-    log(object$ml_scale_eigenvalues + 1)
+  ) - dim_data / 2 * sum(
+    log(ml_prec_eigenvalues + 1)
+  ) - (prior_shape + num_obs) / 2 * sum(
+    log(ml_scale_eigenvalues + 1)
   )
 }
 
@@ -734,12 +747,25 @@ compute_logml.bvharmn <- function(object, ...) {
   dim_data <- object$m # m
   prior_shape <- object$prior_shape # d0
   num_obs <- object$obs # s
-  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma(((prior_shape + num_obs) / 2), dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  # constant term-------------
+  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  # eigenvalues---------------
+  ml_prec_eigenvalues <- eigen(
+    object$ml_prec,
+    symmetric = TRUE,
+    only.values = TRUE
+  )$values
+  ml_scale_eigenvalues <- eigen(
+    object$ml_scale,
+    symmetric = TRUE,
+    only.values = TRUE
+  )$values
+  # compute log ML------------
   const_term - num_obs / 2 * log(
     det(object$prior_scale)
-  ) + sum(
+  ) - dim_data / 2 * sum(
     log(object$ml_prec_eigenvalues + 1)
-  ) + sum(
+  ) - (prior_shape + num_obs) / 2 * sum(
     log(object$ml_scale_eigenvalues + 1)
   )
 }

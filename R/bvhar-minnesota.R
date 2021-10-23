@@ -220,16 +220,8 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     design = X0,
     y = y,
     # for ML computation--
-    ml_prec_eigenvalues = eigen(
-      posterior$ml_prec,
-      symmetric = TRUE,
-      only.values = TRUE
-    )$values,
-    ml_scale_eigenvalues = eigen(
-      posterior$ml_scale,
-      symmetric = TRUE,
-      only.values = TRUE
-    )$values
+    ml_prec = posterior$ml_prec,
+    ml_scale = posterior$ml_scale
   )
   class(res) <- c("bvharmn", "bvharmod")
   res

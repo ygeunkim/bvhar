@@ -382,6 +382,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_eigenvalues
+Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
+RcppExport SEXP _bvhar_compute_eigenvalues(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_eigenvalues(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_mgaussian
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::MatrixXd sig);
 RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP sigSEXP) {
@@ -457,6 +468,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
+    {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 2},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},

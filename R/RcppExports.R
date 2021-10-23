@@ -511,6 +511,11 @@ kroneckerprod <- function(x, y) {
     .Call(`_bvhar_kroneckerprod`, x, y)
 }
 
+#' @noRd
+compute_eigenvalues <- function(x) {
+    .Call(`_bvhar_compute_eigenvalues`, x)
+}
+
 #' Generate Multivariate Normal Random Vector with Zero Mean
 #' 
 #' This function samples n x muti-dimensional normal random matrix with zero mean vector.

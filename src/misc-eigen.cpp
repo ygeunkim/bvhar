@@ -34,6 +34,13 @@ Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
+  return es.eigenvalues();
+}
+
 //' Generate Multivariate Normal Random Vector with Zero Mean
 //' 
 //' This function samples n x muti-dimensional normal random matrix with zero mean vector.
@@ -54,3 +61,4 @@ Eigen::MatrixXd sim_mgaussian (int num_sim, Eigen::MatrixXd sig) {
   res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
   return res;
 }
+
