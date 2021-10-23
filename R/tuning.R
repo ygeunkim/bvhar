@@ -103,8 +103,8 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' @order 1
 #' @export
 choose_bvar <- function(bayes_spec = set_bvar(), 
-                        lower, 
-                        upper, 
+                        lower = .01, 
+                        upper = Inf, 
                         ..., 
                         eps = 1e-04,
                         y, 
@@ -117,12 +117,16 @@ choose_bvar <- function(bayes_spec = set_bvar(),
   if (bayes_spec$process != "BVAR") {
     stop("'bayes_spec' must be the result of 'set_bvar()'.")
   }
+  # sigma------------------------
   if (is.null(bayes_spec$sigma)) {
     sigma <- apply(y, 2, sd)
   } else {
     sigma <- bayes_spec$sigma
   }
+  # lambda-----------------------
   lambda <- bayes_spec$lambda
+  
+  # delta------------------------
   if (is.null(bayes_spec$delta)) {
     delta <- rep(.1, dim_data)
   } else {
@@ -229,8 +233,8 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' @order 1
 #' @export
 choose_bvhar <- function(bayes_spec = set_bvhar(),
-                         lower, 
-                         upper, 
+                         lower = .01, 
+                         upper = Inf, 
                          ..., 
                          eps = 1e-04,
                          y, 
@@ -242,13 +246,16 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   if (bayes_spec$process != "BVHAR") {
     stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
   }
+  # sigma-------------------
   if (is.null(bayes_spec$sigma)) {
     sigma <- apply(y, 2, sd)
   } else {
     sigma <- bayes_spec$sigma
   }
+  # lambda------------------
   lambda <- bayes_spec$lambda
   minnesota_type <- bayes_spec$prior
+  # for each type-----------
   res <- 
     switch(
       minnesota_type,

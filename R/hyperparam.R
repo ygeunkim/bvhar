@@ -27,8 +27,21 @@
 #' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  if (missing(sigma)) sigma <- NULL
-  if (missing(delta)) delta <- NULL
+  if (lambda <= 0) {
+    stop("'lambda' should be larger than 0.")
+  }
+  if (missing(sigma)) {
+    sigma <- NULL
+  }
+  if (length(sigma) > 0 & any(sigma <= 0)) {
+    stop("'sigma' should be larger than 0.")
+  }
+  if (missing(delta)) {
+    delta <- NULL
+  }
+  if (length(delta) > 0 & any(delta < 0)) {
+    stop("'delta' should not be smaller than 0.")
+  }
   if (length(sigma) > 0 & length(delta) > 0) {
     if (length(sigma) != length(delta)) {
       stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
@@ -96,8 +109,12 @@ set_bvar_flat <- function(U) {
 #' @order 1
 #' @export
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  if (missing(sigma)) sigma <- NULL
-  if (missing(delta)) delta <- NULL
+  if (missing(sigma)) {
+    sigma <- NULL
+  }
+  if (missing(delta)) {
+    delta <- NULL
+  }
   if (length(sigma) > 0 & length(delta) > 0) {
     if (length(sigma) != length(delta)) {
       stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
@@ -147,10 +164,18 @@ set_weight_bvhar <- function(sigma,
                              daily,
                              weekly,
                              monthly) {
-  if (missing(sigma)) sigma <- NULL
-  if (missing(daily)) daily <- NULL
-  if (missing(weekly)) weekly <- NULL
-  if (missing(monthly)) monthly <- NULL
+  if (missing(sigma)) {
+    sigma <- NULL
+  }
+  if (missing(daily)) {
+    daily <- NULL
+  }
+  if (missing(weekly)) {
+    weekly <- NULL
+  }
+  if (missing(monthly)) {
+    monthly <- NULL
+  }
   if (length(sigma) > 0) {
     if (length(daily) > 0) {
       if (length(sigma) != length(daily)) {

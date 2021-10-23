@@ -4,7 +4,14 @@
 \alias{plot_loss}
 \title{Compare Lists of Models}
 \usage{
-plot_loss(mod_list, y, type = c("mse", "mae", "mape", "mase"), ...)
+plot_loss(
+  mod_list,
+  y,
+  type = c("mse", "mae", "mape", "mase"),
+  viridis = FALSE,
+  viridis_option = "D",
+  ...
+)
 }
 \arguments{
 \item{mod_list}{Lists of forecast results (\code{predbvhar} objects)}
@@ -13,7 +20,11 @@ plot_loss(mod_list, y, type = c("mse", "mae", "mape", "mase"), ...)
 
 \item{type}{Loss function to be used (\code{"mse"}: MSE, \code{"mae"}: MAE, \code{mape}: MAPE, \code{"mase"}: MASE)}
 
-\item{...}{Additional options for \code{\link[ggplot2:geom_line]{ggplot2::geom_line}}}
+\item{viridis}{If \code{TRUE}, scale CI and forecast line using \code{\link[ggplot2:scale_viridis]{ggplot2::scale_fill_viridis_d()}} and \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}, respectively.}
+
+\item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{"D"}.}
+
+\item{...}{Additional options for \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}}}
 }
 \description{
 Draw plot of test error for given models

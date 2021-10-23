@@ -9,8 +9,8 @@
 \usage{
 choose_bvar(
   bayes_spec = set_bvar(),
-  lower,
-  upper,
+  lower = 0.01,
+  upper = Inf,
   ...,
   eps = 1e-04,
   y,
@@ -20,8 +20,8 @@ choose_bvar(
 
 choose_bvhar(
   bayes_spec = set_bvhar(),
-  lower,
-  upper,
+  lower = 0.01,
+  upper = Inf,
   ...,
   eps = 1e-04,
   y,

@@ -164,7 +164,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     # posterior------------
     coefficients = mn_mean, # posterior mean of MN
     fitted.values = yhat,
-    residuals = Y0 - yhat,
+    residuals = posterior$residuals,
     mn_prec = mn_prec, # posterior precision of MN
     iw_scale = iw_scale, # posterior scale of IW
     iw_shape = prior_shape + s, # posterior shape of IW
@@ -187,7 +187,18 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     # data-----------------
     y0 = Y0,
     design = X0,
-    y = y
+    y = y,
+    # for ML computation---
+    ml_prec_eigenvalues = eigen(
+      posterior$ml_prec,
+      symmetric = TRUE,
+      only.values = TRUE
+    )$values,
+    ml_scale_eigenvalues = eigen(
+      posterior$ml_scale,
+      symmetric = TRUE,
+      only.values = TRUE
+    )$values
   )
   class(res) <- c("bvarmn", "bvharmod")
   res
