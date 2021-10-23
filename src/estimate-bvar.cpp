@@ -66,12 +66,6 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
   Eigen::MatrixXd stable_scale(dim, dim);
   stable_prec = x * prior_prec * x.transpose(); // X0 %*% Xp^t %*% Xp %*% X0^t
   stable_scale = resid.transpose() * resid + (coef_mat - prior_mean).transpose() * prior_prec * (coef_mat - prior_mean);
-  // Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> xmat_eigensolver;
-  // Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> scale_eigensolver;
-  // xmat_eigensolver.compute(stable_prec);
-  // scale_eigensolver.compute(stable_scale);
-  // Eigen::VectorXd xmat_eigenvalue = xmat_eigensolver.eigenvalues().real();
-  // Eigen::VectorXd scale_eigenvalue = scale_eigensolver.eigenvalues().real();
   return Rcpp::List::create(
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
@@ -82,8 +76,6 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
     Rcpp::Named("fitted") = yhat,
     Rcpp::Named("residuals") = resid,
     Rcpp::Named("iwscale") = scale_mat,
-    // Rcpp::Named("xmat_eigenvalues") = xmat_eigenvalue,
-    // Rcpp::Named("scale_eigenvalues") = scale_eigenvalue,
     Rcpp::Named("ml_prec") = stable_prec,
     Rcpp::Named("ml_scale") = stable_scale
   );

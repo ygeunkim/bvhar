@@ -712,8 +712,6 @@ compute_logml.bvarmn <- function(object, ...) {
   const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma(((prior_shape + num_obs) / 2), dim_data) - lmvgamma(prior_shape / 2, dim_data)
   const_term - num_obs / 2 * log(
     det(object$prior_scale)
-  ) + prior_shape / 2 * log(
-    det(object$prior_scale)
   ) + sum(
     log(object$ml_prec_eigenvalues + 1)
   ) + sum(
@@ -737,14 +735,12 @@ compute_logml.bvharmn <- function(object, ...) {
   prior_shape <- object$prior_shape # d0
   num_obs <- object$obs # s
   const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma(((prior_shape + num_obs) / 2), dim_data) - lmvgamma(prior_shape / 2, dim_data)
-  const_term - dim_data / 2 * log(
-    det(object$prior_precision)
-  ) + prior_shape / 2 * log(
+  const_term - num_obs / 2 * log(
     det(object$prior_scale)
-  ) - dim_data / 2 * log(
-    det(object$mn_prec)
-  ) - (prior_shape + num_obs) / 2 * log(
-    det(object$iw_scale)
+  ) + sum(
+    log(object$ml_prec_eigenvalues + 1)
+  ) + sum(
+    log(object$ml_scale_eigenvalues + 1)
   )
 }
 

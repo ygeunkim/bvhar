@@ -194,7 +194,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     # posterior-----------
     coefficients = mn_mean,
     fitted.values = yhat,
-    residuals = Y0 - yhat,
+    residuals = posterior$residuals,
     mn_prec = mn_prec,
     iw_scale = iw_scale,
     iw_shape = prior_shape + s, # if adding improper prior, d0 + s + 2
@@ -218,7 +218,18 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     HARtrans = HARtrans,
     y0 = Y0,
     design = X0,
-    y = y
+    y = y,
+    # for ML computation--
+    ml_prec_eigenvalues = eigen(
+      posterior$ml_prec,
+      symmetric = TRUE,
+      only.values = TRUE
+    )$values,
+    ml_scale_eigenvalues = eigen(
+      posterior$ml_scale,
+      symmetric = TRUE,
+      only.values = TRUE
+    )$values
   )
   class(res) <- c("bvharmn", "bvharmod")
   res
