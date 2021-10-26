@@ -2,20 +2,21 @@
 % Please edit documentation in R/RcppExports.R
 \name{forecast_bvarmn}
 \alias{forecast_bvarmn}
-\title{Forecasting BVAR of Minnesota Prior}
+\title{Forecasting BVAR(p) of Minnesota Prior}
 \usage{
 forecast_bvarmn(object, step)
 }
 \arguments{
-\item{object}{\code{bvarmn} object by \code{\link{bvar_minnesota}}}
+\item{object}{\code{bvarmn} object}
 
 \item{step}{Integer, Step to forecast}
 }
 \description{
-Forecasting BVAR of Minnesota Prior
+Forecasting BVAR(p) of Minnesota Prior
 }
 \details{
-n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+n-step ahead point forecasting using BVAR(p) recursively,
+using point estimate for coefficient matrix.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

@@ -62,10 +62,10 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
   yhat_star = xstar * coef_mat;
   scale_mat = (ystar - yhat_star).transpose() * (ystar - yhat_star);
   // for marginal likelihood------------------------------
-  Eigen::MatrixXd stable_prec(num_design, num_design);
-  Eigen::MatrixXd stable_scale(dim, dim);
-  stable_prec = x * prior_prec * x.transpose(); // X0 %*% Xp^t %*% Xp %*% X0^t
-  stable_scale = resid.transpose() * resid + (coef_mat - prior_mean).transpose() * prior_prec * (coef_mat - prior_mean);
+  // Eigen::MatrixXd stable_prec(num_design, num_design);
+  // Eigen::MatrixXd stable_scale(dim, dim);
+  // stable_prec = x * prior_prec * x.transpose(); // X0 %*% Xp^t %*% Xp %*% X0^t
+  // stable_scale = resid.transpose() * resid + (coef_mat - prior_mean).transpose() * prior_prec * (coef_mat - prior_mean);
   return Rcpp::List::create(
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
@@ -75,9 +75,9 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
     Rcpp::Named("mnprec") = prec_mat,
     Rcpp::Named("fitted") = yhat,
     Rcpp::Named("residuals") = resid,
-    Rcpp::Named("iwscale") = scale_mat,
-    Rcpp::Named("ml_prec") = stable_prec,
-    Rcpp::Named("ml_scale") = stable_scale
+    Rcpp::Named("iwscale") = scale_mat
+    // Rcpp::Named("ml_prec") = stable_prec,
+    // Rcpp::Named("ml_scale") = stable_scale
   );
 }
 

@@ -2,19 +2,20 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Forecasting BVAR of Minnesota Prior
+//' Forecasting BVAR(p) of Minnesota Prior
 //' 
-//' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+//' @param object `bvarmn` object
 //' @param step Integer, Step to forecast
 //' @details
-//' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+//' n-step ahead point forecasting using BVAR(p) recursively,
+//' using point estimate for coefficient matrix.
 //' 
 //' @references
-//' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
-//' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 //' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -26,7 +27,6 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
   int dim = object["m"]; // dimension of time series
   int var_lag = object["p"]; // VAR(p)
   int num_design = object["obs"]; // s = n - p
-  // int dim_design = dim * var_lag + 1; // k = mp + 1
   int dim_design = object["df"];
   Eigen::MatrixXd last_pvec(1, dim_design); // vectorize the last p observation and include 1
   Eigen::MatrixXd tmp_vec(1, (var_lag - 1) * dim);
@@ -40,7 +40,7 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
     last_pvec.block(0, i * dim, 1, dim) = response_mat.block(num_design - 1 - i, 0, 1, dim);
   }
   sig_closed.block(0, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.transpose();
-  res.block(0, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
+  res.block(0, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Ahat
   if (step == 1) {
     return Rcpp::List::create(
       Rcpp::Named("posterior_mean") = res,
@@ -53,7 +53,7 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
     last_pvec.block(0, dim, 1, (var_lag - 1) * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
     sig_closed.block(i, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.transpose();
-    // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
+    // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Ahat
     res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat;
   }
   return Rcpp::List::create(
@@ -62,17 +62,18 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
   );
 }
 
-//' Forecasting BVAR of Non-hierarchical Matrix Normal Prior
+//' Forecasting BVAR(p) of Flat Prior
 //' 
-//' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+//' @param object `bvarflat` object
 //' @param step Integer, Step to forecast
 //' @details
-//' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+//' n-step ahead point forecasting using BVAR(p) recursively,
+//' using point estimate for coefficient matrix.
 //' 
 //' @references
-//' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' 
-//' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+//' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 //' 
 //' @export
 // [[Rcpp::export]]

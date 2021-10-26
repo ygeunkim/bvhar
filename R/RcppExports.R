@@ -384,36 +384,38 @@ compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
 }
 
-#' Forecasting BVAR of Minnesota Prior
+#' Forecasting BVAR(p) of Minnesota Prior
 #' 
-#' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+#' @param object `bvarmn` object
 #' @param step Integer, Step to forecast
 #' @details
-#' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+#' n-step ahead point forecasting using BVAR(p) recursively,
+#' using point estimate for coefficient matrix.
 #' 
 #' @references
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
 forecast_bvarmn <- function(object, step) {
     .Call(`_bvhar_forecast_bvarmn`, object, step)
 }
 
-#' Forecasting BVAR of Non-hierarchical Matrix Normal Prior
+#' Forecasting BVAR(p) of Flat Prior
 #' 
-#' @param object \code{bvarmn} object by \code{\link{bvar_minnesota}}
+#' @param object `bvarflat` object
 #' @param step Integer, Step to forecast
 #' @details
-#' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
+#' n-step ahead point forecasting using BVAR(p) recursively,
+#' using point estimate for coefficient matrix.
 #' 
 #' @references
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
 #' @export
 forecast_bvarmn_flat <- function(object, step) {

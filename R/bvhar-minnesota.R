@@ -218,10 +218,10 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     HARtrans = HARtrans,
     y0 = Y0,
     design = X0,
-    y = y,
+    y = y
     # for ML computation--
-    ml_prec = posterior$ml_prec,
-    ml_scale = posterior$ml_scale
+    # ml_prec = posterior$ml_prec,
+    # ml_scale = posterior$ml_scale
   )
   class(res) <- c("bvharmn", "bvharmod")
   res
