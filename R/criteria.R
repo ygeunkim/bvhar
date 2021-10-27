@@ -711,25 +711,7 @@ compute_logml.bvarmn <- function(object, ...) {
   num_obs <- object$obs # s
   # constant term-------------
   const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
-  # eigenvalues---------------
-  # ml_prec_eigenvalues <- eigen(
-  #   object$ml_prec,
-  #   symmetric = TRUE,
-  #   only.values = TRUE
-  # )$values
-  # ml_scale_eigenvalues <- eigen(
-  #   object$ml_scale,
-  #   symmetric = TRUE,
-  #   only.values = TRUE
-  # )$values
   # compute log ML-----------
-  # const_term - num_obs / 2 * log(
-  #   det(object$prior_scale)
-  # ) - dim_data / 2 * sum(
-  #   log(ml_prec_eigenvalues + 1)
-  # ) - (prior_shape + num_obs) / 2 * sum(
-  #   log(ml_scale_eigenvalues + 1)
-  # )
   const_term - dim_data / 2 * log(
     det(object$prior_precision)
   ) + prior_shape / 2 * log(
@@ -758,25 +740,7 @@ compute_logml.bvharmn <- function(object, ...) {
   num_obs <- object$obs # s
   # constant term-------------
   const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
-  # eigenvalues---------------
-  # ml_prec_eigenvalues <- eigen(
-  #   object$ml_prec,
-  #   symmetric = TRUE,
-  #   only.values = TRUE
-  # )$values
-  # ml_scale_eigenvalues <- eigen(
-  #   object$ml_scale,
-  #   symmetric = TRUE,
-  #   only.values = TRUE
-  # )$values
   # compute log ML------------
-  # const_term - num_obs / 2 * log(
-  #   det(object$prior_scale)
-  # ) - dim_data / 2 * sum(
-  #   log(object$ml_prec_eigenvalues + 1)
-  # ) - (prior_shape + num_obs) / 2 * sum(
-  #   log(object$ml_scale_eigenvalues + 1)
-  # )
   const_term - dim_data / 2 * log(
     det(object$prior_precision)
   ) + prior_shape / 2 * log(

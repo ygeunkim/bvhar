@@ -188,9 +188,6 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     y0 = Y0,
     design = X0,
     y = y
-    # for ML computation---
-    # ml_prec = posterior$ml_prec,
-    # ml_scale = posterior$ml_scale
   )
   class(res) <- c("bvarmn", "bvharmod")
   res

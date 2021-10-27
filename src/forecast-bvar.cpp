@@ -53,8 +53,7 @@ Rcpp::List forecast_bvarmn(Rcpp::List object, int step) {
     last_pvec.block(0, dim, 1, (var_lag - 1) * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
     sig_closed.block(i, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.transpose();
-    // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Ahat
-    res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat;
+    res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Ahat
   }
   return Rcpp::List::create(
     Rcpp::Named("posterior_mean") = res,
@@ -98,7 +97,7 @@ Rcpp::List forecast_bvarmn_flat(Rcpp::List object, int step) {
   }
   last_pvec(0, dim_design - 1) = 1.0;
   sig_closed.block(0, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.transpose();
-  res.block(0, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Bhat
+  res.block(0, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% Ahat
   if (step == 1) {
     return Rcpp::List::create(
       Rcpp::Named("posterior_mean") = res,
@@ -111,8 +110,7 @@ Rcpp::List forecast_bvarmn_flat(Rcpp::List object, int step) {
     last_pvec.block(0, dim, 1, (var_lag - 1) * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = res.block(i - 1, 0, 1, dim);
     sig_closed.block(i, 0, 1, 1) += last_pvec * posterior_prec_mat.inverse() * last_pvec.transpose();
-    // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Bhat
-    res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat;
+    res.block(i, 0, 1, dim) = last_pvec * posterior_mean_mat; // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% Ahat
   }
   return Rcpp::List::create(
     Rcpp::Named("posterior_mean") = res,
