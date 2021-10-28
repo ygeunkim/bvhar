@@ -530,6 +530,19 @@ sim_mgaussian <- function(num_sim, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
 }
 
+#' Generate Matrix Normal Random Matrix
+#' 
+#' This function samples one matrix gaussian matrix.
+#' 
+#' @param mat_mean Mean matrix
+#' @param mat_scale_u First scale matrix
+#' @param mat_scale_v Second scale matrix
+#' 
+#' @export
+sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
+    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
+}
+
 #' Generate Multivariate Time Series Process Following VAR(p)
 #' 
 #' This function generates multivariate time series dataset that follows VAR(p).

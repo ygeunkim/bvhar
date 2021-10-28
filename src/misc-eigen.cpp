@@ -56,9 +56,41 @@ Eigen::MatrixXd sim_mgaussian (int num_sim, Eigen::MatrixXd sig) {
   Eigen::MatrixXd standard_normal(num_sim, dim);
   Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
   for (int i = 0; i < num_sim; i++) {
-    standard_normal.row(i) = Rcpp::as<Eigen::VectorXd>(Rcpp::rnorm(dim, 0.0, 1.0)); // Z1, ..., Zm ~ iid N(0, 1)
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = norm_rand();
+    }
   }
   res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
   return res;
 }
 
+//' Generate Matrix Normal Random Matrix
+//' 
+//' This function samples one matrix gaussian matrix.
+//' 
+//' @param mat_mean Mean matrix
+//' @param mat_scale_u First scale matrix
+//' @param mat_scale_v Second scale matrix
+//' 
+//' @export
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
+  Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
+  Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
+  // Cholesky decomposition (lower triangular)
+  Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
+  Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
+  // standard normal
+  int num_rows = mat_mean.rows();
+  int num_cols = mat_mean.cols();
+  Eigen::MatrixXd mat_norm(num_rows, num_cols);
+  // Eigen::MatrixXd res(num_rows, num_cols, num_sim);
+  Eigen::MatrixXd res(num_rows, num_cols);
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      mat_norm(i, j) = norm_rand();
+    }
+  }
+  res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
+  return res;
+}
