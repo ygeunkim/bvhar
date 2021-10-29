@@ -27,7 +27,7 @@ RoxygenNote: 7.1.2
 Imports: 
     lifecycle,
     magrittr,
-    Rcpp (>= 1.0.7),
+    Rcpp,
     mniw,
     ggplot2,
     tidyr,

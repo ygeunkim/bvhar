@@ -4,13 +4,26 @@
 \alias{sim_mgaussian}
 \title{Generate Multivariate Normal Random Vector with Zero Mean}
 \usage{
-sim_mgaussian(num_sim, sig)
+sim_mgaussian(num_sim, mu, sig)
 }
 \arguments{
 \item{num_sim}{Number to generate process}
+
+\item{mu}{Mean vector}
 
 \item{sig}{Variance matrix}
 }
 \description{
 This function samples n x muti-dimensional normal random matrix with zero mean vector.
+}
+\details{
+Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
+\enumerate{
+\item Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
+\item Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
+\item \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
+\item \eqn{X_i = L Z_i + \mu}
+}
+
+This function does not care of \eqn{\mu}.
 }

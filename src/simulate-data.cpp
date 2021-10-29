@@ -36,7 +36,9 @@ Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int
     obs_p.block(0, i * dim, 1, dim) = init.row(var_lag - i - 1);
   }
   Eigen::MatrixXd res(num_rand, dim); // Output: from y(p + 1)^T to y(n + p)^T
-  Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_error); // simulated error term: num_rand x m
+  // epsilon ~ N(0, sig_error)
+  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
+  Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
   res.row(0) = obs_p * var_coef + error_term.row(0);
   for (int i = 1; i < num_rand; i++) {
     for (int t = 1; t < var_lag; t++) {
@@ -83,7 +85,9 @@ Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, E
     obs_p.block(0, i * dim, 1, dim) = init.row(21 - i);
   }
   Eigen::MatrixXd res(num_rand, dim); // Output: from y(23)^T to y(n + 22)^T
-  Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_error); // simulated error term: num_rand x m
+  // epsilon ~ N(0, sig_error)
+  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
+  Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
   res.row(0) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(0);
   for (int i = 1; i < num_rand; i++) {
     for (int t = 1; t < 22; t++) {

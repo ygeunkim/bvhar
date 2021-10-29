@@ -16,3 +16,13 @@ sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)
 \description{
 This function samples one matrix gaussian matrix.
 }
+\details{
+Consider s x m matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is s x m, U is s x s, and V is m x m.
+\enumerate{
+\item Lower triangular Cholesky decomposition: \eqn{U = P P^T} and \eqn{V = L L^T}
+\item Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+\item \eqn{Y_i = M + P Z_i L^T}
+}
+
+This function only generates one matrix, i.e. \eqn{Y_1}.
+}

@@ -1,6 +1,5 @@
 #' @keywords internal
 #' @useDynLib bvhar, .registration = TRUE
-#' @importFrom Rcpp evalCpp
 #' @details 
 #' `r lifecycle::badge("experimental")`
 #' 
@@ -31,5 +30,6 @@
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
 #' @importFrom lifecycle deprecated is_present deprecate_warn deprecate_soft
+#' @importFrom Rcpp sourceCpp
 ## usethis namespace: end
 NULL

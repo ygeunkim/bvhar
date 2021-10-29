@@ -459,6 +459,97 @@ forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
+#' Generate Multivariate Normal Random Vector with Zero Mean
+#' 
+#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+#' 
+#' @param num_sim Number to generate process
+#' @param mu Mean vector
+#' @param sig Variance matrix
+#' @details
+#' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
+#' 
+#' 1. Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
+#' 2. Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
+#' 3. \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
+#' 4. \eqn{X_i = L Z_i + \mu}
+#' 
+#' This function does not care of \eqn{\mu}.
+#' 
+#' @export
+sim_mgaussian <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+}
+
+#' Generate Matrix Normal Random Matrix
+#' 
+#' This function samples one matrix gaussian matrix.
+#' 
+#' @param mat_mean Mean matrix
+#' @param mat_scale_u First scale matrix
+#' @param mat_scale_v Second scale matrix
+#' @details
+#' Consider s x m matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is s x m, U is s x s, and V is m x m.
+#' 
+#' 1. Lower triangular Cholesky decomposition: \eqn{U = P P^T} and \eqn{V = L L^T}
+#' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+#' 3. \eqn{Y_i = M + P Z_i L^T}
+#' 
+#' This function only generates one matrix, i.e. \eqn{Y_1}.
+#' 
+#' @export
+sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
+    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
+}
+
+#' @noRd
+sim_iw_tri <- function(mat_scale, shape) {
+    .Call(`_bvhar_sim_iw_tri`, mat_scale, shape)
+}
+
+#' Generate Inverse-Wishart Random Matrix
+#' 
+#' This function samples one matrix IW matrix.
+#' 
+#' @param mat_scale Scale matrix
+#' @param shape Shape
+#' @details
+#' Consider \eqn{\Sigma \sim IW(\Psi, \nu)}.
+#' 
+#' 1. Upper triangular Bartlett decomposition: m x m matrix \eqn{Q = [q_{ij}]} upper triangular with
+#'     1. \eqn{q_{ii}^2 \chi_{\nu - i + 1}^2}
+#'     2. \eqn{q_{ij} \sim N(0, 1)} with i < j (upper triangular)
+#' 2. Lower triangular Cholesky decomposition: \eqn{\Psi = L L^T}
+#' 3. \eqn{A = L (Q^{-1})^T}
+#' 4. \eqn{\Sigma = A A^T \sim IW(\Psi, \nu)}
+#' 
+#' @export
+sim_iw <- function(mat_scale, shape) {
+    .Call(`_bvhar_sim_iw`, mat_scale, shape)
+}
+
+#' Generate Normal-IW Random Family
+#' 
+#' This function samples normal inverse-wishart matrices.
+#' 
+#' @param num_sim Number to generate
+#' @param mat_mean Mean matrix of MN
+#' @param mat_scale_u First scale matrix of MN
+#' @param mat_scale Scale matrix of IW
+#' @param shape Shape of IW
+#' @details
+#' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
+#' 
+#' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
+#' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+#' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
+#' 4. \eqn{A_i = M + P Z_i C_i^T}
+#' 
+#' @export
+sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
+    .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+}
+
 #' VAR(1) Representation of VAR(p)
 #' 
 #' Compute the coefficient matrix of VAR(1) form
@@ -516,31 +607,6 @@ kroneckerprod <- function(x, y) {
 #' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
-}
-
-#' Generate Multivariate Normal Random Vector with Zero Mean
-#' 
-#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
-#' 
-#' @param num_sim Number to generate process
-#' @param sig Variance matrix
-#' 
-#' @export
-sim_mgaussian <- function(num_sim, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, sig)
-}
-
-#' Generate Matrix Normal Random Matrix
-#' 
-#' This function samples one matrix gaussian matrix.
-#' 
-#' @param mat_mean Mean matrix
-#' @param mat_scale_u First scale matrix
-#' @param mat_scale_v Second scale matrix
-#' 
-#' @export
-sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
-    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

@@ -323,6 +323,71 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sim_mgaussian
+Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
+RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_mgaussian(num_sim, mu, sig));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_matgaussian
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v);
+RcppExport SEXP _bvhar_sim_matgaussian(SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scale_vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_mean(mat_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_u(mat_scale_uSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_v(mat_scale_vSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_iw_tri
+Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+RcppExport SEXP _bvhar_sim_iw_tri(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_iw_tri(mat_scale, shape));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_iw
+Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+RcppExport SEXP _bvhar_sim_iw(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_iw(mat_scale, shape));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_mniw
+Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+RcppExport SEXP _bvhar_sim_mniw(SEXP num_simSEXP, SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scaleSEXP, SEXP shapeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_mean(mat_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_u(mat_scale_uSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_stablemat
 Eigen::MatrixXd compute_stablemat(Rcpp::List object);
 RcppExport SEXP _bvhar_compute_stablemat(SEXP objectSEXP) {
@@ -393,31 +458,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_mgaussian
-Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::MatrixXd sig);
-RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP sigSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_mgaussian(num_sim, sig));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sim_matgaussian
-Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v);
-RcppExport SEXP _bvhar_sim_matgaussian(SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scale_vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_mean(mat_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_u(mat_scale_uSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_v(mat_scale_vSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sim_var
 Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
 RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
@@ -476,14 +516,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 2},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
+    {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
+    {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
+    {"_bvhar_sim_iw_tri", (DL_FUNC) &_bvhar_sim_iw_tri, 2},
+    {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
+    {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
     {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
     {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
-    {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 2},
-    {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},
     {NULL, NULL, 0}
