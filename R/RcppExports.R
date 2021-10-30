@@ -384,13 +384,21 @@ compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
 }
 
-#' Forecasting BVAR(p) of Minnesota Prior
+#' Forecasting BVAR(p)
 #' 
-#' @param object `bvarmn` object
+#' @param object `bvarmn` or `bvarflat` object
 #' @param step Integer, Step to forecast
+#' @param num_sim Integer, number to simulate parameters from posterior distribution
 #' @details
-#' n-step ahead point forecasting using BVAR(p) recursively,
-#' using point estimate for coefficient matrix.
+#' n-step ahead forecasting using BVAR(p) recursively.
+#' 
+#' For given number of simulation (`num_sim`),
+#' 
+#' 1. Generate \eqn{(A^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
+#'     - Point forecast: Use \eqn{\hat{A}}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim A^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
 #' 
 #' @references
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
@@ -399,39 +407,43 @@ compute_covmse_har <- function(object, step) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
-forecast_bvarmn <- function(object, step) {
-    .Call(`_bvhar_forecast_bvarmn`, object, step)
-}
-
-#' Forecasting BVAR(p) of Flat Prior
-#' 
-#' @param object `bvarflat` object
-#' @param step Integer, Step to forecast
-#' @details
-#' n-step ahead point forecasting using BVAR(p) recursively,
-#' using point estimate for coefficient matrix.
-#' 
-#' @references
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' 
 #' @export
-forecast_bvarmn_flat <- function(object, step) {
-    .Call(`_bvhar_forecast_bvarmn_flat`, object, step)
+forecast_bvar <- function(object, step, num_sim) {
+    .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
 #' Forecasting Bayesian VHAR
 #' 
-#' @param object \code{bvharmn} object by \code{\link{vhar_lm}}
+#' @param object `bvharmn` object
 #' @param step Integer, Step to forecast
+#' @param num_sim Integer, number to simulate parameters from posterior distribution
 #' @details
 #' n-step ahead forecasting using VHAR recursively.
 #' 
+#' For given number of simulation (`num_sim`),
+#' 
+#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
+#'     - Point forecast: Use \eqn{\hat\Phi}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
+#' 
+#' @references
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' 
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' 
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' 
 #' @export
-forecast_bvharmn <- function(object, step) {
-    .Call(`_bvhar_forecast_bvharmn`, object, step)
+forecast_bvharmn <- function(object, step, num_sim) {
+    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
 }
 
 #' Forecasting Vector Autoregression
@@ -600,8 +612,8 @@ AtAit_eigen <- function(x, y) {
 }
 
 #' @noRd
-kroneckerprod <- function(x, y) {
-    .Call(`_bvhar_kroneckerprod`, x, y)
+kronecker_eigen <- function(x, y) {
+    .Call(`_bvhar_kronecker_eigen`, x, y)
 }
 
 #' @noRd

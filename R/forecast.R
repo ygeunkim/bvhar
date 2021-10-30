@@ -162,45 +162,37 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
-#' @importFrom stats qnorm
-#' @importFrom mniw riwish
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' 
+#' @importFrom stats quantile
 #' @order 1
 #' @export
 predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvarmn(object, n_ahead)
+  pred_res <- forecast_bvar(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- colnames(object$y0)
+  var_names <- colnames(object$y0)
+  colnames(pred_mean) <- var_names
+  # Predictive distribution-------------------------
+  dim_data <- ncol(pred_mean)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
-  # Compute CI--------------------------------------
-  ci_simul <- 
-    lapply(
-      1:n_iter,
-      function(i) {
-        lapply(
-          pred_variance,
-          function(v) {
-            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
-          }
-        ) %>% 
-          do.call(rbind, .)
-      }
-    ) %>% 
-    simplify2array() %>% 
-    apply(1:2, mean)
-  colnames(ci_simul) <- colnames(object$y0)
-  z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
+  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  # result------------------------------------------
   res <- list(
     process = object$process,
     forecast = pred_mean,
-    se = ci_simul,
-    lower = pred_mean - z_quant * ci_simul,
-    upper = pred_mean + z_quant * ci_simul,
-    lower_joint = pred_mean - z_bonferroni * ci_simul,
-    upper_joint = pred_mean + z_bonferroni * ci_simul,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     y = object$y
   )
   class(res) <- "predbvhar"
@@ -225,46 +217,35 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 #' 
-#' @importFrom stats qnorm
-#' @importFrom mniw riwish
+#' @importFrom stats quantile
 #' @order 1
 #' @export
 predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvharmn(object, n_ahead)
+  pred_res <- forecast_bvharmn(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- colnames(object$y0)
+  var_names <- colnames(object$y0)
+  colnames(pred_mean) <- var_names
+  # Predictive distribution-------------------------
+  dim_data <- ncol(pred_mean)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
-  # Compute CI--------------------------------------
-  ci_simul <- 
-    lapply(
-      1:n_iter,
-      function(i) {
-        lapply(
-          pred_variance,
-          function(v) {
-            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
-          }
-        ) %>% 
-          do.call(rbind, .)
-      }
-    ) %>% 
-    simplify2array() %>% 
-    apply(1:2, mean)
-  colnames(ci_simul) <- colnames(object$y0)
-  z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
-  # return-----------------------------------------
+  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  # result------------------------------------------
   res <- list(
     process = object$process,
     forecast = pred_mean,
-    se = ci_simul,
-    lower = pred_mean - z_quant * ci_simul,
-    upper = pred_mean + z_quant * ci_simul,
-    lower_joint = pred_mean - z_bonferroni * ci_simul,
-    upper_joint = pred_mean + z_bonferroni * ci_simul,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     y = object$y
   )
   class(res) <- "predbvhar"
@@ -282,46 +263,35 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' @references 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
-#' @importFrom stats qnorm
-#' @importFrom mniw riwish
+#' @importFrom stats quantile
 #' @order 1
 #' @export
 predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
-  pred_res <- forecast_bvarmn_flat(object, n_ahead)
+  pred_res <- forecast_bvar(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- colnames(object$y0)
+  var_names <- colnames(object$y0)
+  colnames(pred_mean) <- var_names
+  # Predictive distribution-------------------------
+  dim_data <- ncol(pred_mean)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  pred_variance <- pred_res$posterior_var_closed
-  sig_rand <- riwish(n = n_iter, Psi = object$iw_scale, nu = object$iw_shape)
-  # Compute CI--------------------------------------
-  ci_simul <- 
-    lapply(
-      1:n_iter,
-      function(i) {
-        lapply(
-          pred_variance,
-          function(v) {
-            sqrt( diag(sig_rand[,, i]) * v ) # kronecker(sig_rand[,, i], v) %>% diag()
-          }
-        ) %>% 
-          do.call(rbind, .)
-      }
-    ) %>% 
-    simplify2array() %>% 
-    apply(1:2, mean)
-  colnames(ci_simul) <- colnames(object$y0)
-  z_quant <- qnorm(level / 2, lower.tail = FALSE)
-  z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
-  # return-----------------------------------------
+  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  # result------------------------------------------
   res <- list(
     process = object$process,
     forecast = pred_mean,
-    se = ci_simul,
-    lower = pred_mean - z_quant * ci_simul,
-    upper = pred_mean + z_quant * ci_simul,
-    lower_joint = pred_mean - z_bonferroni * ci_simul,
-    upper_joint = pred_mean + z_bonferroni * ci_simul,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     y = object$y
   )
   class(res) <- "predbvhar"

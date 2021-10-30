@@ -4,16 +4,38 @@
 \alias{forecast_bvharmn}
 \title{Forecasting Bayesian VHAR}
 \usage{
-forecast_bvharmn(object, step)
+forecast_bvharmn(object, step, num_sim)
 }
 \arguments{
-\item{object}{\code{bvharmn} object by \code{\link{vhar_lm}}}
+\item{object}{\code{bvharmn} object}
 
 \item{step}{Integer, Step to forecast}
+
+\item{num_sim}{Integer, number to simulate parameters from posterior distribution}
 }
 \description{
 Forecasting Bayesian VHAR
 }
 \details{
 n-step ahead forecasting using VHAR recursively.
+
+For given number of simulation (\code{num_sim}),
+\enumerate{
+\item Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+\item Recursively, \eqn{j = 1, \ldots, h} (\code{step})
+\itemize{
+\item Point forecast: Use \eqn{\hat\Phi}
+\item Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
+\item tilde notation indicates simulated ones
+}
+}
+}
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
 }

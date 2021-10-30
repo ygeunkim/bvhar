@@ -144,5 +144,7 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 
 Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
+
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 }

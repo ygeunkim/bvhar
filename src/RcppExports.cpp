@@ -263,39 +263,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// forecast_bvarmn
-Rcpp::List forecast_bvarmn(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_forecast_bvarmn(SEXP objectSEXP, SEXP stepSEXP) {
+// forecast_bvar
+Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim);
+RcppExport SEXP _bvhar_forecast_bvar(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvarmn(object, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// forecast_bvarmn_flat
-Rcpp::List forecast_bvarmn_flat(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_forecast_bvarmn_flat(SEXP objectSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvarmn_flat(object, step));
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvar(object, step, num_sim));
     return rcpp_result_gen;
 END_RCPP
 }
 // forecast_bvharmn
-Rcpp::List forecast_bvharmn(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_forecast_bvharmn(SEXP objectSEXP, SEXP stepSEXP) {
+Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim);
+RcppExport SEXP _bvhar_forecast_bvharmn(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvharmn(object, step));
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharmn(object, step, num_sim));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -435,15 +425,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// kroneckerprod
-Eigen::MatrixXd kroneckerprod(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_kroneckerprod(SEXP xSEXP, SEXP ySEXP) {
+// kronecker_eigen
+Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
+RcppExport SEXP _bvhar_kronecker_eigen(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(kroneckerprod(x, y));
+    rcpp_result_gen = Rcpp::wrap(kronecker_eigen(x, y));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -511,9 +501,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 3},
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
     {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},
-    {"_bvhar_forecast_bvarmn", (DL_FUNC) &_bvhar_forecast_bvarmn, 2},
-    {"_bvhar_forecast_bvarmn_flat", (DL_FUNC) &_bvhar_forecast_bvarmn_flat, 2},
-    {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 2},
+    {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 3},
+    {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 3},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
@@ -525,7 +514,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
     {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
     {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
-    {"_bvhar_kroneckerprod", (DL_FUNC) &_bvhar_kroneckerprod, 2},
+    {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},

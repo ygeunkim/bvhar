@@ -4,7 +4,7 @@
 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Eigen::MatrixXd AAt_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), y.cols());
   res = x * y.transpose();
   return res;
@@ -12,7 +12,7 @@ Eigen::MatrixXd AAt_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Eigen::MatrixXd tAA_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.cols(), y.rows());
   res = x.transpose() * y;
   return res;
@@ -20,7 +20,7 @@ Eigen::MatrixXd tAA_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Eigen::MatrixXd AtAit_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows(), x.rows());
   res = x * y.inverse() * x.transpose();
   return res;
@@ -28,11 +28,16 @@ Eigen::MatrixXd AtAit_eigen (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd kroneckerprod (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res(x.rows() * y.rows(), x.cols() * y.cols());
   res = kroneckerProduct(x, y).eval();
   return res;
 }
+
+// Eigen::MatrixXd kronecker_tmp(Eigen::Map<Eigen::MatrixXd> x, Eigen::Map<Eigen::MatrixXd> y) {
+//   Eigen::MatrixXd res = kroneckerProduct(x, y);
+//   return res;
+// }
 
 //' @noRd
 // [[Rcpp::export]]
