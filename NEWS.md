@@ -1,5 +1,9 @@
 # bvhar 0.4.0
 
+* Change the way to compute the CI of BVAR and BVHAR (`predict.bvarmn()`, `predict.bvharmn()`, and `predict.bvarflat()`)
+
+* Used custom random generation function - MN, IW, and MNIW based on RcppEigen
+
 # bvhar 0.3.0
 
 * Added Bayesian model specification functions and class (`bvharspec`).
