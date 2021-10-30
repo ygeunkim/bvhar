@@ -57,14 +57,18 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
+  int num_rows = mat_mean.rows();
+  int num_cols = mat_mean.cols();
+  if (mat_scale_u.rows() != mat_scale_u.cols()) Rcpp::stop("Invalid 'mat_scale_u' dimension.");
+  if (num_rows != mat_scale_u.rows()) Rcpp::stop("Invalid 'mat_scale_u' dimension.");
+  if (mat_scale_v.rows() != mat_scale_v.cols()) Rcpp::stop("Invalid 'mat_scale_v' dimension.");
+  if (num_cols != mat_scale_v.rows()) Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
   Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
   // Cholesky decomposition (lower triangular)
   Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
   Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
   // standard normal
-  int num_rows = mat_mean.rows();
-  int num_cols = mat_mean.cols();
   Eigen::MatrixXd mat_norm(num_rows, num_cols);
   // Eigen::MatrixXd res(num_rows, num_cols, num_sim);
   Eigen::MatrixXd res(num_rows, num_cols);
@@ -81,6 +85,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::Matr
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
   int dim = mat_scale.cols();
+  if (mat_scale.rows() != mat_scale.cols()) Rcpp::stop("Invalid 'mat_scale' dimension.");
   if (dim != mat_scale.rows()) Rcpp::stop("Invalid 'mat_scale' dimension.");
   // upper triangular bartlett decomposition
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);

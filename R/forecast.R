@@ -150,10 +150,10 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' 
 #' Then predictive posterior for each step
 #' 
-#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \hat{B}), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
-#' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
+#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T A), \Sigma_e \otimes (1 + y_{(n)}^T \hat{V}^{-1} y_{(n)}) )}
+#' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 #' and recursively,
-#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T \hat{B}), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
+#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
 #' 
 #' @references 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
@@ -183,7 +183,8 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
   # result------------------------------------------
   res <- list(
     process = object$process,
@@ -212,10 +213,10 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' 
 #' Then predictive posterior for each step
 #' 
-#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
-#' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
+#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+#' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 #' and recursively,
-#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \hat\Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
+#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 #' 
 #' @importFrom stats quantile
 #' @order 1
@@ -236,7 +237,8 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
   # result------------------------------------------
   res <- list(
     process = object$process,
@@ -282,7 +284,8 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
-  est_se <- sqrt(n_iter * level / 2 * (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
   # result------------------------------------------
   res <- list(
     process = object$process,
@@ -298,7 +301,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' Print Method for \code{predbvhar} object
+#' Print Method for `predbvhar` object
 #' @rdname predict.varlse
 #' @param x `predbvhar` object
 #' @param digits digit option to print
@@ -325,4 +328,3 @@ registerS3method(
   knit_print.predbvhar,
   envir = asNamespace("knitr")
 )
-

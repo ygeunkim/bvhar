@@ -21,7 +21,6 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @importFrom mniw rmniw
 #' @order 1
 #' @export
 summary.bvarmn <- function(object, n_iter = 100L, ...) {
@@ -29,11 +28,23 @@ summary.bvarmn <- function(object, n_iter = 100L, ...) {
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
   nu <- object$iw_shape
-  b_sig <- rmniw(n = n_iter, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = nu)
-  Bhat <- b_sig$X
-  Sighat <- b_sig$V
-  # mniw returns list of 3d array---------
-  dimnames(Bhat) <- list(
+  coef_and_sig <- sim_mniw(
+    n_iter,
+    mn_mean, # mean of MN
+    solve(mn_prec), # precision of MN
+    iw_scale, # scale of IW
+    nu # shape of IW
+  )
+  dim_design <- object$df
+  dim_data <- ncol(object$y0)
+  Ahat <- 
+    coef_and_sig$mn %>% # k x (n_iter * m)
+    array(dim = c(dim_design, dim_data, n_iter))
+  Sighat <- 
+    coef_and_sig$iw %>% # m x (n_iter * m)
+    array(dim = c(dim_data, dim_data, n_iter))
+  # list of 3d array---------
+  dimnames(Ahat) <- list(
     rownames(mn_mean), # row
     colnames(mn_mean), # col
     1:n_iter # 3rd dim
@@ -54,7 +65,7 @@ summary.bvarmn <- function(object, n_iter = 100L, ...) {
     iw_scale = iw_scale,
     iw_shape = nu,
     # density--------------
-    coefficients = Bhat,
+    coefficients = Ahat,
     covmat = Sighat,
     N = n_iter
   )
