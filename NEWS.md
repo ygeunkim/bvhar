@@ -1,3 +1,5 @@
+# bvhar 0.4.0
+
 # bvhar 0.3.0
 
 * Added Bayesian model specification functions and class (`bvharspec`).
