@@ -514,6 +514,15 @@ sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
     .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
 }
 
+#' Generate Lower Triangular Matrix of IW
+#' 
+#' This function generates \eqn{A = L (Q^{-1})^T}.
+#' 
+#' @param mat_scale Scale matrix of IW
+#' @param shape Shape of IW
+#' @details
+#' This function is the internal function for IW sampling and MNIW sampling functions.
+#' 
 #' @noRd
 sim_iw_tri <- function(mat_scale, shape) {
     .Call(`_bvhar_sim_iw_tri`, mat_scale, shape)
@@ -637,7 +646,7 @@ compute_eigenvalues <- function(x) {
 #' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
     .Call(`_bvhar_sim_var`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
@@ -658,7 +667,7 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' \deqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
 #' 3. Then the output is \eqn{(y_{23}, \ldots, y_{n + 22})^T}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
     .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, sig_error, init)

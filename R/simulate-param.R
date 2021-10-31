@@ -18,7 +18,6 @@
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @importFrom mniw rmniw
 #' @export
 sim_mncoef <- function(p, bayes_spec = set_bvar()) {
   # model specification---------------
@@ -48,10 +47,16 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
   iw_scale <- prior$prior_scale
   iw_shape <- prior$prior_shape
   # random---------------------------
-  res <- rmniw(n = 1, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = iw_shape)
+  res <- sim_mniw(
+    1,
+    mn_mean, # mean of MN
+    solve(mn_prec), # scale of MN = inverse of precision
+    iw_scale, # scale of IW
+    iw_shape # shape of IW
+  )
   list(
-    coefficients = res$X,
-    covmat = res$V
+    coefficients = res$mn,
+    covmat = res$iw
   )
 }
 
@@ -78,7 +83,6 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. [https://doi:10.1093/jjfinec/nbp001](https://doi:10.1093/jjfinec/nbp001)
 #' 
-#' @importFrom mniw rmniw
 #' @export
 sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
   # model specification---------------
@@ -133,10 +137,16 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
   iw_scale <- prior$prior_scale
   iw_shape <- prior$prior_shape
   # random---------------------------
-  res <- rmniw(n = 1, Lambda = mn_mean, Omega = mn_prec, Psi = iw_scale, nu = iw_shape)
+  res <- sim_mniw(
+    1,
+    mn_mean, # mean of MN
+    solve(mn_prec), # scale of MN = inverse of precision
+    iw_scale, # scale of IW
+    iw_shape # shape of IW
+  )
   list(
-    coefficients = res$X,
-    covmat = res$V
+    coefficients = res$mn,
+    covmat = res$iw
   )
 }
 

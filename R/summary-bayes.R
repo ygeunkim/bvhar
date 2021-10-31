@@ -31,7 +31,7 @@ summary.bvarmn <- function(object, n_iter = 100L, ...) {
   coef_and_sig <- sim_mniw(
     n_iter,
     mn_mean, # mean of MN
-    solve(mn_prec), # precision of MN
+    solve(mn_prec), # precision of MN = inverse of precision
     iw_scale, # scale of IW
     nu # shape of IW
   )

@@ -56,7 +56,9 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
 //' 
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, 
+                                Eigen::Map<Eigen::MatrixXd> mat_scale_u, 
+                                Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
   if (mat_scale_u.rows() != mat_scale_u.cols()) Rcpp::stop("Invalid 'mat_scale_u' dimension.");
@@ -81,6 +83,15 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::Matr
   return res;
 }
 
+//' Generate Lower Triangular Matrix of IW
+//' 
+//' This function generates \eqn{A = L (Q^{-1})^T}.
+//' 
+//' @param mat_scale Scale matrix of IW
+//' @param shape Shape of IW
+//' @details
+//' This function is the internal function for IW sampling and MNIW sampling functions.
+//' 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
