@@ -606,21 +606,6 @@ compute_stablemat <- function(object) {
 }
 
 #' @noRd
-AAt_eigen <- function(x, y) {
-    .Call(`_bvhar_AAt_eigen`, x, y)
-}
-
-#' @noRd
-tAA_eigen <- function(x, y) {
-    .Call(`_bvhar_tAA_eigen`, x, y)
-}
-
-#' @noRd
-AtAit_eigen <- function(x, y) {
-    .Call(`_bvhar_AtAit_eigen`, x, y)
-}
-
-#' @noRd
 kronecker_eigen <- function(x, y) {
     .Call(`_bvhar_kronecker_eigen`, x, y)
 }
@@ -628,6 +613,30 @@ kronecker_eigen <- function(x, y) {
 #' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
+}
+
+#' Multivariate Gamma Function
+#' 
+#' Compute multivariate gamma function numerically
+#' 
+#' @param x Double, non-negative argument
+#' @param p Integer, dimension
+#' 
+#' @noRd
+mgammafn <- function(x, p) {
+    .Call(`_bvhar_mgammafn`, x, p)
+}
+
+#' Log of Multivariate Gamma Function
+#' 
+#' Compute log of multivariate gamma function numerically
+#' 
+#' @param x Double, non-negative argument
+#' @param p Integer, dimension
+#' 
+#' @noRd
+log_mgammafn <- function(x, p) {
+    .Call(`_bvhar_log_mgammafn`, x, p)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

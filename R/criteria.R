@@ -703,14 +703,13 @@ compute_logml <- function(object, ...) {
 #' 
 #' \deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha_0 / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
 #' 
-#' @importFrom CholWishart lmvgamma
 #' @export
 compute_logml.bvarmn <- function(object, ...) {
   dim_data <- object$m # m
   prior_shape <- object$prior_shape # alpha0
   num_obs <- object$obs # s
   # constant term-------------
-  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  const_term <- - dim_data * num_obs / 2 * log(pi) + log_mgammafn((prior_shape + num_obs) / 2, dim_data) - log_mgammafn(prior_shape / 2, dim_data)
   # compute log ML-----------
   const_term - dim_data / 2 * log(
     det(object$prior_precision)
@@ -732,14 +731,13 @@ compute_logml.bvarmn <- function(object, ...) {
 #' 
 #' \deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + s) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + s) / 2}}
 #' 
-#' @importFrom CholWishart lmvgamma
 #' @export
 compute_logml.bvharmn <- function(object, ...) {
   dim_data <- object$m # m
   prior_shape <- object$prior_shape # d0
   num_obs <- object$obs # s
   # constant term-------------
-  const_term <- - dim_data * num_obs / 2 * log(pi) + lmvgamma((prior_shape + num_obs) / 2, dim_data) - lmvgamma(prior_shape / 2, dim_data)
+  const_term <- - dim_data * num_obs / 2 * log(pi) + log_mgammafn((prior_shape + num_obs) / 2, dim_data) - log_mgammafn(prior_shape / 2, dim_data)
   # compute log ML------------
   const_term - dim_data / 2 * log(
     det(object$prior_precision)

@@ -76,8 +76,7 @@ reference:
   - predict.varlse
   - forecast_var
   - forecast_vhar
-  - forecast_bvarmn
-  - forecast_bvarmn_flat
+  - forecast_bvar
   - forecast_bvharmn
   - divide_ts
   - mse
@@ -120,11 +119,14 @@ reference:
 - title: Simulation
   desc: ~
   contents:
-  - sim_mgaussian
   - sim_var
   - sim_vhar
   - sim_mncoef
   - sim_mnvhar_coef
+  - sim_mgaussian
+  - sim_matgaussian
+  - sim_iw
+  - sim_mniw
 
 - title: Data
   desc: ~

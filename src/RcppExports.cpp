@@ -389,42 +389,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// AAt_eigen
-Eigen::MatrixXd AAt_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_AAt_eigen(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(AAt_eigen(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// tAA_eigen
-Eigen::MatrixXd tAA_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_tAA_eigen(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(tAA_eigen(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// AtAit_eigen
-Eigen::MatrixXd AtAit_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_AtAit_eigen(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(AtAit_eigen(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
 // kronecker_eigen
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_kronecker_eigen(SEXP xSEXP, SEXP ySEXP) {
@@ -445,6 +409,30 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_eigenvalues(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mgammafn
+double mgammafn(double x, int p);
+RcppExport SEXP _bvhar_mgammafn(SEXP xSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(mgammafn(x, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// log_mgammafn
+double log_mgammafn(double x, int p);
+RcppExport SEXP _bvhar_log_mgammafn(SEXP xSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_mgammafn(x, p));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -511,11 +499,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
-    {"_bvhar_AAt_eigen", (DL_FUNC) &_bvhar_AAt_eigen, 2},
-    {"_bvhar_tAA_eigen", (DL_FUNC) &_bvhar_tAA_eigen, 2},
-    {"_bvhar_AtAit_eigen", (DL_FUNC) &_bvhar_AtAit_eigen, 2},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
+    {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
+    {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},
     {NULL, NULL, 0}
