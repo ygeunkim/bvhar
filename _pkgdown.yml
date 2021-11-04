@@ -61,6 +61,7 @@ reference:
     Bayesian VHAR model.
   contents:
   - bvhar_minnesota
+  - summary.bvharmn
   - build_ydummy_bvhar
 
 - title: Inference
@@ -109,8 +110,8 @@ reference:
 - title: Plots
   desc: ~
   contents:
-  - autoplot.bvarmn
-  - autoplot.summary.bvarmn
+  - autoplot.bvharmod
+  - autoplot.summary.bvharmod
   - geom_predbvhar
   - autoplot.predbvhar
   - geom_eval

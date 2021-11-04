@@ -2,7 +2,7 @@
 #' 
 #' This function draws density plot for coefficient matrices of Minnesota prior VAR model.
 #' 
-#' @param object `summary.bvarmn` object
+#' @param object `summary.bvharmod` object
 #' @param type Plot mean or variance. `"coef"` indicates VAR coefficients and `"variance"` for diagonal elements for Sigma (By default, coefficients).
 #' @param var_name variable name (for coefficients)
 #' @param NROW Numer of facet row
@@ -14,7 +14,7 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble rownames_to_column
 #' @export
-autoplot.summary.bvarmn <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
+autoplot.summary.bvharmod <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
   type <- match.arg(type)
   switch(
     type,
@@ -68,7 +68,7 @@ autoplot.summary.bvarmn <- function(object, type = c("coef", "variance"), var_na
 #' 
 #' This function draww residual plot for covariance matrix of Minnesota prior VAR model.
 #' 
-#' @param object `bvarmn` object
+#' @param object `bvharmod` object
 #' @param hcol color of horizontal line = 0 (By default, grey)
 #' @param hsize size of horizontal line = 0 (By default, 1.5)
 #' @param ... additional options for geom_point
@@ -76,7 +76,7 @@ autoplot.summary.bvarmn <- function(object, type = c("coef", "variance"), var_na
 #' @importFrom ggplot2 ggplot aes geom_point geom_hline facet_grid labs element_text element_blank
 #' @importFrom tidyr pivot_longer
 #' @export
-autoplot.bvarmn <- function(object, hcol = "grey", hsize = 1.5, ...) {
+autoplot.bvharmod <- function(object, hcol = "grey", hsize = 1.5, ...) {
   X <- object$residuals %>% as.data.frame()
   X[["id"]] <- 1:object$obs
   X <- 

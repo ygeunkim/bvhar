@@ -1,5 +1,5 @@
 #' @rdname bvar_minnesota
-#' @param x \code{bvarmn} object
+#' @param x `bvarmn` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
@@ -63,7 +63,7 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_minnesota
-#' @param x \code{bvarmn} object
+#' @param x `bvarmn` object
 #' @param ... not used
 #' @order 3
 #' @export
@@ -79,7 +79,7 @@ registerS3method(
 )
 
 #' @rdname summary.bvarmn
-#' @param x \code{summary.bvarmn} object
+#' @param x `summary.bvarmn` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @importFrom utils str
@@ -119,7 +119,7 @@ print.summary.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), 
 }
 
 #' @rdname summary.bvarmn
-#' @param x \code{summary.bvarmn} object
+#' @param x `summary.bvarmn` object
 #' @param ... not used
 #' @order 3
 #' @export
