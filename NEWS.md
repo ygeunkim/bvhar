@@ -1,5 +1,9 @@
 # bvhar 0.4.1
 
+* Fix Marginal likelihood form (`compute_logml()`).
+
+* Optimize empirical bayes method using stabilized marginal likelihood function (`logml_stable()`).
+
 # bvhar 0.4.0
 
 * Change the way to compute the CI of BVAR and BVHAR (`predict.bvarmn()`, `predict.bvharmn()`, and `predict.bvarflat()`)
