@@ -102,6 +102,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// logml_stable
+double logml_stable(Rcpp::List object);
+RcppExport SEXP _bvhar_logml_stable(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(logml_stable(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // estimate_bvar_mn
 Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
 RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP) {
@@ -476,6 +487,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_build_ydummy_bvhar", (DL_FUNC) &_bvhar_build_ydummy_bvhar, 5},
+    {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},

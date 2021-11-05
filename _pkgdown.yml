@@ -42,13 +42,13 @@ reference:
   desc: ~
   contents:
   - set_bvar
+  - summary.bvharmod
 
 - title: BVAR
   desc: >
     Bayesian VAR model.
   contents:
   - bvar_minnesota
-  - summary.bvarmn
   - build_ydummy
   - build_xdummy
   - minnesota_prior
@@ -61,7 +61,6 @@ reference:
     Bayesian VHAR model.
   contents:
   - bvhar_minnesota
-  - summary.bvharmn
   - build_ydummy_bvhar
 
 - title: Inference

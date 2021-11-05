@@ -711,8 +711,8 @@ compute_logml.bvarmn <- function(object, ...) {
   # constant term-------------
   const_term <- - dim_data * num_obs / 2 * log(pi) + log_mgammafn((prior_shape + num_obs) / 2, dim_data) - log_mgammafn(prior_shape / 2, dim_data)
   # compute log ML-----------
-  const_term - dim_data / 2 * log(
-    det(object$prior_precision)
+  const_term + dim_data / 2 * log(
+    det(object$prior_precision) # precision = scale^(-1)
   ) + prior_shape / 2 * log(
     det(object$prior_scale)
   ) - dim_data / 2 * log(
@@ -739,8 +739,8 @@ compute_logml.bvharmn <- function(object, ...) {
   # constant term-------------
   const_term <- - dim_data * num_obs / 2 * log(pi) + log_mgammafn((prior_shape + num_obs) / 2, dim_data) - log_mgammafn(prior_shape / 2, dim_data)
   # compute log ML------------
-  const_term - dim_data / 2 * log(
-    det(object$prior_precision)
+  const_term + dim_data / 2 * log(
+    det(object$prior_precision) # precision = scale^(-1)
   ) + prior_shape / 2 * log(
     det(object$prior_scale)
   ) - dim_data / 2 * log(

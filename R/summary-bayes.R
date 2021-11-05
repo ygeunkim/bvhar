@@ -1,15 +1,22 @@
-#' Summarizing Bayesian VAR of Minnesota Prior Model
+#' Summarizing Bayesian Multivariate Time Series Model
 #' 
-#' `summary` method for `bvarmn` class.
+#' `summary` method for `bvharmod` class.
 #' 
-#' @param object `bvarmn` object
+#' @param object `bvharmod` object
 #' @param n_iter Number to sample Matrix Normal Inverse-Wishart distribution
 #' @param ... not used
 #' @details 
 #' From Minnesota prior, set of coefficient matrices and residual covariance matrix have matrix Normal Inverse-Wishart distribution.
 #' 
+#' BVAR:
+#' 
 #' \deqn{(A, \Sigma_e) \sim MNIW(\hat{A}, \hat{V}^{-1}, \hat\Sigma_e, \alpha_0 + s)}
 #' where \eqn{\hat{V} = X_\ast^T X_\ast} is the posterior precision of MN.
+#' 
+#' BVHAR:
+#' 
+#' \deqn{(\Phi, \Sigma_e) \sim MNIW(\hat\Phi, \hat{V}_H^{-1}, \hat\Sigma_e, d_0 + s)}
+#' where \eqn{\hat{V}_H = X_{+}^T X_{+}} is the posterior precision of MN.
 #' 
 #' @return `summary` for `bvarmn` object returns `summary.bvarmn` [class].
 #' \describe{
@@ -24,7 +31,7 @@
 #' 
 #' @order 1
 #' @export
-summary.bvarmn <- function(object, n_iter = 100L, ...) {
+summary.bvharmod <- function(object, n_iter = 100L, ...) {
   mn_mean <- object$coefficients
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
@@ -36,74 +43,10 @@ summary.bvarmn <- function(object, n_iter = 100L, ...) {
     iw_scale, # scale of IW
     nu # shape of IW
   )
-  dim_design <- object$df
-  dim_data <- ncol(object$y0)
-  Ahat <- 
-    coef_and_sig$mn %>% # k x (n_iter * m)
-    array(dim = c(dim_design, dim_data, n_iter))
-  Sighat <- 
-    coef_and_sig$iw %>% # m x (n_iter * m)
-    array(dim = c(dim_data, dim_data, n_iter))
-  # list of 3d array---------
-  dimnames(Ahat) <- list(
-    rownames(mn_mean), # row
-    colnames(mn_mean), # col
-    1:n_iter # 3rd dim
-  )
-  dimnames(Sighat) <- list(
-    rownames(iw_scale), # row
-    colnames(iw_scale), # col
-    1:n_iter # 3rd dim
-  )
-  res <- list(
-    names = colnames(object$y0),
-    p = object$p,
-    m = object$m,
-    call = object$call,
-    # posterior------------
-    mn_mean = mn_mean,
-    mn_prec = mn_prec,
-    iw_scale = iw_scale,
-    iw_shape = nu,
-    # density--------------
-    coefficients = Ahat,
-    covmat = Sighat,
-    N = n_iter
-  )
-  class(res) <- c("summary.bvarmn", "summary.bvharmod")
-  res
-}
-
-#' Summarizing Bayesian VHAR Model
-#' 
-#' `summary` method for `bvharmn` class.
-#' 
-#' @param object `bvhar` object
-#' @param n_iter Number to sample Matrix Normal Inverse-Wishart distribution
-#' @details 
-#' From Minnesota prior, set of coefficient matrices and residual covariance matrix have matrix Normal Inverse-Wishart distribution.
-#' 
-#' \deqn{(\Phi, \Sigma_e) \sim MNIW(\hat\Phi, \hat{V}_H^{-1}, \hat\Sigma_e, d_0 + s)}
-#' where \eqn{\hat{V}_H = X_{+}^T X_{+}} is the posterior precision of MN.
-#' 
-#' @order 1
-#' @export
-summary.bvharmn <- function(object, n_iter = 100L, ...) {
-  mn_mean <- object$coefficients
-  mn_prec <- object$mn_prec
-  iw_scale <- object$iw_scale
-  nu <- object$iw_shape
-  coef_and_sig <- sim_mniw(
-    n_iter,
-    mn_mean, # mean of MN
-    solve(mn_prec), # precision of MN = inverse of precision
-    iw_scale, # scale of IW
-    nu # shape of IW
-  )
-  dim_design <- object$df # h = 3m + 1 or 3m
+  dim_design <- object$df # k or h = 3m + 1 or 3m
   dim_data <- ncol(object$y0)
   coef_mat <- 
-    coef_and_sig$mn %>% # h x (n_iter * m)
+    coef_and_sig$mn %>% # k(h) x (n_iter * m)
     array(dim = c(dim_design, dim_data, n_iter))
   cov_mat <- 
     coef_and_sig$iw %>% # m x (n_iter * m)
@@ -119,12 +62,12 @@ summary.bvharmn <- function(object, n_iter = 100L, ...) {
     colnames(iw_scale), # col
     1:n_iter # 3rd dim
   )
-  # result-------------------
   res <- list(
     names = colnames(object$y0),
     p = object$p,
     m = object$m,
     call = object$call,
+    spec = object$spec,
     # posterior------------
     mn_mean = mn_mean,
     mn_prec = mn_prec,
@@ -135,7 +78,7 @@ summary.bvharmn <- function(object, n_iter = 100L, ...) {
     covmat = cov_mat,
     N = n_iter
   )
-  class(res) <- c("summary.bvharmn", "summary.bvharmod")
+  class(res) <- "summary.bvharmod"
   res
 }
 

@@ -148,6 +148,18 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
     .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
 }
 
+#' Numerically Stable Log Marginal Likelihood Excluding Constant Term
+#' 
+#' This function computes log of ML stable,
+#' in purpose of objective function.
+#' 
+#' @param object Bayesian Model Fit
+#' 
+#' @noRd
+logml_stable <- function(object) {
+    .Call(`_bvhar_logml_stable`, object)
+}
+
 #' BVAR(p) Point Estimates based on Minnesota Prior
 #' 
 #' Point estimates for posterior distribution

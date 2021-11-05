@@ -65,7 +65,7 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
     Rcpp::Named("prior_scale") = prior_scale,
-    Rcpp::Named("prior_shape") = prior_shape,
+    Rcpp::Named("prior_shape") = prior_shape + 2,
     Rcpp::Named("mnmean") = coef_mat,
     Rcpp::Named("mnprec") = prec_mat,
     Rcpp::Named("fitted") = yhat,

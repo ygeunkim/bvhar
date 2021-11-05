@@ -81,7 +81,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
     eps = eps
   )
   fit <- bvar_minnesota(y = y, p = p, bayes_spec = bvar_spec, include_mean = include_mean)
-  -compute_logml(fit) # for maximization
+  -logml_stable(fit) # for maximization
 }
 
 #' Finding the Set of Hyperparameters of Bayesian Model
@@ -148,6 +148,13 @@ choose_bvar <- function(bayes_spec = set_bvar(),
   bayes_spec$lambda <- res$par[dim_data + 1]
   bayes_spec$delta <- res$par[(dim_data + 2):(dim_data * 2 + 1)]
   res$spec <- bayes_spec
+  res$fit <- bvar_minnesota(
+    y = y,
+    p = p,
+    bayes_spec = bayes_spec,
+    include_mean = include_mean
+  )
+  res$ml <- compute_logml(res$fit)
   class(res) <- "bvharemp"
   res
 }
@@ -180,7 +187,7 @@ logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     eps = 1e-04
   )
   fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
-  -compute_logml(fit) # for maximization
+  -logml_stable(fit) # for maximization
 }
 
 #' Log ML Function of VHAR-type BVHAR to be in `optim`
@@ -215,7 +222,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     monthly = param[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   )
   fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
-  -compute_logml(fit) # for maximization
+  -logml_stable(fit) # for maximization
 }
 
 #' @rdname choose_bvar
@@ -317,6 +324,12 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
     bayes_spec$monthly <- res$par[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   }
   res$spec <- bayes_spec
+  res$fit <- bvhar_minnesota(
+    y = y,
+    bayes_spec = bayes_spec,
+    include_mean = include_mean
+  )
+  res$ml <- compute_logml(res$fit)
   class(res) <- "bvharemp"
   res
 }

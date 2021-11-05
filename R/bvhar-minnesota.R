@@ -213,7 +213,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     prior_mean = prior_mean,
     prior_precision = prior_prec,
     prior_scale = prior_scale,
-    prior_shape = prior_shape + 2, # add 2 for existence of prior mean
+    prior_shape = prior_shape, 
     # data----------------
     HARtrans = HARtrans,
     y0 = Y0,

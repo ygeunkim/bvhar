@@ -183,7 +183,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     prior_mean = prior_mean, # A0
     prior_precision = prior_prec, # U0 = (Omega)^{-1}
     prior_scale = prior_scale, # S0
-    prior_shape = prior_shape + 2, # add 2 for existence of prior mean
+    prior_shape = prior_shape, # a0
     # data-----------------
     y0 = Y0,
     design = X0,
