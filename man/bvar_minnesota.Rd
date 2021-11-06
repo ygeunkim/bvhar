@@ -17,7 +17,7 @@ knit_print.bvarmn(x, ...)
 
 \item{p}{VAR lag}
 
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+\item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 

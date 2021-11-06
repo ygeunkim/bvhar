@@ -89,8 +89,8 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
 #' 
 #' @param bayes_spec `r lifecycle::badge("experimental")` A Bayes model specification.
-#' @param lower Lower bound. By default, `-Inf`.
-#' @param upper Upper bound. By default, `Inf`.
+#' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
+#' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
 #' @param ... Additional arguments for [stats::optim()].
 #' @param y Time series data
@@ -98,13 +98,19 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
+#' These functions implement `"L-BFGS-B"` method of [stats::optim()] to find the maximum of marginal likelihood.
+#' 
+#' @references 
+#' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
+#' 
+#' Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). *A limited memory algorithm for bound constrained optimization*. SIAM Journal on scientific computing, 16(5), 1190-1208. doi: [10.1137/0916069](https://doi.org/10.1137/0916069).
 #' 
 #' @importFrom stats optim
 #' @order 1
 #' @export
 choose_bvar <- function(bayes_spec = set_bvar(), 
                         lower = .01, 
-                        upper = Inf, 
+                        upper = 10, 
                         ..., 
                         eps = 1e-04,
                         y, 
@@ -234,8 +240,8 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' @rdname choose_bvar
 #' 
 #' @param bayes_spec `r lifecycle::badge("experimental")` A Bayes model specification.
-#' @param lower Lower bound. By default, `-Inf`.
-#' @param upper Upper bound. By default, `Inf`.
+#' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
+#' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
 #' @param ... Additional arguments for [stats::optim()].
 #' @param y Time series data
@@ -246,7 +252,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' @export
 choose_bvhar <- function(bayes_spec = set_bvhar(),
                          lower = .01, 
-                         upper = Inf, 
+                         upper = 10, 
                          ..., 
                          eps = 1e-04,
                          y, 

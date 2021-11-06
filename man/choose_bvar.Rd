@@ -10,7 +10,7 @@
 choose_bvar(
   bayes_spec = set_bvar(),
   lower = 0.01,
-  upper = Inf,
+  upper = 10,
   ...,
   eps = 1e-04,
   y,
@@ -21,7 +21,7 @@ choose_bvar(
 choose_bvhar(
   bayes_spec = set_bvhar(),
   lower = 0.01,
-  upper = Inf,
+  upper = 10,
   ...,
   eps = 1e-04,
   y,
@@ -35,9 +35,9 @@ knit_print.bvharemp(x, ...)
 \arguments{
 \item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A Bayes model specification.}
 
-\item{lower}{Lower bound. By default, \code{-Inf}.}
+\item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound. By default, \code{.01}.}
 
-\item{upper}{Upper bound. By default, \code{Inf}.}
+\item{upper}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Upper bound. By default, \code{10}.}
 
 \item{...}{not used}
 
@@ -58,4 +58,10 @@ This function chooses the set of hyperparameters of Bayesian model using \code{\
 }
 \details{
 Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
+These functions implement \code{"L-BFGS-B"} method of \code{\link[stats:optim]{stats::optim()}} to find the maximum of marginal likelihood.
+}
+\references{
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+
+Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). \emph{A limited memory algorithm for bound constrained optimization}. SIAM Journal on scientific computing, 16(5), 1190-1208. doi: \href{https://doi.org/10.1137/0916069}{10.1137/0916069}.
 }
