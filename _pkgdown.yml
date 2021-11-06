@@ -109,8 +109,8 @@ reference:
 - title: Plots
   desc: ~
   contents:
-  - autoplot.bvharmod
-  - autoplot.summary.bvharmod
+  - autoplot.normaliw
+  - autoplot.summary.normaliw
   - geom_predbvhar
   - autoplot.predbvhar
   - geom_eval

@@ -3,7 +3,7 @@
 #' This function fits BVHAR with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param bayes_spec `r lifecycle::badge("experimental")` A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
+#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 

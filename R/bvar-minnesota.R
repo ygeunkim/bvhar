@@ -4,7 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
-#' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar()].
+#' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
