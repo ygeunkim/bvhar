@@ -27,20 +27,20 @@ choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
     res <- foreach(p = 1:lag_max, .combine = rbind) %dopar% {
       var_list <- var_lm(y, p, include_mean = include_mean)
       c(
-        "AIC" = AIC(var_list, type = "rss"),
-        "BIC" = BIC(var_list, type = "rss"),
-        "HQ" = HQ(var_list, type = "rss"),
-        "FPE" = FPE(var_list)
+        "AIC" = compute_aic(var_list),
+        "BIC" = compute_bic(var_list),
+        "HQ" = compute_hq(var_list),
+        "FPE" = compute_fpe(var_list)
       )
     }
   } else {
     res <- foreach(p = 1:lag_max, .combine = rbind) %do% {
       var_list <- var_lm(y, p, include_mean = include_mean)
       c(
-        "AIC" = AIC(var_list, type = "rss"),
-        "BIC" = BIC(var_list, type = "rss"),
-        "HQ" = HQ(var_list, type = "rss"),
-        "FPE" = FPE(var_list)
+        "AIC" = compute_aic(var_list),
+        "BIC" = compute_bic(var_list),
+        "HQ" = compute_hq(var_list),
+        "FPE" = compute_hq(var_list)
       )
     }
   }
@@ -148,13 +148,19 @@ choose_bvar <- function(bayes_spec = set_bvar(),
   bayes_spec$lambda <- res$par[dim_data + 1]
   bayes_spec$delta <- res$par[(dim_data + 2):(dim_data * 2 + 1)]
   res$spec <- bayes_spec
-  res$fit <- bvar_minnesota(
+  final_fit <- bvar_minnesota(
     y = y,
     p = p,
     bayes_spec = bayes_spec,
     include_mean = include_mean
   )
-  res$ml <- compute_logml(res$fit)
+  res$fit <- final_fit
+  prior_shape <- final_fit$prior_shape # alpha0
+  num_obs <- final_fit$obs # s
+  const_term <- - dim_data * num_obs / 2 * log(pi) + 
+    log_mgammafn((prior_shape + num_obs) / 2, dim_data) - 
+    log_mgammafn(prior_shape / 2, dim_data)
+  res$ml <- const_term - res$value
   class(res) <- "bvharemp"
   res
 }
@@ -324,12 +330,18 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
     bayes_spec$monthly <- res$par[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   }
   res$spec <- bayes_spec
-  res$fit <- bvhar_minnesota(
+  final_fit <- bvhar_minnesota(
     y = y,
     bayes_spec = bayes_spec,
     include_mean = include_mean
   )
-  res$ml <- compute_logml(res$fit)
+  res$fit <- final_fit
+  prior_shape <- final_fit$prior_shape # alpha0
+  num_obs <- final_fit$obs # s
+  const_term <- - dim_data * num_obs / 2 * log(pi) + 
+    log_mgammafn((prior_shape + num_obs) / 2, dim_data) - 
+    log_mgammafn(prior_shape / 2, dim_data)
+  res$ml <- const_term - res$value
   class(res) <- "bvharemp"
   res
 }

@@ -188,7 +188,6 @@ logLik.bvharmn <- function(object, ...) {
 #' Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -217,52 +216,23 @@ logLik.bvharmn <- function(object, ...) {
 #' @importFrom stats AIC
 #' 
 #' @export
-AIC.varlse <- function(object, type = c("loglik", "rss"), ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        AIC()
-    },
-    "rss" = {
-      SIG <- object$covmat # crossprod(COV) / (s - k)
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-      log(sig_det) + 2 / s * m * k # penalty = (2 / s) * number of freely estimated parameters
-    }
-  )
+AIC.varlse <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
 }
 
 #' @rdname AIC.varlse
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' 
 #' @importFrom stats AIC
 #' @export
-AIC.vharlse <- function(object, type = c("loglik", "rss"), ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        AIC()
-    },
-    "rss" = {
-      SIG <- object$covmat
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m
-      log(sig_det) + 2 / s * m * k
-    }
-  )
+AIC.vharlse <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    AIC()
 }
 
 #' @rdname AIC.varlse
@@ -337,11 +307,7 @@ FPE <- function(object, ...) {
 #' 
 #' @export
 FPE.varlse <- function(object, ...) {
-  SIG <- object$covmat # SIG = crossprod(resid) / (s - k), FPE = ((s + k) / (s - k))^m * det(crossprod(resid) / s)
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  ((s + k) / s)^m * det(SIG) # FPE = ((s + k) / (s - k))^m * det = ((s + k) / s)^m * det(crossprod(resid) / (s - k))
+  compute_fpe(object)
 }
 
 #' @rdname FPE.varlse
@@ -351,11 +317,7 @@ FPE.varlse <- function(object, ...) {
 #' 
 #' @export
 FPE.vharlse <- function(object, ...) {
-  SIG <- object$covmat
-  m <- object$m
-  k <- object$df
-  s <- object$obs
-  ((s + k) / s)^m * det(SIG)
+  compute_fpe(object)
 }
 
 #' Bayesian Information Criterion of Multivariate Time Series Model
@@ -363,7 +325,6 @@ FPE.vharlse <- function(object, ...) {
 #' Compute BIC of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -386,52 +347,23 @@ FPE.vharlse <- function(object, ...) {
 #' @importFrom stats BIC
 #' 
 #' @export
-BIC.varlse <- function(object, type = c("loglik", "rss"), ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        BIC()
-    },
-    "rss" = {
-      SIG <- object$covmat # crossprod(COV) / (s - k)
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-      log(sig_det) + log(s) / s * m * k # replace 2 / s with log(s) / s
-    }
-  )
+BIC.varlse <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    BIC()
 }
 
 #' @rdname BIC.varlse
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' 
 #' @importFrom stats BIC
 #' @export
-BIC.vharlse <- function(object, type = c("loglik", "rss"), ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        BIC()
-    },
-    "rss" = {
-      SIG <- object$covmat
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m
-      log(sig_det) + log(s) / s * m * k
-    }
-  )
+BIC.vharlse <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    BIC()
 }
 
 #' @rdname BIC.varlse
@@ -508,7 +440,6 @@ HQ.logLik <- function(object, ...) {
 #' Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -531,51 +462,22 @@ HQ.logLik <- function(object, ...) {
 #' Quinn, B.G. (1980). *Order Determination for a Multivariate Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185. [https://doi.org/10.1111/j.2517-6161.1980.tb01116.x](https://doi.org/10.1111/j.2517-6161.1980.tb01116.x)
 #' 
 #' @export
-HQ.varlse <- function(object, type = c("loglik", "rss"), ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        HQ()
-    },
-    "rss" = {
-      SIG <- object$covmat # crossprod(COV) / (s - k)
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m # det(crossprod(resid) / s) = det(SIG) * (s - k)^m / s^m
-      log(sig_det) + 2 * log(log(s)) / s * m * k # replace log(s) / s with log(log(s)) / s
-    }
-  )
+HQ.varlse <- function(object, ...) {
+  object %>% 
+    logLik() %>% 
+    HQ()
 }
 
 #' @rdname HQ.varlse
 #' 
 #' @param object Model fit
-#' @param type `r lifecycle::badge("experimental")` Only for `varlse` or `vharlse`, choose to compute based on log-likelihood (`loglik`: default) or determinant of Sigma (`rss`)
 #' @param ... not used
 #' 
 #' @export
 HQ.vharlse <- function(object, ...) {
-  type <- match.arg(type)
-  switch(
-    type,
-    "loglik" = {
-      object %>% 
-        logLik() %>% 
-        HQ()
-    },
-    "rss" = {
-      SIG <- object$covmat
-      m <- object$m
-      k <- object$df
-      s <- object$obs
-      sig_det <- det(SIG) * ((s - k) / s)^m
-      log(sig_det) + 2 * log(log(s)) / s * m * k
-    }
-  )
+  object %>% 
+    logLik() %>% 
+    HQ()
 }
 
 #' @rdname HQ.varlse

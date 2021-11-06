@@ -102,17 +102,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// logml_stable
-double logml_stable(Rcpp::List object);
-RcppExport SEXP _bvhar_logml_stable(SEXP objectSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(logml_stable(object));
-    return rcpp_result_gen;
-END_RCPP
-}
 // estimate_bvar_mn
 Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy);
 RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP) {
@@ -478,6 +467,74 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// logml_stable
+double logml_stable(Rcpp::List object);
+RcppExport SEXP _bvhar_logml_stable(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(logml_stable(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_aic
+double compute_aic(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_aic(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_aic(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_bic
+double compute_bic(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_bic(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_bic(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_hq
+double compute_hq(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_hq(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_hq(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_fpe
+double compute_fpe(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_fpe(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_fpe(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// tune_var
+Eigen::MatrixXd tune_var(Rcpp::DataFrame y, int lag_max, bool include_mean);
+RcppExport SEXP _bvhar_tune_var(SEXP ySEXP, SEXP lag_maxSEXP, SEXP include_meanSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(tune_var(y, lag_max, include_mean));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
@@ -487,7 +544,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_build_ydummy_bvhar", (DL_FUNC) &_bvhar_build_ydummy_bvhar, 5},
-    {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
@@ -517,6 +573,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},
+    {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
+    {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
+    {"_bvhar_compute_bic", (DL_FUNC) &_bvhar_compute_bic, 1},
+    {"_bvhar_compute_hq", (DL_FUNC) &_bvhar_compute_hq, 1},
+    {"_bvhar_compute_fpe", (DL_FUNC) &_bvhar_compute_fpe, 1},
+    {"_bvhar_tune_var", (DL_FUNC) &_bvhar_tune_var, 3},
     {NULL, NULL, 0}
 };
 

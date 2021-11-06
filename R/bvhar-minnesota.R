@@ -220,6 +220,6 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     design = X0,
     y = y
   )
-  class(res) <- c("bvharmn", "bvharmod")
+  class(res) <- c("bvharmn", "normaliw", "bvharmod")
   res
 }

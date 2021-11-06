@@ -146,6 +146,6 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     design = X0,
     y = y
   )
-  class(res) <- c("bvarflat", "bvharmod")
+  class(res) <- c("bvarflat", "normaliw", "bvharmod")
   res
 }

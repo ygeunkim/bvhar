@@ -8,9 +8,9 @@
 \alias{BIC.bvharmn}
 \title{Bayesian Information Criterion of Multivariate Time Series Model}
 \usage{
-\method{BIC}{varlse}(object, type = c("loglik", "rss"), ...)
+\method{BIC}{varlse}(object, ...)
 
-\method{BIC}{vharlse}(object, type = c("loglik", "rss"), ...)
+\method{BIC}{vharlse}(object, ...)
 
 \method{BIC}{bvarmn}(object, ...)
 
@@ -20,8 +20,6 @@
 }
 \arguments{
 \item{object}{Model fit}
-
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Only for \code{varlse} or \code{vharlse}, choose to compute based on log-likelihood (\code{loglik}: default) or determinant of Sigma (\code{rss})}
 
 \item{...}{not used}
 }

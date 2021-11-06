@@ -1,8 +1,8 @@
 #' Summarizing Bayesian Multivariate Time Series Model
 #' 
-#' `summary` method for `bvharmod` class.
+#' `summary` method for `normaliw` class.
 #' 
-#' @param object `bvharmod` object
+#' @param object `normaliw` object
 #' @param n_iter Number to sample Matrix Normal Inverse-Wishart distribution
 #' @param ... not used
 #' @details 
@@ -31,7 +31,7 @@
 #' 
 #' @order 1
 #' @export
-summary.bvharmod <- function(object, n_iter = 100L, ...) {
+summary.normaliw <- function(object, n_iter = 100L, ...) {
   mn_mean <- object$coefficients
   mn_prec <- object$mn_prec
   iw_scale <- object$iw_scale
@@ -78,7 +78,7 @@ summary.bvharmod <- function(object, n_iter = 100L, ...) {
     covmat = cov_mat,
     N = n_iter
   )
-  class(res) <- "summary.bvharmod"
+  class(res) <- "summary.normaliw"
   res
 }
 

@@ -42,7 +42,7 @@ reference:
   desc: ~
   contents:
   - set_bvar
-  - summary.bvharmod
+  - summary.normaliw
 
 - title: BVAR
   desc: >

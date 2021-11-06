@@ -8,9 +8,9 @@
 \alias{AIC.bvharmn}
 \title{Akaike's Information Criterion of Multivariate Time Series Model}
 \usage{
-\method{AIC}{varlse}(object, type = c("loglik", "rss"), ...)
+\method{AIC}{varlse}(object, ...)
 
-\method{AIC}{vharlse}(object, type = c("loglik", "rss"), ...)
+\method{AIC}{vharlse}(object, ...)
 
 \method{AIC}{bvarmn}(object, ...)
 
@@ -20,8 +20,6 @@
 }
 \arguments{
 \item{object}{Model fit}
-
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Only for \code{varlse} or \code{vharlse}, choose to compute based on log-likelihood (\code{loglik}: default) or determinant of Sigma (\code{rss})}
 
 \item{...}{not used}
 }

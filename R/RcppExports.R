@@ -148,18 +148,6 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
     .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
 }
 
-#' Numerically Stable Log Marginal Likelihood Excluding Constant Term
-#' 
-#' This function computes log of ML stable,
-#' in purpose of objective function.
-#' 
-#' @param object Bayesian Model Fit
-#' 
-#' @noRd
-logml_stable <- function(object) {
-    .Call(`_bvhar_logml_stable`, object)
-}
-
 #' BVAR(p) Point Estimates based on Minnesota Prior
 #' 
 #' Point estimates for posterior distribution
@@ -692,5 +680,74 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' @export
 sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
     .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, sig_error, init)
+}
+
+#' Numerically Stable Log Marginal Likelihood Excluding Constant Term
+#' 
+#' This function computes log of ML stable,
+#' in purpose of objective function.
+#' 
+#' @param object Bayesian Model Fit
+#' 
+#' @noRd
+logml_stable <- function(object) {
+    .Call(`_bvhar_logml_stable`, object)
+}
+
+#' AIC of VAR(p) using RSS
+#' 
+#' Compute AIC using RSS
+#' 
+#' @param object `varlse` or `vharlse` object
+#' 
+#' @noRd
+compute_aic <- function(object) {
+    .Call(`_bvhar_compute_aic`, object)
+}
+
+#' BIC of VAR(p) using RSS
+#' 
+#' Compute BIC using RSS
+#' 
+#' @param object `varlse` or `vharlse` object
+#' 
+#' @noRd
+compute_bic <- function(object) {
+    .Call(`_bvhar_compute_bic`, object)
+}
+
+#' HQ of VAR(p) using RSS
+#' 
+#' Compute HQ using RSS
+#' 
+#' @param object `varlse` or `vharlse` object
+#' 
+#' @noRd
+compute_hq <- function(object) {
+    .Call(`_bvhar_compute_hq`, object)
+}
+
+#' FPE of VAR(p) using RSS
+#' 
+#' Compute FPE using RSS
+#' 
+#' @param object `varlse` or `vharlse` object
+#' 
+#' @noRd
+compute_fpe <- function(object) {
+    .Call(`_bvhar_compute_fpe`, object)
+}
+
+#' Choose the Best VAR based on Information Criteria
+#' 
+#' This function computes AIC, FPE, BIC, and HQ up to p = `lag_max` of VAR model.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag_max Maximum Var lag to explore
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+tune_var <- function(y, lag_max, include_mean) {
+    .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
 }
 

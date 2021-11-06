@@ -189,6 +189,6 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     design = X0,
     y = y
   )
-  class(res) <- c("bvarmn", "bvharmod")
+  class(res) <- c("bvarmn", "normaliw", "bvharmod")
   res
 }
