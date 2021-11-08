@@ -174,7 +174,7 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 
 ### Layers
 
-```{r}
+```{r predfig}
 autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_vhar, ci_alpha = .6) +
   autolayer(forecast_bvar, ci_alpha = .4) +

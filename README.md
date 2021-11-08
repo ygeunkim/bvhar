@@ -120,8 +120,8 @@ eps <- 1e-04
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: Minnesota
-#> **Read corresponding document for the details of the distribution.**
-#> ====================================================================
+#> # Type '?bvar_minnesota' in the console for some help.
+#> ========================================================
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
@@ -164,8 +164,8 @@ VAR-type Minnesota prior:
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: MN_VAR
-#> **Read corresponding document for the details of the distribution.**
-#> ====================================================================
+#> # Type '?bvhar_minnesota' in the console for some help.
+#> ========================================================
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
@@ -210,8 +210,8 @@ month <- rep(.1, ncol(etf_vix))
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: MN_VHAR
-#> **Read corresponding document for the details of the distribution.**
-#> ====================================================================
+#> # Type '?bvhar_minnesota' in the console for some help.
+#> ========================================================
 #> 
 #> Setting for 'sigma':
 #>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
@@ -260,7 +260,7 @@ autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_bvhar_v2, ci_alpha = .1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-predfig-1.png" width="70%" style="display: block; margin: auto;" />
 
 ### Erros
 

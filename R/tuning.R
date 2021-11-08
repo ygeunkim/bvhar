@@ -88,7 +88,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' 
 #' This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` A Bayes model specification.
+#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
@@ -137,6 +137,7 @@ choose_bvar <- function(bayes_spec = set_bvar(),
   } else {
     delta <- bayes_spec$delta
   }
+  # find argmax of log(ML)-------
   res <- 
     optim(
       par = c(sigma, lambda, delta), 
@@ -150,10 +151,13 @@ choose_bvar <- function(bayes_spec = set_bvar(),
       p = p,
       include_mean = include_mean
     )
+  # optimized model spec---------
   bayes_spec$sigma <- res$par[1:dim_data]
   bayes_spec$lambda <- res$par[dim_data + 1]
   bayes_spec$delta <- res$par[(dim_data + 2):(dim_data * 2 + 1)]
+  bayes_spec$eps <- eps
   res$spec <- bayes_spec
+  # fit using final spec--------
   final_fit <- bvar_minnesota(
     y = y,
     p = p,
@@ -161,6 +165,7 @@ choose_bvar <- function(bayes_spec = set_bvar(),
     include_mean = include_mean
   )
   res$fit <- final_fit
+  # compute log(ML) of the fit--
   prior_shape <- final_fit$prior_shape # alpha0
   num_obs <- final_fit$obs # s
   const_term <- - dim_data * num_obs / 2 * log(pi) + 
@@ -239,7 +244,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 
 #' @rdname choose_bvar
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` A Bayes model specification.
+#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
@@ -264,16 +269,17 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   if (bayes_spec$process != "BVHAR") {
     stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
   }
-  # sigma-------------------
+  # sigma------------------------
   if (is.null(bayes_spec$sigma)) {
     sigma <- apply(y, 2, sd)
   } else {
     sigma <- bayes_spec$sigma
   }
-  # lambda------------------
+  # lambda-----------------------
   lambda <- bayes_spec$lambda
   minnesota_type <- bayes_spec$prior
-  # for each type-----------
+  # find argmax of log(ML)-------
+  # for each type
   res <- 
     switch(
       minnesota_type,
@@ -324,6 +330,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
         )
       }
     )
+  # optimized model spec---------
   if (minnesota_type == "MN_VAR") {
     bayes_spec$sigma <- res$par[1:dim_data]
     bayes_spec$lambda <- res$par[dim_data + 1]
@@ -335,13 +342,16 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
     bayes_spec$weekly <- res$par[(dim_data * 2 + 2):((dim_data * 3 + 1))]
     bayes_spec$monthly <- res$par[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   }
+  bayes_spec$eps <- eps
   res$spec <- bayes_spec
+  # fit using final spec--------
   final_fit <- bvhar_minnesota(
     y = y,
     bayes_spec = bayes_spec,
     include_mean = include_mean
   )
   res$fit <- final_fit
+  # compute log(ML) of the fit--
   prior_shape <- final_fit$prior_shape # alpha0
   num_obs <- final_fit$obs # s
   const_term <- - dim_data * num_obs / 2 * log(pi) + 
