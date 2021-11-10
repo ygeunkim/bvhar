@@ -19,7 +19,7 @@
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' @export
+#' @noRd
 build_y0 <- function(y, var_lag, index) {
     .Call(`_bvhar_build_y0`, y, var_lag, index)
 }
@@ -38,7 +38,7 @@ build_y0 <- function(y, var_lag, index) {
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' @export
+#' @noRd
 build_design <- function(y, var_lag) {
     .Call(`_bvhar_build_design`, y, var_lag)
 }
@@ -71,7 +71,7 @@ diag_misc <- function(x) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
+#' @noRd
 build_ydummy <- function(p, sigma, lambda, delta) {
     .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)
 }
@@ -93,7 +93,7 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
+#' @noRd
 build_xdummy <- function(p, lambda, sigma, eps) {
     .Call(`_bvhar_build_xdummy`, p, lambda, sigma, eps)
 }
@@ -119,7 +119,7 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
+#' @noRd
 minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
 }
@@ -143,7 +143,7 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
+#' @noRd
 build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
     .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
 }
@@ -152,10 +152,10 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
 #' 
 #' Point estimates for posterior distribution
 #' 
-#' @param x Matrix, X0
-#' @param y Matrix, Y0
-#' @param x_dummy Matrix, dummy X0
-#' @param y_dummy Matrix, dummy Y0
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param x_dummy Dummy observations Xp for design matrix X0
+#' @param y_dummy Dummy observations Yp for design matrix Y0
 #' 
 #' @details
 #' Augment originally processed data and dummy observation.
@@ -166,7 +166,7 @@ build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' @export
+#' @noRd
 estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
     .Call(`_bvhar_estimate_bvar_mn`, x, y, x_dummy, y_dummy)
 }
@@ -175,8 +175,8 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
 #' 
 #' Point estimates for Ghosh et al. (2018) nonhierarchical model for BVAR.
 #' 
-#' @param x Matrix, X0
-#' @param y Matrix, Y0
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
 #' @param U Positive definite matrix, covariance matrix corresponding to the column of the model parameter B
 #' 
 #' @details
@@ -184,9 +184,9 @@ estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
 #' Among these, this function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 #' 
 #' @references
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
-#' @export
+#' @noRd
 estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
@@ -195,14 +195,14 @@ estimate_mn_flat <- function(x, y, U) {
 #' 
 #' This function fits VAR(p) given response and design matrices of multivariate time series.
 #' 
-#' @param x X0 processed by [build_design()]
-#' @param y Y0 processed by [build_y0()]
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' Y0 = X0 A + Z
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
+#' @noRd
 estimate_var <- function(x, y) {
     .Call(`_bvhar_estimate_var`, x, y)
 }
@@ -290,7 +290,7 @@ compute_covmse <- function(object, step) {
 #' 
 #' This function computes above \eqn{T_{HAR}}.
 #' 
-#' @export
+#' @noRd
 scale_har <- function(m) {
     .Call(`_bvhar_scale_har`, m)
 }
@@ -299,8 +299,8 @@ scale_har <- function(m) {
 #' 
 #' This function fits VHAR given response and design matrices of multivariate time series.
 #' 
-#' @param x X0 processed by \code{\link{build_design}}
-#' @param y Y0 processed by \code{\link{build_y0}}
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' \deqn{Y_0 = X_1 \Phi + Z}
@@ -311,7 +311,7 @@ scale_har <- function(m) {
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
 #' @importFrom Rcpp sourceCpp
-#' @export
+#' @noRd
 estimate_har <- function(x, y) {
     .Call(`_bvhar_estimate_har`, x, y)
 }
@@ -320,8 +320,8 @@ estimate_har <- function(x, y) {
 #' 
 #' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
 #' 
-#' @param x X0 processed by \code{\link{build_design}} (delete its last column)
-#' @param y Y0 processed by \code{\link{build_y0}}
+#' @param x Design matrix X0 (delete its last column)
+#' @param y Response matrix Y0
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' \deqn{Y_0 = X_1 \Phi + Z}
@@ -331,7 +331,7 @@ estimate_har <- function(x, y) {
 #' 
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
-#' @export
+#' @noRd
 estimate_har_none <- function(x, y) {
     .Call(`_bvhar_estimate_har_none`, x, y)
 }
@@ -345,7 +345,7 @@ VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
 #' 
 #' Convert VHAR process to infinite vector MA process
 #' 
-#' @param object \code{vharlse} object by \code{\link{vhar_lm}}
+#' @param object `vharlse` object
 #' @param lag_max Maximum lag for VMA
 #' @details
 #' Let VAR(p) be stable
@@ -461,7 +461,7 @@ forecast_var <- function(object, step) {
 
 #' Forecasting Vector HAR
 #' 
-#' @param object \code{varlse} object by \code{\link{vhar_lm}}
+#' @param object `vharlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' n-step ahead forecasting using VHAR recursively.

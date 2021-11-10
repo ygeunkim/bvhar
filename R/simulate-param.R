@@ -11,7 +11,7 @@
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
-#' * [build_ydummy()] and [build_xdummy()] to construct dummy observations.
+#' * [bvar_adding_dummy] for dummy observations definition.
 #' 
 #' @references 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
@@ -72,7 +72,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
 #' * [set_weight_bvhar()] to specify the hyperparameters of HAR-type Minnesota prior.
-#' * [build_ydummy()] and [build_xdummy()], and [build_ydummy_bvhar()] to add dummy observations.
+#' * [bvar_adding_dummy] for dummy observations definition.
 #' 
 #' @references 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)

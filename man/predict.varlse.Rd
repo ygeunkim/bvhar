@@ -89,7 +89,7 @@ Then
 
 \section{n-step ahead forecasting VHAR}{
 
-Let \eqn{T_{HAR}} is VHAR linear transformation matrix constructed by \code{\link[=scale_har]{scale_har()}}.
+Let \eqn{T_{HAR}} is VHAR linear transformation matrix (See \link{var_design_formulation}).
 Since VHAR is the linearly transformed VAR(22),
 let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
 

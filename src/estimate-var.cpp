@@ -6,14 +6,14 @@
 //' 
 //' This function fits VAR(p) given response and design matrices of multivariate time series.
 //' 
-//' @param x X0 processed by [build_design()]
-//' @param y Y0 processed by [build_y0()]
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' Y0 = X0 A + Z
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat

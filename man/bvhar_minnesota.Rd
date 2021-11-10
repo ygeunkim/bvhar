@@ -72,11 +72,7 @@ There are two types of Minnesota priors for BVHAR:
 }
 
 Two types of Minnesota priors builds different dummy variables for Y0.
-VAR-type Minnesota prior constructs dummy Y0 with \code{p = 3} of \code{\link[=build_ydummy]{build_ydummy()}}.
-The only difference from BVAR is dimension.
-
-On the other hand, dummy Y0 for VHAR-type Minnesota prior has its own function \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}}.
-It fills the zero matrix in the first block in Bańbura et al. (2010).
+See \link{var_design_formulation}.
 }
 \examples{
 # Perform the function using etf_vix dataset
@@ -109,7 +105,8 @@ Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volat
 \itemize{
 \item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
 \item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
-\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}}, and \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}} to add dummy observations.
-\item \code{\link[=estimate_bvar_mn]{estimate_bvar_mn()}} to compute Minnesota prior and posterior.
+\item \code{\link[=coef.bvharmn]{coef.bvharmn()}}, \code{\link[=residuals.bvharmn]{residuals.bvharmn()}}, and \code{\link[=fitted.bvharmn]{fitted.bvharmn()}}
+\item \code{\link[=summary.normaliw]{summary.normaliw()}} to summarize BVHAR model
+\item \code{\link[=predict.bvharmn]{predict.bvharmn()}} to forecast the BVHAR process
 }
 }

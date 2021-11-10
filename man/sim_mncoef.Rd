@@ -28,6 +28,6 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 \seealso{
 \itemize{
 \item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
-\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}} to construct dummy observations.
+\item \link{bvar_adding_dummy} for dummy observations definition.
 }
 }

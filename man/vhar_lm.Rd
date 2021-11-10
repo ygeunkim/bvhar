@@ -77,9 +77,9 @@ Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volat
 Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
 }
 \seealso{
-\code{\link[=scale_har]{scale_har()}} to linear transformation for VHAR,
-
-\code{\link[=estimate_har]{estimate_har()}} to compute coefficient VHAR matrix,
-
-and \code{\link[=estimate_har_none]{estimate_har_none()}} to compute coefficient VHAR matrix without constant term.
+\itemize{
+\item \code{\link[=coef.vharlse]{coef.vharlse()}}, \code{\link[=residuals.vharlse]{residuals.vharlse()}}, and \code{\link[=fitted.vharlse]{fitted.vharlse()}}
+\item \code{\link[=summary.vharlse]{summary.vharlse()}} to summarize VHAR model
+\item \code{\link[=predict.vharlse]{predict.vharlse()}} to forecast the VHAR process
+}
 }

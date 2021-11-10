@@ -102,6 +102,7 @@ Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior
 \seealso{
 \itemize{
 \item \code{\link[=set_bvar_flat]{set_bvar_flat()}} to specify the hyperparameters of BVAR flat prior.
-\item \code{\link[=estimate_mn_flat]{estimate_mn_flat()}} to compute BVAR flat prior and posterior.
+\item \code{\link[=coef.bvarflat]{coef.bvarflat()}}, \code{\link[=residuals.bvarflat]{residuals.bvarflat()}}, and \code{\link[=fitted.bvarflat]{fitted.bvarflat()}}
+\item \code{\link[=predict.bvarflat]{predict.bvarflat()}} to forecast the BVHAR process
 }
 }

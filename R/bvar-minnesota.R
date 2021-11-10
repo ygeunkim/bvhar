@@ -67,8 +67,9 @@
 #' 
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
-#' * [build_ydummy()] and [build_xdummy()] to construct dummy observations.
-#' * [estimate_bvar_mn()] to compute BVAR prior and posterior.
+#' * [coef.bvarmn()], [residuals.bvarmn()], and [fitted.bvarmn()]
+#' * [summary.normaliw()] to summarize BVAR model
+#' * [predict.bvarmn()] to forecast the BVAR process
 #' 
 #' @examples
 #' # Perform the function using etf_vix dataset

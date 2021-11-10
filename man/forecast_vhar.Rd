@@ -7,7 +7,7 @@
 forecast_vhar(object, step)
 }
 \arguments{
-\item{object}{\code{varlse} object by \code{\link{vhar_lm}}}
+\item{object}{\code{vharlse} object}
 
 \item{step}{Integer, Step to forecast}
 }

@@ -17,9 +17,6 @@ reference:
   contents:
   - var_lm
   - summary.varlse
-  - build_y0
-  - build_design
-  - estimate_var
   - VARtoVMA
   - stableroot
   - stableroot.varlse
@@ -33,9 +30,6 @@ reference:
   contents:
   - vhar_lm
   - summary.vharlse
-  - scale_har
-  - estimate_har
-  - estimate_har_none
   - VHARtoVMA
 
 - title: Bayesian Model
@@ -49,19 +43,13 @@ reference:
     Bayesian VAR model.
   contents:
   - bvar_minnesota
-  - build_ydummy
-  - build_xdummy
-  - minnesota_prior
-  - estimate_bvar_mn
   - bvar_flat
-  - estimate_mn_flat
 
 - title: BVHAR
   desc: >
     Bayesian VHAR model.
   contents:
   - bvhar_minnesota
-  - build_ydummy_bvhar
 
 - title: Inference
   desc: ~

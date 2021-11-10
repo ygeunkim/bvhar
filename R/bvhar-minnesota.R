@@ -19,11 +19,7 @@
 #' * VHAR-type Minnesota prior specified by [set_weight_bvhar()]
 #' 
 #' Two types of Minnesota priors builds different dummy variables for Y0.
-#' VAR-type Minnesota prior constructs dummy Y0 with `p = 3` of [build_ydummy()].
-#' The only difference from BVAR is dimension.
-#' 
-#' On the other hand, dummy Y0 for VHAR-type Minnesota prior has its own function [build_ydummy_bvhar()].
-#' It fills the zero matrix in the first block in Bańbura et al. (2010).
+#' See [var_design_formulation].
 #' 
 #' @return `bvhar_minnesota` returns an object `bvharmn` [class].
 #' It is a list with the following components:
@@ -68,8 +64,9 @@
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
 #' * [set_weight_bvhar()] to specify the hyperparameters of HAR-type Minnesota prior.
-#' * [build_ydummy()] and [build_xdummy()], and [build_ydummy_bvhar()] to add dummy observations.
-#' * [estimate_bvar_mn()] to compute Minnesota prior and posterior.
+#' * [coef.bvharmn()], [residuals.bvharmn()], and [fitted.bvharmn()]
+#' * [summary.normaliw()] to summarize BVHAR model
+#' * [predict.bvharmn()] to forecast the BVHAR process
 #' 
 #' @examples
 #' # Perform the function using etf_vix dataset

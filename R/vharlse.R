@@ -38,11 +38,10 @@
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. [https://doi.org/10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' @seealso 
-#' [scale_har()] to linear transformation for VHAR,
+#' * [coef.vharlse()], [residuals.vharlse()], and [fitted.vharlse()]
+#' * [summary.vharlse()] to summarize VHAR model
+#' * [predict.vharlse()] to forecast the VHAR process
 #' 
-#' [estimate_har()] to compute coefficient VHAR matrix,
-#' 
-#' and [estimate_har_none()] to compute coefficient VHAR matrix without constant term.
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' \dontrun{

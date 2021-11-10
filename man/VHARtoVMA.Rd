@@ -7,7 +7,7 @@
 VHARtoVMA(object, lag_max)
 }
 \arguments{
-\item{object}{\code{vharlse} object by \code{\link{vhar_lm}}}
+\item{object}{\code{vharlse} object}
 
 \item{lag_max}{Maximum lag for VMA}
 }

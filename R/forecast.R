@@ -87,7 +87,7 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @section n-step ahead forecasting VHAR:
-#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix constructed by [scale_har()].
+#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix (See [var_design_formulation]).
 #' Since VHAR is the linearly transformed VAR(22),
 #' let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
 #' 

@@ -7,23 +7,22 @@
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
 #' This package specifies VAR(p) model as
-#' \deqn{Y_{t} = c + A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + \epsilon_t}
+#' \deqn{Y_{t} = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
 #' 
 #' If `include_type = TRUE`, there is \eqn{c} term.
 #' Otherwise (`include_type = FALSE`), there is no \eqn{c} term.
-#' The function estimates every coefficient matrix \eqn{c, B_1, \ldots, B_p}.
+#' The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
 #' 
-#' * [build_y0()] gives response matrix, \eqn{Y_0}.
-#' * [build_design()] gives design matrix, \eqn{X_0}.
+#' * Response matrix, \eqn{Y_0} in [var_design_formulation]
+#' * Design matrix, \eqn{X_0} in [var_design_formulation]
 #' * Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 #' 
 #' Then perform least squares to the following multivariate regression model
-#' 
 #' \deqn{Y_0 = X_0 A + error}
 #' 
 #' which gives
 #' 
-#' \deqn{\hat{B} = (X_0^T X_0)^{-1} X_0^T Y_0}
+#' \deqn{\hat{A} = (X_0^T X_0)^{-1} X_0^T Y_0}
 #' 
 #' @return `var_lm` returns an object named `varlse` [class].
 #' It is a list with the following components:
@@ -50,9 +49,12 @@
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @seealso 
-#' * [build_y0()] and [build_design()] to define Y0 and X0 matrix.
-#' * [estimate_var()] to compute coefficient VAR matrix.
 #' * Other package [vars::VAR()] is famous in VAR modeling.
+#' * [coef.varlse()], [residuals.varlse()], and [fitted.varlse()]
+#' * [summary.varlse()] to summarize VAR model
+#' * [predict.varlse()] to forecast the VAR process
+#' * [var_design_formulation] for the model design
+#' 
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' \dontrun{

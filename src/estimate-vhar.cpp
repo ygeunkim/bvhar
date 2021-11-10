@@ -14,9 +14,9 @@
 //' 
 //' This function computes above \eqn{T_{HAR}}.
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd scale_har (int m) {
+Eigen::MatrixXd scale_har(int m) {
   Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, 22);
   Eigen::MatrixXd HARtrans(3 * m + 1, 22 * m + 1); // 3m x 22m
   Eigen::MatrixXd Im(m, m);
@@ -40,8 +40,8 @@ Eigen::MatrixXd scale_har (int m) {
 //' 
 //' This function fits VHAR given response and design matrices of multivariate time series.
 //' 
-//' @param x X0 processed by \code{\link{build_design}}
-//' @param y Y0 processed by \code{\link{build_y0}}
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' \deqn{Y_0 = X_1 \Phi + Z}
@@ -52,9 +52,9 @@ Eigen::MatrixXd scale_har (int m) {
 //' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 //' 
 //' @importFrom Rcpp sourceCpp
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   int dim = y.cols();
   int num_har = 3 * dim + 1; // 3m + 1
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
@@ -75,8 +75,8 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
 //' 
-//' @param x X0 processed by \code{\link{build_design}} (delete its last column)
-//' @param y Y0 processed by \code{\link{build_y0}}
+//' @param x Design matrix X0 (delete its last column)
+//' @param y Response matrix Y0
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' \deqn{Y_0 = X_1 \Phi + Z}
@@ -86,9 +86,9 @@ Rcpp::List estimate_har (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har_none (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   int dim = y.cols(); // m
   int num_har = 3 * dim; // 3m
   int dim_har = 22 * dim; // 22m
@@ -135,7 +135,7 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 //' 
 //' Convert VHAR process to infinite vector MA process
 //' 
-//' @param object \code{vharlse} object by \code{\link{vhar_lm}}
+//' @param object `vharlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Let VAR(p) be stable

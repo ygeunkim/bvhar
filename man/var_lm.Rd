@@ -52,24 +52,23 @@ This function fits VAR(p) using OLS method.
 }
 \details{
 This package specifies VAR(p) model as
-\deqn{Y_{t} = c + A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + \epsilon_t}
+\deqn{Y_{t} = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
 
 If \code{include_type = TRUE}, there is \eqn{c} term.
 Otherwise (\code{include_type = FALSE}), there is no \eqn{c} term.
-The function estimates every coefficient matrix \eqn{c, B_1, \ldots, B_p}.
+The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
 \itemize{
-\item \code{\link[=build_y0]{build_y0()}} gives response matrix, \eqn{Y_0}.
-\item \code{\link[=build_design]{build_design()}} gives design matrix, \eqn{X_0}.
+\item Response matrix, \eqn{Y_0} in \link{var_design_formulation}
+\item Design matrix, \eqn{X_0} in \link{var_design_formulation}
 \item Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 }
 
 Then perform least squares to the following multivariate regression model
-
 \deqn{Y_0 = X_0 A + error}
 
 which gives
 
-\deqn{\hat{B} = (X_0^T X_0)^{-1} X_0^T Y_0}
+\deqn{\hat{A} = (X_0^T X_0)^{-1} X_0^T Y_0}
 }
 \examples{
 # Perform the function using etf_vix dataset
@@ -92,8 +91,10 @@ Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}.
 }
 \seealso{
 \itemize{
-\item \code{\link[=build_y0]{build_y0()}} and \code{\link[=build_design]{build_design()}} to define Y0 and X0 matrix.
-\item \code{\link[=estimate_var]{estimate_var()}} to compute coefficient VAR matrix.
 \item Other package \code{\link[vars:VAR]{vars::VAR()}} is famous in VAR modeling.
+\item \code{\link[=coef.varlse]{coef.varlse()}}, \code{\link[=residuals.varlse]{residuals.varlse()}}, and \code{\link[=fitted.varlse]{fitted.varlse()}}
+\item \code{\link[=summary.varlse]{summary.varlse()}} to summarize VAR model
+\item \code{\link[=predict.varlse]{predict.varlse()}} to forecast the VAR process
+\item \link{var_design_formulation} for the model design
 }
 }

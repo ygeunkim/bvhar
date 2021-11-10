@@ -5,7 +5,7 @@
 #' @param object Model fit
 #' @param ... not used
 #' @details 
-#' Consider \eqn{Y_0} matrix from [build_y0()].
+#' Consider the response matrix \eqn{Y_0}.
 #' Let \eqn{n} be the total number of sample,
 #' let \eqn{m} be the dimension of the time series,
 #' let \eqn{p} be the order of the model,
@@ -14,7 +14,7 @@
 #' 
 #' \deqn{Y_0 \mid B, \Sigma_e \sim MN(X_0 B, I_s, \Sigma_e)}
 #' 
-#' where \eqn{X_0} from [build_design()],
+#' where \eqn{X_0} is the design matrix,
 #' and MN is [matrix normal distribution](https://en.wikipedia.org/wiki/Matrix_normal_distribution).
 #' 
 #' Then log-likelihood of vector autoregressive model family is specified by
@@ -30,7 +30,9 @@
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' @seealso [var_lm()]
+#' @seealso
+#' * [var_lm()]
+#' * [var_design_formulation]
 #' 
 #' @importFrom stats logLik
 #' @export

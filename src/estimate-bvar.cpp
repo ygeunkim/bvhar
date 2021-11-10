@@ -6,10 +6,10 @@
 //' 
 //' Point estimates for posterior distribution
 //' 
-//' @param x Matrix, X0
-//' @param y Matrix, Y0
-//' @param x_dummy Matrix, dummy X0
-//' @param y_dummy Matrix, dummy Y0
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' @param x_dummy Dummy observations Xp for design matrix X0
+//' @param y_dummy Dummy observations Yp for design matrix Y0
 //' 
 //' @details
 //' Augment originally processed data and dummy observation.
@@ -20,7 +20,7 @@
 //' 
 //' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int num_design = y.rows(); // s = n - p
@@ -78,8 +78,8 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
 //' 
 //' Point estimates for Ghosh et al. (2018) nonhierarchical model for BVAR.
 //' 
-//' @param x Matrix, X0
-//' @param y Matrix, Y0
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
 //' @param U Positive definite matrix, covariance matrix corresponding to the column of the model parameter B
 //' 
 //' @details
@@ -87,9 +87,9 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
 //' Among these, this function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 //' 
 //' @references
-//' Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+//' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
   int num_design = y.rows();

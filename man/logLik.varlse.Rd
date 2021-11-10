@@ -27,7 +27,7 @@
 Compute log-likelihood function value of VAR(p), VHAR, BVAR(p), and BVHAR
 }
 \details{
-Consider \eqn{Y_0} matrix from \code{\link[=build_y0]{build_y0()}}.
+Consider the response matrix \eqn{Y_0}.
 Let \eqn{n} be the total number of sample,
 let \eqn{m} be the dimension of the time series,
 let \eqn{p} be the order of the model,
@@ -36,7 +36,7 @@ Likelihood of VAR(p) has
 
 \deqn{Y_0 \mid B, \Sigma_e \sim MN(X_0 B, I_s, \Sigma_e)}
 
-where \eqn{X_0} from \code{\link[=build_design]{build_design()}},
+where \eqn{X_0} is the design matrix,
 and MN is \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal distribution}.
 
 Then log-likelihood of vector autoregressive model family is specified by
@@ -66,7 +66,10 @@ Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector a
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
 }
 \seealso{
-\code{\link[=var_lm]{var_lm()}}
+\itemize{
+\item \code{\link[=var_lm]{var_lm()}}
+\item \link{var_design_formulation}
+}
 
 \code{\link[=vhar_lm]{vhar_lm()}}
 

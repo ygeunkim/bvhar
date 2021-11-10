@@ -110,7 +110,8 @@ Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; \emph{Prior Selection fo
 \seealso{
 \itemize{
 \item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
-\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}} to construct dummy observations.
-\item \code{\link[=estimate_bvar_mn]{estimate_bvar_mn()}} to compute BVAR prior and posterior.
+\item \code{\link[=coef.bvarmn]{coef.bvarmn()}}, \code{\link[=residuals.bvarmn]{residuals.bvarmn()}}, and \code{\link[=fitted.bvarmn]{fitted.bvarmn()}}
+\item \code{\link[=summary.normaliw]{summary.normaliw()}} to summarize BVAR model
+\item \code{\link[=predict.bvarmn]{predict.bvarmn()}} to forecast the BVAR process
 }
 }

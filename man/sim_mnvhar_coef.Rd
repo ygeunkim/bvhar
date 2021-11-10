@@ -30,6 +30,6 @@ Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volat
 \itemize{
 \item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
 \item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
-\item \code{\link[=build_ydummy]{build_ydummy()}} and \code{\link[=build_xdummy]{build_xdummy()}}, and \code{\link[=build_ydummy_bvhar]{build_ydummy_bvhar()}} to add dummy observations.
+\item \link{bvar_adding_dummy} for dummy observations definition.
 }
 }

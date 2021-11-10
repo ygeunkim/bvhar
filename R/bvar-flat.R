@@ -61,7 +61,8 @@
 #' 
 #' @seealso 
 #' * [set_bvar_flat()] to specify the hyperparameters of BVAR flat prior.
-#' * [estimate_mn_flat()] to compute BVAR flat prior and posterior.
+#' * [coef.bvarflat()], [residuals.bvarflat()], and [fitted.bvarflat()]
+#' * [predict.bvarflat()] to forecast the BVHAR process
 #' 
 #' @examples
 #' # Perform the function using etf_vix dataset

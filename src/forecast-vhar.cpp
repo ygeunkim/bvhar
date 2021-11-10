@@ -4,7 +4,7 @@
 
 //' Forecasting Vector HAR
 //' 
-//' @param object \code{varlse} object by \code{\link{vhar_lm}}
+//' @param object `vharlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' n-step ahead forecasting using VHAR recursively.
