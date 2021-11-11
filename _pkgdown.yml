@@ -63,6 +63,7 @@ reference:
   contents:
   - predict.varlse
   - divide_ts
+  - forecast_roll
   - mse
   - mae
   - mape

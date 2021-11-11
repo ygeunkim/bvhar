@@ -3,14 +3,17 @@
 \name{mape}
 \alias{mape}
 \alias{mape.predbvhar}
+\alias{mape.bvharcv}
 \title{Evaluate the Model Based on MAPE (Mean Absolute Percentage Error)}
 \usage{
 mape(x, y, ...)
 
 \method{mape}{predbvhar}(x, y, ...)
+
+\method{mape}{bvharcv}(x, ...)
 }
 \arguments{
-\item{x}{\code{predbvhar} object}
+\item{x}{\code{bvharcv} object}
 
 \item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
 

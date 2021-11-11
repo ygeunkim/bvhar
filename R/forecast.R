@@ -318,7 +318,7 @@ print.predbvhar <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
 }
 
 #' @rdname predict.varlse
-#' @param x \code{predbvhar} object
+#' @param x `predbvhar` object
 #' @param ... not used
 #' @order 3
 #' @export

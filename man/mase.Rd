@@ -3,14 +3,17 @@
 \name{mase}
 \alias{mase}
 \alias{mase.predbvhar}
+\alias{mase.bvharcv}
 \title{Evaluate the Model Based on MASE (Mean Absolute Scaled Error)}
 \usage{
 mase(x, y, ...)
 
 \method{mase}{predbvhar}(x, y, ...)
+
+\method{mase}{bvharcv}(x, ...)
 }
 \arguments{
-\item{x}{\code{predbvhar} object}
+\item{x}{\code{bvharcv} object}
 
 \item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
 

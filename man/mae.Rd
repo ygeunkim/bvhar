@@ -3,14 +3,17 @@
 \name{mae}
 \alias{mae}
 \alias{mae.predbvhar}
+\alias{mae.bvharcv}
 \title{Evaluate the Model Based on MAE (Mean Absolute Error)}
 \usage{
 mae(x, y, ...)
 
 \method{mae}{predbvhar}(x, y, ...)
+
+\method{mae}{bvharcv}(x, ...)
 }
 \arguments{
-\item{x}{\code{predbvhar} object}
+\item{x}{\code{bvharcv} object}
 
 \item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
 

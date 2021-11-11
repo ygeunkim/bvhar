@@ -21,11 +21,69 @@ divide_ts <- function(y, n_ahead) {
     setNames(c("train", "test"))
 }
 
+#' Out-of-sample Forecasting based on Rolling Window
+#' 
+#' This function forecast for out-of-sample.
+#' 
+#' @param object Model object
+#' @param n_ahead Step to forecast in rolling window scheme
+#' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @details 
+#' Rolling windows forecasting fixes window size.
+#' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' 
+#' @order 1
+#' @export
+forecast_roll <- function(object, n_ahead, y_test) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  num_test <- nrow(y_test)
+  n_iter <- num_test - n_ahead + 1
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  res_mat <- switch(
+    model_type,
+    "varlse" = {
+      roll_var(y, object$p, include_mean, n_ahead, n_iter)
+    },
+    "vharlse" = {
+      roll_vhar(y, include_mean, n_ahead, n_iter)
+    },
+    "bvarmn" = {
+      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+    },
+    "bvarflat" = {
+      roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+    },
+    "bvharmn" = {
+      roll_bvhar(y, object$spec, include_mean, n_ahead, n_iter)
+    }
+  )
+  colnames(res_mat) <- name_var
+  res <- list(
+    forecast = res_mat,
+    evaluation = y_test[n_ahead:num_test,],
+    y = y
+  )
+  class(res) <- c("predbvhar_roll", "bvharcv")
+  res
+}
+
 #' Evaluate the Model Based on MSE (Mean Square Error)
 #' 
 #' This function computes MSE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` object
+#' @param x `predbvhar` or `bvharcv` object
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' 
@@ -48,13 +106,19 @@ mse <- function(x, y, ...) {
 #' 
 #' @export
 mse.predbvhar <- function(x, y, ...) {
-  apply(
-    y - x$forecast, 
-    2, 
-    function(e_t) {
-      mean(e_t^2)
-    }
-  )
+  (y - x$forecast)^2 %>% 
+    colMeans()
+}
+
+#' @rdname mse
+#' 
+#' @param x `bvharcv` object
+#' @param ... not used
+#' 
+#' @export
+mse.bvharcv <- function(x, ...) {
+  (x$evaluation - x$forecast)^2 %>% 
+    colMeans()
 }
 
 #' Evaluate the Model Based on MAE (Mean Absolute Error)
@@ -96,6 +160,22 @@ mae.predbvhar <- function(x, y, ...) {
   )
 }
 
+#' @rdname mae
+#' 
+#' @param x `bvharcv` object
+#' @param ... not used
+#' 
+#' @export
+mae.bvharcv <- function(x, ...) {
+  apply(
+    x$evaluation - x$forecast,
+    2,
+    function(e_t) {
+      mean(abs(e_t))
+    }
+  )
+}
+
 #' Evaluate the Model Based on MAPE (Mean Absolute Percentage Error)
 #' 
 #' This function computes MAPE given prediction result versus evaluation set.
@@ -127,6 +207,23 @@ mape.predbvhar <- function(x, y, ...) {
   apply(
     100 * (y - x$forecast) / y, 
     2, 
+    function(p_t) {
+      mean(abs(p_t))
+    }
+  )
+}
+
+#' @rdname mape
+#' 
+#' @param x `bvharcv` object
+#' @param ... not used
+#' 
+#' @export
+mape.bvharcv <- function(x, ...) {
+  y_test <- x$evaluation
+  apply(
+    100 * (y_test - x$forecast) / y_test,
+    2,
     function(p_t) {
       mean(abs(p_t))
     }
@@ -180,6 +277,28 @@ mase.predbvhar <- function(x, y, ...) {
   )
 }
 
+#' @rdname mase
+#' 
+#' @param x `bvharcv` object
+#' @param ... not used
+#' 
+#' @export
+mase.bvharcv <- function(x, ...) {
+  scaled_err <- 
+    x$y %>% 
+    diff() %>% 
+    abs() %>% 
+    colMeans()
+  y_test <- x$evaluation
+  apply(
+    100 * (y_test - x$forecast) / scaled_err, 
+    2, 
+    function(q_t) {
+      mean(abs(q_t))
+    }
+  )
+}
+
 #' Evaluate the Model Based on MRAE (Mean Relative Absolute Error)
 #' 
 #' This function computes MRAE given prediction result versus evaluation set.
@@ -223,3 +342,31 @@ mrae.predbvhar <- function(x, pred_bench, y, ...) {
     }
   )
 }
+
+#' Print Method for `bvharcv` object
+#' @rdname forecast_roll
+#' @param x `bvharcv` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharcv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  print(x$forecast)
+  invisible(x)
+}
+
+#' @rdname forecast_roll
+#' @param x `bvharcv` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvharcv <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "bvharcv",
+  knit_print.bvharcv,
+  envir = asNamespace("knitr")
+)
