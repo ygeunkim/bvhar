@@ -9,7 +9,7 @@
 //' @details
 //' n-step ahead forecasting using VHAR recursively.
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
   if (!object.inherits("vharlse")) Rcpp::stop("'object' must be vharlse object.");

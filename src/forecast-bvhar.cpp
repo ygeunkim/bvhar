@@ -28,7 +28,7 @@
 //' 
 //' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 //' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   if (!object.inherits("bvharmn")) Rcpp::stop("'object' must be bvharmn object.");

@@ -111,7 +111,11 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
   Y0 <- build_y0(y, 22, 23)
-  name_var <- colnames(y)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(m))
+  }
   colnames(Y0) <- name_var
   s <- nrow(Y0)
   X0 <- build_design(y, 22)

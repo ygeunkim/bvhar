@@ -155,6 +155,8 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
 #' 
+#' See [bvar_predictive_density] how to generate the predictive distribution.
+#' 
 #' @references 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
 #' 
@@ -217,6 +219,8 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
+#' 
+#' See [bvar_predictive_density] how to generate the predictive distribution.
 #' 
 #' @importFrom stats quantile
 #' @order 1

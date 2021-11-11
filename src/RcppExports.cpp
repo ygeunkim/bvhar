@@ -289,6 +289,82 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// roll_var
+Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, int num_iter);
+RcppExport SEXP _bvhar_roll_var(SEXP ySEXP, SEXP lagSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_var(y, lag, include_mean, step, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// roll_vhar
+Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, bool include_mean, int step, int num_iter);
+RcppExport SEXP _bvhar_roll_vhar(SEXP ySEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_vhar(y, include_mean, step, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// roll_bvar
+Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, int num_iter);
+RcppExport SEXP _bvhar_roll_bvar(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_bvar(y, lag, bayes_spec, include_mean, step, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// roll_bvarflat
+Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, int num_iter);
+RcppExport SEXP _bvhar_roll_bvarflat(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_bvarflat(y, lag, bayes_spec, include_mean, step, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// roll_bvhar
+Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, Rcpp::List bayes_spec, bool include_mean, int step, int num_iter);
+RcppExport SEXP _bvhar_roll_bvhar(SEXP ySEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_bvhar(y, bayes_spec, include_mean, step, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_var
 Eigen::MatrixXd forecast_var(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_forecast_var(SEXP objectSEXP, SEXP stepSEXP) {
@@ -523,12 +599,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // tune_var
-Eigen::MatrixXd tune_var(Rcpp::DataFrame y, int lag_max, bool include_mean);
+Eigen::MatrixXd tune_var(Eigen::MatrixXd y, int lag_max, bool include_mean);
 RcppExport SEXP _bvhar_tune_var(SEXP ySEXP, SEXP lag_maxSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     rcpp_result_gen = Rcpp::wrap(tune_var(y, lag_max, include_mean));
@@ -559,6 +635,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},
     {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 3},
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 3},
+    {"_bvhar_roll_var", (DL_FUNC) &_bvhar_roll_var, 5},
+    {"_bvhar_roll_vhar", (DL_FUNC) &_bvhar_roll_vhar, 4},
+    {"_bvhar_roll_bvar", (DL_FUNC) &_bvhar_roll_bvar, 6},
+    {"_bvhar_roll_bvarflat", (DL_FUNC) &_bvhar_roll_bvarflat, 6},
+    {"_bvhar_roll_bvhar", (DL_FUNC) &_bvhar_roll_bvhar, 5},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},

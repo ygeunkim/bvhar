@@ -29,3 +29,6 @@ Closed form of Marginal Likelihood of BVHAR can be derived by
 
 \deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + s) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + s) / 2}}
 }
+\references{
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+}

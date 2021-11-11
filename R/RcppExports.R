@@ -411,7 +411,7 @@ compute_covmse_har <- function(object, step) {
 #' 
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' 
-#' @export
+#' @noRd
 forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
@@ -441,20 +441,96 @@ forecast_bvar <- function(object, step, num_sim) {
 #' 
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' 
-#' @export
+#' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
 }
 
+#' Out-of-Sample Forecasting of VAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of VAR.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param num_iter Integer, number of forecasting
+#' 
+#' @noRd
+roll_var <- function(y, lag, include_mean, step, num_iter) {
+    .Call(`_bvhar_roll_var`, y, lag, include_mean, step, num_iter)
+}
+
+#' Out-of-Sample Forecasting of VHAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of VAR.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param num_iter Integer, number of forecasting
+#' 
+#' @noRd
+roll_vhar <- function(y, include_mean, step, num_iter) {
+    .Call(`_bvhar_roll_vhar`, y, include_mean, step, num_iter)
+}
+
+#' Out-of-Sample Forecasting of BVAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag BVAR order
+#' @param bayes_spec List, BVAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param num_iter Integer, number of forecasting
+#' 
+#' @noRd
+roll_bvar <- function(y, lag, bayes_spec, include_mean, step, num_iter) {
+    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, num_iter)
+}
+
+#' Out-of-Sample Forecasting of BVAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR with Flat prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag BVAR order
+#' @param bayes_spec List, BVAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param num_iter Integer, number of forecasting
+#' 
+#' @noRd
+roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, num_iter) {
+    .Call(`_bvhar_roll_bvarflat`, y, lag, bayes_spec, include_mean, step, num_iter)
+}
+
+#' Out-of-Sample Forecasting of BVHAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param num_iter Integer, number of forecasting
+#' 
+#' @noRd
+roll_bvhar <- function(y, bayes_spec, include_mean, step, num_iter) {
+    .Call(`_bvhar_roll_bvhar`, y, bayes_spec, include_mean, step, num_iter)
+}
+
 #' Forecasting Vector Autoregression
 #' 
-#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param object `varlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
 forecast_var <- function(object, step) {
     .Call(`_bvhar_forecast_var`, object, step)
 }
@@ -466,7 +542,7 @@ forecast_var <- function(object, step) {
 #' @details
 #' n-step ahead forecasting using VHAR recursively.
 #' 
-#' @export
+#' @noRd
 forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }

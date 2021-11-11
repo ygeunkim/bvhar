@@ -593,6 +593,9 @@ compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
 #' @param object Model fit
 #' @param ... not used
 #' 
+#' @references 
+#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' 
 #' @export
 compute_logml <- function(object, ...) {
   UseMethod("compute_logml", object)

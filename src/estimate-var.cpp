@@ -15,7 +15,7 @@
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
   Eigen::MatrixXd yhat(y.rows(), y.cols());
   coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
@@ -46,7 +46,7 @@ Rcpp::List estimate_var (Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd compute_cov (Eigen::MatrixXd z, int num_design, int dim_design) {
+Eigen::MatrixXd compute_cov(Eigen::MatrixXd z, int num_design, int dim_design) {
   Eigen::MatrixXd cov_mat(z.cols(), z.cols());
   cov_mat = z.transpose() * z / (num_design - dim_design);
   return cov_mat;

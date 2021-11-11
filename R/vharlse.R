@@ -68,7 +68,12 @@ vhar_lm <- function(y, include_mean = TRUE) {
   }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, 22, 23)
-  name_var <- colnames(y)
+  m <- ncol(y)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(m))
+  }
   colnames(Y0) <- name_var
   X0 <- build_design(y, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
@@ -76,7 +81,6 @@ vhar_lm <- function(y, include_mean = TRUE) {
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  m <- ncol(y)
   num_coef <- 3 * m + 1
   if (!include_mean) {
     X0 <- X0[, -(22 * m + 1)] # exclude 1 column

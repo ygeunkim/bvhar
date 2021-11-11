@@ -136,7 +136,7 @@ double compute_fpe(Rcpp::List object) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd tune_var(Rcpp::DataFrame y, int lag_max, bool include_mean) {
+Eigen::MatrixXd tune_var(Eigen::MatrixXd y, int lag_max, bool include_mean) {
   Rcpp::Function fit("var_lm");
   Eigen::MatrixXd ic_res(lag_max, 4); // matrix including information criteria: AIC-BIC-HQ-FPE
   Rcpp::List var_mod;

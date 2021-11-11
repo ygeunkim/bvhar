@@ -81,7 +81,12 @@ var_lm <- function(y, p, include_mean = TRUE) {
   }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
-  name_var <- colnames(y)
+  m <- ncol(y)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(m))
+  }
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
@@ -90,7 +95,6 @@ var_lm <- function(y, p, include_mean = TRUE) {
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  m <- ncol(y)
   k <- m * p + 1 # df
   if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column

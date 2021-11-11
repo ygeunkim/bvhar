@@ -148,3 +148,40 @@ NULL
 #' @keywords internal
 #' @name bvar_adding_dummy
 NULL
+
+#' Predictive Density of Bayesian Models
+#' 
+#' @description 
+#' This page explains the simulation algorithm for predictive distribution of BVAR and BVHAR.
+#' 
+#' # Simulating predictive distribution of BVAR
+#' 
+#' This simulation process is required because we do not know the closed form of h-step ahead forecasting density.
+#' For given number of simulation (`n_iter`),
+#' 
+#' 1. Generate \eqn{(A^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`n_ahead`)
+#'     - Point forecast: Use \eqn{\hat{A}}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim A^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
+#' 
+#' Simulating predictive distribution of BVHAR
+#' 
+#' We extend the similar procedure in BVAR to the BVHAR.
+#' 
+#' For given number of simulation (`n_iter`),
+#' 
+#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`n_ahead`)
+#'     - Point forecast: Use \eqn{\hat\Phi}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
+#' 
+#' @references 
+#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' 
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' 
+#' @keywords internal
+#' @name bvar_predictive_density
+NULL

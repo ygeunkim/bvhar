@@ -88,14 +88,18 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
-  name_var <- colnames(y)
+  m <- ncol(y)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(m))
+  }
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
   if (!is.logical(include_mean)) stop("'include_mean' is logical.")
-  m <- ncol(y)
   k <- m * p + 1 # df
   if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column

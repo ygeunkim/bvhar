@@ -116,7 +116,11 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   eps <- bayes_spec$eps
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
-  name_var <- colnames(y)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(m))
+  }
   colnames(Y0) <- name_var
   X0 <- build_design(y, p)
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file

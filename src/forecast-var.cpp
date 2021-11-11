@@ -4,13 +4,13 @@
 
 //' Forecasting Vector Autoregression
 //' 
-//' @param object \code{varlse} object by \code{\link{var_lm}}
+//' @param object `varlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-//' @export
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
   if (! object.inherits("varlse")) Rcpp::stop("'object' must be varlse object.");
