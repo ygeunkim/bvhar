@@ -23,7 +23,7 @@ divide_ts <- function(y, n_ahead) {
 
 #' Out-of-sample Forecasting based on Rolling Window
 #' 
-#' This function forecast for out-of-sample.
+#' This function conducts rolling window forecasting.
 #' 
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
@@ -31,6 +31,9 @@ divide_ts <- function(y, n_ahead) {
 #' @details 
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' 
+#' @seealso 
+#' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' 
 #' @references 
 #' Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
@@ -76,6 +79,7 @@ forecast_roll <- function(object, n_ahead, y_test) {
   num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
+    process = object$process,
     forecast = res_mat,
     eval_id = n_ahead:num_horizon,
     y = y
@@ -86,7 +90,7 @@ forecast_roll <- function(object, n_ahead, y_test) {
 
 #' Out-of-sample Forecasting based on Expanding Window
 #' 
-#' This function forecast for out-of-sample.
+#' This function conducts expanding window forecasting.
 #' 
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
@@ -94,6 +98,9 @@ forecast_roll <- function(object, n_ahead, y_test) {
 #' @details 
 #' Expanding windows forecasting fixes the starting period.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' 
+#' @seealso 
+#' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' 
 #' @references 
 #' Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
@@ -136,6 +143,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
   num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
+    process = object$process,
     forecast = res_mat,
     eval_id = n_ahead:num_horizon,
     y = y

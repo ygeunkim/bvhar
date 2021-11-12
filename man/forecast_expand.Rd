@@ -14,7 +14,7 @@ forecast_expand(object, n_ahead, y_test)
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
 }
 \description{
-This function forecast for out-of-sample.
+This function conducts expanding window forecasting.
 }
 \details{
 Expanding windows forecasting fixes the starting period.
@@ -22,4 +22,7 @@ It moves the window ahead and forecast h-ahead in \code{y_test} set.
 }
 \references{
 Hyndman, R. J., & Athanasopoulos, G. (2021). \emph{Forecasting: Principles and practice} (3rd ed.). OTEXTS. \url{https://otexts.com/fpp3/}
+}
+\seealso{
+See \link{ts_forecasting_cv} for out-of-sample forecasting methods.
 }
