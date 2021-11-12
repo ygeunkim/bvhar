@@ -1,3 +1,5 @@
+# bvhar 0.5.0
+
 # bvhar 0.4.1
 
 * Fix Marginal likelihood form (`compute_logml()`).
