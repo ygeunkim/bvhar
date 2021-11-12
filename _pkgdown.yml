@@ -64,6 +64,7 @@ reference:
   - predict.varlse
   - divide_ts
   - forecast_roll
+  - forecast_expand
   - mse
   - mae
   - mape

@@ -79,6 +79,64 @@ forecast_roll <- function(object, n_ahead, y_test) {
   res
 }
 
+#' Out-of-sample Forecasting based on Expanding Window
+#' 
+#' This function forecast for out-of-sample.
+#' 
+#' @param object Model object
+#' @param n_ahead Step to forecast in rolling window scheme
+#' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @details 
+#' Expanding windows forecasting fixes the starting period.
+#' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' 
+#' @order 1
+#' @export
+forecast_expand <- function(object, n_ahead, y_test) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  num_test <- nrow(y_test)
+  n_iter <- num_test - n_ahead + 1
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  res_mat <- switch(
+    model_type,
+    "varlse" = {
+      expand_var(y, object$p, include_mean, n_ahead, n_iter)
+    },
+    "vharlse" = {
+      expand_vhar(y, include_mean, n_ahead, n_iter)
+    },
+    "bvarmn" = {
+      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+    },
+    "bvarflat" = {
+      expand_bvarflat(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+    },
+    "bvharmn" = {
+      expand_bvhar(y, object$spec, include_mean, n_ahead, n_iter)
+    }
+  )
+  colnames(res_mat) <- name_var
+  res <- list(
+    forecast = res_mat,
+    evaluation = y_test[n_ahead:num_test,],
+    y = y
+  )
+  class(res) <- c("predbvhar_expand", "bvharcv")
+  res
+}
+
 #' Evaluate the Model Based on MSE (Mean Square Error)
 #' 
 #' This function computes MSE given prediction result versus evaluation set.
