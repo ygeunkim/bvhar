@@ -10,12 +10,12 @@ mae(x, y, ...)
 
 \method{mae}{predbvhar}(x, y, ...)
 
-\method{mae}{bvharcv}(x, ...)
+\method{mae}{bvharcv}(x, y, ...)
 }
 \arguments{
 \item{x}{\code{bvharcv} object}
 
-\item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
+\item{y}{Test data to be compared. should be the same format with the train data.}
 
 \item{...}{not used}
 }

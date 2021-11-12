@@ -47,32 +47,34 @@ forecast_roll <- function(object, n_ahead, y_test) {
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
-  num_test <- nrow(y_test)
-  n_iter <- num_test - n_ahead + 1
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   res_mat <- switch(
     model_type,
     "varlse" = {
-      roll_var(y, object$p, include_mean, n_ahead, n_iter)
+      roll_var(y, object$p, include_mean, n_ahead, y_test)
     },
     "vharlse" = {
-      roll_vhar(y, include_mean, n_ahead, n_iter)
+      roll_vhar(y, include_mean, n_ahead, y_test)
     },
     "bvarmn" = {
-      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvarflat" = {
-      roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+      roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      roll_bvhar(y, object$spec, include_mean, n_ahead, n_iter)
+      roll_bvhar(y, object$spec, include_mean, n_ahead, y_test)
     }
   )
+  num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
     forecast = res_mat,
-    evaluation = y_test[n_ahead:num_test,],
+    eval_id = n_ahead:num_horizon,
     y = y
   )
   class(res) <- c("predbvhar_roll", "bvharcv")
@@ -105,32 +107,31 @@ forecast_expand <- function(object, n_ahead, y_test) {
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
-  num_test <- nrow(y_test)
-  n_iter <- num_test - n_ahead + 1
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   res_mat <- switch(
     model_type,
     "varlse" = {
-      expand_var(y, object$p, include_mean, n_ahead, n_iter)
+      expand_var(y, object$p, include_mean, n_ahead, y_test)
     },
     "vharlse" = {
-      expand_vhar(y, include_mean, n_ahead, n_iter)
+      expand_vhar(y, include_mean, n_ahead, y_test)
     },
     "bvarmn" = {
-      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvarflat" = {
-      expand_bvarflat(y, object$p, object$spec, include_mean, n_ahead, n_iter)
+      expand_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      expand_bvhar(y, object$spec, include_mean, n_ahead, n_iter)
+      expand_bvhar(y, object$spec, include_mean, n_ahead, y_test)
     }
   )
+  num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
     forecast = res_mat,
-    evaluation = y_test[n_ahead:num_test,],
+    eval_id = n_ahead:num_horizon,
     y = y
   )
   class(res) <- c("predbvhar_expand", "bvharcv")
@@ -141,7 +142,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
 #' 
 #' This function computes MSE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` or `bvharcv` object
+#' @param x Forecasting object
 #' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' 
@@ -171,11 +172,13 @@ mse.predbvhar <- function(x, y, ...) {
 #' @rdname mse
 #' 
 #' @param x `bvharcv` object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
-mse.bvharcv <- function(x, ...) {
-  (x$evaluation - x$forecast)^2 %>% 
+mse.bvharcv <- function(x, y, ...) {
+  y_test <- y[x$eval_id,]
+  (y_test - x$forecast)^2 %>% 
     colMeans()
 }
 
@@ -221,12 +224,14 @@ mae.predbvhar <- function(x, y, ...) {
 #' @rdname mae
 #' 
 #' @param x `bvharcv` object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
-mae.bvharcv <- function(x, ...) {
+mae.bvharcv <- function(x, y, ...) {
+  y_test <- y[x$eval_id,]
   apply(
-    x$evaluation - x$forecast,
+    y_test - x$forecast,
     2,
     function(e_t) {
       mean(abs(e_t))
@@ -274,11 +279,12 @@ mape.predbvhar <- function(x, y, ...) {
 #' @rdname mape
 #' 
 #' @param x `bvharcv` object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
-mape.bvharcv <- function(x, ...) {
-  y_test <- x$evaluation
+mape.bvharcv <- function(x, y, ...) {
+  y_test <- y[x$eval_id,]
   apply(
     100 * (y_test - x$forecast) / y_test,
     2,
@@ -338,16 +344,17 @@ mase.predbvhar <- function(x, y, ...) {
 #' @rdname mase
 #' 
 #' @param x `bvharcv` object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
-mase.bvharcv <- function(x, ...) {
+mase.bvharcv <- function(x, y, ...) {
   scaled_err <- 
     x$y %>% 
     diff() %>% 
     abs() %>% 
     colMeans()
-  y_test <- x$evaluation
+  y_test <- y[x$eval_id,]
   apply(
     100 * (y_test - x$forecast) / scaled_err, 
     2, 

@@ -10,12 +10,12 @@ mase(x, y, ...)
 
 \method{mase}{predbvhar}(x, y, ...)
 
-\method{mase}{bvharcv}(x, ...)
+\method{mase}{bvharcv}(x, y, ...)
 }
 \arguments{
 \item{x}{\code{bvharcv} object}
 
-\item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
+\item{y}{Test data to be compared. should be the same format with the train data.}
 
 \item{...}{not used}
 }

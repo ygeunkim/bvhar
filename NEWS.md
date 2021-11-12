@@ -1,5 +1,9 @@
 # bvhar 0.5.0
 
+* Added rolling window and expanding window features (`forecast_roll()` and `forecast_expand()`).
+
+* Can compute loss for each rolling and expanding window method (`mse.bvharcv()`, `mae.bvharcv()`, `mape.bvharcv()`, and `mape.bvharcv()`).
+
 # bvhar 0.4.1
 
 * Fix Marginal likelihood form (`compute_logml()`).
