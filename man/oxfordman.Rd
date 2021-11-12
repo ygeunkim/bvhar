@@ -3,14 +3,11 @@
 \docType{data}
 \name{oxfordman}
 \alias{oxfordman}
-\alias{oxfordman_long}
-\alias{oxfordman_wide_rv}
-\alias{oxfordman_wide_rk}
 \alias{oxfordman_rv}
 \alias{oxfordman_rk}
 \title{Oxford-Man Institute Realized Library}
 \format{
-\code{oxfordman_long} is a data frame of 53507 rows and 20 columns:
+\code{oxfordman_long} is the raw data frame of 53507 rows and 20 columns:
 
 \describe{
 \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -89,12 +86,6 @@ Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/es
 Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
 }
 \usage{
-oxfordman_long
-
-oxfordman_wide_rv
-
-oxfordman_wide_rk
-
 oxfordman_rv
 
 oxfordman_rk
@@ -112,6 +103,8 @@ The realized measure of financial assets dataset provided by \href{https://www.o
 \item \code{oxfordman_wide_rk}
 }
 \item \code{oxford_rv} and \code{oxford_rk} are the sets whose \code{NA} values interpolated using \code{\link[imputeTS:na_interpolation]{imputeTS::na_interpolation()}}.
+\item First three datasets should be called using \code{\link[=data]{data()}} function: \code{data(..., package = "bvhar")}.
+\item Only \code{oxford_rv} and \code{oxford_rk} is lazy loaded.
 }
 }
 \keyword{datasets}

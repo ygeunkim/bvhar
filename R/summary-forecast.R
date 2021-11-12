@@ -32,6 +32,9 @@ divide_ts <- function(y, n_ahead) {
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
 #' 
+#' @references 
+#' Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
+#' 
 #' @order 1
 #' @export
 forecast_roll <- function(object, n_ahead, y_test) {
@@ -91,6 +94,9 @@ forecast_roll <- function(object, n_ahead, y_test) {
 #' @details 
 #' Expanding windows forecasting fixes the starting period.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' 
+#' @references 
+#' Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
 #' 
 #' @order 1
 #' @export

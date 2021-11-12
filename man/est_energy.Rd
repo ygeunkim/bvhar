@@ -3,8 +3,6 @@
 \docType{data}
 \name{est_energy}
 \alias{est_energy}
-\alias{est_energy_raw}
-\alias{est_energy_rt}
 \title{Estimated Energy Consumption}
 \format{
 \code{est_energy} is realized kernel variance dataset computed by parzen kernel.
@@ -37,10 +35,6 @@ The observations are subset of the raw data, from 2014-08-04 (Monday) to 2018-08
 }
 \usage{
 est_energy
-
-est_energy_raw
-
-est_energy_rt
 }
 \description{
 US estimated energy consumption (in Megawatts) in each region.

@@ -58,8 +58,8 @@ oxfordman_rk <-
   apply(2, imputeTS::na_interpolation) %>% 
   as_tibble()
 
-usethis::use_data(oxfordman_long, overwrite = TRUE)
-usethis::use_data(oxfordman_wide_rv, overwrite = TRUE)
-usethis::use_data(oxfordman_wide_rk, overwrite = TRUE)
+usethis::use_data(oxfordman_long, internal = TRUE, overwrite = TRUE)
+usethis::use_data(oxfordman_wide_rv, internal = TRUE, overwrite = TRUE)
+usethis::use_data(oxfordman_wide_rk, internal = TRUE, overwrite = TRUE)
 usethis::use_data(oxfordman_rv, overwrite = TRUE)
 usethis::use_data(oxfordman_rk, overwrite = TRUE)

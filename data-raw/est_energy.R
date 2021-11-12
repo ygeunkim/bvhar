@@ -48,5 +48,5 @@ est_energy <-
 
 
 usethis::use_data(est_energy, overwrite = TRUE)
-usethis::use_data(est_energy_raw, overwrite = TRUE)
-usethis::use_data(est_energy_rt, overwrite = TRUE)
+usethis::use_data(est_energy_raw, internal = TRUE, overwrite = TRUE)
+usethis::use_data(est_energy_rt, internal = TRUE, overwrite = TRUE)

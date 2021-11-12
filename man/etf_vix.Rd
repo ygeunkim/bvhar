@@ -3,7 +3,6 @@
 \docType{data}
 \name{etf_vix}
 \alias{etf_vix}
-\alias{etf_vix_raw}
 \title{CBOE ETF Volatility Index Dataset}
 \format{
 A data frame of 1006 row and 9 columns:
@@ -22,7 +21,9 @@ From 2015-01-05 to 2018-12-28,
 \item{VXEWZCLS}{Brazil ETF volatility index}
 }
 
-\code{etf_vix_raw} is a raw dataset that includes date column (\code{DATE}).
+On the other hand, you can call \code{etf_vix_raw} with \code{\link[=data]{data()}} function:
+\code{data(etf_vix_raw, package = "bvhar")}.
+It is a raw dataset that includes date column (\code{DATE}).
 
 From 2015-01-05 to 2018-12-28,
 there exists 36 missing obervations.
@@ -34,8 +35,6 @@ Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 }
 \usage{
 etf_vix
-
-etf_vix_raw
 }
 \description{
 Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.

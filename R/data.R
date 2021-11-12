@@ -24,6 +24,13 @@
 #'     \item{VXEWZCLS}{Brazil ETF volatility index}
 #' }
 #' 
+#' On the other hand, you can call `etf_vix_raw` with [data()] function:
+#' `data(etf_vix_raw, package = "bvhar")`.
+#' It is a raw dataset that includes date column (`DATE`).
+#' 
+#' From 2015-01-05 to 2018-12-28,
+#' there exists 36 missing obervations.
+#' 
 #' @references 
 #' Chicago Board Options Exchange, CBOE Gold ETF Volatility Index (GVZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; [https://fred.stlouisfed.org/series/GVZCLS](https://fred.stlouisfed.org/series/GVZCLS), July 31, 2021.
 #' 
@@ -49,13 +56,6 @@
 #' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix"
 
-#' @rdname etf_vix
-#' @format `etf_vix_raw` is a raw dataset that includes date column (`DATE`).
-#' 
-#' From 2015-01-05 to 2018-12-28,
-#' there exists 36 missing obervations.
-"etf_vix_raw"
-
 #' Oxford-Man Institute Realized Library
 #' 
 #' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://www.oxford-man.ox.ac.uk).
@@ -67,8 +67,10 @@
 #'     * `oxfordman_wide_rv`
 #'     * `oxfordman_wide_rk`
 #' * `oxford_rv` and `oxford_rk` are the sets whose `NA` values interpolated using [imputeTS::na_interpolation()].
+#' * First three datasets should be called using [data()] function: `data(..., package = "bvhar")`.
+#' * Only `oxford_rv` and `oxford_rk` is lazy loaded.
 #' 
-#' @format `oxfordman_long` is a data frame of 53507 rows and 20 columns:
+#' @format `oxfordman_long` is the raw data frame of 53507 rows and 20 columns:
 #' 
 #' \describe{
 #'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -92,18 +94,8 @@
 #'     \item{open_to_close}{Open to Close Return}
 #'     \item{close_time}{Closing Time}
 #' }
-#' @source 
-#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
 #' 
-#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
-#' 
-#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
-#' 
-#' @name oxfordman
-"oxfordman_long"
-
-#' @rdname oxfordman
-#' @format `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
+#' `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
 #' The number of rows is 1826 and the number of columns is 31.
 #' \describe{
 #'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -139,12 +131,19 @@
 #'     \item{STI}{Straits Times Index}
 #'     \item{STOXX50E}{EURO STOXX 50}
 #' }
-"oxfordman_wide_rv"
-
-#' @rdname oxfordman
-#' @format `oxfordman_wide_rv` is widened data frame of which values are realized kernel variance (`rk_parzen`).
+#' 
+#' `oxfordman_wide_rv` is widened data frame of which values are realized kernel variance (`rk_parzen`).
 #' The number of rows is 1826 and the number of columns is 31, which are the same variables as `oxfordman_wide_rv`.
-"oxfordman_wide_rk"
+#' 
+#' @source 
+#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
+#' 
+#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
+#' 
+#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
+#' 
+#' @name oxfordman
+NULL
 
 #' @rdname oxfordman
 #' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
@@ -178,17 +177,13 @@
 #'     \item{PJM_Load}{PJM Load Combined: 1998-2001}
 #' }
 #' 
-#' @source 
-#' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)
-"est_energy"
-
-#' @rdname est_energy
-#' @format `est_energy_raw` is a raw dataset that contains hourly date and corresponding energy consumption.
+#' `est_energy_raw` is a raw dataset that contains hourly date and corresponding energy consumption.
 #' \describe{
 #'     \item{Datetime}{From 1998-04-01 10:00:00 to 2018-08-03 09:00:00}
 #' }
-"est_energy_raw"
-
-#' @rdname est_energy
-#' @format `est_energy_rt` is a log-return dataset of `est_energy_raw`.
-"est_energy_rt"
+#' 
+#' `est_energy_rt` is a log-return dataset of `est_energy_raw`.
+#' 
+#' @source 
+#' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)
+"est_energy"

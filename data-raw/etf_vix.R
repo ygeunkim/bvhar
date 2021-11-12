@@ -17,5 +17,5 @@ etf_vix <-
   apply(2, imputeTS::na_interpolation) %>% 
   as_tibble()
 
-usethis::use_data(etf_vix_raw, overwrite = TRUE)
+usethis::use_data(etf_vix_raw, internal = TRUE, overwrite = TRUE)
 usethis::use_data(etf_vix, overwrite = TRUE)
