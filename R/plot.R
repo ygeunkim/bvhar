@@ -4,23 +4,31 @@
 #' 
 #' @param object `summary.normaliw` object
 #' @param type Plot mean or variance. `"coef"` indicates VAR coefficients and `"variance"` for diagonal elements for Sigma (By default, coefficients).
-#' @param var_name variable name (for coefficients)
+#' @param var_name Variable name (for coefficients)
+#' @param true_est `r lifecycle::badge("experimental")` True estimates to draw
 #' @param NROW Numer of facet row
 #' @param NCOL Numer of facet col
 #' @param ... not used
 #' 
-#' @importFrom ggplot2 ggplot aes geom_density geom_point facet_wrap labs element_text element_blank
-#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot aes geom_density geom_vline geom_point facet_wrap labs element_text element_blank
+#' @importFrom dplyr filter mutate
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble rownames_to_column
 #' @export
-autoplot.summary.normaliw <- function(object, type = c("coef", "variance"), var_name = NULL, NROW = NULL, NCOL = NULL, ...) {
+autoplot.summary.normaliw <- function(object, 
+                                      type = c("coef", "variance"), 
+                                      var_name, 
+                                      true_est = NULL,
+                                      NROW = NULL, 
+                                      NCOL = NULL, ...) {
   type <- match.arg(type)
   switch(
     type,
     "coef" = {
       X <- object$coefficients
-      if (is.null(var_name)) stop("Provide 'var_name'")
+      if (missing(var_name)) {
+        stop("Provide 'var_name'")
+      }
       X <- 
         lapply(
           1:(object$N),
@@ -32,7 +40,8 @@ autoplot.summary.normaliw <- function(object, type = c("coef", "variance"), var_
         ) %>% 
         bind_rows() %>% 
         pivot_longer(-lags, names_to = "name", values_to = "value") %>% 
-        filter(name == var_name)
+        filter(name == var_name) %>% 
+        mutate(coef_hat = rep(object$mn_mean[,var_name], object$N))
     },
     "variance" = {
       X <- object$covmat
@@ -49,7 +58,13 @@ autoplot.summary.normaliw <- function(object, type = c("coef", "variance"), var_
         pivot_longer(-id, names_to = "lags", values_to = "value")
     }
   )
-  X %>% 
+  if (!is.null(true_est)) {
+    X <- 
+      X %>% 
+      mutate(true_est = rep(true_est, object$N))
+  }
+  p <- 
+    X %>% 
     ggplot(aes(x = value)) +
     geom_density() +
     facet_wrap(
@@ -62,6 +77,18 @@ autoplot.summary.normaliw <- function(object, type = c("coef", "variance"), var_
       x = element_blank(),
       y = element_blank()
     )
+  if (type == "coef") {
+    p <- 
+      p +
+      geom_vline(aes(xintercept = coef_hat), col = "blue", alpha = .5)
+  }
+  # draw given coefficient estimates------------------------
+  if (!is.null(true_est)) {
+    p +
+      geom_vline(aes(xintercept = true_est), col = "red", alpha = .5)
+  } else {
+    p
+  }
 }
 
 #' Residual Plot for Minnesota Prior VAR Model
@@ -164,7 +191,7 @@ gather_predbvhar <- function(object) {
 #' }
 #' 
 #' @importFrom ggplot2 aes layer
-#' @export
+#' @noRd
 geom_predbvhar <- function(mapping = NULL, 
                            data = NULL, 
                            stat = "identity", 
@@ -340,16 +367,100 @@ geom_eval <- function(data, colour = "red", num_train = 1, ...) {
   )
 }
 
-#' Compare Lists of Models
+#' Make Data Form to Make Loss Plot
 #' 
-#' Draw plot of test error for given models
+#' @param object List of `predbvhar`.
+#' @param y_test Test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param loss Loss function to be used (`"mse"`: MSE, `"mae"`: MAE, `mape`: MAPE, `"mase"`: MASE)
 #' 
-#' @param mod_list Lists of forecast results (`predbvhar` objects)
-#' @param y Test data to be compared. should be the same format with the train data and predict$forecast.
-#' @param type Loss function to be used (`"mse"`: MSE, `"mae"`: MAE, `mape`: MAPE, `"mase"`: MASE)
-#' @param viridis If `TRUE`, scale CI and forecast line using [ggplot2::scale_fill_viridis_d()] and [ggplot2::scale_colour_viridis_d], respectively.
-#' @param viridis_option Option for viridis string. See `option` of [ggplot2::scale_colour_viridis_d]. Choose one of `c("A", "B", "C", "D", "E")`. By default, `"D"`.
-#' @param ... Additional options for [ggplot2::geom_line()]
+#' @importFrom dplyr mutate bind_rows
+#' @importFrom tidyr pivot_longer
+#' @noRd
+gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) {
+  loss <- match.arg(loss)
+  if (missing(y_test)) {
+    stop("Provide 'y_test' data")
+  }
+  # Must be list(predbvhar)-------------
+  if (is.predbvhar(object)) {
+    object <- list(object)
+  }
+  if (!all(sapply(object, class) == "predbvhar")) {
+    stop("'object' should be the list of 'predbvhar'")
+  }
+  # Model names-------------------------
+  mod_name <- 
+    object %>% 
+    lapply(function(PRED) PRED$process) %>% 
+    unlist()
+  # error for each model----------------
+  score_dt <- 
+    switch(
+      loss,
+      "mse" = {
+        object %>% 
+          lapply(mse, y_test)
+      },
+      "mae" = {
+        object %>% 
+          lapply(mae, y_test)
+      },
+      "mape" = {
+        object %>% 
+          lapply(mape, y_test)
+      },
+      "mase" = {
+        object %>% 
+          lapply(mase, y_test)
+      }
+    )
+  score_dt %>% 
+    bind_rows() %>% 
+    mutate(Model = mod_name) %>% 
+    pivot_longer(-Model, names_to = "name", values_to = "score")
+}
+
+#' Compute Average Loss to Draw Horizontal Line
+#' 
+#' @param data Result made by `gather_loss`
+#' 
+#' @importFrom dplyr group_by mutate
+#' @noRd
+summarise_loss <- function(data) {
+  data %>% 
+    group_by(Model) %>% 
+    mutate(average = mean(score))
+}
+
+#' Loss Lines
+#' 
+#' This function adds a layer of Loss given `predbvhar`.
+#' 
+#' @param mapping Set of aesthetic mappings created by [ggplot2::aes()] or [ggplot2::aes_()].
+#' @param data The data to be displayed in this layer.
+#' `predbvhar` object or list of `predbvhar`.
+#' @param y_test Test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param loss Loss function to be used (`"mse"`: MSE, `"mae"`: MAE, `mape`: MAPE, `"mase"`: MASE)
+#' @param mean_line Whether to draw average loss. By default, `FALSE`.
+#' @param line_param Parameter lists for [ggplot2::geom_path()].
+#' @param mean_param Parameter lists for average loss with [ggplot2::geom_hline()].
+#' @param inherit.aes If \code{FALSE}, overrides the default aesthetics, rather than combining with them.
+#' This is most useful for helper functions that define both data and aesthetics and shouldn't inherit behaviour from the default plot specification,
+#' e.g. [ggplot2::borders()].
+#' @param show.legend `logical`. Should this layer be included in the legend?
+#' `NA`, the default, includes if any aesthetics are mapped.
+#' `FALSE` never includes, and `TRUE` always includes.
+#' It can also be a named logical vector to finely select the aesthetics to display.
+#' @details 
+#' Internal `gather_loss` function produces a `tibble` with columns named
+#' 
+#' \itemize{
+#'   \item `Model` - The name of the model from `predbvhar$process`
+#'   \item `name` - The variable name
+#'   \item `score` - Values of losses
+#' }
+#'
+#' Additionally, `summarise_loss` function adds grouped average of `score` by `Model` named `average`.
 #' 
 #' @seealso 
 #' * [mse()] to compute MSE for given forecast result
@@ -357,49 +468,98 @@ geom_eval <- function(data, colour = "red", num_train = 1, ...) {
 #' * [mape()] to compute MAPE for given forecast result
 #' * [mase()] to compute MASE for given forecast result
 #' 
+#' @importFrom ggplot2 aes layer
 #' @importFrom dplyr mutate bind_rows
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes geom_line labs element_blank scale_colour_viridis_d
+#' @noRd
+geom_loss <- function(mapping = NULL, 
+                      data = NULL, 
+                      y_test,
+                      loss = c("mse", "mae", "mape", "mase"),
+                      mean_line = FALSE,
+                      line_param = list(),
+                      mean_param = list(),
+                      inherit.aes = TRUE,
+                      show.legend = NA, ...) {
+  score_dt <- gather_loss(data, y_test, loss)
+  loss_layer <- layer(
+    geom = "line",
+    stat = "identity",
+    data = score_dt,
+    mapping = aes(
+      x = name,
+      y = score,
+      colour = Model,
+      group = Model
+    ),
+    position = "identity",
+    params = line_param,
+    inherit.aes = inherit.aes,
+    show.legend = show.legend
+  )
+  if (mean_line) {
+    mean_dt <- summarise_loss(score_dt)
+    mean_layer <- layer(
+      geom = "hline",
+      stat = "identity",
+      data = mean_dt,
+      mapping = aes(
+        yintercept = average,
+        colour = Model
+      ),
+      position = "identity",
+      params = mean_param,
+      inherit.aes = inherit.aes,
+      show.legend = show.legend
+    )
+    list(mean_layer, loss_layer)
+  } else {
+    loss_layer
+  }
+}
+
+#' Compare Lists of Models
+#' 
+#' Draw plot of test error for given models
+#' 
+#' @param mod_list Lists of forecast results (`predbvhar` objects)
+#' @param y Test data to be compared. should be the same format with the train data and predict$forecast.
+#' @param type Loss function to be used (`"mse"`: MSE, `"mae"`: MAE, `mape`: MAPE, `"mase"`: MASE)
+#' @param mean_line Whether to draw average loss. By default, `FALSE`.
+#' @param line_param Parameter lists for [ggplot2::geom_path()].
+#' @param mean_param Parameter lists for average loss with [ggplot2::geom_hline()].
+#' @param viridis If `TRUE`, scale CI and forecast line using [ggplot2::scale_fill_viridis_d()] and [ggplot2::scale_colour_viridis_d], respectively.
+#' @param viridis_option Option for viridis string. See `option` of [ggplot2::scale_colour_viridis_d]. Choose one of `c("A", "B", "C", "D", "E")`. By default, `"D"`.
+#' @param ... Additional options for `geom_loss` (`inherit.aes` and `show.legend`)
+#' 
+#' @seealso 
+#' * [mse()] to compute MSE for given forecast result
+#' * [mae()] to compute MAE for given forecast result
+#' * [mape()] to compute MAPE for given forecast result
+#' * [mase()] to compute MASE for given forecast result
+#' 
+#' @importFrom ggplot2 labs element_blank scale_colour_viridis_d
 #' @export
 plot_loss <- function(mod_list, 
                       y, 
                       type = c("mse", "mae", "mape", "mase"), 
+                      mean_line = FALSE,
+                      line_param = list(),
+                      mean_param = list(),
                       viridis = FALSE, 
                       viridis_option = "D", ...) {
-  type <- match.arg(type)
-  mod_names <- 
-    mod_list %>% 
-    lapply(function(PRED) PRED$process) %>% 
-    unlist()
-  # error---------------------------------
-  SCORE <- 
-    switch(
-      type,
-      "mse" = {
-        mod_list %>% 
-          lapply(mse, y = y)
-      },
-      "mae" = {
-        mod_list %>% 
-          lapply(mae, y = y)
-      },
-      "mape" = {
-        mod_list %>% 
-          lapply(mape, y = y)
-      },
-      "mase" = {
-        mod_list %>% 
-          lapply(mase, y = y)
-      }
-    )
   # plot------------------------------------
   p <- 
-    SCORE %>% 
-    bind_rows() %>% 
-    mutate(Model = mod_names) %>% 
-    pivot_longer(-Model, names_to = "name", values_to = "score") %>% 
-    ggplot(aes(x = name, y = score, colour = Model)) +
-    geom_line(aes(group = Model), ...) +
+    ggplot() +
+    geom_loss(
+      data = mod_list,
+      y_test = y,
+      loss = type,
+      mean_line = mean_line,
+      line_param = line_param,
+      mean_param = mean_param,
+      ...
+    ) +
     labs(
       x = element_blank(),
       y = element_blank()

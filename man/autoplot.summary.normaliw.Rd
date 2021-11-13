@@ -7,7 +7,8 @@
 \method{autoplot}{summary.normaliw}(
   object,
   type = c("coef", "variance"),
-  var_name = NULL,
+  var_name,
+  true_est = NULL,
   NROW = NULL,
   NCOL = NULL,
   ...
@@ -18,7 +19,9 @@
 
 \item{type}{Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).}
 
-\item{var_name}{variable name (for coefficients)}
+\item{var_name}{Variable name (for coefficients)}
+
+\item{true_est}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} True estimates to draw}
 
 \item{NROW}{Numer of facet row}
 

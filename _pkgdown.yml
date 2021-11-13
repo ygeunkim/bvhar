@@ -97,12 +97,11 @@ reference:
   contents:
   - autoplot.normaliw
   - autoplot.summary.normaliw
-  - geom_predbvhar
   - autoplot.predbvhar
   - geom_eval
   - plot_loss
 
-- title: Simulation
+- title: Simulation and Random Generation
   desc: ~
   contents:
   - sim_var

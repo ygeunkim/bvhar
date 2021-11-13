@@ -51,12 +51,12 @@ series model above
 | BVAR  |    `bvar_flat`    | `bvarflat` |
 | BVHAR | `bvhar_minnesota` | `bvharmn`  |
 
-As the other analyzer tools use S3 such as `lm`, this package use
-methods `coef`, `predict`, etc. This readme document shows out-of-sample
-forecasting briefly. Details about each function are in vignettes and
-help documents.
+As the other analyzer tools uses S3 such as `lm`, this package use
+methods `coef`, `predict`, etc. This readme document shows forecasting
+procedure briefly. Details about each function are in vignettes and help
+documents.
 
-Out-of-sample forecasting:
+h-step ahead forecasting:
 
 ``` r
 h <- 19
@@ -271,7 +271,7 @@ list(
   forecast_bvar,
   forecast_bvhar_v2
 ) %>% 
-  plot_loss(y = etf_te) +
+  plot_loss(y = etf_te, mean_line = TRUE, mean_param = list(alpha = .5)) +
   ggplot2::theme_minimal() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
 ```

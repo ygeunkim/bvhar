@@ -8,6 +8,9 @@ plot_loss(
   mod_list,
   y,
   type = c("mse", "mae", "mape", "mase"),
+  mean_line = FALSE,
+  line_param = list(),
+  mean_param = list(),
   viridis = FALSE,
   viridis_option = "D",
   ...
@@ -20,11 +23,17 @@ plot_loss(
 
 \item{type}{Loss function to be used (\code{"mse"}: MSE, \code{"mae"}: MAE, \code{mape}: MAPE, \code{"mase"}: MASE)}
 
+\item{mean_line}{Whether to draw average loss. By default, \code{FALSE}.}
+
+\item{line_param}{Parameter lists for \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
+
+\item{mean_param}{Parameter lists for average loss with \code{\link[ggplot2:geom_abline]{ggplot2::geom_hline()}}.}
+
 \item{viridis}{If \code{TRUE}, scale CI and forecast line using \code{\link[ggplot2:scale_viridis]{ggplot2::scale_fill_viridis_d()}} and \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}, respectively.}
 
 \item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{"D"}.}
 
-\item{...}{Additional options for \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}}}
+\item{...}{Additional options for \code{geom_loss} (\code{inherit.aes} and \code{show.legend})}
 }
 \description{
 Draw plot of test error for given models

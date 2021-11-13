@@ -15,13 +15,13 @@ Compute the coefficient matrix of VAR(1) form
 \details{
 Each VAR(p) process can be represented by mp-dim VAR(1).
 
-\deqn{Y_t = B Y_{t - 1} + C + U_t}
+\deqn{Y_t = A Y_{t - 1} + C + U_t}
 
 where
 
 \deqn{
-    B = \begin{bmatrix}
-      B_1 & B_2 & \cdots B_{p - 1} & B_p \        \
+    A = \begin{bmatrix}
+      A_1 & A_2 & \cdots A_{p - 1} & A_p \        \
       I_m & 0 & \cdots & 0 & 0 \                  \
       0 & I_m & \cdots & 0 & 0 \                  \
       \vdots & \vdots & \vdots & \vdots & \vdots \\
