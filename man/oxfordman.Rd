@@ -3,6 +3,9 @@
 \docType{data}
 \name{oxfordman}
 \alias{oxfordman}
+\alias{oxfordman_long}
+\alias{oxfordman_wide_rv}
+\alias{oxfordman_wide_rk}
 \alias{oxfordman_rv}
 \alias{oxfordman_rk}
 \title{Oxford-Man Institute Realized Library}
@@ -69,7 +72,7 @@ The number of rows is 1826 and the number of columns is 31.
 \item{STOXX50E}{EURO STOXX 50}
 }
 
-\code{oxfordman_wide_rv} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
+\code{oxfordman_wide_rk} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
 The number of rows is 1826 and the number of columns is 31, which are the same variables as \code{oxfordman_wide_rv}.
 
 \code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
@@ -86,6 +89,12 @@ Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/es
 Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
 }
 \usage{
+oxfordman_long
+
+oxfordman_wide_rv
+
+oxfordman_wide_rk
+
 oxfordman_rv
 
 oxfordman_rk

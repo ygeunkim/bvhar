@@ -24,13 +24,6 @@
 #'     \item{VXEWZCLS}{Brazil ETF volatility index}
 #' }
 #' 
-#' On the other hand, you can call `etf_vix_raw` with [data()] function:
-#' `data(etf_vix_raw, package = "bvhar")`.
-#' It is a raw dataset that includes date column (`DATE`).
-#' 
-#' From 2015-01-05 to 2018-12-28,
-#' there exists 36 missing obervations.
-#' 
 #' @references 
 #' Chicago Board Options Exchange, CBOE Gold ETF Volatility Index (GVZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; [https://fred.stlouisfed.org/series/GVZCLS](https://fred.stlouisfed.org/series/GVZCLS), July 31, 2021.
 #' 
@@ -55,6 +48,16 @@
 #' 
 #' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix"
+
+#' @rdname etf_vix
+#' @details 
+#' On the other hand, you can call `etf_vix_raw` with [data()] function:
+#' `data(etf_vix_raw, package = "bvhar")`.
+#' @format `etf_vix_raw` is a raw dataset that includes date column (`DATE`).
+#' 
+#' From 2015-01-05 to 2018-12-28,
+#' there exists 36 missing obervations.
+"etf_vix_raw"
 
 #' Oxford-Man Institute Realized Library
 #' 
@@ -95,7 +98,18 @@
 #'     \item{close_time}{Closing Time}
 #' }
 #' 
-#' `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
+#' @source 
+#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
+#' 
+#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
+#' 
+#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
+#' 
+#' @name oxfordman
+"oxfordman_long"
+
+#' @rdname oxfordman
+#' @format `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
 #' The number of rows is 1826 and the number of columns is 31.
 #' \describe{
 #'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -131,19 +145,12 @@
 #'     \item{STI}{Straits Times Index}
 #'     \item{STOXX50E}{EURO STOXX 50}
 #' }
-#' 
-#' `oxfordman_wide_rv` is widened data frame of which values are realized kernel variance (`rk_parzen`).
+"oxfordman_wide_rv"
+
+#' @rdname oxfordman
+#' @format `oxfordman_wide_rk` is widened data frame of which values are realized kernel variance (`rk_parzen`).
 #' The number of rows is 1826 and the number of columns is 31, which are the same variables as `oxfordman_wide_rv`.
-#' 
-#' @source 
-#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
-#' 
-#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
-#' 
-#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
-#' 
-#' @name oxfordman
-NULL
+"oxfordman_wide_rk"
 
 #' @rdname oxfordman
 #' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
@@ -187,3 +194,4 @@ NULL
 #' @source 
 #' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)
 "est_energy"
+
