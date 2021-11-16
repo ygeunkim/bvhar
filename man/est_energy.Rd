@@ -7,7 +7,8 @@
 \format{
 \code{est_energy} is realized kernel variance dataset computed by parzen kernel.
 Since \code{NI} and \code{PJM_Load} observations are too old, they are excluded.
-The observations are subset of the raw data, from 2014-08-04 (Monday) to 2018-08-03 (Friday).
+The observations are subset of the raw data (from 1998-04-01 10:00:00 to 2018-08-03 09:00:00),
+from 2014-08-04 (Monday) to 2018-08-03 (Friday).
 \describe{
 \item{AEP}{\href{https://en.wikipedia.org/wiki/American_Electric_Power}{American Electric Power}}
 \item{COMED}{\href{https://en.wikipedia.org/wiki/Commonwealth_Edison}{Commonwealth Edison}}
@@ -22,13 +23,6 @@ The observations are subset of the raw data, from 2014-08-04 (Monday) to 2018-08
 \item{PJMW}{PJM West Region: 2001-2018}
 \item{PJM_Load}{PJM Load Combined: 1998-2001}
 }
-
-\code{est_energy_raw} is a raw dataset that contains hourly date and corresponding energy consumption.
-\describe{
-\item{Datetime}{From 1998-04-01 10:00:00 to 2018-08-03 09:00:00}
-}
-
-\code{est_energy_rt} is a log-return dataset of \code{est_energy_raw}.
 }
 \source{
 \url{https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data}

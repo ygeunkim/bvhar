@@ -13,7 +13,7 @@ mape(x, y, ...)
 \method{mape}{bvharcv}(x, y, ...)
 }
 \arguments{
-\item{x}{\code{bvharcv} object}
+\item{x}{Forecasting object}
 
 \item{y}{Test data to be compared. should be the same format with the train data.}
 

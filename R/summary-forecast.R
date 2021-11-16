@@ -81,7 +81,7 @@ forecast_roll <- function(object, n_ahead, y_test) {
   res <- list(
     process = object$process,
     forecast = res_mat,
-    eval_id = n_ahead:num_horizon,
+    eval_id = n_ahead:nrow(y_test),
     y = y
   )
   class(res) <- c("predbvhar_roll", "bvharcv")
@@ -145,7 +145,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
   res <- list(
     process = object$process,
     forecast = res_mat,
-    eval_id = n_ahead:num_horizon,
+    eval_id = n_ahead:nrow(y_test),
     y = y
   )
   class(res) <- c("predbvhar_expand", "bvharcv")
@@ -157,7 +157,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
 #' This function computes MSE given prediction result versus evaluation set.
 #' 
 #' @param x Forecasting object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param y Test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
 #' 
 #' @export
@@ -167,8 +167,8 @@ mse <- function(x, y, ...) {
 
 #' @rdname mse
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @details 
 #' Let \eqn{e_t = y_t - \hat{y}_t}. Then
@@ -185,7 +185,7 @@ mse.predbvhar <- function(x, y, ...) {
 
 #' @rdname mse
 #' 
-#' @param x `bvharcv` object
+#' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
@@ -200,8 +200,8 @@ mse.bvharcv <- function(x, y, ...) {
 #' 
 #' This function computes MAE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
@@ -211,8 +211,8 @@ mae <- function(x, y, ...) {
 
 #' @rdname mae
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @details 
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
@@ -237,7 +237,7 @@ mae.predbvhar <- function(x, y, ...) {
 
 #' @rdname mae
 #' 
-#' @param x `bvharcv` object
+#' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
@@ -257,8 +257,8 @@ mae.bvharcv <- function(x, y, ...) {
 #' 
 #' This function computes MAPE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
@@ -268,8 +268,8 @@ mape <- function(x, y, ...) {
 
 #' @rdname mape
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @details 
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
@@ -292,7 +292,7 @@ mape.predbvhar <- function(x, y, ...) {
 
 #' @rdname mape
 #' 
-#' @param x `bvharcv` object
+#' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
@@ -312,8 +312,8 @@ mape.bvharcv <- function(x, y, ...) {
 #' 
 #' This function computes MASE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
@@ -323,8 +323,8 @@ mase <- function(x, y, ...) {
 
 #' @rdname mase
 #' 
-#' @param x `predbvhar` object
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @details 
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
@@ -357,7 +357,7 @@ mase.predbvhar <- function(x, y, ...) {
 
 #' @rdname mase
 #' 
-#' @param x `bvharcv` object
+#' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
@@ -382,9 +382,9 @@ mase.bvharcv <- function(x, y, ...) {
 #' 
 #' This function computes MRAE given prediction result versus evaluation set.
 #' 
-#' @param x `predbvhar` object to use
-#' @param pred_bench `predbvhar` from benchmark model
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' 
 #' @export
@@ -394,9 +394,9 @@ mrae <- function(x, pred_bench, y, ...) {
 
 #' @rdname mrae
 #' 
-#' @param x `predbvhar` object to use
-#' @param pred_bench `predbvhar` from benchmark model
-#' @param y test data to be compared. should be the same format with the train data and `predict$forecast`.
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @details 
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
@@ -412,10 +412,34 @@ mrae <- function(x, pred_bench, y, ...) {
 #' 
 #' @export
 mrae.predbvhar <- function(x, pred_bench, y, ...) {
-  if (!is.predbvhar(pred_bench)) stop("'pred_bench' should be 'predbvhar' class.")
+  if (!is.predbvhar(pred_bench)) {
+    stop("'pred_bench' should be 'predbvhar' class.")
+  }
   apply(
     (y - x$forecast) / (y - pred_bench$forecast), 
     2, 
+    function(r_t) {
+      mean(abs(r_t))
+    }
+  )
+}
+
+#' @rdname mrae
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+mrae.bvharcv <- function(x, pred_bench, y, ...) {
+  if (!is.bvharcv(pred_bench)) {
+    stop("'pred_bench' should be 'bvharcv' class.")
+  }
+  y_test <- y[x$eval_id,]
+  apply(
+    (y_test - x$forecast) / (y_test - pred_bench$forecast),
+    2,
     function(r_t) {
       mean(abs(r_t))
     }

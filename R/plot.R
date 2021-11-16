@@ -385,8 +385,8 @@ gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) 
   if (is.predbvhar(object)) {
     object <- list(object)
   }
-  if (!all(sapply(object, class) == "predbvhar")) {
-    stop("'object' should be the list of 'predbvhar'")
+  if (!all(sapply(object, is.predbvhar)) && !all(sapply(object, is.bvharcv))) {
+    stop("'object' should be the list of 'predbvhar' or 'bvharcv'")
   }
   # Model names-------------------------
   mod_name <- 

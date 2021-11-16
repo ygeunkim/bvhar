@@ -109,10 +109,10 @@
 "oxfordman_long"
 
 #' @rdname oxfordman
-#' @format `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
+#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv` (internal).
+#' Also, it does not have `DATE` column for fitting.
 #' The number of rows is 1826 and the number of columns is 31.
 #' \describe{
-#'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
 #'     \item{AEX}{AEX index}
 #'     \item{AORD}{All Ordinaries}
 #'     \item{BFX}{Bell 20 Index}
@@ -145,20 +145,10 @@
 #'     \item{STI}{Straits Times Index}
 #'     \item{STOXX50E}{EURO STOXX 50}
 #' }
-"oxfordman_wide_rv"
-
-#' @rdname oxfordman
-#' @format `oxfordman_wide_rk` is widened data frame of which values are realized kernel variance (`rk_parzen`).
-#' The number of rows is 1826 and the number of columns is 31, which are the same variables as `oxfordman_wide_rv`.
-"oxfordman_wide_rk"
-
-#' @rdname oxfordman
-#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
-#' Also, it does not have `DATE` column for fitting.
 "oxfordman_rv"
 
 #' @rdname oxfordman
-#' @format `oxfordman_rk` is a data frame that interpolates `NA` values of `oxfordman_wide_rk`.
+#' @format `oxfordman_rk` is a data frame that interpolates `NA` values of `oxfordman_wide_rk` (internal).
 #' Also, it does not have `DATE` column for fitting.
 "oxfordman_rk"
 
@@ -168,7 +158,8 @@
 #' 
 #' @format `est_energy` is realized kernel variance dataset computed by parzen kernel.
 #' Since `NI` and `PJM_Load` observations are too old, they are excluded.
-#' The observations are subset of the raw data, from 2014-08-04 (Monday) to 2018-08-03 (Friday).
+#' The observations are subset of the raw data (from 1998-04-01 10:00:00 to 2018-08-03 09:00:00),
+#' from 2014-08-04 (Monday) to 2018-08-03 (Friday).
 #' \describe{
 #'     \item{AEP}{\href{https://en.wikipedia.org/wiki/American_Electric_Power}{American Electric Power}}
 #'     \item{COMED}{\href{https://en.wikipedia.org/wiki/Commonwealth_Edison}{Commonwealth Edison}}
@@ -183,13 +174,6 @@
 #'     \item{PJMW}{PJM West Region: 2001-2018}
 #'     \item{PJM_Load}{PJM Load Combined: 1998-2001}
 #' }
-#' 
-#' `est_energy_raw` is a raw dataset that contains hourly date and corresponding energy consumption.
-#' \describe{
-#'     \item{Datetime}{From 1998-04-01 10:00:00 to 2018-08-03 09:00:00}
-#' }
-#' 
-#' `est_energy_rt` is a log-return dataset of `est_energy_raw`.
 #' 
 #' @source 
 #' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)

@@ -3,18 +3,21 @@
 \name{mrae}
 \alias{mrae}
 \alias{mrae.predbvhar}
+\alias{mrae.bvharcv}
 \title{Evaluate the Model Based on MRAE (Mean Relative Absolute Error)}
 \usage{
 mrae(x, pred_bench, y, ...)
 
 \method{mrae}{predbvhar}(x, pred_bench, y, ...)
+
+\method{mrae}{bvharcv}(x, pred_bench, y, ...)
 }
 \arguments{
-\item{x}{\code{predbvhar} object to use}
+\item{x}{Forecasting object to use}
 
-\item{pred_bench}{\code{predbvhar} from benchmark model}
+\item{pred_bench}{The same forecasting object from benchmark model}
 
-\item{y}{test data to be compared. should be the same format with the train data and \code{predict$forecast}.}
+\item{y}{Test data to be compared. should be the same format with the train data.}
 
 \item{...}{not used}
 }

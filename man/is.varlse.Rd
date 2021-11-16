@@ -7,6 +7,7 @@
 \alias{is.bvarflat}
 \alias{is.bvharmn}
 \alias{is.predbvhar}
+\alias{is.bvharcv}
 \alias{is.bvharspec}
 \title{See if the Object a class in this package}
 \usage{
@@ -21,6 +22,8 @@ is.bvarflat(x)
 is.bvharmn(x)
 
 is.predbvhar(x)
+
+is.bvharcv(x)
 
 is.bvharspec(x)
 }

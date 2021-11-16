@@ -157,6 +157,12 @@ is.predbvhar <- function(x) {
 
 #' @rdname is.varlse
 #' @export
+is.bvharcv <- function(x) {
+  inherits(x, "bvharcv")
+}
+
+#' @rdname is.varlse
+#' @export
 is.bvharspec <- function(x) {
   inherits(x, "bvharspec")
 }
