@@ -1,3 +1,7 @@
+# bvhar 0.5.1
+
+* Added facet feature for the loss plot and changed its name (`gg_loss()`).
+
 # bvhar 0.5.0
 
 * Added rolling window and expanding window features (`forecast_roll()` and `forecast_expand()`).
