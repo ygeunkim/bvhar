@@ -277,65 +277,61 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   }
   # lambda-----------------------
   lambda <- bayes_spec$lambda
-  minnesota_type <- bayes_spec$prior
   # find argmax of log(ML)-------
   # for each type
-  res <- 
-    switch(
-      minnesota_type,
-      "MN_VAR" = {
-        if (is.null(bayes_spec$delta)) {
-          delta <- rep(.1, dim_data)
-        } else {
-          delta <- bayes_spec$delta
-        }
-        optim(
-          par = c(sigma, lambda, delta), 
-          fn = logml_bvhar_var,
-          method = "L-BFGS-B",
-          lower = lower,
-          upper = upper,
-          ...,
-          eps = eps,
-          y = y,
-          include_mean = include_mean
-        )
-      },
-      "MN_VHAR" = {
-        if (is.null(bayes_spec$daily)) {
-          daily <- rep(.1, dim_data)
-        } else {
-          daily <- bayes_spec$daily
-        }
-        if (is.null(bayes_spec$weekly)) {
-          weekly <- rep(.1, dim_data)
-        } else {
-          weekly <- bayes_spec$weekly
-        }
-        if (is.null(bayes_spec$monthly)) {
-          monthly <- rep(.1, dim_data)
-        } else {
-          monthly <- bayes_spec$monthly
-        }
-        optim(
-          par = c(sigma, lambda, daily, weekly, monthly), 
-          fn = logml_bvhar_vhar,
-          method = "L-BFGS-B",
-          lower = lower,
-          upper = upper,
-          ...,
-          eps = eps,
-          y = y,
-          include_mean = include_mean
-        )
-      }
-    )
-  # optimized model spec---------
-  if (minnesota_type == "MN_VAR") {
+  if (bayes_spec$prior == "MN_VAR") {
+    if (is.null(bayes_spec$delta)) {
+      delta <- rep(.1, dim_data)
+    } else {
+      delta <- bayes_spec$delta
+    }
+    # maximize marginal likelihood
+    res <- 
+      optim(
+        par = c(sigma, lambda, delta), 
+        fn = logml_bvhar_var,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper,
+        ...,
+        eps = eps,
+        y = y,
+        include_mean = include_mean
+      )
+    # collect the argmax-----------
     bayes_spec$sigma <- res$par[1:dim_data]
     bayes_spec$lambda <- res$par[dim_data + 1]
     bayes_spec$delta <- res$par[(dim_data + 2):(dim_data * 2 + 1)]
   } else {
+    if (is.null(bayes_spec$daily)) {
+      daily <- rep(.1, dim_data)
+    } else {
+      daily <- bayes_spec$daily
+    }
+    if (is.null(bayes_spec$weekly)) {
+      weekly <- rep(.1, dim_data)
+    } else {
+      weekly <- bayes_spec$weekly
+    }
+    if (is.null(bayes_spec$monthly)) {
+      monthly <- rep(.1, dim_data)
+    } else {
+      monthly <- bayes_spec$monthly
+    }
+    # maximize marginal likelihood
+    res <- 
+      optim(
+        par = c(sigma, lambda, daily, weekly, monthly), 
+        fn = logml_bvhar_vhar,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper,
+        ...,
+        eps = eps,
+        y = y,
+        include_mean = include_mean
+      )
+    # collect the argmax-----------
     bayes_spec$sigma <- res$par[1:dim_data]
     bayes_spec$lambda <- res$par[dim_data + 1]
     bayes_spec$daily <- res$par[(dim_data + 2):(dim_data * 2 + 1)]

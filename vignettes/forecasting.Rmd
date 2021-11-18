@@ -271,6 +271,3 @@ list(
   plot_loss(y = y_test)
 ```
 
-
-
-

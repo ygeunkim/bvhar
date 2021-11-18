@@ -64,7 +64,7 @@
 #' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://www.oxford-man.ox.ac.uk).
 #' 
 #' @details 
-#' * As a raw dataset, we provide long format `oxfordman_long`. It contains every realized measure.
+#' * As a raw dataset, we have internal dataset of long format `oxfordman_long`. It contains every realized measure.
 #' * Denote that non-trading dates are excluded in `oxfordman_long`, not in `NA`. So be careful when dealing this set directly.
 #' * For analysis, we widened the data for 5-min realized volatility (`rv5`) and realized kernel variance (`rk_parzen`), respectively.
 #'     * `oxfordman_wide_rv`
@@ -73,7 +73,7 @@
 #' * First three datasets should be called using [data()] function: `data(..., package = "bvhar")`.
 #' * Only `oxford_rv` and `oxford_rk` is lazy loaded.
 #' 
-#' @format `oxfordman_long` is the raw data frame of 53507 rows and 20 columns:
+#' @format `oxfordman_long` is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 #' 
 #' \describe{
 #'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -98,21 +98,10 @@
 #'     \item{close_time}{Closing Time}
 #' }
 #' 
-#' @source 
-#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
-#' 
-#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
-#' 
-#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
-#' 
-#' @name oxfordman
-"oxfordman_long"
-
-#' @rdname oxfordman
-#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv` (internal).
-#' Also, it does not have `DATE` column for fitting.
+#' `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
 #' The number of rows is 1826 and the number of columns is 31.
 #' \describe{
+#'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
 #'     \item{AEX}{AEX index}
 #'     \item{AORD}{All Ordinaries}
 #'     \item{BFX}{Bell 20 Index}
@@ -145,11 +134,32 @@
 #'     \item{STI}{Straits Times Index}
 #'     \item{STOXX50E}{EURO STOXX 50}
 #' }
+#' 
+#' @source 
+#' [https://realized.oxford-man.ox.ac.uk/data](https://realized.oxford-man.ox.ac.uk/data)
+#' 
+#' Available estimators: [https://realized.oxford-man.ox.ac.uk/documentation/estimators](https://realized.oxford-man.ox.ac.uk/documentation/estimators)
+#' 
+#' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
+#' 
+#' @name oxfordman
+"oxfordman_wide_rv"
+
+#' @rdname oxfordman
+#' @format `oxfordman_wide_rk` is widened data frame of which values are realized kernel variance (`rk_parzen`).
+#' The number of rows is 1826 and the number of columns is 31, which are the same variables as `oxfordman_wide_rv`.
+"oxfordman_wide_rk"
+
+#' @rdname oxfordman
+#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
+#' Also, it does not have `DATE` column for fitting.
+#' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_rv"
 
 #' @rdname oxfordman
-#' @format `oxfordman_rk` is a data frame that interpolates `NA` values of `oxfordman_wide_rk` (internal).
+#' @format `oxfordman_rk` is a data frame that interpolates `NA` values of `oxfordman_wide_rk`.
 #' Also, it does not have `DATE` column for fitting.
+#' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_rk"
 
 #' Estimated Energy Consumption

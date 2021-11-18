@@ -43,16 +43,23 @@ jobs:
         with:
           extra-packages: rcmdcheck
 
+# do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v1
+        with:
+          args: '"--no-manual", "--as-cran", "--no-build-vignettes"'
+          build_args: '"--no-build-vignettes"'
+          error-on: '"error"'
 
       - name: Show testthat output
         if: always()
         run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
-      - name: Upload check results
-        if: failure()
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
-          path: check
+# do not upload artifact until changing to public repo
+# When public repo -> uncomment below
+      # - name: Upload check results
+      #   if: failure()
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     name: ${{ runner.os }}-r${{ matrix.config.r }}-results
+      #     path: check

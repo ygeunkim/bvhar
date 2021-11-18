@@ -3,12 +3,13 @@
 \docType{data}
 \name{oxfordman}
 \alias{oxfordman}
-\alias{oxfordman_long}
+\alias{oxfordman_wide_rv}
+\alias{oxfordman_wide_rk}
 \alias{oxfordman_rv}
 \alias{oxfordman_rk}
 \title{Oxford-Man Institute Realized Library}
 \format{
-\code{oxfordman_long} is the raw data frame of 53507 rows and 20 columns:
+\code{oxfordman_long} is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 
 \describe{
 \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
@@ -33,10 +34,10 @@
 \item{close_time}{Closing Time}
 }
 
-\code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv} (internal).
-Also, it does not have \code{DATE} column for fitting.
+\code{oxfordman_wide_rv} is widened data frame of which values are 5-min RV (\code{rv5}).
 The number of rows is 1826 and the number of columns is 31.
 \describe{
+\item{DATE}{Date - From 2013-01-07 to 2019-12-27}
 \item{AEX}{AEX index}
 \item{AORD}{All Ordinaries}
 \item{BFX}{Bell 20 Index}
@@ -70,8 +71,16 @@ The number of rows is 1826 and the number of columns is 31.
 \item{STOXX50E}{EURO STOXX 50}
 }
 
-\code{oxfordman_rk} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rk} (internal).
+\code{oxfordman_wide_rk} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
+The number of rows is 1826 and the number of columns is 31, which are the same variables as \code{oxfordman_wide_rv}.
+
+\code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
 Also, it does not have \code{DATE} column for fitting.
+The number of rows is 1826 and the number of columns is 31.
+
+\code{oxfordman_rk} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rk}.
+Also, it does not have \code{DATE} column for fitting.
+The number of rows is 1826 and the number of columns is 31.
 }
 \source{
 \url{https://realized.oxford-man.ox.ac.uk/data}
@@ -81,7 +90,9 @@ Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/es
 Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
 }
 \usage{
-oxfordman_long
+oxfordman_wide_rv
+
+oxfordman_wide_rk
 
 oxfordman_rv
 
@@ -92,7 +103,7 @@ The realized measure of financial assets dataset provided by \href{https://www.o
 }
 \details{
 \itemize{
-\item As a raw dataset, we provide long format \code{oxfordman_long}. It contains every realized measure.
+\item As a raw dataset, we have internal dataset of long format \code{oxfordman_long}. It contains every realized measure.
 \item Denote that non-trading dates are excluded in \code{oxfordman_long}, not in \code{NA}. So be careful when dealing this set directly.
 \item For analysis, we widened the data for 5-min realized volatility (\code{rv5}) and realized kernel variance (\code{rk_parzen}), respectively.
 \itemize{
