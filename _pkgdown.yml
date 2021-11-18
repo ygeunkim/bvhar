@@ -99,7 +99,7 @@ reference:
   - autoplot.summary.normaliw
   - autoplot.predbvhar
   - geom_eval
-  - plot_loss
+  - gg_loss
 
 - title: Simulation and Random Generation
   desc: ~

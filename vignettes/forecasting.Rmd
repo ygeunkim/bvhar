@@ -268,6 +268,6 @@ list(
   pred_bvhar_v1,
   pred_bvhar_v2
 ) %>% 
-  plot_loss(y = y_test)
+  gg_loss(y = y_test, "mse")
 ```
 

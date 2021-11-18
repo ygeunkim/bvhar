@@ -3,7 +3,7 @@ utils::globalVariables(c(
   "value_forecast", "value_lower_joint", "value_upper_joint", "forecast",
   "p",
   ".",
-  "Model", "name", "score", "average", "coef_hat",
+  "Model", "name", "score", "average", "coef_hat", "Loss",
   "model",
   "sd"
 ))

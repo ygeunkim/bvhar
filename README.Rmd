@@ -191,7 +191,7 @@ list(
   forecast_bvar,
   forecast_bvhar_v2
 ) %>% 
-  plot_loss(y = etf_te, mean_line = TRUE, mean_param = list(alpha = .5)) +
+  gg_loss(y = etf_te, mean_line = TRUE, mean_param = list(alpha = .5)) +
   ggplot2::theme_minimal() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
 ```

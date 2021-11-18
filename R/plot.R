@@ -417,7 +417,8 @@ gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) 
   score_dt %>% 
     bind_rows() %>% 
     mutate(Model = mod_name) %>% 
-    pivot_longer(-Model, names_to = "name", values_to = "score")
+    pivot_longer(-Model, names_to = "name", values_to = "score") %>% 
+    mutate(Loss = toupper(loss))
 }
 
 #' Compute Average Loss to Draw Horizontal Line
@@ -428,7 +429,7 @@ gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) 
 #' @noRd
 summarise_loss <- function(data) {
   data %>% 
-    group_by(Model) %>% 
+    group_by(Model, Loss) %>% 
     mutate(average = mean(score))
 }
 
@@ -481,11 +482,10 @@ geom_loss <- function(mapping = NULL,
                       mean_param = list(),
                       inherit.aes = TRUE,
                       show.legend = NA, ...) {
-  score_dt <- gather_loss(data, y_test, loss)
   loss_layer <- layer(
     geom = "line",
     stat = "identity",
-    data = score_dt,
+    data = data,
     mapping = aes(
       x = name,
       y = score,
@@ -498,7 +498,7 @@ geom_loss <- function(mapping = NULL,
     show.legend = show.legend
   )
   if (mean_line) {
-    mean_dt <- summarise_loss(score_dt)
+    mean_dt <- summarise_loss(data)
     mean_layer <- layer(
       geom = "hline",
       stat = "identity",
@@ -530,6 +530,8 @@ geom_loss <- function(mapping = NULL,
 #' @param mean_param Parameter lists for average loss with [ggplot2::geom_hline()].
 #' @param viridis If `TRUE`, scale CI and forecast line using [ggplot2::scale_fill_viridis_d()] and [ggplot2::scale_colour_viridis_d], respectively.
 #' @param viridis_option Option for viridis string. See `option` of [ggplot2::scale_colour_viridis_d]. Choose one of `c("A", "B", "C", "D", "E")`. By default, `"D"`.
+#' @param NROW `nrow` of [ggplot2::facet_wrap()]
+#' @param NCOL `ncol` of [ggplot2::facet_wrap()]
 #' @param ... Additional options for `geom_loss` (`inherit.aes` and `show.legend`)
 #' 
 #' @seealso 
@@ -538,21 +540,33 @@ geom_loss <- function(mapping = NULL,
 #' * [mape()] to compute MAPE for given forecast result
 #' * [mase()] to compute MASE for given forecast result
 #' 
-#' @importFrom ggplot2 labs element_blank scale_colour_viridis_d
+#' @importFrom ggplot2 ggplot labs element_blank scale_colour_viridis_d facet_wrap
+#' @importFrom dplyr bind_rows
 #' @export
-plot_loss <- function(mod_list, 
-                      y, 
-                      type = c("mse", "mae", "mape", "mase"), 
-                      mean_line = FALSE,
-                      line_param = list(),
-                      mean_param = list(),
-                      viridis = FALSE, 
-                      viridis_option = "D", ...) {
+gg_loss <- function(mod_list, 
+                    y, 
+                    type = c("mse", "mae", "mape", "mase"), 
+                    mean_line = FALSE,
+                    line_param = list(),
+                    mean_param = list(),
+                    viridis = FALSE, 
+                    viridis_option = "D",
+                    NROW = NULL,
+                    NCOL = NULL, ...) {
+  # Input data for geom_loss----------------
+  data <- 
+    type %>% 
+    lapply(
+      function(loss) {
+        gather_loss(mod_list, y, loss)
+      }
+    ) %>% 
+    bind_rows()
   # plot------------------------------------
   p <- 
     ggplot() +
     geom_loss(
-      data = mod_list,
+      data = data,
       y_test = y,
       loss = type,
       mean_line = mean_line,
@@ -564,11 +578,17 @@ plot_loss <- function(mod_list,
       x = element_blank(),
       y = element_blank()
     )
-  # viridis----------------------------------
+  # viridis--------------------------------
   if (viridis) {
-    p +
+    p <- 
+      p +
       scale_colour_viridis_d(option = viridis_option)
-  } else {
+  }
+  # facet----------------------------------
+  if (length(type) == 1) {
     p
+  } else {
+    p +
+      facet_wrap(Loss ~ ., nrow = NROW, ncol = NCOL, scales = "free_y")
   }
 }
