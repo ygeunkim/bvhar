@@ -5,8 +5,13 @@ test_that("Test for varlse class", {
   
   expect_s3_class(fit_test_var, "varlse")
   
-  expect_equal(fit_test_var$p, test_lag)
-  expect_equal(fit_test_var$m, ncol(etf_vix))
-  expect_equal(fit_test_var$obs, nrow(etf_vix) - test_lag)
+  expect_equal(
+    nrow(fit_test_var$coef), 
+    ncol(etf_vix) * test_lag + 1
+  )
+  expect_equal(
+    ncol(fit_test_var$coef),
+    ncol(etf_vix)
+  )
 })
 #> Test passed 🌈

@@ -166,3 +166,15 @@ is.bvharcv <- function(x) {
 is.bvharspec <- function(x) {
   inherits(x, "bvharspec")
 }
+
+#' @rdname is.varlse
+#' @export
+is.bvharss_coef <- function(x) {
+  inherits(x, "bvharss_coef")
+}
+
+#' @rdname is.varlse
+#' @export
+is.bvharss_sig <- function(x) {
+  inherits(x, "bvharss_sig")
+}

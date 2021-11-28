@@ -9,6 +9,8 @@
 \alias{is.predbvhar}
 \alias{is.bvharcv}
 \alias{is.bvharspec}
+\alias{is.bvharss_coef}
+\alias{is.bvharss_sig}
 \title{See if the Object a class in this package}
 \usage{
 is.varlse(x)
@@ -26,6 +28,10 @@ is.predbvhar(x)
 is.bvharcv(x)
 
 is.bvharspec(x)
+
+is.bvharss_coef(x)
+
+is.bvharss_sig(x)
 }
 \arguments{
 \item{x}{Object}

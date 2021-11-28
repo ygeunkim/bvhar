@@ -553,6 +553,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vectorize_eigen
+Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x);
+RcppExport SEXP _bvhar_vectorize_eigen(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(vectorize_eigen(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_eigenvalues
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 RcppExport SEXP _bvhar_compute_eigenvalues(SEXP xSEXP) {
@@ -730,6 +741,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
+    {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},

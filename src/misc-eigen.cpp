@@ -12,6 +12,16 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' @noRd
 // [[Rcpp::export]]
+Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
+  Eigen::VectorXd res(Eigen::Map<Eigen::VectorXd>(
+    x.transpose().data(),
+    x.rows() * x.cols()
+  ));
+  return res;
+}
+
+//' @noRd
+// [[Rcpp::export]]
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
   return es.eigenvalues();

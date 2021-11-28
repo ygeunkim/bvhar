@@ -763,6 +763,11 @@ kronecker_eigen <- function(x, y) {
 }
 
 #' @noRd
+vectorize_eigen <- function(x) {
+    .Call(`_bvhar_vectorize_eigen`, x)
+}
+
+#' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
 }
