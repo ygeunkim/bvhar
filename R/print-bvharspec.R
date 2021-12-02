@@ -119,20 +119,18 @@ print.bvharss_coef <- function(x, digits = max(3L, getOption("digits") - 3L), ..
     "alpha[j] | gamma[j] ~ (1 - gamma[j])N(0, kappa[0j]^2)",
     " + gamma[j]N(0, kappa[1j]^2)"
   ))
-  # spike---------------------------------------------------
-  spike_vec <- vectorize_eigen(x$coef_spike)
+  # spike-------------------------------------
   cat("\nwhere head(kappa[0j]):\n")
   print.default(
-    head(spike_vec),
+    head(x$coef_spike),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
   )
   # slab--------------------------------------
   cat("and head(kappa[1j]):\n")
-  slab_vec <- vectorize_eigen(x$coef_slab)
   print.default(
-    head(slab_vec),
+    head(x$coef_slab),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -140,9 +138,8 @@ print.bvharss_coef <- function(x, digits = max(3L, getOption("digits") - 3L), ..
   # gamma-----------------------------------
   cat("\ngamma[j] ~ Bernoulli(q[j])\n")
   cat("where head(q[j]):\n")
-  prop_sparse <- vectorize_eigen(x$coef_mixture)
   print.default(
-    head(prop_sparse),
+    head(x$coef_mixture),
     digits = digits,
     print.gap = 2L,
     quote = FALSE

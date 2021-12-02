@@ -39,16 +39,24 @@ knit_print.bvharss_sig(x, ...)
 Set Hyperparameters for VAR covariance matrix (precision matrix).
 }
 \details{
-For precision matrix \eqn{\Sigma^{-1}}, SSVS applies Cholesky decomposition in MCMC.
-\deqn{\Sigma^{-1} = \Psi \Psi^T}
+For precision matrix \eqn{\Sigma_e^{-1}}, SSVS applies Cholesky decomposition.
+\deqn{\Sigma_e^{-1} = \Psi \Psi^T}
 where \eqn{\Psi = \{\psi_{ij}\}} is upper triangular.
 
-Diagonal components follow the gamma distribution with shape-rate notation.
-\deqn{\psi_{jj} \sim Gamma(a_j, b_j)}
-For each row of off-diagonal components, we apply spike-slab prior again.
+Diagonal components follow the gamma distribution.
+\deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
+For each row of off-diagonal (upper-triangular) components, we apply spike-slab prior again.
 \deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
-where \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m} (lower triangular part).
+\itemize{
+\item \code{shape}: \eqn{a_j}
+\item \code{rate}: \eqn{b_j}
+\item \code{spike_sd}: \eqn{\kappa_{0,ij}}
+\item \code{slab_sd}: \eqn{\kappa_{1,ij}}
+\item \code{prop_sparse}: \eqn{q_{ij}}
+\item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
+\item \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
+}
 }
 \references{
 Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via\%3Dihub}{10.1016/j.ijforecast.2009.11.002}

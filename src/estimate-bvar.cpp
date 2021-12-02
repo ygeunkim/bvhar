@@ -22,7 +22,7 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int num_design = y.rows(); // s = n - p
   int dim = y.cols(); // m
   int dim_design = x_dummy.cols(); // k = mp (+ 1)
@@ -91,7 +91,7 @@ Rcpp::List estimate_bvar_mn (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matrix
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_mn_flat (Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
+Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
   int num_design = y.rows();
   int dim = y.cols();
   int dim_design = x.cols();

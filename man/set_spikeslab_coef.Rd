@@ -13,11 +13,11 @@ set_spikeslab_coef(spike_sd = NULL, slab_sd = NULL, prop_sparse = NULL)
 knit_print.bvharss_coef(x, ...)
 }
 \arguments{
-\item{spike_sd}{Standard deviance for Spike normal distribution (in the form of coefficient matrix).}
+\item{spike_sd}{Standard deviance for Spike normal distribution (See Details).}
 
-\item{slab_sd}{Standard deviance for Slab normal distribution (in the form of coefficient matrix).}
+\item{slab_sd}{Standard deviance for Slab normal distribution (See Details).}
 
-\item{prop_sparse}{Bernoulli parameter for sparsity proportion (in the form of coefficient matrix).}
+\item{prop_sparse}{Bernoulli parameter for sparsity proportion (See Details).}
 
 \item{x}{\code{bvharss_coef} object}
 
@@ -33,18 +33,16 @@ Let \eqn{\alpha} be the vectorized coefficient,
 \deqn{\alpha = vec(A)}
 Spike-slab prior is given using two normal distributions.
 \deqn{\alpha_j \mid \gamma_j \sim (1 - \gamma_j) N(0, \kappa_{0j}^2) + \gamma_j N(0, \kappa_{1j}^2)}
-
 As spike-slab prior itself suggests, set \eqn{\kappa_{0j}} small (point mass at zero: spike distribution)
 and set \eqn{\kappa_{1j}} large (symmetric by zero: slab distribution).
-\itemize{
-\item \code{spike_sd} sets \eqn{\kappa_{0j}} in the form of matrix
-\item \code{slab_sd} sets \eqn{\kappa_{1j}} in the form of matrix
-}
 
 \eqn{\gamma_j} is the proportion of the nonzero coefficients and it follows
 \deqn{\gamma_j \sim Bernoulli(q_j)}
 \itemize{
-\item \code{prop_sparse} sets \eqn{q_j} in the form of matrix
+\item \code{spike_sd}: \eqn{\kappa_{0j}}
+\item \code{slab_sd}: \eqn{\kappa_{1j}}
+\item \code{prop_sparse}: \eqn{q_j}
+\item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 }
 }
 \references{

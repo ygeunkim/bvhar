@@ -8,7 +8,7 @@
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
-#' Minnesota prior give prior to parameters \eqn{B} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
+#' Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
 #' 
 #' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
