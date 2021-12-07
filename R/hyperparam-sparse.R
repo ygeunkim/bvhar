@@ -1,3 +1,60 @@
+#' Initializing Spike and Slab SD
+#' 
+#' Initialize spike-and-slab sd of Normal distribution
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param p VAR lag
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param spikeslab_const Preselected constant.
+#' @details 
+#' * \eqn{\kappa_{0j} = c_0 \sqrt{\hat{VAR}(\alpha_j)}}
+#' * \eqn{\kappa_{0j} = c_1 \sqrt{\hat{VAR}(\alpha_j)}}
+#' 
+#' Note that \eqn{c_0 <<< c_1}.
+#' Jochmann et al. (2010) suggested \eqn{c_0 = .1} and \eqn{c_1 = 10}.
+#' 
+#' @references 
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
+#' @noRd
+init_spikeslab_sd <- function(y, p, spikeslab_const = .1, include_mean = TRUE) {
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  # model specification---------------
+  if (!is.bvharss_spec(bayes_spec)) {
+    stop("Provide 'bvharss_spec' for 'bayes_spec'.")
+  }
+  # Y0 = X0 B + Z---------------------
+  dim_data <- ncol(y) # m
+  num_design <- nrow(Y0) # s
+  dim_design <- dim_data * p + 1 # k
+  Y0 <- build_y0(y, p, p + 1)
+  X0 <- build_design(y, p)
+  # const or none---------------------
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
+  if (!include_mean) {
+    X0 <- X0[, -dim_design] # exclude 1 column
+    dim_design <- dim_design - 1 # df = no intercept
+  }
+  # regression analysis---------------
+  y_vec <- vectorize_eigen(Y0) # Y: m x 1
+  reg_design <- 
+    kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
+    qr_eigen() # QR, Q: ms x mk, R: mk x mk
+  # SSE = Y^T (I - HAT) Y, HAT = X (X^T X)^(-1) X^T = QQ^T
+  sse <- y_vec %*% (diag(dim_data * dim_design) - tcrossprod(reg_design$orthogonal)) %*% t(y_vec)
+  # VAR(alpha) = SSE / df * (X^T X)^(-1) = SSE / df * (R^T R)^(-1), df = ms - mk + 1
+  ols_var <- diag(sse * reg_design$upper / (dim_data * (num_design - dim_design) + 1))
+  spikeslab_const * sqrt(ols_var) # c * sqrt(VAR(alpha_j))
+}
+
 #' Spike and Slab Hyperparameter for VAR Coefficient
 #' 
 #' Set Hyperparameters for VAR coefficient matrix.
