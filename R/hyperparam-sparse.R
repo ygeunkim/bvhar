@@ -25,15 +25,11 @@ init_spikeslab_sd <- function(y, p, spikeslab_const = .1, include_mean = TRUE) {
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
-  # model specification---------------
-  if (!is.bvharss_spec(bayes_spec)) {
-    stop("Provide 'bvharss_spec' for 'bayes_spec'.")
-  }
   # Y0 = X0 B + Z---------------------
   dim_data <- ncol(y) # m
-  num_design <- nrow(Y0) # s
   dim_design <- dim_data * p + 1 # k
   Y0 <- build_y0(y, p, p + 1)
+  num_design <- nrow(Y0) # s
   X0 <- build_design(y, p)
   # const or none---------------------
   if (!is.logical(include_mean)) {
@@ -47,11 +43,13 @@ init_spikeslab_sd <- function(y, p, spikeslab_const = .1, include_mean = TRUE) {
   y_vec <- vectorize_eigen(Y0) # Y: m x 1
   reg_design <- 
     kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
-    qr_eigen() # QR, Q: ms x mk, R: mk x mk
+    qr() # QR, Q: ms x mk, R: mk x mk
+  reg_q <- qr.Q(reg_design)
+  reg_r <- qr.R(reg_design)
   # SSE = Y^T (I - HAT) Y, HAT = X (X^T X)^(-1) X^T = QQ^T
-  sse <- y_vec %*% (diag(dim_data * dim_design) - tcrossprod(reg_design$orthogonal)) %*% t(y_vec)
+  sse <- c( crossprod(y_vec) - crossprod(qr.qty(reg_design, y_vec)) )
   # VAR(alpha) = SSE / df * (X^T X)^(-1) = SSE / df * (R^T R)^(-1), df = ms - mk + 1
-  ols_var <- diag(sse * reg_design$upper / (dim_data * (num_design - dim_design) + 1))
+  ols_var <- sse / (dim_data * (num_design - dim_design) + 1) * diag(crossprod(reg_r))
   spikeslab_const * sqrt(ols_var) # c * sqrt(VAR(alpha_j))
 }
 

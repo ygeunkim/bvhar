@@ -46,10 +46,10 @@ bvar_ssvs <- function(y,
     stop("Provide 'bvharss_spec' for 'bayes_spec'.")
   }
   # Y0 = X0 B + Z---------------------
-  dim_data <- ncol(y)
-  num_design <- nrow(Y0)
-  dim_design <- dim_data * p + 1
+  dim_data <- ncol(y) # m
+  dim_design <- dim_data * p + 1 # k
   Y0 <- build_y0(y, p, p + 1)
+  num_design <- nrow(Y0) # s
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
