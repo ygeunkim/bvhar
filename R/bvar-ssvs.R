@@ -5,6 +5,8 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
+#' @param num_iter MCMC iteration number
+#' @param num_burn Number of burn-in
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
@@ -26,7 +28,13 @@
 #' 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
 #' 
-bvar_ssvs <- function(y, p, bayes_spec = set_ssvs(), include_mean = TRUE) {
+bvar_ssvs <- function(y, 
+                      p, 
+                      num_iter, 
+                      num_burn, 
+                      num_thin = 1L, 
+                      bayes_spec = set_ssvs(), 
+                      include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -61,21 +69,30 @@ bvar_ssvs <- function(y, p, bayes_spec = set_ssvs(), include_mean = TRUE) {
     dim_design <- dim_design - 1 # df = no intercept
   }
   # error for bvharss_spec-----------
-  if (length(bayes_spec$coef_spike) != dim_data * dim_design) {
-    stop("Invalid model specification.")
-  }
-  if (length(bayes_spec$coef_mixture) != dim_data * dim_design) {
-    stop("Invalid model specification.")
-  }
-  if (length(bayes_spec$cov_shape) != dim_data) {
-    stop("Invalid model specification.")
-  }
-  if (length(bayes_spec$cov_spike) != dim_data * (dim_data - 1) / 2) {
-    stop("Invalid model specification.")
-  }
-  if (length(bayes_spec$cov_mixture) != dim_data * (dim_data - 1) / 2) {
+  if ((nrow(bayes_spec$init_coef) != dim_design) || (ncol(bayes_spec$init_coef) != dim_data)) {
     stop("Invalid model specification.")
   }
   # for Initial values---------------
-  3 # temporary
+  if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+    y_vec <- vectorize_eigen(Y0) # Y: m x 1
+    reg_design <- 
+      kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
+      qr_eigen() # QR, Q: ms x mk, R: mk x mk
+    # SSE = Y^T (I - HAT) Y, HAT = X (X^T X)^(-1) X^T = QQ^T
+    sse <- y_vec %*% (diag(dim_data * dim_design) - tcrossprod(reg_design$orthogonal)) %*% t(y_vec)
+    # SSE / df * (X^T X)^(-1) = SSE / df * (R^T R)^(-1), df = ms - mk + 1
+    ols_var <- diag(sse * reg_design$upper / (dim_data * (num_design - dim_design) + 1))
+    bayes_spec$coef_spike <- .1 * sqrt(ols_var) # c0 sqrt(var)
+    bayes_spec$coef_slab <- 10 * sqrt(ols_var) # c1 sqrt(var)
+  }
+  # when cov_spike and cov_slab are not specified
+  
+  # MCMC-----------------------------
+  # ssvs_res <- estimate_bvar_ssvs(
+  #   num_iter,
+  #   X0,
+  #   Y0,
+  #   
+  # )
+  3
 }

@@ -27,6 +27,18 @@ Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
   return es.eigenvalues();
 }
 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List qr_eigen(Eigen::Map<Eigen::MatrixXd> x) {
+  Eigen::HouseholderQR<Eigen::MatrixXd> qr(x); // x = QR
+  Eigen::MatrixXd q = qr.householderQ(); // Q orthogonal
+  Eigen::MatrixXd r = qr.matrixQR().triangularView<Eigen::Upper>(); // R upper
+  return Rcpp::List::create(
+    Rcpp::Named("orthogonal") = q,
+    Rcpp::Named("upper") = r
+  );
+}
+
 //' Multivariate Gamma Function
 //' 
 //' Compute multivariate gamma function numerically

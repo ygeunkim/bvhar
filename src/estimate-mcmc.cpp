@@ -11,7 +11,7 @@
 //' @param col_index Choose the column index of cholesky factor
 //' @param cov_spike Standard deviance for Spike normal distribution, for covariance prior
 //' @param cov_slab Standard deviance for Slab normal distribution, for covariance prior
-//' @param prop_sparse Indicator vector corresponding to each component
+//' @param prop_sparse Indicator vector (0-1) corresponding to each component
 //' 
 //' @references
 //' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
@@ -175,7 +175,7 @@ Eigen::VectorXd ssvs_cov_latent(Eigen::MatrixXd chol_factor,
 //' 
 //' @param coef_spike Standard deviance for Spike normal distribution
 //' @param coef_slab Standard deviance for Slab normal distribution
-//' @param prop_sparse Indicator vector corresponding to each coefficient
+//' @param prop_sparse Indicator vector (0-1) corresponding to each coefficient
 //' 
 //' @references
 //' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
@@ -263,18 +263,21 @@ Eigen::VectorXd ssvs_coef_latent(Eigen::VectorXd coef_vec,
 //' 
 //' Compute MCMC for SSVS prior
 //' 
+//' @param num_iter Number of iteration for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_coef Initial k x m coefficient matrix.
+//' @param init_coef_sparse Indicator vector (0-1) corresponding to each coefficient vector
 //' @param init_cov Initial m x m variance matrix.
+//' @param init_cov_sparse Indicator vector (0-1) corresponding to each covariance component
 //' @param coef_spike Standard deviance for Spike normal distribution
 //' @param coef_slab Standard deviance for Slab normal distribution
-//' @param coef_sparse Bernoulli parameter for sparsity proportion
+//' @param coef_prop Bernoulli parameter for sparsity proportion
 //' @param cov_shape Gamma shape parameters for precision matrix
 //' @param cov_rate Gamma rate parameters for precision matrix
 //' @param cov_spike Standard deviance for Spike normal distribution, for covariance prior
 //' @param cov_slab Standard deviance for Slab normal distribution, for covariance prior
-//' @param cov_sparse Bernoulli parameter for sparsity proportion, for covariance prior
+//' @param cov_prop Bernoulli parameter for sparsity proportion, for covariance prior
 //' @details
 //' 1. Diagonal components of cholesky factor from Gamma distribution
 //' 2. Off-diagonal components from Normal distribution
@@ -293,20 +296,24 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::MatrixXd x, 
                               Eigen::MatrixXd y, 
                               Eigen::MatrixXd init_coef,
+                              Eigen::VectorXd init_coef_sparse,
                               Eigen::Map<Eigen::MatrixXd> init_cov,
+                              Eigen::VectorXd init_cov_sparse,
                               Eigen::VectorXd coef_spike,
                               Eigen::VectorXd coef_slab,
-                              Eigen::VectorXd coef_sparse,
+                              Eigen::VectorXd coef_prop,
                               Eigen::VectorXd cov_shape,
                               Eigen::VectorXd cov_rate,
                               Eigen::VectorXd cov_spike,
                               Eigen::VectorXd cov_slab,
-                              Eigen::VectorXd cov_sparse) {
+                              Eigen::VectorXd cov_prop) {
   int dim = y.cols(); // m
   int dim_design = x.cols(); // k = mp (+ 1)
   int num_design = y.rows(); // s = n - p
-  // Eigen::MatrixXd coef_mat(dim_design, dim); // A: k x m
+  Eigen::MatrixXd coef_mat(dim_design, dim); // A: k x m
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
+  coef_mat = XtX.inverse() * x.transpose() * y; // Ahat
+  Eigen::VectorXd coef_lse = vectorize_eigen(coef_mat); // alphahat = vec(Ahat)
   // initial for coefficient-----------------------------------------------------------
   if (init_coef.rows() != dim_design) {
     Rcpp::stop("Invalid number of nrow of 'init_coef'.");
@@ -314,10 +321,13 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   if (init_coef.cols() != dim) {
     Rcpp::stop("Invalid number of ncol of 'init_coef'.");
   }
+  if (init_coef_sparse.size() != dim * dim_design) {
+    Rcpp::stop("Invalid length of 'init_coef_sparse'.");
+  }
   Eigen::MatrixXd resid_mat = y - x * init_coef; // Z = Y0 - X0 B
   Eigen::MatrixXd ZtZ = resid_mat.transpose() * resid_mat; // (Y0 - X0 B)^T (Y0 - X0 B)
   Eigen::VectorXd coef_vec = vectorize_eigen(init_coef); // alphahat = vec(A)
-  Eigen::MatrixXd diag_coef_sparse(coef_sparse.size(), coef_sparse.size()); // D: mk x mk
+  Eigen::MatrixXd diag_coef_sparse(init_coef_sparse.size(), init_coef_sparse.size()); // D: mk x mk
   Eigen::MatrixXd diag_cov_sparse(dim - 1, dim - 1); // large matrix to assign diag_sparse of cov
   // initial for covariance matrix: Sigma_e^(-1) = Psi * Psi^T--------------------------
   Eigen::LLT<Eigen::MatrixXd> lltOfcov(init_cov); // Sigma = LL^T
@@ -325,29 +335,38 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::stop("'init_cov' should be positive definite matrix."); // Sigma is pd
   }
   Eigen::MatrixXd chol_upper = lltOfcov.matrixL().transpose(); // Psi = (L^(-1))^T: upper
-  
+  // Trace for MCMC---------------------------------------------------------------------
+  Eigen::MatrixXd coef_trace(num_iter, dim * dim_design); // record alpha in MCMC
+  coef_trace.row(0) = vectorize_eigen(init_coef); // alphahat = vec(A)
+  // Diagonal
+  // Off-diagonal
+  // Coef-sparsity
+  // Cov-sparsity
   // Gibbs sampler iteration------------------------------------------------------------
   for (int t = 0; t < num_iter; t++) {
     // 1. diagonal components of cholesky factor
     chol_upper(0, 0) = ssvs_cov_diag(0, ZtZ, diag_cov_sparse, cov_shape, cov_rate); // Gamma
     for (int i = 1; i < dim; i++) {
-      diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, cov_spike, cov_slab, cov_sparse); // Fj
+      diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, cov_spike, cov_slab, init_cov_sparse); // Fj
       chol_upper(i, i) = ssvs_cov_diag(i, ZtZ, diag_cov_sparse.block(0, 0, i, i), cov_shape, cov_rate); // sqrt of Gamma
     }
     // 2. Off-diagonal components
     for (int j = 1; j < dim; j++) {
-      diag_cov_sparse.block(0, 0, j, j) = ssvs_cov_prop(j, cov_spike, cov_slab, cov_sparse); // Fj
+      diag_cov_sparse.block(0, 0, j, j) = ssvs_cov_prop(j, cov_spike, cov_slab, init_cov_sparse); // Fj
       chol_upper.block(0, j, j - 1, 1) = ssvs_cov_off(j, ZtZ, chol_upper, diag_cov_sparse.block(0, 0, j, j));
     }
     // 3. Sparsity proportion of variance matrix
-    
+    init_cov_sparse = ssvs_cov_latent(chol_upper, cov_spike, cov_slab, cov_prop); // Bernoulli
     // 4. Coefficient
-    
+    diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse); // D
+    coef_vec = ssvs_coef(XtX, coef_lse, chol_upper, diag_coef_sparse); // Normal
     // 5. Sparsity proportion of coefficient
+    init_coef_sparse = ssvs_coef_latent(coef_vec, coef_spike, coef_slab, coef_prop);
   }
-  
-  
-  
-  
-  return Rcpp::List::create(coef_vec, diag_coef_sparse); // temporary
+  return Rcpp::List::create(
+    Rcpp::Named("coef") = coef_vec,
+    Rcpp::Named("cov") = chol_upper,
+    Rcpp::Named("coef_prop") = init_coef_sparse,
+    Rcpp::Named("cov_prop") = init_cov_sparse
+  );
 }

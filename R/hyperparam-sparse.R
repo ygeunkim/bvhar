@@ -38,8 +38,8 @@ set_spikeslab_coef <- function(spike_sd = NULL, slab_sd = NULL, prop_sparse = NU
   if (!is.vector(prop_sparse)) {
     stop("'prop_sparse' should be vectorized.")
   }
-  if (length(spike_sd) != length(slab_sd)) {
-    stop("The length of 'spike_sd' and 'spike_sd' should be the same.")
+  if ((length(spike_sd) != length(slab_sd)) || (length(prop_sparse) != length(spike_sd))) {
+    stop("The length of 'spike_sd', 'spike_sd', and 'prop_sparse' should be the same.") # mk
   }
   coef_param <- list(
     coef_spike = spike_sd,
@@ -108,8 +108,8 @@ set_spikeslab_cov <- function(shape = NULL,
   if (!is.vector(prop_sparse)) {
     stop("'prop_sparse' should be vectorized.")
   }
-  if (length(spike_sd) != length(slab_sd)) {
-    stop("The length of 'spike_sd' and 'spike_sd' should be the same.")
+  if ((length(spike_sd) != length(slab_sd)) || (length(prop_sparse) != length(prop_sparse))) {
+    stop("The length of 'spike_sd', 'spike_sd', and 'prop_sparse' should be the same.") # upper triangular
   }
   cov_param <- list(
     cov_shape = shape,
@@ -122,10 +122,14 @@ set_spikeslab_cov <- function(shape = NULL,
   cov_param
 }
 
-#' Hyperparameters for SSVS Model
+#' Initial parameters and Hyperparameters for SSVS Model
 #' 
-#' Set hyperparameters of stochastic search variable selection for Bayesian VAR model.
+#' Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
 #' 
+#' @param init_coef Initial k x m coefficient matrix.
+#' @param init_coef_sparse Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.
+#' @param init_sig Initial m x m variance matrix.
+#' @param init_sig_sparse Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.
 #' @param coef_ss Spike and slab specification for vectorized coefficient, using [set_spikeslab_coef()].
 #' @param sig_ss Spike and slab specification for covariance matrix, using [set_spikeslab_cov()].
 #' @details 
@@ -142,14 +146,71 @@ set_spikeslab_cov <- function(shape = NULL,
 #' 
 #' @order 1
 #' @export
-set_ssvs <- function(coef_ss = set_spikeslab_coef(), sig_ss = set_spikeslab_cov()) {
+set_ssvs <- function(init_coef,
+                     init_coef_sparse,
+                     init_sig,
+                     init_sig_sparse,
+                     coef_ss = set_spikeslab_coef(), 
+                     sig_ss = set_spikeslab_cov()) {
   if (!is.bvharss_coef(coef_ss)) {
     stop("Invalid 'coef_ss'.")
   }
   if (!is.bvharss_sig(sig_ss)) {
     stop("Invalid 'sig_ss'.")
   }
+  # Dimensions of parameters---------------------------
+  dim_design <- nrow(init_coef) # k
+  dim_data <- ncol(init_coef) # m
+  if ((nrow(init_coef_sparse) == dim_design) && (ncol(init_coef_sparse) == dim_data)) {
+    stop("Invalid dimension of 'init_coef_sparse'.")
+  }
+  if ((dim_data != ncol(init_sig)) || (dim_data != nrow(init_sig))) {
+    stop("Invalid dimension of 'init_sig'.") # init_sig: m x m
+  }
+  if ((nrow(init_sig_sparse) == dim_data) && (ncol(init_sig_sparse) == dim_data)) {
+    stop("Invalid dimension of 'init_sig_sparse'.")
+  }
+  # Initial values if NULL-----------------------------
+  if (is.null(coef_ss$coef_spike)) {
+    coef_ss$coef_spike <- rep(NA, dim_data * dim_design) # NA vector of length mk - compute in bvar_ssvs
+  }
+  if (is.null(coef_ss$coef_slab)) {
+    coef_ss$coef_slab <- rep(NA, dim_data * dim_design) # NA vector of length mk - compute in bvar_ssvs
+  }
+  if (is.null(coef_ss$coef_mixture)) {
+    coef_ss$coef_mixture <- rep(.5, dim_data * dim_design) # natural default choice
+  }
+  if (is.null(sig_ss$cov_shape)) {
+    sig_ss$cov_shape <- rep(2.2, dim_data) # non-informative choice
+  }
+  if (is.null(sig_ss$cov_rate)) {
+    sig_ss$cov_rate <- rep(.24, dim_data) # non-informative choice
+  }
+  if (is.null(sig_ss$cov_spike)) {
+    sig_ss$cov_spike <- rep(NA, dim_data * (dim_data - 1) / 2) # NA vector of length m(m-1) / 2 - compute in bvar_ssvs
+  }
+  if (is.null(sig_ss$cov_slab)) {
+    sig_ss$cov_slab <- rep(NA, dim_data * (dim_data - 1) / 2) # NA vector of length m(m-1) / 2 - compute in bvar_ssvs
+  }
+  if (is.null(sig_ss$cov_mixture)) {
+    sig_ss$cov_mixture <- rep(.5, dim_data * (dim_data - 1) / 2)
+  }
+  # Dimensions of hyperparameters----------------------
+  if (length(coef_ss$coef_mixture) != dim_data * dim_design) {
+    stop("Invalid length of Coefficients spike-and-slab hyperparameters.") # mk
+  }
+  if (length(sig_ss$cov_shape) != dim_data) {
+    stop("Invalid length of Gamma hyperparameters.") # m
+  }
+  if (length(sig_ss$cov_mixture) != dim_data * (dim_data - 1) / 2) {
+    stop("Invalid length of Variance spike-and-slab hyperparameters.") # m * (m - 1) / 2
+  }
+  # return--------------------------------------------
   ssvs_param <- append(coef_ss, sig_ss)
+  ssvs_param$init_coef <- init_coef
+  ssvs_param$init_coef_sparse <- init_coef_sparse
+  ssvs_param$init_cov <- init_sig
+  ssvs_param$init_cov_sparse <- init_sig_sparse
   class(ssvs_param) <- "bvharss_spec"
   ssvs_param
 }
