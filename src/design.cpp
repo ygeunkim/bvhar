@@ -180,7 +180,7 @@ Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
+Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   int dim = y_dummy.cols(); // m
   int dim_design = x_dummy.cols(); // k
   Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
@@ -194,7 +194,7 @@ Rcpp::List minnesota_prior (Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
     Rcpp::Named("prior_scale") = prior_scale,
-    Rcpp::Named("prior_shape") = prior_shape
+    Rcpp::Named("prior_shape") = prior_shape + 2
   );
 }
 
