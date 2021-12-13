@@ -48,7 +48,7 @@ bvar_ssvs <- function(y,
   # Y0 = X0 B + Z---------------------
   dim_data <- ncol(y) # m
   dim_design <- dim_data * p + 1 # k
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_y0(y, p, p + 1) # s x m
   num_design <- nrow(Y0) # s
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -56,7 +56,7 @@ bvar_ssvs <- function(y,
     name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p)
+  X0 <- build_design(y, p) # s x k
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
@@ -74,7 +74,7 @@ bvar_ssvs <- function(y,
   }
   # for Initial values---------------
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-    y_vec <- vectorize_eigen(Y0) # Y: m x 1
+    y_vec <- vectorize_eigen(Y0) # Y: ms x 1
     reg_design <- 
       kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
       qr_eigen() # QR, Q: ms x mk, R: mk x mk

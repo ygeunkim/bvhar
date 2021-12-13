@@ -28,9 +28,9 @@ init_spikeslab_sd <- function(y, p, spikeslab_const = .1, include_mean = TRUE) {
   # Y0 = X0 B + Z---------------------
   dim_data <- ncol(y) # m
   dim_design <- dim_data * p + 1 # k
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_y0(y, p, p + 1) # s x m
   num_design <- nrow(Y0) # s
-  X0 <- build_design(y, p)
+  X0 <- build_design(y, p) # s x k
   # const or none---------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
@@ -40,13 +40,13 @@ init_spikeslab_sd <- function(y, p, spikeslab_const = .1, include_mean = TRUE) {
     dim_design <- dim_design - 1 # df = no intercept
   }
   # regression analysis---------------
-  y_vec <- vectorize_eigen(Y0) # Y: m x 1
+  y_vec <- vectorize_eigen(Y0) # Y: ms x 1
   reg_design <- 
     kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
     qr() # QR, Q: ms x mk, R: mk x mk
   reg_q <- qr.Q(reg_design)
   reg_r <- qr.R(reg_design)
-  # SSE = Y^T (I - HAT) Y, HAT = X (X^T X)^(-1) X^T = QQ^T
+  # SSE = Y^T (I - HAT) Y = Y^T resid, HAT = X (X^T X)^(-1) X^T = QQ^T
   sse <- c( crossprod(y_vec) - crossprod(qr.qty(reg_design, y_vec)) )
   # VAR(alpha) = SSE / df * (X^T X)^(-1) = SSE / df * (R^T R)^(-1), df = ms - mk + 1
   ols_var <- sse / (dim_data * (num_design - dim_design) + 1) * diag(crossprod(reg_r))
