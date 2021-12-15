@@ -446,7 +446,105 @@ mrae.bvharcv <- function(x, pred_bench, y, ...) {
   )
 }
 
-#' Print Method for `bvharcv` object
+#' Evaluate the Model Based on RelMAE (Relative MAE)
+#' 
+#' This function computes RelMAE given prediction result versus evaluation set.
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+relmae <- function(x, pred_bench, y, ...) {
+  UseMethod("relmae", x)
+}
+
+#' @rdname relmae
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
+#' RelMAE implements MAE of benchmark model as relative measures.
+#' Let \eqn{MAE_b} be the MAE of the benchmark model.
+#' Then
+#' 
+#' \deqn{RelMAE = \frac{MAE}{MAE_b}}
+#' 
+#' where \eqn{MAE} is the MAE of our model.
+#' 
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' @export
+relmae.predbvhar <- function(x, pred_bench, y, ...) {
+  mae(x, y) / mae(pred_bench, y)
+}
+
+#' @rdname relmae
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+relmae.bvharcv <- function(x, pred_bench, y, ...) {
+  mae(x, y) / mae(pred_bench, y)
+}
+
+#' Evaluate the Model Based on RMSFE
+#' 
+#' This function computes RMSFE (Mean Squared Forecast Error Relative to the Benchmark)
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmsfe <- function(x, pred_bench, y, ...) {
+  UseMethod("rmsfe", x)
+}
+
+#' @rdname rmsfe
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
+#' RMSFE is the ratio of L2 norm of \eqn{e_t} from forecasting object and from benchmark model.
+#' 
+#' \deqn{RMSFE = \frac{sum(\lVert e_t \rVert)}{sum(\lVert e_{t,b} \rVert)}}
+#' 
+#' where \eqn{e_{t,b}} is the error from the benchmark model.
+#' 
+#' @references 
+#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' 
+#' @export
+rmsfe.predbvhar <- function(x, pred_bench, y, ...) {
+  sum(mse(x, y)) / sum(mse(pred_bench, y))
+}
+
+#' @rdname rmsfe
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmsfe.bvharcv <- function(x, pred_bench, y, ...) {
+  sum(mse(x, y)) / sum(mse(pred_bench, y))
+}
+
 #' @rdname forecast_roll
 #' @param x `bvharcv` object
 #' @param digits digit option to print
