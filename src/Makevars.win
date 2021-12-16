@@ -1,4 +1,5 @@
-PKG_CXXFLAGS = -I"../inst/include"
+# add -D EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS against pragma clang diagnostic pop warnings
+PKG_CXXFLAGS = -I"../inst/include" -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
 
 ## With Rcpp 0.11.0 and later, we no longer need to set PKG_LIBS as there is
 ## no user-facing library. The include path to headers is already set by R.
