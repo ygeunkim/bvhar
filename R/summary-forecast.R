@@ -519,12 +519,14 @@ rmsfe <- function(x, pred_bench, y, ...) {
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' RMSFE is the ratio of L2 norm of \eqn{e_t} from forecasting object and from benchmark model.
 #' 
-#' \deqn{RMSFE = \frac{sum(\lVert e_t \rVert)}{sum(\lVert e_{t,b} \rVert)}}
+#' \deqn{RMSFE = \frac{sum(\lVert e_t \rVert)}{sum(\lVert e_t^{(b)} \rVert)}}
 #' 
-#' where \eqn{e_{t,b}} is the error from the benchmark model.
+#' where \eqn{e_t^{(b)}} is the error from the benchmark model.
 #' 
 #' @references 
 #' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
@@ -545,29 +547,54 @@ rmsfe.bvharcv <- function(x, pred_bench, y, ...) {
   sum(mse(x, y)) / sum(mse(pred_bench, y))
 }
 
-#' @rdname forecast_roll
-#' @param x `bvharcv` object
-#' @param digits digit option to print
+#' Evaluate the Model Based on RMAFE
+#' 
+#' This function computes RMAFE (Mean Absolute Forecast Error Relative to the Benchmark)
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
-#' @order 2
+#' 
 #' @export
-print.bvharcv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  print(x$forecast)
-  invisible(x)
+rmafe <- function(x, pred_bench, y, ...) {
+  UseMethod("rmafe", x)
 }
 
-#' @rdname forecast_roll
-#' @param x `bvharcv` object
+#' @rdname rmafe
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
-#' @order 3
+#' @details 
+#' Let \eqn{e_t = y_t - \hat{y}_t}.
+#' RMAFE is the ratio of L1 norm of \eqn{e_t} from forecasting object and from benchmark model.
+#' 
+#' \deqn{RMAFE = \frac{sum(\lvert e_t \rvert)}{sum(\lvert e_t^{(b)} \rvert)}}
+#' 
+#' where \eqn{e_t^{(b)}} is the error from the benchmark model.
+#' 
+#' @references 
+#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' 
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' 
 #' @export
-knit_print.bvharcv <- function(x, ...) {
-  print(x)
+rmafe.predbvhar <- function(x, pred_bench, y, ...) {
+  sum(mae(x, y)) / sum(mae(pred_bench, y))
 }
 
+#' @rdname rmafe
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
 #' @export
-registerS3method(
-  "knit_print", "bvharcv",
-  knit_print.bvharcv,
-  envir = asNamespace("knitr")
-)
+rmafe.bvharcv <- function(x, pred_bench, y, ...) {
+  sum(mae(x, y)) / sum(mae(pred_bench, y))
+}
