@@ -74,18 +74,32 @@ bvar_ssvs <- function(y,
   }
   # for Initial values---------------
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-    y_vec <- vectorize_eigen(Y0) # Y: ms x 1
-    reg_design <- 
-      kronecker_eigen(diag(dim_data), X0) %>% # X = Im otimes X0: ms x mk
-      qr_eigen() # QR, Q: ms x mk, R: mk x mk
-    # SSE = Y^T (I - HAT) Y, HAT = X (X^T X)^(-1) X^T = QQ^T
-    sse <- y_vec %*% (diag(dim_data * dim_design) - tcrossprod(reg_design$orthogonal)) %*% t(y_vec)
-    # SSE / df * (X^T X)^(-1) = SSE / df * (R^T R)^(-1), df = ms - mk + 1
-    ols_var <- diag(sse * reg_design$upper / (dim_data * (num_design - dim_design) + 1))
-    bayes_spec$coef_spike <- .1 * sqrt(ols_var) # c0 sqrt(var)
-    bayes_spec$coef_slab <- 10 * sqrt(ols_var) # c1 sqrt(var)
+    spikeslab_sd <- init_spikeslab_sd(
+      y = y, 
+      p = p, 
+      spike_const = .1, 
+      slab_const = 10, 
+      include_mean = include_mean, 
+      num_iter = 100
+    )
+    bayes_spec$coef_spike <- spikeslab_sd$spike # c0 sqrt(var)
+    bayes_spec$coef_slab <- spikeslab_sd$slab # c1 sqrt(var)
   }
-  # when cov_spike and cov_slab are not specified
+  if (all(is.na(bayes_spec$cov_spike)) || all(is.na(bayes_spec$cov_slab))) {
+    spikeslab_sd <- init_spikeslab_sd(
+      y = y, 
+      p = p, 
+      spike_const = .1, 
+      slab_const = 10, 
+      include_mean = include_mean, 
+      num_iter = 100
+    )
+    bayes_spec$coef_spike <- spikeslab_sd$spike # c0 sqrt(var)
+    bayes_spec$coef_slab <- spikeslab_sd$slab # c1 sqrt(var)
+  }
+  
+  
+  
   
   # MCMC-----------------------------
   # ssvs_res <- estimate_bvar_ssvs(
