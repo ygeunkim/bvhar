@@ -2,17 +2,32 @@
 % Please edit documentation in R/hyperparam-sparse.R
 \name{set_ssvs}
 \alias{set_ssvs}
-\title{Hyperparameters for SSVS Model}
+\title{Initial parameters and Hyperparameters for SSVS Model}
 \usage{
-set_ssvs(coef_ss = set_spikeslab_coef(), sig_ss = set_spikeslab_cov())
+set_ssvs(
+  init_coef,
+  init_coef_sparse,
+  init_sig,
+  init_sig_sparse,
+  coef_ss = set_spikeslab_coef(),
+  sig_ss = set_spikeslab_cov()
+)
 }
 \arguments{
+\item{init_coef}{Initial k x m coefficient matrix.}
+
+\item{init_coef_sparse}{Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.}
+
+\item{init_sig}{Initial m x m variance matrix.}
+
+\item{init_sig_sparse}{Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.}
+
 \item{coef_ss}{Spike and slab specification for vectorized coefficient, using \code{\link[=set_spikeslab_coef]{set_spikeslab_coef()}}.}
 
 \item{sig_ss}{Spike and slab specification for covariance matrix, using \code{\link[=set_spikeslab_cov]{set_spikeslab_cov()}}.}
 }
 \description{
-Set hyperparameters of stochastic search variable selection for Bayesian VAR model.
+Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
 }
 \details{
 Get the default SSVS setting for given VAR model.

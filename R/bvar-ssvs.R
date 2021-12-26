@@ -7,6 +7,7 @@
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in
+#' @param num_thin Number of thinning
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
 #' @details 
@@ -72,41 +73,31 @@ bvar_ssvs <- function(y,
   if ((nrow(bayes_spec$init_coef) != dim_design) || (ncol(bayes_spec$init_coef) != dim_data)) {
     stop("Invalid model specification.")
   }
-  # for Initial values---------------
+  # Temporary before making semiautomatic function---------
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-    spikeslab_sd <- init_spikeslab_sd(
-      y = y, 
-      p = p, 
-      spike_const = .1, 
-      slab_const = 10, 
-      include_mean = include_mean, 
-      num_iter = 100
-    )
-    bayes_spec$coef_spike <- spikeslab_sd$spike # c0 sqrt(var)
-    bayes_spec$coef_slab <- spikeslab_sd$slab # c1 sqrt(var)
+    stop("Specify spike-and-slab of coefficients.")
   }
   if (all(is.na(bayes_spec$cov_spike)) || all(is.na(bayes_spec$cov_slab))) {
-    spikeslab_sd <- init_spikeslab_sd(
-      y = y, 
-      p = p, 
-      spike_const = .1, 
-      slab_const = 10, 
-      include_mean = include_mean, 
-      num_iter = 100
-    )
-    bayes_spec$coef_spike <- spikeslab_sd$spike # c0 sqrt(var)
-    bayes_spec$coef_slab <- spikeslab_sd$slab # c1 sqrt(var)
+    stop("Specify spike-and-slab of covariance.")
   }
-  
-  
-  
-  
   # MCMC-----------------------------
-  # ssvs_res <- estimate_bvar_ssvs(
-  #   num_iter,
-  #   X0,
-  #   Y0,
-  #   
-  # )
-  3
+  ssvs_res <- estimate_bvar_ssvs(
+    num_iter,
+    X0,
+    Y0,
+    bayes_spec$init_coef,
+    bayes_spec$init_coef_sparse,
+    bayes_spec$init_cov,
+    bayes_spec$init_cov_sparse,
+    bayes_spec$coef_spike,
+    bayes_spec$coef_slab,
+    bayes_spec$coef_mixture,
+    bayes_spec$cov_shape,
+    bayes_spec$cov_rate,
+    bayes_spec$cov_spike,
+    bayes_spec$cov_slab,
+    bayes_spec$cov_mixture
+  )
+  class(ssvs_res) <- c("bvarssvs", "bvharmod")
+  ssvs_res
 }

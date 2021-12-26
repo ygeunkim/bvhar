@@ -191,6 +191,62 @@ estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
+#' Generating Nonzero Coefficients Proportions Diagonal Matrix
+#' 
+#' In MCMC process of SSVS, compute diagonal matrix \eqn{D} defined by spike-and-slab sd.
+#' 
+#' @param coef_spike Standard deviance for Spike normal distribution
+#' @param coef_slab Standard deviance for Slab normal distribution
+#' @param prop_sparse Indicator vector (0-1) corresponding to each coefficient
+#' 
+#' @references
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
+#' 
+#' @noRd
+ssvs_coef_prop <- function(coef_spike, coef_slab, prop_sparse) {
+    .Call(`_bvhar_ssvs_coef_prop`, coef_spike, coef_slab, prop_sparse)
+}
+
+#' Generating Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, generate \eqn{\alpha_j} conditional posterior.
+#' 
+#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+#' @param coef_lse LSE estimator of the VAR coefficient
+#' @param chol_factor Cholesky factor of variance matrix
+#' @param diag_sparse Generated sparse coefficient proportions diagonal matrix
+#' 
+#' @references
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
+#' 
+#' @noRd
+ssvs_coef <- function(XtX, coef_lse, chol_factor, diag_sparse) {
+    .Call(`_bvhar_ssvs_coef`, XtX, coef_lse, chol_factor, diag_sparse)
+}
+
+#' Generating Latent Vector for Spike-and-Slab Coefficient
+#' 
+#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} conditional posterior.
+#' 
+#' @param coef_vec Coefficient vector
+#' @param coef_spike Standard deviance for Spike normal distribution
+#' @param coef_slab Standard deviance for Slab normal distribution
+#' @param coef_sparse Bernoulli parameter for sparsity proportion
+#' 
+#' @references
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
+#' 
+#' @noRd
+ssvs_coef_latent <- function(coef_vec, coef_spike, coef_slab, coef_sparse) {
+    .Call(`_bvhar_ssvs_coef_latent`, coef_vec, coef_spike, coef_slab, coef_sparse)
+}
+
 #' Generating Sparse Covariance Proportions Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, generate diagonal matrix \eqn{F_j} (given j) defined by spike-and-slab sd.
@@ -278,62 +334,6 @@ build_symmat <- function(diag_vec, off_diagvec) {
 #' @noRd
 ssvs_cov_latent <- function(chol_factor, cov_spike, cov_slab, cov_sparse) {
     .Call(`_bvhar_ssvs_cov_latent`, chol_factor, cov_spike, cov_slab, cov_sparse)
-}
-
-#' Generating Nonzero Coefficients Proportions Diagonal Matrix
-#' 
-#' In MCMC process of SSVS, generate diagonal matrix \eqn{D} defined by spike-and-slab sd.
-#' 
-#' @param coef_spike Standard deviance for Spike normal distribution
-#' @param coef_slab Standard deviance for Slab normal distribution
-#' @param prop_sparse Indicator vector (0-1) corresponding to each coefficient
-#' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
-#' @noRd
-ssvs_coef_prop <- function(coef_spike, coef_slab, prop_sparse) {
-    .Call(`_bvhar_ssvs_coef_prop`, coef_spike, coef_slab, prop_sparse)
-}
-
-#' Generating Coefficient Vector in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, generate \eqn{\alpha_j} conditional posterior.
-#' 
-#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-#' @param coef_lse LSE estimator of the VAR coefficient
-#' @param chol_factor Cholesky factor of variance matrix
-#' @param diag_sparse Generated sparse coefficient proportions diagonal matrix
-#' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
-#' @noRd
-ssvs_coef <- function(XtX, coef_lse, chol_factor, diag_sparse) {
-    .Call(`_bvhar_ssvs_coef`, XtX, coef_lse, chol_factor, diag_sparse)
-}
-
-#' Generating Latent Vector for Spike-and-Slab Coefficient
-#' 
-#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} conditional posterior.
-#' 
-#' @param coef_vec Coefficient vector
-#' @param coef_spike Standard deviance for Spike normal distribution
-#' @param coef_slab Standard deviance for Slab normal distribution
-#' @param coef_sparse Bernoulli parameter for sparsity proportion
-#' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
-#' @noRd
-ssvs_coef_latent <- function(coef_vec, coef_spike, coef_slab, coef_sparse) {
-    .Call(`_bvhar_ssvs_coef_latent`, coef_vec, coef_spike, coef_slab, coef_sparse)
 }
 
 #' BVAR(p) Point Estimates based on SSVS Prior

@@ -4,12 +4,26 @@
 \alias{bvar_ssvs}
 \title{Fitting Bayesian VAR(p) of SSVS Prior}
 \usage{
-bvar_ssvs(y, p, bayes_spec = set_ssvs(), include_mean = TRUE)
+bvar_ssvs(
+  y,
+  p,
+  num_iter,
+  num_burn,
+  num_thin = 1L,
+  bayes_spec = set_ssvs(),
+  include_mean = TRUE
+)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
+
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in}
+
+\item{num_thin}{Number of thinning}
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 
