@@ -202,6 +202,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scale_har_order
+Eigen::MatrixXd scale_har_order(int m, int week, int month);
+RcppExport SEXP _bvhar_scale_har_order(SEXP mSEXP, SEXP weekSEXP, SEXP monthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_har_order(m, week, month));
+    return rcpp_result_gen;
+END_RCPP
+}
 // estimate_har
 Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP) {
@@ -726,6 +739,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
+    {"_bvhar_scale_har_order", (DL_FUNC) &_bvhar_scale_har_order, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 2},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 3},

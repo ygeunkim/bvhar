@@ -36,6 +36,42 @@ Eigen::MatrixXd scale_har(int m) {
   return HARtrans;
 }
 
+//' Building a Linear Transformation Matrix for Vector HAR with Other Orders
+//' 
+//' This function produces a linear transformation matrix for VHAR(week, month) for given dimension.
+//' 
+//' @param m Integer, dimension
+//' @param week Integer, order for week term
+//' @param month Integer, order for month term
+//' @details
+//' Default VHAR model sets `week` and `month` as `5` and `22`.
+//' This function can change these numbers to get linear transformation matrix.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd scale_har_order(int m, int week, int month) {
+  if (week > month) {
+    Rcpp::stop("'month' should be larger than 'week'.");
+  }
+  Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
+  Eigen::MatrixXd HARtrans(3 * m + 1, month * m + 1); // 3m x (month * m)
+  Eigen::MatrixXd Im(m, m);
+  Im.setIdentity(m, m);
+  HAR(0, 0) = 1.0;
+  for (int i = 0; i < week; i++) {
+    HAR(1, i) = 1.0 / week;
+  }
+  for (int i = 0; i < month; i++) {
+    HAR(2, i) = 1.0 / month;
+  }
+  // T otimes Im
+  HARtrans.block(0, 0, 3 * m, month * m) = Eigen::kroneckerProduct(HAR, Im).eval();
+  HARtrans.block(0, month * m, 3 * m, 1) = Eigen::MatrixXd::Zero(3 * m, 1);
+  HARtrans.block(3 * m, 0, 1, month * m) = Eigen::MatrixXd::Zero(1, month * m);
+  HARtrans(3 * m, month * m) = 1.0;
+  return HARtrans;
+}
+
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
 //' 
 //' This function fits VHAR given response and design matrices of multivariate time series.
