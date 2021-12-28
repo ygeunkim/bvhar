@@ -296,9 +296,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::MatrixXd x, 
                               Eigen::MatrixXd y, 
                               Eigen::MatrixXd init_coef,
-                              Eigen::VectorXd init_coef_sparse,
+                              Eigen::MatrixXd init_coef_sparse,
                               Eigen::Map<Eigen::MatrixXd> init_cov,
-                              Eigen::VectorXd init_cov_sparse,
+                              Eigen::MatrixXd init_cov_sparse,
                               Eigen::VectorXd coef_spike,
                               Eigen::VectorXd coef_slab,
                               Eigen::VectorXd coef_prop,
@@ -316,18 +316,23 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::VectorXd coef_lse = vectorize_eigen(coef_mat); // alphahat = vec(Ahat)
   // initial for coefficient-----------------------------------------------------------
   if (init_coef.rows() != dim_design) {
-    Rcpp::stop("Invalid number of nrow of 'init_coef'.");
+    Rcpp::stop("Invalid number of rows of 'init_coef'.");
   }
   if (init_coef.cols() != dim) {
-    Rcpp::stop("Invalid number of ncol of 'init_coef'.");
+    Rcpp::stop("Invalid number of colums of 'init_coef'.");
   }
-  if (init_coef_sparse.size() != dim * dim_design) {
-    Rcpp::stop("Invalid length of 'init_coef_sparse'.");
+  if (init_coef_sparse.rows() != dim_design) {
+    Rcpp::stop("Invalid number of rows of 'init_coef_sparse'.");
+  }
+  if (init_coef_sparse.cols() != dim) {
+    Rcpp::stop("Invalid number of columns of 'init_coef_sparse'.");
   }
   Eigen::MatrixXd resid_mat = y - x * init_coef; // Z = Y0 - X0 B
   Eigen::MatrixXd ZtZ = resid_mat.transpose() * resid_mat; // (Y0 - X0 B)^T (Y0 - X0 B)
   Eigen::VectorXd init_coef_vec = vectorize_eigen(init_coef); // initial for vec(A)
-  Eigen::MatrixXd diag_coef_sparse(init_coef_sparse.size(), init_coef_sparse.size()); // D: mk x mk
+  Eigen::VectorXd init_coef_sparse_vec = vectorize_eigen(init_coef_sparse); // initial for gamma[j]
+  Eigen::MatrixXd diag_coef_sparse(init_coef_sparse_vec.size(), init_coef_sparse_vec.size()); // D: mk x mk
+  Eigen::VectorXd init_cov_sparse_vec = vectorize_eigen(init_cov_sparse); // initial for w[ij]
   Eigen::MatrixXd diag_cov_sparse(dim - 1, dim - 1); // large matrix to assign diag_sparse of cov
   // initial for covariance matrix: Sigma_e^(-1) = Psi * Psi^T--------------------------
   Eigen::LLT<Eigen::MatrixXd> lltOfcov(init_cov); // Sigma = LL^T
@@ -336,36 +341,61 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   }
   Eigen::MatrixXd chol_upper = lltOfcov.matrixL().transpose(); // Psi = (L^(-1))^T: upper
   // Trace for MCMC---------------------------------------------------------------------
-  Eigen::MatrixXd coef_trace(num_iter, dim * dim_design); // record alpha in MCMC
-  coef_trace.row(0) = vectorize_eigen(init_coef); // alphahat = vec(A)
-  // Diagonal
-  // Off-diagonal
-  // Coef-sparsity
-  // Cov-sparsity
+  Eigen::MatrixXd coef_trace(num_iter + 1, dim * dim_design); // record alpha in MCMC
+  coef_trace.row(0) = init_coef_vec;
+  Eigen::MatrixXd coef_prop_trace(num_iter + 1, dim * dim_design); // record gamma[j] in MCMC
+  coef_prop_trace.row(0) = init_coef_sparse_vec;
+  Eigen::MatrixXd diag_trace(num_iter + 1, dim); // record diagonal component in MCMC
+  for (int i = 0; i < dim; i++) {
+    diag_trace(0, i) = chol_upper(i, i);
+  }
+  Eigen::MatrixXd off_trace(num_iter + 1, dim * (dim - 1) / 2); // record off-diagonal component in MCMC
+  int id = 0;
+  for (int j = 1; j < dim; j++) { // from 2nd column
+    for (int i = 0; i < j; i++) { // upper triangular: exclude diagonal
+      off_trace(0, id) = chol_upper(i, j);
+      id++;
+    }
+  }
+  Eigen::MatrixXd cov_prop_trace(num_iter + 1, dim * (dim - 1) / 2); // record w[ij] in MCMC
+  cov_prop_trace.row(0) = init_cov_sparse_vec;
   // Gibbs sampler iteration------------------------------------------------------------
   for (int t = 0; t < num_iter; t++) {
     // 1. Coefficient
-    diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse); // D
+    diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse_vec); // D
     init_coef_vec = ssvs_coef(XtX, coef_lse, chol_upper, diag_coef_sparse); // Normal
+    coef_trace.row(t + 1) = init_coef_vec; // record
     // 2. Sparsity proportion of coefficient
-    init_coef_sparse = ssvs_coef_latent(init_coef_vec, coef_spike, coef_slab, coef_prop); // Bernoulli
+    init_coef_sparse_vec = ssvs_coef_latent(init_coef_vec, coef_spike, coef_slab, coef_prop); // Bernoulli
+    coef_prop_trace.row(t + 1) = init_coef_sparse_vec; // record
     // 3. Diagonal components of cholesky factor
     chol_upper(0, 0) = ssvs_cov_diag(0, ZtZ, diag_cov_sparse, cov_shape, cov_rate); // sqrt of Gamma
+    diag_trace(t + 1, 0) = chol_upper(0, 0); // record
     for (int i = 1; i < dim; i++) {
-      diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, cov_spike, cov_slab, init_cov_sparse); // Fj
+      diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, cov_spike, cov_slab, init_cov_sparse_vec); // Fj
       chol_upper(i, i) = ssvs_cov_diag(i, ZtZ, diag_cov_sparse, cov_shape, cov_rate); // sqrt of Gamma
+      diag_trace(t + 1, i) = chol_upper(i, i); // record
     }
     // 4. Off-diagonal components of cholesky factor
+    id = 0;
     for (int j = 1; j < dim; j++) {
       chol_upper.block(0, j, j - 1, 1) = ssvs_cov_off(j, ZtZ, chol_upper, diag_cov_sparse);
+      off_trace.block(num_iter, id, j - 1, 1) = chol_upper.block(0, j, j - 1, 1);
+      id += j - 1; // next column index
     }
     // 5. Sparsity proportion of variance matrix
-    init_cov_sparse = ssvs_cov_latent(chol_upper, cov_spike, cov_slab, cov_prop); // Bernoulli
+    init_cov_sparse_vec = ssvs_cov_latent(chol_upper, cov_spike, cov_slab, cov_prop); // Bernoulli
+    cov_prop_trace.row(t + 1) = init_cov_sparse_vec; // record
   }
   return Rcpp::List::create(
     Rcpp::Named("coef") = init_coef_vec,
     Rcpp::Named("cov") = chol_upper,
-    Rcpp::Named("coef_prop") = init_coef_sparse,
-    Rcpp::Named("cov_prop") = init_cov_sparse
+    Rcpp::Named("coef_prop") = init_coef_sparse_vec,
+    Rcpp::Named("cov_prop") = init_cov_sparse_vec,
+    Rcpp::Named("coef_record") = coef_trace,
+    Rcpp::Named("diag_record") = diag_trace,
+    Rcpp::Named("off_record") = off_trace,
+    Rcpp::Named("coef_prop_record") = coef_prop_trace,
+    Rcpp::Named("cov_prop_record") = cov_prop_trace
   );
 }

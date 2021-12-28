@@ -159,16 +159,16 @@ set_ssvs <- function(init_coef,
     stop("Invalid 'sig_ss'.")
   }
   # Dimensions of parameters---------------------------
-  dim_design <- nrow(init_coef) # k
+  dim_design <- nrow(init_coef) # k = mp + 1
   dim_data <- ncol(init_coef) # m
   if ((nrow(init_coef_sparse) != dim_design) && (ncol(init_coef_sparse) != dim_data)) {
     stop("Invalid dimension of 'init_coef_sparse'.")
   }
-  if ((dim_data != ncol(init_sig)) || (dim_data != nrow(init_sig))) {
+  if ((nrow(init_sig) != dim_data) || (ncol(init_sig) != dim_data)) {
     stop("Invalid dimension of 'init_sig'.") # init_sig: m x m
   }
   if ((nrow(init_sig_sparse) != dim_data) && (ncol(init_sig_sparse) != dim_data)) {
-    stop("Invalid dimension of 'init_sig_sparse'.")
+    stop("Invalid dimension of 'init_sig_sparse'.") # m x m
   }
   # Initial values if NULL-----------------------------
   if (is.null(coef_ss$coef_spike)) {
