@@ -278,6 +278,23 @@ compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
 }
 
+#' Orthogonal VMA(infinite) Coefficients
+#' 
+#' Compute orthogonal VMA coefficients
+#' 
+#' @param object `varlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Based on variance decomposition (cholesky decomposition)
+#' \deqn{\Sigma = B B^T}
+#' orthogonalized innovations can be computed.
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @export
+impulse_var <- function(object, lag_max) {
+    .Call(`_bvhar_impulse_var`, object, lag_max)
+}
+
 #' Building a Linear Transformation Matrix for Vector HAR
 #' 
 #' This function produces a linear transformation matrix for VHAR for given dimension.

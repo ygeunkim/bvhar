@@ -191,6 +191,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// impulse_var
+Eigen::MatrixXd impulse_var(Rcpp::List object, int lag_max);
+RcppExport SEXP _bvhar_impulse_var(SEXP objectSEXP, SEXP lag_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(impulse_var(object, lag_max));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scale_har
 Eigen::MatrixXd scale_har(int m);
 RcppExport SEXP _bvhar_scale_har(SEXP mSEXP) {
@@ -738,6 +750,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
+    {"_bvhar_impulse_var", (DL_FUNC) &_bvhar_impulse_var, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
     {"_bvhar_scale_har_order", (DL_FUNC) &_bvhar_scale_har_order, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
