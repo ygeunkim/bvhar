@@ -135,21 +135,26 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   return mse;
 }
 
-//' Orthogonal VMA(infinite) Coefficients
+//' Orthogonal Impulse Response Functions of VAR
 //' 
-//' Compute orthogonal VMA coefficients
+//' Compute orthogonal impulse responses of VAR
 //' 
 //' @param object `varlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Based on variance decomposition (cholesky decomposition)
-//' \deqn{\Sigma = B B^T}
-//' orthogonalized innovations can be computed.
+//' \deqn{\Sigma = P P^T}
+//' where \eqn{P} is lower triangular matrix,
+//' impulse response analysis if performed under MA representation
+//' \deqn{y_t = \sum_{i = 0}^\infty \Theta_i v_{t - i}}
+//' Here,
+//' \deqn{\Theta_i = W_i P}
+//' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd impulse_var(Rcpp::List object, int lag_max) {
+Eigen::MatrixXd ir_var(Rcpp::List object, int lag_max) {
   if (!object.inherits("varlse")) {
     Rcpp::stop("'object' must be varlse object.");
   }

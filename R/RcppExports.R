@@ -278,21 +278,26 @@ compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
 }
 
-#' Orthogonal VMA(infinite) Coefficients
+#' Orthogonal Impulse Response Functions of VAR
 #' 
-#' Compute orthogonal VMA coefficients
+#' Compute orthogonal impulse responses of VAR
 #' 
 #' @param object `varlse` object
 #' @param lag_max Maximum lag for VMA
 #' @details
 #' Based on variance decomposition (cholesky decomposition)
-#' \deqn{\Sigma = B B^T}
-#' orthogonalized innovations can be computed.
+#' \deqn{\Sigma = P P^T}
+#' where \eqn{P} is lower triangular matrix,
+#' impulse response analysis if performed under MA representation
+#' \deqn{y_t = \sum_{i = 0}^\infty \Theta_i v_{t - i}}
+#' Here,
+#' \deqn{\Theta_i = W_i P}
+#' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
-impulse_var <- function(object, lag_max) {
-    .Call(`_bvhar_impulse_var`, object, lag_max)
+ir_var <- function(object, lag_max) {
+    .Call(`_bvhar_ir_var`, object, lag_max)
 }
 
 #' Building a Linear Transformation Matrix for Vector HAR
@@ -415,6 +420,23 @@ VHARtoVMA <- function(object, lag_max) {
 #' @export
 compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
+}
+
+#' Orthogonal Impulse Response Functions of VHAR
+#' 
+#' Compute orthogonal impulse responses of VHAR
+#' 
+#' @param object `vharlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Based on variance decomposition (cholesky decomposition)
+#' \deqn{\Sigma = P P^T}
+#' impulse response analysis if performed under MA representation.
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @export
+ir_vhar <- function(object, lag_max) {
+    .Call(`_bvhar_ir_vhar`, object, lag_max)
 }
 
 #' Forecasting BVAR(p)

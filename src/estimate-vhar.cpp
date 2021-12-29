@@ -226,3 +226,33 @@ Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {
   return mse;
 }
 
+//' Orthogonal Impulse Response Functions of VHAR
+//' 
+//' Compute orthogonal impulse responses of VHAR
+//' 
+//' @param object `vharlse` object
+//' @param lag_max Maximum lag for VMA
+//' @details
+//' Based on variance decomposition (cholesky decomposition)
+//' \deqn{\Sigma = P P^T}
+//' impulse response analysis if performed under MA representation.
+//' 
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @export
+// [[Rcpp::export]]
+Eigen::MatrixXd ir_vhar(Rcpp::List object, int lag_max) {
+  if (!object.inherits("vharlse")) {
+    Rcpp::stop("'object' must be varlse object.");
+  }
+  Eigen::MatrixXd coef_mat = object["coefficients"];
+  Eigen::MatrixXd covmat = object["covmat"];
+  int dim = covmat.rows(); // num_rows = num_cols
+  Eigen::MatrixXd ma = VHARtoVMA(object, lag_max);
+  Eigen::MatrixXd res(ma.rows(), dim);
+  Eigen::LLT<Eigen::MatrixXd> lltOfcovmat(Eigen::Map<Eigen::MatrixXd>(covmat.data(), dim, dim)); // cholesky decomposition for Sigma
+  Eigen::MatrixXd chol_covmat = lltOfcovmat.matrixU();
+  for (int i = 0; i < lag_max + 1; i++) {
+    res.block(i * dim, 0, dim, dim) = chol_covmat * ma.block(i * dim, 0, dim, dim);
+  }
+  return res;
+}
