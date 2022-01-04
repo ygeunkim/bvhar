@@ -1,3 +1,5 @@
+# bvhar 0.5.2
+
 # bvhar 0.5.1
 
 * Added facet feature for the loss plot and changed its name (`gg_loss()`).
