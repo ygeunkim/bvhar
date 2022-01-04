@@ -22,7 +22,6 @@ reference:
   - stableroot.varlse
   - is.stable
   - is.stable.varlse
-  - compute_stablemat
 
 - title: VHAR
   desc: >

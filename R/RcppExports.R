@@ -723,11 +723,11 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 }
 
-#' VAR(1) Representation of VAR(p)
+#' VAR(1) Representation Given VAR Coefficient Matrix
 #' 
-#' Compute the coefficient matrix of VAR(1) form
+#' Compute the VAR(1) coefficient matrix form
 #' 
-#' @param object Model fit
+#' @param x VAR without constant coefficient matrix form
 #' @details
 #' Each VAR(p) process can be represented by mp-dim VAR(1).
 #' 
@@ -752,9 +752,36 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
 #' \deqn{U_t = (\epsilon_t, 0, \ldots, 0)^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
-compute_stablemat <- function(object) {
-    .Call(`_bvhar_compute_stablemat`, object)
+#' @noRd
+compute_stablemat <- function(x) {
+    .Call(`_bvhar_compute_stablemat`, x)
+}
+
+#' VAR(1) Representation of VAR(p)
+#' 
+#' Compute the coefficient matrix of VAR(1) form
+#' 
+#' @param object Model fit
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_var_stablemat <- function(object) {
+    .Call(`_bvhar_compute_var_stablemat`, object)
+}
+
+#' VAR(1) Representation of VHAR
+#'
+#' Compute the coefficient matrix of VAR(1) form of VHAR
+#'
+#' @param object Model fit
+#' @details
+#' Note that \eqn{A^T = \Phi^T T_{HAR}}.
+#' This gives the VAR(1) form of constrained VAR(22).
+#'
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_vhar_stablemat <- function(object) {
+    .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
 #' @noRd

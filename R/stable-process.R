@@ -29,13 +29,13 @@ is.stable <- function(x, ...) {
 #' 
 #' \deqn{\det(I_m - A z) = 0}
 #' 
-#' where \eqn{A} is VAR(1) matrix defined in [compute_stablemat()].
+#' where \eqn{A} is VAR(1) coefficient matrix representation.
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @export
 stableroot.varlse <- function(x, ...) {
-  compute_stablemat(x) %>% 
+  compute_var_stablemat(x) %>% 
     eigen() %>% 
     .$values %>% 
     Mod()
@@ -68,7 +68,7 @@ is.stable.varlse <- function(x, ...) {
 #' 
 #' @export
 stableroot.vharlse <- function(x, ...) {
-  compute_stablemat(x) %>% 
+  compute_vhar_stablemat(x) %>% 
     eigen() %>% 
     .$values %>% 
     Mod()
@@ -91,7 +91,7 @@ is.stable.vharlse <- function(x, ...) {
 #' 
 #' @export
 stableroot.bvarmn <- function(x, ...) {
-  compute_stablemat(x) %>% 
+  compute_var_stablemat(x) %>% 
     eigen() %>% 
     .$values %>% 
     Mod()
@@ -114,7 +114,7 @@ is.stable.bvarmn <- function(x, ...) {
 #' 
 #' @export
 stableroot.bvarflat <- function(x, ...) {
-  compute_stablemat(x) %>% 
+  compute_var_stablemat(x) %>% 
     eigen() %>% 
     .$values %>% 
     Mod()
@@ -137,7 +137,7 @@ is.stable.bvarflat <- function(x, ...) {
 #' 
 #' @export
 stableroot.bvharmn <- function(x, ...) {
-  compute_stablemat(x) %>% 
+  compute_vhar_stablemat(x) %>% 
     eigen() %>% 
     .$values %>% 
     Mod()
