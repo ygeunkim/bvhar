@@ -1,5 +1,7 @@
 # bvhar 0.5.2
 
+* Added parallel option for empirical bayes (`choose_bvar()` and `choose_bvhar()`).
+
 # bvhar 0.5.1
 
 * Added facet feature for the loss plot and changed its name (`gg_loss()`).
