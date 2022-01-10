@@ -119,7 +119,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   colnames(Y0) <- name_var
   s <- nrow(Y0)
   X0 <- build_design(y, 22)
-  HARtrans <- scale_har(m, 3, 22)
+  HARtrans <- scale_har(m, 5, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # dummy-----------------------------
   Yh <- switch(

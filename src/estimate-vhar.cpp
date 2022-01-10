@@ -66,7 +66,7 @@ Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, 3, 22); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, 5, 22); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
@@ -101,7 +101,7 @@ Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, 3, 22).block(0, 0, num_har, dim_har); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, 5, 22).block(0, 0, num_har, dim_har); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;

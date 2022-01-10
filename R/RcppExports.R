@@ -847,6 +847,8 @@ log_mgammafn <- function(x, p) {
 #' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
+#' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
+#' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {

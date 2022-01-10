@@ -19,16 +19,26 @@
 //' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
 //' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 //' 
+//' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
+//' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
   int dim = sig_error.cols(); // m: dimension of time series
-  if (num_sim < 2) Rcpp::stop("Generate more than 1 series");
-  if (var_coef.rows() != dim * var_lag + 1 && var_coef.rows() != dim * var_lag) Rcpp::stop("'var_coef' is not VAR coefficient. Check its dimension.");
+  if (num_sim < 2) {
+    Rcpp::stop("Generate more than 1 series");
+  }
+  if (var_coef.rows() != dim * var_lag + 1 && var_coef.rows() != dim * var_lag) {
+    Rcpp::stop("'var_coef' is not VAR coefficient. Check its dimension.");
+  }
   int dim_design = var_coef.rows(); // k = mp + 1 (const) or mp (none)
-  if (var_coef.cols() != dim) Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
-  if (!(init.rows() == var_lag && init.cols() == dim)) Rcpp::stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.");
+  if (var_coef.cols() != dim) {
+    Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
+  }
+  if (!(init.rows() == var_lag && init.cols() == dim)) {
+    Rcpp::stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.");
+  }
   int num_rand = num_sim + num_burn; // sim + burnin
   Eigen::MatrixXd obs_p(1, dim_design); // row vector of X0: yp^T, ..., y1^T, (1)
   obs_p(0, dim_design - 1) = 1.0; // for constant term if exists
@@ -70,15 +80,23 @@ Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init) {
   int dim = sig_error.cols(); // m: dimension of time series
-  if (num_sim < 2) Rcpp::stop("Generate more than 1 series");
-  if (vhar_coef.rows() != 3 * dim + 1 && vhar_coef.rows() != 3 * dim) Rcpp::stop("'vhar_coef' is not VHAR coefficient. Check its dimension.");
+  if (num_sim < 2) {
+    Rcpp::stop("Generate more than 1 series");
+  }
+  if (vhar_coef.rows() != 3 * dim + 1 && vhar_coef.rows() != 3 * dim) {
+    Rcpp::stop("'vhar_coef' is not VHAR coefficient. Check its dimension.");
+  }
   int num_har = vhar_coef.rows(); // 3m + 1 (const) or 3m (none)
   int dim_har = 22 * dim + 1; // 22m + 1 (const)
   if (num_har == 3 * dim) dim_har -= 1; // 22m (none)
-  if (vhar_coef.cols() != dim) Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
-  if (!(init.rows() == 22 && init.cols() == dim)) Rcpp::stop("'init' is (22, dim) matrix in order of y1, y2, ..., y22.");
+  if (vhar_coef.cols() != dim) {
+    Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
+  }
+  if (!(init.rows() == 22 && init.cols() == dim)) {
+    Rcpp::stop("'init' is (22, dim) matrix in order of y1, y2, ..., y22.");
+  }
   int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = scale_har(dim, 3, 22).block(0, 0, num_har, dim_har);
+  Eigen::MatrixXd hartrans_mat = scale_har(dim, 5, 22).block(0, 0, num_har, dim_har);
   Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
   obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
   for (int i = 0; i < 22; i++) {
