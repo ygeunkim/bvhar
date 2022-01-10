@@ -571,7 +571,7 @@ rmafe <- function(x, pred_bench, y, ...) {
 #' Let \eqn{e_t = y_t - \hat{y}_t}.
 #' RMAFE is the ratio of L1 norm of \eqn{e_t} from forecasting object and from benchmark model.
 #' 
-#' \deqn{RMAFE = \frac{sum(\lvert e_t \rvert)}{sum(\lvert e_t^{(b)} \rvert)}}
+#' \deqn{RMAFE = \frac{sum(\lVert e_t \rVert)}{sum(\lVert e_t^{(b)} \rVert)}}
 #' 
 #' where \eqn{e_t^{(b)}} is the error from the benchmark model.
 #' 

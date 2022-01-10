@@ -295,6 +295,22 @@ scale_har <- function(m) {
     .Call(`_bvhar_scale_har`, m)
 }
 
+#' Building a Linear Transformation Matrix for Vector HAR with Other Orders
+#' 
+#' This function produces a linear transformation matrix for VHAR(week, month) for given dimension.
+#' 
+#' @param m Integer, dimension
+#' @param week Integer, order for week term
+#' @param month Integer, order for month term
+#' @details
+#' Default VHAR model sets `week` and `month` as `5` and `22`.
+#' This function can change these numbers to get linear transformation matrix.
+#' 
+#' @noRd
+scale_har_order <- function(m, week, month) {
+    .Call(`_bvhar_scale_har_order`, m, week, month)
+}
+
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VHAR given response and design matrices of multivariate time series.
