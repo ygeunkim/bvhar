@@ -6,57 +6,27 @@
 //' 
 //' This function produces a linear transformation matrix for VHAR for given dimension.
 //' 
-//' @param m integer, dimension
+//' @param dim Integer, dimension
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
 //' @details
 //' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
-//' 
 //' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
-//' 
 //' This function computes above \eqn{T_{HAR}}.
 //' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd scale_har(int m) {
-  Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, 22);
-  Eigen::MatrixXd HARtrans(3 * m + 1, 22 * m + 1); // 3m x 22m
-  Eigen::MatrixXd Im(m, m);
-  Im.setIdentity(m, m);
-  HAR(0, 0) = 1.0;
-  for (int i = 0; i < 5; i++) {
-    HAR(1, i) = 1.0 / 5;
-  }
-  for (int i = 0; i < 22; i++) {
-    HAR(2, i) = 1.0 / 22;
-  }
-  // T otimes Im
-  HARtrans.block(0, 0, 3 * m, 22 * m) = Eigen::kroneckerProduct(HAR, Im).eval();
-  HARtrans.block(0, 22 * m, 3 * m, 1) = Eigen::MatrixXd::Zero(3 * m, 1);
-  HARtrans.block(3 * m, 0, 1, 22 * m) = Eigen::MatrixXd::Zero(1, 22 * m);
-  HARtrans(3 * m, 22 * m) = 1.0;
-  return HARtrans;
-}
-
-//' Building a Linear Transformation Matrix for Vector HAR with Other Orders
-//' 
-//' This function produces a linear transformation matrix for VHAR(week, month) for given dimension.
-//' 
-//' @param m Integer, dimension
-//' @param week Integer, order for week term
-//' @param month Integer, order for month term
-//' @details
 //' Default VHAR model sets `week` and `month` as `5` and `22`.
 //' This function can change these numbers to get linear transformation matrix.
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd scale_har_order(int m, int week, int month) {
+Eigen::MatrixXd scale_har(int dim, int week, int month) {
   if (week > month) {
     Rcpp::stop("'month' should be larger than 'week'.");
   }
   Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
-  Eigen::MatrixXd HARtrans(3 * m + 1, month * m + 1); // 3m x (month * m)
-  Eigen::MatrixXd Im(m, m);
-  Im.setIdentity(m, m);
+  Eigen::MatrixXd HARtrans(3 * dim + 1, month * dim + 1); // 3m x (month * m)
+  Eigen::MatrixXd Im(dim, dim);
+  Im.setIdentity(dim, dim);
   HAR(0, 0) = 1.0;
   for (int i = 0; i < week; i++) {
     HAR(1, i) = 1.0 / week;
@@ -65,10 +35,10 @@ Eigen::MatrixXd scale_har_order(int m, int week, int month) {
     HAR(2, i) = 1.0 / month;
   }
   // T otimes Im
-  HARtrans.block(0, 0, 3 * m, month * m) = Eigen::kroneckerProduct(HAR, Im).eval();
-  HARtrans.block(0, month * m, 3 * m, 1) = Eigen::MatrixXd::Zero(3 * m, 1);
-  HARtrans.block(3 * m, 0, 1, month * m) = Eigen::MatrixXd::Zero(1, month * m);
-  HARtrans(3 * m, month * m) = 1.0;
+  HARtrans.block(0, 0, 3 * dim, month * dim) = Eigen::kroneckerProduct(HAR, Im).eval();
+  HARtrans.block(0, month * dim, 3 * dim, 1) = Eigen::MatrixXd::Zero(3 * dim, 1);
+  HARtrans.block(3 * dim, 0, 1, month * dim) = Eigen::MatrixXd::Zero(1, month * dim);
+  HARtrans(3 * dim, month * dim) = 1.0;
   return HARtrans;
 }
 
@@ -96,7 +66,7 @@ Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, 3, 22); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
@@ -131,7 +101,7 @@ Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim).block(0, 0, num_har, dim_har); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, 3, 22).block(0, 0, num_har, dim_har); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;

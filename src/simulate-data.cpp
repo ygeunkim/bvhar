@@ -78,7 +78,7 @@ Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, E
   if (vhar_coef.cols() != dim) Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
   if (!(init.rows() == 22 && init.cols() == dim)) Rcpp::stop("'init' is (22, dim) matrix in order of y1, y2, ..., y22.");
   int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = scale_har(dim).block(0, 0, num_har, dim_har);
+  Eigen::MatrixXd hartrans_mat = scale_har(dim, 3, 22).block(0, 0, num_har, dim_har);
   Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
   obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
   for (int i = 0; i < 22; i++) {
