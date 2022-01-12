@@ -65,7 +65,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
       covmat = res$iw
     )
   } else {
-    sig <- diag(sigma)
+    sig <- diag(sigma^2)
     res <- sim_matgaussian(
       mn_mean,
       solve(mn_prec),
@@ -174,7 +174,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       covmat = res$iw
     )
   } else {
-    sig <- diag(sigma)
+    sig <- diag(sigma^2)
     res <- sim_matgaussian(
       mn_mean,
       solve(mn_prec),
