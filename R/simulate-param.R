@@ -38,9 +38,10 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
   delta <- bayes_spec$delta
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
+  dim_data <- length(sigma)
   # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta)
-  Xp <- build_xdummy(p, lambda, sigma, eps)
+  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data))
+  Xp <- build_xdummy(1:p, lambda, sigma, eps)
   num_design <- nrow(Yp)
   dim_design <- ncol(Xp)
   Yp <- Yp[-num_design,]
@@ -119,6 +120,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
   minnesota_type <- bayes_spec$prior
+  dim_data <- length(sigma)
   # dummy-----------------------------
   Yh <- switch(
     minnesota_type,
@@ -126,7 +128,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       if (is.null(bayes_spec$delta)) {
         stop("'delta' in 'set_bvar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta)
+      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data))
       Yh
     },
     "MN_VHAR" = {
@@ -139,7 +141,8 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       if (is.null(bayes_spec$monthly)) {
         stop("'monthly' in 'set_bvar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy_bvhar(
+      Yh <- build_ydummy(
+        3,
         sigma, 
         lambda, 
         bayes_spec$daily, 
@@ -149,7 +152,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       Yh
     }
   )
-  Xh <- build_xdummy(3, lambda, sigma, eps)
+  Xh <- build_xdummy(1:3, lambda, sigma, eps)
   num_design <- nrow(Yh)
   dim_design <- ncol(Xh)
   Yh <- Yh[-num_design,]
