@@ -128,9 +128,9 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   s <- nrow(Y0)
   k <- m * p + 1
   # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta)
+  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(m), numeric(m))
   colnames(Yp) <- name_var
-  Xp <- build_xdummy(p, lambda, sigma, eps)
+  Xp <- build_xdummy(1:p, lambda, sigma, eps)
   colnames(Xp) <- name_lag
   # const or none---------------------
   if (!is.logical(include_mean)) {
