@@ -192,26 +192,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // scale_har
-Eigen::MatrixXd scale_har(int m);
-RcppExport SEXP _bvhar_scale_har(SEXP mSEXP) {
+Eigen::MatrixXd scale_har(int dim, int week, int month);
+RcppExport SEXP _bvhar_scale_har(SEXP dimSEXP, SEXP weekSEXP, SEXP monthSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
-    rcpp_result_gen = Rcpp::wrap(scale_har(m));
-    return rcpp_result_gen;
-END_RCPP
-}
-// scale_har_order
-Eigen::MatrixXd scale_har_order(int m, int week, int month);
-RcppExport SEXP _bvhar_scale_har_order(SEXP mSEXP, SEXP weekSEXP, SEXP monthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(scale_har_order(m, week, month));
+    rcpp_result_gen = Rcpp::wrap(scale_har(dim, week, month));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -544,13 +533,35 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_stablemat
-Eigen::MatrixXd compute_stablemat(Rcpp::List object);
-RcppExport SEXP _bvhar_compute_stablemat(SEXP objectSEXP) {
+Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x);
+RcppExport SEXP _bvhar_compute_stablemat(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_stablemat(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_var_stablemat
+Eigen::MatrixXd compute_var_stablemat(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_var_stablemat(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_stablemat(object));
+    rcpp_result_gen = Rcpp::wrap(compute_var_stablemat(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_vhar_stablemat
+Eigen::MatrixXd compute_vhar_stablemat(Rcpp::List object);
+RcppExport SEXP _bvhar_compute_vhar_stablemat(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_vhar_stablemat(object));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -738,8 +749,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
-    {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 1},
-    {"_bvhar_scale_har_order", (DL_FUNC) &_bvhar_scale_har_order, 3},
+    {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 2},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 3},
@@ -765,6 +775,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
+    {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
+    {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},

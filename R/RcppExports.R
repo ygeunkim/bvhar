@@ -282,33 +282,20 @@ compute_covmse <- function(object, step) {
 #' 
 #' This function produces a linear transformation matrix for VHAR for given dimension.
 #' 
-#' @param m integer, dimension
+#' @param dim Integer, dimension
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @details
 #' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
-#' 
 #' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
-#' 
 #' This function computes above \eqn{T_{HAR}}.
 #' 
-#' @noRd
-scale_har <- function(m) {
-    .Call(`_bvhar_scale_har`, m)
-}
-
-#' Building a Linear Transformation Matrix for Vector HAR with Other Orders
-#' 
-#' This function produces a linear transformation matrix for VHAR(week, month) for given dimension.
-#' 
-#' @param m Integer, dimension
-#' @param week Integer, order for week term
-#' @param month Integer, order for month term
-#' @details
 #' Default VHAR model sets `week` and `month` as `5` and `22`.
 #' This function can change these numbers to get linear transformation matrix.
 #' 
 #' @noRd
-scale_har_order <- function(m, week, month) {
-    .Call(`_bvhar_scale_har_order`, m, week, month)
+scale_har <- function(dim, week, month) {
+    .Call(`_bvhar_scale_har`, dim, week, month)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -739,11 +726,11 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 }
 
-#' VAR(1) Representation of VAR(p)
+#' VAR(1) Representation Given VAR Coefficient Matrix
 #' 
-#' Compute the coefficient matrix of VAR(1) form
+#' Compute the VAR(1) coefficient matrix form
 #' 
-#' @param object Model fit
+#' @param x VAR without constant coefficient matrix form
 #' @details
 #' Each VAR(p) process can be represented by mp-dim VAR(1).
 #' 
@@ -768,9 +755,36 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
 #' \deqn{U_t = (\epsilon_t, 0, \ldots, 0)^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
-compute_stablemat <- function(object) {
-    .Call(`_bvhar_compute_stablemat`, object)
+#' @noRd
+compute_stablemat <- function(x) {
+    .Call(`_bvhar_compute_stablemat`, x)
+}
+
+#' VAR(1) Representation of VAR(p)
+#' 
+#' Compute the coefficient matrix of VAR(1) form
+#' 
+#' @param object Model fit
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_var_stablemat <- function(object) {
+    .Call(`_bvhar_compute_var_stablemat`, object)
+}
+
+#' VAR(1) Representation of VHAR
+#'
+#' Compute the coefficient matrix of VAR(1) form of VHAR
+#'
+#' @param object Model fit
+#' @details
+#' Note that \eqn{A^T = \Phi^T T_{HAR}}.
+#' This gives the VAR(1) form of constrained VAR(22).
+#'
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_vhar_stablemat <- function(object) {
+    .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
 #' @noRd
@@ -832,6 +846,8 @@ log_mgammafn <- function(x, p) {
 #' 2. For i = 1, ... n,
 #' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+#' 
+#' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export

@@ -4,12 +4,14 @@
 \alias{sim_mncoef}
 \title{Generate Minnesota BVAR Parameters}
 \usage{
-sim_mncoef(p, bayes_spec = set_bvar())
+sim_mncoef(p, bayes_spec = set_bvar(), full = TRUE)
 }
 \arguments{
 \item{p}{VAR lag}
 
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+\item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+
+\item{full}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Generate variance matrix from IW or not?}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.
