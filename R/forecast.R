@@ -304,31 +304,3 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   class(res) <- "predbvhar"
   res
 }
-
-#' Print Method for `predbvhar` object
-#' @rdname predict.varlse
-#' @param x `predbvhar` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.predbvhar <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  print(x$forecast)
-  invisible(x)
-}
-
-#' @rdname predict.varlse
-#' @param x `predbvhar` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.predbvhar <- function(x, ...) {
-  print(x)
-}
-
-#' @export
-registerS3method(
-  "knit_print", "predbvhar",
-  knit_print.predbvhar,
-  envir = asNamespace("knitr")
-)

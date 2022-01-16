@@ -3,7 +3,8 @@
 #' This function generates parameters of BVAR with Minnesota prior.
 #' 
 #' @param p VAR lag
-#' @param bayes_spec `r lifecycle::badge("experimental")` A BVAR model specification by [set_bvar()].
+#' @param bayes_spec A BVAR model specification by [set_bvar()].
+#' @param full `r lifecycle::badge("experimental")` Generate variance matrix from IW or not?
 #' @details 
 #' Implementing dummy observation constructions,
 #' Bańbura et al. (2010) sets Normal-IW prior.
@@ -19,7 +20,7 @@
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @export
-sim_mncoef <- function(p, bayes_spec = set_bvar()) {
+sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
   # model specification---------------
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -37,9 +38,14 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
   delta <- bayes_spec$delta
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
+  dim_data <- length(sigma)
   # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta)
-  Xp <- build_xdummy(p, lambda, sigma, eps)
+  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data))
+  Xp <- build_xdummy(1:p, lambda, sigma, eps)
+  num_design <- nrow(Yp)
+  dim_design <- ncol(Xp)
+  Yp <- Yp[-num_design,]
+  Xp <- Xp[-num_design, -dim_design]
   # prior-----------------------------
   prior <- minnesota_prior(Xp, Yp)
   mn_mean <- prior$prior_mean
@@ -47,24 +53,39 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
   iw_scale <- prior$prior_scale
   iw_shape <- prior$prior_shape
   # random---------------------------
-  res <- sim_mniw(
-    1,
-    mn_mean, # mean of MN
-    solve(mn_prec), # scale of MN = inverse of precision
-    iw_scale, # scale of IW
-    iw_shape # shape of IW
-  )
-  list(
-    coefficients = res$mn,
-    covmat = res$iw
-  )
+  if (full) {
+    res <- sim_mniw(
+      1,
+      mn_mean, # mean of MN
+      solve(mn_prec), # scale of MN = inverse of precision
+      iw_scale, # scale of IW
+      iw_shape # shape of IW
+    )
+    res <- list(
+      coefficients = res$mn,
+      covmat = res$iw
+    )
+  } else {
+    sig <- diag(sigma^2)
+    res <- sim_matgaussian(
+      mn_mean,
+      solve(mn_prec),
+      sig
+    )
+    res <- list(
+      coefficients = res,
+      covmat = sig
+    )
+  }
+  res
 }
 
 #' Generate Minnesota BVAR Parameters
 #' 
 #' This function generates parameters of BVAR with Minnesota prior.
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
+#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
+#' @param full `r lifecycle::badge("experimental")` Generate variance matrix from IW or not?
 #' @details 
 #' Normal-IW family for vector HAR model:
 #' \deqn{\Phi \mid \Sigma_e \sim MN(P_0, \Psi_0, \Sigma_e)}
@@ -84,7 +105,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar()) {
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. [https://doi:10.1093/jjfinec/nbp001](https://doi:10.1093/jjfinec/nbp001)
 #' 
 #' @export
-sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
+sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
   # model specification---------------
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -99,6 +120,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
   minnesota_type <- bayes_spec$prior
+  dim_data <- length(sigma)
   # dummy-----------------------------
   Yh <- switch(
     minnesota_type,
@@ -106,7 +128,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
       if (is.null(bayes_spec$delta)) {
         stop("'delta' in 'set_bvar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta)
+      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data))
       Yh
     },
     "MN_VHAR" = {
@@ -119,7 +141,8 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
       if (is.null(bayes_spec$monthly)) {
         stop("'monthly' in 'set_bvar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy_bvhar(
+      Yh <- build_ydummy(
+        3,
         sigma, 
         lambda, 
         bayes_spec$daily, 
@@ -129,7 +152,11 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
       Yh
     }
   )
-  Xh <- build_xdummy(3, lambda, sigma, eps)
+  Xh <- build_xdummy(1:3, lambda, sigma, eps)
+  num_design <- nrow(Yh)
+  dim_design <- ncol(Xh)
+  Yh <- Yh[-num_design,]
+  Xh <- Xh[-num_design, -dim_design]
   # prior-----------------------------
   prior <- minnesota_prior(Xh, Yh)
   mn_mean <- prior$prior_mean
@@ -137,16 +164,29 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar()) {
   iw_scale <- prior$prior_scale
   iw_shape <- prior$prior_shape
   # random---------------------------
-  res <- sim_mniw(
-    1,
-    mn_mean, # mean of MN
-    solve(mn_prec), # scale of MN = inverse of precision
-    iw_scale, # scale of IW
-    iw_shape # shape of IW
-  )
-  list(
-    coefficients = res$mn,
-    covmat = res$iw
-  )
+  if (full) {
+    res <- sim_mniw(
+      1,
+      mn_mean, # mean of MN
+      solve(mn_prec), # scale of MN = inverse of precision
+      iw_scale, # scale of IW
+      iw_shape # shape of IW
+    )
+    res <- list(
+      coefficients = res$mn,
+      covmat = res$iw
+    )
+  } else {
+    sig <- diag(sigma^2)
+    res <- sim_matgaussian(
+      mn_mean,
+      solve(mn_prec),
+      sig
+    )
+    res <- list(
+      coefficients = res,
+      covmat = sig
+    )
+  }
+  res
 }
-

@@ -15,7 +15,8 @@ choose_bvar(
   eps = 1e-04,
   y,
   p,
-  include_mean = TRUE
+  include_mean = TRUE,
+  parallel = list()
 )
 
 choose_bvhar(
@@ -25,7 +26,8 @@ choose_bvhar(
   ...,
   eps = 1e-04,
   y,
-  include_mean = TRUE
+  include_mean = TRUE,
+  parallel = list()
 )
 
 \method{print}{bvharemp}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -48,6 +50,8 @@ knit_print.bvharemp(x, ...)
 \item{p}{BVAR lag}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{parallel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
 
 \item{x}{\code{bvharemp} object}
 

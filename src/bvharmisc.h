@@ -1,7 +1,7 @@
 #ifndef BVHARMISC_H
 #define BVHARMISC_H
 
-Eigen::MatrixXd scale_har(int m);
+Eigen::MatrixXd scale_har(int dim, int week, int month);
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 

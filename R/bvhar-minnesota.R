@@ -119,7 +119,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   colnames(Y0) <- name_var
   s <- nrow(Y0)
   X0 <- build_design(y, 22)
-  HARtrans <- scale_har(m)
+  HARtrans <- scale_har(m, 5, 22)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # dummy-----------------------------
   Yh <- switch(
@@ -128,7 +128,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
       if (is.null(bayes_spec$delta)) {
         bayes_spec$delta <- rep(1, m)
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta)
+      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(m), numeric(m))
       colnames(Yh) <- name_var
       Yh
     },
@@ -142,7 +142,8 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
       if (is.null(bayes_spec$monthly)) {
         bayes_spec$monthly <- rep(1, m)
       }
-      Yh <- build_ydummy_bvhar(
+      Yh <- build_ydummy(
+        3,
         sigma, 
         lambda, 
         bayes_spec$daily, 
@@ -153,7 +154,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
       Yh
     }
   )
-  Xh <- build_xdummy(3, lambda, sigma, eps)
+  Xh <- build_xdummy(1:3, lambda, sigma, eps)
   colnames(Xh) <- name_har
   # const or none---------------------
   if (!is.logical(include_mean)) {
