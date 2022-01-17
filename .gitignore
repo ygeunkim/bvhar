@@ -40,5 +40,7 @@ inst/doc
 docs
 doc
 Meta
-*.so
-*.o
+/src/*.o
+/src/*.o-*
+/src/*.d
+/src/*.so
