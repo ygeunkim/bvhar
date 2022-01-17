@@ -61,7 +61,9 @@ diag_misc <- function(x) {
 #' @param p Integer, VAR lag. For VHAR, put 3.
 #' @param sigma Vector, standard error of each variable
 #' @param lambda Double, tightness of the prior around a random walk or white noise
-#' @param delta Vector, prior belief about white noise (Litterman sets 1)
+#' @param daily Vector, prior belief about white noise (Litterman sets 1)
+#' @param weekly Vector, this was zero in the original Minnesota design
+#' @param monthly Vector, this was zero in the original Minnesota design
 #' 
 #' @details
 #' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
@@ -72,15 +74,15 @@ diag_misc <- function(x) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_ydummy <- function(p, sigma, lambda, delta) {
-    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)
+build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly) {
+    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, daily, weekly, monthly)
 }
 
 #' Construct Dummy design matrix for Minnesota Prior
 #' 
 #' Define dummy X observation to add for Minnesota moments.
 #' 
-#' @param p Integer, VAR lag. For VHAR, put 3.
+#' @param lag_seq Vector, sequence to build Jp = diag(1, ... p) matrix inside Xp.
 #' @param sigma Vector, standard error of each variable
 #' @param lambda Double, tightness of the prior around a random walk or white noise
 #' @param eps Double, very small number
@@ -94,8 +96,8 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_xdummy <- function(p, lambda, sigma, eps) {
-    .Call(`_bvhar_build_xdummy`, p, lambda, sigma, eps)
+build_xdummy <- function(lag_seq, lambda, sigma, eps) {
+    .Call(`_bvhar_build_xdummy`, lag_seq, lambda, sigma, eps)
 }
 
 #' Parameters of Normal Inverted Wishart Prior
@@ -122,30 +124,6 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' @noRd
 minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
-}
-
-#' Construct Dummy response for Second Version of BVHAR Minnesota Prior
-#' 
-#' Define dummy Y observations to add for Minnesota moments.
-#' This function also fills zero matrix in the first block for applying to VHAR.
-#' 
-#' @param sigma Vector, standard error of each variable
-#' @param lambda Double, tightness of the prior around a random walk or white noise
-#' @param daily Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
-#' @param weekly Vector, this was zero in the original Minnesota design
-#' @param monthly Vector, this was zero in the original Minnesota design
-#' 
-#' @details
-#' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
-#' 
-#' @references
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-#' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' @noRd
-build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
-    .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
 }
 
 #' BVAR(p) Point Estimates based on Minnesota Prior

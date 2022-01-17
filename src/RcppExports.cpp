@@ -48,30 +48,32 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_ydummy
-Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta);
-RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP deltaSEXP) {
+Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
+RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type p(pSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type delta(deltaSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, delta));
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type daily(dailySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type weekly(weeklySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type monthly(monthlySEXP);
+    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, daily, weekly, monthly));
     return rcpp_result_gen;
 END_RCPP
 }
 // build_xdummy
-Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps);
-RcppExport SEXP _bvhar_build_xdummy(SEXP pSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP) {
+Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps);
+RcppExport SEXP _bvhar_build_xdummy(SEXP lag_seqSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lag_seq(lag_seqSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_xdummy(p, lambda, sigma, eps));
+    rcpp_result_gen = Rcpp::wrap(build_xdummy(lag_seq, lambda, sigma, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -84,21 +86,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x_dummy(x_dummySEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
     rcpp_result_gen = Rcpp::wrap(minnesota_prior(x_dummy, y_dummy));
-    return rcpp_result_gen;
-END_RCPP
-}
-// build_ydummy_bvhar
-Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
-RcppExport SEXP _bvhar_build_ydummy_bvhar(SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type daily(dailySEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type weekly(weeklySEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type monthly(monthlySEXP);
-    rcpp_result_gen = Rcpp::wrap(build_ydummy_bvhar(sigma, lambda, daily, weekly, monthly));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -738,10 +725,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
     {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 2},
     {"_bvhar_diag_misc", (DL_FUNC) &_bvhar_diag_misc, 1},
-    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 4},
+    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 6},
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
-    {"_bvhar_build_ydummy_bvhar", (DL_FUNC) &_bvhar_build_ydummy_bvhar, 5},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
