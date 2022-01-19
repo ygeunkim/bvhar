@@ -4,10 +4,12 @@
 \alias{sim_mnvhar_coef}
 \title{Generate Minnesota BVAR Parameters}
 \usage{
-sim_mnvhar_coef(bayes_spec = set_bvhar())
+sim_mnvhar_coef(bayes_spec = set_bvhar(), full = TRUE)
 }
 \arguments{
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
+\item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
+
+\item{full}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Generate variance matrix from IW or not?}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.

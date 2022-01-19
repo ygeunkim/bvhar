@@ -86,7 +86,9 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' @param p Integer, VAR lag. For VHAR, put 3.
 //' @param sigma Vector, standard error of each variable
 //' @param lambda Double, tightness of the prior around a random walk or white noise
-//' @param delta Vector, prior belief about white noise (Litterman sets 1)
+//' @param daily Vector, prior belief about white noise (Litterman sets 1)
+//' @param weekly Vector, this was zero in the original Minnesota design
+//' @param monthly Vector, this was zero in the original Minnesota design
 //' 
 //' @details
 //' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
@@ -98,20 +100,32 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd delta) {
-  int m = sigma.size();
-  Eigen::MatrixXd res(m * p + m + 1, m); // Yp
-  Eigen::VectorXd wt(m); // delta * sigma
-  for (int i = 0; i < m; i++) {
-    wt[i] = delta[i] * sigma[i] / lambda;
+Eigen::MatrixXd build_ydummy(int p, 
+                             Eigen::VectorXd sigma, 
+                             double lambda, 
+                             Eigen::VectorXd daily,
+                             Eigen::VectorXd weekly,
+                             Eigen::VectorXd monthly) {
+  int dim = sigma.size();
+  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * p + dim + 1, dim); // Yp
+  Eigen::VectorXd weight_day(dim); // deltai * sigma or di * sigma
+  Eigen::VectorXd weight_week(dim); // wi * sigma
+  Eigen::VectorXd weight_month(dim); // mi * sigma
+  for (int i = 0; i < dim; i++) {
+    weight_day[i] = daily[i] * sigma[i] / lambda;
+  }
+  for (int i = 0; i < dim; i++) {
+    weight_week[i] = weekly[i] * sigma[i] / lambda;
+  }
+  for (int i = 0; i < dim; i++) {
+    weight_month[i] = monthly[i] * sigma[i] / lambda;
   }
   // first block------------------------
-  res.block(0, 0, m, m) = diag_misc(wt);
-  res.block(m, 0, m * (p - 1), m) = Eigen::MatrixXd::Zero(m * (p - 1), m);
+  res.block(0, 0, dim, dim) = diag_misc(weight_day);
+  res.block(dim, 0, dim, dim) = diag_misc(weight_week);
+  res.block(2 * dim, 0, dim, dim) = diag_misc(weight_month);
   // second block-----------------------
-  res.block(m * p, 0, m, m) = diag_misc(sigma);
-  // third block------------------------
-  res.block(m * p + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
+  res.block(dim * p, 0, dim, dim) = diag_misc(sigma);
   return res;
 }
 
@@ -119,7 +133,7 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
 //' 
 //' Define dummy X observation to add for Minnesota moments.
 //' 
-//' @param p Integer, VAR lag. For VHAR, put 3.
+//' @param lag_seq Vector, sequence to build Jp = diag(1, ... p) matrix inside Xp.
 //' @param sigma Vector, standard error of each variable
 //' @param lambda Double, tightness of the prior around a random walk or white noise
 //' @param eps Double, very small number
@@ -134,26 +148,17 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_xdummy(int p, double lambda, Eigen::VectorXd sigma, double eps) {
-  int m = sigma.size();
-  Eigen::VectorXd p_seq(p);
-  Eigen::MatrixXd Jp(p, p);
-  Eigen::MatrixXd Sig(m, m);
-  Eigen::MatrixXd res(m * p + m + 1, m * p + 1);
-  for (int i = 0; i < p; i++) {
-    p_seq[i] = i + 1;
-  }
+Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps) {
+  int dim = sigma.size();
+  int var_lag = lag_seq.size();
+  Eigen::MatrixXd Sig(dim, dim);
+  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * var_lag + dim + 1, dim * var_lag + 1);
   // first block------------------
-  Jp = diag_misc(p_seq);
+  Eigen::MatrixXd Jp = diag_misc(lag_seq);
   Sig = diag_misc(sigma) / lambda;
-  res.block(0, 0, m * p, m * p) = Eigen::kroneckerProduct(Jp, Sig);
-  res.block(0, m * p, m * p, 1) = Eigen::MatrixXd::Zero(m * p, 1);
-  // second block-----------------
-  res.block(m * p, 0, m, m * p) = Eigen::MatrixXd::Zero(m, m * p);
-  res.block(m * p, m * p, m, 1) = Eigen::MatrixXd::Zero(m, 1);
+  res.block(0, 0, dim * var_lag, dim * var_lag) = Eigen::kroneckerProduct(Jp, Sig);
   // third block------------------
-  res.block(m * p + m, 0, 1, m * p) = Eigen::MatrixXd::Zero(1, m * p);
-  res(m * p + m, m * p) = eps;
+  res(dim * var_lag + dim, dim * var_lag) = eps;
   return res;
 }
 
@@ -196,51 +201,4 @@ Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
     Rcpp::Named("prior_scale") = prior_scale,
     Rcpp::Named("prior_shape") = prior_shape + 2
   );
-}
-
-//' Construct Dummy response for Second Version of BVHAR Minnesota Prior
-//' 
-//' Define dummy Y observations to add for Minnesota moments.
-//' This function also fills zero matrix in the first block for applying to VHAR.
-//' 
-//' @param sigma Vector, standard error of each variable
-//' @param lambda Double, tightness of the prior around a random walk or white noise
-//' @param daily Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
-//' @param weekly Vector, this was zero in the original Minnesota design
-//' @param monthly Vector, this was zero in the original Minnesota design
-//' 
-//' @details
-//' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
-//' 
-//' @references
-//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-//' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd build_ydummy_bvhar(Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly) {
-  int m = sigma.size();
-  Eigen::MatrixXd res(3 * m + m + 1, m); // Yp
-  Eigen::VectorXd wt1(m); // daily * sigma
-  Eigen::VectorXd wt2(m); // weekly * sigma
-  Eigen::VectorXd wt3(m); // monthly * sigma
-  for (int i = 0; i < m; i++) {
-    wt1[i] = daily[i] * sigma[i] / lambda;
-  }
-  for (int i = 0; i < m; i++) {
-    wt2[i] = weekly[i] * sigma[i] / lambda;
-  }
-  for (int i = 0; i < m; i++) {
-    wt3[i] = monthly[i] * sigma[i] / lambda;
-  }
-  // first block--------------------
-  res.block(0, 0, m, m) = diag_misc(wt1);
-  res.block(m, 0, m, m) = diag_misc(wt2);
-  res.block(2 * m, 0, m, m) = diag_misc(wt3);
-  // second block-------------------
-  res.block(3 * m, 0, m, m) = diag_misc(sigma);
-  // third block--------------------
-  res.block(3 * m + m, 0, 1, m) = Eigen::MatrixXd::Zero(1, m);
-  return res;
 }

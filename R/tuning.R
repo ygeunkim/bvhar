@@ -96,6 +96,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' @param y Time series data
 #' @param p BVAR lag
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param parallel `r lifecycle::badge("experimental")` List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @details 
 #' Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
 #' These functions implement `"L-BFGS-B"` method of [stats::optim()] to find the maximum of marginal likelihood.
@@ -106,6 +107,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). *A limited memory algorithm for bound constrained optimization*. SIAM Journal on scientific computing, 16(5), 1190-1208. doi: [10.1137/0916069](https://doi.org/10.1137/0916069).
 #' 
 #' @importFrom stats optim
+#' @importFrom optimParallel optimParallel
 #' @order 1
 #' @export
 choose_bvar <- function(bayes_spec = set_bvar(), 
@@ -115,7 +117,8 @@ choose_bvar <- function(bayes_spec = set_bvar(),
                         eps = 1e-04,
                         y, 
                         p, 
-                        include_mean = TRUE) {
+                        include_mean = TRUE,
+                        parallel = list()) {
   dim_data <- ncol(y)
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -138,19 +141,35 @@ choose_bvar <- function(bayes_spec = set_bvar(),
     delta <- bayes_spec$delta
   }
   # find argmax of log(ML)-------
-  res <- 
-    optim(
-      par = c(sigma, lambda, delta), 
-      fn = logml_bvar,
-      method = "L-BFGS-B",
-      lower = lower,
-      upper = upper,
-      ...,
-      eps = eps,
-      y = y,
-      p = p,
-      include_mean = include_mean
-    )
+  if (length(parallel) > 0) {
+    res <- 
+      optimParallel(
+        par = c(sigma, lambda, delta), 
+        fn = logml_bvar,
+        lower = lower,
+        upper = upper,
+        ...,
+        eps = eps,
+        y = y,
+        p = p,
+        include_mean = include_mean,
+        parallel = parallel
+      )
+  } else {
+    res <- 
+      optim(
+        par = c(sigma, lambda, delta), 
+        fn = logml_bvar,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper,
+        ...,
+        eps = eps,
+        y = y,
+        p = p,
+        include_mean = include_mean
+      )
+  }
   # optimized model spec---------
   bayes_spec$sigma <- res$par[1:dim_data]
   bayes_spec$lambda <- res$par[dim_data + 1]
@@ -251,8 +270,10 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' @param ... Additional arguments for [stats::optim()].
 #' @param y Time series data
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param parallel `r lifecycle::badge("experimental")` List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' 
 #' @importFrom stats optim
+#' @importFrom optimParallel optimParallel
 #' @order 1
 #' @export
 choose_bvhar <- function(bayes_spec = set_bvhar(),
@@ -261,7 +282,8 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
                          ..., 
                          eps = 1e-04,
                          y, 
-                         include_mean = TRUE) {
+                         include_mean = TRUE,
+                         parallel = list()) {
   dim_data <- ncol(y)
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -286,18 +308,33 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
       delta <- bayes_spec$delta
     }
     # maximize marginal likelihood
-    res <- 
-      optim(
-        par = c(sigma, lambda, delta), 
-        fn = logml_bvhar_var,
-        method = "L-BFGS-B",
-        lower = lower,
-        upper = upper,
-        ...,
-        eps = eps,
-        y = y,
-        include_mean = include_mean
-      )
+    if (length(parallel) > 0) {
+      res <- 
+        optimParallel(
+          par = c(sigma, lambda, delta), 
+          fn = logml_bvhar_var,
+          lower = lower,
+          upper = upper,
+          ...,
+          eps = eps,
+          y = y,
+          include_mean = include_mean,
+          parallel = parallel
+        )
+    } else {
+      res <- 
+        optim(
+          par = c(sigma, lambda, delta), 
+          fn = logml_bvhar_var,
+          method = "L-BFGS-B",
+          lower = lower,
+          upper = upper,
+          ...,
+          eps = eps,
+          y = y,
+          include_mean = include_mean
+        )
+    }
     # collect the argmax-----------
     bayes_spec$sigma <- res$par[1:dim_data]
     bayes_spec$lambda <- res$par[dim_data + 1]
@@ -319,18 +356,33 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
       monthly <- bayes_spec$monthly
     }
     # maximize marginal likelihood
-    res <- 
-      optim(
-        par = c(sigma, lambda, daily, weekly, monthly), 
-        fn = logml_bvhar_vhar,
-        method = "L-BFGS-B",
-        lower = lower,
-        upper = upper,
-        ...,
-        eps = eps,
-        y = y,
-        include_mean = include_mean
-      )
+    if (length(parallel) > 0) {
+      res <- 
+        optimParallel(
+          par = c(sigma, lambda, daily, weekly, monthly), 
+          fn = logml_bvhar_vhar,
+          lower = lower,
+          upper = upper,
+          ...,
+          eps = eps,
+          y = y,
+          include_mean = include_mean,
+          parallel = parallel
+        )
+    } else {
+      res <- 
+        optim(
+          par = c(sigma, lambda, daily, weekly, monthly), 
+          fn = logml_bvhar_vhar,
+          method = "L-BFGS-B",
+          lower = lower,
+          upper = upper,
+          ...,
+          eps = eps,
+          y = y,
+          include_mean = include_mean
+        )
+    }
     # collect the argmax-----------
     bayes_spec$sigma <- res$par[1:dim_data]
     bayes_spec$lambda <- res$par[dim_data + 1]

@@ -31,7 +31,7 @@ To know whether the process is stable or not, make characteristic polynomial.
 
 \deqn{\det(I_m - A z) = 0}
 
-where \eqn{A} is VAR(1) matrix defined in \code{\link[=compute_stablemat]{compute_stablemat()}}.
+where \eqn{A} is VAR(1) coefficient matrix representation.
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}

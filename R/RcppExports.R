@@ -61,7 +61,9 @@ diag_misc <- function(x) {
 #' @param p Integer, VAR lag. For VHAR, put 3.
 #' @param sigma Vector, standard error of each variable
 #' @param lambda Double, tightness of the prior around a random walk or white noise
-#' @param delta Vector, prior belief about white noise (Litterman sets 1)
+#' @param daily Vector, prior belief about white noise (Litterman sets 1)
+#' @param weekly Vector, this was zero in the original Minnesota design
+#' @param monthly Vector, this was zero in the original Minnesota design
 #' 
 #' @details
 #' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
@@ -72,15 +74,15 @@ diag_misc <- function(x) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_ydummy <- function(p, sigma, lambda, delta) {
-    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, delta)
+build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly) {
+    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, daily, weekly, monthly)
 }
 
 #' Construct Dummy design matrix for Minnesota Prior
 #' 
 #' Define dummy X observation to add for Minnesota moments.
 #' 
-#' @param p Integer, VAR lag. For VHAR, put 3.
+#' @param lag_seq Vector, sequence to build Jp = diag(1, ... p) matrix inside Xp.
 #' @param sigma Vector, standard error of each variable
 #' @param lambda Double, tightness of the prior around a random walk or white noise
 #' @param eps Double, very small number
@@ -94,8 +96,8 @@ build_ydummy <- function(p, sigma, lambda, delta) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_xdummy <- function(p, lambda, sigma, eps) {
-    .Call(`_bvhar_build_xdummy`, p, lambda, sigma, eps)
+build_xdummy <- function(lag_seq, lambda, sigma, eps) {
+    .Call(`_bvhar_build_xdummy`, lag_seq, lambda, sigma, eps)
 }
 
 #' Parameters of Normal Inverted Wishart Prior
@@ -122,30 +124,6 @@ build_xdummy <- function(p, lambda, sigma, eps) {
 #' @noRd
 minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
-}
-
-#' Construct Dummy response for Second Version of BVHAR Minnesota Prior
-#' 
-#' Define dummy Y observations to add for Minnesota moments.
-#' This function also fills zero matrix in the first block for applying to VHAR.
-#' 
-#' @param sigma Vector, standard error of each variable
-#' @param lambda Double, tightness of the prior around a random walk or white noise
-#' @param daily Vector, instead of delta vector in the original Minnesota design (Litterman sets 1).
-#' @param weekly Vector, this was zero in the original Minnesota design
-#' @param monthly Vector, this was zero in the original Minnesota design
-#' 
-#' @details
-#' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.
-#' 
-#' @references
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-#' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' @noRd
-build_ydummy_bvhar <- function(sigma, lambda, daily, weekly, monthly) {
-    .Call(`_bvhar_build_ydummy_bvhar`, sigma, lambda, daily, weekly, monthly)
 }
 
 #' BVAR(p) Point Estimates based on Minnesota Prior
@@ -304,33 +282,20 @@ ir_var <- function(object, lag_max) {
 #' 
 #' This function produces a linear transformation matrix for VHAR for given dimension.
 #' 
-#' @param m integer, dimension
+#' @param dim Integer, dimension
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @details
 #' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
-#' 
 #' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
-#' 
 #' This function computes above \eqn{T_{HAR}}.
 #' 
-#' @noRd
-scale_har <- function(m) {
-    .Call(`_bvhar_scale_har`, m)
-}
-
-#' Building a Linear Transformation Matrix for Vector HAR with Other Orders
-#' 
-#' This function produces a linear transformation matrix for VHAR(week, month) for given dimension.
-#' 
-#' @param m Integer, dimension
-#' @param week Integer, order for week term
-#' @param month Integer, order for month term
-#' @details
 #' Default VHAR model sets `week` and `month` as `5` and `22`.
 #' This function can change these numbers to get linear transformation matrix.
 #' 
 #' @noRd
-scale_har_order <- function(m, week, month) {
-    .Call(`_bvhar_scale_har_order`, m, week, month)
+scale_har <- function(dim, week, month) {
+    .Call(`_bvhar_scale_har`, dim, week, month)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -778,11 +743,11 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 }
 
-#' VAR(1) Representation of VAR(p)
+#' VAR(1) Representation Given VAR Coefficient Matrix
 #' 
-#' Compute the coefficient matrix of VAR(1) form
+#' Compute the VAR(1) coefficient matrix form
 #' 
-#' @param object Model fit
+#' @param x VAR without constant coefficient matrix form
 #' @details
 #' Each VAR(p) process can be represented by mp-dim VAR(1).
 #' 
@@ -807,9 +772,36 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
 #' \deqn{U_t = (\epsilon_t, 0, \ldots, 0)^T}
 #' 
 #' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
-#' @export
-compute_stablemat <- function(object) {
-    .Call(`_bvhar_compute_stablemat`, object)
+#' @noRd
+compute_stablemat <- function(x) {
+    .Call(`_bvhar_compute_stablemat`, x)
+}
+
+#' VAR(1) Representation of VAR(p)
+#' 
+#' Compute the coefficient matrix of VAR(1) form
+#' 
+#' @param object Model fit
+#' 
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_var_stablemat <- function(object) {
+    .Call(`_bvhar_compute_var_stablemat`, object)
+}
+
+#' VAR(1) Representation of VHAR
+#'
+#' Compute the coefficient matrix of VAR(1) form of VHAR
+#'
+#' @param object Model fit
+#' @details
+#' Note that \eqn{A^T = \Phi^T T_{HAR}}.
+#' This gives the VAR(1) form of constrained VAR(22).
+#'
+#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @noRd
+compute_vhar_stablemat <- function(object) {
+    .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
 #' @noRd
@@ -871,6 +863,8 @@ log_mgammafn <- function(x, p) {
 #' 2. For i = 1, ... n,
 #' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+#' 
+#' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export

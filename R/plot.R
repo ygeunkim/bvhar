@@ -541,7 +541,7 @@ geom_loss <- function(mapping = NULL,
 #' * [mase()] to compute MASE for given forecast result
 #' 
 #' @importFrom ggplot2 ggplot labs element_blank scale_colour_viridis_d facet_wrap
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows mutate
 #' @export
 gg_loss <- function(mod_list, 
                     y, 
@@ -554,6 +554,7 @@ gg_loss <- function(mod_list,
                     NROW = NULL,
                     NCOL = NULL, ...) {
   # Input data for geom_loss----------------
+  fct_arrange <- toupper(type)
   data <- 
     type %>% 
     lapply(
@@ -561,7 +562,8 @@ gg_loss <- function(mod_list,
         gather_loss(mod_list, y, loss)
       }
     ) %>% 
-    bind_rows()
+    bind_rows() %>% 
+    mutate(Loss = factor(Loss, levels = fct_arrange))
   # plot------------------------------------
   p <- 
     ggplot() +
