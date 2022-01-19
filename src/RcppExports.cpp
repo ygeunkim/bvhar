@@ -759,6 +759,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
+    {"_bvhar_ir_var", (DL_FUNC) &_bvhar_ir_var, 2},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 2},
     {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 2},
