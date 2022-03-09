@@ -3,7 +3,6 @@
 \docType{data}
 \name{etf_vix}
 \alias{etf_vix}
-\alias{etf_vix_raw}
 \title{CBOE ETF Volatility Index Dataset}
 \format{
 A data frame of 1006 row and 9 columns:
@@ -21,11 +20,6 @@ From 2015-01-05 to 2018-12-28,
 \item{VXXLECLS}{Energy Sector ETF volatility index}
 \item{VXEWZCLS}{Brazil ETF volatility index}
 }
-
-\code{etf_vix_raw} is a raw dataset that includes date column (\code{DATE}).
-
-From 2015-01-05 to 2018-12-28,
-there exists 36 missing obervations.
 }
 \source{
 Source: \url{https://www.cboe.com}
@@ -34,8 +28,6 @@ Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 }
 \usage{
 etf_vix
-
-etf_vix_raw
 }
 \description{
 Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
@@ -45,9 +37,6 @@ Copyright, 2016, Chicago Board Options Exchange, Inc.
 
 Note that, in this data frame, dates column is removed.
 This dataset interpolated 36 missing observations (nontrading dates) using \code{\link[imputeTS:na_interpolation]{imputeTS::na_interpolation()}}.
-
-On the other hand, you can call \code{etf_vix_raw} with \code{\link[=data]{data()}} function:
-\code{data(etf_vix_raw, package = "bvhar")}.
 }
 \references{
 Chicago Board Options Exchange, CBOE Gold ETF Volatility Index (GVZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/GVZCLS}, July 31, 2021.
