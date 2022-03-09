@@ -47,6 +47,8 @@ summary.vharlse <- function(object, ...) {
     totobs = object$totobs,
     obs = object$obs,
     p = object$p,
+    week = object$week,
+    month = object$month,
     coefficients = phihat_mat,
     call = object$call,
     process = object$process,

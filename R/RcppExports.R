@@ -282,6 +282,8 @@ scale_har <- function(dim, week, month) {
 #' 
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' \deqn{Y_0 = X_1 \Phi + Z}
@@ -293,8 +295,8 @@ scale_har <- function(dim, week, month) {
 #' 
 #' @importFrom Rcpp sourceCpp
 #' @noRd
-estimate_har <- function(x, y) {
-    .Call(`_bvhar_estimate_har`, x, y)
+estimate_har <- function(x, y, week, month) {
+    .Call(`_bvhar_estimate_har`, x, y, week, month)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
@@ -303,6 +305,8 @@ estimate_har <- function(x, y) {
 #' 
 #' @param x Design matrix X0 (delete its last column)
 #' @param y Response matrix Y0
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' \deqn{Y_0 = X_1 \Phi + Z}
@@ -313,13 +317,13 @@ estimate_har <- function(x, y) {
 #' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
 #' 
 #' @noRd
-estimate_har_none <- function(x, y) {
-    .Call(`_bvhar_estimate_har_none`, x, y)
+estimate_har_none <- function(x, y, week, month) {
+    .Call(`_bvhar_estimate_har_none`, x, y, week, month)
 }
 
 #' @noRd
-VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max) {
-    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max)
+VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max, month)
 }
 
 #' Convert VHAR to VMA(infinite)

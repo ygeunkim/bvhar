@@ -6,7 +6,7 @@
 \alias{knit_print.vharlse}
 \title{Fitting Vector HAR Model}
 \usage{
-vhar_lm(y, include_mean = TRUE)
+vhar_lm(y, har = c(5, 22), include_mean = TRUE)
 
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -14,6 +14,8 @@ knit_print.vharlse(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
+
+\item{har}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -34,6 +36,8 @@ It is a list with the following components:
 \item{covmat}{LS estimate for covariance matrix}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
 \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
+\item{week}{Order for weekly term}
+\item{month}{Order for monthly term}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}

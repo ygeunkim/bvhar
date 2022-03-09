@@ -1,3 +1,9 @@
+# bvhar 0.6.0
+
+* Added weekly and monthly order feature in VHAR family (`vhar_lm()` and `bvhar_minnesota()`).
+
+* Other functions are compatible with har order option (`predict.vharlse()`, `predict.bvharmn()`, and `choose_bvhar()`)
+
 # bvhar 0.5.2
 
 * Added parallel option for empirical bayes (`choose_bvar()` and `choose_bvhar()`).
