@@ -1,7 +1,8 @@
+# Bayesian model specification----------------
 test_that("Test for hyperparameter functions", {
   bvar_spec <- set_bvar(
-    sigma = rep(0, 3),
-    lambda = 0,
+    sigma = rep(.1, 3),
+    lambda = .1,
     delta = rep(.2, 3)
   )
   
@@ -9,3 +10,4 @@ test_that("Test for hyperparameter functions", {
   
   
 })
+#> Test passed 🌈

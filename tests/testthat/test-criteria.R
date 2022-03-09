@@ -1,3 +1,4 @@
+# Model evaluation--------------------
 test_that("loglikelihood", {
   test_lag <- 3
   fit_test_var <- var_lm(etf_vix, test_lag)
@@ -17,7 +18,7 @@ test_that("loglikelihood", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvhar <- bvhar_minnesota(etf_vix, bvhar_spec)
+  fit_test_bvhar <- bvhar_minnesota(etf_vix, bayes_spec = bvhar_spec)
   
   expect_s3_class(logLik(fit_test_var), "logLik")
   expect_s3_class(logLik(fit_test_vhar), "logLik")
@@ -25,3 +26,4 @@ test_that("loglikelihood", {
   expect_s3_class(logLik(fit_test_bvhar), "logLik")
   
 })
+#> Test passed 🌈

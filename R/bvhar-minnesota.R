@@ -3,6 +3,7 @@
 #' This function fits BVHAR with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' 
@@ -85,7 +86,7 @@
 #' 
 #' @order 1
 #' @export
-bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
+bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -98,6 +99,16 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   if (bayes_spec$process != "BVHAR") {
     stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
   }
+  
+  if (length(har) != 2 || !is.numeric(har)) {
+    stop("'har' should be numeric vector of length 2.")
+  }
+  if (har[1] > har[2]) {
+    stop("'har[1]' should be smaller than 'har[2]'.")
+  }
+  week <- har[1] # 5
+  month <- har[2] # 22
+  
   minnesota_type <- bayes_spec$prior
   m <- ncol(y)
   N <- nrow(y)
@@ -110,7 +121,7 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   lambda <- bayes_spec$lambda
   eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, 22, 23)
+  Y0 <- build_y0(y, month, month + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -118,8 +129,8 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
   }
   colnames(Y0) <- name_var
   s <- nrow(Y0)
-  X0 <- build_design(y, 22)
-  HARtrans <- scale_har(m, 5, 22)
+  X0 <- build_design(y, month)
+  HARtrans <- scale_har(m, week, month)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
   # dummy-----------------------------
   Yh <- switch(
@@ -161,8 +172,8 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     stop("'include_mean' is logical.")
   }
   if (!include_mean) {
-    X0 <- X0[, -(22 * m + 1)] # exclude 1 column
-    HARtrans <- HARtrans[-num_coef, -(22 * m + 1)] # HARtrans: 3m x 22m matrix
+    X0 <- X0[, -(month * m + 1)] # exclude 1 column
+    HARtrans <- HARtrans[-num_coef, -(month * m + 1)] # HARtrans: 3m x 22m matrix
     Th <- nrow(Yh)
     Yh <- Yh[-Th,] # exclude intercept block from Yh (last row)
     Xh <- Xh[-Th, -num_coef] # exclude intercept block from Xh (last row and last column)
@@ -203,6 +214,8 @@ bvhar_minnesota <- function(y, bayes_spec = set_bvhar(), include_mean = TRUE) {
     # variables-----------
     df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
     p = 3, # add for other function (df = 3m + 1 = mp + 1)
+    week = week, # default: 5
+    month = month, # default: 22
     m = m, # m
     obs = s, # s = n - 22
     totobs = N, # n

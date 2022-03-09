@@ -6,7 +6,12 @@
 \alias{knit_print.bvharmn}
 \title{Fitting Bayesian VHAR of Minnesota Prior}
 \usage{
-bvhar_minnesota(y, bayes_spec = set_bvhar(), include_mean = TRUE)
+bvhar_minnesota(
+  y,
+  har = c(5, 22),
+  bayes_spec = set_bvhar(),
+  include_mean = TRUE
+)
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -14,6 +19,8 @@ knit_print.bvharmn(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
+
+\item{har}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 

@@ -26,6 +26,7 @@ choose_bvhar(
   ...,
   eps = 1e-04,
   y,
+  har = c(5, 22),
   include_mean = TRUE,
   parallel = list()
 )
@@ -52,6 +53,8 @@ knit_print.bvharemp(x, ...)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{parallel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{har}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{x}{\code{bvharemp} object}
 
