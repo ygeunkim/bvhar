@@ -49,16 +49,6 @@
 #' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
 "etf_vix"
 
-#' @rdname etf_vix
-#' @details 
-#' On the other hand, you can call `etf_vix_raw` with [data()] function:
-#' `data(etf_vix_raw, package = "bvhar")`.
-#' @format `etf_vix_raw` is a raw dataset that includes date column (`DATE`).
-#' 
-#' From 2015-01-05 to 2018-12-28,
-#' there exists 36 missing obervations.
-"etf_vix_raw"
-
 #' Oxford-Man Institute Realized Library
 #' 
 #' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://www.oxford-man.ox.ac.uk).
@@ -76,7 +66,7 @@
 #' @format `oxfordman_long` is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 #' 
 #' \describe{
-#'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+#'     \item{date}{Date - From 2013-01-07 to 2019-12-27}
 #'     \item{Symbol}{Name of the Assets - See below for each name}
 #'     \item{nobs}{Number of observations}
 #'     \item{by_ss}{Bipower Variation (5-min Sub-sampled)}
@@ -98,10 +88,11 @@
 #'     \item{close_time}{Closing Time}
 #' }
 #' 
-#' `oxfordman_wide_rv` is widened data frame of which values are 5-min RV (`rv5`).
+#' `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
+#' Also, it does not have `date` column for fitting.
 #' The number of rows is 1826 and the number of columns is 31.
 #' \describe{
-#'     \item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+#'     \item{date}{Date - From 2013-01-07 to 2019-12-27}
 #'     \item{AEX}{AEX index}
 #'     \item{AORD}{All Ordinaries}
 #'     \item{BFX}{Bell 20 Index}
@@ -143,17 +134,6 @@
 #' Asset lists: [https://realized.oxford-man.ox.ac.uk/data/assets](https://realized.oxford-man.ox.ac.uk/data/assets)
 #' 
 #' @name oxfordman
-"oxfordman_wide_rv"
-
-#' @rdname oxfordman
-#' @format `oxfordman_wide_rk` is widened data frame of which values are realized kernel variance (`rk_parzen`).
-#' The number of rows is 1826 and the number of columns is 31, which are the same variables as `oxfordman_wide_rv`.
-"oxfordman_wide_rk"
-
-#' @rdname oxfordman
-#' @format `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
-#' Also, it does not have `DATE` column for fitting.
-#' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_rv"
 
 #' @rdname oxfordman
@@ -161,31 +141,3 @@
 #' Also, it does not have `DATE` column for fitting.
 #' The number of rows is 1826 and the number of columns is 31.
 "oxfordman_rk"
-
-#' Estimated Energy Consumption
-#' 
-#' US estimated energy consumption (in Megawatts) in each region.
-#' 
-#' @format `est_energy` is realized kernel variance dataset computed by parzen kernel.
-#' Since `NI` and `PJM_Load` observations are too old, they are excluded.
-#' The observations are subset of the raw data (from 1998-04-01 10:00:00 to 2018-08-03 09:00:00),
-#' from 2014-08-04 (Monday) to 2018-08-03 (Friday).
-#' \describe{
-#'     \item{AEP}{\href{https://en.wikipedia.org/wiki/American_Electric_Power}{American Electric Power}}
-#'     \item{COMED}{\href{https://en.wikipedia.org/wiki/Commonwealth_Edison}{Commonwealth Edison}}
-#'     \item{DAYTON}{\href{https://en.wikipedia.org/wiki/DPL_Inc.}{The Dayton Power and Light Company}}
-#'     \item{DEOK}{\href{https://en.wikipedia.org/wiki/Duke_Energy}{Duke Energy Ohio/Kentucky}}
-#'     \item{DOM}{\href{https://en.wikipedia.org/wiki/Dominion_Energy}{Dominion Virginia Power}}
-#'     \item{DUQ}{\href{https://en.wikipedia.org/wiki/DQE}{Duquesne Light Co.}}
-#'     \item{EKPC}{\href{http://www.ekpc.coop/}{East Kentucky Power Cooperative}}
-#'     \item{FE}{\href{https://en.wikipedia.org/wiki/FirstEnergy}{FirstEnergy}}
-#'     \item{NI}{Northern Illinois Hub}
-#'     \item{PJME}{PJM East Region: 2001-2018}
-#'     \item{PJMW}{PJM West Region: 2001-2018}
-#'     \item{PJM_Load}{PJM Load Combined: 1998-2001}
-#' }
-#' 
-#' @source 
-#' [https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data](https://www.kaggle.com/robikscube/time-series-forecasting-with-prophet/data)
-"est_energy"
-
