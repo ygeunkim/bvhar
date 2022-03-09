@@ -120,7 +120,6 @@ reference:
   contents:
   - etf_vix
   - oxfordman
-  - est_energy
 
 - title: Other generic functions
   desc: ~
