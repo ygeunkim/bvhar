@@ -127,7 +127,7 @@ VAR-type Minnesota
 ```{r}
 spec_bvhar_v1 <- set_bvhar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvhar_v1 <- bvhar_minnesota(y_train, spec_bvhar_v1)
+model_bvhar_v1 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v1)
 ```
 
 VHAR-type Minnesota
@@ -147,7 +147,7 @@ spec_bvhar_v2 <- set_weight_bvhar(
   y_month
 )
 # fit--------------------------------------
-model_bvhar_v2 <- bvhar_minnesota(y_train, spec_bvhar_v2)
+model_bvhar_v2 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v2)
 ```
 
 # Forecasting

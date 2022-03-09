@@ -48,6 +48,8 @@ Eigen::MatrixXd scale_har(int dim, int week, int month) {
 //' 
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' \deqn{Y_0 = X_1 \Phi + Z}
@@ -60,13 +62,13 @@ Eigen::MatrixXd scale_har(int dim, int week, int month) {
 //' @importFrom Rcpp sourceCpp
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month) {
   int dim = y.cols();
   int num_har = 3 * dim + 1; // 3m + 1
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, 5, 22); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
@@ -83,6 +85,8 @@ Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' @param x Design matrix X0 (delete its last column)
 //' @param y Response matrix Y0
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' \deqn{Y_0 = X_1 \Phi + Z}
@@ -94,14 +98,14 @@ Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month) {
   int dim = y.cols(); // m
   int num_har = 3 * dim; // 3m
-  int dim_har = 22 * dim; // 22m
+  int dim_har = month * dim; // 22m
   Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
   Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
   Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, 5, 22).block(0, 0, num_har, dim_har); // linear transformation
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month).block(0, 0, num_har, dim_har); // linear transformation
   x1 = x * HARtrans.transpose();
   Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
   yhat = x1 * Phi;
@@ -114,15 +118,15 @@ Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y) {
 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max) {
+Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month) {
   int dim = vhar_coef.cols(); // dimension of time series
   Eigen::MatrixXd coef_mat = HARtrans_mat.transpose() * vhar_coef; // bhat = tilde(T)^T * Phi
   if (lag_max < 1) Rcpp::stop("'lag_max' must larger than 0");
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
-  if (lag_max < 22) num_full_arows = dim * 22; // for VMA coefficient q < VAR(p)
+  if (lag_max < month) num_full_arows = month * dim; // for VMA coefficient q < VAR(p)
   Eigen::MatrixXd FullA = Eigen::MatrixXd::Zero(num_full_arows, dim); // same size with VMA coefficient matrix
-  FullA.block(0, 0, dim * 22, dim) = coef_mat.block(0, 0, dim * 22, dim); // fill first mp row with VAR coefficient matrix
+  FullA.block(0, 0, month * dim, dim) = coef_mat.block(0, 0, month * dim, dim); // fill first mp row with VAR coefficient matrix
   Eigen::MatrixXd Im(dim, dim); // identity matrix
   Im.setIdentity(dim, dim);
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
@@ -161,7 +165,8 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
   if (!object.inherits("vharlse")) Rcpp::stop("'object' must be vharlse object.");
   Eigen::MatrixXd har_mat = object["coefficients"]; // Phihat(3m + 1, m) = [Phi(d)^T, Phi(w)^T, Phi(m)^T, c^T]^T
   Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // tilde(T): (3m + 1, 22m + 1)
-  Eigen::MatrixXd ma = VHARcoeftoVMA(har_mat, hartrans_mat, lag_max);
+  int month = object["month"];
+  Eigen::MatrixXd ma = VHARcoeftoVMA(har_mat, hartrans_mat, lag_max, month);
   return ma;
 }
 
@@ -195,4 +200,3 @@ Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {
   }
   return mse;
 }
-

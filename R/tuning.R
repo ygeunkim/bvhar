@@ -211,7 +211,7 @@ choose_bvar <- function(bayes_spec = set_bvar(),
 #' in order.
 #' 
 #' @noRd
-logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
+logml_bvhar_var <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean = TRUE, ...) {
   dim_data <- ncol(y)
   if (length(param) != 2 * dim_data + 1) {
     stop("The number of param is wrong.")
@@ -222,7 +222,7 @@ logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     delta = param[(dim_data + 2):length(param)],
     eps = 1e-04
   )
-  fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
+  fit <- bvhar_minnesota(y = y, har = har, bayes_spec = bvhar_spec, include_mean = include_mean)
   -logml_stable(fit) # for maximization
 }
 
@@ -244,7 +244,7 @@ logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' in order.
 #' 
 #' @noRd
-logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
+logml_bvhar_vhar <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean = TRUE, ...) {
   dim_data <- ncol(y)
   if (length(param) != 4 * dim_data + 1) {
     stop("The number of param is wrong.")
@@ -257,7 +257,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     weekly = param[(dim_data * 2 + 2):((dim_data * 3 + 1))],
     monthly = param[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   )
-  fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
+  fit <- bvhar_minnesota(y = y, har = har, bayes_spec = bvhar_spec, include_mean = include_mean)
   -logml_stable(fit) # for maximization
 }
 
@@ -269,6 +269,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
 #' @param ... Additional arguments for [stats::optim()].
 #' @param y Time series data
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel `r lifecycle::badge("experimental")` List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' 
@@ -282,6 +283,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
                          ..., 
                          eps = 1e-04,
                          y, 
+                         har = c(5, 22),
                          include_mean = TRUE,
                          parallel = list()) {
   dim_data <- ncol(y)
@@ -318,6 +320,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean,
           parallel = parallel
         )
@@ -332,6 +335,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean
         )
     }
@@ -366,6 +370,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean,
           parallel = parallel
         )
@@ -380,6 +385,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean
         )
     }
@@ -395,6 +401,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   # fit using final spec--------
   final_fit <- bvhar_minnesota(
     y = y,
+    har = har,
     bayes_spec = bayes_spec,
     include_mean = include_mean
   )

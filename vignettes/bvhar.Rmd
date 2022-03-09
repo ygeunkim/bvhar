@@ -336,7 +336,7 @@ This is the default prior setting.
 
 
 ```{r}
-(fit_bvhar_v1 <- bvhar_minnesota(etf_train, bvhar_spec_v1))
+(fit_bvhar_v1 <- bvhar_minnesota(etf_train, bayes_spec = bvhar_spec_v1))
 ```
 
 ### HAR-type Minnesota
@@ -372,7 +372,7 @@ With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
 ```{r}
 fit_bvhar_v2 <- bvhar_minnesota(
   etf_train, 
-  bvhar_spec_v2
+  bayes_spec = bvhar_spec_v2
 )
 fit_bvhar_v2
 ```
