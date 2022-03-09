@@ -64,7 +64,7 @@ forecast_roll <- function(object, n_ahead, y_test) {
       roll_var(y, object$p, include_mean, n_ahead, y_test)
     },
     "vharlse" = {
-      roll_vhar(y, include_mean, n_ahead, y_test)
+      roll_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
     },
     "bvarmn" = {
       roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
@@ -73,7 +73,7 @@ forecast_roll <- function(object, n_ahead, y_test) {
       roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      roll_bvhar(y, object$spec, include_mean, n_ahead, y_test)
+      roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
     }
   )
   num_horizon <- nrow(y_test) - n_ahead + 1
@@ -120,6 +120,9 @@ forecast_expand <- function(object, n_ahead, y_test) {
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   res_mat <- switch(
@@ -128,7 +131,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
       expand_var(y, object$p, include_mean, n_ahead, y_test)
     },
     "vharlse" = {
-      expand_vhar(y, include_mean, n_ahead, y_test)
+      expand_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
     },
     "bvarmn" = {
       expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
@@ -137,7 +140,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
       expand_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      expand_bvhar(y, object$spec, include_mean, n_ahead, y_test)
+      expand_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
     }
   )
   num_horizon <- nrow(y_test) - n_ahead + 1
