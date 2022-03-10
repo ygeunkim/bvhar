@@ -9,8 +9,8 @@ fred_id <- fredr_series_search_text(search_text = "CBOE ETF")
 etf_vix_long <- purrr::map_dfr(
   fred_id$id, 
   fredr,
-  observation_start = as.Date("2015-01-05"),
-  observation_end = as.Date("2018-12-28")
+  observation_start = as.Date("2012-01-09"), # after Italian debt crisis
+  observation_end = as.Date("2015-06-27") # before Grexit
 ) %>% 
   select(date, series_id, value)
 # date, variables-----------------------------

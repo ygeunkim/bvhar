@@ -99,7 +99,6 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
   if (bayes_spec$process != "BVHAR") {
     stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
   }
-  
   if (length(har) != 2 || !is.numeric(har)) {
     stop("'har' should be numeric vector of length 2.")
   }
@@ -108,7 +107,6 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
   }
   week <- har[1] # 5
   month <- har[2] # 22
-  
   minnesota_type <- bayes_spec$prior
   m <- ncol(y)
   N <- nrow(y)

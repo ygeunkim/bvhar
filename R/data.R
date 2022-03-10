@@ -10,8 +10,8 @@
 #' 
 #' @format A data frame of 1006 row and 9 columns:
 #' 
-#' From 2015-01-05 to 2018-12-28,
-#' 36 missing observations were interpolated by [stats::approx()] with `linear`.
+#' From 2012-01-09 to 2015-06-27,
+#' 33 missing observations were interpolated by [stats::approx()] with `linear`.
 #' \describe{
 #'     \item{GVZCLS}{Gold ETF volatility index}
 #'     \item{VXFXICLS}{China ETF volatility index}
