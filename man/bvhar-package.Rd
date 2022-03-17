@@ -49,11 +49,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} [copyright holder]
+\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{
-  \item Changryong Baek [contributor]
+  \item Changryong Baek (\href{https://orcid.org/0000-0002-1839-404X}{ORCID}) [contributor]
 }
 
 }

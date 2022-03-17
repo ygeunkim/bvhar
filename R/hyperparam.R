@@ -76,7 +76,9 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @order 1
 #' @export
 set_bvar_flat <- function(U) {
-  if (missing(U)) U <- NULL
+  if (missing(U)) {
+    U <- NULL
+  }
   bvar_param <- list(
     process = "BVAR",
     prior = "Flat",

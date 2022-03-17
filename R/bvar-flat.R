@@ -82,10 +82,16 @@
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
   if (!is.matrix(y)) y <- as.matrix(y)
-  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
-  if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
+  }
+  if (bayes_spec$process != "BVAR") {
+    stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
+  }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   m <- ncol(y)
@@ -99,7 +105,9 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   k <- m * p + 1 # df
   if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
@@ -107,7 +115,9 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     name_lag <- name_lag[1:k] # colnames(X0)
   }
   # spec------------------------------
-  if (is.null(bayes_spec$U)) bayes_spec$U <- diag(ncol(X0)) # identity matrix
+  if (is.null(bayes_spec$U)) {
+    bayes_spec$U <- diag(ncol(X0)) # identity matrix
+  }
   prior_prec <- bayes_spec$U
   # Matrix normal---------------------
   posterior <- estimate_mn_flat(X0, Y0, prior_prec)
