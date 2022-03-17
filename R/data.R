@@ -1,3 +1,36 @@
+#' Time points and Financial Events
+#' 
+#' @description 
+#' This page describes about some important financial events in 20th century.
+#' This might give some hint when cutting data and why we provides datasets in limited period.
+#' 
+#' # Outline
+#' 
+#' * 2000: Dot-com bubble
+#' * 2001: September 11 terror and Enron scandal
+#' * 2003: Iraq war (until 2011)
+#' * 2007 to 2008: Financial crisis (US)
+#'     * 2007: Subprime morgage crisis
+#'     * 2008: Bankrupcy of Lehman Brothers
+#' * 2010 to 2016: European sovereign dept crisis
+#'     * 2010: Greek debt crisis
+#'     * 2011: Italian default
+#'     * 2015: Greek default
+#'     * 2016: Brexit
+#' * 2018: US-China trade war
+#' * 2019: Brexit
+#' * 2020: COVID-19
+#' 
+#' # About Datasets in this package
+#' 
+#' [etf_vix] and [oxfordman] range from 2012-01-09 to 2015-06-27.
+#' Each year corresponds to Italian default and Grexit.
+#' 
+#' 
+#' @keywords internal
+#' @name financial_history_appendix
+NULL
+
 #' CBOE ETF Volatility Index Dataset
 #' 
 #' Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility index from FRED.
@@ -10,8 +43,8 @@
 #' 
 #' @format A data frame of 1006 row and 9 columns:
 #' 
-#' From 2015-01-05 to 2018-12-28,
-#' 36 missing observations were interpolated by [stats::approx()] with `linear`.
+#' From 2012-01-09 to 2015-06-27,
+#' 33 missing observations were interpolated by [stats::approx()] with `linear`.
 #' \describe{
 #'     \item{GVZCLS}{Gold ETF volatility index}
 #'     \item{VXFXICLS}{China ETF volatility index}
@@ -90,14 +123,14 @@
 #' 
 #' `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
 #' Also, it does not have `date` column for fitting.
-#' The number of rows is 1826 and the number of columns is 31.
+#' The number of rows is 912 and the number of columns is 30 (except date).
 #' \describe{
-#'     \item{date}{Date - From 2013-01-07 to 2019-12-27}
+#'     \item{date}{Date - From 2012-01-09 to 2015-06-27}
 #'     \item{AEX}{AEX index}
 #'     \item{AORD}{All Ordinaries}
 #'     \item{BFX}{Bell 20 Index}
 #'     \item{BSESN}{S&P BSE Sensex}
-#'     \item{BVLG}{PSI All-Share Index}
+#'     \item{BVLG}{PSI All-Share Index (excluded because this index is observed from 2012-10-15)}
 #'     \item{BVSP}{BVSP BOVESPA Index}
 #'     \item{DJI}{Dow Jones Industrial Average}
 #'     \item{FCHI}{CAC 40}
@@ -122,7 +155,7 @@
 #'     \item{SPX}{S&P 500 Index}
 #'     \item{SSEC}{Shanghai Composite Index}
 #'     \item{SSMI}{Swiss Stock Market Index}
-#'     \item{STI}{Straits Times Index}
+#'     \item{STI}{Straits Times Index (excluded because this index is NA in the period)}
 #'     \item{STOXX50E}{EURO STOXX 50}
 #' }
 #' 

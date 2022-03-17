@@ -7,10 +7,12 @@ Authors@R:
     c(person(given = "Young Geun",
              family = "Kim",
              email = "dudrms33@g.skku.edu",
-             role = c("aut", "cre", "cph")),
+             role = c("aut", "cre", "cph"),
+             comment = c(ORCID = "0000-0001-8651-1167")),
       person(given = "Changryong",
              family = "Baek",
-             role = "ctb"))
+             role = "ctb",
+             comment = c(ORCID = "0000-0002-1839-404X")))
 Description: A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
     `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 License: MIT + file LICENSE

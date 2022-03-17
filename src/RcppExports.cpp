@@ -647,17 +647,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // sim_vhar
-Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
-RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, int week, int month, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init));
+    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -779,7 +781,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
-    {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 5},
+    {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
     {"_bvhar_compute_bic", (DL_FUNC) &_bvhar_compute_bic, 1},
