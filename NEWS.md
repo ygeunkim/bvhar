@@ -1,3 +1,7 @@
+# bvhar 0.6.1
+
+* Pre-process date column of `oxfordman` more elaborately (it becomes same with `etf_vix`).
+
 # bvhar 0.6.0
 
 * Added weekly and monthly order feature in VHAR family (`vhar_lm()` and `bvhar_minnesota()`).
