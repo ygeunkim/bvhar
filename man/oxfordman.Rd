@@ -10,7 +10,7 @@
 \code{oxfordman_long} is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 
 \describe{
-\item{date}{Date - From 2013-01-07 to 2019-12-27}
+\item{date}{Date - From 2012-01-09 to 2015-06-27}
 \item{Symbol}{Name of the Assets - See below for each name}
 \item{nobs}{Number of observations}
 \item{by_ss}{Bipower Variation (5-min Sub-sampled)}

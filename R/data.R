@@ -23,13 +23,18 @@
 #' 
 #' # About Datasets in this package
 #' 
-#' [etf_vix] and [oxfordman] range from 2012-01-09 to 2015-06-27.
+#' [etf_vix] and [oxfordman] range from 2012-01-09 to 2015-06-27 (only weekdays).
 #' Each year corresponds to Italian default and Grexit.
-#' 
+#' If you wonder the exact vector of the date, see [trading_day] vector.
 #' 
 #' @keywords internal
 #' @name financial_history_appendix
 NULL
+
+#' @rdname financial_history_appendix
+#' 
+#' @format A vector `trading_day` saves dates of each [etf_vix] and [oxfordman].
+"trading_day"
 
 #' CBOE ETF Volatility Index Dataset
 #' 
@@ -99,7 +104,7 @@ NULL
 #' @format `oxfordman_long` is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 #' 
 #' \describe{
-#'     \item{date}{Date - From 2013-01-07 to 2019-12-27}
+#'     \item{date}{Date - From 2012-01-09 to 2015-06-27}
 #'     \item{Symbol}{Name of the Assets - See below for each name}
 #'     \item{nobs}{Number of observations}
 #'     \item{by_ss}{Bipower Variation (5-min Sub-sampled)}
@@ -123,7 +128,7 @@ NULL
 #' 
 #' `oxfordman_rv` is a data frame that interpolates `NA` values of `oxfordman_wide_rv`.
 #' Also, it does not have `date` column for fitting.
-#' The number of rows is 912 and the number of columns is 30 (except date).
+#' The number of rows is 905 and the number of columns is 30 (except date).
 #' \describe{
 #'     \item{date}{Date - From 2012-01-09 to 2015-06-27}
 #'     \item{AEX}{AEX index}
