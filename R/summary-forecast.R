@@ -5,9 +5,6 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param n_ahead step to evaluate
 #' 
-#' @seealso 
-#' [rsample::initial_time_split()], [rsample::training()], and [rsample::testing()] process provides tidyverse solution.
-#' 
 #' @importFrom stats setNames
 #' @export
 divide_ts <- function(y, n_ahead) {
@@ -581,9 +578,9 @@ rmafe <- function(x, pred_bench, y, ...) {
 #' @references 
 #' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' 
 #' @export
 rmafe.predbvhar <- function(x, pred_bench, y, ...) {

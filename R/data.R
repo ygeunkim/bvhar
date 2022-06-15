@@ -27,6 +27,15 @@
 #' Each year corresponds to Italian default and Grexit.
 #' If you wonder the exact vector of the date, see [trading_day] vector.
 #' 
+#' # Notice
+#' 
+#' If you want other time period, see our code in the Github repo for the dataset.
+#' 
+#' * [etf_vix]: [ygeunkim/bvhar/data-raw/etf_vix.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R)
+#' * [oxfordman]: [ygeunkim/bvhar/data-raw/oxfordman_long.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R)
+#' 
+#' You can download what you want by changing a few lines.
+#' 
 #' @keywords internal
 #' @name financial_history_appendix
 NULL

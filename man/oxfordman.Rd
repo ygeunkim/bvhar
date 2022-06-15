@@ -34,7 +34,7 @@
 
 \code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
 Also, it does not have \code{date} column for fitting.
-The number of rows is 912 and the number of columns is 30 (except date).
+The number of rows is 905 and the number of columns is 30 (except date).
 \describe{
 \item{date}{Date - From 2012-01-09 to 2015-06-27}
 \item{AEX}{AEX index}

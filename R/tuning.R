@@ -4,7 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param lag_max Maximum Var lag to explore (default = 5)
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel Parallel computation using [foreach::foreach()]? By default, `FALSE`.
 #' 
 #' @return Minimum order and information criteria values
@@ -88,7 +88,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' 
 #' This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
+#' @param bayes_spec Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
@@ -263,7 +263,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean
 
 #' @rdname choose_bvar
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
+#' @param bayes_spec Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.

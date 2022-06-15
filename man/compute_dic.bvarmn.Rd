@@ -32,5 +32,5 @@ Random sampling from posterior distribution gives its computation, \eqn{\theta_i
 \references{
 Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 
-Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and Van Der Linde, A. (2002). \emph{Bayesian measures of model complexity and fit}. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 64: 583-639. \url{https://doi.org/10.1111/1467-9868.00353}
+Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and Van Der Linde, A. (2002). \emph{Bayesian measures of model complexity and fit}. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 64: 583-639. doi:\href{https://doi.org/10.1111/1467-9868.00353}{10.1111/1467-9868.00353}
 }

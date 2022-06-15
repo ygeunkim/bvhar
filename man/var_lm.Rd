@@ -72,22 +72,18 @@ which gives
 }
 \examples{
 # Perform the function using etf_vix dataset
-\dontrun{
-  fit <- var_lm(y = etf_vix, p = 5)
-  class(fit)
-  str(fit)
-}
+fit <- var_lm(y = etf_vix, p = 2)
+class(fit)
+str(fit)
 
 # Extract coef, fitted values, and residuals
-\dontrun{
-  coef(fit)
-  residuals(fit)
-  fitted(fit)
-}
+coef(fit)
+residuals(fit)
+fitted(fit)
 
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }
 \seealso{
 \itemize{

@@ -47,6 +47,8 @@ knit_print.bvharspec(x, ...)
 \value{
 Every function returns \code{bvharspec} \link{class}.
 It is the list of which the components are the same as the arguments provided.
+If the argument is not specified, \code{NULL} is assigned here.
+The default values mentioned above will be considered in each fitting function.
 }
 \description{
 Set hyperparameters of Bayesian VAR and VHAR models.
@@ -72,49 +74,41 @@ Set hyperparameters of Bayesian VAR and VHAR models.
 \examples{
 # Minnesota BVAR specification
 # m = 3
-\dontrun{
-  bvar_spec <- set_bvar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, # lambda = .2
-    delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
-    eps = 1e-04 # eps = 1e-04
-  )
-  class(bvar_spec)
-  str(bvar_spec)
-}
+bvar_spec <- set_bvar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
+  eps = 1e-04 # eps = 1e-04
+)
+class(bvar_spec)
+str(bvar_spec)
 # Flat BVAR specification
 # m = 3
 # p = 5 with constant term
 # U = 500 * I(mp + 1)
-\dontrun{
-  bvar_spec <- set_bvar_flat(U = 500 * diag(16))
-  class(bvar_spec)
-  str(bvar_spec)
-}
+bvar_flat_spec <- set_bvar_flat(U = 500 * diag(16))
+class(bvar_flat_spec)
+str(bvar_flat_spec)
 # VAR-type Minnesota BVHAR specification
 # m = 3
-\dontrun{
-  bvhar_spec <- set_bvhar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, # lambda = .2
-    delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
-    eps = 1e-04 # eps = 1e-04
-  )
-  class(bvhar_spec)
-  str(bvhar_spec)
-}
+bvhar_var_spec <- set_bvhar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
+  eps = 1e-04 # eps = 1e-04
+)
+class(bvhar_var_spec)
+str(bvhar_var_spec)
 # HAR-type Minnesota BVHAR specification
 # m = 3
-\dontrun{
-  bvhar_spec <- set_weight_bvhar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, eps = 1e-04, # lambda = .2
-    eps = 1e-04, # eps = 1e-04
-    daily = rep(.2, 3), # daily1 = .2, daily2 = .2, daily3 = .2
-    weekly = rep(.1, 3), # weekly1 = .1, weekly2 = .1, weekly3 = .1
-    monthly = rep(.05, 3) # monthly1 = .05, monthly2 = .05, monthly3 = .05
-  )
-  class(bvhar_spec)
-  str(bvhar_spec)
-}
+bvhar_vhar_spec <- set_weight_bvhar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  eps = 1e-04, # eps = 1e-04
+  daily = rep(.2, 3), # daily1 = .2, daily2 = .2, daily3 = .2
+  weekly = rep(.1, 3), # weekly1 = .1, weekly2 = .1, weekly3 = .1
+  monthly = rep(.05, 3) # monthly1 = .05, monthly2 = .05, monthly3 = .05
+)
+class(bvhar_vhar_spec)
+str(bvhar_vhar_spec)
 }

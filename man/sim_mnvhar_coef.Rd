@@ -20,13 +20,7 @@ Normal-IW family for vector HAR model:
 \deqn{\Sigma_e \sim IW(U_0, d_0)}
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
-
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
-
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
-
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
 }
 \seealso{
 \itemize{

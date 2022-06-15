@@ -36,7 +36,7 @@ choose_bvhar(
 knit_print.bvharemp(x, ...)
 }
 \arguments{
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Initial Bayes model specification.}
+\item{bayes_spec}{Initial Bayes model specification.}
 
 \item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound. By default, \code{.01}.}
 
