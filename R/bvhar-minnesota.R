@@ -52,15 +52,7 @@
 #' }
 #' 
 #' @references 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-#' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; *Prior Selection for Vector Autoregressions*. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: [https://doi.org/10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
-#' 
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. [https://doi.org/10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
-#' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. [https://doi:10.1093/jjfinec/nbp001](https://doi:10.1093/jjfinec/nbp001)
+#' Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. Preprint.
 #' 
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
@@ -71,18 +63,14 @@
 #' 
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' \dontrun{
-#'   fit <- bvhar_minnesota(y = etf_vix)
-#'   class(fit)
-#'   str(fit)
-#' }
+#' fit <- bvhar_minnesota(y = etf_vix)
+#' class(fit)
+#' str(fit)
 #' 
 #' # Extract coef, fitted values, and residuals
-#' \dontrun{
-#'   coef(fit)
-#'   residuals(fit)
-#'   fitted(fit)
-#' }
+#' coef(fit)
+#' residuals(fit)
+#' fitted(fit)
 #' 
 #' @order 1
 #' @export

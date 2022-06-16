@@ -93,7 +93,7 @@ autoplot.summary.normaliw <- function(object,
 
 #' Residual Plot for Minnesota Prior VAR Model
 #' 
-#' This function draww residual plot for covariance matrix of Minnesota prior VAR model.
+#' This function draws residual plot for covariance matrix of Minnesota prior VAR model.
 #' 
 #' @param object `normaliw` object
 #' @param hcol color of horizontal line = 0 (By default, grey)

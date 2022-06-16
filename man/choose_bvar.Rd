@@ -5,7 +5,7 @@
 \alias{choose_bvhar}
 \alias{print.bvharemp}
 \alias{knit_print.bvharemp}
-\title{Finding the Set of Hyperparameters of Bayesian Model}
+\title{Finding the Set of Hyperparameters of Individual Bayesian Model}
 \usage{
 choose_bvar(
   bayes_spec = set_bvar(),
@@ -36,7 +36,7 @@ choose_bvhar(
 knit_print.bvharemp(x, ...)
 }
 \arguments{
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Initial Bayes model specification.}
+\item{bayes_spec}{Initial Bayes model specification.}
 
 \item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound. By default, \code{.01}.}
 
@@ -61,7 +61,9 @@ knit_print.bvharemp(x, ...)
 \item{digits}{digit option to print}
 }
 \description{
-This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This document is remained due to my another repository: \href{https://github.com/ygeunkim/paper-bvhar}{paper-bvhar}.
+This function now works as internal function.
+This function chooses the set of hyperparameters of individual Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
 }
 \details{
 Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.

@@ -32,6 +32,14 @@ spread_oxford <- function(x = oxfordman_long, var = "rv5") {
 oxfordman_wide_rv <- spread_oxford(oxfordman_long, "rv5")
 # Realized Kernel Variance (Non-Flat Parzen)--------
 oxfordman_wide_rk <- spread_oxford(oxfordman_long, "rk_parzen")
+# Dates difference should be 1 or 3-----------------
+# but not satisfied
+oxfordman_wide_rv <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rv, by = "date")
+oxfordman_wide_rk <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rk, by = "date")
 # Impute-------------------------------------------
 oxfordman_rv <- 
   oxfordman_wide_rv %>% 

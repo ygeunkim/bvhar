@@ -23,5 +23,8 @@ etf_vix <-
   select(-date) %>% 
   apply(2, imputeTS::na_interpolation) %>% 
   as_tibble()
+# only date-----------------------------------
+trading_day <- etf_vix_raw$date
 # save----------------------------------------
 usethis::use_data(etf_vix, overwrite = TRUE)
+usethis::use_data(trading_day, overwrite = TRUE)

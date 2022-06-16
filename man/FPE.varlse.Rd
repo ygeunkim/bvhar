@@ -29,5 +29,5 @@ Then
 \deqn{FPE(p) = (\frac{s + k}{s - k})^m \det \tilde{\Sigma}_e}
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }

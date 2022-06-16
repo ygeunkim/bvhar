@@ -16,5 +16,5 @@
 \item{...}{additional options for geom_point}
 }
 \description{
-This function draww residual plot for covariance matrix of Minnesota prior VAR model.
+This function draws residual plot for covariance matrix of Minnesota prior VAR model.
 }

@@ -6,7 +6,7 @@
 \alias{bvhar-package}
 \title{bvhar: Bayesian Vector Autoregressive Heterogeneous Modeling}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
@@ -53,7 +53,7 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Changryong Baek (\href{https://orcid.org/0000-0002-1839-404X}{ORCID}) [contributor]
+  \item Changryong Baek [contributor]
 }
 
 }

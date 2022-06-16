@@ -70,7 +70,7 @@ etf_te <- etf_split$test
 VAR(5):
 
 ``` r
-mod_var <- var_lm(etf_tr, 5)
+mod_var <- var_lm(y = etf_tr, p = 5)
 ```
 
 Forecasting:
@@ -83,16 +83,16 @@ MSE:
 
 ``` r
 (msevar <- mse(forecast_var, etf_te))
-#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>    0.675    1.817   42.797   14.652    4.376   14.686    9.149    4.947 
-#> VXXLECLS 
-#>   80.670
+#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
+#>    5.381   14.689    2.838    9.451   10.078    0.654   22.436    9.992 
+#> VXEWZCLS 
+#>   10.647
 ```
 
 ### VHAR
 
 ``` r
-mod_vhar <- vhar_lm(etf_tr)
+mod_vhar <- vhar_lm(y = etf_tr)
 ```
 
 MSE:
@@ -100,10 +100,10 @@ MSE:
 ``` r
 forecast_vhar <- predict(mod_vhar, h)
 (msevhar <- mse(forecast_vhar, etf_te))
-#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     2.34     4.69    57.58    14.73     6.07     5.45     8.94     4.36 
-#> VXXLECLS 
-#>    95.97
+#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
+#>     6.15     2.49     1.52     1.58    10.55     1.35     8.79     4.43 
+#> VXEWZCLS 
+#>     3.84
 ```
 
 ### BVAR
@@ -124,10 +124,10 @@ eps <- 1e-04
 #> ========================================================
 #> 
 #> Setting for 'sigma':
-#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
-#> VXXLECLS  
-#>     6.25  
+#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
+#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
+#> VXEWZCLS  
+#>     7.03  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -140,7 +140,7 @@ eps <- 1e-04
 ```
 
 ``` r
-mod_bvar <- bvar_minnesota(etf_tr, 5, bvar_spec)
+mod_bvar <- bvar_minnesota(y = etf_tr, p = 5, bayes_spec = bvar_spec)
 ```
 
 MSE:
@@ -148,10 +148,10 @@ MSE:
 ``` r
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
-#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>    0.534    1.337   50.211   17.453    3.441   15.745   16.552    4.098 
-#> VXXLECLS 
-#>   88.957
+#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
+#>    4.651   13.248    1.845   10.356    9.894    0.667   21.040    6.262 
+#> VXEWZCLS 
+#>    8.864
 ```
 
 ### BVHAR
@@ -168,10 +168,10 @@ VAR-type Minnesota prior:
 #> ========================================================
 #> 
 #> Setting for 'sigma':
-#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
-#> VXXLECLS  
-#>     6.25  
+#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
+#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
+#> VXEWZCLS  
+#>     7.03  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -184,7 +184,7 @@ VAR-type Minnesota prior:
 ```
 
 ``` r
-mod_bvhar_v1 <- bvhar_minnesota(etf_tr, bvhar_spec_v1)
+mod_bvhar_v1 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v1)
 ```
 
 MSE:
@@ -192,10 +192,10 @@ MSE:
 ``` r
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
-#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>    0.952    1.937   47.983   14.109    1.775    9.288   15.379    3.836 
-#> VXXLECLS 
-#>   79.779
+#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
+#>    3.199    6.067    1.471    5.142    5.946    0.878   12.165    2.553 
+#> VXEWZCLS 
+#>    6.462
 ```
 
 VHAR-type Minnesota prior:
@@ -214,10 +214,10 @@ month <- rep(.1, ncol(etf_vix))
 #> ========================================================
 #> 
 #> Setting for 'sigma':
-#>   EVZCLS    GVZCLS    OVXCLS  VXEEMCLS  VXEWZCLS  VXFXICLS  VXGDXCLS  VXSLVCLS  
-#>     2.20      3.26     11.15      5.12      7.81      6.85     11.04      4.94  
-#> VXXLECLS  
-#>     6.25  
+#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
+#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
+#> VXEWZCLS  
+#>     7.03  
 #> 
 #> Setting for 'lambda':
 #> [1]  0.3
@@ -236,16 +236,16 @@ month <- rep(.1, ncol(etf_vix))
 ```
 
 ``` r
-mod_bvhar_v2 <- bvhar_minnesota(etf_tr, bvhar_spec_v2)
+mod_bvhar_v2 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v2)
 ```
 
 ``` r
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
-#>   EVZCLS   GVZCLS   OVXCLS VXEEMCLS VXEWZCLS VXFXICLS VXGDXCLS VXSLVCLS 
-#>     1.11     1.83    42.50    12.94     1.56     3.54    17.02     3.55 
-#> VXXLECLS 
-#>    71.88
+#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
+#>     3.63     3.85     1.64     5.12     5.75     1.08    13.60     2.58 
+#> VXEWZCLS 
+#>     5.54
 ```
 
 ## Compare Models
@@ -253,7 +253,7 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 ### Layers
 
 ``` r
-autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
+autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_vhar, ci_alpha = .6) +
   autolayer(forecast_bvar, ci_alpha = .4) +
   autolayer(forecast_bvhar_v1, ci_alpha = .2) +

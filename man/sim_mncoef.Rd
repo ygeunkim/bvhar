@@ -23,9 +23,11 @@ Bańbura et al. (2010) sets Normal-IW prior.
 \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
+
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
 }
 \seealso{
 \itemize{
