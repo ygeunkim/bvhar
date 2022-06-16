@@ -69,7 +69,7 @@ Details about each function are in vignettes and help documents.
 
 h-step ahead forecasting:
 
-```{r}
+```{r datasplit}
 h <- 19
 etf_split <- divide_ts(etf_vix, h) # Try ?divide_ts
 etf_tr <- etf_split$train
@@ -80,31 +80,31 @@ etf_te <- etf_split$test
 
 VAR(5):
 
-```{r}
-mod_var <- var_lm(etf_tr, 5)
+```{r fitvar}
+mod_var <- var_lm(y = etf_tr, p = 5)
 ```
 
 Forecasting:
 
-```{r}
+```{r predvar}
 forecast_var <- predict(mod_var, h)
 ```
 
 MSE:
 
-```{r}
+```{r testvar}
 (msevar <- mse(forecast_var, etf_te))
 ```
 
 ### VHAR
 
-```{r}
-mod_vhar <- vhar_lm(etf_tr)
+```{r fitvhar}
+mod_vhar <- vhar_lm(y = etf_tr)
 ```
 
 MSE:
 
-```{r}
+```{r predvhar}
 forecast_vhar <- predict(mod_vhar, h)
 (msevhar <- mse(forecast_vhar, etf_te))
 ```
@@ -113,7 +113,7 @@ forecast_vhar <- predict(mod_vhar, h)
 
 Minnesota prior:
 
-```{r}
+```{r specbvar}
 lam <- .3
 delta <- rep(1, ncol(etf_vix)) # litterman
 sig <- apply(etf_tr, 2, sd)
@@ -121,13 +121,13 @@ eps <- 1e-04
 (bvar_spec <- set_bvar(sig, lam, delta, eps))
 ```
 
-```{r}
-mod_bvar <- bvar_minnesota(etf_tr, 5, bvar_spec)
+```{r fitbvar}
+mod_bvar <- bvar_minnesota(y = etf_tr, p = 5, bayes_spec = bvar_spec)
 ```
 
 MSE:
 
-```{r}
+```{r }
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
 ```
@@ -136,24 +136,24 @@ forecast_bvar <- predict(mod_bvar, h)
 
 VAR-type Minnesota prior:
 
-```{r}
+```{r specbvhars}
 (bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
 ```
 
-```{r}
-mod_bvhar_v1 <- bvhar_minnesota(etf_tr, bvhar_spec_v1)
+```{r fitbvhars}
+mod_bvhar_v1 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v1)
 ```
 
 MSE:
 
-```{r}
+```{r predbvhars}
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
 ```
 
 VHAR-type Minnesota prior:
 
-```{r}
+```{r specbvharl}
 day <- rep(.1, ncol(etf_vix))
 week <- rep(.1, ncol(etf_vix))
 month <- rep(.1, ncol(etf_vix))
@@ -161,11 +161,11 @@ month <- rep(.1, ncol(etf_vix))
 (bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, day, week, month))
 ```
 
-```{r}
-mod_bvhar_v2 <- bvhar_minnesota(etf_tr, bvhar_spec_v2)
+```{r fitbvharl}
+mod_bvhar_v2 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v2)
 ```
 
-```{r}
+```{r predbvharl}
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
 ```
@@ -175,7 +175,7 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 ### Layers
 
 ```{r predfig}
-autoplot(forecast_var, x_cut = 1000, ci_alpha = .7, type = "wrap") +
+autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_vhar, ci_alpha = .6) +
   autolayer(forecast_bvar, ci_alpha = .4) +
   autolayer(forecast_bvhar_v1, ci_alpha = .2) +

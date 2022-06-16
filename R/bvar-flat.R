@@ -53,11 +53,9 @@
 #' }
 #' 
 #' @references 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' 
 #' @seealso 
 #' * [set_bvar_flat()] to specify the hyperparameters of BVAR flat prior.
@@ -66,26 +64,30 @@
 #' 
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' \dontrun{
-#'   fit <- bvar_flat(y = etf_vix, p = 2)
-#'   class(fit)
-#'   str(fit)
-#' }
+#' fit <- bvar_flat(y = etf_vix, p = 2)
+#' class(fit)
+#' str(fit)
 #' 
 #' # Extract coef, fitted values, and residuals
-#' \dontrun{
-#'   coef(fit)
-#'   residuals(fit)
-#'   fitted(fit)
-#' }
+#' coef(fit)
+#' head(residuals(fit))
+#' head(fitted(fit))
 #' 
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
-  if (!all(apply(y, 2, is.numeric))) stop("Every column must be numeric class.")
-  if (!is.matrix(y)) y <- as.matrix(y)
-  if (!is.bvharspec(bayes_spec)) stop("Provide 'bvharspec' for 'bayes_spec'.")
-  if (bayes_spec$process != "BVAR") stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
+  }
+  if (bayes_spec$process != "BVAR") {
+    stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
+  }
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   m <- ncol(y)
@@ -99,7 +101,9 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
-  if (!is.logical(include_mean)) stop("'include_mean' is logical.")
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
   k <- m * p + 1 # df
   if (!include_mean) {
     X0 <- X0[, -k] # exclude 1 column
@@ -107,7 +111,9 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     name_lag <- name_lag[1:k] # colnames(X0)
   }
   # spec------------------------------
-  if (is.null(bayes_spec$U)) bayes_spec$U <- diag(ncol(X0)) # identity matrix
+  if (is.null(bayes_spec$U)) {
+    bayes_spec$U <- diag(ncol(X0)) # identity matrix
+  }
   prior_prec <- bayes_spec$U
   # Matrix normal---------------------
   posterior <- estimate_mn_flat(X0, Y0, prior_prec)

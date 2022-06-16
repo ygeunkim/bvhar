@@ -10,13 +10,13 @@ names(oxfordman_long)[1] <- "date"
 oxfordman_long <- 
   oxfordman_long %>% 
   mutate(
-    date = lubridate::as_date(date),
+    date = as.Date(date),
     Symbol = stringr::str_remove(Symbol, pattern = "\\.")
   ) %>% # remove the dot in front of each name of the asset (Symbol)
   filter(between(
     date,
-    lubridate::as_date("2013-01-05"),
-    lubridate::as_date("2019-12-28")
+    as.Date("2012-01-09"), # after Italian debt crisis
+    as.Date("2015-06-27") # before Grexit
   )) # filtering dates
 # Widen data----------------------------------------
 spread_oxford <- function(x = oxfordman_long, var = "rv5") {
@@ -24,7 +24,7 @@ spread_oxford <- function(x = oxfordman_long, var = "rv5") {
   x %>% 
     mutate(realized = !!rv) %>% 
     select(date, Symbol, realized) %>% 
-    filter(Symbol != "STI") %>% # STI has too many NAs
+    filter(Symbol != "STI", Symbol != "BVLG") %>% # STI: all NAs and BVLG: from 2012-10-15
     tidyr::pivot_wider(names_from = "Symbol", values_from = "realized") %>% 
     arrange(date)
 }
@@ -32,6 +32,14 @@ spread_oxford <- function(x = oxfordman_long, var = "rv5") {
 oxfordman_wide_rv <- spread_oxford(oxfordman_long, "rv5")
 # Realized Kernel Variance (Non-Flat Parzen)--------
 oxfordman_wide_rk <- spread_oxford(oxfordman_long, "rk_parzen")
+# Dates difference should be 1 or 3-----------------
+# but not satisfied
+oxfordman_wide_rv <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rv, by = "date")
+oxfordman_wide_rk <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rk, by = "date")
 # Impute-------------------------------------------
 oxfordman_rv <- 
   oxfordman_wide_rv %>% 

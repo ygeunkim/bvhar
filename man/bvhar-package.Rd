@@ -6,7 +6,7 @@
 \alias{bvhar-package}
 \title{bvhar: Bayesian Vector Autoregressive Heterogeneous Modeling}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
@@ -49,7 +49,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} [copyright holder]
+\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{

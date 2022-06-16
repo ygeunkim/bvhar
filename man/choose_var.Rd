@@ -11,7 +11,7 @@ choose_var(y, lag_max = 5, include_mean = TRUE, parallel = FALSE)
 
 \item{lag_max}{Maximum Var lag to explore (default = 5)}
 
-\item{include_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+\item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{parallel}{Parallel computation using \code{\link[foreach:foreach]{foreach::foreach()}}? By default, \code{FALSE}.}
 }

@@ -4,7 +4,7 @@
 \alias{sim_vhar}
 \title{Generate Multivariate Time Series Process Following VHAR}
 \usage{
-sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)
+sim_vhar(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
@@ -13,9 +13,13 @@ sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)
 
 \item{vhar_coef}{VHAR coefficient. The format should be the same as the output of \code{\link[=vhar_lm]{vhar_lm()}}}
 
+\item{week}{Order for weekly term. Try \code{5} by default.}
+
+\item{month}{Order for monthly term. Try \code{22} by default.}
+
 \item{sig_error}{Variance matrix of the error term. Try \code{diag(dim)}.}
 
-\item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.}
+\item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = month, ncol = dim)}.}
 }
 \description{
 This function generates multivariate time series dataset that follows VHAR.

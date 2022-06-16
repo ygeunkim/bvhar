@@ -49,7 +49,7 @@
 #' }
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @importFrom stats qnorm
 #' @order 1
@@ -61,8 +61,8 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
     compute_covmse(object, n_ahead) %>% # concatenated matrix
     split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
-    t() %>% # extract only diagonal element to compute CIs
-    sqrt()
+    t() # extract only diagonal element to compute CIs
+  SE <- sqrt(SE)
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
@@ -102,7 +102,9 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
 #' \deqn{\hat{y}_{n + h}^T = \hat{y}_{(n + h - 1)}^T T_{HAR} \hat{\Phi}}
 #' 
 #' @references 
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. [https://doi.org/10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
+#' 
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' @importFrom stats qnorm
 #' @order 1
@@ -114,8 +116,8 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
     compute_covmse_har(object, n_ahead) %>% # concatenated matrix
     split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
     sapply(diag) %>% 
-    t() %>% # extract only diagonal element to compute CIs
-    sqrt()
+    t() # extract only diagonal element to compute CIs
+  SE <- sqrt(SE)
   colnames(SE) <- colnames(object$y0)
   z_quant <- qnorm(level / 2, lower.tail = FALSE)
   z_bonferroni <- qnorm(level / (2 * n_ahead), lower.tail = FALSE)
@@ -158,9 +160,9 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' See [bvar_predictive_density] how to generate the predictive distribution.
 #' 
 #' @references 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
@@ -266,8 +268,7 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' 
-#' @references 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' @references Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' 
 #' @importFrom stats quantile
 #' @order 1

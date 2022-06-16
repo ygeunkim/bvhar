@@ -848,8 +848,10 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
 #' @param vhar_coef VHAR coefficient. The format should be the same as the output of [vhar_lm()]
+#' @param week Order for weekly term. Try `5` by default.
+#' @param month Order for monthly term. Try `22` by default.
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = 22L, ncol = dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 #' @details
 #' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
 #' 2. For i = 1, ... n,
@@ -858,8 +860,8 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
-sim_vhar <- function(num_sim, num_burn, vhar_coef, sig_error, init) {
-    .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, sig_error, init)
+sim_vhar <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
+    .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
