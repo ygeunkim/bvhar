@@ -79,8 +79,8 @@
 #' 
 #' # Extract coef, fitted values, and residuals
 #' coef(fit)
-#' residuals(fit)
-#' fitted(fit)
+#' head(residuals(fit))
+#' head(fitted(fit))
 #' 
 #' @importFrom stats sd
 #' @order 1

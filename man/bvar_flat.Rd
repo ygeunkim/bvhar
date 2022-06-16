@@ -84,8 +84,8 @@ str(fit)
 
 # Extract coef, fitted values, and residuals
 coef(fit)
-residuals(fit)
-fitted(fit)
+head(residuals(fit))
+head(fitted(fit))
 
 }
 \references{

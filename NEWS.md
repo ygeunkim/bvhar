@@ -1,3 +1,7 @@
+# bvhar 0.7.0
+
+* Add one integrated function that can do empirical bayes (`choose_bayes()` and `bound_bvhar()`).
+
 # bvhar 0.6.1
 
 * Pre-process date column of `oxfordman` more elaborately (it becomes same with `etf_vix`).
