@@ -86,7 +86,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 
 #' Finding the Set of Hyperparameters of Individual Bayesian Model
 #' 
-#' `r lifecycle::badge("deprecated")` This document is remained due to my another repository: [paper-bvhar](https://github.com/ygeunkim/paper-bvhar).
+#' `r lifecycle::badge("superseded")` This document is remained due to my another repository: [paper-bvhar](https://github.com/ygeunkim/paper-bvhar).
 #' This function now works as internal function.
 #' This function chooses the set of hyperparameters of individual Bayesian model using [stats::optim()] function.
 #' 

@@ -495,6 +495,102 @@ relmae.bvharcv <- function(x, pred_bench, y, ...) {
   mae(x, y) / mae(pred_bench, y)
 }
 
+#' Evaluate the Model Based on RMAPE (Relative MAPE)
+#' 
+#' This function computes RMAPE given prediction result versus evaluation set.
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmape <- function(x, pred_bench, y, ...) {
+  UseMethod("rmape", x)
+}
+
+#' @rdname rmape
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @details 
+#' RMAPE is the ratio of MAPE of given model and the benchmark one.
+#' Let \eqn{MAPE_b} be the MAPE of the benchmark model.
+#' Then
+#' 
+#' \deqn{RMAPE = \frac{mean(MAPE)}{mean(MAPE_b)}}
+#' 
+#' where \eqn{MAPE} is the MAPE of our model.
+#' 
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' @export
+rmape.predbvhar <- function(x, pred_bench, y, ...) {
+  mean(mape(x, y)) / mean(mape(pred_bench, y))
+}
+
+#' @rdname rmape
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmape.bvharcv <- function(x, pred_bench, y, ...) {
+  mean(mape(x, y)) / mean(mape(pred_bench, y))
+}
+
+#' Evaluate the Model Based on RMASE (Relative MASE)
+#' 
+#' This function computes RMASE given prediction result versus evaluation set.
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmase <- function(x, pred_bench, y, ...) {
+  UseMethod("rmase", x)
+}
+
+#' @rdname rmase
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @details 
+#' RMASE is the ratio of MAPE of given model and the benchmark one.
+#' Let \eqn{MASE_b} be the MAPE of the benchmark model.
+#' Then
+#' 
+#' \deqn{RMASE = \frac{mean(MASE)}{mean(MASE_b)}}
+#' 
+#' where \eqn{MASE} is the MASE of our model.
+#' 
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
+#' 
+#' @export
+rmase.predbvhar <- function(x, pred_bench, y, ...) {
+  mean(mase(x, y)) / mean(mase(pred_bench, y))
+}
+
+#' @rdname rmase
+#' 
+#' @param x Forecasting object to use
+#' @param pred_bench The same forecasting object from benchmark model
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' 
+#' @export
+rmase.bvharcv <- function(x, pred_bench, y, ...) {
+  mean(mase(x, y)) / mean(mase(pred_bench, y))
+}
+
 #' Evaluate the Model Based on RMSFE
 #' 
 #' This function computes RMSFE (Mean Squared Forecast Error Relative to the Benchmark)
@@ -526,9 +622,9 @@ rmsfe <- function(x, pred_bench, y, ...) {
 #' @references 
 #' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688. doi:[10.1016/j.ijforecast.2006.03.001](https://doi.org/10.1016/j.ijforecast.2006.03.001)
 #' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' 
 #' @export
 rmsfe.predbvhar <- function(x, pred_bench, y, ...) {
