@@ -61,7 +61,7 @@ knit_print.bvharemp(x, ...)
 \item{digits}{digit option to print}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This document is remained due to my another repository: \href{https://github.com/ygeunkim/paper-bvhar}{paper-bvhar}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}} This document is remained due to my another repository: \href{https://github.com/ygeunkim/paper-bvhar}{paper-bvhar}.
 This function now works as internal function.
 This function chooses the set of hyperparameters of individual Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
 }

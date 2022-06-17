@@ -4,14 +4,12 @@
 \alias{geom_eval}
 \title{Adding Test Data Layer}
 \usage{
-geom_eval(data, colour = "red", num_train = 1, ...)
+geom_eval(data, colour = "red", ...)
 }
 \arguments{
-\item{data}{Test data to draw.}
+\item{data}{Test data to draw, which has the same format with the train data.}
 
-\item{colour}{Colour of the line (By default, \code{"red"}).}
-
-\item{num_train}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Size of the train data.}
+\item{colour}{Color of the line (By default, \code{"red"}).}
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
 }
