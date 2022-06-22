@@ -24,8 +24,19 @@
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
   int dim = sig.cols();
-  if (sig.rows() != dim) Rcpp::stop("Invalid 'sig' dimension.");
-  if (dim != mu.size()) Rcpp::stop("Invalid 'mu' size.");
+  if (sig.rows() != dim) {
+    Rcpp::stop("Invalid 'sig' dimension.");
+  }
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < dim; j++) {
+      if (sig(i, j) != sig(j, i)) {
+        Rcpp::stop("'sig' must be a symmetric matrix.");
+      }
+    }
+  }
+  if (dim != mu.size()) {
+    Rcpp::stop("Invalid 'mu' size.");
+  }
   Eigen::MatrixXd standard_normal(num_sim, dim);
   Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
   for (int i = 0; i < num_sim; i++) {

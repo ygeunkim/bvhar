@@ -16,9 +16,9 @@
 //' 
 //' \deqn{
 //'     A = \begin{bmatrix}
-//'       A_1 & A_2 & \cdots A_{p - 1} & A_p \        \
-//'       I_m & 0 & \cdots & 0 & 0 \                  \
-//'       0 & I_m & \cdots & 0 & 0 \                  \
+//'       A_1 & A_2 & \cdots A_{p - 1} & A_p \\
+//'       I_m & 0 & \cdots & 0 & 0 \\
+//'       0 & I_m & \cdots & 0 & 0 \\
 //'       \vdots & \vdots & \vdots & \vdots & \vdots \\
 //'       0 & 0 & \cdots & I_m & 0
 //'     \end{bmatrix}
@@ -28,9 +28,9 @@
 //' 
 //' and
 //' 
-//' \deqn{U_t = (\epsilon_t, 0, \ldots, 0)^T}
+//' \deqn{U_t = (\epsilon_t^T, 0^T, \ldots, 0^T)^T}
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x) {
@@ -52,7 +52,7 @@ Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x) {
 //' 
 //' @param object Model fit
 //' 
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_var_stablemat(Rcpp::List object) {
@@ -76,7 +76,7 @@ Eigen::MatrixXd compute_var_stablemat(Rcpp::List object) {
 //' Note that \eqn{A^T = \Phi^T T_{HAR}}.
 //' This gives the VAR(1) form of constrained VAR(22).
 //'
-//' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_vhar_stablemat(Rcpp::List object) {

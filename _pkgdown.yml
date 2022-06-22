@@ -72,6 +72,8 @@ reference:
   - relmae
   - rmsfe
   - rmafe
+  - rmape
+  - rmase
 
 - title: Empirical Bayes
   desc: >

@@ -6,7 +6,6 @@
 #' @param p VAR lag
 #' @param bayes_spec A BVAR model specification by [set_bvar_flat()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' 
 #' @details 
 #' Ghosh et al. (2018) gives flat prior for residual matrix in BVAR.
 #' 
@@ -14,19 +13,9 @@
 #' This function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 #' 
 #' \deqn{A \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
-#' \eqn{\Sigma_e \sim} flat
-#' where U: precision matrix.
-#' 
-#' Then in VAR design equation (Y0 = X0 B + Z),
-#' MN mean can be derived by
-#' \deqn{\hat{A} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
-#' and the MN scale matrix can be derived by
-#' \deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
-#' and IW shape by \eqn{s - m - 1}.
-#' 
-#' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution)).
-#' 
-#' @return `bvar_flat` returns an object `bvarflat` [class].
+#' where U: precision matrix (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution)).
+#' \deqn{p (\Sigma_e) \propto 1}
+#' @return `bvar_flat()` returns an object `bvarflat` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -41,38 +30,33 @@
 #'   \item{m}{Dimension of the time series}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{call}{Matched call}
 #'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Flat"`}
 #'   \item{spec}{Model specification (`bvharspec`)}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{call}{Matched call}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: zero matrix}
 #'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{U^{-1}}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
-#'   \item{y}{Raw input}
+#'   \item{y}{Raw input (`matrix`)}
 #' }
-#' 
 #' @references 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
-#' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' 
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
 #' @seealso 
 #' * [set_bvar_flat()] to specify the hyperparameters of BVAR flat prior.
 #' * [coef.bvarflat()], [residuals.bvarflat()], and [fitted.bvarflat()]
 #' * [predict.bvarflat()] to forecast the BVHAR process
-#' 
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' fit <- bvar_flat(y = etf_vix, p = 2)
+#' fit <- bvar_flat(y = etf_vix[,1:3], p = 2)
 #' class(fit)
-#' str(fit)
 #' 
 #' # Extract coef, fitted values, and residuals
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
-#' 
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {

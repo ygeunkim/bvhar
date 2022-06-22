@@ -59,6 +59,9 @@ knit_print.boundbvharemp(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{boundbvharemp} \link{class}
+}
 \description{
-This function sets lower and upper bounds for \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function sets lower and upper bounds for \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.
 }

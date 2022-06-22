@@ -9,7 +9,7 @@
 //' 
 //' @param num_sim Number to generated process
 //' @param num_burn Number of burn-in
-//' @param var_coef VAR coefficient. The format should be the same as the output of [var_lm()]
+//' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
 //' @param var_lag Lag of VAR
 //' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 //' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -21,7 +21,7 @@
 //' 
 //' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 //' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_var(int num_sim, 
@@ -71,18 +71,20 @@ Eigen::MatrixXd sim_var(int num_sim,
 //' 
 //' @param num_sim Number to generated process
 //' @param num_burn Number of burn-in
-//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [vhar_lm()]
-//' @param week Order for weekly term. Try `5` by default.
-//' @param month Order for monthly term. Try `22` by default.
+//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+//' @param week Order for weekly term. Try `5L` by default.
+//' @param month Order for monthly term. Try `22L` by default.
 //' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+//' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 //' @details
+//' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
+//' 
 //' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
 //' 2. For i = 1, ... n,
-//' \deqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
-//' 3. Then the output is \eqn{(y_{23}, \ldots, y_{n + 22})^T}
+//' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
+//' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
 //' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_vhar(int num_sim, 
@@ -106,7 +108,7 @@ Eigen::MatrixXd sim_vhar(int num_sim,
     Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
   }
   if (!(init.rows() == month && init.cols() == dim)) {
-    Rcpp::stop("'init' is (22, dim) matrix in order of y1, y2, ..., y22.");
+    Rcpp::stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.");
   }
   int num_rand = num_sim + num_burn; // sim + burnin
   Eigen::MatrixXd hartrans_mat = scale_har(dim, week, month).block(0, 0, num_har, dim_har);

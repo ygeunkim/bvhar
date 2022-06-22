@@ -11,7 +11,14 @@ sim_mncoef(p, bayes_spec = set_bvar(), full = TRUE)
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
-\item{full}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Generate variance matrix from IW or not?}
+\item{full}{Generate variance matrix from IW (default: \code{TRUE}) or not (\code{FALSE})?}
+}
+\value{
+List with the following component.
+\describe{
+\item{coefficients}{BVAR coefficient (MN)}
+\item{covmat}{BVAR variance (IW or diagonal matrix of \code{sigma} of \code{bayes_spec})}
+}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.
@@ -21,13 +28,33 @@ Implementing dummy observation constructions,
 Bańbura et al. (2010) sets Normal-IW prior.
 \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
+If \code{full = FALSE}, the result of \eqn{\Sigma_e} is the same as input (\code{diag(sigma)}).
+}
+\examples{
+# Generate (A, Sigma)
+# BVAR(p = 2)
+# sigma: 1, 1, 1
+# lambda: .1
+# delta: .1, .1, .1
+# epsilon: 1e-04
+set.seed(1)
+sim_mncoef(
+  p = 2,
+  bayes_spec = set_bvar(
+    sigma = rep(1, 3),
+    lambda = .1,
+    delta = rep(.1, 3),
+    eps = 1e-04
+  ),
+  full = TRUE
+)
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
-
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
 
 Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 }
 \seealso{
 \itemize{

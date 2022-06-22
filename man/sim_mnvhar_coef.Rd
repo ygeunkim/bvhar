@@ -9,18 +9,43 @@ sim_mnvhar_coef(bayes_spec = set_bvhar(), full = TRUE)
 \arguments{
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
-\item{full}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Generate variance matrix from IW or not?}
+\item{full}{Generate variance matrix from IW (default: \code{TRUE}) or not (\code{FALSE})?}
+}
+\value{
+List with the following component.
+\describe{
+\item{coefficients}{BVHAR coefficient (MN)}
+\item{covmat}{BVHAR variance (IW or diagonal matrix of \code{sigma} of \code{bayes_spec})}
+}
 }
 \description{
 This function generates parameters of BVAR with Minnesota prior.
 }
 \details{
 Normal-IW family for vector HAR model:
-\deqn{\Phi \mid \Sigma_e \sim MN(P_0, \Psi_0, \Sigma_e)}
-\deqn{\Sigma_e \sim IW(U_0, d_0)}
+\deqn{\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)}
+\deqn{\Sigma_e \sim IW(\Psi_0, \nu_0)}
+}
+\examples{
+# Generate (Phi, Sigma)
+# BVHAR-S
+# sigma: 1, 1, 1
+# lambda: .1
+# delta: .1, .1, .1
+# epsilon: 1e-04
+set.seed(1)
+sim_mnvhar_coef(
+  bayes_spec = set_bvhar(
+    sigma = rep(1, 3),
+    lambda = .1,
+    delta = rep(.1, 3),
+    eps = 1e-04
+  ),
+  full = TRUE
+)
 }
 \references{
-Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. Preprint.
 }
 \seealso{
 \itemize{

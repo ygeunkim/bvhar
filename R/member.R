@@ -4,9 +4,7 @@
 #' 
 #' @param object Model object
 #' @param ... not used
-#' 
 #' @return [matrix] object with appropriate dimension.
-#' 
 #' @export
 coef.varlse <- function(object, ...) {
   object$coefficients
@@ -42,9 +40,7 @@ coef.bvharmn <- function(object, ...) {
 #' 
 #' @param object Model object
 #' @param ... not used
-#' 
 #' @return [matrix] object.
-#' 
 #' @export
 residuals.varlse <- function(object, ...) {
   object$residuals
@@ -80,9 +76,7 @@ residuals.bvharmn <- function(object, ...) {
 #' 
 #' @param object Model object
 #' @param ... not used
-#' 
 #' @return [matrix] object.
-#' 
 #' @export
 fitted.varlse <- function(object, ...) {
   object$fitted.values

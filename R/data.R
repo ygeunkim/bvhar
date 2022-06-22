@@ -31,8 +31,8 @@
 #' 
 #' If you want other time period, see our code in the Github repo for the dataset.
 #' 
-#' * [etf_vix]: [ygeunkim/bvhar/data-raw/etf_vix.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R)
-#' * [oxfordman]: [ygeunkim/bvhar/data-raw/oxfordman_long.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R)
+#' * `etf_vix`: [ygeunkim/bvhar/data-raw/etf_vix.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R)
+#' * `oxfordman`: [ygeunkim/bvhar/data-raw/oxfordman_long.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R)
 #' 
 #' You can download what you want by changing a few lines.
 #' 
@@ -91,9 +91,9 @@ NULL
 #' Chicago Board Options Exchange, CBOE Brazil ETF Volatility Index (VXEWZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; [https://fred.stlouisfed.org/series/VXEWZCLS](https://fred.stlouisfed.org/series/VXEWZCLS), August 2, 2021.
 #' 
 #' @source 
-#' Source: \url{https://www.cboe.com}
+#' Source: [https://www.cboe.com](https://www.cboe.com)
 #' 
-#' Release: \url{https://www.cboe.com/us/options/market_statistics/daily/}
+#' Release: [https://www.cboe.com/us/options/market_statistics/daily/](https://www.cboe.com/us/options/market_statistics/daily/)
 "etf_vix"
 
 #' Oxford-Man Institute Realized Library

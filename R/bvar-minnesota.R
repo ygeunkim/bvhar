@@ -6,26 +6,12 @@
 #' @param p VAR lag
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' 
 #' @details 
 #' Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
 #' 
 #' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
-#' 
-#' \eqn{\delta_i} are related to the belief to random walk.
-#' 
-#' * If \eqn{\delta_i = 1} for all i, random walk prior
-#' * If \eqn{\delta_i = 0} for all i, white noise prior
-#' 
-#' \eqn{\lambda} controls the overall tightness of the prior around these two prior beliefs.
-#' 
-#' * If \eqn{\lambda = 0}, the posterior is equivalent to prior and the data do not influence the estimates.
-#' * If \eqn{\lambda = \infty}, the posterior mean becomes OLS estimates (VAR).
-#' 
-#' \eqn{\sigma_i^2 / \sigma_j^2} in Minnesota moments explain the data scales.
-#' 
 #' @return `bvar_minnesota` returns an object `bvarmn` [class].
 #' It is a list with the following components:
 #' 
@@ -34,8 +20,8 @@
 #'   \item{fitted.values}{Fitted values}
 #'   \item{residuals}{Residuals}
 #'   \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
-#'   \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
-#'   \item{iw_shape}{Posterior shape of inverse-wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
+#'   \item{iw_scale}{Posterior scale matrix of posterior inverse-Wishart distribution}
+#'   \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
 #'   \item{df}{Numer of Coefficients: mp + 1 or mp}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the time series}
@@ -46,42 +32,39 @@
 #'   \item{spec}{Model specification (`bvharspec`)}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
-#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}}
-#'   \item{prior_scale}{Prior scale matrix of inverse-wishart distribution: \eqn{S_0}}
-#'   \item{prior_shape}{Prior shape of inverse-wishart distribution: \eqn{\alpha_0}}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}^{-1}}
+#'   \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
+#'   \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
-#'   \item{y}{Raw input}
+#'   \item{y}{Raw input (`matrix`)}
 #' }
-#' 
 #' @references 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
-#' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132. doi:[10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A](https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A)
-#' 
-#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968. doi:[10.2307/2527347](https://doi.org/10.2307/2527347)
 #' 
 #' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
 #' 
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
+#' 
+#' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132. doi:[10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A](https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A)
+#' 
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' 
+#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968. doi:[10.2307/2527347](https://doi.org/10.2307/2527347)
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [coef.bvarmn()], [residuals.bvarmn()], and [fitted.bvarmn()]
 #' * [summary.normaliw()] to summarize BVAR model
 #' * [predict.bvarmn()] to forecast the BVAR process
-#' 
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' fit <- bvar_minnesota(y = etf_vix, p = 2)
+#' fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)
 #' class(fit)
-#' str(fit)
 #' 
 #' # Extract coef, fitted values, and residuals
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
-#' 
 #' @importFrom stats sd
 #' @order 1
 #' @export

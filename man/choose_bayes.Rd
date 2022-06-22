@@ -15,7 +15,7 @@ choose_bayes(
 )
 }
 \arguments{
-\item{bayes_bound}{Empirical Bayes optimization bound specification}
+\item{bayes_bound}{Empirical Bayes optimization bound specification defined by \code{\link[=bound_bvhar]{bound_bvhar()}}.}
 
 \item{...}{Additional arguments for \code{\link[stats:optim]{stats::optim()}}.}
 
@@ -23,15 +23,32 @@ choose_bayes(
 
 \item{y}{Time series data}
 
-\item{order}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Order for BVAR or BVHAR. \code{p} of \code{\link[=bvar_minnesota]{bvar_minnesota()}} or \code{har} of \code{\link[=bvhar_minnesota]{bvhar_minnesota()}}. By default, \code{c(5, 22)} for \code{har}.}
+\item{order}{Order for BVAR or BVHAR. \code{p} of \code{\link[=bvar_minnesota]{bvar_minnesota()}} or \code{har} of \code{\link[=bvhar_minnesota]{bvhar_minnesota()}}. By default, \code{c(5, 22)} for \code{har}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{parallel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+}
+\value{
+\code{bvharemp} \link{class} is a list that has
+\describe{
+\item{...}{Many components of \code{\link[stats:optim]{stats::optim()}} or \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}}
+\item{spec}{Corresponding \code{bvharspec}}
+\item{fit}{Chosen Bayesian model}
+\item{ml}{Marginal likelihood of the final model}
+}
 }
 \description{
-This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
+}
+\references{
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. Preprint.
 }
 \seealso{
-Individual functions: \code{\link[=choose_bvar]{choose_bvar()}}
+\itemize{
+\item \code{\link[=bound_bvhar]{bound_bvhar()}} to define L-BFGS-B optimization bounds.
+\item Individual functions: \code{\link[=choose_bvar]{choose_bvar()}}
+}
 }
