@@ -4,7 +4,7 @@
 \name{bvhar-package}
 \alias{bvhar}
 \alias{bvhar-package}
-\title{bvhar: Bayesian Vector Autoregressive Heterogeneous Modeling}
+\title{bvhar: Bayesian Vector Heterogeneous Autoregressive Modeling}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

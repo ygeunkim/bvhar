@@ -1,6 +1,6 @@
 Package: bvhar
 Type: Package
-Title: Bayesian Vector Autoregressive Heterogeneous Modeling
+Title: Bayesian Vector Heterogeneous Autoregressive Modeling
 Version: 0.7.0
 Date: 2021-08-01
 Authors@R: 
