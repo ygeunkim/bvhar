@@ -115,6 +115,9 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean,
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
   int dim = mat_scale.cols();
+  if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
   if (mat_scale.rows() != mat_scale.cols()) {
     Rcpp::stop("Invalid 'mat_scale' dimension.");
   }

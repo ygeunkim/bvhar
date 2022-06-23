@@ -1,8 +1,6 @@
 #' @keywords internal
 #' @useDynLib bvhar, .registration = TRUE
 #' @details 
-#' `r lifecycle::badge("experimental")`
-#' 
 #' The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.
 #' Here, vector autoregressive modelling includes:
 #' * Vector autoregressive (VAR) model: [var_lm()]
@@ -12,9 +10,8 @@
 #' 
 #' Each function returns S3 class `varlse`, `vharlse`, `bvarmn`, `bvarflat`, and `bvharmn`.
 #' As dealing with other statistical functions (such as [stats::lm()] and [stats::glm()]),
-#' users can analyze time series with S3 methods:
+#' users can analyze multivariate time series (`data.frame` or `matrix`) with S3 methods:
 #' * Extract: [coef.varlse()], [residuals.varlse()], [fitted.varlse()]
-#' * log-likelihood: [logLik.varlse()]
 #' * Forecasting: [predict.varlse()]
 #' @references 
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
