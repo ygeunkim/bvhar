@@ -49,7 +49,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
   }
-  if (bayes_spec$process != "BVAR") {
+  if (bayes_spec$prior != "Minnesota") {
     stop("'bayes_spec' must be the result of 'set_bvar()'.")
   }
   if (is.null(bayes_spec$sigma)) {

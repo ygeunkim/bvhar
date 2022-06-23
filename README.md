@@ -43,13 +43,13 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |     function      |     S3     |
-|:-----:|:-----------------:|:----------:|
-|  VAR  |     `var_lm`      |  `varlse`  |
-| VHAR  |     `vhar_lm`     | `vharlse`  |
-| BVAR  | `bvar_minnesota`  |  `bvarmn`  |
-| BVAR  |    `bvar_flat`    | `bvarflat` |
-| BVHAR | `bvhar_minnesota` | `bvharmn`  |
+| Model |      function       |     S3     |
+|:-----:|:-------------------:|:----------:|
+|  VAR  |     `var_lm()`      |  `varlse`  |
+| VHAR  |     `vhar_lm()`     | `vharlse`  |
+| BVAR  | `bvar_minnesota()`  |  `bvarmn`  |
+| BVAR  |    `bvar_flat()`    | `bvarflat` |
+| BVHAR | `bvhar_minnesota()` | `bvharmn`  |
 
 As the other analyzer tools uses S3 such as `lm`, this package use
 methods `coef`, `predict`, etc. This readme document shows forecasting
@@ -156,7 +156,7 @@ forecast_bvar <- predict(mod_bvar, h)
 
 ### BVHAR
 
-VAR-type Minnesota prior:
+BVHAR-S:
 
 ``` r
 (bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
@@ -198,7 +198,7 @@ forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 #>    6.462
 ```
 
-VHAR-type Minnesota prior:
+BVHAR-L:
 
 ``` r
 day <- rep(.1, ncol(etf_vix))
@@ -238,6 +238,8 @@ month <- rep(.1, ncol(etf_vix))
 ``` r
 mod_bvhar_v2 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v2)
 ```
+
+MSE:
 
 ``` r
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)

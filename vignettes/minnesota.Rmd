@@ -24,7 +24,50 @@ set.seed(1)
 library(bvhar)
 ```
 
+# Normal-inverse-Wishart Matrix
+
+We provide functions to generate matrix-variate Normal and inverse-Wishart.
+
+- `sim_mgaussian(num_sim, mu, sig)`: `num_sim` of $\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)$.
+- `sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)`: One $X_{m \times n} \sim MN(M_{m \times n}, U_{m \times m}, V_{n \times n})$ which means that $vec(X) \sim N(vec(M), V \otimes U)$.
+- `sim_iw(mat_scale, shape)`: One $\Sigma \sim IW(\Psi, \nu)$.
+- `sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)`: `num_sim` of $(X_i, \Sigma_i) \stackrel{iid}{\sim} MNIW(M, U, V, \nu)$.
+
+Multivariate Normal generation gives `num_sim` x dim matrix.
+For example, generating 3 vector from Normal($\boldsymbol{\mu} = \mathbf{0}_2$, $\Sigma = diag(\mathbf{1}_2)$):
+
+```{r gennormal}
+sim_mgaussian(3, rep(0, 2), diag(2))
+```
+
+The output of `sim_matgaussian()` is a matrix.
+
+```{r genmatnorm}
+sim_matgaussian(matrix(1:20, nrow = 4), diag(4), diag(5))
+```
+
+When generating IW, violating $\nu > dim - 1$ gives error.
+But we ignore $\nu > dim + 1$ (condition for mean existence) in this function.
+Nonetheless, we recommend you to keep $\nu > dim + 1$ condition. As mentioned, it guarantees the existence of the mean.
+
+```{r geniw}
+sim_iw(diag(5), 7)
+```
+
+In case of `sim_mniw()`, it returns list with `mn` (stacked MN matrices) and `iw` (stacked IW matrices):
+
+```{r genmniw}
+sim_mniw(2, matrix(1:20, nrow = 4), diag(4), diag(5), 7)
+```
+
+Since each matrix is stacked rowwise, it is actually not that readable and practical.
+This function has been defined for the next simulation functions.
+
 # Minnesota Prior
+
+## BVAR
+
+Consider BVAR Minnesota prior setting,
 
 $$A \sim MN(A_0, \Omega_0, \Sigma_e)$$
 
@@ -56,15 +99,61 @@ bvar_lag <- 5
 (spec_to_sim <- set_bvar(
   sigma = c(3.25, 11.1, 2.2, 6.8), # sigma vector
   lambda = .2, # lambda
-  delta = rep(1, 4), # 4-dim delta vector (0 vector since RV stationary)
+  delta = rep(1, 4), # 4-dim delta vector
   eps = 1e-04 # very small number
 ))
 ```
 
-`sim_mncoef(p, sigma, lambda, delta, eps = 1e-04)` can generate $B$ coefficient.
+- `sim_mncoef(p, bayes_spec, full = TRUE)` can generate both $A$ and $\Sigma$ matrices.
+- In `bayes_spec`, only `set_bvar()` works.
+- If `full = FALSE`, $\Sigma$ is not random. It is same as `diag(sigma)` from the `bayes_spec`.
+- `full = TRUE` is the default.
 
-```{r}
+```{r simminnesota}
 (sim_mncoef(bvar_lag, spec_to_sim))
 ```
 
+## BVHAR
 
+`sim_mnvhar_coef(bayes_spec, full = TRUE)` generates BVHAR model setting:
+
+$$\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)$$
+
+$$\Sigma_e \sim IW(\Psi_0, \nu_0)$$
+
+- similar to BVAR, `bayes_spec` option wants `bvharspec`. But
+    - `set_bvhar()`
+    - `set_weight_bvhar()`
+- There is `full = TRUE`, too.
+
+### BVHAR-S
+
+```{r bvharvarset}
+(bvhar_var_spec <- set_bvhar(
+  sigma = c(1.2, 2.3), # sigma vector
+  lambda = .2, # lambda
+  delta = c(.3, 1), # 2-dim delta vector
+  eps = 1e-04 # very small number
+))
+```
+
+```{r simbvhars}
+(sim_mnvhar_coef(bvhar_var_spec))
+```
+
+### BVHAR-L
+
+```{r bvharvharset}
+(bvhar_vhar_spec <- set_weight_bvhar(
+  sigma = c(1.2, 2.3), # sigma vector
+  lambda = .2, # lambda
+  eps = 1e-04, # very small number
+  daily = c(.5, 1), # 2-dim daily weight vector
+  weekly = c(.2, .3), # 2-dim weekly weight vector
+  monthly = c(.1, .1) # 2-dim monthly weight vector
+))
+```
+
+```{r simbvharl}
+(sim_mnvhar_coef(bvhar_vhar_spec))
+```

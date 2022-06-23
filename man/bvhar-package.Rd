@@ -8,11 +8,9 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
+A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR). It can also generate one Normal-inverse-Wishart matrix for the sake of simulation setting.
 }
 \details{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.
 Here, vector autoregressive modelling includes:
 \itemize{
@@ -24,10 +22,9 @@ Here, vector autoregressive modelling includes:
 
 Each function returns S3 class \code{varlse}, \code{vharlse}, \code{bvarmn}, \code{bvarflat}, and \code{bvharmn}.
 As dealing with other statistical functions (such as \code{\link[stats:lm]{stats::lm()}} and \code{\link[stats:glm]{stats::glm()}}),
-users can analyze time series with S3 methods:
+users can analyze multivariate time series (\code{data.frame} or \code{matrix}) with S3 methods:
 \itemize{
 \item Extract: \code{\link[=coef.varlse]{coef.varlse()}}, \code{\link[=residuals.varlse]{residuals.varlse()}}, \code{\link[=fitted.varlse]{fitted.varlse()}}
-\item log-likelihood: \code{\link[=logLik.varlse]{logLik.varlse()}}
 \item Forecasting: \code{\link[=predict.varlse]{predict.varlse()}}
 }
 }
