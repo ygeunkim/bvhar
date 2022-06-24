@@ -21,6 +21,7 @@ BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,
     knitr,
+    parallel,
     rmarkdown,
     testthat (>= 3.0.0)
 Encoding: UTF-8
