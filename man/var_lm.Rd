@@ -80,7 +80,6 @@ str(fit)
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
-
 }
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}

@@ -7,19 +7,9 @@
 \title{Setting Empirical Bayes Optimization Bounds}
 \usage{
 bound_bvhar(
-  bayes_spec = set_bvhar(),
-  lower_sigma = rep(0.01, length(bayes_spec$sigma)),
-  upper_sigma = rep(10, length(bayes_spec$sigma)),
-  lower_lambda = 0.01,
-  upper_lambda = Inf,
-  lower_delta = rep(0.01, length(bayes_spec$delta)),
-  upper_delta = rep(1, length(bayes_spec$delta)),
-  lower_daily = NULL,
-  upper_daily = NULL,
-  lower_weekly = NULL,
-  upper_weekly = NULL,
-  lower_monthly = NULL,
-  upper_monthly = NULL
+  init_spec = set_bvhar(),
+  lower_spec = set_bvhar(),
+  upper_spec = set_bvhar()
 )
 
 \method{print}{boundbvharemp}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -27,31 +17,11 @@ bound_bvhar(
 knit_print.boundbvharemp(x, ...)
 }
 \arguments{
-\item{bayes_spec}{Bayes model specification}
+\item{init_spec}{Initial Bayes model specification}
 
-\item{lower_sigma}{lower bound for sigma}
+\item{lower_spec}{Lower bound Bayes model specification}
 
-\item{upper_sigma}{upper bound for sigma}
-
-\item{lower_lambda}{lower bound for lambda}
-
-\item{upper_lambda}{upper bound for lambda}
-
-\item{lower_delta}{lower bound for delta}
-
-\item{upper_delta}{upper bound for delta}
-
-\item{lower_daily}{lower bound for daily, default = \code{NULL} (BVHAR-L)}
-
-\item{upper_daily}{upper bound for daily, default = \code{NULL} (BVHAR-L)}
-
-\item{lower_weekly}{lower bound for weekly, default = \code{NULL} (BVHAR-L)}
-
-\item{upper_weekly}{upper bound for weekly, default = \code{NULL} (BVHAR-L)}
-
-\item{lower_monthly}{lower bound for monthly, default = \code{NULL} (BVHAR-L)}
-
-\item{upper_monthly}{upper bound for monthly, default = \code{NULL} (BVHAR-L)}
+\item{upper_spec}{Upper bound Bayes model specification}
 
 \item{x}{\code{boundbvharemp} object}
 
@@ -59,6 +29,9 @@ knit_print.boundbvharemp(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{boundbvharemp} \link{class}
+}
 \description{
-This function sets lower and upper bounds for \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function sets lower and upper bounds for \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.
 }

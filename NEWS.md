@@ -1,3 +1,13 @@
+# bvhar 0.8.0
+
+* Changed the way of specifying the lower and upper bounds of empirical bayes (`bound_bvhar()`).
+
+* Added Empirical Bayes vignette.
+
+# bvhar 0.7.1
+
+* When simulation, asymmetric covariance error is caught now (`sim_mgaussian()`).
+
 # bvhar 0.7.0
 
 * Add one integrated function that can do empirical bayes (`choose_bayes()` and `bound_bvhar()`).

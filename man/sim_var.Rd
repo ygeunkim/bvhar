@@ -11,7 +11,7 @@ sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)
 
 \item{num_burn}{Number of burn-in}
 
-\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=var_lm]{var_lm()}}}
+\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=coef.varlse]{coef.varlse()}} from \code{\link[=var_lm]{var_lm()}}}
 
 \item{var_lag}{Lag of VAR}
 
@@ -33,5 +33,5 @@ This function generates multivariate time series dataset that follows VAR(p).
 Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }

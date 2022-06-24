@@ -28,7 +28,7 @@ knit_print.bvarflat(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvar_flat} returns an object \code{bvarflat} \link{class}.
+\code{bvar_flat()} returns an object \code{bvarflat} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -43,15 +43,15 @@ It is a list with the following components:
 \item{m}{Dimension of the time series}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
-\item{call}{Matched call}
 \item{process}{Process string in the \code{bayes_spec}: \code{"BVAR_Flat"}}
 \item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{call}{Matched call}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: zero matrix}
 \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{U^{-1}}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
-\item{y}{Raw input}
+\item{y}{Raw input (\code{matrix})}
 }
 }
 \description{
@@ -64,34 +64,23 @@ Under this setting, there are many models such as hierarchical or non-hierarchic
 This function chooses the most simple non-hierarchical matrix normal prior in Section 3.1.
 
 \deqn{A \mid \Sigma_e \sim MN(0, U^{-1}, \Sigma_e)}
-\eqn{\Sigma_e \sim} flat
-where U: precision matrix.
-
-Then in VAR design equation (Y0 = X0 B + Z),
-MN mean can be derived by
-\deqn{\hat{A} = (X_0^T X_0 + U)^{-1} X_0^T Y_0}
-and the MN scale matrix can be derived by
-\deqn{\hat\Sigma_e = Y_0^T (I_s - X_0(X_0^T X_0 + U)^{-1} X_0^T) Y_0}
-and IW shape by \eqn{s - m - 1}.
-
-(MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart}).
+where U: precision matrix (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}).
+\deqn{p (\Sigma_e) \propto 1}
 }
 \examples{
 # Perform the function using etf_vix dataset
-fit <- bvar_flat(y = etf_vix, p = 2)
+fit <- bvar_flat(y = etf_vix[,1:3], p = 2)
 class(fit)
-str(fit)
 
 # Extract coef, fitted values, and residuals
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
-
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
-
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 }
 \seealso{
 \itemize{

@@ -179,7 +179,7 @@ estimate_mn_flat <- function(x, y, U) {
 #' Given Y0 and Y0, the function estimate least squares
 #' Y0 = X0 A + Z
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
 estimate_var <- function(x, y) {
     .Call(`_bvhar_estimate_var`, x, y)
@@ -202,7 +202,7 @@ estimate_var <- function(x, y) {
 #' 
 #' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
@@ -230,7 +230,7 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
 #' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
@@ -250,7 +250,7 @@ VARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
@@ -264,9 +264,9 @@ compute_covmse <- function(object, step) {
 #' @param week Integer, order for weekly term
 #' @param month Integer, order for monthly term
 #' @details
-#' VHAR is linearly restricted VAR(22) in \eqn{Y_0 = X_0 A + Z}.
-#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^T) \Phi + Z}
-#' This function computes above \eqn{T_{HAR}}.
+#' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
+#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
+#' This function computes above \eqn{C_{HAR}}.
 #' 
 #' Default VHAR model sets `week` and `month` as `5` and `22`.
 #' This function can change these numbers to get linear transformation matrix.
@@ -289,10 +289,9 @@ scale_har <- function(dim, week, month) {
 #' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
-#' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
-#' 
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @importFrom Rcpp sourceCpp
 #' @noRd
 estimate_har <- function(x, y, week, month) {
@@ -312,10 +311,9 @@ estimate_har <- function(x, y, week, month) {
 #' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
-#' Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
-#' Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
-#' 
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @noRd
 estimate_har_none <- function(x, y, week, month) {
     .Call(`_bvhar_estimate_har_none`, x, y, week, month)
@@ -343,7 +341,7 @@ VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
 #' Observe that
 #' \deqn{B = \tilde{T}^T \Phi}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 VHARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VHARtoVMA`, object, lag_max)
@@ -363,7 +361,7 @@ VHARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
@@ -726,9 +724,9 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
 #' 
 #' \deqn{
 #'     A = \begin{bmatrix}
-#'       A_1 & A_2 & \cdots A_{p - 1} & A_p \        \
-#'       I_m & 0 & \cdots & 0 & 0 \                  \
-#'       0 & I_m & \cdots & 0 & 0 \                  \
+#'       A_1 & A_2 & \cdots A_{p - 1} & A_p \\
+#'       I_m & 0 & \cdots & 0 & 0 \\
+#'       0 & I_m & \cdots & 0 & 0 \\
 #'       \vdots & \vdots & \vdots & \vdots & \vdots \\
 #'       0 & 0 & \cdots & I_m & 0
 #'     \end{bmatrix}
@@ -738,9 +736,9 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
 #' 
 #' and
 #' 
-#' \deqn{U_t = (\epsilon_t, 0, \ldots, 0)^T}
+#' \deqn{U_t = (\epsilon_t^T, 0^T, \ldots, 0^T)^T}
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
 compute_stablemat <- function(x) {
     .Call(`_bvhar_compute_stablemat`, x)
@@ -752,7 +750,7 @@ compute_stablemat <- function(x) {
 #' 
 #' @param object Model fit
 #' 
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
 compute_var_stablemat <- function(object) {
     .Call(`_bvhar_compute_var_stablemat`, object)
@@ -767,7 +765,7 @@ compute_var_stablemat <- function(object) {
 #' Note that \eqn{A^T = \Phi^T T_{HAR}}.
 #' This gives the VAR(1) form of constrained VAR(22).
 #'
-#' @references Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
 compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
@@ -823,7 +821,7 @@ log_mgammafn <- function(x, p) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -835,7 +833,7 @@ log_mgammafn <- function(x, p) {
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
     .Call(`_bvhar_sim_var`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
@@ -847,18 +845,20 @@ sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [vhar_lm()]
-#' @param week Order for weekly term. Try `5` by default.
-#' @param month Order for monthly term. Try `22` by default.
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+#' @param week Order for weekly term. Try `5L` by default.
+#' @param month Order for monthly term. Try `22L` by default.
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 #' @details
+#' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
+#' 
 #' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
 #' 2. For i = 1, ... n,
-#' \deqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
-#' 3. Then the output is \eqn{(y_{23}, \ldots, y_{n + 22})^T}
+#' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
+#' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
 sim_vhar <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
     .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)

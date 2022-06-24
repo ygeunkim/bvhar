@@ -15,7 +15,7 @@ knit_print.vharlse(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{har}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
+\item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -26,7 +26,7 @@ knit_print.vharlse(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{vhar_lm} returns an object named \code{vharlse} \link{class}.
+\code{vhar_lm()} returns an object named \code{vharlse} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -67,14 +67,13 @@ str(fit)
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
-
 }
 \references{
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. doi:\href{https://doi.org/10.1093/jjfinec/nbp001}{10.1093/jjfinec/nbp001}
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
 
 Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829–2841. doi:\href{https://doi.org/10.1016/j.jbankfin.2011.03.012}{10.1016/j.jbankfin.2011.03.012}
 
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
+Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. doi:\href{https://doi.org/10.1093/jjfinec/nbp001}{10.1093/jjfinec/nbp001}
 }
 \seealso{
 \itemize{
