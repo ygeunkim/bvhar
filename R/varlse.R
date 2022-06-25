@@ -128,3 +128,57 @@ var_lm <- function(y, p, include_mean = TRUE) {
   class(res) <- c("varlse", "bvharmod")
   res
 }
+
+#' Orthogonal Impulse Responses of VAR
+#' 
+#' Compute orthogonal impulse responses of VAR
+#' 
+#' @param object `varlse` object
+#' @param lag_max Maximum lag to investigate the impulse responses (By default, `10`)
+#' @details
+#' Based on variance decomposition (cholesky decomposition)
+#' \deqn{\Sigma = P P^T}
+#' where \eqn{P} is lower triangular matrix,
+#' impulse response analysis if performed under MA representation
+#' \deqn{y_t = \sum_{i = 0}^\infty \Theta_i v_{t - i}}
+#' Here,
+#' \deqn{\Theta_i = W_i P}
+#' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @importFrom dplyr mutate
+#' @order 1
+#' @export
+var_irf <- function(object, lag_max = 10) {
+  mat_coef <- object$coefficients
+  mat_irf <- ir_var(
+    var_coef = mat_coef, 
+    var_covmat = object$covmat, 
+    var_lag = object$p,
+    lag_max = lag_max
+  )
+  # preprocess-------------------
+  name_var <- colnames(mat_coef)
+  impulse_name <- rep(name_var, lag_max + 1)
+  period_name <- rep(seq_len(lag_max + 1), each = object$m)
+  colnames(mat_irf) <- name_var
+  df_irf <- 
+    mat_irf %>% 
+    as.data.frame() %>% 
+    mutate(
+      impulse = impulse_name,
+      period = period_name
+    )
+  rownames(mat_irf) <- paste0(
+    impulse_name,
+    "(i=",
+    period_name,
+    ")"
+  )
+  # return----------------------
+  res <- list(
+    coefficients = mat_irf,
+    df_long = df_irf
+  )
+  class(res) <- "bvharirf"
+  res
+}

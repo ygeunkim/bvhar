@@ -179,14 +179,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // ir_var
-Eigen::MatrixXd ir_var(Rcpp::List object, int lag_max);
-RcppExport SEXP _bvhar_ir_var(SEXP objectSEXP, SEXP lag_maxSEXP) {
+Eigen::MatrixXd ir_var(Eigen::MatrixXd var_coef, Eigen::MatrixXd var_covmat, int var_lag, int lag_max);
+RcppExport SEXP _bvhar_ir_var(SEXP var_coefSEXP, SEXP var_covmatSEXP, SEXP var_lagSEXP, SEXP lag_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_covmat(var_covmatSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(ir_var(object, lag_max));
+    rcpp_result_gen = Rcpp::wrap(ir_var(var_coef, var_covmat, var_lag, lag_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -770,7 +772,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
-    {"_bvhar_ir_var", (DL_FUNC) &_bvhar_ir_var, 2},
+    {"_bvhar_ir_var", (DL_FUNC) &_bvhar_ir_var, 4},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 4},
     {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 4},

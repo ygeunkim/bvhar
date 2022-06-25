@@ -251,7 +251,7 @@ VARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
+#' @noRd
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
 }
@@ -260,22 +260,15 @@ compute_covmse <- function(object, step) {
 #' 
 #' Compute orthogonal impulse responses of VAR
 #' 
-#' @param object `varlse` object
+#' @param var_coef VAR coefficient matrix
+#' @param var_covmat VAR covariance matrix
+#' @param var_lag VAR order
 #' @param lag_max Maximum lag for VMA
-#' @details
-#' Based on variance decomposition (cholesky decomposition)
-#' \deqn{\Sigma = P P^T}
-#' where \eqn{P} is lower triangular matrix,
-#' impulse response analysis if performed under MA representation
-#' \deqn{y_t = \sum_{i = 0}^\infty \Theta_i v_{t - i}}
-#' Here,
-#' \deqn{\Theta_i = W_i P}
-#' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @return Impulse response system matrix. \eqn{\Theta = [\Theta_1, \ldots, \Theta_{lagmax}]^T}
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @export
-ir_var <- function(object, lag_max) {
-    .Call(`_bvhar_ir_var`, object, lag_max)
+ir_var <- function(var_coef, var_covmat, var_lag, lag_max) {
+    .Call(`_bvhar_ir_var`, var_coef, var_covmat, var_lag, lag_max)
 }
 
 #' Building a Linear Transformation Matrix for Vector HAR
