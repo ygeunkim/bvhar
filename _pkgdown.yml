@@ -72,13 +72,18 @@ reference:
   - relmae
   - rmsfe
   - rmafe
+  - rmape
+  - rmase
 
 - title: Empirical Bayes
-  desc: ~
+  desc: >
+    Hyperparameter selection.
   contents:
   - compute_logml
   - choose_bvar
   - choose_bvhar
+  - bound_bvhar
+  - choose_bayes
 
 - title: Information criteria
   desc: ~
@@ -120,7 +125,6 @@ reference:
   contents:
   - etf_vix
   - oxfordman
-  - est_energy
 
 - title: Other generic functions
   desc: ~

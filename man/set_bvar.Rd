@@ -47,6 +47,23 @@ knit_print.bvharspec(x, ...)
 \value{
 Every function returns \code{bvharspec} \link{class}.
 It is the list of which the components are the same as the arguments provided.
+If the argument is not specified, \code{NULL} is assigned here.
+The default values mentioned above will be considered in each fitting function.
+\describe{
+\item{process}{Model name}
+\item{prior}{Prior name}
+\item{sigma}{Vector value assigned for sigma}
+\item{lambda}{Value assigned for lambda}
+\item{delta}{Vector value assigned for delta}
+\item{eps}{Value assigned for epsilon}
+}
+
+\code{set_weight_bvhar()} has different component with \code{delta} due to its different construction.
+\describe{
+\item{daily}{Vector value assigned for daily weight}
+\item{weekly}{Vector value assigned for weekly weight}
+\item{monthly}{Vector value assigned for monthly weight}
+}
 }
 \description{
 Set hyperparameters of Bayesian VAR and VHAR models.
@@ -54,67 +71,91 @@ Set hyperparameters of Bayesian VAR and VHAR models.
 \details{
 \itemize{
 \item Missing arguments will be set to be default values in each model function mentioned above.
-\item \code{set_bvar} sets hyperparameters for \code{\link[=bvar_minnesota]{bvar_minnesota()}}.
+\item \code{set_bvar()} sets hyperparameters for \code{\link[=bvar_minnesota]{bvar_minnesota()}}.
+\item Each \code{delta} (vector), \code{lambda} (length of 1), \code{sigma} (vector), \code{eps} (vector) corresponds to \eqn{\delta_j}, \eqn{\lambda}, \eqn{\delta_j}, \eqn{\epsilon}.
 }
+
+\eqn{\delta_i} are related to the belief to random walk.
+\itemize{
+\item If \eqn{\delta_i = 1} for all i, random walk prior
+\item If \eqn{\delta_i = 0} for all i, white noise prior
+}
+
+\eqn{\lambda} controls the overall tightness of the prior around these two prior beliefs.
+\itemize{
+\item If \eqn{\lambda = 0}, the posterior is equivalent to prior and the data do not influence the estimates.
+\item If \eqn{\lambda = \infty}, the posterior mean becomes OLS estimates (VAR).
+}
+
+\eqn{\sigma_i^2 / \sigma_j^2} in Minnesota moments explain the data scales.
 
 \itemize{
 \item \code{set_bvar_flat} sets hyperparameters for \code{\link[=bvar_flat]{bvar_flat()}}.
 }
 
 \itemize{
-\item \code{set_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VAR-type Minnesota prior.
+\item \code{set_bvhar()} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VAR-type Minnesota prior, i.e. BVHAR-S model.
 }
 
 \itemize{
-\item \code{set_weight_bvhar} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VHAR-type Minnesota prior.
+\item \code{set_weight_bvhar()} sets hyperparameters for \code{\link[=bvhar_minnesota]{bvhar_minnesota()}} with VHAR-type Minnesota prior, i.e. BVHAR-L model.
+}
+}
+\note{
+It prints one of four \code{Prior}.
+\itemize{
+\item \code{Minnesota}: Minnesota prior for BVAR
+\item \code{MN_VAR}: BVHAR-S
+\item \code{MN_VHAR}: BVHAR-L
+\item \code{Flat}: Flat prior for BVAR
 }
 }
 \examples{
-# Minnesota BVAR specification
-# m = 3
-\dontrun{
-  bvar_spec <- set_bvar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, # lambda = .2
-    delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
-    eps = 1e-04 # eps = 1e-04
-  )
-  class(bvar_spec)
-  str(bvar_spec)
-}
-# Flat BVAR specification
-# m = 3
+# Minnesota BVAR specification------------------------
+bvar_spec <- set_bvar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
+  eps = 1e-04 # eps = 1e-04
+)
+class(bvar_spec)
+str(bvar_spec)
+# Flat BVAR specification-------------------------
+# 3-dim
 # p = 5 with constant term
 # U = 500 * I(mp + 1)
-\dontrun{
-  bvar_spec <- set_bvar_flat(U = 500 * diag(16))
-  class(bvar_spec)
-  str(bvar_spec)
+bvar_flat_spec <- set_bvar_flat(U = 500 * diag(16))
+class(bvar_flat_spec)
+str(bvar_flat_spec)
+# BVHAR-S specification-----------------------
+bvhar_var_spec <- set_bvhar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
+  eps = 1e-04 # eps = 1e-04
+)
+class(bvhar_var_spec)
+str(bvhar_var_spec)
+# BVHAR-L specification---------------------------
+bvhar_vhar_spec <- set_weight_bvhar(
+  sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
+  lambda = .2, # lambda = .2
+  eps = 1e-04, # eps = 1e-04
+  daily = rep(.2, 3), # daily1 = .2, daily2 = .2, daily3 = .2
+  weekly = rep(.1, 3), # weekly1 = .1, weekly2 = .1, weekly3 = .1
+  monthly = rep(.05, 3) # monthly1 = .05, monthly2 = .05, monthly3 = .05
+)
+class(bvhar_vhar_spec)
+str(bvhar_vhar_spec)
 }
-# VAR-type Minnesota BVHAR specification
-# m = 3
-\dontrun{
-  bvhar_spec <- set_bvhar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, # lambda = .2
-    delta = rep(.1, 3), # delta1 = .1, delta2 = .1, delta3 = .1
-    eps = 1e-04 # eps = 1e-04
-  )
-  class(bvhar_spec)
-  str(bvhar_spec)
-}
-# HAR-type Minnesota BVHAR specification
-# m = 3
-\dontrun{
-  bvhar_spec <- set_weight_bvhar(
-    sigma = c(.03, .02, .01), # Sigma = diag(.03^2, .02^2, .01^2)
-    lambda = .2, eps = 1e-04, # lambda = .2
-    eps = 1e-04, # eps = 1e-04
-    daily = rep(.2, 3), # daily1 = .2, daily2 = .2, daily3 = .2
-    weekly = rep(.1, 3), # weekly1 = .1, weekly2 = .1, weekly3 = .1
-    monthly = rep(.05, 3) # monthly1 = .05, monthly2 = .05, monthly3 = .05
-  )
-  class(bvhar_spec)
-  str(bvhar_spec)
-}
+\references{
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
+
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
+
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. Preprint.
+
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. Preprint.
 }

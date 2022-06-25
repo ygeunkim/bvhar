@@ -49,7 +49,7 @@ Looking at VAR and VHAR, you can learn how the models work and how to perform th
 
 This package includes some datasets.
 Among them, we try CBOE ETF volatility index (`etf_vix`).
-Since this is just an example, we aribitrarily extract a small number of variables: *Gold, crude oil, euro currency, and china ETF*.
+Since this is just an example, we arbitrarily extract a small number of variables: *Gold, crude oil, euro currency, and china ETF*.
 
 ```{r etfdat}
 var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS")
@@ -59,13 +59,15 @@ etf <-
 etf
 ```
 
-## Out-of-sample
+## h-step ahead forecasting
 
-For out-of-sample forecasting, split the data.
+For evaluation, split the data.
 The last `19` observations will be test set.
 `divide_ts()` function splits the time series into train-test set.
 
-```{r outofsample}
+In the other vignette, we provide how to perform out-of-sample forecasting.
+
+```{r hstepsplit}
 h <- 19
 etf_eval <- divide_ts(etf, h) # Try ?divide_ts
 etf_train <- etf_eval$train # train
@@ -74,10 +76,10 @@ etf_test <- etf_eval$test # test
 m <- ncol(etf)
 ```
 
-- n: Total number of observation
+- T: Total number of observation
 - p: VAR lag
 - m: Dimension of variable
-- s = n - p
+- s = T - p
 - k = m * p + 1 if constant term, k = m * p without constant term
 
 # Models
@@ -86,7 +88,7 @@ m <- ncol(etf)
 
 This package indentifies VAR(p) model by
 
-$$\Y_t = \bc + B_1 \Y_{t - 1} + \ldots + \B_p +\Y_{t - p} + \E_t$$
+$$\Y_t = \bc + \B_1 \Y_{t - 1} + \ldots + \B_p +\Y_{t - p} + \E_t$$
 
 where $\E_t \sim N(\mathbf{0}_k, \Sigma_e)$
 
@@ -96,7 +98,7 @@ var_lag <- 5
 
 The package perform VAR(p = `r var_lag`) based on
 
-$$Y_0 = X_0 B + Z$$
+$$Y_0 = X_0 A + Z$$
 
 where
 
@@ -118,19 +120,19 @@ X_0 = \left[\begin{array}{c|c|c|c}
   \by_p^T & \cdots & \by_1^T & 1 \\
   \by_{p + 1}^T & \cdots & \by_2^T & 1 \\
   \vdots & \vdots & \cdots & \vdots \\
-  \by_{n - 1}^T & \cdots & \by_{n - p}^T & 1
+  \by_{T - 1}^T & \cdots & \by_{T - p}^T & 1
 \end{array}\right]_{s \times k} = \begin{bmatrix}
-  Y_p & Y_{p - 1} & \cdots & \mathbf{1}_{n - p}
+  Y_p & Y_{p - 1} & \cdots & \mathbf{1}_{T - p}
 \end{bmatrix} \in \R^{s \times k}
 $$
 
 by `build_design()`. Coefficient matrix is the form of
 
 $$
-B = \begin{bmatrix}
-  B_1^T \\
+A = \begin{bmatrix}
+  A_1^T \\
   \vdots \\
-  B_p^T \\
+  A_p^T \\
   \bc^T
 \end{bmatrix} \in \R^{k \times m}
 $$
@@ -139,13 +141,13 @@ This form also corresponds to the other model.
 Use `var_lm(y, p)` to model VAR(p).
 You can specify `type = "none"` to get model without constant term.
 
-```{r}
+```{r varfit}
 (fit_var <- var_lm(etf_train, var_lag))
 ```
 
 The package provide `S3` object.
 
-```{r}
+```{r varlist}
 # class---------------
 class(fit_var)
 # inheritance---------
@@ -188,17 +190,17 @@ $$
 Let $T$ be
 
 $$
-T \defn \begin{bmatrix}
+\mathbb{C}_0 \defn \begin{bmatrix}
   1 & 0 & \cdots & 0 & 0 & \cdots & 0 \\
   1 / 5 & 1 / 5 & \cdots & 1 / 5 & 0 & \cdots & 0 \\
   1 / 22 & 1 / 22 & \cdots & 1 / 22 & 1 / 22 & \cdots & 1 / 22
 \end{bmatrix} \otimes I_m \in \R^{3m \times 22m}
 $$
 
-and let $\widetilde{T}$ be
+and let $\mathbb{C}_{HAR}$ be
 
 $$
-\widetilde{T} \defn \left[\begin{array}{c|c}
+\mathbb{C}_{HAR} \defn \left[\begin{array}{c|c}
   T & \mathbf{0}_{3m} \\ \hline
   \mathbf{0}_{3m}^T & 1
 \end{array}\right] \in \R^{(3m + 1) \times (22m + 1)}
@@ -207,23 +209,23 @@ $$
 Then for $X_0$ in VAR(p),
 
 $$
-X_1 = X_0 \widetilde{T}^T = \begin{bmatrix}
+X_1 = X_0 \mathbb{C}_{HAR}^T = \begin{bmatrix}
   \by_{22}^T & \by_{22}^{(w)T} & \by_{22}^{(m)T} & 1 \\
   \by_{23}^T & \by_{23}^{(w)T} & \by_{23}^{(m)T} & 1 \\
   \vdots & \vdots & \vdots & \vdots \\
-  \by_{n - 1}^T & \by_{n - 1}^{(w)T} & \by_{n - 1}^{(m)T} & 1
+  \by_{T - 1}^T & \by_{T - 1}^{(w)T} & \by_{T - 1}^{(m)T} & 1
 \end{bmatrix} \in \R^{s \times (3m + 1)}
 $$
 
-This package fits VHAR by scaling VAR(p) using $\widetilde{T}$ (`scale_har(m)`).
+This package fits VHAR by scaling VAR(p) using $\mathbb{C}_{HAR}$ (`scale_har(m, week = 5, month = 22)`).
 Use `vhar_lm(y)` to fit VHAR.
 You can specify `type = "none"` to get model without constant term.
 
-```{r}
+```{r harfit}
 (fit_har <- vhar_lm(etf_train))
 ```
 
-```{r}
+```{r harlist}
 # class----------------
 class(fit_har)
 # inheritance----------
@@ -244,8 +246,7 @@ names(fit_har)
 - *Prior mean*: Recent lags provide more reliable information than the more distant ones.
 - *Prior variance*: Own lags explain more of the variation of a given variable than the lags of other variables in the equation.
 
-`bvar_minnesota(y, p, sigma, lambda, delta, eps = 1e-04)` fits BVAR(p).
-See the Vignettes for BVAR if you want to know the detail of each argument.
+First specify the prior using `set_bvar(sigma, lambda, delta, eps = 1e-04)`.
 
 ```{r minnesotaset}
 bvar_lag <- 5
@@ -256,15 +257,24 @@ eps <- 1e-04 # very small number
 (bvar_spec <- set_bvar(sig, lam, delta, eps))
 ```
 
+In turn, `bvar_minnesota(y, p, bayes_spec, include_mean = TRUE)` fits BVAR(p).
+
+- `y`: Multivariate time series data. It should be data frame or matrix, which means that every column is numeric. Each column indicates variable, i.e. it sould be wide format.
+- `p`: Order of BVAR
+- `bayes_spec`: Output of `set_bvar()`
+- `include_mean = TRUE`: By default, you include the constant term in the model.
+
 ```{r bvarfit}
 (fit_bvar <- bvar_minnesota(etf_train, bvar_lag, bvar_spec))
 ```
 
-```{r}
+It is `bvarmn` class. For Bayes computation, it also has other class such as `normaliw` and `bvharmod`.
+
+```{r bvarlist}
 # class---------------
 class(fit_bvar)
 # inheritance---------
-is.varlse(fit_bvar)
+is.bvarmn(fit_bvar)
 # names---------------
 names(fit_bvar)
 ```
@@ -272,21 +282,23 @@ names(fit_bvar)
 ### Flat prior
 
 Ghosh et al. (2018) provides flat prior for covariance matrix, i.e. non-informative.
-Use `bvar_flat(y, p, U)`.
+Use `set_bvar_flat(U)`.
 
-```{r}
+```{r flatspec}
 (flat_spec <- set_bvar_flat(U = 5000 * diag(m * bvar_lag + 1))) # c * I
 ```
 
-```{r}
+Then `bvar_flat(y, p, bayes_spec, include_mean = TRUE)`:
+
+```{r flatfit}
 (fit_ghosh <- bvar_flat(etf_train, bvar_lag, flat_spec))
 ```
 
-```{r}
+```{r flatlist}
 # class---------------
 class(fit_ghosh)
 # inheritance---------
-is.varlse(fit_ghosh)
+is.bvarflat(fit_ghosh)
 # names---------------
 names(fit_ghosh)
 ```
@@ -323,23 +335,35 @@ E \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
 \end{cases}
 $$
 
-We call this VAR-type Minnesota prior.
+We call this VAR-type Minnesota prior or BVHAR-S.
 
-### VAR-type Minnesota
+### BVHAR-S
 
-`bvhar_minnesota(y, type = "VAR", sigma, lambda, delta, eps = 1e-04)` fits BVHAR with this prior.
-This is the default prior setting.
+`set_bvhar(sigma, lambda, delta, eps = 1e-04)` specifies VAR-type Minnesota prior.
 
-```{r}
+```{r bvharvarspec}
 (bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
 ```
 
+`bvhar_minnesota(y, har = c(5, 22), bayes_spec, include_mean = TRUE)` can fit BVHAR with this prior.
+This is the default prior setting.
 
 ```{r}
-(fit_bvhar_v1 <- bvhar_minnesota(etf_train, bvhar_spec_v1))
+(fit_bvhar_v1 <- bvhar_minnesota(etf_train, bayes_spec = bvhar_spec_v1))
 ```
 
-### HAR-type Minnesota
+This model is `bvharmn` class.
+
+```{r bvharlist}
+# class---------------
+class(fit_bvhar_v1)
+# inheritance---------
+is.bvharmn(fit_bvhar_v1)
+# names---------------
+names(fit_bvhar_v1)
+```
+
+### BVHAR-L
 
 Set $\delta_i$ for weekly and monthly coefficient matrices in above Minnesota moments:
 
@@ -357,7 +381,9 @@ i.e. instead of one `delta` vector, set three vector
 - `weekly`
 - `monthly`
 
-You can use this prior in the same function (`bvhar_minnesota()`) with `type = "VHAR"`. (cf. In the case of the default Minnesota, it is `type = "VAR"`.)
+This is called VHAR-type Minnesota prior or BVHAR-L.
+
+`set_weight_bvhar(sigma, lambda, eps, daily, weekly, monthly)` defines BVHAR-L.
 
 ```{r}
 daily <- rep(.1, m)
@@ -366,13 +392,12 @@ monthly <- rep(.1, m)
 (bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, daily, weekly, monthly))
 ```
 
-With the type `"VHAR"`, use `daily`, `weekly`, and `monthly` option.
-`delta` option does not work.
+`bayes_spec` option of `bvhar_minnesota()` gets this value, so you can use this prior intuitively.
 
 ```{r}
 fit_bvhar_v2 <- bvhar_minnesota(
   etf_train, 
-  bvhar_spec_v2
+  bayes_spec = bvhar_spec_v2
 )
 fit_bvhar_v2
 ```

@@ -84,6 +84,6 @@ These two dummy matrices define minnesota prior distribution of BVHAR.
 }
 
 \references{
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
 }
 \keyword{internal}

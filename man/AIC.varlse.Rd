@@ -40,13 +40,13 @@ Then
 where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Akaike, H. (1969). \emph{Fitting autoregressive models for prediction}. Ann Inst Stat Math 21, 243–247. doi:\href{https://doi.org/10.1007/BF02532251}{10.1007/BF02532251}
 
-Akaike, H. (1969). \emph{Fitting autoregressive models for prediction}. Ann Inst Stat Math 21, 243–247. \url{https://doi.org/10.1007/BF02532251}
+Akaike, H. (1971). \emph{Autoregressive model fitting for control}. Ann Inst Stat Math 23, 163–180. doi:\href{https://doi.org/10.1007/BF02479221}{10.1007/BF02479221}
 
-Akaike, H. (1971). \emph{Autoregressive model fitting for control}. Ann Inst Stat Math 23, 163–180. \url{https://doi.org/10.1007/BF02479221}
+Akaike H. (1974). \emph{A new look at the statistical model identification}. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723. doi:\href{https://ieeexplore.ieee.org/document/1100705}{10.1109/TAC.1974.1100705}.
 
-Akaike H. (1998). \emph{Information Theory and an Extension of the Maximum Likelihood Principle}. In: Parzen E., Tanabe K., Kitagawa G. (eds) Selected Papers of Hirotugu Akaike. Springer Series in Statistics (Perspectives in Statistics). Springer, New York, NY. \url{https://doi.org/10.1007/978-1-4612-1694-0_15}
+Akaike H. (1998). \emph{Information Theory and an Extension of the Maximum Likelihood Principle}. In: Parzen E., Tanabe K., Kitagawa G. (eds) Selected Papers of Hirotugu Akaike. Springer Series in Statistics (Perspectives in Statistics). Springer, New York, NY. doi:\href{https://doi.org/10.1007/978-1-4612-1694-0_15}{10.1007/978-1-4612-1694-0_15}
 
-Akaike H. (1974). \emph{A new look at the statistical model identification}. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723. doi: \href{https://ieeexplore.ieee.org/document/1100705}{10.1109/TAC.1974.1100705}.
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }

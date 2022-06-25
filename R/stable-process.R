@@ -31,7 +31,7 @@ is.stable <- function(x, ...) {
 #' 
 #' where \eqn{A} is VAR(1) coefficient matrix representation.
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @export
 stableroot.varlse <- function(x, ...) {
@@ -54,7 +54,7 @@ stableroot.varlse <- function(x, ...) {
 #' 
 #' for \eqn{\lvert z \rvert \le 1}.
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @export
 is.stable.varlse <- function(x, ...) {

@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.width = 6,
   fig.asp = .618
-  )
+)
 options(digits = 3)
 set.seed(1)
 ```
@@ -49,37 +49,37 @@ Given VAR coefficient and VHAR coefficient each,
 - `sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init)` generates VAR process
 - `sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)` generates VHAR process
 
-We use coefficient matrix estimated by VAR in introduction vignette.
+We use coefficient matrix estimated by VAR(5) in introduction vignette.
 
-```{r, echo=FALSE}
+```{r evalcoef, echo=FALSE}
 etf_eval <- 
   etf_vix %>% 
   dplyr::select(GVZCLS, OVXCLS, EVZCLS, VXFXICLS) %>% 
-  divide_ts(19)
+  divide_ts(20)
 etf_train <- etf_eval$train
 etf_test <- etf_eval$test
-ex_fit <- var_lm(etf_train, 5)
+ex_fit <- var_lm(etf_train, p = 5)
 ```
 
 Consider
 
-```{r}
+```{r whatcoef}
 coef(ex_fit)
 ex_fit$covmat
 ```
 
 Then
 
-```{r}
+```{r simvar}
 m <- ncol(ex_fit$coefficients)
 # generate VAR(5)-----------------
 y <- sim_var(
-  1500, 
-  100, 
-  coef(ex_fit), 
-  5, 
-  diag(ex_fit$covmat) %>% diag(), 
-  matrix(0L, nrow = 5, ncol = m)
+  num_sim = 1500, 
+  num_burn = 100, 
+  var_coef = coef(ex_fit), 
+  var_lag = 5L, 
+  sig_error = ex_fit$covmat, 
+  init = matrix(0L, nrow = 5L, ncol = m)
 )
 # colname: y1, y2, ...------------
 colnames(y) <- paste0("y", 1:m)
@@ -98,7 +98,7 @@ y_test <- y_eval$test # test
 
 ## VAR(5) and VHAR
 
-```{r}
+```{r fitvar}
 # VAR(5)
 model_var <- var_lm(y_train, 5)
 # VHAR
@@ -109,7 +109,7 @@ model_vhar <- vhar_lm(y_train)
 
 Minnesota prior
 
-```{r}
+```{r fitbvar}
 # hyper parameters---------------------------
 y_sig <- apply(y_train, 2, sd) # sigma vector
 y_lam <- .2 # lambda
@@ -122,21 +122,21 @@ model_bvar <- bvar_minnesota(y_train, 5, spec_bvar)
 
 ## BVHAR
 
-VAR-type Minnesota
+BVHAR-S
 
-```{r}
+```{r fitbvhars}
 spec_bvhar_v1 <- set_bvhar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvhar_v1 <- bvhar_minnesota(y_train, spec_bvhar_v1)
+model_bvhar_v1 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v1)
 ```
 
-VHAR-type Minnesota
+BVHAR-L
 
-```{r}
+```{r fitbvharl}
 # weights----------------------------------
-y_day <- rep(.2, m)
-y_week <- rep(.1, m)
-y_month <- rep(.1, m)
+y_day <- rep(.1, m)
+y_week <- rep(.01, m)
+y_month <- rep(.01, m)
 # spec-------------------------------------
 spec_bvhar_v2 <- set_weight_bvhar(
   y_sig,
@@ -147,23 +147,27 @@ spec_bvhar_v2 <- set_weight_bvhar(
   y_month
 )
 # fit--------------------------------------
-model_bvhar_v2 <- bvhar_minnesota(y_train, spec_bvhar_v2)
+model_bvhar_v2 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v2)
 ```
 
-# Forecasting
+# Splitting
 
 You can forecast using `predict()` method with above objects.
 You should set the step of the forecasting using `n_ahead` argument.
 
-In addition, the result of this forecast will return another class called `predbvhar`.
+In addition, the result of this forecast will return another class called `predbvhar` to use some methods,
+
+- Plot: `autoplot.predbvhar()`
+- Evaluation: `mse.predbvhar()`, `mae.predbvhar()`, `mape.predbvhar()`, `mase.predbvhar()`, `mrae.predbvhar()`, `relmae.predbvhar()`
+- Relative error: `rmape.predbvhar()`, `rmase.predbvhar()`, `rmase.predbvhar()`, `rmsfe.predbvhar()`, `rmafe.predbvhar()`
 
 ## VAR
 
-```{r}
+```{r predvar}
 (pred_var <- predict(model_var, n_ahead = h))
 ```
 
-```{r}
+```{r varpredlist}
 class(pred_var)
 names(pred_var)
 ```
@@ -173,31 +177,31 @@ The package provides the evaluation function
 - `mse(predbvhar, test)`: MSE
 - `mape(predbvhar, test)`: MAPE
 
-```{r}
+```{r msevar}
 (mse_var <- mse(pred_var, y_test))
 ```
 
 ## VHAR
 
-```{r}
+```{r predvhar}
 (pred_vhar <- predict(model_vhar, n_ahead = h))
 ```
 
 MSE:
 
-```{r}
+```{r msevhar}
 (mse_vhar <- mse(pred_vhar, y_test))
 ```
 
 ## BVAR
 
-```{r}
+```{r predbvar}
 (pred_bvar <- predict(model_bvar, n_ahead = h))
 ```
 
 MSE:
 
-```{r}
+```{r msebvar}
 (mse_bvar <- mse(pred_bvar, y_test))
 ```
 
@@ -205,25 +209,25 @@ MSE:
 
 ### VAR-type Minnesota
 
-```{r}
+```{r predbvharvar}
 (pred_bvhar_v1 <- predict(model_bvhar_v1, n_ahead = h))
 ```
 
 MSE:
 
-```{r}
+```{r msebvharvar}
 (mse_bvhar_v1 <- mse(pred_bvhar_v1, y_test))
 ```
 
 ### VHAR-type Minnesota
 
-```{r}
+```{r predbvharvhar}
 (pred_bvhar_v2 <- predict(model_bvhar_v2, n_ahead = h))
 ```
 
 MSE:
 
-```{r}
+```{r msebvharvhar}
 (mse_bvhar_v2 <- mse(pred_bvhar_v2, y_test))
 ```
 
@@ -233,19 +237,20 @@ MSE:
 
 `autoplot(predbvhar)` and `autolayer(predbvhar)` draws the results of the forecasting.
 
-```{r}
-autoplot(pred_var, x_cut = 1450, ci_alpha = .7) +
+```{r predplot}
+autoplot(pred_var, x_cut = 1470, ci_alpha = .7, type = "wrap") +
   autolayer(pred_vhar, ci_alpha = .5) +
   autolayer(pred_bvar, ci_alpha = .4) +
   autolayer(pred_bvhar_v1, ci_alpha = .2) +
-  autolayer(pred_bvhar_v2, ci_alpha = .1)
+  autolayer(pred_bvhar_v2, ci_alpha = .1) +
+  geom_eval(y_test, colour = "#000000", alpha = .5)
 ```
 
 ### Error
 
 Mean of MSE
 
-```{r}
+```{r msevalues}
 list(
   VAR = mse_var,
   VHAR = mse_vhar,
@@ -258,9 +263,9 @@ list(
   sort()
 ```
 
-For each variable
+For each variable, we can see the error with plot.
 
-```{r}
+```{r evalplot}
 list(
   pred_var,
   pred_vhar,
@@ -269,5 +274,116 @@ list(
   pred_bvhar_v2
 ) %>% 
   gg_loss(y = y_test, "mse")
+```
+
+Relative MAPE (MAPE), benchmark model: VAR
+
+```{r relmape}
+list(
+  VAR = pred_var,
+  VHAR = pred_vhar,
+  BVAR = pred_bvar,
+  BVHAR1 = pred_bvhar_v1,
+  BVHAR2 = pred_bvhar_v2
+) %>% 
+  lapply(rmape, pred_bench = pred_var, y = y_test) %>% 
+  unlist()
+```
+
+
+# Out-of-Sample Forecasting
+
+In time series research, out-of-sample forecasting plays a key role.
+So, we provide out-of-sample forecasting function based on
+
+- Rolling window: `forecast_roll(object, n_ahead, y_test)`
+- Expanding window: `forecast_expand(object, n_ahead, y_test)`
+
+## Rolling windows
+
+`forecast_roll(object, n_ahead, y_test)` conducts h >= 1 step rolling windows forecasting.
+
+It fixes window size and moves the window. The window is the training set.
+In this package, we set *window size = original input data*.
+
+Iterating the step
+
+1. The model is fitted in the training set.
+2. With the fitted model, researcher should forecast the next h >= 1 step ahead. The longest forecast horizon is `num_test - h + 1`.
+3. After this window, move the window and do the same process.
+4. Get forecasted values until possible (longest forecast horizon).
+
+5-step out-of-sample:
+
+```{r rollvar}
+(var_roll <- forecast_roll(model_var, 5, y_test))
+```
+
+Denote that the nrow is longest forecast horizon.
+
+```{r rollvarlist}
+class(var_roll)
+names(var_roll)
+```
+
+To apply the same evaluation methods, a class named `bvharcv` has been defined. You can use the functions above.
+
+```{r otherroll}
+vhar_roll <- forecast_roll(model_vhar, 5, y_test)
+bvar_roll <- forecast_roll(model_bvar, 5, y_test)
+bvhar_roll_v1 <- forecast_roll(model_bvhar_v1, 5, y_test)
+bvhar_roll_v2 <- forecast_roll(model_bvhar_v2, 5, y_test)
+```
+
+Relative MAPE, benchmark model: VAR 
+
+```{r relroll}
+list(
+  VAR = var_roll,
+  VHAR = vhar_roll,
+  BVAR = bvar_roll,
+  BVHAR1 = bvhar_roll_v1,
+  BVHAR2 = bvhar_roll_v2
+) %>% 
+  lapply(rmape, pred_bench = var_roll, y = y_test) %>% 
+  unlist()
+```
+
+## Expanding Windows
+
+`forecast_expand(object, n_ahead, y_test)` conducts h >= 1 step expanding window forecasting.
+
+Different with rolling windows, expanding windows method fixes the starting point. The other is same.
+
+```{r expandvar}
+(var_expand <- forecast_expand(model_var, 5, y_test))
+```
+
+The class is `bvharcv`.
+
+```{r expandvarlist}
+class(var_expand)
+names(var_expand)
+```
+
+```{r otherexpand}
+vhar_expand <- forecast_expand(model_vhar, 5, y_test)
+bvar_expand <- forecast_expand(model_bvar, 5, y_test)
+bvhar_expand_v1 <- forecast_expand(model_bvhar_v1, 5, y_test)
+bvhar_expand_v2 <- forecast_expand(model_bvhar_v2, 5, y_test)
+```
+
+Relative MAPE, benchmark model: VAR
+
+```{r relexpand}
+list(
+  VAR = var_expand,
+  VHAR = vhar_expand,
+  BVAR = bvar_expand,
+  BVHAR1 = bvhar_expand_v1,
+  BVHAR2 = bvhar_expand_v2
+) %>% 
+  lapply(rmape, pred_bench = var_expand, y = y_test) %>% 
+  unlist()
 ```
 

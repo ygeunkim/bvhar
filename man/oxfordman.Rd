@@ -3,8 +3,6 @@
 \docType{data}
 \name{oxfordman}
 \alias{oxfordman}
-\alias{oxfordman_wide_rv}
-\alias{oxfordman_wide_rk}
 \alias{oxfordman_rv}
 \alias{oxfordman_rk}
 \title{Oxford-Man Institute Realized Library}
@@ -12,7 +10,7 @@
 \code{oxfordman_long} is the raw data frame of 53507 rows and 20 columns (You cannot call this dataset.):
 
 \describe{
-\item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+\item{date}{Date - From 2012-01-09 to 2015-06-27}
 \item{Symbol}{Name of the Assets - See below for each name}
 \item{nobs}{Number of observations}
 \item{by_ss}{Bipower Variation (5-min Sub-sampled)}
@@ -34,15 +32,16 @@
 \item{close_time}{Closing Time}
 }
 
-\code{oxfordman_wide_rv} is widened data frame of which values are 5-min RV (\code{rv5}).
-The number of rows is 1826 and the number of columns is 31.
+\code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
+Also, it does not have \code{date} column for fitting.
+The number of rows is 905 and the number of columns is 30 (except date).
 \describe{
-\item{DATE}{Date - From 2013-01-07 to 2019-12-27}
+\item{date}{Date - From 2012-01-09 to 2015-06-27}
 \item{AEX}{AEX index}
 \item{AORD}{All Ordinaries}
 \item{BFX}{Bell 20 Index}
 \item{BSESN}{S&P BSE Sensex}
-\item{BVLG}{PSI All-Share Index}
+\item{BVLG}{PSI All-Share Index (excluded because this index is observed from 2012-10-15)}
 \item{BVSP}{BVSP BOVESPA Index}
 \item{DJI}{Dow Jones Industrial Average}
 \item{FCHI}{CAC 40}
@@ -67,16 +66,9 @@ The number of rows is 1826 and the number of columns is 31.
 \item{SPX}{S&P 500 Index}
 \item{SSEC}{Shanghai Composite Index}
 \item{SSMI}{Swiss Stock Market Index}
-\item{STI}{Straits Times Index}
+\item{STI}{Straits Times Index (excluded because this index is NA in the period)}
 \item{STOXX50E}{EURO STOXX 50}
 }
-
-\code{oxfordman_wide_rk} is widened data frame of which values are realized kernel variance (\code{rk_parzen}).
-The number of rows is 1826 and the number of columns is 31, which are the same variables as \code{oxfordman_wide_rv}.
-
-\code{oxfordman_rv} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rv}.
-Also, it does not have \code{DATE} column for fitting.
-The number of rows is 1826 and the number of columns is 31.
 
 \code{oxfordman_rk} is a data frame that interpolates \code{NA} values of \code{oxfordman_wide_rk}.
 Also, it does not have \code{DATE} column for fitting.
@@ -90,10 +82,6 @@ Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/es
 Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
 }
 \usage{
-oxfordman_wide_rv
-
-oxfordman_wide_rk
-
 oxfordman_rv
 
 oxfordman_rk

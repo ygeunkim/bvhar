@@ -6,7 +6,7 @@ test_that("Test for VAR-type minnesota", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvhar_var <- bvhar_minnesota(etf_vix, var_spec)
+  fit_test_bvhar_var <- bvhar_minnesota(etf_vix, bayes_spec = var_spec)
   
   expect_s3_class(var_spec, "bvharspec")
   expect_s3_class(fit_test_bvhar_var, "bvharmn")
@@ -31,7 +31,7 @@ test_that("Test for VHAR-type minnesota", {
     weekly = rep(.2, etf_ncol),
     monthly = rep(.1, etf_ncol)
   )
-  fit_test_bvhar_vhar <- bvhar_minnesota(etf_vix, vhar_spec)
+  fit_test_bvhar_vhar <- bvhar_minnesota(etf_vix, bayes_spec = vhar_spec)
   
   expect_s3_class(vhar_spec, "bvharspec")
   expect_s3_class(fit_test_bvhar_vhar, "bvharmn")

@@ -1,3 +1,27 @@
+# bvhar 0.8.0
+
+* Changed the way of specifying the lower and upper bounds of empirical bayes (`bound_bvhar()`).
+
+* Added Empirical Bayes vignette.
+
+# bvhar 0.7.1
+
+* When simulation, asymmetric covariance error is caught now (`sim_mgaussian()`).
+
+# bvhar 0.7.0
+
+* Add one integrated function that can do empirical bayes (`choose_bayes()` and `bound_bvhar()`).
+
+# bvhar 0.6.1
+
+* Pre-process date column of `oxfordman` more elaborately (it becomes same with `etf_vix`).
+
+# bvhar 0.6.0
+
+* Added weekly and monthly order feature in VHAR family (`vhar_lm()` and `bvhar_minnesota()`).
+
+* Other functions are compatible with har order option (`predict.vharlse()`, `predict.bvharmn()`, and `choose_bvhar()`)
+
 # bvhar 0.5.2
 
 * Added parallel option for empirical bayes (`choose_bvar()` and `choose_bvhar()`).

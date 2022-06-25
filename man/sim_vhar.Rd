@@ -4,30 +4,35 @@
 \alias{sim_vhar}
 \title{Generate Multivariate Time Series Process Following VHAR}
 \usage{
-sim_vhar(num_sim, num_burn, vhar_coef, sig_error, init)
+sim_vhar(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }
 \arguments{
 \item{num_sim}{Number to generated process}
 
 \item{num_burn}{Number of burn-in}
 
-\item{vhar_coef}{VHAR coefficient. The format should be the same as the output of \code{\link[=vhar_lm]{vhar_lm()}}}
+\item{vhar_coef}{VHAR coefficient. The format should be the same as the output of \code{\link[=coef.vharlse]{coef.vharlse()}} from \code{\link[=vhar_lm]{vhar_lm()}}}
+
+\item{week}{Order for weekly term. Try \code{5L} by default.}
+
+\item{month}{Order for monthly term. Try \code{22L} by default.}
 
 \item{sig_error}{Variance matrix of the error term. Try \code{diag(dim)}.}
 
-\item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = 22L, ncol = dim)}.}
+\item{init}{Initial y1, ..., y_month matrix to simulate VHAR model. Try \code{matrix(0L, nrow = month, ncol = dim)}.}
 }
 \description{
 This function generates multivariate time series dataset that follows VHAR.
 }
 \details{
+Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
 \enumerate{
 \item Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
 \item For i = 1, ... n,
-\deqn{y_{22 + i} = (y_{21 + i}^T, \ldots, y_i^T, 1)^T T_{HAR}^T \Phi + \epsilon_i}
-\item Then the output is \eqn{(y_{23}, \ldots, y_{n + 22})^T}
+\deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
+\item Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
 }
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }

@@ -4,11 +4,9 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param lag_max Maximum Var lag to explore (default = 5)
-#' @param include_mean `r lifecycle::badge("experimental")` Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel Parallel computation using [foreach::foreach()]? By default, `FALSE`.
-#' 
 #' @return Minimum order and information criteria values
-#' 
 #' @importFrom foreach foreach %do% %dopar%
 #' @export
 choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
@@ -67,7 +65,6 @@ choose_var <- function(y, lag_max = 5, include_mean = TRUE, parallel = FALSE) {
 #' * `lambda`
 #' * `delta`
 #' in order.
-#' 
 #' @noRd
 logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
   dim_data <- ncol(y)
@@ -84,11 +81,11 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
   -logml_stable(fit) # for maximization
 }
 
-#' Finding the Set of Hyperparameters of Bayesian Model
+#' Finding the Set of Hyperparameters of Individual Bayesian Model
 #' 
-#' This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
+#' Instead of these functions, you can use [choose_bayes()].
 #' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
+#' @param bayes_spec Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
@@ -96,16 +93,30 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' @param y Time series data
 #' @param p BVAR lag
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param parallel `r lifecycle::badge("experimental")` List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
+#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @details 
 #' Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
 #' These functions implement `"L-BFGS-B"` method of [stats::optim()] to find the maximum of marginal likelihood.
 #' 
+#' If you want to set `lower` and `upper` option more carefully,
+#' deal with them like as in [stats::optim()] in order of [set_bvar()], [set_bvhar()], or [set_weight_bvhar()]'s argument (except `eps`).
+#' In other words, just arrange them in a vector.
+#' @return `bvharemp` [class] is a list that has
+#' * [stats::optim()] or [optimParallel::optimParallel()]
+#' * chosen `bvharspec` set
+#' * Bayesian model fit result with chosen specification
+#' \describe{
+#'   \item{...}{Many components of [stats::optim()] or [optimParallel::optimParallel()]}
+#'   \item{spec}{Corresponding `bvharspec`}
+#'   \item{fit}{Chosen Bayesian model}
+#'   \item{ml}{Marginal likelihood of the final model}
+#' }
 #' @references 
+#' Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). *A limited memory algorithm for bound constrained optimization*. SIAM Journal on scientific computing, 16(5), 1190-1208. doi:[10.1137/0916069](https://doi.org/10.1137/0916069).
+#' 
 #' Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). *Bayesian data analysis*. Chapman and Hall/CRC. [http://www.stat.columbia.edu/~gelman/book/](http://www.stat.columbia.edu/~gelman/book/)
 #' 
-#' Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). *A limited memory algorithm for bound constrained optimization*. SIAM Journal on scientific computing, 16(5), 1190-1208. doi: [10.1137/0916069](https://doi.org/10.1137/0916069).
-#' 
+#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
 #' @importFrom stats optim
 #' @importFrom optimParallel optimParallel
 #' @order 1
@@ -209,9 +220,8 @@ choose_bvar <- function(bayes_spec = set_bvar(),
 #' * `lambda`
 #' * `delta`
 #' in order.
-#' 
 #' @noRd
-logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
+logml_bvhar_var <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean = TRUE, ...) {
   dim_data <- ncol(y)
   if (length(param) != 2 * dim_data + 1) {
     stop("The number of param is wrong.")
@@ -222,7 +232,7 @@ logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     delta = param[(dim_data + 2):length(param)],
     eps = 1e-04
   )
-  fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
+  fit <- bvhar_minnesota(y = y, har = har, bayes_spec = bvhar_spec, include_mean = include_mean)
   -logml_stable(fit) # for maximization
 }
 
@@ -242,9 +252,8 @@ logml_bvhar_var <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
 #' * `weekly`
 #' * `monthly`
 #' in order.
-#' 
 #' @noRd
-logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
+logml_bvhar_vhar <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean = TRUE, ...) {
   dim_data <- ncol(y)
   if (length(param) != 4 * dim_data + 1) {
     stop("The number of param is wrong.")
@@ -257,21 +266,21 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, include_mean = TRUE, ...) {
     weekly = param[(dim_data * 2 + 2):((dim_data * 3 + 1))],
     monthly = param[(dim_data * 3 + 2):((dim_data * 4 + 1))]
   )
-  fit <- bvhar_minnesota(y = y, bayes_spec = bvhar_spec, include_mean = include_mean)
+  fit <- bvhar_minnesota(y = y, har = har, bayes_spec = bvhar_spec, include_mean = include_mean)
   -logml_stable(fit) # for maximization
 }
 
 #' @rdname choose_bvar
-#' 
-#' @param bayes_spec `r lifecycle::badge("experimental")` Initial Bayes model specification.
+#' @param bayes_spec Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound. By default, `10`.
 #' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
 #' @param ... Additional arguments for [stats::optim()].
 #' @param y Time series data
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param parallel `r lifecycle::badge("experimental")` List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
-#' 
+#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
+#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. Preprint.
 #' @importFrom stats optim
 #' @importFrom optimParallel optimParallel
 #' @order 1
@@ -282,6 +291,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
                          ..., 
                          eps = 1e-04,
                          y, 
+                         har = c(5, 22),
                          include_mean = TRUE,
                          parallel = list()) {
   dim_data <- ncol(y)
@@ -318,6 +328,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean,
           parallel = parallel
         )
@@ -332,6 +343,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean
         )
     }
@@ -366,6 +378,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean,
           parallel = parallel
         )
@@ -380,6 +393,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
           ...,
           eps = eps,
           y = y,
+          har = har,
           include_mean = include_mean
         )
     }
@@ -395,6 +409,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   # fit using final spec--------
   final_fit <- bvhar_minnesota(
     y = y,
+    har = har,
     bayes_spec = bayes_spec,
     include_mean = include_mean
   )
@@ -408,4 +423,155 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
   res$ml <- const_term - res$value
   class(res) <- "bvharemp"
   res
+}
+
+#' Setting Empirical Bayes Optimization Bounds
+#' 
+#' `r lifecycle::badge("experimental")` This function sets lower and upper bounds for [set_bvar()], [set_bvhar()], or [set_weight_bvhar()].
+#' 
+#' @param init_spec Initial Bayes model specification
+#' @param lower_spec Lower bound Bayes model specification
+#' @param upper_spec Upper bound Bayes model specification
+#' @return `boundbvharemp` [class]
+#' @order 1
+#' @export
+bound_bvhar <- function(init_spec = set_bvhar(),
+                        lower_spec = set_bvhar(),
+                        upper_spec = set_bvhar()) {
+  if (!is.bvharspec(init_spec)) {
+    stop("Provide 'bvharspec' for 'init_spec'.")
+  }
+  if (!is.bvharspec(lower_spec)) {
+    stop("Provide 'bvharspec' for 'lower_spec'.")
+  }
+  if (!is.bvharspec(upper_spec)) {
+    stop("Provide 'bvharspec' for 'upper_spec'.")
+  }
+  if (init_spec$prior != lower_spec$prior) {
+    stop("'init_spec' and 'lower_spec' should be the same prior.")
+  }
+  if (lower_spec$prior != upper_spec$prior) {
+    stop("'lower_spec' and 'upper_spec' should be the same prior.")
+  }
+  if (init_spec$prior == "Flat") {
+    stop("ML not yet for Flat prior.")
+  }
+  if (length(init_spec$sigma) != length(lower_spec$sigma)) {
+    stop("'lower_spec' has wrong dimension.")
+  }
+  if (length(init_spec$sigma) != length(upper_spec$sigma)) {
+    stop("'upper_spec' has wrong dimension.")
+  }
+  res <- list(spec = init_spec)
+  res$lower <- c(
+    lower_spec$sigma,
+    lower_spec$lambda
+  )
+  res$upper <- c(
+    upper_spec$sigma,
+    upper_spec$lambda
+  )
+  # delta or daily-weekly-monthly---------------------------
+  if (init_spec$prior == "MN_VHAR") {
+    res$lower <- c(
+      res$lower,
+      lower_spec$daily,
+      lower_spec$weekly,
+      lower_spec$monthly
+    )
+    res$upper <- c(
+      res$upper,
+      upper_spec$daily,
+      upper_spec$weekly,
+      upper_spec$monthly
+    )
+  } else {
+    res$lower <- c(
+      res$lower,
+      lower_spec$delta
+    )
+    res$upper <- c(
+      res$upper,
+      upper_spec$delta
+    )
+  }
+  class(res) <- "boundbvharemp"
+  res
+}
+
+#' Finding the Set of Hyperparameters of Bayesian Model
+#' 
+#' `r lifecycle::badge("experimental")` This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
+#' 
+#' @param bayes_bound Empirical Bayes optimization bound specification defined by [bound_bvhar()].
+#' @param ... Additional arguments for [stats::optim()].
+#' @param eps Hyperparameter `eps` is fixed. By default, `1e-04`.
+#' @param ... Additional arguments for [stats::optim()].
+#' @param y Time series data
+#' @param order Order for BVAR or BVHAR. `p` of [bvar_minnesota()] or `har` of [bvhar_minnesota()]. By default, `c(5, 22)` for `har`.
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
+#' @return `bvharemp` [class] is a list that has
+#' \describe{
+#'   \item{...}{Many components of [stats::optim()] or [optimParallel::optimParallel()]}
+#'   \item{spec}{Corresponding `bvharspec`}
+#'   \item{fit}{Chosen Bayesian model}
+#'   \item{ml}{Marginal likelihood of the final model}
+#' }
+#' @seealso 
+#' * [bound_bvhar()] to define L-BFGS-B optimization bounds.
+#' * Individual functions: [choose_bvar()]
+#' @references 
+#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' 
+#' Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. Preprint.
+#' @order 1
+#' @export
+choose_bayes <- function(bayes_bound = bound_bvhar(),
+                         ...,
+                         eps = 1e-04,
+                         y, 
+                         order = c(5, 22),
+                         include_mean = TRUE,
+                         parallel = list()) {
+  dim_data <- ncol(y)
+  if (!is.boundbvharemp(bayes_bound)) {
+    stop("Provide 'bayes_bound' for 'boundbvharemp'. See ?bound_bvhar.")
+  }
+  bayes_spec <- bayes_bound$spec
+  switch(
+    bayes_spec$process,
+    "BVAR" = {
+      if (length(order) != 1) {
+        stop("Set the 'order' to be VAR order: the length should be 1.")
+      }
+      choose_bvar(
+        bayes_spec = bayes_spec,
+        lower = bayes_bound$lower, 
+        upper = bayes_bound$upper, 
+        ..., 
+        eps = eps,
+        y = y, 
+        p = order, 
+        include_mean = include_mean,
+        parallel = parallel
+      )
+    },
+    "BVHAR" = {
+      if (length(order) != 2) {
+        stop("Set the 'order' to be VHAR order (e.g. c(5, 22)): the length should be 2.")
+      }
+      choose_bvhar(
+        bayes_spec = bayes_spec,
+        lower = bayes_bound$lower, 
+        upper = bayes_bound$upper, 
+        ..., 
+        eps = eps,
+        y = y, 
+        har = order,
+        include_mean = include_mean,
+        parallel = parallel
+      )
+    }
+  )
 }
