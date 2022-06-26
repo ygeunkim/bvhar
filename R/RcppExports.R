@@ -256,19 +256,17 @@ compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
 }
 
-#' Orthogonal Impulse Response Functions of VAR
+#' Convert VAR to Orthogonalized VMA(infinite)
 #' 
-#' Compute orthogonal impulse responses of VAR
+#' Convert VAR process to infinite orthogonalized vector MA process
 #' 
 #' @param var_coef VAR coefficient matrix
 #' @param var_covmat VAR covariance matrix
 #' @param var_lag VAR order
 #' @param lag_max Maximum lag for VMA
-#' @return Impulse response system matrix. \eqn{\Theta = [\Theta_1, \ldots, \Theta_{lagmax}]^T}
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
-ir_var <- function(var_coef, var_covmat, var_lag, lag_max) {
-    .Call(`_bvhar_ir_var`, var_coef, var_covmat, var_lag, lag_max)
+#' @noRd
+VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
 }
 
 #' Building a Linear Transformation Matrix for Vector HAR
@@ -386,17 +384,15 @@ compute_covmse_har <- function(object, step) {
 #' 
 #' Compute orthogonal impulse responses of VHAR
 #' 
-#' @param object `vharlse` object
+#' @param vhar_coef VHAR coefficient
+#' @param vhar_covmat VHAR covariance matrix
+#' @param HARtrans_mat HAR linear transformation matrix
 #' @param lag_max Maximum lag for VMA
-#' @details
-#' Based on variance decomposition (cholesky decomposition)
-#' \deqn{\Sigma = P P^T}
-#' impulse response analysis if performed under MA representation.
-#' 
+#' @param month Order for monthly term
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
-ir_vhar <- function(object, lag_max) {
-    .Call(`_bvhar_ir_vhar`, object, lag_max)
+#' @noRd
+VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
 }
 
 #' Forecasting BVAR(p)

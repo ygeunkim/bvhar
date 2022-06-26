@@ -145,22 +145,20 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   return mse;
 }
 
-//' Orthogonal Impulse Response Functions of VAR
+//' Convert VAR to Orthogonalized VMA(infinite)
 //' 
-//' Compute orthogonal impulse responses of VAR
+//' Convert VAR process to infinite orthogonalized vector MA process
 //' 
 //' @param var_coef VAR coefficient matrix
 //' @param var_covmat VAR covariance matrix
 //' @param var_lag VAR order
 //' @param lag_max Maximum lag for VMA
-//' @return Impulse response system matrix. \eqn{\Theta = [\Theta_1, \ldots, \Theta_{lagmax}]^T}
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd ir_var(Eigen::MatrixXd var_coef, 
-                       Eigen::MatrixXd var_covmat, 
-                       int var_lag, 
-                       int lag_max) {
+Eigen::MatrixXd VARcoeftoVMA_ortho(Eigen::MatrixXd var_coef, 
+                                   Eigen::MatrixXd var_covmat, 
+                                   int var_lag, 
+                                   int lag_max) {
   int dim = var_covmat.cols(); // num_rows = num_cols
   if ((dim != var_covmat.rows()) && (dim != var_coef.cols())) {
     Rcpp::stop("Wrong covariance matrix format: `var_covmat`.");

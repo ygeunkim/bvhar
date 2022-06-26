@@ -56,8 +56,7 @@ reference:
   - compute_cov
   - compute_covmse
   - compute_covmse_har
-  - ir_var
-  - ir_vhar
+  - analyze_ir
 
 - title: Forecasting
   desc: ~
