@@ -375,7 +375,7 @@ VHARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
+#' @noRd
 compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
 }

@@ -54,8 +54,6 @@ reference:
   desc: ~
   contents:
   - compute_cov
-  - compute_covmse
-  - compute_covmse_har
   - analyze_ir
 
 - title: Forecasting
@@ -108,6 +106,7 @@ reference:
   - autoplot.predbvhar
   - geom_eval
   - gg_loss
+  - autoplot.bvharirf
 
 - title: Simulation and Random Generation
   desc: ~
