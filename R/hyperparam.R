@@ -134,7 +134,7 @@ set_bvar_flat <- function(U) {
 #' )
 #' class(bvhar_var_spec)
 #' str(bvhar_var_spec)
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. Preprint.
+#' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @order 1
 #' @export
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
@@ -176,7 +176,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #'   \item{weekly}{Vector value assigned for weekly weight}
 #'   \item{monthly}{Vector value assigned for monthly weight}
 #' }
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. Preprint.
+#' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @examples 
 #' # BVHAR-L specification---------------------------
 #' bvhar_vhar_spec <- set_weight_bvhar(

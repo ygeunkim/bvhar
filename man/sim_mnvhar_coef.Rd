@@ -45,7 +45,7 @@ sim_mnvhar_coef(
 )
 }
 \references{
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. Preprint.
+Kim, Y. G., and Baek, C. (2022). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }
 \seealso{
 \itemize{

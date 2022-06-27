@@ -127,7 +127,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
   if (!object.inherits("varlse")) {
@@ -143,4 +143,35 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
       vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
   }
   return mse;
+}
+
+//' Convert VAR to Orthogonalized VMA(infinite)
+//' 
+//' Convert VAR process to infinite orthogonalized vector MA process
+//' 
+//' @param var_coef VAR coefficient matrix
+//' @param var_covmat VAR covariance matrix
+//' @param var_lag VAR order
+//' @param lag_max Maximum lag for VMA
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd VARcoeftoVMA_ortho(Eigen::MatrixXd var_coef, 
+                                   Eigen::MatrixXd var_covmat, 
+                                   int var_lag, 
+                                   int lag_max) {
+  int dim = var_covmat.cols(); // num_rows = num_cols
+  if ((dim != var_covmat.rows()) && (dim != var_coef.cols())) {
+    Rcpp::stop("Wrong covariance matrix format: `var_covmat`.");
+  }
+  if ((var_coef.rows() != var_lag * dim + 1) && (var_coef.rows() != var_lag * dim)) {
+    Rcpp::stop("Wrong VAR coefficient format: `var_coef`.");
+  }
+  Eigen::MatrixXd ma = VARcoeftoVMA(var_coef, var_lag, lag_max);
+  Eigen::MatrixXd res(ma.rows(), dim);
+  Eigen::LLT<Eigen::MatrixXd> lltOfcovmat(Eigen::Map<Eigen::MatrixXd>(var_covmat.data(), dim, dim)); // cholesky decomposition for Sigma
+  Eigen::MatrixXd chol_covmat = lltOfcovmat.matrixU();
+  for (int i = 0; i < lag_max + 1; i++) {
+    res.block(i * dim, 0, dim, dim) = chol_covmat * ma.block(i * dim, 0, dim, dim);
+  }
+  return res;
 }

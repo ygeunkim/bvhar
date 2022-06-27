@@ -50,12 +50,13 @@ reference:
   contents:
   - bvhar_minnesota
 
-- title: Inference
+- title: Structural Analysis
   desc: ~
   contents:
   - compute_cov
   - compute_covmse
   - compute_covmse_har
+  - analyze_ir
 
 - title: Forecasting
   desc: ~

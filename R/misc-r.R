@@ -38,3 +38,10 @@ split_coef.bvharmod <- function(object, ...) {
     }
   )
 }
+
+#' @rdname split_coef
+#' @export
+split_coef.bvharirf <- function(object, ...) {
+  irf_mat <- object$coefficients
+  split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
+}

@@ -251,9 +251,22 @@ VARtoVMA <- function(object, lag_max) {
 #' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
+#' @noRd
 compute_covmse <- function(object, step) {
     .Call(`_bvhar_compute_covmse`, object, step)
+}
+
+#' Convert VAR to Orthogonalized VMA(infinite)
+#' 
+#' Convert VAR process to infinite orthogonalized vector MA process
+#' 
+#' @param var_coef VAR coefficient matrix
+#' @param var_covmat VAR covariance matrix
+#' @param var_lag VAR order
+#' @param lag_max Maximum lag for VMA
+#' @noRd
+VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
 }
 
 #' Building a Linear Transformation Matrix for Vector HAR
@@ -367,6 +380,21 @@ compute_covmse_har <- function(object, step) {
     .Call(`_bvhar_compute_covmse_har`, object, step)
 }
 
+#' Orthogonal Impulse Response Functions of VHAR
+#' 
+#' Compute orthogonal impulse responses of VHAR
+#' 
+#' @param vhar_coef VHAR coefficient
+#' @param vhar_covmat VHAR covariance matrix
+#' @param HARtrans_mat HAR linear transformation matrix
+#' @param lag_max Maximum lag for VMA
+#' @param month Order for monthly term
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
+}
+
 #' Forecasting BVAR(p)
 #' 
 #' @param object `bvarmn` or `bvarflat` object
@@ -415,15 +443,7 @@ forecast_bvar <- function(object, step, num_sim) {
 #'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 #'     - tilde notation indicates simulated ones
 #' 
-#' @references
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-#' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-#' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
-#' 
+#' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)

@@ -584,3 +584,25 @@ gg_loss <- function(mod_list,
       facet_wrap(Loss ~ ., nrow = NROW, ncol = NCOL, scales = "free_y")
   }
 }
+
+#' Plot Impulse Responses
+#' 
+#' Draw impulse responses of response ~ impulse in the facet.
+#' 
+#' @param object `bvharirf` object
+#' @param ... Other arguments passed on the [ggplot2::geom_path()].
+#' @seealso [analyze_ir()]
+#' @importFrom ggplot2 ggplot aes facet_grid labs geom_path scale_x_continuous labs element_blank
+#' @export
+autoplot.bvharirf <- function(object, ...) {
+  irf_df <- object$df_long
+  irf_df %>% 
+    ggplot(aes(x = period, y = value)) +
+    geom_path(...) +
+    scale_x_continuous(breaks = 0:(object$lag_max)) +
+    facet_grid(response ~ impulse) + # y ~ x: impulse (x) -> response (y)
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+}

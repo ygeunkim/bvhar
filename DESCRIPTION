@@ -43,6 +43,6 @@ Imports:
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.1.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
