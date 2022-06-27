@@ -64,7 +64,7 @@ analyze_ir.varlse <- function(object,
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
-  period_name <- rep(seq_len(lag_max + 1), each = object$m)
+  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
   colnames(mat_irf) <- name_var
   rownames(mat_irf) <- paste0(
     impulse_name,
@@ -133,7 +133,7 @@ analyze_ir.vharlse <- function(object,
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
-  period_name <- rep(seq_len(lag_max + 1), each = object$m)
+  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
   colnames(mat_irf) <- name_var
   rownames(mat_irf) <- paste0(
     impulse_name,

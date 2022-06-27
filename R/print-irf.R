@@ -10,10 +10,10 @@ print.bvharirf <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(sprintf("Responses to %s:\n", irf_type))
   irf_list <- split_coef(x)
   cat("====================================================\n\n")
-  for (i in 1:(x$lag_max + 1)) {
+  for (i in 0:(x$lag_max)) {
     cat(sprintf("Impulse -> Response (Period = %i):\n", i))
     print.default(
-      irf_list[[i]],
+      irf_list[[i + 1]],
       digits = digits,
       print.gap = 2L,
       quote = FALSE

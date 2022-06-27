@@ -14,3 +14,6 @@
 \description{
 Draw impulse responses of response ~ impulse in the facet.
 }
+\seealso{
+\code{\link[=analyze_ir]{analyze_ir()}}
+}
