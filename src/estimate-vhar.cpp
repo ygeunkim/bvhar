@@ -187,7 +187,7 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
 //' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
 //' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {
   if (!object.inherits("vharlse")) {
@@ -203,4 +203,38 @@ Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step) {
       vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
   }
   return mse;
+}
+
+//' Orthogonal Impulse Response Functions of VHAR
+//' 
+//' Compute orthogonal impulse responses of VHAR
+//' 
+//' @param vhar_coef VHAR coefficient
+//' @param vhar_covmat VHAR covariance matrix
+//' @param HARtrans_mat HAR linear transformation matrix
+//' @param lag_max Maximum lag for VMA
+//' @param month Order for monthly term
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef, 
+                                    Eigen::MatrixXd vhar_covmat, 
+                                    Eigen::MatrixXd HARtrans_mat, 
+                                    int lag_max, 
+                                    int month) {
+  int dim = vhar_covmat.cols(); // num_rows = num_cols
+  if ((dim != vhar_covmat.rows()) && (dim != vhar_coef.cols())) {
+    Rcpp::stop("Wrong covariance matrix format: `vhar_covmat`.");
+  }
+  if ((vhar_coef.rows() != 3 * dim + 1) && (vhar_coef.rows() != 3 * dim)) {
+    Rcpp::stop("Wrong VAR coefficient format: `vhar_coef`.");
+  }
+  Eigen::MatrixXd ma = VHARcoeftoVMA(vhar_coef, HARtrans_mat, lag_max, month);
+  Eigen::MatrixXd res(ma.rows(), dim);
+  Eigen::LLT<Eigen::MatrixXd> lltOfcovmat(Eigen::Map<Eigen::MatrixXd>(vhar_covmat.data(), dim, dim)); // cholesky decomposition for Sigma
+  Eigen::MatrixXd chol_covmat = lltOfcovmat.matrixU();
+  for (int i = 0; i < lag_max + 1; i++) {
+    res.block(i * dim, 0, dim, dim) = chol_covmat * ma.block(i * dim, 0, dim, dim);
+  }
+  return res;
 }

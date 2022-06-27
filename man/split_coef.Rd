@@ -3,11 +3,14 @@
 \name{split_coef}
 \alias{split_coef}
 \alias{split_coef.bvharmod}
+\alias{split_coef.bvharirf}
 \title{Splitting Coefficient Matrix into List}
 \usage{
 split_coef(object, ...)
 
 \method{split_coef}{bvharmod}(object, ...)
+
+\method{split_coef}{bvharirf}(object, ...)
 }
 \arguments{
 \item{object}{\code{bvharmod} object}

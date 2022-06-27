@@ -1,3 +1,9 @@
+# bvhar 0.9.0
+
+* Can compute impulse response function for VAR (`varlse`) and VHAR (`vharlse`) models (`analyze_ir()`).
+
+* Can draw impulse -> response plot in grid panels (`autoplot.bvharirf()`).
+
 # bvhar 0.8.0
 
 * Changed the way of specifying the lower and upper bounds of empirical bayes (`bound_bvhar()`).
