@@ -41,19 +41,15 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck
+          extra-packages: any::rcmdcheck
+          needs: check
 
 # do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v2
         with:
-          args: '"--no-manual", "--as-cran", "--no-build-vignettes"'
+          args: 'c("--no-manual", "--as-cran", "--no-build-vignettes", "--no-tests", "--no-examples")'
           build_args: '"--no-build-vignettes"'
           error-on: '"error"'
-
-      - name: Show testthat output
-        if: always()
-        run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
-        shell: bash
 
 # do not upload artifact until changing to public repo
 # When public repo -> uncomment below
