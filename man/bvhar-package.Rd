@@ -37,7 +37,7 @@ Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior
 
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 
-Kim, Y. G., and Baek, C. (2022). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Anonymous (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }
 \seealso{
 Useful links:
@@ -48,11 +48,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
+\strong{Maintainer}: John Doe \email{john@example.com} (\href{https://orcid.org/0000-0000-0000-0000}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{
-  \item Changryong Baek [contributor]
+  \item Jane Doe [contributor]
 }
 
 }

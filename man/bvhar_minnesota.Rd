@@ -92,7 +92,7 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Kim, Y. G., and Baek, C. (2022). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Anonymous (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }
 \seealso{
 \itemize{

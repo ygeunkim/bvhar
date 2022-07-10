@@ -443,7 +443,7 @@ forecast_bvar <- function(object, step, num_sim) {
 #'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 #'     - tilde notation indicates simulated ones
 #' 
-#' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' @references Anonymous (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)

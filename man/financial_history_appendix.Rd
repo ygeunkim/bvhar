@@ -45,7 +45,7 @@ If you wonder the exact vector of the date, see \link{trading_day} vector.
 }
 
 \section{Notice}{
-If you want other time period, see our code in the Github repo for the dataset.
+If you want other time period, see codes in the Github repo for the dataset.
 \itemize{
 \item \code{etf_vix}: \href{https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R}{ygeunkim/bvhar/data-raw/etf_vix.R}
 \item \code{oxfordman}: \href{https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R}{ygeunkim/bvhar/data-raw/oxfordman_long.R}

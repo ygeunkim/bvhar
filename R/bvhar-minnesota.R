@@ -48,7 +48,7 @@
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input (`matrix`)}
 #' }
-#' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' @references Anonymous (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
 #' * [set_weight_bvhar()] to specify the hyperparameters of HAR-type Minnesota prior.
