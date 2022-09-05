@@ -22,7 +22,7 @@
 #' 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
 #' 
-#' Anonymous (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 "_PACKAGE"
 
 # The following block is used by usethis to automatically manage

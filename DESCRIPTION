@@ -4,13 +4,13 @@ Title: Bayesian Vector Heterogeneous Autoregressive Modeling
 Version: 0.9.0
 Date: 2021-08-01
 Authors@R: 
-    c(person(given = "John",
-             family = "Doe",
-             email = "john@example.com",
+    c(person(given = "Young Geun",
+             family = "Kim",
+             email = "dudrms33@g.skku.edu",
              role = c("aut", "cre", "cph"),
-             comment = c(ORCID = "0000-0000-0000-0000")),
-      person(given = "Jane",
-             family = "Doe",
+             comment = c(ORCID = "0000-0001-8651-1167")),
+      person(given = "Changryong",
+             family = "Baek",
              role = "ctb"))
 Description: A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
     `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
@@ -26,7 +26,7 @@ Suggests:
     testthat (>= 3.0.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Imports: 
     lifecycle,
     magrittr,
