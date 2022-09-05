@@ -149,8 +149,14 @@ destination: '../../GitHub/young-blogdown/static/package/bvhar'
 
 navbar:
   structure:
+    left: [intro, reference, articles, tutorials, news, research, accepted]
     right: [github, goback]
   components:
+    research:
+      icon: fa-laptop-code
+      href: https://github.com/ygeunkim/paper-bvhar
+      aria-label: Reproducible code
+      text: Reproducible code
     goback:
       icon: fa-home
       href: /software/
