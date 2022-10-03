@@ -6,7 +6,12 @@
 \alias{knit_print.bvharmn}
 \title{Fitting Bayesian VHAR of Minnesota Prior}
 \usage{
-bvhar_minnesota(y, bayes_spec = set_bvhar(), include_mean = TRUE)
+bvhar_minnesota(
+  y,
+  har = c(5, 22),
+  bayes_spec = set_bvhar(),
+  include_mean = TRUE
+)
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -14,6 +19,8 @@ knit_print.bvharmn(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
+
+\item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
@@ -26,7 +33,7 @@ knit_print.bvharmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvhar_minnesota} returns an object \code{bvharmn} \link{class}.
+\code{bvhar_minnesota()} returns an object \code{bvharmn} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -35,7 +42,7 @@ It is a list with the following components:
 \item{residuals}{Residuals}
 \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
 \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
-\item{iw_shape}{Posterior shape of inverse-wishart distribution (\eqn{d_0} - obs + 2). \eqn{d_0}: nrow(Dummy observation) - k}
+\item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{\nu_0} - obs + 2). \eqn{\nu_0}: nrow(Dummy observation) - k}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
 \item{p}{3, this element exists to run the other functions}
 \item{m}{Dimension of the time series}
@@ -45,14 +52,14 @@ It is a list with the following components:
 \item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} or \code{"BVHAR_MN_VHAR"}}
 \item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{P_0}}
-\item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Psi_0}}
-\item{prior_scale}{Prior scale matrix of inverse-wishart distribution: \eqn{U_0}}
-\item{prior_shape}{Prior shape of inverse-wishart distribution: \eqn{d_0}}
-\item{HARtrans}{VHAR linear transformation matrix: \eqn{T_{HAR}}}
+\item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{M_0}}
+\item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
+\item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{\Psi_0}}
+\item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\nu_0}}
+\item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
-\item{y}{Raw input}
+\item{y}{Raw input (\code{matrix})}
 }
 }
 \description{
@@ -61,14 +68,14 @@ This function fits BVHAR with Minnesota prior.
 \details{
 Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
 
-\deqn{\Phi \mid \Sigma_e \sim MN(P_0, \Psi_0, \Sigma_e)}
-\deqn{\Sigma_e \sim IW(U_0, d_0)}
+\deqn{\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)}
+\deqn{\Sigma_e \sim IW(\Psi_0, \nu_0)}
 (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}, IW: \href{https://en.wikipedia.org/wiki/Inverse-Wishart_distribution}{inverse-wishart})
 
 There are two types of Minnesota priors for BVHAR:
 \itemize{
-\item VAR-type Minnesota prior specified by \code{\link[=set_bvhar]{set_bvhar()}}
-\item VHAR-type Minnesota prior specified by \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}
+\item VAR-type Minnesota prior specified by \code{\link[=set_bvhar]{set_bvhar()}}, so-called BVHAR-S model.
+\item VHAR-type Minnesota prior specified by \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}, so-called BVHAR-L model.
 }
 
 Two types of Minnesota priors builds different dummy variables for Y0.
@@ -76,30 +83,16 @@ See \link{var_design_formulation}.
 }
 \examples{
 # Perform the function using etf_vix dataset
-\dontrun{
-  fit <- bvhar_minnesota(y = etf_vix)
-  class(fit)
-  str(fit)
-}
+fit <- bvhar_minnesota(y = etf_vix[,1:3])
+class(fit)
 
 # Extract coef, fitted values, and residuals
-\dontrun{
-  coef(fit)
-  residuals(fit)
-  fitted(fit)
-}
-
+coef(fit)
+head(residuals(fit))
+head(fitted(fit))
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
-
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
-
-Domenico Giannone, Michele Lenza, Giorgio E. Primiceri; \emph{Prior Selection for Vector Autoregressions}. The Review of Economics and Statistics 2015; 97 (2): 436–451. doi: \url{https://doi.org/10.1162/REST_a_00483}
-
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
-
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }
 \seealso{
 \itemize{

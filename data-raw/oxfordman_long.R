@@ -1,65 +1,56 @@
 ## code to prepare `oxfordman_long` dataset goes here
 library(readr)
 library(dplyr)
-oxfordman_long <- read_csv("data-raw/oxfordmanrealizedvolatilityindices.csv")
-names(oxfordman_long)[1] <- "DATE"
+# Download from oxford-man site---------------------
+temp_env <- tempfile()
+download.file("https://realized.oxford-man.ox.ac.uk/images/oxfordmanrealizedvolatilityindices.zip", temp_env)
+oxfordman_long <- read_csv(unz(temp_env, "oxfordmanrealizedvolatilityindices.csv"))
+names(oxfordman_long)[1] <- "date"
 # pre-processing------------------------------------
 oxfordman_long <- 
   oxfordman_long %>% 
   mutate(
-    DATE = lubridate::as_date(DATE),
+    date = as.Date(date),
     Symbol = stringr::str_remove(Symbol, pattern = "\\.")
   ) %>% # remove the dot in front of each name of the asset (Symbol)
   filter(between(
-    DATE,
-    lubridate::as_date("2013-01-05"),
-    lubridate::as_date("2019-12-28")
+    date,
+    as.Date("2012-01-09"), # after Italian debt crisis
+    as.Date("2015-06-27") # before Grexit
   )) # filtering dates
 # Widen data----------------------------------------
 spread_oxford <- function(x = oxfordman_long, var = "rv5") {
   rv <- sym(var)
   x %>% 
     mutate(realized = !!rv) %>% 
-    select(DATE, Symbol, realized) %>% 
-    filter(Symbol != "STI") %>% # STI has too many NAs
+    select(date, Symbol, realized) %>% 
+    filter(Symbol != "STI", Symbol != "BVLG") %>% # STI: all NAs and BVLG: from 2012-10-15
     tidyr::pivot_wider(names_from = "Symbol", values_from = "realized") %>% 
-    arrange(DATE)
+    arrange(date)
 }
 # 5-min RV------------------------------------------
 oxfordman_wide_rv <- spread_oxford(oxfordman_long, "rv5")
 # Realized Kernel Variance (Non-Flat Parzen)--------
 oxfordman_wide_rk <- spread_oxford(oxfordman_long, "rk_parzen")
-# Add holidays as NA rows---------------------------
-# DAY <- lubridate::as_date(oxfordman_wide_rv$DATE)
-# holiday <- which(diff(DAY) != 1 & diff(DAY) != 3)
-# row_na <- 
-#   holiday %>% 
-#   sapply(
-#     function(x) {
-#       seq(
-#         from = DAY[x] + lubridate::days(1),
-#         to = DAY[x + 1] - lubridate::days(1),
-#         by = "day"
-#       )
-#     }
-#   )
-# Function to add NA-------------------------------
-# oxfordman_rk %>% 
-#   add_row(DATE = row_na[[1]], .after = holiday[1])
+# Dates difference should be 1 or 3-----------------
+# but not satisfied
+oxfordman_wide_rv <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rv, by = "date")
+oxfordman_wide_rk <- 
+  tibble(date = trading_day) %>% 
+  left_join(oxfordman_wide_rk, by = "date")
 # Impute-------------------------------------------
 oxfordman_rv <- 
   oxfordman_wide_rv %>% 
-  select(-DATE) %>% 
+  select(-date) %>% 
   apply(2, imputeTS::na_interpolation) %>% 
   as_tibble()
 oxfordman_rk <- 
   oxfordman_wide_rk %>% 
-  select(-DATE) %>% 
+  select(-date) %>% 
   apply(2, imputeTS::na_interpolation) %>% 
   as_tibble()
-
-# usethis::use_data(oxfordman_long, internal = TRUE, overwrite = TRUE)
-# usethis::use_data(oxfordman_wide_rv, internal = TRUE, overwrite = TRUE)
-# usethis::use_data(oxfordman_wide_rk, internal = TRUE, overwrite = TRUE)
+# save----------------------------------------
 usethis::use_data(oxfordman_rv, overwrite = TRUE)
 usethis::use_data(oxfordman_rk, overwrite = TRUE)

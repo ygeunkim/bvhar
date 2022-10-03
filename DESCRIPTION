@@ -1,29 +1,32 @@
 Package: bvhar
 Type: Package
-Title: Bayesian Vector Autoregressive Heterogeneous Modeling
-Version: 0.5.2
+Title: Bayesian Vector Heterogeneous Autoregressive Modeling
+Version: 0.9.0
 Date: 2021-08-01
 Authors@R: 
     c(person(given = "Young Geun",
              family = "Kim",
              email = "dudrms33@g.skku.edu",
-             role = c("aut", "cre", "cph")),
+             role = c("aut", "cre", "cph"),
+             comment = c(ORCID = "0000-0001-8651-1167")),
       person(given = "Changryong",
              family = "Baek",
              role = "ctb"))
 Description: A package aiming at researching Bayesian Vector heterogeneous autoregressive process.
     `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
+    It can also generate one Normal-inverse-Wishart matrix for the sake of simulation setting.
 License: MIT + file LICENSE
 URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,
     knitr,
+    parallel,
     rmarkdown,
     testthat (>= 3.0.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports: 
     lifecycle,
     magrittr,
@@ -40,6 +43,6 @@ Imports:
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.1.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

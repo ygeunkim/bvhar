@@ -4,9 +4,9 @@
 \alias{vhar_lm}
 \alias{print.vharlse}
 \alias{knit_print.vharlse}
-\title{Fitting Vector HAR Model}
+\title{Fitting Vector Heterogeneous Autoregressive Model}
 \usage{
-vhar_lm(y, include_mean = TRUE)
+vhar_lm(y, har = c(5, 22), include_mean = TRUE)
 
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -14,6 +14,8 @@ knit_print.vharlse(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
+
+\item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -24,7 +26,7 @@ knit_print.vharlse(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{vhar_lm} returns an object named \code{vharlse} \link{class}.
+\code{vhar_lm()} returns an object named \code{vharlse} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -34,6 +36,8 @@ It is a list with the following components:
 \item{covmat}{LS estimate for covariance matrix}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
 \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
+\item{week}{Order for weekly term}
+\item{month}{Order for monthly term}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
@@ -55,26 +59,21 @@ the function gives basic values.
 }
 \examples{
 # Perform the function using etf_vix dataset
-\dontrun{
-  fit <- vhar_lm(y = etf_vix)
-  class(fit)
-  str(fit)
-}
+fit <- vhar_lm(y = etf_vix)
+class(fit)
+str(fit)
 
 # Extract coef, fitted values, and residuals
-\dontrun{
-  coef(fit)
-  residuals(fit)
-  fitted(fit)
-}
-
+coef(fit)
+head(residuals(fit))
+head(fitted(fit))
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. \url{https://doi.org/10.1007/978-3-540-27752-1}
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
 
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. \url{https://doi:10.1093/jjfinec/nbp001}
+Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829–2841. doi:\href{https://doi.org/10.1016/j.jbankfin.2011.03.012}{10.1016/j.jbankfin.2011.03.012}
 
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
+Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. doi:\href{https://doi.org/10.1093/jjfinec/nbp001}{10.1093/jjfinec/nbp001}
 }
 \seealso{
 \itemize{

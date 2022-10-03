@@ -5,7 +5,7 @@
 \alias{choose_bvhar}
 \alias{print.bvharemp}
 \alias{knit_print.bvharemp}
-\title{Finding the Set of Hyperparameters of Bayesian Model}
+\title{Finding the Set of Hyperparameters of Individual Bayesian Model}
 \usage{
 choose_bvar(
   bayes_spec = set_bvar(),
@@ -26,6 +26,7 @@ choose_bvhar(
   ...,
   eps = 1e-04,
   y,
+  har = c(5, 22),
   include_mean = TRUE,
   parallel = list()
 )
@@ -35,7 +36,7 @@ choose_bvhar(
 knit_print.bvharemp(x, ...)
 }
 \arguments{
-\item{bayes_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Initial Bayes model specification.}
+\item{bayes_spec}{Initial Bayes model specification.}
 
 \item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound. By default, \code{.01}.}
 
@@ -51,21 +52,45 @@ knit_print.bvharemp(x, ...)
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{parallel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{x}{\code{bvharemp} object}
 
 \item{digits}{digit option to print}
 }
+\value{
+\code{bvharemp} \link{class} is a list that has
+\itemize{
+\item \code{\link[stats:optim]{stats::optim()}} or \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}
+\item chosen \code{bvharspec} set
+\item Bayesian model fit result with chosen specification
+\describe{
+\item{...}{Many components of \code{\link[stats:optim]{stats::optim()}} or \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}}
+\item{spec}{Corresponding \code{bvharspec}}
+\item{fit}{Chosen Bayesian model}
+\item{ml}{Marginal likelihood of the final model}
+}
+}
+}
 \description{
-This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
+Instead of these functions, you can use \code{\link[=choose_bayes]{choose_bayes()}}.
 }
 \details{
 Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
 These functions implement \code{"L-BFGS-B"} method of \code{\link[stats:optim]{stats::optim()}} to find the maximum of marginal likelihood.
+
+If you want to set \code{lower} and \code{upper} option more carefully,
+deal with them like as in \code{\link[stats:optim]{stats::optim()}} in order of \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}'s argument (except \code{eps}).
+In other words, just arrange them in a vector.
 }
 \references{
+Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). \emph{A limited memory algorithm for bound constrained optimization}. SIAM Journal on scientific computing, 16(5), 1190-1208. doi:\href{https://doi.org/10.1137/0916069}{10.1137/0916069}.
+
 Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
 
-Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). \emph{A limited memory algorithm for bound constrained optimization}. SIAM Journal on scientific computing, 16(5), 1190-1208. doi: \href{https://doi.org/10.1137/0916069}{10.1137/0916069}.
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }

@@ -1,6 +1,16 @@
 template:
-  params:
-    bootswatch: journal
+  bootstrap: 5
+  bootswatch: journal
+  bslib:
+    bg: "#272935"
+    fg: "#f8f8f2"
+    primary: "#ff3860"
+    secondary: "#23252f"
+    base_font: {google: "Noto Sans"}
+    code_font: {google: "Anonymous Pro"}
+    code-bg: "#44475a"
+    code-color: "#f8f8f2"
+  theme: github-dark
 
 development:
   mode: auto
@@ -50,12 +60,11 @@ reference:
   contents:
   - bvhar_minnesota
 
-- title: Inference
+- title: Structural Analysis
   desc: ~
   contents:
   - compute_cov
-  - compute_covmse
-  - compute_covmse_har
+  - analyze_ir
 
 - title: Forecasting
   desc: ~
@@ -72,13 +81,18 @@ reference:
   - relmae
   - rmsfe
   - rmafe
+  - rmape
+  - rmase
 
 - title: Empirical Bayes
-  desc: ~
+  desc: >
+    Hyperparameter selection.
   contents:
   - compute_logml
   - choose_bvar
   - choose_bvhar
+  - bound_bvhar
+  - choose_bayes
 
 - title: Information criteria
   desc: ~
@@ -102,6 +116,7 @@ reference:
   - autoplot.predbvhar
   - geom_eval
   - gg_loss
+  - autoplot.bvharirf
 
 - title: Simulation and Random Generation
   desc: ~
@@ -120,7 +135,6 @@ reference:
   contents:
   - etf_vix
   - oxfordman
-  - est_energy
 
 - title: Other generic functions
   desc: ~
@@ -130,3 +144,21 @@ reference:
   - fitted.varlse
   - is.varlse
   - split_coef
+
+destination: '../../GitHub/young-blogdown/static/package/bvhar'
+
+navbar:
+  structure:
+    left: [intro, reference, articles, tutorials, news, research, accepted]
+    right: [github, goback]
+  components:
+    research:
+      icon: fa-laptop-code
+      href: https://github.com/ygeunkim/paper-bvhar
+      aria-label: Reproducible code
+      text: Reproducible code
+    goback:
+      icon: fa-home
+      href: /software/
+      aria-label: Back to the page
+      text: Go back to the Software page

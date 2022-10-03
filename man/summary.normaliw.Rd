@@ -47,7 +47,7 @@ BVHAR:
 where \eqn{\hat{V}_H = X_{+}^T X_{+}} is the posterior precision of MN.
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
 }

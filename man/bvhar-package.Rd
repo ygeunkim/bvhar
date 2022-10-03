@@ -4,15 +4,13 @@
 \name{bvhar-package}
 \alias{bvhar}
 \alias{bvhar-package}
-\title{bvhar: Bayesian Vector Autoregressive Heterogeneous Modeling}
+\title{bvhar: Bayesian Vector Heterogeneous Autoregressive Modeling}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
+A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR). It can also generate one Normal-inverse-Wishart matrix for the sake of simulation setting.
 }
 \details{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.
 Here, vector autoregressive modelling includes:
 \itemize{
@@ -24,21 +22,22 @@ Here, vector autoregressive modelling includes:
 
 Each function returns S3 class \code{varlse}, \code{vharlse}, \code{bvarmn}, \code{bvarflat}, and \code{bvharmn}.
 As dealing with other statistical functions (such as \code{\link[stats:lm]{stats::lm()}} and \code{\link[stats:glm]{stats::glm()}}),
-users can analyze time series with S3 methods:
+users can analyze multivariate time series (\code{data.frame} or \code{matrix}) with S3 methods:
 \itemize{
 \item Extract: \code{\link[=coef.varlse]{coef.varlse()}}, \code{\link[=residuals.varlse]{residuals.varlse()}}, \code{\link[=fitted.varlse]{fitted.varlse()}}
-\item log-likelihood: \code{\link[=logLik.varlse]{logLik.varlse()}}
 \item Forecasting: \code{\link[=predict.varlse]{predict.varlse()}}
 }
 }
 \references{
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. \url{https://doi:10.2307/1391384}
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
 
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). \url{https://doi:10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
 
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). \url{https://doi:10.1080/01621459.2018.1437043}
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
 
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. \url{https://doi.org/10.1007/s42952-020-00090-5}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
+
+Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 }
 \seealso{
 Useful links:
@@ -49,7 +48,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} [copyright holder]
+\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{

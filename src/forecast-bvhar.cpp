@@ -19,19 +19,13 @@
 //'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 //'     - tilde notation indicates simulated ones
 //' 
-//' @references
-//' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' 
-//' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-//' 
-//' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
-//' 
-//' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
-//' 
+//' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
-  if (!object.inherits("bvharmn")) Rcpp::stop("'object' must be bvharmn object.");
+  if (!object.inherits("bvharmn")) {
+    Rcpp::stop("'object' must be bvharmn object.");
+  }
   Eigen::MatrixXd response_mat = object["y0"]; // Y0
   Eigen::MatrixXd posterior_mean_mat = object["coefficients"]; // Phihat = posterior mean of MN: h x m, h = 3m (+ 1)
   Eigen::MatrixXd posterior_prec_mat = object["mn_prec"]; // Psihat = posterior precision of MN to compute SE: h x h
@@ -44,6 +38,7 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   int num_design = object["obs"]; // s = n - p
   int dim_design = object["df"]; // 3m + 1 (const) or 3m (none)
   int dim_har = HARtrans.cols(); // 22m + 1 (const) or 22m (none)
+  int month = object["month"];
   // (Phi, Sig) ~ MNIW
   Rcpp::List coef_and_sig = sim_mniw(
     num_sim, 
@@ -59,14 +54,14 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   Eigen::MatrixXd density_forecast(step, num_sim * dim); // h x Bm matrix
   Eigen::MatrixXd predictive_distn(step, num_sim * dim); // h x Bm matrix
   Eigen::MatrixXd last_pvec(1, dim_har); // vectorize the last 22 observation and include 1
-  Eigen::MatrixXd tmp_vec(1, 21 * dim);
+  Eigen::MatrixXd tmp_vec(1, (month - 1) * dim);
   Eigen::MatrixXd res(step, dim); // h x m matrix
   Eigen::VectorXd sig_closed(step); // se^2 for each forecast (except Sigma2 part, i.e. closed form)
   for (int i = 0; i < step; i++) {
     sig_closed(i) = 1.0;
   }
   last_pvec(0, dim_har - 1) = 1.0;
-  for (int i = 0; i < 22; i++) {
+  for (int i = 0; i < month; i++) {
     last_pvec.block(0, i * dim, 1, dim) = response_mat.block(num_design - 1 - i, 0, 1, dim);
   }
   sig_closed.block(0, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.transpose();
@@ -89,8 +84,8 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   }
   // Next h - 1: recursively
   for (int i = 1; i < step; i++) {
-    tmp_vec = last_pvec.block(0, 0, 1, 21 * dim); // remove the last m (except 1)
-    last_pvec.block(0, dim, 1, 21 * dim) = tmp_vec;
+    tmp_vec = last_pvec.block(0, 0, 1, (month - 1) * dim); // remove the last m (except 1)
+    last_pvec.block(0, dim, 1, (month - 1) * dim) = tmp_vec;
     last_pvec.block(0, 0, 1, dim) = point_forecast.block(i - 1, 0, 1, dim);
     sig_closed.block(i, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.transpose();
     // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
