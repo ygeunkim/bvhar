@@ -19,7 +19,7 @@
 //'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 //'     - tilde notation indicates simulated ones
 //' 
-//' @references Kim, Y. G., and Baek, C. (2022). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+//' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {

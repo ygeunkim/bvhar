@@ -6,8 +6,8 @@ template:
     fg: "#f8f8f2"
     primary: "#ff3860"
     secondary: "#23252f"
-    base_font: {google: "Noto Serif"}
-    code_font: {google: "Noto Sans"}
+    base_font: {google: "Noto Sans"}
+    code_font: {google: "Anonymous Pro"}
     code-bg: "#44475a"
     code-color: "#f8f8f2"
   theme: github-dark
@@ -149,8 +149,14 @@ destination: '../../GitHub/young-blogdown/static/package/bvhar'
 
 navbar:
   structure:
+    left: [intro, reference, articles, tutorials, news, research, accepted]
     right: [github, goback]
   components:
+    research:
+      icon: fa-laptop-code
+      href: https://github.com/ygeunkim/paper-bvhar
+      aria-label: Reproducible code
+      text: Reproducible code
     goback:
       icon: fa-home
       href: /software/

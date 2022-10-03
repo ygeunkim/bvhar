@@ -29,7 +29,7 @@
 #' 
 #' # Notice
 #' 
-#' If you want other time period, see our code in the Github repo for the dataset.
+#' If you want other time period, see codes in the Github repo for the dataset.
 #' 
 #' * `etf_vix`: [ygeunkim/bvhar/data-raw/etf_vix.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R)
 #' * `oxfordman`: [ygeunkim/bvhar/data-raw/oxfordman_long.R](https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R)

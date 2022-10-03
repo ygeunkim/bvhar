@@ -104,7 +104,7 @@ bvar_cand <- bvar_minnesota(
 
 ## BVHAR-S
 
-BVHAR-S (Kim et al. (2022)) has the same set of hyperparameters with BVAR.
+BVHAR-S (Kim et al. (n.d.)) has the same set of hyperparameters with BVAR.
 
 ```{r bvharsspec}
 (bvhar_short_spec <- set_bvhar(
@@ -160,7 +160,7 @@ bvhar_long_cand <- bvhar_minnesota(
 # Hyperparameter Selection
 
 - Giannone et al. (2015) provides the closed form of marginal likelihood for BVAR Minnesota prior.
-- Based on this calculation, Kim et al. (2022) gives the closed form for BVHAR-S and BVHAR-L.
+- Based on this calculation, Kim et al. (n.d.) gives the closed form for BVHAR-S and BVHAR-L.
 
 This package provides hyperparameter selection function with empirical bayes (Giannone et al. (2015)).
 Implementation is simple. Provide above `bvharspec` as initial values to `stats::optim()` structure. You can either use

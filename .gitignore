@@ -44,3 +44,5 @@ Meta
 /src/*.o-*
 /src/*.d
 /src/*.so
+
+^_pkgdown.yml
