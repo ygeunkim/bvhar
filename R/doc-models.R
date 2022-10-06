@@ -8,11 +8,11 @@
 #' 
 #' As mentioned in [var_lm()], we specify VAR(p) model by
 #' \deqn{Y_t = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
-#' Consider sample of n size, \eqn{y_1, \ldots, y_n}.
-#' Let \eqn{s = n - p}.
-#' \eqn{y_1, \ldots, y_n} data are rearranged as follows.
-#' \deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + s - 1})^\intercal}
-#' and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + s - 1})^\intercal}
+#' Consider sample of T size, \eqn{y_1, \ldots, y_n}.
+#' Let \eqn{n = T - p}.
+#' \eqn{y_1, \ldots, y_T} data are rearranged as follows.
+#' \deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + n - 1})^\intercal}
+#' and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + n - 1})^\intercal}
 #' For ordinary least squares (OLS) estimation,
 #' we define each response matrix and design matrix in multivariate OLS as follows.
 #' First, response matrix:
@@ -20,8 +20,8 @@
 #' Next, design matrix:
 #' \deqn{X_0 = [Y_p, \ldots, Y_1, 1]}
 #' Then we now have OLS model
-#' \deqn{Y_0 = X_0 A + Z}
-#' where \eqn{Z = Z_{p + 1}}
+#' \deqn{Y_0 = X_0 A + Z_0}
+#' where \eqn{Z_0 = Z_{p + 1}}
 #' Here,
 #' \deqn{A = [A_1, A_2, \ldots, A_p, c]^T}
 #' This gives that
@@ -30,7 +30,7 @@
 #' # Vector Heterogeneous Autoregressive Model
 #' 
 #' * VHAR model is linearly restricted VAR(22).
-#' * Let \eqn{Y_0 = X_1 \Phi + Z} be the OLS formula of VHAR.
+#' * Let \eqn{Y_0 = X_1 \Phi + Z_0} be the OLS formula of VHAR.
 #' * Let \eqn{T_0} be 3m x 22m matrix.
 #' 
 #' \deqn{
@@ -222,4 +222,26 @@ NULL
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' @keywords internal
 #' @name bvar_predictive_density
+NULL
+
+#' Vectorized OLS Formulation
+#' 
+#' @description 
+#' This page specifies the OLS formulation, which is vectorized of [var_design_formulation].
+#' Notation and format here will be used in this entire package document.
+#' 
+#' # Vector Autoregressive Model
+#' 
+#' Recall k-dim VAR model \eqn{Y_0 = X_0 A + Z_0}.
+#' Applying \eqn{vec} operation, we have
+#' 
+#' \deqn{vec(Y_0) = (I_k \otimes X_0) vec(A) + vec(Z_0)}
+#' 
+#' Estimating \eqn{\alpha = vec(A)} is equivalent to estimating usual OLS.
+#' 
+#' @references 
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' 
+#' @keywords internal
+#' @name var_vec_formulation
 NULL
