@@ -6,5 +6,6 @@ utils::globalVariables(c(
   "Model", "name", "score", "average", "coef_hat", "Loss",
   "model",
   "sd",
-  "impulse", "period", "response"
+  "impulse", "period", "response",
+  "term", "statistic"
 ))

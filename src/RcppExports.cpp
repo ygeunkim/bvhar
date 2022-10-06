@@ -141,6 +141,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// infer_var
+Rcpp::List infer_var(Rcpp::List object);
+RcppExport SEXP _bvhar_infer_var(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(infer_var(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // VARcoeftoVMA
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max);
 RcppExport SEXP _bvhar_VARcoeftoVMA(SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP lag_maxSEXP) {
@@ -772,6 +783,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
+    {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},

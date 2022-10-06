@@ -27,22 +27,49 @@
 #' @references 
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
-#' @importFrom stats cor
+#' @importFrom stats cor pt
+#' @importFrom tibble add_column
+#' @importFrom dplyr mutate
 #' @order 1
 #' @export
 summary.varlse <- function(object, ...) {
   var_name <- colnames(object$y0)
   cov_resid <- object$covmat
-  # split the matrix for the print: B1, ..., Bp
-  bhat_mat <- split_coef(object)
-  if (object$type == "const") bhat_mat$intercept <- object$coefficients[object$df,]
+  coef_mat <- object$coefficients
+  # inference-----------------------------
+  var_stat <- infer_var(object)
+  var_coef <- var_stat$summary_stat
+  colnames(var_coef) <- c("estimate", "std.error", "statistic")
+  term_name <- lapply(
+    var_name,
+    function(x) paste(rownames(coef_mat), x, sep = ".")
+  ) %>% 
+    unlist()
+  # if (object$type == "const") {
+  #   term_name <- c(term_name, "const")
+  # }
+  var_coef <- 
+    var_coef %>% 
+    as.data.frame() %>% 
+    add_column(
+      term = term_name,
+      .before = 1
+    ) %>% 
+    mutate(p.value = 2 * (1 - pt(abs(statistic), df = var_stat$df)))
+  # split the matrix for the print: A1, ..., Ap
+  # ahat_mat <- split_coef(object)
+  # if (object$type == "const") {
+  #   ahat_mat$intercept <- object$coefficients[object$df,]
+  # }
   log_lik <- logLik(object)
   res <- list(
     names = var_name,
     totobs = object$totobs,
     obs = object$obs,
     p = object$p,
-    coefficients = bhat_mat,
+    # coefficients = ahat_mat,
+    coefficients = var_coef,
+    df = var_stat$df,
     call = object$call,
     process = object$process,
     type = object$type,

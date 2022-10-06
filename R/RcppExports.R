@@ -208,6 +208,23 @@ compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
 }
 
+#' Statistic for VAR
+#' 
+#' Compute partial t-statistics for inference in VAR model.
+#' 
+#' @param object `varlse` object
+#' @details
+#' Partial t-statistic for H0: aij = 0
+#' 
+#' * For each variable (e.g. 1st variable)
+#' * Standard error =  (1st) diagonal element of \eqn{\Sigma_e} estimator x diagonal elements of \eqn{(X_1^T X_1)^(-1)}
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+infer_var <- function(object) {
+    .Call(`_bvhar_infer_var`, object)
+}
+
 #' @noRd
 VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
     .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
