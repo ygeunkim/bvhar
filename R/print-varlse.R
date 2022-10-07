@@ -60,10 +60,13 @@ registerS3method(
 #' @rdname summary.varlse
 #' @param x \code{summary.varlse} object
 #' @param digits digit option to print
+#' @param signif_code Check significant rows (Default: `TRUE`)
 #' @param ... not used
+#' @importFrom tidyr separate
+#' @importFrom dplyr case_when
 #' @order 2
 #' @export
-print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), signif_code = TRUE, ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -83,41 +86,63 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("\n")
   # obs num----------------------------
   cat(
-    paste("Observation size:", "n =", x$totobs)
+    paste("Observation size:", "T =", x$totobs)
   )
   cat("\n")
   cat(
-    paste("Number of sample used for fitting:", "s = n - p =", x$obs)
+    paste("Number of sample used for fitting:", "n = T - p =", x$obs)
   )
   # stability--------------------------
   cat("\n\nCharacteristic polynomial roots:\n")
   print(x$roots)
   cat(
-    paste("The process is", ifelse(x$is_stable, "stable ***", "not stable"))
+    paste("The process is", ifelse(x$is_stable, "stable", "not stable"))
   )
+  # coefficients-----------------------
+  coef_mat <- x$coefficients
+  dim_data <- ncol(x$covmat)
+  dim_design <- nrow(coef_mat) / dim_data
+  coef_mat <- 
+    coef_mat %>% 
+    separate(term, into = c("term", "variable"), sep = "\\.") %>% 
+    split.data.frame(f = gl(dim_data, dim_design))
+  if (signif_code) {
+    sig_star <- numeric(dim_design)
+    p_val <- numeric(dim_design)
+  }
   cat("\n====================================================\n")
-  for (i in 1:(x$p)) {
-    cat(sprintf("LSE for A%i:\n", i))
-    # print Bi----------------------
-    print.default(
-      x$coefficients[[i]],
+  for (i in 1:length(coef_mat)) {
+    cat(paste0(unique(coef_mat[[i]]$variable), " variable", ":\n"))
+    if (signif_code) {
+      p_val <- coef_mat[[i]][, "p.value"]
+      sig_star <- case_when(
+        p_val <= .001 ~ "***",
+        p_val > .001 & p_val <= .01 ~ "**",
+        p_val > .01 & p_val <= .05 ~ "*",
+        p_val > .05 & p_val <= .1 ~ ".",
+        p_val > .1 ~ " "
+      )
+      coef_mat[[i]][, " "] <- sig_star
+    }
+    # print Ai----------------------
+    print(
+      coef_mat[[i]][,-2], # without variable name column since it is printed in the header
       digits = digits,
       print.gap = 2L,
-      quote = FALSE
+      quote = FALSE,
+      right = FALSE,
+      row.names = FALSE
     )
-    cat("\n\n")
+    cat("\n")
   }
-  if (x$type == "const") {
-    cat("LSE for constant:\n")
-    # print c-------------------------
-    print.default(
-      x$coefficients$intercept,
-      digits = digits,
-      print.gap = 2L,
-      quote = FALSE
-    )
-    cat("\n====================================================\n")
+  if (signif_code) {
+    cat(paste0("---\n", "Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1", "\n"))
   }
+  cat("\n")
+  # df---------------------------------------
+  cat("------------------------------------------------------\n")
+  cat(paste("Degrees of freedom:", "df =", x$df))
+  cat("\n\n")
   # cov and corr-----------------------------
   cat("LS Estimate for Covariance matrix:\n")
   print(x$covmat)
