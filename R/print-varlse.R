@@ -111,12 +111,8 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     p_val <- numeric(dim_design)
   }
   cat("\n====================================================\n")
-  for (i in 1:(x$p)) {
-    cat(
-      sprintf(
-        "LSE for A%i (%s):\n", i, unique(coef_mat[[i]][, "variable"])
-      )
-    )
+  for (i in 1:length(coef_mat)) {
+    cat(paste0(unique(coef_mat[[i]]$variable), " variable", ":\n"))
     if (signif_code) {
       p_val <- coef_mat[[i]][, "p.value"]
       sig_star <- case_when(
@@ -140,7 +136,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
     cat("\n")
   }
   if (signif_code) {
-    cat(paste0("---\n", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1", "\n"))
+    cat(paste0("---\n", "Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1", "\n"))
   }
   cat("\n")
   # df---------------------------------------

@@ -244,6 +244,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// infer_vhar
+Rcpp::List infer_vhar(Rcpp::List object);
+RcppExport SEXP _bvhar_infer_vhar(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(infer_vhar(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // VHARcoeftoVMA
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month);
 RcppExport SEXP _bvhar_VHARcoeftoVMA(SEXP vhar_coefSEXP, SEXP HARtrans_matSEXP, SEXP lag_maxSEXP, SEXP monthSEXP) {
@@ -791,6 +802,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 3},
     {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 4},
     {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 4},
+    {"_bvhar_infer_vhar", (DL_FUNC) &_bvhar_infer_vhar, 1},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 4},
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
     {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},

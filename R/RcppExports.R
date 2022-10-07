@@ -217,7 +217,7 @@ compute_cov <- function(z, num_design, dim_design) {
 #' Partial t-statistic for H0: aij = 0
 #' 
 #' * For each variable (e.g. 1st variable)
-#' * Standard error =  (1st) diagonal element of \eqn{\Sigma_e} estimator x diagonal elements of \eqn{(X_1^T X_1)^(-1)}
+#' * Standard error =  (1st) diagonal element of \eqn{\Sigma_e} estimator x diagonal elements of \eqn{(X_0^T X_0)^(-1)}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
@@ -347,6 +347,21 @@ estimate_har <- function(x, y, week, month) {
 #' @noRd
 estimate_har_none <- function(x, y, week, month) {
     .Call(`_bvhar_estimate_har_none`, x, y, week, month)
+}
+
+#' Statistic for VHAR
+#' 
+#' Compute partial t-statistics for inference in VHAR model.
+#' 
+#' @param object `vharlse` object
+#' @details
+#' Partial t-statistic for H0: \eqn{\phi_{ij} = 0}
+#' 
+#' * For each variable (e.g. 1st variable)
+#' * Standard error =  (1st) diagonal element of \eqn{\Sigma_e} estimator x diagonal elements of \eqn{(X_1^T X_1)^(-1)}
+#' @noRd
+infer_vhar <- function(object) {
+    .Call(`_bvhar_infer_vhar`, object)
 }
 
 #' @noRd

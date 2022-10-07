@@ -45,9 +45,6 @@ summary.varlse <- function(object, ...) {
     function(x) paste(rownames(coef_mat), x, sep = ".")
   ) %>% 
     unlist()
-  # if (object$type == "const") {
-  #   term_name <- c(term_name, "const")
-  # }
   var_coef <- 
     var_coef %>% 
     as.data.frame() %>% 
@@ -56,18 +53,12 @@ summary.varlse <- function(object, ...) {
       .before = 1
     ) %>% 
     mutate(p.value = 2 * (1 - pt(abs(statistic), df = var_stat$df)))
-  # split the matrix for the print: A1, ..., Ap
-  # ahat_mat <- split_coef(object)
-  # if (object$type == "const") {
-  #   ahat_mat$intercept <- object$coefficients[object$df,]
-  # }
   log_lik <- logLik(object)
   res <- list(
     names = var_name,
     totobs = object$totobs,
     obs = object$obs,
     p = object$p,
-    # coefficients = ahat_mat,
     coefficients = var_coef,
     df = var_stat$df,
     call = object$call,
