@@ -1,3 +1,9 @@
+# bvhar 0.10.0
+
+* Add partial t-test for each VAR and VHAR coefficient (`summary.varlse()` and `summary.vharlse()`).
+
+* Appropriate print method for the updated summary method (`print.summary.varlse()` and `print.summary.vharlse()`).
+
 # bvhar 0.9.0
 
 * Can compute impulse response function for VAR (`varlse`) and VHAR (`vharlse`) models (`analyze_ir()`).
