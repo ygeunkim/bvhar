@@ -114,6 +114,48 @@ Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int
   );
 }
 
+//' Statistic for VHAR
+//' 
+//' Compute partial t-statistics for inference in VHAR model.
+//' 
+//' @param object `vharlse` object
+//' @details
+//' Partial t-statistic for H0: \eqn{\phi_{ij} = 0}
+//' 
+//' * For each variable (e.g. 1st variable)
+//' * Standard error =  (1st) diagonal element of \eqn{\Sigma_e} estimator x diagonal elements of \eqn{(X_1^T X_1)^(-1)}
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List infer_vhar(Rcpp::List object) {
+  if (!object.inherits("vharlse")) {
+    Rcpp::stop("'object' must be vharlse object.");
+  }
+  int dim = object["m"]; // dimension of time series
+  Eigen::MatrixXd cov_mat = object["covmat"]; // sigma
+  Eigen::MatrixXd coef_mat = object["coefficients"]; // Phihat(mp, m) = [Phi(daily), Phi(weekly), Phi(monthly), c^T]^T
+  Eigen::MatrixXd design_mat = object["design"]; // X0: n x mp
+  Eigen::MatrixXd HARtrans = object["HARtrans"]; // HAR transformation
+  Eigen::MatrixXd vhar_design = design_mat * HARtrans.transpose(); // X1 = X0 * C0^T
+  int num_design = object["obs"];
+  int num_har = coef_mat.rows(); // 3m(+1)
+  int df = num_design - num_har;
+  Eigen::VectorXd XtX = (vhar_design.transpose() * vhar_design).inverse().diagonal(); // diagonal element of (XtX)^(-1)
+  Eigen::MatrixXd res(num_har * dim, 3); // stack estimate, std, and t stat
+  Eigen::ArrayXd st_err(num_har); // save standard error in for loop
+  for (int i = 0; i < dim; i++) {
+    res.block(i * num_har, 0, num_har, 1) = coef_mat.col(i);
+    for (int j = 0; j < num_har; j++) {
+      st_err[j] = sqrt(XtX[j] * cov_mat(i, i)); // variable-covariance matrix element
+    }
+    res.block(i * num_har, 1, num_har, 1) = st_err;
+    res.block(i * num_har, 2, num_har, 1) = coef_mat.col(i).array() / st_err;
+  }
+  return Rcpp::List::create(
+    Rcpp::Named("df") = df,
+    Rcpp::Named("summary_stat") = res
+  );
+}
+
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month) {

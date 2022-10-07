@@ -8,7 +8,7 @@
 \usage{
 \method{summary}{vharlse}(object, ...)
 
-\method{print}{summary.vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{summary.vharlse}(x, digits = max(3L, getOption("digits") - 3L), signif_code = TRUE, ...)
 
 knit_print.summary.vharlse(x, ...)
 }
@@ -20,6 +20,8 @@ knit_print.summary.vharlse(x, ...)
 \item{x}{\code{summary.vharlse} object}
 
 \item{digits}{digit option to print}
+
+\item{signif_code}{Check significant rows (Default: \code{TRUE})}
 }
 \value{
 \code{summary.varlse} \link{class} additionaly computes the following
