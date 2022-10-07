@@ -31,16 +31,32 @@
 #' 
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. [https://doi.org/10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
-#' @importFrom stats cor
+#' @importFrom stats cor pt
+#' @importFrom tibble add_column
+#' @importFrom dplyr mutate
 #' @order 1
 #' @export
 summary.vharlse <- function(object, ...) {
   vhar_name <- colnames(object$y0)
   cov_resid <- object$covmat
-  # split the matrix for the print: Phi(d), Phi(w), Phi(m)
-  phihat_mat <- split_coef(object)
-  names(phihat_mat) <- c("day", "week", "month")
-  if (object$type == "const") phihat_mat$intercept <- object$coefficients[object$df,]
+  coef_mat <- object$coefficients
+  # inference-------------------------------
+  vhar_stat <- infer_vhar(object)
+  vhar_coef <- vhar_stat$summary_stat
+  colnames(vhar_coef) <- c("estimate", "std.error", "statistic")
+  term_name <- lapply(
+    vhar_name,
+    function(x) paste(rownames(coef_mat), x, sep = ".")
+  ) %>% 
+    unlist()
+  vhar_coef <- 
+    vhar_coef %>% 
+    as.data.frame() %>% 
+    add_column(
+      term = term_name,
+      .before = 1
+    ) %>% 
+    mutate(p.value = 2 * (1 - pt(abs(statistic), df = vhar_stat$df)))
   log_lik <- logLik(object)
   res <- list(
     names = vhar_name,
@@ -49,7 +65,8 @@ summary.vharlse <- function(object, ...) {
     p = object$p,
     week = object$week,
     month = object$month,
-    coefficients = phihat_mat,
+    # coefficients = phihat_mat,
+    coefficients = vhar_coef,
     call = object$call,
     process = object$process,
     type = object$type,
