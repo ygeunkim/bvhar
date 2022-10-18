@@ -34,7 +34,7 @@
 #' * Let \eqn{T_0} be 3m x 22m matrix.
 #' 
 #' \deqn{
-#'   T_0 = \begin{bmatrix}
+#'   C_0 = \begin{bmatrix}
 #'   1 & 0 & 0 & 0 & 0 & 0 & \cdots & 0 \\
 #'   1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 0 & \cdots & 0 \\
 #'   1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & \cdots & 1 / 22
@@ -43,16 +43,16 @@
 #' 
 #' Define (3m + 1) x (22m + 1) matrix \eqn{T_{HAR}} by
 #' \deqn{
-#'   T_{HAR} \defn \begin{bmatrix}
-#'   T_0 & 0_{3m} \\
+#'   C_{HAR} \defn \begin{bmatrix}
+#'   C_0 & 0_{3m} \\
 #'   0_{3m}^\intercal & 1
 #' \end{bmatrix}
 #' }
 #' 
 #' Then by construction,
-#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^\intercal) \Phi + Z}
+#' \deqn{Y_0 = X_1 \Phi + Z_0 = (X_0 C_{HAR}^\intercal) \Phi + Z_0}
 #' i.e.
-#' \deqn{X_1 = X_0 T_{HAR}^\intercal}
+#' \deqn{X_1 = X_0 C_{HAR}^\intercal}
 #' 
 #' It follows that
 #' \deqn{\hat\Phi = (X_1^\intercal X_1)^{-1} X_1^\intercal Y_0}
@@ -97,7 +97,7 @@ NULL
 #' Design dummy matrix \eqn{X_p} is (m + k) x k matrix:
 #' \deqn{
 #'   X_p = \left[\begin{array}{c|c}
-#' J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{mp} \\ \hline
+#' J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{mp} \\ \hline
 #' 0_{m \times mp} & 0_m \\ \hline
 #' 0_{mp}^\intercal & \epsilon
 #' \end{array}\right]
@@ -125,7 +125,7 @@ NULL
 #' For design matrix \eqn{X_0}, define (m + h) x h matrix \eqn{X_{HAR}}
 #' \deqn{
 #'   X_{HAR} = \left[\begin{array}{c|c}
-#'   J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{3m} \\ \hline
+#'   J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{3m} \\ \hline
 #'   0_{m \times 3m} & 0_m \\ \hline
 #'   0_{3m}^\intercal & \epsilon
 #' \end{array}\right]
@@ -239,9 +239,46 @@ NULL
 #' 
 #' Estimating \eqn{\alpha = vec(A)} is equivalent to estimating usual OLS.
 #' 
+#' # Vector Heterogeneous Autoregressive Model
+#' 
+#' Recall k-dim VHAR model \deqn{Y_0 = X_1 \Phi + Z_0 = (X_0 C_{HAR}^\intercal) \Phi + Z_0}.
+#' Then
+#' \deqn{vec(Y_0) = (I_k \otimes X_0 C_{HAR}^\intercal) vec(\Phi) + vec(Z_0) = (I_k \otimes X_1) vec(\Phi) + vec(Z_0)}
+#' 
+#' # Restrictions
+#' 
+#' \eqn{\phi = vec(\Phi)} is linear restriction of \eqn{\alpha = vec(A)}.
+#' Then
+#' \deqn{\alpha = vec(C_{HAR}^\intercal \Phi) = (I_k \otimes C_{HAR}^\intercal) \phi}
+#' 
+#' # Restrictions for Sparsity
+#' 
+#' Value of 0, 1 corresponding to \eqn{A_{i,j}} gives sparsity of the element.
+#' Let \eqn{\psi = (\psi_1, \ldots, \psi_{k^2 p})^\intercal} where \eqn{\psi_j = 0,1},
+#' and let \eqn{\Psi = diag(\psi) \in \mathbb{R}^{k^2 p \times k^2 p}}.
+#' 
+#' Then the new VAR coefficient vector \eqn{\theta = \Psi \alpha \in \mathbb{R}^{k^2 p}} becomes
+#' \eqn{\alpha_j = 0} if \eqn{\psi_j = 0} and \eqn{\alpha_j \neq 0} if \eqn{\psi = 1}.
+#' 
+#' 
+#' 
 #' @references 
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://doi.org/10.1016/j.ijforecast.2009.11.002)
+#' 
+#' Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2). doi:[10.1002/jae.1271](https://doi.org/10.1002/jae.1271)
+#' 
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @keywords internal
 #' @name var_vec_formulation
+NULL
+
+#' Stochastic Search Variable Selection in VAR and VHAR
+#' 
+#' @description 
+#' This page describes a stochastic search variable selection (SSVS) MCMC algorithm
+#' in VAR and VHAR models.
+#' 
+#' @keywords internal
+#' @name ssvs_algo
 NULL
