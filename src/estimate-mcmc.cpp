@@ -76,27 +76,30 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
 //' In MCMC process of SSVS, generate \eqn{\alpha_j} conditional posterior.
 //' 
 //' @param prior_mean The prior mean vector of the VAR coefficient vector
+//' @param prior_prec The prior precision matrix of the VAR coefficient vector
 //' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
 //' @param coef_ols OLS (MLE) estimator of the VAR coefficient
 //' @param chol_factor Cholesky factor of variance matrix
-//' @param inv_DRD Inverse of matrix product between \eqn{D} and correlation matrix \eqn{R}
 //' @details
 //' After sampling \eqn{\psi_{jj}, \psi_{ij}}, and \eqn{\omega_{ij}}, generate \eqn{\alpha} by
+//' combining non-restricted constant term and potentially restricted coefficients vector term.
+//' This process is done outside of the function and gives each prior mean and prior precision.
+//' In turn,
 //' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N_{k^2 p} (\mu, \Delta)}
 //' The dimension \eqn{k^2 p} is when non-constant term.
 //' When there is constant term, it is \eqn{k (kp + 1)}.
 //' Here,
 //' \deqn{
 //'   \mu = (
-//'     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + (DRD)^{-1}
+//'     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
 //'   )^{-1} (
-//'     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha}^{MLE} + (DRD)^{-1} \alpha_0
+//'     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha}^{MLE} + M^{-1} \alpha_0
 //'   )
 //' }
 //' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha}.
 //' In regression, MLE is the same as OLS.
 //' \deqn{
-//'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + (DRD)^{-1})^{-1}
+//'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
 //' }
 //' After this step, we move to generating Bernoulli \eqn{\gamma_j}.
 //' @references
@@ -106,14 +109,14 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
+                          Eigen::MatrixXd prior_prec,
                           Eigen::MatrixXd XtX,
                           Eigen::VectorXd coef_ols,
-                          Eigen::MatrixXd chol_factor,
-                          Eigen::MatrixXd inv_DRD) {
+                          Eigen::MatrixXd chol_factor) {
   Eigen::MatrixXd prec_mat = chol_factor * chol_factor.transpose(); // Sigma^(-1) = chol * chol^T
   Eigen::MatrixXd lhs_kronecker = kronecker_eigen(prec_mat, XtX); // Sigma^(-1) otimes (X_0^T X_0)
-  Eigen::MatrixXd normal_variance = (lhs_kronecker + inv_DRD).inverse(); // Delta
-  Eigen::VectorXd normal_mean = normal_variance * (lhs_kronecker * coef_ols + inv_DRD * prior_mean); // mu
+  Eigen::MatrixXd normal_variance = (lhs_kronecker + prior_prec).inverse(); // Delta
+  Eigen::VectorXd normal_mean = normal_variance * (lhs_kronecker * coef_ols + prior_prec * prior_mean); // mu
   return vectorize_eigen(sim_mgaussian(1, normal_mean, normal_variance));
 }
 
@@ -248,8 +251,8 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat,
 //' }
 //' where
 //' \deqn{
-//'   \mu_j = -\psi_{jj} (S_{j - 1} (D_j R_j D_j)^{-1})^{-1} s_j,
-//'   \Delta_j = (S_{j - 1} (D_j R_j D_j)^{-1})^{-1}
+//'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j,
+//'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1}
 //' }
 //' @references
 //' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
@@ -265,9 +268,9 @@ Eigen::VectorXd ssvs_chol_off(int col_index,
   if (chol_diag.size() != dim) {
     Rcpp::stop("Wrong length of 'chol_diag'.");
   }
-  Eigen::MatrixXd normal_variance = (sse_mat.block(0, 0, col_index - 1, col_index - 1) + inv_DRD).inverse();
-  Eigen::VectorXd sse_colvec = sse_mat.block(0, col_index, col_index - 1, 1);
-  Eigen::VectorXd normal_mean = -chol_diag(col_index, col_index) * normal_variance * sse_colvec;
+  Eigen::MatrixXd normal_variance = (sse_mat.block(0, 0, col_index, col_index) + inv_DRD).inverse();
+  Eigen::VectorXd sse_colvec = sse_mat.block(0, col_index, col_index, 1);
+  Eigen::VectorXd normal_mean = -chol_diag[col_index] * normal_variance * sse_colvec;
   return vectorize_eigen(sim_mgaussian(1, normal_mean, normal_variance));
 }
 
@@ -315,12 +318,15 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' Compute MCMC for SSVS prior
 //' 
 //' @param num_iter Number of iteration for MCMC
+//' @param num_burn Number of burn-in for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_coef Initial k x m coefficient matrix.
-//' @param init_coef_sparse Indicator vector (0-1) corresponding to each coefficient vector
-//' @param init_cov Initial m x m variance matrix.
-//' @param init_cov_sparse Indicator vector (0-1) corresponding to each covariance component
+//' @param init_chol_diag Inital diagonal cholesky factor
+//' @param init_chol_upper Inital upper cholesky factor
+//' @param init_coef_dummy Initial indicator vector (0-1) corresponding to each coefficient vector
+//' @param init_chol_dummy Initial indicator vector (0-1) corresponding to each upper cholesky factor vector
+//' @param coef_slab_weight Bernoulli parameter for coefficients vector
 //' @param coef_spike Standard deviance for Spike normal distribution
 //' @param coef_slab Standard deviance for Slab normal distribution
 //' @param coef_slab_weight Bernoulli parameter for coefficients sparsity proportion
@@ -329,13 +335,36 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 //' @param chol_slab_weight Bernoulli parameter for cholesky factor sparsity proportion
+//' @param spike_automatic Tuning parameter (small number, e.g. .1) corresponding to standard deviation of spike normal distribution
+//' @param slab_automatic Tuning parameter (large number, e.g. 10) corresponding to standard deviation of slab normal distribution
+//' @param intercept_var Hyperparameter for constant term
 //' @details
+//' Data: \eqn{X_0}, \eqn{Y_0}
+//' 
+//' Input:
+//' * VAR order p
+//' * MCMC iteration number
+//' * Weight of each slab: Bernoulli distribution parameters
+//'     * \eqn{p_j}: of coefficients
+//'     * \eqn{q_{ij}}: of cholesky factor
+//' * Gamma distribution parameters for cholesky factor diagonal elements \eqn{\psi_{jj}}
+//'     * \eqn{a_j}: shape
+//'     * \eqn{b_j}: rate
+//' * Correlation matrix of coefficient vector: \eqn{R = I_{k^2p}}
+//' * Correlation matrix to restrict cholesky factor (of \eqn{\eta_j}): \eqn{R_j = I_{j - 1}}
+//' * Tuning parameters for spike-and-slab sd semi-automatic approach
+//'     * \eqn{c_0}: small value (0.1)
+//'     * \eqn{c_1}: large value (10)
+//' * Constant to reduce prior influence on constant term: \eqn{c}
+//' 
 //' Gibbs sampling:
-//' 1. Diagonal elements of \eqn{\Psi}
-//' 2. Off-diagonal elements of \eqn{\Psi}
-//' 3. Dummy vector for cholesky factor \eqn{\psi_{ij}}
-//' 4. Coefficient vector \eqn{\alpha}
-//' 5. Dummy vector for coefficient vector \eqn{\gamma_j}
+//' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\alpha}, \eqn{\gamma}
+//' 2. Iterate
+//'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+//'     2. Off-diagonal elements of cholesky factor: \eqn{\eta^{(t)} \mid \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+//'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+//'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
+//'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
 //' @references
 //' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 //' 
@@ -343,12 +372,14 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_ssvs(int num_iter,
+                              int num_burn,
                               Eigen::MatrixXd x, 
                               Eigen::MatrixXd y, 
                               Eigen::MatrixXd init_coef,
-                              Eigen::MatrixXd init_coef_sparse,
-                              Eigen::Map<Eigen::MatrixXd> init_cov,
-                              Eigen::MatrixXd init_cov_sparse,
+                              Eigen::VectorXd init_chol_diag,
+                              Eigen::VectorXd init_chol_upper,
+                              Eigen::VectorXd init_coef_dummy,
+                              Eigen::VectorXd init_chol_dummy,
                               Eigen::VectorXd coef_spike,
                               Eigen::VectorXd coef_slab,
                               Eigen::VectorXd coef_slab_weight,
@@ -356,94 +387,210 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd rate,
                               Eigen::VectorXd chol_spike,
                               Eigen::VectorXd chol_slab,
-                              Eigen::VectorXd chol_slab_weight) {
+                              Eigen::VectorXd chol_slab_weight,
+                              double spike_automatic,
+                              double slab_automatic,
+                              double intercept_var) {
   int dim = y.cols(); // dim = k
   int dim_design = x.cols(); // kp(+1)
   int num_design = y.rows(); // n = T - p
-  // record-------------------------------------------------------
-  
-  
-  
-  
-  
-  
-  Eigen::MatrixXd coef_mat(dim_design, dim); // A: kp(+1) x k
+  int num_upperchol = init_chol_upper.size(); // number of upper cholesky = dim (dim - 1) / 2
+  if (!(spike_automatic <= 0 && slab_automatic <= 0 && intercept_var && 0)) {
+    Rcpp::stop("'spike_automatic', 'slab_automatic', and 'intercept_var' should be positive.");
+  }
+  if (!(init_chol_diag.size() == dim && shape.size() == dim && rate.size() == dim)) {
+    Rcpp::stop("Size of 'init_chol_diag', 'shape', and 'rate' vector should be the same as the time series dimension.");
+  }
+  if (!(init_chol_upper.size() == dim * (dim - 1) / 2 && 
+      init_chol_dummy.size() == init_chol_upper.size() &&
+      chol_spike.size() == init_chol_upper.size() && 
+      chol_slab.size() == init_chol_upper.size() &&
+      chol_slab_weight.size() == init_chol_upper.size())) {
+    Rcpp::stop("Size of 'init_chol_upper', 'init_chol_dummy', 'chol_spike', 'chol_slab', and 'chol_slab_weight' vector should be the same as dim * (dim - 1) / 2.");
+  }
+  // Initialize coefficients vector-------------------------------
+  int num_coef = dim * dim_design; // dim * (kp(+1))
+  int num_restrict = num_coef - dim; // number of restricted coefs: k^2p
+  int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): k
+  if (!(init_coef.cols() == dim && init_coef.rows() == dim_design)) {
+    Rcpp::stop("Dimension of 'init_coef' should be (dim * p) x dim.");
+  }
+  if (!(init_coef_dummy.size() == num_restrict && 
+      coef_spike.size() == num_restrict && 
+      coef_slab.size() == num_restrict && 
+      coef_slab_weight.size() == num_restrict)) {
+    Rcpp::stop("Size of 'init_coef_dummy', 'coef_spike', 'coef_slab', and 'coef_slab_weight' vector should be the same as dim^2 * p.");
+  }
+  // Eigen::VectorXd coef_vec(num_coef);
+  Eigen::VectorXd coef_vec = vectorize_eigen(init_coef);
+  Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
+  Eigen::MatrixXd prior_variance(num_coef, num_coef); // M
+  Eigen::MatrixXd coef_corr = Eigen::MatrixXd::Identity(num_restrict, num_restrict); // R
+  Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
-  coef_mat = XtX.inverse() * x.transpose() * y; // Ahat
-  Eigen::VectorXd coef_lse = vectorize_eigen(coef_mat); // alphahat = vec(Ahat)
-  // initial for coefficient-----------------------------------------------------------
-  if (init_coef.rows() != dim_design) {
-    Rcpp::stop("Invalid number of rows of 'init_coef'.");
-  }
-  if (init_coef.cols() != dim) {
-    Rcpp::stop("Invalid number of colums of 'init_coef'.");
-  }
-  if (init_coef_sparse.rows() != dim_design) {
-    Rcpp::stop("Invalid number of rows of 'init_coef_sparse'.");
-  }
-  if (init_coef_sparse.cols() != dim) {
-    Rcpp::stop("Invalid number of columns of 'init_coef_sparse'.");
-  }
-  Eigen::MatrixXd resid_mat = y - x * init_coef; // Z = Y0 - X0 B
-  Eigen::MatrixXd ZtZ = resid_mat.transpose() * resid_mat; // (Y0 - X0 B)^T (Y0 - X0 B)
-  Eigen::VectorXd init_coef_vec = vectorize_eigen(init_coef); // initial for vec(A)
-  Eigen::VectorXd init_coef_sparse_vec = vectorize_eigen(init_coef_sparse); // initial for gamma[j]
-  Eigen::MatrixXd diag_coef_sparse(init_coef_sparse_vec.size(), init_coef_sparse_vec.size()); // D: mk x mk
-  Eigen::VectorXd init_cov_sparse_vec = vectorize_eigen(init_cov_sparse); // initial for w[ij]
-  Eigen::MatrixXd diag_cov_sparse(dim - 1, dim - 1); // large matrix to assign diag_sparse of cov
-  // initial for covariance matrix: Sigma_e^(-1) = Psi * Psi^T--------------------------
-  Eigen::LLT<Eigen::MatrixXd> lltOfcov(init_cov); // Sigma = LL^T
-  if (lltOfcov.info() == Eigen::NumericalIssue) {
-    Rcpp::stop("'init_cov' should be positive definite matrix."); // Sigma is pd
-  }
-  Eigen::MatrixXd chol_upper = lltOfcov.matrixL().transpose(); // Psi = (L^(-1))^T: upper
-  // Trace for MCMC---------------------------------------------------------------------
-  Eigen::MatrixXd coef_trace(num_iter + 1, dim * dim_design); // record alpha in MCMC
-  coef_trace.row(0) = init_coef_vec;
-  Eigen::MatrixXd coef_prop_trace(num_iter + 1, dim * dim_design); // record gamma[j] in MCMC
-  coef_prop_trace.row(0) = init_coef_sparse_vec;
-  Eigen::MatrixXd diag_trace(num_iter + 1, dim); // record diagonal component in MCMC
-  for (int i = 0; i < dim; i++) {
-    diag_trace(0, i) = chol_upper(i, i);
-  }
-  Eigen::MatrixXd off_trace(num_iter + 1, dim * (dim - 1) / 2); // record off-diagonal component in MCMC
-  int id = 0;
-  for (int j = 1; j < dim; j++) { // from 2nd column
-    for (int i = 0; i < j; i++) { // upper triangular: exclude diagonal
-      off_trace(0, id) = chol_upper(i, j);
-      id++;
+  Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
+  // Eigen::VectorXd coefvec_ols(num_coef);
+  Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
+  
+  
+  // if (num_non == dim) {
+  //   // constant case
+  //   coef_vec.segment(0, num_restrict - 1) = vectorize_eigen(init_coef.topRows(num_restrict));
+  //   coef_vec.segment(num_restrict, num_coef - 1) = vectorize_eigen(init_coef.bottomRows(1));
+  //   prior_variance.block(num_restrict, num_restrict, num_non, num_non).diagonal() = intercept_var * Eigen::MatrixXd::Identity(num_non, num_non);
+  //   coefvec_ols.segment(0, num_restrict - 1) = vectorize_eigen(coef_ols.topRows(num_restrict));
+  //   coefvec_ols.segment(num_restrict, num_coef - 1) = vectorize_eigen(coef_ols.bottomRows(1));
+  // } else if (num_non == -dim) {
+  //   // no constant term
+  //   coef_vec = vectorize_eigen(init_coef);
+  //   coefvec_ols = vectorize_eigen(coef_ols);
+  // } else {
+  //   Rcpp::stop("Wrong 'init_coef' dimension.");
+  // }
+  // record-------------------------------------------------------
+  int num_mcmc = num_iter + num_burn;
+  Eigen::MatrixXd coef_record(num_restrict, num_mcmc);
+  coef_record.row(0) = coef_vec;
+  Eigen::MatrixXd coef_dummy_record(num_restrict, num_mcmc);
+  coef_dummy_record.row(0) = init_coef_dummy;
+  Eigen::MatrixXd chol_diag_record(dim, num_mcmc);
+  chol_diag_record.row(0) = init_chol_diag;
+  Eigen::MatrixXd chol_upper_record(num_upperchol, num_mcmc);
+  chol_upper_record.row(0) = init_chol_upper;
+  Eigen::MatrixXd chol_dummy_record(num_upperchol, num_mcmc);
+  chol_dummy_record.row(0) = init_chol_dummy;
+  // 3d array?
+  // Some variables-----------------------------------------------
+  // Eigen::MatrixXd fitted_mat = x * coef_ols;
+  Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
+  Eigen::MatrixXd sse_block = sse_mat.block(0, 0, dim - 1, dim - 1); // Sj = upper-left j x j submatrix of SSE
+  Eigen::VectorXd sse_colvec = sse_mat.block(0, dim - 1, dim - 1, 1); // sj = (s1j, ..., s(j-1, j)) from SSE
+  Eigen::MatrixXd chol_corr = Eigen::MatrixXd::Identity(dim - 1, dim - 1); // Rj = I(j - 1)
+  Eigen::MatrixXd chol_mixture_mat(dim - 1, dim - 1); // Dj = diag(h1j, ..., h(j-1,j))
+  // Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
+  Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(dim - 1, dim - 1); // DjRjDj^(-1)
+  // Eigen::VectorXd posterior_shape(dim);
+  // Eigen::VectorXd posterior_rate(dim);
+  // Semi-automatic approach--------------------------------------
+  // Eigen::VectorXd ols_sd = sse_mat.diagonal().sqrt() / (num_design - dim_design); // OLS sd
+  // Eigen::VectorXd coef_spike = spike_automatic * ols_sd; // sd of coef spike normal distribution (tau0j = c0 sd(alphaj-hat))
+  // Eigen::VectorXd coef_slab = slab_automatic * ols_sd; // sd of coef slab normal distribution (tau1j = c1 sd(alphaj-hat))
+  // Outside of function? Preliminary MCMC -> get sd of alpha-hat
+  // Start Gibbs sampling-----------------------------------------
+  int id_diag = 0; // id for diagonal psi vector
+  int id_upper = 0; // id for upper psi vector
+  for (int i = 1; i < num_mcmc; i++) {
+    // 1. Psi
+    chol_mixture_mat.block(0, 0, i - 1, i - 1) = build_ssvs_sd(chol_spike.segment(id_diag, id_diag + i - 1), chol_slab.segment(id_diag, id_diag + i - 1), chol_dummy_record.row(i - 1));
+    id_diag += i;
+    if (i > 0) {
+      chol_prior_prec.block(0, 0, i - 1, i - 1) = (chol_mixture_mat.block(0, 0, i - 1, i - 1) * 
+        chol_corr.block(0, 0, i - 1, i - 1) * 
+        chol_mixture_mat.block(0, 0, i - 1, i - 1)).inverse();
     }
-  }
-  Eigen::MatrixXd cov_prop_trace(num_iter + 1, dim * (dim - 1) / 2); // record w[ij] in MCMC
-  cov_prop_trace.row(0) = init_cov_sparse_vec;
-  // Gibbs sampler iteration------------------------------------------------------------
-  for (int t = 0; t < num_iter; t++) {
-    // 1. Coefficient
-    diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse_vec); // D
-    init_coef_vec = ssvs_coef(XtX, coef_lse, chol_upper, diag_coef_sparse); // Normal
-    coef_trace.row(t + 1) = init_coef_vec; // record
-    // 2. Sparsity proportion of coefficient
-    init_coef_sparse_vec = ssvs_coef_latent(init_coef_vec, coef_spike, coef_slab, coef_slab_weight); // Bernoulli
-    coef_prop_trace.row(t + 1) = init_coef_sparse_vec; // record
-    // 3. Diagonal components of cholesky factor
-    chol_upper(0, 0) = ssvs_cov_diag(0, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
-    diag_trace(t + 1, 0) = chol_upper(0, 0); // record
-    for (int i = 1; i < dim; i++) {
-      diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, chol_spike, chol_slab, init_cov_sparse_vec); // Fj
-      chol_upper(i, i) = ssvs_cov_diag(i, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
-      diag_trace(t + 1, i) = chol_upper(i, i); // record
-    }
-    // 4. Off-diagonal components of cholesky factor
-    id = 0;
+    chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_prior_prec.block(0, 0, i - 1, i - 1), shape, rate, num_design);
+    // 2. eta
     for (int j = 1; j < dim; j++) {
-      chol_upper.block(0, j, j - 1, 1) = ssvs_cov_off(j, ZtZ, chol_upper, diag_cov_sparse);
-      off_trace.block(num_iter, id, j - 1, 1) = chol_upper.block(0, j, j - 1, 1);
-      id += j - 1; // next column index
+      // for each col_index (eta2 to etak)
+      chol_upper_record.block(i, id_upper, 1, j) = ssvs_chol_off(j, sse_mat, chol_diag_record.row(i), chol_prior_prec.block(0, 0, i - 1, i - 1));
+      id_upper += j;
     }
-    // 5. Sparsity proportion of variance matrix
-    init_cov_sparse_vec = ssvs_cov_latent(chol_upper, chol_spike, chol_slab, chol_slab_weight); // Bernoulli
-    cov_prop_trace.row(t + 1) = init_cov_sparse_vec; // record
+    id_upper = 0;
+    // 3. omega
+    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_dummy_record.row(i - 1), chol_slab_weight);
+    // 4. alpha
+    coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
+    
+    // 5. gamma
   }
+  
+  
+  
+  
+  // Eigen::MatrixXd coef_mat(dim_design, dim); // A: kp(+1) x k
+  // Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
+  // coef_mat = XtX.inverse() * x.transpose() * y; // Ahat
+  // Eigen::VectorXd coef_lse = vectorize_eigen(coef_mat); // alphahat = vec(Ahat)
+  // // initial for coefficient-----------------------------------------------------------
+  // if (init_coef.rows() != dim_design) {
+  //   Rcpp::stop("Invalid number of rows of 'init_coef'.");
+  // }
+  // if (init_coef.cols() != dim) {
+  //   Rcpp::stop("Invalid number of colums of 'init_coef'.");
+  // }
+  // if (init_coef_slab_weight.rows() != dim_design) {
+  //   Rcpp::stop("Invalid number of rows of 'init_coef_sparse'.");
+  // }
+  // if (init_coef_slab_weight.cols() != dim) {
+  //   Rcpp::stop("Invalid number of columns of 'init_coef_sparse'.");
+  // }
+  // Eigen::MatrixXd resid_mat = y - x * init_coef; // Z = Y0 - X0 B
+  // Eigen::MatrixXd ZtZ = resid_mat.transpose() * resid_mat; // (Y0 - X0 B)^T (Y0 - X0 B)
+  // Eigen::VectorXd init_coef_vec = vectorize_eigen(init_coef); // initial for vec(A)
+  // Eigen::VectorXd init_coef_sparse_vec = vectorize_eigen(init_coef_slab_weight); // initial for gamma[j]
+  // Eigen::MatrixXd diag_coef_sparse(init_coef_sparse_vec.size(), init_coef_sparse_vec.size()); // D: mk x mk
+  // Eigen::VectorXd init_cov_sparse_vec = vectorize_eigen(init_chol_slab_weight); // initial for w[ij]
+  // Eigen::MatrixXd diag_cov_sparse(dim - 1, dim - 1); // large matrix to assign diag_sparse of cov
+  
+  
+  
+  // initial for covariance matrix: Sigma_e^(-1) = Psi * Psi^T--------------------------
+  // Eigen::LLT<Eigen::MatrixXd> lltOfcov(init_cov); // Sigma = LL^T
+  // if (lltOfcov.info() == Eigen::NumericalIssue) {
+  //   Rcpp::stop("'init_cov' should be positive definite matrix."); // Sigma is pd
+  // }
+  // Eigen::MatrixXd chol_upper = lltOfcov.matrixL().transpose(); // Psi = (L^(-1))^T: upper
+  // Trace for MCMC---------------------------------------------------------------------
+  
+  // Eigen::MatrixXd coef_trace(num_iter + 1, dim * dim_design); // record alpha in MCMC
+  // coef_trace.row(0) = init_coef_vec;
+  // Eigen::MatrixXd coef_prop_trace(num_iter + 1, dim * dim_design); // record gamma[j] in MCMC
+  // coef_prop_trace.row(0) = init_coef_sparse_vec;
+  // Eigen::MatrixXd diag_trace(num_iter + 1, dim); // record diagonal component in MCMC
+  // for (int i = 0; i < dim; i++) {
+  //   diag_trace(0, i) = chol_upper(i, i);
+  // }
+  
+  
+  // Eigen::MatrixXd off_trace(num_iter + 1, dim * (dim - 1) / 2); // record off-diagonal component in MCMC
+  // int id = 0;
+  // for (int j = 1; j < dim; j++) { // from 2nd column
+  //   for (int i = 0; i < j; i++) { // upper triangular: exclude diagonal
+  //     off_trace(0, id) = chol_upper(i, j);
+  //     id++;
+  //   }
+  // }
+  // Eigen::MatrixXd cov_prop_trace(num_iter + 1, dim * (dim - 1) / 2); // record w[ij] in MCMC
+  // cov_prop_trace.row(0) = init_cov_sparse_vec;
+  // // Gibbs sampler iteration------------------------------------------------------------
+  // for (int t = 0; t < num_iter; t++) {
+  //   // 1. Coefficient
+  //   diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse_vec); // D
+  //   init_coef_vec = ssvs_coef(XtX, coef_lse, chol_upper, diag_coef_sparse); // Normal
+  //   coef_trace.row(t + 1) = init_coef_vec; // record
+  //   // 2. Sparsity proportion of coefficient
+  //   init_coef_sparse_vec = ssvs_coef_latent(init_coef_vec, coef_spike, coef_slab, coef_slab_weight); // Bernoulli
+  //   coef_prop_trace.row(t + 1) = init_coef_sparse_vec; // record
+  //   // 3. Diagonal components of cholesky factor
+  //   chol_upper(0, 0) = ssvs_cov_diag(0, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
+  //   diag_trace(t + 1, 0) = chol_upper(0, 0); // record
+  //   for (int i = 1; i < dim; i++) {
+  //     diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, chol_spike, chol_slab, init_cov_sparse_vec); // Fj
+  //     chol_upper(i, i) = ssvs_cov_diag(i, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
+  //     diag_trace(t + 1, i) = chol_upper(i, i); // record
+  //   }
+  //   // 4. Off-diagonal components of cholesky factor
+  //   id = 0;
+  //   for (int j = 1; j < dim; j++) {
+  //     chol_upper.block(0, j, j - 1, 1) = ssvs_cov_off(j, ZtZ, chol_upper, diag_cov_sparse);
+  //     off_trace.block(num_iter, id, j - 1, 1) = chol_upper.block(0, j, j - 1, 1);
+  //     id += j - 1; // next column index
+  //   }
+  //   // 5. Sparsity proportion of variance matrix
+  //   init_cov_sparse_vec = ssvs_cov_latent(chol_upper, chol_spike, chol_slab, chol_slab_weight); // Bernoulli
+  //   cov_prop_trace.row(t + 1) = init_cov_sparse_vec; // record
+  // }
+  
   return Rcpp::List::create(
     Rcpp::Named("coef") = init_coef_vec,
     Rcpp::Named("cov") = chol_upper,
