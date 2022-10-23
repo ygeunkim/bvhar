@@ -4,12 +4,11 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
-#' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in
 #' @param num_thin Number of thinning
+#' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' 
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -28,7 +27,8 @@
 #' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
 #' 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' @order 1
+#' @export
 bvar_ssvs <- function(y, 
                       p, 
                       num_iter, 
@@ -70,7 +70,7 @@ bvar_ssvs <- function(y,
     dim_design <- dim_design - 1 # df = no intercept
   }
   # error for bvharss_spec-----------
-  if ((nrow(bayes_spec$init_coef) != dim_design) || (ncol(bayes_spec$init_coef) != dim_data)) {
+  if (!(nrow(bayes_spec$init_coef) != dim_design && ncol(bayes_spec$init_coef) != dim_data)) {
     stop("Invalid model specification.")
   }
   # Temporary before making semiautomatic function---------
@@ -80,23 +80,30 @@ bvar_ssvs <- function(y,
   if (all(is.na(bayes_spec$cov_spike)) || all(is.na(bayes_spec$cov_slab))) {
     stop("Specify spike-and-slab of covariance.")
   }
+  # upper and diagonal of cholesky factor------------------
+  
   # MCMC-----------------------------
   ssvs_res <- estimate_bvar_ssvs(
     num_iter,
+    num_burn,
     X0,
     Y0,
-    bayes_spec$init_coef,
-    bayes_spec$init_coef_sparse,
-    bayes_spec$init_cov,
-    bayes_spec$init_cov_sparse,
-    bayes_spec$coef_spike,
-    bayes_spec$coef_slab,
-    bayes_spec$coef_mixture,
-    bayes_spec$cov_shape,
-    bayes_spec$cov_rate,
-    bayes_spec$cov_spike,
-    bayes_spec$cov_slab,
-    bayes_spec$cov_mixture
+    bayes_spec$init_coef, # initial alpha
+    diag(bayes_spec$init_chol), # initial psi_jj
+    bayes_spec$init_chol[upper.tri(bayes_spec$init_chol, diag = FALSE)], # initial psi_ij
+    bayes_spec$init_coef_dummy, # initial gamma
+    bayes_spec$init_chol_sparse, # initial omega
+    bayes_spec$coef_spike, # alpha spike
+    bayes_spec$coef_slab, # alpha slab
+    bayes_spec$coef_mixture, # pj
+    bayes_spec$chol_shape, # shape of gamma distn
+    bayes_spec$chol_rate, # rate of gamma distn
+    bayes_spec$chol_spike, # eta spike
+    bayes_spec$chol_slab, # eta slab
+    bayes_spec$chol_mixture, # qij
+    .1, # semi automatic
+    10, # semi automatic
+    .1 # c for constant c I
   )
   class(ssvs_res) <- c("bvarssvs", "bvharmod")
   ssvs_res

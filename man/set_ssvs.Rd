@@ -6,25 +6,25 @@
 \usage{
 set_ssvs(
   init_coef,
-  init_coef_sparse,
-  init_sig,
-  init_sig_sparse,
+  init_coef_dummy,
+  init_chol,
+  init_chol_dummy,
   coef_ss = set_spikeslab_coef(),
-  sig_ss = set_spikeslab_cov()
+  chol_ss = set_spikeslab_chol()
 )
 }
 \arguments{
 \item{init_coef}{Initial k x m coefficient matrix.}
 
-\item{init_coef_sparse}{Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.}
+\item{init_coef_dummy}{Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.}
 
-\item{init_sig}{Initial m x m variance matrix.}
+\item{init_chol}{Initial m x m variance matrix.}
 
-\item{init_sig_sparse}{Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.}
+\item{init_chol_dummy}{Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.}
 
 \item{coef_ss}{Spike and slab specification for vectorized coefficient, using \code{\link[=set_spikeslab_coef]{set_spikeslab_coef()}}.}
 
-\item{sig_ss}{Spike and slab specification for covariance matrix, using \code{\link[=set_spikeslab_cov]{set_spikeslab_cov()}}.}
+\item{chol_ss}{Spike and slab specification for cholesky factor of precision matrix, using \code{\link[=set_spikeslab_chol]{set_spikeslab_chol()}}.}
 }
 \description{
 Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
@@ -33,13 +33,13 @@ Set initial parameters and hyperparameters of stochastic search variable selecti
 Get the default SSVS setting for given VAR model.
 }
 \references{
-Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via\%3Dihub}{10.1016/j.ijforecast.2009.11.002}
+Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://doi.org/10.1016/j.ijforecast.2009.11.002}{10.1016/j.ijforecast.2009.11.002}
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via\%3Dihub}{10.1016/j.jeconom.2007.08.017}
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
 }
 \seealso{
 \itemize{
 \item \code{\link[=set_spikeslab_coef]{set_spikeslab_coef()}}: Set spike and slab prior hyperparameters for coefficient vector
-\item \code{\link[=set_spikeslab_cov]{set_spikeslab_cov()}}: Set spike and slab prior hyperparameters for covariance matrix
+\item \code{\link[=set_spikeslab_chol]{set_spikeslab_chol()}}: Set spike and slab prior hyperparameters for cholesky factor
 }
 }

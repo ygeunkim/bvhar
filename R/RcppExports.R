@@ -169,149 +169,215 @@ estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
-#' Generating Nonzero Coefficients Proportions Diagonal Matrix
+#' Semiautomatic Approach to Select Coefficient Mixture Hyperparameters
 #' 
-#' In MCMC process of SSVS, compute diagonal matrix \eqn{D} defined by spike-and-slab sd.
+#' @param spike_automatic
+#' @param slab_automatic
 #' 
-#' @param coef_spike Standard deviance for Spike normal distribution
-#' @param coef_slab Standard deviance for Slab normal distribution
-#' @param prop_sparse Indicator vector (0-1) corresponding to each coefficient
 #' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' @references 
+#' George, E. I., & McCulloch, R. E. (1997). *APPROACHES FOR BAYESIAN VARIABLE SELECTION*. Statistica Sinica, 7(2), 339–373.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' George, E. I., & McCulloch, R. E. (2012). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
 #' @noRd
-ssvs_coef_prop <- function(coef_spike, coef_slab, prop_sparse) {
-    .Call(`_bvhar_ssvs_coef_prop`, coef_spike, coef_slab, prop_sparse)
+NULL
+
+#' Building Spike-and-slab SD Diagonal Matrix
+#' 
+#' In MCMC process of SSVS, compute diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
+#' 
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
+#' @details
+#' Let \eqn{(\gamma_1, \ldots, \gamma_k)^\intercal} be dummy variables restricting coefficients vector.
+#' Then
+#' \deqn{
+#'   h_i = \begin{cases}
+#'     \tau_{0i} & \text{if } \gamma_i = 0 \\
+#'     \tau_{1i} & \text{if } \gamma_i = 1
+#'   \end{cases}
+#' }
+#' In turn, \eqn{D = diag(h_1, \ldots, h_k)}.
+#' Let \eqn{\omega_j = (\omega_{1j}, \ldots, \omega_{j - 1, j})^\intercal} be dummy variables restricting covariance matrix.
+#' Then
+#' \deqn{
+#'   h_{ij} = \begin{cases}
+#'     \kappa_{0ij} & \text{if } \omega_{ij} = 0 \\
+#'     \kappa_{1ij} & \text{if } \omega_{ij} = 1
+#'   \end{cases}
+#' }
+#' In turn, \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})}.
+#' @references
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @noRd
+build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
+    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
 }
 
 #' Generating Coefficient Vector in SSVS Gibbs Sampler
 #' 
 #' In MCMC process of SSVS, generate \eqn{\alpha_j} conditional posterior.
 #' 
+#' @param prior_mean The prior mean vector of the VAR coefficient vector
+#' @param prior_prec The prior precision matrix of the VAR coefficient vector
 #' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-#' @param coef_lse LSE estimator of the VAR coefficient
+#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
 #' @param chol_factor Cholesky factor of variance matrix
-#' @param diag_sparse Generated sparse coefficient proportions diagonal matrix
-#' 
+#' @details
+#' After sampling \eqn{\psi_{jj}, \psi_{ij}}, and \eqn{\omega_{ij}}, generate \eqn{\alpha} by
+#' combining non-restricted constant term and potentially restricted coefficients vector term.
+#' This process is done outside of the function and gives each prior mean and prior precision.
+#' In turn,
+#' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N_{k^2 p} (\mu, \Delta)}
+#' The dimension \eqn{k^2 p} is when non-constant term.
+#' When there is constant term, it is \eqn{k (kp + 1)}.
+#' Here,
+#' \deqn{
+#'   \mu = (
+#'     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
+#'   )^{-1} (
+#'     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha}^{MLE} + M^{-1} \alpha_0
+#'   )
+#' }
+#' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha}.
+#' In regression, MLE is the same as OLS.
+#' \deqn{
+#'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
+#' }
+#' After this step, we move to generating Bernoulli \eqn{\gamma_j}.
 #' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_coef <- function(XtX, coef_lse, chol_factor, diag_sparse) {
-    .Call(`_bvhar_ssvs_coef`, XtX, coef_lse, chol_factor, diag_sparse)
+ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
+    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_prec, XtX, coef_ols, chol_factor)
 }
 
-#' Generating Latent Vector for Spike-and-Slab Coefficient
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
 #' 
-#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} conditional posterior.
+#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} or \eqn{\omegam_{ij}} conditional posterior.
 #' 
-#' @param coef_vec Coefficient vector
-#' @param coef_spike Standard deviance for Spike normal distribution
-#' @param coef_slab Standard deviance for Slab normal distribution
-#' @param coef_sparse Bernoulli parameter for sparsity proportion
-#' 
+#' @param param_obs Realized parameters vector
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
+#' @param slab_weight Proportion of nonzero coefficients
+#' @details
+#' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
+#' \deqn{
+#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \mid Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
+#' }
+#' If \eqn{R_j = I_{j - 1}},
+#' \deqn{
+#'   u_{ij1} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) \exp(- \frac{\psi_{1ij}^2}{2 \kappa_{0ij}^2}) q_{ij},
+#'   u_{ij2} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) \exp(- \frac{\psi_{0ij}^2}{2 \kappa_{1ij}^2}) (1 - q_{ij})
+#' }
+#' Otherwise, see George et al. (2008).
+#' Also,
+#' \deqn{
+#'   \gamma_j \mid \alpha, \psi, \eta, \omega, Y_0 \sim Bernoulli(\frac{u_{i1}}{u_{j1} + u_{j2}})
+#' }
+#' Similarly, if \eqn{R = I_{k^2 p}},
+#' \deqn{
+#'   u_{j1} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})p_i,
+#'   u_{j2} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})(1 - p_i)
+#' }
 #' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_coef_latent <- function(coef_vec, coef_spike, coef_slab, coef_sparse) {
-    .Call(`_bvhar_ssvs_coef_latent`, coef_vec, coef_spike, coef_slab, coef_sparse)
+ssvs_dummy <- function(param_obs, spike_sd, slab_sd, mixture_dummy, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, spike_sd, slab_sd, mixture_dummy, slab_weight)
 }
 
-#' Generating Sparse Covariance Proportions Diagonal Matrix
+#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 #' 
-#' In MCMC process of SSVS, generate diagonal matrix \eqn{F_j} (given j) defined by spike-and-slab sd.
+#' In MCMC process of SSVS, generate the diagonal component \eqn{\Psi} from variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param num_design The number of sample used, \eqn{n = T - p}
+#' @details
+#' Let SSE matrix be \eqn{S(\hat{A}) = (Y_0 - X_0 \hat{A})^\intercal (Y_0 - X_0 \hat{A}) \in \mathbb{R}^{k \times k}},
+#' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(\hat{A})},
+#' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal}.
+#' For specified shape and rate of Gamma distribuion \eqn{a_j} and \eqn{b_j},
+#' \deqn{
+#'   \psi_{jj}^2 \mid \alpha, \gamma, \omega, Y_0 \sim \gamma(a_i + n / 2, B_i)
+#' }
+#' where
+#' \deqn{
+#'   B_i = \begin{cases}
+#'     b_1 + s_{11} / 2 & \text{if } i = 1 \\
+#'     b_i + (s_{ii} - s_i^\intercal ( S_{i - 1} + (D_i R_i D_i)^(-1) )^(-1) s_i) & \text{if } i = 2, \ldots, k
+#'   \end{cases}
+#' }
+#' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}
+#' is the one made by upper diagonal element of \eqn{\Psi} matrix.
+#' @references
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @noRd
+ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
+    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, inv_DRD, shape, rate, num_design)
+}
+
+#' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, generate the off-diagonal component \eqn{\Psi} of variance matrix
 #' 
 #' @param col_index Choose the column index of cholesky factor
-#' @param cov_spike Standard deviance for Spike normal distribution, for covariance prior
-#' @param cov_slab Standard deviance for Slab normal distribution, for covariance prior
-#' @param prop_sparse Indicator vector (0-1) corresponding to each component
-#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param chol_diag Diagonal element of the cholesky factor
+#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @details
+#' After drawing \eqn{\psi_{jj}}, generate upper elements by
+#' \deqn{
+#'   \eta_j \mid \alpha, \gamma, \omega, \psi, Y_0 \sim N_{j - 1} (\mu_j, \Delta_j)
+#' }
+#' where
+#' \deqn{
+#'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j,
+#'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1}
+#' }
 #' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_cov_prop <- function(col_index, cov_spike, cov_slab, prop_sparse) {
-    .Call(`_bvhar_ssvs_cov_prop`, col_index, cov_spike, cov_slab, prop_sparse)
+ssvs_chol_off <- function(col_index, sse_mat, chol_diag, inv_DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, col_index, sse_mat, chol_diag, inv_DRD)
 }
 
-#' Generating the Diagonal Component of Cholesky Factor
+#' Filling Cholesky Factor Upper Triangular Matrix
 #' 
-#' In MCMC process of SSVS, generate the diagonal component \eqn{\psi} of variance matrix
-#' 
-#' @param col_index Choose the column index of cholesky factor, starting from zero
-#' @param ZtZ The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 A)^T (Y_0 - X_0 A)}
-#' @param diag_sparse Generated sparse covariance proportions diagonal matrix
-#' @param cov_shape Gamma shape parameters for precision matrix
-#' @param cov_rate Gamma rate parameters for precision matrix
-#' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
-#' @noRd
-ssvs_cov_diag <- function(col_index, ZtZ, diag_sparse, cov_shape, cov_rate) {
-    .Call(`_bvhar_ssvs_cov_diag`, col_index, ZtZ, diag_sparse, cov_shape, cov_rate)
-}
-
-#' Generating the Off-Diagonal Component of Cholesky Factor
-#' 
-#' In MCMC process of SSVS, generate the off-diagonal component \eqn{\psi} of variance matrix
-#' 
-#' @param col_index Choose the column index of cholesky factor
-#' @param ZtZ The result of \eqn{(Y_0 - X_0 A)^T (Y_0 - X_0 A)}
-#' @param chol_factor Cholesky factor of variance matrix
-#' @param diag_sparse Generated sparse covariance proportions diagonal matrix
-#' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
-#' @noRd
-ssvs_cov_off <- function(col_index, ZtZ, chol_factor, diag_sparse) {
-    .Call(`_bvhar_ssvs_cov_off`, col_index, ZtZ, chol_factor, diag_sparse)
-}
-
-#' Symmetric Matrix from Diagonal and Off-diagonal Components
-#' 
-#' Build a matrix using diagonal component vector and off-diaognal component vector
+#' Build a cholesky factor matrix \eqn{\Psi} (upper triangular)
+#' using diagonal component vector and off-diaognal component vector
 #' 
 #' @param diag_vec Diagonal components
 #' @param off_diagvec Off-diagonal components
-#' 
-#' @noRd
-build_symmat <- function(diag_vec, off_diagvec) {
-    .Call(`_bvhar_build_symmat`, diag_vec, off_diagvec)
-}
-
-#' Generating Latent Vector for Spike-and-Slab Coefficient
-#' 
-#' In MCMC process of SSVS, generate latent \eqn{w_{ij}} conditional posterior.
-#' 
-#' @param chol_factor Cholesky factor of variance matrix
-#' @param cov_spike Standard deviance for Spike normal distribution, for covariance prior
-#' @param cov_slab Standard deviance for Slab normal distribution, for covariance prior
-#' @param cov_sparse Bernoulli parameter for sparsity proportion, for covariance prior
-#' 
+#' @details
+#' Consider \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal} where upper triangular \eqn{\Psi = [\psi_{ij}]}.
+#' Column vector for upper off-diagonal element is denoted by
+#' \deqn{
+#'   \eta_j = (\psi_{12}, \ldots, \psi_{j-1, j})
+#' }
+#' for \eqn{j = 2, \ldots, k}.
 #' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_cov_latent <- function(chol_factor, cov_spike, cov_slab, cov_sparse) {
-    .Call(`_bvhar_ssvs_cov_latent`, chol_factor, cov_spike, cov_slab, cov_sparse)
+build_chol <- function(diag_vec, off_diagvec) {
+    .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
 }
 
 #' BVAR(p) Point Estimates based on SSVS Prior
@@ -319,35 +385,60 @@ ssvs_cov_latent <- function(chol_factor, cov_spike, cov_slab, cov_sparse) {
 #' Compute MCMC for SSVS prior
 #' 
 #' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_coef Initial k x m coefficient matrix.
-#' @param init_coef_sparse Indicator vector (0-1) corresponding to each coefficient vector
-#' @param init_cov Initial m x m variance matrix.
-#' @param init_cov_sparse Indicator vector (0-1) corresponding to each covariance component
+#' @param init_chol_diag Inital diagonal cholesky factor
+#' @param init_chol_upper Inital upper cholesky factor
+#' @param init_coef_dummy Initial indicator vector (0-1) corresponding to each coefficient vector
+#' @param init_chol_dummy Initial indicator vector (0-1) corresponding to each upper cholesky factor vector
+#' @param coef_slab_weight Bernoulli parameter for coefficients vector
 #' @param coef_spike Standard deviance for Spike normal distribution
 #' @param coef_slab Standard deviance for Slab normal distribution
-#' @param coef_prop Bernoulli parameter for sparsity proportion
-#' @param cov_shape Gamma shape parameters for precision matrix
-#' @param cov_rate Gamma rate parameters for precision matrix
-#' @param cov_spike Standard deviance for Spike normal distribution, for covariance prior
-#' @param cov_slab Standard deviance for Slab normal distribution, for covariance prior
-#' @param cov_prop Bernoulli parameter for sparsity proportion, for covariance prior
+#' @param coef_slab_weight Bernoulli parameter for coefficients sparsity proportion
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
+#' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
+#' @param chol_slab_weight Bernoulli parameter for cholesky factor sparsity proportion
+#' @param spike_automatic Tuning parameter (small number, e.g. .1) corresponding to standard deviation of spike normal distribution
+#' @param slab_automatic Tuning parameter (large number, e.g. 10) corresponding to standard deviation of slab normal distribution
+#' @param intercept_var Hyperparameter for constant term
 #' @details
-#' 1. Diagonal components of cholesky factor from Gamma distribution
-#' 2. Off-diagonal components from Normal distribution
-#' 3. Proportion of covariance sparsity from Bernoulli
-#' 4. Coefficient from spike-and-slab based on the above simulated covariance matrix
-#' 5. Proportion of nonzero coefficient from Bernoulli
+#' Data: \eqn{X_0}, \eqn{Y_0}
 #' 
+#' Input:
+#' * VAR order p
+#' * MCMC iteration number
+#' * Weight of each slab: Bernoulli distribution parameters
+#'     * \eqn{p_j}: of coefficients
+#'     * \eqn{q_{ij}}: of cholesky factor
+#' * Gamma distribution parameters for cholesky factor diagonal elements \eqn{\psi_{jj}}
+#'     * \eqn{a_j}: shape
+#'     * \eqn{b_j}: rate
+#' * Correlation matrix of coefficient vector: \eqn{R = I_{k^2p}}
+#' * Correlation matrix to restrict cholesky factor (of \eqn{\eta_j}): \eqn{R_j = I_{j - 1}}
+#' * Tuning parameters for spike-and-slab sd semi-automatic approach
+#'     * \eqn{c_0}: small value (0.1)
+#'     * \eqn{c_1}: large value (10)
+#' * Constant to reduce prior influence on constant term: \eqn{c}
+#' 
+#' Gibbs sampling:
+#' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\alpha}, \eqn{\gamma}
+#' 2. Iterate
+#'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     2. Off-diagonal elements of cholesky factor: \eqn{\eta^{(t)} \mid \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
+#'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
 #' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, x, y, init_coef, init_coef_sparse, init_cov, init_cov_sparse, coef_spike, coef_slab, coef_prop, cov_shape, cov_rate, cov_spike, cov_slab, cov_prop) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, x, y, init_coef, init_coef_sparse, init_cov, init_cov_sparse, coef_spike, coef_slab, coef_prop, cov_shape, cov_rate, cov_spike, cov_slab, cov_prop)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, spike_automatic, slab_automatic, intercept_var) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, spike_automatic, slab_automatic, intercept_var)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

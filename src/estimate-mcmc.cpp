@@ -296,9 +296,6 @@ Eigen::VectorXd ssvs_chol_off(int col_index,
 // [[Rcpp::export]]
 Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
   int dim = diag_vec.size();
-  if (off_diagvec.size() != dim * (dim - 1) / 2) {
-    Rcpp::stop("Wrong length of 'off_diagvec'.");
-  }
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
   res.diagonal() = diag_vec; // psi_ii
   int id = 0; // length of eta = m(m-1)/2
@@ -424,29 +421,14 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   // Eigen::VectorXd coef_vec(num_coef);
   Eigen::VectorXd coef_vec = vectorize_eigen(init_coef);
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
-  Eigen::MatrixXd prior_variance(num_coef, num_coef); // M
+  Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI and DRD
   Eigen::MatrixXd coef_corr = Eigen::MatrixXd::Identity(num_restrict, num_restrict); // R
   Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
+  Eigen::MatrixXd DRD = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // DRD
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
   // Eigen::VectorXd coefvec_ols(num_coef);
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
-  
-  
-  // if (num_non == dim) {
-  //   // constant case
-  //   coef_vec.segment(0, num_restrict - 1) = vectorize_eigen(init_coef.topRows(num_restrict));
-  //   coef_vec.segment(num_restrict, num_coef - 1) = vectorize_eigen(init_coef.bottomRows(1));
-  //   prior_variance.block(num_restrict, num_restrict, num_non, num_non).diagonal() = intercept_var * Eigen::MatrixXd::Identity(num_non, num_non);
-  //   coefvec_ols.segment(0, num_restrict - 1) = vectorize_eigen(coef_ols.topRows(num_restrict));
-  //   coefvec_ols.segment(num_restrict, num_coef - 1) = vectorize_eigen(coef_ols.bottomRows(1));
-  // } else if (num_non == -dim) {
-  //   // no constant term
-  //   coef_vec = vectorize_eigen(init_coef);
-  //   coefvec_ols = vectorize_eigen(coef_ols);
-  // } else {
-  //   Rcpp::stop("Wrong 'init_coef' dimension.");
-  // }
   // record-------------------------------------------------------
   int num_mcmc = num_iter + num_burn;
   Eigen::MatrixXd coef_record(num_restrict, num_mcmc);
@@ -463,6 +445,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   // Some variables-----------------------------------------------
   // Eigen::MatrixXd fitted_mat = x * coef_ols;
   Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
+  Eigen::MatrixXd chol_factor(dim, dim); // Psi = upper triangular matrix
   Eigen::MatrixXd sse_block = sse_mat.block(0, 0, dim - 1, dim - 1); // Sj = upper-left j x j submatrix of SSE
   Eigen::VectorXd sse_colvec = sse_mat.block(0, dim - 1, dim - 1, 1); // sj = (s1j, ..., s(j-1, j)) from SSE
   Eigen::MatrixXd chol_corr = Eigen::MatrixXd::Identity(dim - 1, dim - 1); // Rj = I(j - 1)
@@ -496,110 +479,36 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       id_upper += j;
     }
     id_upper = 0;
+    chol_factor = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
     // 3. omega
     chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_dummy_record.row(i - 1), chol_slab_weight);
     // 4. alpha
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
-    
+    DRD = coef_mixture_mat * coef_corr * coef_mixture_mat;
+    if (num_non == dim) {
+      // constant case
+      for (int j = 0; j < dim; j++) {
+        prior_variance.block(j * dim_design, j * dim_design, num_restrict / dim, num_restrict / dim) = 
+          DRD.block(j, j, num_restrict / dim, num_restrict / dim);
+        prior_variance(j * dim_design + num_restrict / dim, j * dim_design + num_restrict / dim) = intercept_var;
+      }
+    } else if (num_non == -dim) {
+      // no constant term
+      prior_variance = DRD;
+    }
+    coef_record.row(i) = ssvs_coef(prior_mean, prior_variance.inverse(), XtX, coefvec_ols, chol_factor);
     // 5. gamma
+    chol_dummy_record.row(i) = ssvs_dummy(coef_record.row(i), coef_spike, coef_slab, coef_dummy_record.row(i - 1), coef_slab_weight);
   }
-  
-  
-  
-  
-  // Eigen::MatrixXd coef_mat(dim_design, dim); // A: kp(+1) x k
-  // Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
-  // coef_mat = XtX.inverse() * x.transpose() * y; // Ahat
-  // Eigen::VectorXd coef_lse = vectorize_eigen(coef_mat); // alphahat = vec(Ahat)
-  // // initial for coefficient-----------------------------------------------------------
-  // if (init_coef.rows() != dim_design) {
-  //   Rcpp::stop("Invalid number of rows of 'init_coef'.");
-  // }
-  // if (init_coef.cols() != dim) {
-  //   Rcpp::stop("Invalid number of colums of 'init_coef'.");
-  // }
-  // if (init_coef_slab_weight.rows() != dim_design) {
-  //   Rcpp::stop("Invalid number of rows of 'init_coef_sparse'.");
-  // }
-  // if (init_coef_slab_weight.cols() != dim) {
-  //   Rcpp::stop("Invalid number of columns of 'init_coef_sparse'.");
-  // }
-  // Eigen::MatrixXd resid_mat = y - x * init_coef; // Z = Y0 - X0 B
-  // Eigen::MatrixXd ZtZ = resid_mat.transpose() * resid_mat; // (Y0 - X0 B)^T (Y0 - X0 B)
-  // Eigen::VectorXd init_coef_vec = vectorize_eigen(init_coef); // initial for vec(A)
-  // Eigen::VectorXd init_coef_sparse_vec = vectorize_eigen(init_coef_slab_weight); // initial for gamma[j]
-  // Eigen::MatrixXd diag_coef_sparse(init_coef_sparse_vec.size(), init_coef_sparse_vec.size()); // D: mk x mk
-  // Eigen::VectorXd init_cov_sparse_vec = vectorize_eigen(init_chol_slab_weight); // initial for w[ij]
-  // Eigen::MatrixXd diag_cov_sparse(dim - 1, dim - 1); // large matrix to assign diag_sparse of cov
-  
-  
-  
-  // initial for covariance matrix: Sigma_e^(-1) = Psi * Psi^T--------------------------
-  // Eigen::LLT<Eigen::MatrixXd> lltOfcov(init_cov); // Sigma = LL^T
-  // if (lltOfcov.info() == Eigen::NumericalIssue) {
-  //   Rcpp::stop("'init_cov' should be positive definite matrix."); // Sigma is pd
-  // }
-  // Eigen::MatrixXd chol_upper = lltOfcov.matrixL().transpose(); // Psi = (L^(-1))^T: upper
-  // Trace for MCMC---------------------------------------------------------------------
-  
-  // Eigen::MatrixXd coef_trace(num_iter + 1, dim * dim_design); // record alpha in MCMC
-  // coef_trace.row(0) = init_coef_vec;
-  // Eigen::MatrixXd coef_prop_trace(num_iter + 1, dim * dim_design); // record gamma[j] in MCMC
-  // coef_prop_trace.row(0) = init_coef_sparse_vec;
-  // Eigen::MatrixXd diag_trace(num_iter + 1, dim); // record diagonal component in MCMC
-  // for (int i = 0; i < dim; i++) {
-  //   diag_trace(0, i) = chol_upper(i, i);
-  // }
-  
-  
-  // Eigen::MatrixXd off_trace(num_iter + 1, dim * (dim - 1) / 2); // record off-diagonal component in MCMC
-  // int id = 0;
-  // for (int j = 1; j < dim; j++) { // from 2nd column
-  //   for (int i = 0; i < j; i++) { // upper triangular: exclude diagonal
-  //     off_trace(0, id) = chol_upper(i, j);
-  //     id++;
-  //   }
-  // }
-  // Eigen::MatrixXd cov_prop_trace(num_iter + 1, dim * (dim - 1) / 2); // record w[ij] in MCMC
-  // cov_prop_trace.row(0) = init_cov_sparse_vec;
-  // // Gibbs sampler iteration------------------------------------------------------------
-  // for (int t = 0; t < num_iter; t++) {
-  //   // 1. Coefficient
-  //   diag_coef_sparse = ssvs_coef_prop(coef_spike, coef_slab, init_coef_sparse_vec); // D
-  //   init_coef_vec = ssvs_coef(XtX, coef_lse, chol_upper, diag_coef_sparse); // Normal
-  //   coef_trace.row(t + 1) = init_coef_vec; // record
-  //   // 2. Sparsity proportion of coefficient
-  //   init_coef_sparse_vec = ssvs_coef_latent(init_coef_vec, coef_spike, coef_slab, coef_slab_weight); // Bernoulli
-  //   coef_prop_trace.row(t + 1) = init_coef_sparse_vec; // record
-  //   // 3. Diagonal components of cholesky factor
-  //   chol_upper(0, 0) = ssvs_cov_diag(0, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
-  //   diag_trace(t + 1, 0) = chol_upper(0, 0); // record
-  //   for (int i = 1; i < dim; i++) {
-  //     diag_cov_sparse.block(0, 0, i, i) = ssvs_cov_prop(i, chol_spike, chol_slab, init_cov_sparse_vec); // Fj
-  //     chol_upper(i, i) = ssvs_cov_diag(i, ZtZ, diag_cov_sparse, shape, rate); // sqrt of Gamma
-  //     diag_trace(t + 1, i) = chol_upper(i, i); // record
-  //   }
-  //   // 4. Off-diagonal components of cholesky factor
-  //   id = 0;
-  //   for (int j = 1; j < dim; j++) {
-  //     chol_upper.block(0, j, j - 1, 1) = ssvs_cov_off(j, ZtZ, chol_upper, diag_cov_sparse);
-  //     off_trace.block(num_iter, id, j - 1, 1) = chol_upper.block(0, j, j - 1, 1);
-  //     id += j - 1; // next column index
-  //   }
-  //   // 5. Sparsity proportion of variance matrix
-  //   init_cov_sparse_vec = ssvs_cov_latent(chol_upper, chol_spike, chol_slab, chol_slab_weight); // Bernoulli
-  //   cov_prop_trace.row(t + 1) = init_cov_sparse_vec; // record
-  // }
-  
   return Rcpp::List::create(
-    Rcpp::Named("coef") = init_coef_vec,
-    Rcpp::Named("cov") = chol_upper,
-    Rcpp::Named("coef_prop") = init_coef_sparse_vec,
-    Rcpp::Named("cov_prop") = init_cov_sparse_vec,
-    Rcpp::Named("coef_record") = coef_trace,
-    Rcpp::Named("diag_record") = diag_trace,
-    Rcpp::Named("off_record") = off_trace,
-    Rcpp::Named("coef_prop_record") = coef_prop_trace,
-    Rcpp::Named("cov_prop_record") = cov_prop_trace
+    Rcpp::Named("alpha_record") = coef_record.block(0, num_burn - 1, num_restrict, num_mcmc),
+    Rcpp::Named("psi_ij_record") = chol_upper_record.block(0, num_burn - 1, num_upperchol, num_mcmc),
+    Rcpp::Named("psi_jj_record") = chol_diag_record.block(0, num_burn - 1, dim, num_mcmc),
+    Rcpp::Named("omega_ij_record") = chol_dummy_record.block(0, num_burn - 1, num_upperchol, num_mcmc),
+    Rcpp::Named("tau_record") = coef_dummy_record.block(0, num_burn - 1, num_restrict, num_mcmc),
+    Rcpp::Named("psi") = chol_factor,
+    Rcpp::Named("sse") = sse_mat,
+    Rcpp::Named("coef_vec") = coefvec_ols,
+    Rcpp::Named("coefficients") = coef_ols
   );
 }

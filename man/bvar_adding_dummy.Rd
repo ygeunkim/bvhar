@@ -30,7 +30,7 @@ diag\left( \sigma_1, \ldots, \sigma_m \right) \\ \hline
 Design dummy matrix \eqn{X_p} is (m + k) x k matrix:
 \deqn{
   X_p = \left[\begin{array}{c|c}
-J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{mp} \\ \hline
+J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{mp} \\ \hline
 0_{m \times mp} & 0_m \\ \hline
 0_{mp}^\intercal & \epsilon
 \end{array}\right]
@@ -59,7 +59,7 @@ For response matrix \eqn{Y_0}, define (m + h) x m matrix \eqn{Y_{HAR}}
 For design matrix \eqn{X_0}, define (m + h) x h matrix \eqn{X_{HAR}}
 \deqn{
   X_{HAR} = \left[\begin{array}{c|c}
-  J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{3m} \\ \hline
+  J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{3m} \\ \hline
   0_{m \times 3m} & 0_m \\ \hline
   0_{3m}^\intercal & \epsilon
 \end{array}\right]
