@@ -4,23 +4,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Semiautomatic Approach to Select Coefficient Mixture Hyperparameters
-//' 
-//' @param spike_automatic
-//' @param slab_automatic
-//' 
-//' 
-//' @references 
-//' George, E. I., & McCulloch, R. E. (1997). *APPROACHES FOR BAYESIAN VARIABLE SELECTION*. Statistica Sinica, 7(2), 339–373.
-//' 
-//' George, E. I., & McCulloch, R. E. (2012). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
-//' @noRd
-
-
-
-
-
-
 //' Building Spike-and-slab SD Diagonal Matrix
 //' 
 //' In MCMC process of SSVS, compute diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

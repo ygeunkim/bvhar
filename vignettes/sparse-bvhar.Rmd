@@ -1,0 +1,121 @@
+---
+title: "Sparse Priors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sparse Priors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\bbA}{\mathbb{A}}
+  \newcommand{\bfeps}{\boldsymbol\epsilon}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\bfy}{\mathbf{y}}
+  \newcommand{\bfc}{\mathbf{c}}
+---
+
+```{r rmdsetup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618
+)
+options(digits = 3)
+set.seed(1)
+```
+
+```{r setup}
+library(bvhar)
+```
+
+# Stochastic Search Variable Selection (SSVS)
+
+<!-- For $(\bbA, \Sigma)$ -->
+
+## Spike-and-Slab
+
+## SSVS
+
+### Default semi-automatic approach
+
+### Covariance shrinkage
+
+$$\Sigma^{-1} = \Psi \Psi^\intercal$$
+
+where $\Psi$ is upper triangular matrix.
+
+
+## Example 1 of George et al. (2008)
+
+6 variable VAR(1) with the following setting:
+
+$$
+\bbA = \begin{bmatrix}
+  1 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1 \\
+  1 & 1 & 1 & 1 & 1 & 1
+\end{bmatrix}, \quad
+
+\Psi = \begin{bmatrix}
+  1 & 0.5 & 0.5 & 0.5 & 0.5 & 0.5 \\
+  0 & 1 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+```{r varsetting}
+# VAR coefficients------------------------
+var_coef <- matrix(0L, nrow = 7, ncol = 6)
+diag(var_coef[-7,]) <- 1
+var_coef[7,] <- 1
+# Psi-------------------------------------
+var_chol <- diag(6)
+var_chol[1,2:6] <- .5
+```
+
+From Appendix D.1 of Helmut (2008), VAR process can be easily generated from Cholesky factor $\Sigma_e = \Psi \Psi^\intercal$.
+Let $\bfeps_t = \Psi (Z_1, \ldots, Z_k)^\intercal$ where $Z_j \iid N(0, \Sigma_e)$. Then we now have usual VAR(p) $\{ \bfy_t \colon t = 1, \ldots, T \}$.
+
+$$\bfy_t = \bfc + A_1 \bfy_{t - 1} + \cdots A_p \bfy_{t - p} + \bfeps_t$$
+
+```{r varsimul}
+# matrix to fill-------------------------------------
+var_x <- matrix(0L, nrow = 100, ncol = 6L)
+# error term-----------------------------------------
+# noise_term <- sim_mgaussian(100, rep(0L, 6L), diag(6L))
+# initial values-------------------------------------
+# y_init <- matrix(0L, nrow = 1L, ncol = 6L)
+# recursive formulation-------------------------------
+
+```
+
+SSVS settings:
+
+- $p_j = 0.5$
+- $q_{ij} = 0.5$
+- $a_j = b_j = 0.01$
+- $(\tau_{0i}, \tau_{1i}) = (0.1, 5)$
+- $(\kappa_{0ij}, \kappa_{1ij}) = (0.1, 5)$
+
+
+
+
+
+
+
+
+
+
+
+
+
+

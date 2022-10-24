@@ -11,6 +11,7 @@ bvar_ssvs(
   num_burn,
   num_thin = 1L,
   bayes_spec = set_ssvs(),
+  init_spec = init_ssvs(),
   include_mean = TRUE
 )
 }
@@ -26,6 +27,8 @@ bvar_ssvs(
 \item{num_thin}{Number of thinning}
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
+
+\item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 }

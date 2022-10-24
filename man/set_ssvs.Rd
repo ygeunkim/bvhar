@@ -2,44 +2,78 @@
 % Please edit documentation in R/hyperparam-sparse.R
 \name{set_ssvs}
 \alias{set_ssvs}
-\title{Initial parameters and Hyperparameters for SSVS Model}
+\title{Stochastic Search Variable Selection (SSVS) Hyperparameter for VAR Coefficient and Cholesky Factor}
 \usage{
 set_ssvs(
-  init_coef,
-  init_coef_dummy,
-  init_chol,
-  init_chol_dummy,
-  coef_ss = set_spikeslab_coef(),
-  chol_ss = set_spikeslab_chol()
+  coef_spike = 0.1,
+  coef_slab = 5,
+  coef_mixture = 0.5,
+  shape = 0.01,
+  rate = 0.01,
+  chol_spike = 0.1,
+  chol_slab = 5,
+  chol_mixture = 0.5
 )
 }
 \arguments{
-\item{init_coef}{Initial k x m coefficient matrix.}
+\item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}
 
-\item{init_coef_dummy}{Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.}
+\item{coef_slab}{Standard deviance for Slab normal distribution (See Details).}
 
-\item{init_chol}{Initial m x m variance matrix.}
+\item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
 
-\item{init_chol_dummy}{Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.}
+\item{shape}{Gamma shape parameters for precision matrix (See Details).}
 
-\item{coef_ss}{Spike and slab specification for vectorized coefficient, using \code{\link[=set_spikeslab_coef]{set_spikeslab_coef()}}.}
+\item{rate}{Gamma rate parameters for precision matrix (See Details).}
 
-\item{chol_ss}{Spike and slab specification for cholesky factor of precision matrix, using \code{\link[=set_spikeslab_chol]{set_spikeslab_chol()}}.}
+\item{chol_spike}{Standard deviance for Spike normal distribution, in the cholesky factor (See Details).}
+
+\item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor (See Details).}
+
+\item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
 }
 \description{
-Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
+Set SSVS hyperparameters for VAR coefficient matrix and Cholesky factor.
 }
 \details{
-Get the default SSVS setting for given VAR model.
+Let \eqn{\alpha} be the vectorized coefficient, \eqn{\alpha = vec(A)}.
+Spike-slab prior is given using two normal distributions.
+\deqn{\alpha_j \mid \gamma_j \sim (1 - \gamma_j) N(0, \tau_{0j}^2) + \gamma_j N(0, \tau_{1j}^2)}
+As spike-slab prior itself suggests, set \eqn{\tau_{0j}} small (point mass at zero: spike distribution)
+and set \eqn{\tau_{1j}} large (symmetric by zero: slab distribution).
+
+\eqn{\gamma_j} is the proportion of the nonzero coefficients and it follows
+\deqn{\gamma_j \sim Bernoulli(p_j)}
+\itemize{
+\item \code{coef_spike}: \eqn{\tau_{0j}}
+\item \code{coef_slab}: \eqn{\tau_{1j}}
+\item \code{coef_mixture}: \eqn{p_j}
+\item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
+\item If one value is provided, model function will read it by replicated value.
+}
+
+Next for precision matrix \eqn{\Sigma_e^{-1}}, SSVS applies Cholesky decomposition.
+\deqn{\Sigma_e^{-1} = \Psi \Psi^T}
+where \eqn{\Psi = \{\psi_{ij}\}} is upper triangular.
+
+Diagonal components follow the gamma distribution.
+\deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
+For each row of off-diagonal (upper-triangular) components, we apply spike-slab prior again.
+\deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
+\deqn{w_{ij} \sim Bernoulli(q_{ij})}
+\itemize{
+\item \code{shape}: \eqn{a_j}
+\item \code{rate}: \eqn{b_j}
+\item \code{chol_spike}: \eqn{\kappa_{0,ij}}
+\item \code{chol_slab}: \eqn{\kappa_{1,ij}}
+\item \code{chol_mixture}: \eqn{q_{ij}}
+\item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
+\item \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
+\item \code{chol_} aruments can be one value for replication, vector, or uppertriangular matrix.
+}
 }
 \references{
-Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://doi.org/10.1016/j.ijforecast.2009.11.002}{10.1016/j.ijforecast.2009.11.002}
-
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
-}
-\seealso{
-\itemize{
-\item \code{\link[=set_spikeslab_coef]{set_spikeslab_coef()}}: Set spike and slab prior hyperparameters for coefficient vector
-\item \code{\link[=set_spikeslab_chol]{set_spikeslab_chol()}}: Set spike and slab prior hyperparameters for cholesky factor
-}
+
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:\href{http://dx.doi.org/10.1561/0800000013}{10.1561/0800000013}
 }
