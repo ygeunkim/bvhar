@@ -39,7 +39,7 @@ Eigen::MatrixXd sim_var(int num_sim,
   }
   int dim_design = var_coef.rows(); // k = mp + 1 (const) or mp (none)
   if (var_coef.cols() != dim) {
-    Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
+    Rcpp::stop("Wrong 'var_coef' or 'sig_error' format.");
   }
   if (!(init.rows() == var_lag && init.cols() == dim)) {
     Rcpp::stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.");
@@ -54,13 +54,13 @@ Eigen::MatrixXd sim_var(int num_sim,
   // epsilon ~ N(0, sig_error)
   Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
   Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
-  res.row(0) = obs_p * var_coef + error_term.row(0);
+  res.row(0) = obs_p * var_coef + error_term.row(0); // y(p + 1) = [yp^T, ..., y1^T, 1] A + eps(T)
   for (int i = 1; i < num_rand; i++) {
     for (int t = 1; t < var_lag; t++) {
       obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
     }
     obs_p.block(0, 0, 1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * var_coef + error_term.row(i);
+    res.row(i) = obs_p * var_coef + error_term.row(i); // yi = [y(i-1), ..., y(i-p), 1] A + eps(i)
   }
   return res.bottomRows(num_rand - num_burn);
 }

@@ -662,9 +662,9 @@ forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
-#' Generate Multivariate Normal Random Vector with Zero Mean
+#' Generate Multivariate Normal Random Vector
 #' 
-#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+#' This function samples n x muti-dimensional normal random matrix.
 #' 
 #' @param num_sim Number to generate process
 #' @param mu Mean vector
@@ -682,6 +682,21 @@ forecast_vhar <- function(object, step) {
 #' @export
 sim_mgaussian <- function(num_sim, mu, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+}
+
+#' Generate Multivariate Normal Random Vector using Cholesky Decomposition
+#' 
+#' This function samples n x muti-dimensional normal random matrix with using Cholesky decomposition.
+#' 
+#' @param num_sim Number to generate process
+#' @param mu Mean vector
+#' @param sig Variance matrix
+#' @details
+#' This function computes \eqn{\Sigma^{1/2}} by choleksy decomposition.
+#' 
+#' @noRd
+sim_mgaussian_chol <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian_chol`, num_sim, mu, sig)
 }
 
 #' Generate Matrix Normal Random Matrix
