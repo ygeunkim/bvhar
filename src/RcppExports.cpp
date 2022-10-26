@@ -641,6 +641,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sim_mgaussian_chol
+Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
+RcppExport SEXP _bvhar_sim_mgaussian_chol(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_mgaussian_chol(num_sim, mu, sig));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_matgaussian
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v);
 RcppExport SEXP _bvhar_sim_matgaussian(SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scale_vSEXP) {
@@ -795,9 +808,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_var
-Eigen::MatrixXd sim_var(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
-RcppExport SEXP _bvhar_sim_var(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+// sim_var_eigen
+Eigen::MatrixXd sim_var_eigen(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_var_eigen(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -807,7 +820,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_var(num_sim, num_burn, var_coef, var_lag, sig_error, init));
+    rcpp_result_gen = Rcpp::wrap(sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_var_chol
+Eigen::MatrixXd sim_var_chol(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_var_chol(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -943,6 +972,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
+    {"_bvhar_sim_mgaussian_chol", (DL_FUNC) &_bvhar_sim_mgaussian_chol, 3},
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
     {"_bvhar_sim_iw_tri", (DL_FUNC) &_bvhar_sim_iw_tri, 2},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
@@ -956,7 +986,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_qr_eigen", (DL_FUNC) &_bvhar_qr_eigen, 1},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
-    {"_bvhar_sim_var", (DL_FUNC) &_bvhar_sim_var, 6},
+    {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 6},
+    {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 6},
     {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},

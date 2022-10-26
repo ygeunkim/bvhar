@@ -921,9 +921,9 @@ forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
-#' Generate Multivariate Normal Random Vector with Zero Mean
+#' Generate Multivariate Normal Random Vector
 #' 
-#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+#' This function samples n x muti-dimensional normal random matrix.
 #' 
 #' @param num_sim Number to generate process
 #' @param mu Mean vector
@@ -941,6 +941,21 @@ forecast_vhar <- function(object, step) {
 #' @export
 sim_mgaussian <- function(num_sim, mu, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+}
+
+#' Generate Multivariate Normal Random Vector using Cholesky Decomposition
+#' 
+#' This function samples n x muti-dimensional normal random matrix with using Cholesky decomposition.
+#' 
+#' @param num_sim Number to generate process
+#' @param mu Mean vector
+#' @param sig Variance matrix
+#' @details
+#' This function computes \eqn{\Sigma^{1/2}} by choleksy decomposition.
+#' 
+#' @noRd
+sim_mgaussian_chol <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian_chol`, num_sim, mu, sig)
 }
 
 #' Generate Matrix Normal Random Matrix
@@ -1136,18 +1151,26 @@ log_mgammafn <- function(x, p) {
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @details
-#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-#' 2. For i = 1, ... n,
-#' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
-#' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
-#' 
-#' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
-#' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
-sim_var <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
-    .Call(`_bvhar_sim_var`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
+#' @noRd
+sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
+    .Call(`_bvhar_sim_var_eigen`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
+}
+
+#' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
+#' 
+#' This function generates VAR(p) using Cholesky Decomposition.
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_lag Lag of VAR
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
+    .Call(`_bvhar_sim_var_chol`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
 }
 
 #' Generate Multivariate Time Series Process Following VHAR
