@@ -3,9 +3,9 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Generate Multivariate Normal Random Vector with Zero Mean
+//' Generate Multivariate Normal Random Vector
 //' 
-//' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+//' This function samples n x muti-dimensional normal random matrix.
 //' 
 //' @param num_sim Number to generate process
 //' @param mu Mean vector
@@ -45,6 +45,47 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
     }
   }
   res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+//' Generate Multivariate Normal Random Vector using Cholesky Decomposition
+//' 
+//' This function samples n x muti-dimensional normal random matrix with using Cholesky decomposition.
+//' 
+//' @param num_sim Number to generate process
+//' @param mu Mean vector
+//' @param sig Variance matrix
+//' @details
+//' This function computes \eqn{\Sigma^{1/2}} by choleksy decomposition.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
+  int dim = sig.cols();
+  if (sig.rows() != dim) {
+    Rcpp::stop("Invalid 'sig' dimension.");
+  }
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < dim; j++) {
+      if (sig(i, j) != sig(j, i)) {
+        Rcpp::stop("'sig' must be a symmetric matrix.");
+      }
+    }
+  }
+  if (dim != mu.size()) {
+    Rcpp::stop("Invalid 'mu' size.");
+  }
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  for (int i = 0; i < num_sim; i++) {
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = norm_rand();
+    }
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
+  Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig_sqrt;
   res.rowwise() += mu.transpose();
   return res;
 }

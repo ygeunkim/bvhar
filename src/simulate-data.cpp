@@ -13,37 +13,17 @@
 //' @param var_lag Lag of VAR
 //' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 //' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-//' @details
-//' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-//' 2. For i = 1, ... n,
-//' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
-//' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
-//' 
-//' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
-//' 
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_var(int num_sim, 
-                        int num_burn, 
-                        Eigen::MatrixXd var_coef, 
-                        int var_lag, 
-                        Eigen::MatrixXd sig_error, 
-                        Eigen::MatrixXd init) {
+Eigen::MatrixXd sim_var_eigen(int num_sim, 
+                              int num_burn, 
+                              Eigen::MatrixXd var_coef, 
+                              int var_lag, 
+                              Eigen::MatrixXd sig_error, 
+                              Eigen::MatrixXd init) {
   int dim = sig_error.cols(); // m: dimension of time series
-  if (num_sim < 2) {
-    Rcpp::stop("Generate more than 1 series");
-  }
-  if (var_coef.rows() != dim * var_lag + 1 && var_coef.rows() != dim * var_lag) {
-    Rcpp::stop("'var_coef' is not VAR coefficient. Check its dimension.");
-  }
   int dim_design = var_coef.rows(); // k = mp + 1 (const) or mp (none)
-  if (var_coef.cols() != dim) {
-    Rcpp::stop("Wrong VAR coefficient format or Variance matrix");
-  }
-  if (!(init.rows() == var_lag && init.cols() == dim)) {
-    Rcpp::stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.");
-  }
   int num_rand = num_sim + num_burn; // sim + burnin
   Eigen::MatrixXd obs_p(1, dim_design); // row vector of X0: yp^T, ..., y1^T, (1)
   obs_p(0, dim_design - 1) = 1.0; // for constant term if exists
@@ -54,6 +34,47 @@ Eigen::MatrixXd sim_var(int num_sim,
   // epsilon ~ N(0, sig_error)
   Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
   Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
+  res.row(0) = obs_p * var_coef + error_term.row(0); // y(p + 1) = [yp^T, ..., y1^T, 1] A + eps(T)
+  for (int i = 1; i < num_rand; i++) {
+    for (int t = 1; t < var_lag; t++) {
+      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
+    }
+    obs_p.block(0, 0, 1, dim) = res.row(i - 1);
+    res.row(i) = obs_p * var_coef + error_term.row(i); // yi = [y(i-1), ..., y(i-p), 1] A + eps(i)
+  }
+  return res.bottomRows(num_rand - num_burn);
+}
+
+//' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
+//' 
+//' This function generates VAR(p) using Cholesky Decomposition.
+//' 
+//' @param num_sim Number to generated process
+//' @param num_burn Number of burn-in
+//' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+//' @param var_lag Lag of VAR
+//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_var_chol(int num_sim, 
+                             int num_burn, 
+                             Eigen::MatrixXd var_coef, 
+                             int var_lag, 
+                             Eigen::MatrixXd sig_error, 
+                             Eigen::MatrixXd init) {
+  int dim = sig_error.cols();
+  int dim_design = var_coef.rows();
+  int num_rand = num_sim + num_burn;
+  Eigen::MatrixXd obs_p(1, dim_design);
+  obs_p(0, dim_design - 1) = 1.0;
+  for (int i = 0; i < var_lag; i++) {
+    obs_p.block(0, i * dim, 1, dim) = init.row(var_lag - i - 1);
+  }
+  Eigen::MatrixXd res(num_rand, dim);
+  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim);
+  Eigen::MatrixXd error_term = sim_mgaussian_chol(num_rand, sig_mean, sig_error); // normal using cholesky
   res.row(0) = obs_p * var_coef + error_term.row(0);
   for (int i = 1; i < num_rand; i++) {
     for (int t = 1; t < var_lag; t++) {
