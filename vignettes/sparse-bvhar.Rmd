@@ -49,6 +49,8 @@ where $\Psi$ is upper triangular matrix.
 
 ## Example 1 of George et al. (2008)
 
+### VAR simulation
+
 6 variable VAR(1) with the following setting:
 
 $$
@@ -82,40 +84,123 @@ var_chol <- diag(6)
 var_chol[1,2:6] <- .5
 ```
 
-From Appendix D.1 of Helmut (2008), VAR process can be easily generated from Cholesky factor $\Sigma_e = \Psi \Psi^\intercal$.
-Let $\bfeps_t = \Psi (Z_1, \ldots, Z_k)^\intercal$ where $Z_j \iid N(0, \Sigma_e)$. Then we now have usual VAR(p) $\{ \bfy_t \colon t = 1, \ldots, T \}$.
+Note that the variance matrix for simulation is $\Sigma_e = (\Psi \Psi^\intercal)^{-1}$.
 
-$$\bfy_t = \bfc + A_1 \bfy_{t - 1} + \cdots A_p \bfy_{t - p} + \bfeps_t$$
+- Sample size of 100
+- Following Appendix D.1 of Helmut (2008), we compute the square root of multivariate normal distribution variance matrix by Cholesky decomposition.
 
 ```{r varsimul}
-# matrix to fill-------------------------------------
-var_x <- matrix(0L, nrow = 100, ncol = 6L)
-# error term-----------------------------------------
-# noise_term <- sim_mgaussian(100, rep(0L, 6L), diag(6L))
-# initial values-------------------------------------
-# y_init <- matrix(0L, nrow = 1L, ncol = 6L)
-# recursive formulation-------------------------------
-
+var_data <- sim_var(
+  num_sim = 100,
+  num_burn = 50,
+  var_coef = var_coef,
+  var_lag = 1,
+  sig_error = solve(var_chol %*% t(var_chol)),
+  method = "chol"
+)
+colnames(var_data) <- paste0("y", 1:6)
 ```
 
-SSVS settings:
+### SSVS spec
 
-- $p_j = 0.5$
-- $q_{ij} = 0.5$
-- $a_j = b_j = 0.01$
-- $(\tau_{0i}, \tau_{1i}) = (0.1, 5)$
-- $(\kappa_{0ij}, \kappa_{1ij}) = (0.1, 5)$
+`set_ssvs()` specifies SSVS input.
 
+- `coef_spike`: $\tau_{0i} = 0.1$
+- `coef_slab`: $\tau_{1i} = 5$
+    - For semi-automatic approach to $(\tau_{0i}, \tau_{1i})$, see the related work such as George et al. (2008)
+- `coef_mixture`: $p_j = 0.5$
+    - noninformative
+    - equally likely to be included as excluded
+- `shape`: $a_j = 0.01$
+- `rate`: $b_j = 0.01$
+    - absence of prior information about $\psi_{jj}$
+    - make the prior noninfluential with the hyperparameters $(a_j, b_j)$ set to small values
+- `chol_spike`: $\kappa_{0ij} = 0.1$
+- `chol_slab`: $\kappa_{1ij} = 5$
+    - For semi-automatic approach to $(\kappa_{0ij}, \kappa_{1ij})$, see the related work such as George et al. (2008)
+- `chol_mixture`: $q_{ij} = 0.5$
+    - noninformative
+    - equally likely to be included as excluded
 
+As every hyperparameter has set to be same for every $i,j$, value can be assigned as numeric value of length one.
+If you want to assign individually, you can use vector.
+On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_slab`, and `chol_mixture`.
 
+```{r paramset}
+ssvs_spec <- set_ssvs(
+  coef_spike = .1,
+  coef_slab = 5,
+  coef_mixture = .5,
+  coef_non = .1,
+  shape = .01,
+  rate = .01,
+  chol_spike = .1,
+  chol_slab = 5,
+  chol_mixture = .5
+)
+```
 
+Before starting MCMC, set initial values.
+`init_ssvs()` sets initial values for each parameter.
 
+- `init_coef`: initial $\bbA = 0_{(kp + 1) \times k}$, k = 6, p = 1
+- `init_coef_dummy`: initial $\Gamma = 1_{kp \times k}$, k = 6, p = 1
+- `init_chol`: initial $\Psi = 0_{k \times \times}$ k = 6
+- `init_chol_dummy`: initial $\Omega =$ upper triangular matrix of which every diagonal and upper diagonal element is 1.
 
+```{r initset}
+# Upper triangular matrix----------------------
+# init_chol <- matrix(1e-5, nrow = 6L, ncol = 6L)
+# init_chol[lower.tri(init_chol, diag = TRUE)] <- 0L
+init_omega <- matrix(1L, nrow = 6L, ncol = 6L)
+init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
+# initial values specification-----------------
+init_spec <- init_ssvs(
+  init_coef = matrix(0L, nrow = 7L, ncol = 6L),
+  init_coef_dummy = matrix(1L, nrow = 6L, ncol = 6L),
+  init_chol = matrix(0L, nrow = 6L, ncol = 6L),
+  init_chol_dummy = init_omega
+)
+```
 
+### Gibbs sampling
 
+```{r gibbs}
+fit <- bvar_ssvs(
+  y = var_data,
+  p = 1,
+  num_iter = 100,
+  num_burn = 50,
+  bayes_spec = ssvs_spec,
+  init_spec = init_spec,
+  include_mean = TRUE
+)
+```
 
+Average of the restriction indices $\gamma$ over all 100 samples:
 
+```{r tauresult}
+colMeans(fit$tau_record) %>% 
+  matrix(ncol = ncol(fit$coefficients))
+```
 
+Compare with the true specification:
+
+```{r truecoef}
+var_coef
+```
+
+Average of the restriction indices $\omega$ over all 100 samples:
+
+```{r omegaresult}
+colMeans(fit$omega_ij_record)
+```
+
+Compare with:
+
+```{r truepsi}
+var_chol[upper.tri(var_chol, diag = FALSE)]
+```
 
 
 

@@ -246,17 +246,16 @@ ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
 
 #' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
 #' 
-#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} or \eqn{\omegam_{ij}} conditional posterior.
+#' In MCMC process of SSVS, generate latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 #' 
 #' @param param_obs Realized parameters vector
 #' @param spike_sd Standard deviance for Spike normal distribution
 #' @param slab_sd Standard deviance for Slab normal distribution
-#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
 #' @param slab_weight Proportion of nonzero coefficients
 #' @details
 #' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
 #' \deqn{
-#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \mid Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
+#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
 #' }
 #' If \eqn{R_j = I_{j - 1}},
 #' \deqn{
@@ -278,8 +277,8 @@ ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_dummy <- function(param_obs, spike_sd, slab_sd, mixture_dummy, slab_weight) {
-    .Call(`_bvhar_ssvs_dummy`, param_obs, spike_sd, slab_sd, mixture_dummy, slab_weight)
+ssvs_dummy <- function(param_obs, spike_sd, slab_sd, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, spike_sd, slab_sd, slab_weight)
 }
 
 #' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -321,7 +320,6 @@ ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
 #' 
 #' In MCMC process of SSVS, generate the off-diagonal component \eqn{\Psi} of variance matrix
 #' 
-#' @param col_index Choose the column index of cholesky factor
 #' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
 #' @param chol_diag Diagonal element of the cholesky factor
 #' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
@@ -340,8 +338,8 @@ ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-ssvs_chol_off <- function(col_index, sse_mat, chol_diag, inv_DRD) {
-    .Call(`_bvhar_ssvs_chol_off`, col_index, sse_mat, chol_diag, inv_DRD)
+ssvs_chol_off <- function(sse_mat, chol_diag, inv_DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, inv_DRD)
 }
 
 #' Filling Cholesky Factor Upper Triangular Matrix
@@ -389,8 +387,6 @@ build_chol <- function(diag_vec, off_diagvec) {
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 #' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 #' @param chol_slab_weight Bernoulli parameter for cholesky factor sparsity proportion
-#' @param spike_automatic Tuning parameter (small number, e.g. .1) corresponding to standard deviation of spike normal distribution
-#' @param slab_automatic Tuning parameter (large number, e.g. 10) corresponding to standard deviation of slab normal distribution
 #' @param intercept_var Hyperparameter for constant term
 #' @details
 #' Data: \eqn{X_0}, \eqn{Y_0}
@@ -424,8 +420,8 @@ build_chol <- function(diag_vec, off_diagvec) {
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, spike_automatic, slab_automatic, intercept_var) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, spike_automatic, slab_automatic, intercept_var)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1110,6 +1106,21 @@ vectorize_eigen <- function(x) {
 #' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
+}
+
+#' @noRd
+compute_inverse <- function(x) {
+    .Call(`_bvhar_compute_inverse`, x)
+}
+
+#' @noRd
+compute_choleksy_lower <- function(x) {
+    .Call(`_bvhar_compute_choleksy_lower`, x)
+}
+
+#' @noRd
+compute_choleksy_upper <- function(x) {
+    .Call(`_bvhar_compute_choleksy_upper`, x)
 }
 
 #' @noRd

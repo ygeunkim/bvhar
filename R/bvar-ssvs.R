@@ -6,7 +6,6 @@
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in
-#' @param num_thin Number of thinning
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -34,7 +33,6 @@ bvar_ssvs <- function(y,
                       p, 
                       num_iter, 
                       num_burn, 
-                      num_thin = 1L, 
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
                       include_mean = TRUE) {
@@ -74,10 +72,6 @@ bvar_ssvs <- function(y,
     name_lag <- name_lag[-dim_design] # colnames(X0)
     dim_design <- dim_design - 1 # df = no intercept
   }
-  # error for init_spec-----------------
-  if (!(nrow(init_spec$init_coef) == dim_design || ncol(init_spec$init_coef) == dim_data)) {
-    stop("Invalid model specification.")
-  }
   # length 1 of bayes_spec--------------
   num_restrict <- dim_data^2 * p # restrict only coefficients
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
@@ -99,38 +93,65 @@ bvar_ssvs <- function(y,
   if (length(bayes_spec$chol_spike) == 1) {
     bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
   }
+  if (length(bayes_spec$chol_slab) == 1) {
+    bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+  }
   if (length(bayes_spec$chol_mixture) == 1) {
     bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
   }
   # Temporary before making semiautomatic function---------
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+    # Conduct semiautomatic function using var_lm()
     stop("Specify spike-and-slab of coefficients.")
   }
   if (all(is.na(bayes_spec$chol_spike)) || all(is.na(bayes_spec$chol_slab))) {
+    # Conduct semiautomatic function using var_lm()
     stop("Specify spike-and-slab of cholesky factor.")
+  }
+  # Error----------------------------
+  if (!(nrow(init_spec$init_coef) == dim_design || ncol(init_spec$init_coef) == dim_data)) {
+    stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
+  }
+  if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
+    stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
+  }
+  if (!(
+    length(bayes_spec$coef_spike) == num_restrict &&
+    length(bayes_spec$coef_slab) == num_restrict &&
+    length(bayes_spec$coef_mixture) == num_restrict
+  )) {
+    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
+  }
+  if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
+    stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
+  }
+  if (!(
+    length(bayes_spec$chol_spike) == dim_data * (dim_data - 1) / 2 &&
+    length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
+    length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
+  )) {
+    stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
   }
   # MCMC-----------------------------
   ssvs_res <- estimate_bvar_ssvs(
-    num_iter,
-    num_burn,
-    X0,
-    Y0,
-    init_spec$init_coef, # initial alpha
-    diag(bayes_spec$init_chol), # initial psi_jj
-    init_spec$init_chol[upper.tri(bayes_spec$init_chol, diag = FALSE)], # initial psi_ij
-    init_spec$init_coef_dummy, # initial gamma
-    init_spec$init_chol_sparse, # initial omega
-    bayes_spec$coef_spike, # alpha spike
-    bayes_spec$coef_slab, # alpha slab
-    bayes_spec$coef_mixture, # pj
-    bayes_spec$chol_shape, # shape of gamma distn
-    bayes_spec$chol_rate, # rate of gamma distn
-    bayes_spec$chol_spike, # eta spike
-    bayes_spec$chol_slab, # eta slab
-    bayes_spec$chol_mixture, # qij
-    .1, # semi automatic
-    10, # semi automatic
-    .1 # c for constant c I
+    num_iter = num_iter,
+    num_burn = num_burn,
+    x = X0,
+    y = Y0,
+    init_coef = init_spec$init_coef, # initial alpha (matrix)
+    init_chol_diag = diag(init_spec$init_chol), # initial psi_jj (vector)
+    init_chol_upper = init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)], # initial psi_ij (vector)
+    init_coef_dummy = c(init_spec$init_coef_dummy), # initial gamma (vector)
+    init_chol_dummy = init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)], # initial omega (vector)
+    coef_spike = bayes_spec$coef_spike, # alpha spike (vector)
+    coef_slab = bayes_spec$coef_slab, # alpha slab (vector)
+    coef_slab_weight = bayes_spec$coef_mixture, # pj (vector)
+    shape = bayes_spec$shape, # shape of gamma distn (vector)
+    rate = bayes_spec$rate, # rate of gamma distn (vector)
+    chol_spike = bayes_spec$chol_spike, # eta spike (vector)
+    chol_slab = bayes_spec$chol_slab, # eta slab (vector)
+    chol_slab_weight = bayes_spec$chol_mixture, # qij (vector)
+    intercept_var = bayes_spec$coef_non # c for constant c I
   )
   class(ssvs_res) <- c("bvarssvs", "bvharmod")
   ssvs_res

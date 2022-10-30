@@ -40,18 +40,15 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
                               Eigen::VectorXd slab_sd,
                               Eigen::VectorXd mixture_dummy) {
   int num_param = spike_sd.size();
-  // if (spike_sd.size() != num_coef_vec) {
-  //   Rcpp::stop("The length of 'spike_sd' and 'slab_sd' should be the same.");
-  // }
-  // check outside of the function
-  if (mixture_dummy.size() != num_param) {
-    Rcpp::stop("The length of 'mixture_dummy' should be the same as the coefficient vector.");
-  }
-  Eigen::MatrixXd diag_sparse = Eigen::MatrixXd::Zero(num_param, num_param);
+  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
+  // double sd_val;
   for (int i = 0; i < num_param; i++) {
-    diag_sparse(i, i) = mixture_dummy(i) * spike_sd(i) + (1 - mixture_dummy(i)) * slab_sd(i); // spike_sd if mixture_dummy=1 while slab_sd if mixture_dummy=0
+    // spike_sd if mixture_dummy = 1 while slab_sd if mixture_dummy = 0
+    res(i, i) = mixture_dummy[i] * spike_sd[i] + (1.0 - mixture_dummy[i]) * slab_sd[i];
+    // sd_val = mixture_dummy[i] * spike_sd[i] + (1.0 - mixture_dummy[i]) * slab_sd[i];
+    // res(i, i) = pow(1 / sd_val, 2.0);
   }
-  return diag_sparse;
+  return res;
 }
 
 //' Generating Coefficient Vector in SSVS Gibbs Sampler
@@ -100,22 +97,21 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
   Eigen::MatrixXd lhs_kronecker = kronecker_eigen(prec_mat, XtX); // Sigma^(-1) otimes (X_0^T X_0)
   Eigen::MatrixXd normal_variance = (lhs_kronecker + prior_prec).inverse(); // Delta
   Eigen::VectorXd normal_mean = normal_variance * (lhs_kronecker * coef_ols + prior_prec * prior_mean); // mu
-  return vectorize_eigen(sim_mgaussian(1, normal_mean, normal_variance));
+  return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
 }
 
 //' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
 //' 
-//' In MCMC process of SSVS, generate latent \eqn{\gamma_j} or \eqn{\omegam_{ij}} conditional posterior.
+//' In MCMC process of SSVS, generate latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 //' 
 //' @param param_obs Realized parameters vector
 //' @param spike_sd Standard deviance for Spike normal distribution
 //' @param slab_sd Standard deviance for Slab normal distribution
-//' @param mixture_dummy Indicator vector (0-1) corresponding to each element
 //' @param slab_weight Proportion of nonzero coefficients
 //' @details
 //' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
 //' \deqn{
-//'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \mid Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
+//'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
 //' }
 //' If \eqn{R_j = I_{j - 1}},
 //' \deqn{
@@ -141,18 +137,17 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
 Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, 
                            Eigen::VectorXd spike_sd,
                            Eigen::VectorXd slab_sd,
-                           Eigen::VectorXd mixture_dummy,
                            Eigen::VectorXd slab_weight) {
   double bernoulli_param_spike;
   double bernoulli_param_slab;
-  int num_latent = mixture_dummy.size();
-  Eigen::VectorXd latent_prop(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
-  for (int i = 0; i < num_latent; i ++) {
-    bernoulli_param_spike = slab_weight(i) * exp(-pow(param_obs(i) / (2 * spike_sd(i)), 2.0)) / spike_sd(i);
-    bernoulli_param_slab = (1.0 - slab_weight(i)) * exp(-pow(param_obs(i) / (2 * slab_sd(i)), 2.0)) / slab_sd(i);
-    latent_prop(i) = binom_rand(1, bernoulli_param_spike / (bernoulli_param_spike + bernoulli_param_slab)); // qj-bar
+  int num_latent = slab_weight.size();
+  Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
+  for (int i = 0; i < num_latent; i++) {
+    bernoulli_param_spike = slab_weight[i] * exp(- pow(param_obs[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
+    bernoulli_param_slab = (1.0 - slab_weight[i]) * exp(- pow(param_obs[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
+    res[i] = binom_rand(1.0, bernoulli_param_spike / (bernoulli_param_spike + bernoulli_param_slab)); // qj-bar
   }
-  return latent_prop;
+  return res;
 }
 
 //' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -192,38 +187,32 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat,
                                Eigen::VectorXd shape,
                                Eigen::VectorXd rate,
                                int num_design) {
-  int dim = sse_mat.cols(); // m
+  int dim = sse_mat.cols();
   Eigen::VectorXd res(dim);
-  // double chol_diag;
-  // if (col_index == 0) {
-  //   rate += ZtZ(0, 0) / 2; // b[1] + v11
-  //   chol_diag = gamma_rand(shape, 1 / rate); // psi[jj]^2 ~ Gamma
-  //   return sqrt(chol_diag);
-  // }
-  // Eigen::MatrixXd z_j = sse_mat.block(0, 0, col_index, col_index); // V(j - 1)
-  // Eigen::MatrixXd diag_block = diag_sparse.block(0, 0, col_index, col_index); // Fj
-  // Eigen::MatrixXd large_mat(col_index, col_index);
-  // large_mat = z_j.transpose() * (z_j + (diag_block * diag_block).inverse()).inverse() * z_j;
-  // rate += (ZtZ(col_index, col_index) - large_mat(col_index, col_index)) / 2;
-  // chol_diag = gamma_rand(shape, 1 / rate); // psi[jj]^2 ~ Gamma
-  Eigen::MatrixXd sse_block(dim - 1, dim - 1);
-  Eigen::VectorXd sse_colvec(dim - 1);
-  shape.array() += num_design / 2;
+  Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
+  // shape.array() += num_design / 2.f;
+  shape.array() += (double)num_design / 2;
   rate[0] += sse_mat(0, 0) / 2;
-  for (int i = 0; i < dim; i++) {
-    sse_block = sse_mat.block(0, 0, i - 1, i - 1); // upper left (i - 1) x (i - 1)
-    sse_colvec = sse_mat.block(0, i, i - 1, 1); // (s1i, ..., si-1,i)
-    rate[i] += (sse_mat(i, i) - sse_colvec.transpose() * (sse_block + inv_DRD).inverse() * sse_colvec) / 2;
-    res[i] = gamma_rand(shape[i], 1 / rate[i]); // psi[jj]^2 ~ Gamma(shape, rate)
+  res[0] = gamma_rand(shape[0], 1 / rate[0]); // psi[11]^2 ~ Gamma(shape, rate)
+  int block_id = 0;
+  for (int j = 1; j < dim; j++) {
+    sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1); // (s1j, ..., sj-1,j)
+    rate[j] += (
+      sse_mat(j, j) - 
+        sse_colvec.segment(0, j).transpose() * 
+        (sse_mat.block(0, 0, j, j) + inv_DRD.block(block_id, block_id, j, j)).inverse() * 
+        sse_colvec.segment(0, j)
+    ) / 2;
+    res[j] = sqrt(gamma_rand(shape[j], 1 / rate[j])); // psi[jj]^2 ~ Gamma(shape, rate)
+    block_id += j;
   }
-  return res.sqrt();
+  return res;
 }
 
 //' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 //' 
 //' In MCMC process of SSVS, generate the off-diagonal component \eqn{\Psi} of variance matrix
 //' 
-//' @param col_index Choose the column index of cholesky factor
 //' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
 //' @param chol_diag Diagonal element of the cholesky factor
 //' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
@@ -243,18 +232,23 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat,
 //' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd ssvs_chol_off(int col_index, 
-                              Eigen::MatrixXd sse_mat, 
+Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, 
                               Eigen::VectorXd chol_diag, 
                               Eigen::MatrixXd inv_DRD) {
-  int dim = sse_mat.cols(); // m
-  if (chol_diag.size() != dim) {
-    Rcpp::stop("Wrong length of 'chol_diag'.");
+  int dim = sse_mat.cols();
+  Eigen::MatrixXd normal_variance(dim - 1, dim - 1);
+  Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
+  Eigen::VectorXd normal_mean(dim - 1);
+  Eigen::VectorXd res(inv_DRD.cols());
+  int block_id = 0;
+  for (int j = 1; j < dim; j++) {
+    sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1);
+    normal_variance.block(0, 0, j, j) = (sse_mat.block(0, 0, j, j) + inv_DRD.block(block_id, block_id, j, j)).inverse();
+    normal_mean.segment(0, j) = -chol_diag[j] * normal_variance.block(0, 0, j, j) * sse_colvec.segment(0, j);
+    res.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+    block_id += j;
   }
-  Eigen::MatrixXd normal_variance = (sse_mat.block(0, 0, col_index, col_index) + inv_DRD).inverse();
-  Eigen::VectorXd sse_colvec = sse_mat.block(0, col_index, col_index, 1);
-  Eigen::VectorXd normal_mean = -chol_diag[col_index] * normal_variance * sse_colvec;
-  return vectorize_eigen(sim_mgaussian(1, normal_mean, normal_variance));
+  return res;
 }
 
 //' Filling Cholesky Factor Upper Triangular Matrix
@@ -282,10 +276,9 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
   res.diagonal() = diag_vec; // psi_ii
   int id = 0; // length of eta = m(m-1)/2
-  // should assign eta (off_diagvec) column-wise
   for (int j = 1; j < dim; j++) {
-    // res(j, j) = diag_vec(j);
     for (int i = 0; i < j; i++) {
+      // should assign eta (off_diagvec) column-wise
       res(i, j) = off_diagvec[id + i];
     }
     id += j;
@@ -315,8 +308,6 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 //' @param chol_slab_weight Bernoulli parameter for cholesky factor sparsity proportion
-//' @param spike_automatic Tuning parameter (small number, e.g. .1) corresponding to standard deviation of spike normal distribution
-//' @param slab_automatic Tuning parameter (large number, e.g. 10) corresponding to standard deviation of slab normal distribution
 //' @param intercept_var Hyperparameter for constant term
 //' @details
 //' Data: \eqn{X_0}, \eqn{Y_0}
@@ -368,130 +359,97 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd chol_spike,
                               Eigen::VectorXd chol_slab,
                               Eigen::VectorXd chol_slab_weight,
-                              double spike_automatic,
-                              double slab_automatic,
                               double intercept_var) {
-  int dim = y.cols(); // dim = k
-  int dim_design = x.cols(); // kp(+1)
+  int dim = y.cols();
+  int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
   int num_upperchol = init_chol_upper.size(); // number of upper cholesky = dim (dim - 1) / 2
-  if (!(spike_automatic <= 0 && slab_automatic <= 0 && intercept_var && 0)) {
-    Rcpp::stop("'spike_automatic', 'slab_automatic', and 'intercept_var' should be positive.");
-  }
-  if (!(init_chol_diag.size() == dim && shape.size() == dim && rate.size() == dim)) {
-    Rcpp::stop("Size of 'init_chol_diag', 'shape', and 'rate' vector should be the same as the time series dimension.");
-  }
-  if (!(init_chol_upper.size() == dim * (dim - 1) / 2 && 
-      init_chol_dummy.size() == init_chol_upper.size() &&
-      chol_spike.size() == init_chol_upper.size() && 
-      chol_slab.size() == init_chol_upper.size() &&
-      chol_slab_weight.size() == init_chol_upper.size())) {
-    Rcpp::stop("Size of 'init_chol_upper', 'init_chol_dummy', 'chol_spike', 'chol_slab', and 'chol_slab_weight' vector should be the same as dim * (dim - 1) / 2.");
-  }
   // Initialize coefficients vector-------------------------------
-  int num_coef = dim * dim_design; // dim * (kp(+1))
-  int num_restrict = num_coef - dim; // number of restricted coefs: k^2p
-  int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): k
-  if (!(init_coef.cols() == dim && init_coef.rows() == dim_design)) {
-    Rcpp::stop("Dimension of 'init_coef' should be (dim * p) x dim.");
-  }
-  if (!(init_coef_dummy.size() == num_restrict && 
-      coef_spike.size() == num_restrict && 
-      coef_slab.size() == num_restrict && 
-      coef_slab_weight.size() == num_restrict)) {
-    Rcpp::stop("Size of 'init_coef_dummy', 'coef_spike', 'coef_slab', and 'coef_slab_weight' vector should be the same as dim^2 * p.");
-  }
-  // Eigen::VectorXd coef_vec(num_coef);
+  int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
+  int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
+  int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): dim vs -dim (if no constant)
   Eigen::VectorXd coef_vec = vectorize_eigen(init_coef);
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
-  Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI and DRD
-  Eigen::MatrixXd coef_corr = Eigen::MatrixXd::Identity(num_restrict, num_restrict); // R
+  Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
+  // Eigen::MatrixXd prior_precision = Eigen::MatrixXd::Zero(num_coef, num_coef);
   Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
   Eigen::MatrixXd DRD = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // DRD
+  // Eigen::MatrixXd DRD_inv = Eigen::MatrixXd::Zero(num_restrict, num_restrict);
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
-  // Eigen::VectorXd coefvec_ols(num_coef);
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
   // record-------------------------------------------------------
   int num_mcmc = num_iter + num_burn;
-  Eigen::MatrixXd coef_record(num_restrict, num_mcmc);
+  Eigen::MatrixXd coef_record(num_mcmc, num_coef);
+  // Eigen::SparseMatrix<double> coef_record(num_mcmc, num_coef);
   coef_record.row(0) = coef_vec;
-  Eigen::MatrixXd coef_dummy_record(num_restrict, num_mcmc);
+  Eigen::MatrixXd coef_dummy_record(num_mcmc, num_restrict);
   coef_dummy_record.row(0) = init_coef_dummy;
-  Eigen::MatrixXd chol_diag_record(dim, num_mcmc);
+  Eigen::MatrixXd chol_diag_record(num_mcmc, dim);
   chol_diag_record.row(0) = init_chol_diag;
-  Eigen::MatrixXd chol_upper_record(num_upperchol, num_mcmc);
+  Eigen::MatrixXd chol_upper_record(num_mcmc, num_upperchol);
   chol_upper_record.row(0) = init_chol_upper;
-  Eigen::MatrixXd chol_dummy_record(num_upperchol, num_mcmc);
+  Eigen::MatrixXd chol_dummy_record(num_mcmc, num_upperchol);
   chol_dummy_record.row(0) = init_chol_dummy;
   // 3d array?
   // Some variables-----------------------------------------------
-  // Eigen::MatrixXd fitted_mat = x * coef_ols;
   Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
   Eigen::MatrixXd chol_factor(dim, dim); // Psi = upper triangular matrix
-  Eigen::MatrixXd sse_block = sse_mat.block(0, 0, dim - 1, dim - 1); // Sj = upper-left j x j submatrix of SSE
-  Eigen::VectorXd sse_colvec = sse_mat.block(0, dim - 1, dim - 1, 1); // sj = (s1j, ..., s(j-1, j)) from SSE
-  Eigen::MatrixXd chol_corr = Eigen::MatrixXd::Identity(dim - 1, dim - 1); // Rj = I(j - 1)
-  Eigen::MatrixXd chol_mixture_mat(dim - 1, dim - 1); // Dj = diag(h1j, ..., h(j-1,j))
-  // Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
-  Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(dim - 1, dim - 1); // DjRjDj^(-1)
-  // Eigen::VectorXd posterior_shape(dim);
-  // Eigen::VectorXd posterior_rate(dim);
-  // Semi-automatic approach--------------------------------------
-  // Eigen::VectorXd ols_sd = sse_mat.diagonal().sqrt() / (num_design - dim_design); // OLS sd
-  // Eigen::VectorXd coef_spike = spike_automatic * ols_sd; // sd of coef spike normal distribution (tau0j = c0 sd(alphaj-hat))
-  // Eigen::VectorXd coef_slab = slab_automatic * ols_sd; // sd of coef slab normal distribution (tau1j = c1 sd(alphaj-hat))
-  // Outside of function? Preliminary MCMC -> get sd of alpha-hat
+  Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
+  Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
-  int id_diag = 0; // id for diagonal psi vector
-  int id_upper = 0; // id for upper psi vector
   for (int i = 1; i < num_mcmc; i++) {
-    // 1. Psi
-    chol_mixture_mat.block(0, 0, i - 1, i - 1) = build_ssvs_sd(chol_spike.segment(id_diag, id_diag + i - 1), chol_slab.segment(id_diag, id_diag + i - 1), chol_dummy_record.row(i - 1));
-    id_diag += i;
-    if (i > 0) {
-      chol_prior_prec.block(0, 0, i - 1, i - 1) = (chol_mixture_mat.block(0, 0, i - 1, i - 1) * 
-        chol_corr.block(0, 0, i - 1, i - 1) * 
-        chol_mixture_mat.block(0, 0, i - 1, i - 1)).inverse();
-    }
-    chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_prior_prec.block(0, 0, i - 1, i - 1), shape, rate, num_design);
-    // 2. eta
-    for (int j = 1; j < dim; j++) {
-      // for each col_index (eta2 to etak)
-      chol_upper_record.block(i, id_upper, 1, j) = ssvs_chol_off(j, sse_mat, chol_diag_record.row(i), chol_prior_prec.block(0, 0, i - 1, i - 1));
-      id_upper += j;
-    }
-    id_upper = 0;
+    // 1. Psi--------------------------
+    chol_mixture_mat = build_ssvs_sd(
+      chol_spike,
+      chol_slab,
+      chol_dummy_record.row(i - 1)
+    );
+    chol_prior_prec = (chol_mixture_mat * chol_mixture_mat).inverse();
+    // chol_prior_prec = build_ssvs_sd(
+    //   chol_spike,
+    //   chol_slab,
+    //   chol_dummy_record.row(i - 1)
+    // );
+    chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_prior_prec, shape, rate, num_design);
+    // 2. eta---------------------------
+    chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_prior_prec);
     chol_factor = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
-    // 3. omega
-    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_dummy_record.row(i - 1), chol_slab_weight);
-    // 4. alpha
+    // 3. omega--------------------------
+    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_slab_weight);
+    // 4. alpha--------------------------
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
-    DRD = coef_mixture_mat * coef_corr * coef_mixture_mat;
+    DRD = coef_mixture_mat * coef_mixture_mat;
+    // DRD_inv = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
     if (num_non == dim) {
       // constant case
       for (int j = 0; j < dim; j++) {
-        prior_variance.block(j * dim_design, j * dim_design, num_restrict / dim, num_restrict / dim) = 
-          DRD.block(j, j, num_restrict / dim, num_restrict / dim);
+        prior_variance.block(j * dim_design, j * dim_design, num_restrict / dim, num_restrict / dim) =
+          DRD.block(j * num_restrict / dim, j * num_restrict / dim, num_restrict / dim, num_restrict / dim); // kp x kp
         prior_variance(j * dim_design + num_restrict / dim, j * dim_design + num_restrict / dim) = intercept_var;
+        // prior_precision.block(j * dim_design, j * dim_design, num_restrict / dim, num_restrict / dim) =
+        //   DRD_inv.block(j, j, num_restrict / dim, num_restrict / dim);
+        // prior_precision(j * dim_design + num_restrict / dim, j * dim_design + num_restrict / dim) = 1 / intercept_var;
       }
     } else if (num_non == -dim) {
       // no constant term
       prior_variance = DRD;
+      // prior_precision = DRD_inv;
     }
     coef_record.row(i) = ssvs_coef(prior_mean, prior_variance.inverse(), XtX, coefvec_ols, chol_factor);
-    // 5. gamma
-    chol_dummy_record.row(i) = ssvs_dummy(coef_record.row(i), coef_spike, coef_slab, coef_dummy_record.row(i - 1), coef_slab_weight);
+    // coef_record.row(i) = ssvs_coef(prior_mean, prior_precision, XtX, coefvec_ols, chol_factor);
+    // 5. gamma-------------------------
+    coef_dummy_record.row(i) = ssvs_dummy(coef_record.row(i), coef_spike, coef_slab, coef_slab_weight);
   }
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record.block(0, num_burn - 1, num_restrict, num_mcmc),
-    Rcpp::Named("psi_ij_record") = chol_upper_record.block(0, num_burn - 1, num_upperchol, num_mcmc),
-    Rcpp::Named("psi_jj_record") = chol_diag_record.block(0, num_burn - 1, dim, num_mcmc),
-    Rcpp::Named("omega_ij_record") = chol_dummy_record.block(0, num_burn - 1, num_upperchol, num_mcmc),
-    Rcpp::Named("tau_record") = coef_dummy_record.block(0, num_burn - 1, num_restrict, num_mcmc),
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter),
+    Rcpp::Named("psi_ij_record") = chol_upper_record.bottomRows(num_iter),
+    Rcpp::Named("psi_jj_record") = chol_diag_record.bottomRows(num_iter),
+    Rcpp::Named("omega_ij_record") = chol_dummy_record.bottomRows(num_iter),
+    Rcpp::Named("tau_record") = coef_dummy_record.bottomRows(num_iter),
     Rcpp::Named("psi") = chol_factor,
     Rcpp::Named("sse") = sse_mat,
-    Rcpp::Named("coef_vec") = coefvec_ols,
+    // Rcpp::Named("coef_vec") = coefvec_ols,
     Rcpp::Named("coefficients") = coef_ols
   );
 }

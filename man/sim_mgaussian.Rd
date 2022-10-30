@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{sim_mgaussian}
 \alias{sim_mgaussian}
-\title{Generate Multivariate Normal Random Vector with Zero Mean}
+\title{Generate Multivariate Normal Random Vector}
 \usage{
 sim_mgaussian(num_sim, mu, sig)
 }
@@ -14,7 +14,7 @@ sim_mgaussian(num_sim, mu, sig)
 \item{sig}{Variance matrix}
 }
 \description{
-This function samples n x muti-dimensional normal random matrix with zero mean vector.
+This function samples n x muti-dimensional normal random matrix.
 }
 \details{
 Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.

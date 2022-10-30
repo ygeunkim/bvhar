@@ -5,6 +5,7 @@
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
 #' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
+#' @param coef_non Hyperparameter for constant term
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
@@ -53,6 +54,7 @@
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
                      coef_mixture = .5,
+                     coef_non = .1,
                      shape = .01,
                      rate = .01,
                      chol_spike = .1,
@@ -64,6 +66,12 @@ set_ssvs <- function(coef_spike = .1,
         is.vector(shape) &&
         is.vector(rate))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', and 'rate' be a vector.")
+  }
+  if (length(coef_non) != 1) {
+    stop("'coef_non' should be length 1 numeric.")
+  }
+  if (coef_non < 0) {
+    stop("'coef_non' should be positive.")
   }
   if (!(is.numeric(chol_spike) ||
         is.vector(chol_spike) || 
@@ -80,7 +88,8 @@ set_ssvs <- function(coef_spike = .1,
   coef_param <- list(
     coef_spike = coef_spike,
     coef_slab = coef_slab,
-    coef_mixture = coef_mixture
+    coef_mixture = coef_mixture,
+    coef_non = coef_non
   )
   len_param <- sapply(coef_param, length)
   if (length(unique(len_param[len_param != 1])) > 1) {
@@ -137,19 +146,21 @@ set_ssvs <- function(coef_spike = .1,
 #' @details 
 #' Get the default SSVS setting for given VAR model.
 #' 
-#' @references
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://doi.org/10.1016/j.ijforecast.2009.11.002)
-#' 
+#' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @order 1
 #' @export
 init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   dim_design <- nrow(init_coef) # kp(+1)
   dim_data <- ncol(init_coef) # k = dim
-  if (!(nrow(init_coef_dummy) == dim_design || ncol(init_coef_dummy) == dim_data)) {
-    stop("Invalid dimension of 'init_coef_dummy'.")
+  if (!(nrow(init_coef_dummy) == dim_design && ncol(init_coef_dummy) == dim_data)) {
+    if (!(nrow(init_coef_dummy) == dim_design - 1 && ncol(init_coef_dummy) == dim_data)) {
+      stop("Invalid dimension of 'init_coef_dummy'.")
+    }
   }
-  if (!(nrow(init_chol) == dim_data || ncol(init_chol) == dim_data)) {
+  if (!(nrow(init_chol) == dim_data && ncol(init_chol) == dim_data)) {
     stop("Invalid dimension of 'init_chol'.")
   }
   if (any(init_chol[lower.tri(init_chol, diag = TRUE)] != 0)) {

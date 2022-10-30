@@ -9,7 +9,6 @@ bvar_ssvs(
   p,
   num_iter,
   num_burn,
-  num_thin = 1L,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
   include_mean = TRUE
@@ -23,8 +22,6 @@ bvar_ssvs(
 \item{num_iter}{MCMC iteration number}
 
 \item{num_burn}{Number of burn-in}
-
-\item{num_thin}{Number of thinning}
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 

@@ -11,7 +11,7 @@
 \alias{is.bvharspec}
 \alias{is.bvharemp}
 \alias{is.boundbvharemp}
-\alias{is.bssvsinput}
+\alias{is.ssvsinput}
 \alias{is.ssvsinit}
 \title{See if the Object a class in this package}
 \usage{
@@ -35,7 +35,7 @@ is.bvharemp(x)
 
 is.boundbvharemp(x)
 
-is.bssvsinput(x)
+is.ssvsinput(x)
 
 is.ssvsinit(x)
 }

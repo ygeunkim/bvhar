@@ -8,6 +8,7 @@ set_ssvs(
   coef_spike = 0.1,
   coef_slab = 5,
   coef_mixture = 0.5,
+  coef_non = 0.1,
   shape = 0.01,
   rate = 0.01,
   chol_spike = 0.1,
@@ -21,6 +22,8 @@ set_ssvs(
 \item{coef_slab}{Standard deviance for Slab normal distribution (See Details).}
 
 \item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
+
+\item{coef_non}{Hyperparameter for constant term}
 
 \item{shape}{Gamma shape parameters for precision matrix (See Details).}
 

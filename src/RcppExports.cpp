@@ -145,17 +145,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssvs_dummy
-Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy, Eigen::VectorXd slab_weight);
-RcppExport SEXP _bvhar_ssvs_dummy(SEXP param_obsSEXP, SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP, SEXP slab_weightSEXP) {
+Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd slab_weight);
+RcppExport SEXP _bvhar_ssvs_dummy(SEXP param_obsSEXP, SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP slab_weightSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type param_obs(param_obsSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type spike_sd(spike_sdSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type slab_sd(slab_sdSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mixture_dummy(mixture_dummySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type slab_weight(slab_weightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_dummy(param_obs, spike_sd, slab_sd, mixture_dummy, slab_weight));
+    rcpp_result_gen = Rcpp::wrap(ssvs_dummy(param_obs, spike_sd, slab_sd, slab_weight));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -175,16 +174,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssvs_chol_off
-Eigen::VectorXd ssvs_chol_off(int col_index, Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::MatrixXd inv_DRD);
-RcppExport SEXP _bvhar_ssvs_chol_off(SEXP col_indexSEXP, SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP inv_DRDSEXP) {
+Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::MatrixXd inv_DRD);
+RcppExport SEXP _bvhar_ssvs_chol_off(SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP inv_DRDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type col_index(col_indexSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sse_mat(sse_matSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_diag(chol_diagSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type inv_DRD(inv_DRDSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_chol_off(col_index, sse_mat, chol_diag, inv_DRD));
+    rcpp_result_gen = Rcpp::wrap(ssvs_chol_off(sse_mat, chol_diag, inv_DRD));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -201,8 +199,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_ssvs
-Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double spike_automatic, double slab_automatic, double intercept_var);
-RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP spike_automaticSEXP, SEXP slab_automaticSEXP, SEXP intercept_varSEXP) {
+Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double intercept_var);
+RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_varSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -223,10 +221,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_spike(chol_spikeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab(chol_slabSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab_weight(chol_slab_weightSEXP);
-    Rcpp::traits::input_parameter< double >::type spike_automatic(spike_automaticSEXP);
-    Rcpp::traits::input_parameter< double >::type slab_automatic(slab_automaticSEXP);
     Rcpp::traits::input_parameter< double >::type intercept_var(intercept_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, spike_automatic, slab_automatic, intercept_var));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -773,6 +769,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_inverse
+Eigen::MatrixXd compute_inverse(Eigen::MatrixXd x);
+RcppExport SEXP _bvhar_compute_inverse(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_inverse(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_choleksy_lower
+Eigen::MatrixXd compute_choleksy_lower(Eigen::MatrixXd x);
+RcppExport SEXP _bvhar_compute_choleksy_lower(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_choleksy_lower(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_choleksy_upper
+Eigen::MatrixXd compute_choleksy_upper(Eigen::MatrixXd x);
+RcppExport SEXP _bvhar_compute_choleksy_upper(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_choleksy_upper(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // qr_eigen
 Rcpp::List qr_eigen(Eigen::Map<Eigen::MatrixXd> x);
 RcppExport SEXP _bvhar_qr_eigen(SEXP xSEXP) {
@@ -937,11 +966,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_coef", (DL_FUNC) &_bvhar_ssvs_coef, 5},
-    {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 5},
+    {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 4},
     {"_bvhar_ssvs_chol_diag", (DL_FUNC) &_bvhar_ssvs_chol_diag, 5},
-    {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 4},
+    {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},
     {"_bvhar_build_chol", (DL_FUNC) &_bvhar_build_chol, 2},
-    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 20},
+    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 18},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
@@ -983,6 +1012,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
+    {"_bvhar_compute_inverse", (DL_FUNC) &_bvhar_compute_inverse, 1},
+    {"_bvhar_compute_choleksy_lower", (DL_FUNC) &_bvhar_compute_choleksy_lower, 1},
+    {"_bvhar_compute_choleksy_upper", (DL_FUNC) &_bvhar_compute_choleksy_upper, 1},
     {"_bvhar_qr_eigen", (DL_FUNC) &_bvhar_qr_eigen, 1},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
