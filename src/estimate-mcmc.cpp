@@ -43,8 +43,8 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
   // double sd_val;
   for (int i = 0; i < num_param; i++) {
-    // spike_sd if mixture_dummy = 1 while slab_sd if mixture_dummy = 0
-    res(i, i) = mixture_dummy[i] * spike_sd[i] + (1.0 - mixture_dummy[i]) * slab_sd[i];
+    // spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
+    res(i, i) = (1.0 - mixture_dummy[i]) * spike_sd[i] + mixture_dummy[i] * slab_sd[i];
     // sd_val = mixture_dummy[i] * spike_sd[i] + (1.0 - mixture_dummy[i]) * slab_sd[i];
     // res(i, i) = pow(1 / sd_val, 2.0);
   }
@@ -115,8 +115,8 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
 //' }
 //' If \eqn{R_j = I_{j - 1}},
 //' \deqn{
-//'   u_{ij1} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) \exp(- \frac{\psi_{1ij}^2}{2 \kappa_{0ij}^2}) q_{ij},
-//'   u_{ij2} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) \exp(- \frac{\psi_{0ij}^2}{2 \kappa_{1ij}^2}) (1 - q_{ij})
+//'   u_{ij1} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
+//'   u_{ij2} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
 //' }
 //' Otherwise, see George et al. (2008).
 //' Also,
@@ -125,8 +125,8 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
 //' }
 //' Similarly, if \eqn{R = I_{k^2 p}},
 //' \deqn{
-//'   u_{j1} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})p_i,
-//'   u_{j2} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})(1 - p_i)
+//'   u_{j1} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})p_i,
+//'   u_{j2} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})(1 - p_i)
 //' }
 //' @references
 //' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
@@ -143,9 +143,9 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs,
   int num_latent = slab_weight.size();
   Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
   for (int i = 0; i < num_latent; i++) {
-    bernoulli_param_spike = slab_weight[i] * exp(- pow(param_obs[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
-    bernoulli_param_slab = (1.0 - slab_weight[i]) * exp(- pow(param_obs[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
-    res[i] = binom_rand(1.0, bernoulli_param_spike / (bernoulli_param_spike + bernoulli_param_slab)); // qj-bar
+    bernoulli_param_slab = slab_weight[i] * exp(- pow(param_obs[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
+    bernoulli_param_spike = (1.0 - slab_weight[i]) * exp(- pow(param_obs[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
+    res[i] = binom_rand(1.0, bernoulli_param_slab / (bernoulli_param_slab + bernoulli_param_spike)); // qj-bar
   }
   return res;
 }
@@ -193,7 +193,7 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat,
   // shape.array() += num_design / 2.f;
   shape.array() += (double)num_design / 2;
   rate[0] += sse_mat(0, 0) / 2;
-  res[0] = gamma_rand(shape[0], 1 / rate[0]); // psi[11]^2 ~ Gamma(shape, rate)
+  res[0] = sqrt(gamma_rand(shape[0], 1 / rate[0])); // psi[11]^2 ~ Gamma(shape, rate)
   int block_id = 0;
   for (int j = 1; j < dim; j++) {
     sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1); // (s1j, ..., sj-1,j)
@@ -391,10 +391,10 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   chol_upper_record.row(0) = init_chol_upper;
   Eigen::MatrixXd chol_dummy_record(num_mcmc, num_upperchol);
   chol_dummy_record.row(0) = init_chol_dummy;
-  // 3d array?
+  Eigen::MatrixXd chol_factor_record(dim * num_mcmc, dim); // 3d matrix alternative
   // Some variables-----------------------------------------------
   Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
-  Eigen::MatrixXd chol_factor(dim, dim); // Psi = upper triangular matrix
+  // Eigen::MatrixXd chol_factor(dim, dim); // Psi = upper triangular matrix
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
@@ -414,7 +414,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_prior_prec, shape, rate, num_design);
     // 2. eta---------------------------
     chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_prior_prec);
-    chol_factor = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
+    // chol_factor = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
+    // chol_factor_record.block(i * dim, 0, dim, dim) = chol_factor;
+    chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
     // 3. omega--------------------------
     chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_slab_weight);
     // 4. alpha--------------------------
@@ -436,7 +438,13 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       prior_variance = DRD;
       // prior_precision = DRD_inv;
     }
-    coef_record.row(i) = ssvs_coef(prior_mean, prior_variance.inverse(), XtX, coefvec_ols, chol_factor);
+    coef_record.row(i) = ssvs_coef(
+      prior_mean, 
+      prior_variance.inverse(), 
+      XtX, 
+      coefvec_ols, 
+      chol_factor_record.block(i * dim, 0, dim, dim)
+    );
     // coef_record.row(i) = ssvs_coef(prior_mean, prior_precision, XtX, coefvec_ols, chol_factor);
     // 5. gamma-------------------------
     coef_dummy_record.row(i) = ssvs_dummy(coef_record.row(i), coef_spike, coef_slab, coef_slab_weight);
@@ -447,9 +455,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("psi_jj_record") = chol_diag_record.bottomRows(num_iter),
     Rcpp::Named("omega_ij_record") = chol_dummy_record.bottomRows(num_iter),
     Rcpp::Named("tau_record") = coef_dummy_record.bottomRows(num_iter),
-    Rcpp::Named("psi") = chol_factor,
+    Rcpp::Named("psi_record") = chol_factor_record,
     Rcpp::Named("sse") = sse_mat,
-    // Rcpp::Named("coef_vec") = coefvec_ols,
     Rcpp::Named("coefficients") = coef_ols
   );
 }

@@ -170,7 +170,7 @@ fit <- bvar_ssvs(
   y = var_data,
   p = 1,
   num_iter = 100,
-  num_burn = 50,
+  num_burn = 20,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
   include_mean = TRUE
@@ -193,13 +193,16 @@ var_coef
 Average of the restriction indices $\omega$ over all 100 samples:
 
 ```{r omegaresult}
-colMeans(fit$omega_ij_record)
+omega_mean <- matrix(0L, nrow = nrow(init_omega), ncol = ncol(init_omega))
+diag(omega_mean) <- 1
+omega_mean[upper.tri(omega_mean, diag = FALSE)] <- colMeans(fit$omega_ij_record)
+omega_mean
 ```
 
 Compare with:
 
 ```{r truepsi}
-var_chol[upper.tri(var_chol, diag = FALSE)]
+var_chol
 ```
 
 

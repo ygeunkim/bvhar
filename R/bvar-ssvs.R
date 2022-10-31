@@ -153,6 +153,25 @@ bvar_ssvs <- function(y,
     chol_slab_weight = bayes_spec$chol_mixture, # qij (vector)
     intercept_var = bayes_spec$coef_non # c for constant c I
   )
+  # preprocess the results------------
+  
+  # variables------------
+  ssvs_res$df <- dim_design
+  ssvs_res$p <- p
+  ssvs_res$m <- dim_data
+  ssvs_res$obs <- nrow(Y0)
+  ssvs_res$totobs <- nrow(y)
+  # model-----------------
+  ssvs_res$call <- match.call()
+  ssvs_res$process <- "VAR_ssvs"
+  ssvs_res$type <- ifelse(include_mean, "const", "none")
+  ssvs_res$spec <- bayes_spec
+  ssvs_res$init <- init_spec
+  # data------------------
+  ssvs_res$y0 <- Y0
+  ssvs_res$design <- X0
+  ssvs_res$y <- y
+  # return S3 object------
   class(ssvs_res) <- c("bvarssvs", "bvharmod")
   ssvs_res
 }

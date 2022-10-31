@@ -156,8 +156,8 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     df = k, # k = m * p + 1 or m * p
     p = p, # p
     m = m, # m = dimension of Y_t
-    obs = s, # s = n - p
-    totobs = nrow(y), # n = total number of sample size
+    obs = s, # n = T - p
+    totobs = nrow(y), # T = total number of sample size
     # about model----------
     call = match.call(),
     process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),

@@ -259,8 +259,8 @@ ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
 #' }
 #' If \eqn{R_j = I_{j - 1}},
 #' \deqn{
-#'   u_{ij1} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) \exp(- \frac{\psi_{1ij}^2}{2 \kappa_{0ij}^2}) q_{ij},
-#'   u_{ij2} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) \exp(- \frac{\psi_{0ij}^2}{2 \kappa_{1ij}^2}) (1 - q_{ij})
+#'   u_{ij1} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
+#'   u_{ij2} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
 #' }
 #' Otherwise, see George et al. (2008).
 #' Also,
@@ -269,8 +269,8 @@ ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
 #' }
 #' Similarly, if \eqn{R = I_{k^2 p}},
 #' \deqn{
-#'   u_{j1} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})p_i,
-#'   u_{j2} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})(1 - p_i)
+#'   u_{j1} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})p_i,
+#'   u_{j2} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})(1 - p_i)
 #' }
 #' @references
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
