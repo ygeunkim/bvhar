@@ -163,7 +163,7 @@ bvar_ssvs <- function(y,
   ssvs_res$totobs <- nrow(y)
   # model-----------------
   ssvs_res$call <- match.call()
-  ssvs_res$process <- "VAR_ssvs"
+  ssvs_res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
   ssvs_res$type <- ifelse(include_mean, "const", "none")
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
@@ -172,6 +172,6 @@ bvar_ssvs <- function(y,
   ssvs_res$design <- X0
   ssvs_res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvarssvs", "bvharmod")
+  class(ssvs_res) <- c("bvarsp", "bvharssvs", "bvharmod")
   ssvs_res
 }

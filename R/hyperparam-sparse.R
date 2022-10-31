@@ -115,6 +115,8 @@ set_ssvs <- function(coef_spike = .1,
     chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
   }
   chol_param <- list(
+    process = "BVAR",
+    prior = "SSVS",
     shape = shape,
     rate = rate,
     chol_spike = chol_spike, 
