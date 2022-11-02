@@ -47,10 +47,10 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 
-MCMC is used for the estimation.
+Gibbs sampler is used for the estimation.
 }
 \references{
-Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via\%3Dihub}{10.1016/j.ijforecast.2009.11.002}
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via\%3Dihub}{10.1016/j.jeconom.2007.08.017}
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:\href{http://dx.doi.org/10.1561/0800000013}{10.1561/0800000013}
 }

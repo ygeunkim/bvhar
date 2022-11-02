@@ -150,8 +150,6 @@ Before starting MCMC, set initial values.
 
 ```{r initset}
 # Upper triangular matrix----------------------
-# init_chol <- matrix(1e-5, nrow = 6L, ncol = 6L)
-# init_chol[lower.tri(init_chol, diag = TRUE)] <- 0L
 init_omega <- matrix(1L, nrow = 6L, ncol = 6L)
 init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 # initial values specification-----------------

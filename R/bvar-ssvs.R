@@ -22,12 +22,11 @@
 #' \deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
 #' \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 #' 
-#' MCMC is used for the estimation.
-#' 
+#' Gibbs sampler is used for the estimation.
 #' @references 
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://www.sciencedirect.com/science/article/abs/pii/S0169207009001782?via%3Dihub)
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001753?via%3Dihub)
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
@@ -124,21 +123,48 @@ bvar_ssvs <- function(y,
   init_chol_diag <- diag(init_spec$init_chol)
   init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
   init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
+  
+  
+  # when parallel sampling chains-----------------------------
+  # change set_init function
+  # input: 3d array or list
+  
+  
   if (chain > 1) {
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef)}))) == 1) {
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef)}))) != 1) {
       stop("Dimension of 'init_coef' across every chain should be the same.")
+    }
+    if (any(
+      unlist(lapply(
+        seq_along(init_spec)[-1],
+        function(x) {
+          identical(init_spec[[1]]$init_coef, init_spec[[x]]$init_coef)
+        }
+      ))
+    )) {
+      stop("Initial setting of 'init_coef' in each chain should be different.")
     }
     init_coef <- 
       lapply(init_spec, function(x) {c(x$init_coef)}) %>% 
       unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef_dummy)}))) == 1) {
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef_dummy)}))) != 1) {
       stop("Dimension of 'init_coef_dummy' across every chain should be the same.")
     }
     init_coef_dummy <- 
       lapply(init_spec, function(x) {c(x$init_coef_dummy)}) %>% 
       unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol)}))) == 1) {
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol)}))) != 1) {
       stop("Dimension of 'init_chol' across every chain should be the same.")
+    }
+    if (any(
+      unlist(lapply(
+        seq_along(init_spec)[-1],
+        function(x) {
+          identical(init_spec[[1]]$init_chol, init_spec[[x]]$init_chol)
+        }
+      ))
+    )) {
+      stop("Initial setting of 'init_chol' in each chain should be different.")
     }
     init_chol_diag <- 
       lapply(init_spec, function(x) {diag(x$init_chol)}) %>% 
@@ -146,7 +172,7 @@ bvar_ssvs <- function(y,
     init_chol_upper <- 
       lapply(init_spec, function(x) {x$init_chol[upper.tri(x$init_chol, diag = FALSE)]}) %>% 
       unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol_dummy)}))) == 1) {
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol_dummy)}))) != 1) {
       stop("Dimension of 'init_chol_dummy' across every chain should be the same.")
     }
     init_chol_dummy <- 

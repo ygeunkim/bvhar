@@ -273,12 +273,145 @@ NULL
 #' @name var_vec_formulation
 NULL
 
-#' Stochastic Search Variable Selection in VAR and VHAR
+#' Stochastic Search Variable Selection in VAR
 #' 
 #' @description 
 #' This page describes a stochastic search variable selection (SSVS) MCMC algorithm
-#' in VAR and VHAR models.
+#' in a VAR model.
+#' 
+#' # SSVS Prior
+#' 
+#' Let \eqn{(\gamma_1, \ldots, \gamma_k)^\intercal} be dummy variables restricting coefficients vector.
+#' Then
+#' \deqn{
+#'   h_i = \begin{cases}
+#'     \tau_{0i} & \text{if } \gamma_i = 0 \\
+#'     \tau_{1i} & \text{if } \gamma_i = 1
+#'   \end{cases}
+#' }
+#' In turn, \eqn{D = diag(h_1, \ldots, h_k)}.
+#' Let \eqn{\omega_j = (\omega_{1j}, \ldots, \omega_{j - 1, j})^\intercal} be dummy variables restricting covariance matrix.
+#' Then
+#' \deqn{
+#'   h_{ij} = \begin{cases}
+#'     \kappa_{0ij} & \text{if } \omega_{ij} = 0 \\
+#'     \kappa_{1ij} & \text{if } \omega_{ij} = 1
+#'   \end{cases}
+#' }
+#' In turn, \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})}.
+#' 
+#' 
+#' After sampling \eqn{\psi_{jj}, \psi_{ij}}, and \eqn{\omega_{ij}}, generate \eqn{\alpha} by
+#' combining non-restricted constant term and potentially restricted coefficients vector term.
+#' This process is done outside of the function and gives each prior mean and prior precision.
+#' In turn,
+#' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N_{k^2 p} (\mu, \Delta)}
+#' The dimension \eqn{k^2 p} is when non-constant term.
+#' When there is constant term, it is \eqn{k (kp + 1)}.
+#' Here,
+#' \deqn{
+#'   \mu = (
+#''     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
+#'   )^{-1} (
+#''     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha}^{MLE} + M^{-1} \alpha_0
+#'   )
+#' }
+#' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha}.
+#' In regression, MLE is the same as OLS.
+#' \deqn{
+#'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
+#' }
+#' After this step, we move to generating Bernoulli \eqn{\gamma_j}.
+#' 
+#' 
+#' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
+#' \deqn{
+#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
+#' }
+#' If \eqn{R_j = I_{j - 1}},
+#' \deqn{
+#'   u_{ij1} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
+#'   u_{ij2} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
+#' }
+#' Otherwise, see George et al. (2008).
+#'' Also,
+#' \deqn{
+#'   \gamma_j \mid \alpha, \psi, \eta, \omega, Y_0 \sim Bernoulli(\frac{u_{i1}}{u_{j1} + u_{j2}})
+#' }
+#' Similarly, if \eqn{R = I_{k^2 p}},
+#' \deqn{
+#'   u_{j1} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})p_i,
+#'   u_{j2} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})(1 - p_i)
+#' }
+#' 
+#' 
+#' Let SSE matrix be \eqn{S(\hat{A}) = (Y_0 - X_0 \hat{A})^\intercal (Y_0 - X_0 \hat{A}) \in \mathbb{R}^{k \times k}},
+#' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(\hat{A})},
+#' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal}.
+#' For specified shape and rate of Gamma distribuion \eqn{a_j} and \eqn{b_j},
+#' \deqn{
+#'   \psi_{jj}^2 \mid \alpha, \gamma, \omega, Y_0 \sim \gamma(a_i + n / 2, B_i)
+#' }
+#' where
+#' \deqn{
+#'   B_i = \begin{cases}
+#'     b_1 + s_{11} / 2 & \text{if } i = 1 \\
+#'     b_i + (s_{ii} - s_i^\intercal ( S_{i - 1} + (D_i R_i D_i)^(-1) )^(-1) s_i) & \text{if } i = 2, \ldots, k
+#'   \end{cases}
+#' }
+#' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}
+#' is the one made by upper diagonal element of \eqn{\Psi} matrix.
+#' 
+#' 
+#' After drawing \eqn{\psi_{jj}}, generate upper elements by
+#' \deqn{
+#'   \eta_j \mid \alpha, \gamma, \omega, \psi, Y_0 \sim N_{j - 1} (\mu_j, \Delta_j)
+#' }
+#' where
+#' \deqn{
+#'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j,
+#'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1}
+#' }
+#' 
+#' 
+#' 
+#' Consider \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal} where upper triangular \eqn{\Psi = [\psi_{ij}]}.
+#' Column vector for upper off-diagonal element is denoted by
+#' \deqn{
+#'   \eta_j = (\psi_{12}, \ldots, \psi_{j-1, j})
+#' }
+#' for \eqn{j = 2, \ldots, k}.
+#' 
+#' # Gibbs Sampling
+#' 
+#' Data: \eqn{X_0}, \eqn{Y_0}
+#' 
+#' Input:
+#' * VAR order p
+#' * MCMC iteration number
+#' * Weight of each slab: Bernoulli distribution parameters
+#'     * \eqn{p_j}: of coefficients
+#'     * \eqn{q_{ij}}: of cholesky factor
+#' * Gamma distribution parameters for cholesky factor diagonal elements \eqn{\psi_{jj}}
+#'     * \eqn{a_j}: shape
+#'     * \eqn{b_j}: rate
+#' * Correlation matrix of coefficient vector: \eqn{R = I_{k^2p}}
+#' * Correlation matrix to restrict cholesky factor (of \eqn{\eta_j}): \eqn{R_j = I_{j - 1}}
+#' * Tuning parameters for spike-and-slab sd semi-automatic approach
+#'     * \eqn{c_0}: small value (0.1)
+#'     * \eqn{c_1}: large value (10)
+#' * Constant to reduce prior influence on constant term: \eqn{c}
+#' 
+#' Gibbs sampling:
+#' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\alpha}, \eqn{\gamma}
+#' 2. Iterate
+#'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     2. Off-diagonal elements of cholesky factor: \eqn{\eta^{(t)} \mid \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
+#'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
+#' 
 #' 
 #' @keywords internal
-#' @name ssvs_algo
+#' @name ssvs_bvar_algo
 NULL

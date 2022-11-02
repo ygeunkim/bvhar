@@ -141,10 +141,10 @@ set_ssvs <- function(coef_spike = .1,
 #' 
 #' Set initial parameters before starting Gibbs sampler for SSVS.
 #' 
-#' @param init_coef Initial coefficient matrix.
-#' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient.
-#' @param init_chol Initial cholesky factor (upper triangular).
-#' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor.
+#' @param init_coef Initial coefficient matrix. Initialize with an array or list for multiple chains.
+#' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
+#' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
+#' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
 #' @details 
 #' Set SSVS initialization for the VAR model.
 #' 
@@ -154,6 +154,8 @@ set_ssvs <- function(coef_spike = .1,
 #' * `init_chol_dummy`: k x k \eqn{\Omega} upper triangular dummy matrix to restrict the cholesky factor.
 #' 
 #' Denote that `init_chol` and `init_chol_dummy` should be upper_triangular or the function gives error.
+#' 
+#' For parallel chain initialization, assign three-dimensional array or three-length list.
 #' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
@@ -161,25 +163,112 @@ set_ssvs <- function(coef_spike = .1,
 #' @order 1
 #' @export
 init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
-  dim_design <- nrow(init_coef) # kp(+1)
-  dim_data <- ncol(init_coef) # k = dim
-  if (!(nrow(init_coef_dummy) == dim_design && ncol(init_coef_dummy) == dim_data)) {
-    if (!(nrow(init_coef_dummy) == dim_design - 1 && ncol(init_coef_dummy) == dim_data)) {
+  is_multiple <- 
+    (length(dim(init_coef)) == 3 || is.list(init_coef)) &&
+    (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
+    (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
+    (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))
+  if (is_multiple) {
+    # 3d array to list---------------------------------------------------------
+    if (length(dim(init_coef)) == 3) {
+      init_coef <- lapply(
+        seq_len(dim(init_coef)[3]),
+        function(k) init_coef[,,k]
+      )
+    }
+    if (length(dim(init_coef_dummy))) {
+      init_coef_dummy <- lapply(
+        seq_len(dim(init_coef_dummy)[3]),
+        function(k) init_coef_dummy[,,k]
+      )
+    }
+    if (length(dim(init_chol))) {
+      init_chol <- lapply(
+        seq_len(dim(init_chol)[3]),
+        function(k) init_chol[,,k]
+      )
+    }
+    if (length(dim(init_chol_dummy))) {
+      init_chol_dummy <- lapply(
+        seq_len(dim(init_chol_dummy)[3]),
+        function(k) init_chol_dummy[,,k]
+      )
+    }
+    # Errors in multiple chain
+    if (length(
+      unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
+    ) > 1) {
+      stop("Different chain(>1) number has been defined.")
+    }
+    num_chain <- length(init_coef)
+    if (length(
+      unique(lapply(init_coef, dim))
+    ) != 1) {
+      stop("Dimension of 'init_coef' across every chain should be the same.")
+    }
+    if (length(
+      unique(lapply(init_coef_dummy, dim))
+    ) != 1) {
+      stop("Dimension of 'init_coef_dummy' across every chain should be the same.")
+    }
+    if (length(
+      unique(lapply(init_chol, dim))
+    ) != 1) {
+      stop("Dimension of 'init_chol' across every chain should be the same.")
+    }
+    if (length(
+      unique(lapply(init_chol_dummy, dim))
+    ) != 1) {
+      stop("Dimension of 'init_chol_dummy' across every chain should be the same.")
+    }
+    if (any(
+      unlist(lapply(
+        seq_len(num_chain),
+        function(i) identical(init_coef[[1]], init_coef[[i]])
+      ))
+    )) {
+      warning("Initial setting of 'init_coef' in each chain is recommended to be differed.")
+    }
+    if (any(
+      unlist(lapply(
+        seq_len(num_chain),
+        function(i) identical(init_chol[[1]], init_chol[[i]])
+      ))
+    )) {
+      warning("Initial setting of 'init_chol' in each chain is recommended to be differed.")
+    }
+    coef_mat <- init_coef[[1]]
+    coef_dummy <- init_coef_dummy[[1]]
+    chol_mat <- init_chol[[1]]
+    chol_dummy <- init_chol_dummy[[1]]
+  } else {
+    num_chain <- 1
+    coef_mat <- init_coef
+    coef_dummy <- init_coef_dummy
+    chol_mat <- init_chol
+    chol_dummy <- init_chol_dummy
+  }
+  # Check dimension validity---------------------------------------------------
+  dim_design <- nrow(coef_mat) # kp(+1)
+  dim_data <- ncol(coef_mat) # k = dim
+  if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
+    if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
       stop("Invalid dimension of 'init_coef_dummy'.")
     }
   }
-  if (!(nrow(init_chol) == dim_data && ncol(init_chol) == dim_data)) {
+  if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
     stop("Invalid dimension of 'init_chol'.")
   }
-  if (any(init_chol[lower.tri(init_chol, diag = TRUE)] != 0)) {
+  if (any(chol_mat[lower.tri(chol_mat, diag = TRUE)] != 0)) {
     stop("'init_chol' should be upper triangular matrix.")
   }
-  if (!(nrow(init_chol_dummy) == dim_data || ncol(init_chol_dummy) == dim_data)) {
-    stop("Invalid dimension of 'init_chol_sparse'.")
+  if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
+    stop("Invalid dimension of 'init_chol_dummy'.")
   }
   res <- list(
     process = "BVAR",
     prior = "SSVS",
+    chain = num_chain,
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
     init_chol = init_chol,
@@ -291,20 +380,102 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n")
-  param <- x[!(names(x) %in% c("process", "prior"))]
+  param <- x[!(names(x) %in% c("process", "prior", "chain"))]
+  num_chain <- x$chain
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
     type <- "a" # not large
-    if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
-      type <- "b" # both large
-    } else if (nrow(param[[i]]) > 7 & ncol(param[[i]]) <= 6) {
-      type <- "c" # large row
-    } else if (nrow(param[[i]]) <= 7 & ncol(param[[i]]) > 6) {
-      type <- "d" # large column
+    if (is.list(param[[i]])) {
+      type <- "a"
+      if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) > 6) {
+        type <- "a_large" # both large
+      } else if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) <= 6) {
+        type <- "a_row" # large row
+      } else if (nrow(param[[i]][[1]]) <= 7 & ncol(param[[i]][[1]]) > 6) {
+        type <- "a_column" # large column
+      }
+    } else if (is.matrix(param[[i]])) {
+      type <- "b"
+      if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
+        type <- "c" # both large
+      } else if (nrow(param[[i]]) > 7 & ncol(param[[i]]) <= 6) {
+        type <- "d" # large row
+      } else if (nrow(param[[i]]) <= 7 & ncol(param[[i]]) > 6) {
+        type <- "e" # large column
+      }
     }
     switch(
       type,
       "a" = {
+        for (j in seq_along(param[[i]])) {
+          cat(sprintf("# In chain %d:\n", j))
+          print.default(
+            param[[i]][[j]],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+        }
+        # if (type == "a_large") {
+        #   for (j in seq_along(param[[i]])) {
+        #     cat(sprintf("# In chain %d:\n", j))
+        #     cat(paste0(
+        #       "# A matrix: ",
+        #       nrow(param[[i]][[j]]), 
+        #       " x ", 
+        #       ncol(param[[i]][[j]]),
+        #       "\n"
+        #     ))
+        #     print.default(
+        #       param[[i]][[j]][1:7, 1:6],
+        #       digits = digits,
+        #       print.gap = 2L,
+        #       quote = FALSE
+        #     )
+        #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+        #   }
+        # } else if (type == "a_row") {
+        #   for (j in seq_along(param[[i]])) {
+        #     cat(sprintf("# In chain %d:\n", j))
+        #     print.default(
+        #       param[[i]][[j]][1:7,],
+        #       digits = digits,
+        #       print.gap = 2L,
+        #       quote = FALSE
+        #     )
+        #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+        #   }
+        # } else if (type == "a_column") {
+        #   for (j in seq_along(param[[i]])) {
+        #     cat(sprintf("# In chain %d:\n", j))
+        #     cat(paste0(
+        #       "# A matrix: ",
+        #       nrow(param[[i]][[j]]), 
+        #       " x ", 
+        #       ncol(param[[i]][[j]]),
+        #       "\n"
+        #     ))
+        #     print.default(
+        #       param[[i]][[j]][1:7, 1:6],
+        #       digits = digits,
+        #       print.gap = 2L,
+        #       quote = FALSE
+        #     )
+        #   }
+        # } else {
+        #   for (j in seq_along(param[[i]])) {
+        #     cat(sprintf("# In chain %d:\n", j))
+        #     print.default(
+        #       param[[i]][[j]],
+        #       digits = digits,
+        #       print.gap = 2L,
+        #       quote = FALSE
+        #     )
+        #   }
+        # }
+        cat("\n")
+      },
+      "b" = {
         print.default(
           param[[i]],
           digits = digits,
@@ -313,7 +484,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         )
         cat("\n")
       },
-      "b" = {
+      "c" = {
         cat(
           paste0("# A matrix: "), 
           paste(nrow(param[[i]]), "x", ncol(param[[i]])),
@@ -327,7 +498,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         )
         cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
       },
-      "c" = {
+      "d" = {
         print.default(
           param[[i]][1:7,],
           digits = digits,
@@ -336,7 +507,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         )
         cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
       },
-      "d" = {
+      "e" = {
         cat(
           paste0("# A matrix: "), 
           paste(nrow(param[[i]]), "x", ncol(param[[i]])), 
@@ -351,6 +522,10 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         cat("\n")
       }
     )
+  }
+  if (num_chain > 1) {
+    cat("--------------------------------------------------------------\n")
+    cat("Initialized for multiple chain MCMC.")
   }
 }
 
