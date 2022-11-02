@@ -9,6 +9,7 @@
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param chain The number of MCMC chains (Default = 1)
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -35,7 +36,8 @@ bvar_ssvs <- function(y,
                       num_burn, 
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
-                      include_mean = TRUE) {
+                      include_mean = TRUE,
+                      chain = 1) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -47,9 +49,11 @@ bvar_ssvs <- function(y,
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
   if (!is.ssvsinit(init_spec)) {
-    stop("Provide 'ssvsinit' for 'init_spec'.")
+    if (all(sapply(init_spec, is.ssvsinit))) {
+      stop("Provide 'ssvsinit' or list of 'ssvsinit' for 'init_spec'.")
+    }
   }
-  # Y0 = X0 B + Z---------------------
+  # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
   dim_design <- dim_data * p + 1
   Y0 <- build_y0(y, p, p + 1) # n x k
@@ -115,6 +119,40 @@ bvar_ssvs <- function(y,
   if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
     stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
   }
+  init_coef <- c(init_spec$init_coef)
+  init_coef_dummy <- c(init_spec$init_coef_dummy)
+  init_chol_diag <- diag(init_spec$init_chol)
+  init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
+  init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
+  if (chain > 1) {
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef)}))) == 1) {
+      stop("Dimension of 'init_coef' across every chain should be the same.")
+    }
+    init_coef <- 
+      lapply(init_spec, function(x) {c(x$init_coef)}) %>% 
+      unlist()
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef_dummy)}))) == 1) {
+      stop("Dimension of 'init_coef_dummy' across every chain should be the same.")
+    }
+    init_coef_dummy <- 
+      lapply(init_spec, function(x) {c(x$init_coef_dummy)}) %>% 
+      unlist()
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol)}))) == 1) {
+      stop("Dimension of 'init_chol' across every chain should be the same.")
+    }
+    init_chol_diag <- 
+      lapply(init_spec, function(x) {diag(x$init_chol)}) %>% 
+      unlist()
+    init_chol_upper <- 
+      lapply(init_spec, function(x) {x$init_chol[upper.tri(x$init_chol, diag = FALSE)]}) %>% 
+      unlist()
+    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol_dummy)}))) == 1) {
+      stop("Dimension of 'init_chol_dummy' across every chain should be the same.")
+    }
+    init_chol_dummy <- 
+      lapply(init_spec, function(x) {x$init_chol_dummy[upper.tri(x$init_chol_dummy, diag = FALSE)]}) %>% 
+      unlist()
+  }
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
@@ -138,11 +176,11 @@ bvar_ssvs <- function(y,
     num_burn = num_burn,
     x = X0,
     y = Y0,
-    init_coef = init_spec$init_coef, # initial alpha (matrix)
-    init_chol_diag = diag(init_spec$init_chol), # initial psi_jj (vector)
-    init_chol_upper = init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)], # initial psi_ij (vector)
-    init_coef_dummy = c(init_spec$init_coef_dummy), # initial gamma (vector)
-    init_chol_dummy = init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)], # initial omega (vector)
+    init_coef = init_coef, # initial alpha (matrix)
+    init_chol_diag = init_chol_diag, # initial psi_jj (vector)
+    init_chol_upper = init_chol_upper, # initial psi_ij (vector)
+    init_coef_dummy = init_coef_dummy, # initial gamma (vector)
+    init_chol_dummy = init_chol_dummy, # initial omega (vector)
     coef_spike = bayes_spec$coef_spike, # alpha spike (vector)
     coef_slab = bayes_spec$coef_slab, # alpha slab (vector)
     coef_slab_weight = bayes_spec$coef_mixture, # pj (vector)
@@ -151,7 +189,8 @@ bvar_ssvs <- function(y,
     chol_spike = bayes_spec$chol_spike, # eta spike (vector)
     chol_slab = bayes_spec$chol_slab, # eta slab (vector)
     chol_slab_weight = bayes_spec$chol_mixture, # qij (vector)
-    intercept_var = bayes_spec$coef_non # c for constant c I
+    intercept_var = bayes_spec$coef_non, # c for constant c I
+    chain = chain
   )
   # preprocess the results------------
   

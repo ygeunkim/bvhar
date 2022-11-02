@@ -2,7 +2,9 @@
 % Please edit documentation in R/hyperparam-sparse.R
 \name{set_ssvs}
 \alias{set_ssvs}
-\title{Stochastic Search Variable Selection (SSVS) Hyperparameter for VAR Coefficient and Cholesky Factor}
+\alias{print.ssvsinput}
+\alias{knit_print.ssvsinput}
+\title{Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor}
 \usage{
 set_ssvs(
   coef_spike = 0.1,
@@ -15,6 +17,10 @@ set_ssvs(
   chol_slab = 5,
   chol_mixture = 0.5
 )
+
+\method{print}{ssvsinput}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.ssvsinput(x, ...)
 }
 \arguments{
 \item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}
@@ -34,6 +40,12 @@ set_ssvs(
 \item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor (See Details).}
 
 \item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
+
+\item{x}{\code{ssvsinput} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \description{
 Set SSVS hyperparameters for VAR coefficient matrix and Cholesky factor.
@@ -72,7 +84,7 @@ For each row of off-diagonal (upper-triangular) components, we apply spike-slab 
 \item \code{chol_mixture}: \eqn{q_{ij}}
 \item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 \item \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
-\item \code{chol_} aruments can be one value for replication, vector, or uppertriangular matrix.
+\item \code{chol_} arguments can be one value for replication, vector, or upper triangular matrix.
 }
 }
 \references{

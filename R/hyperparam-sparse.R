@@ -1,4 +1,4 @@
-#' Stochastic Search Variable Selection (SSVS) Hyperparameter for VAR Coefficient and Cholesky Factor
+#' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
 #' 
 #' Set SSVS hyperparameters for VAR coefficient matrix and Cholesky factor.
 #' 
@@ -44,7 +44,7 @@
 #' * `chol_mixture`: \eqn{q_{ij}}
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
-#' * `chol_` aruments can be one value for replication, vector, or uppertriangular matrix.
+#' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
 #' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
@@ -137,17 +137,23 @@ set_ssvs <- function(coef_spike = .1,
   res
 }
 
-#' Initial parameters and Hyperparameters for SSVS Model
+#' Initial Parameters of Stochastic Search Variable Selection (SSVS) Model
 #' 
-#' Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
+#' Set initial parameters before starting Gibbs sampler for SSVS.
 #' 
-#' @param init_coef Initial k x m coefficient matrix.
-#' @param init_coef_dummy Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.
-#' @param init_chol Initial m x m variance matrix.
-#' @param init_chol_dummy Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.
+#' @param init_coef Initial coefficient matrix.
+#' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient.
+#' @param init_chol Initial cholesky factor (upper triangular).
+#' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor.
 #' @details 
-#' Get the default SSVS setting for given VAR model.
+#' Set SSVS initialization for the VAR model.
 #' 
+#' * `init_coef`: (kp + 1) x m \eqn{A} coefficient matrix.
+#' * `init_coef_dummy`: kp x m \eqn{\Gamma} dummy matrix to restrict the coefficients.
+#' * `init_chol`: k x k \eqn{\Psi} upper triangular cholesky factor, which \eqn{\Psi \Psi^\intercal = \Sigma_e^{-1}}.
+#' * `init_chol_dummy`: k x k \eqn{\Omega} upper triangular dummy matrix to restrict the cholesky factor.
+#' 
+#' Denote that `init_chol` and `init_chol_dummy` should be upper_triangular or the function gives error.
 #' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
@@ -172,6 +178,8 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
     stop("Invalid dimension of 'init_chol_sparse'.")
   }
   res <- list(
+    process = "BVAR",
+    prior = "SSVS",
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
     init_chol = init_chol,
@@ -180,3 +188,184 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   class(res) <- "ssvsinit"
   res
 }
+
+#' @rdname set_ssvs
+#' @param x `ssvsinput`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix, Cholesky Factor, and Each Restriction Dummy\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  fit_func <- switch(
+    x$process,
+    "BVAR" = "?bvar_ssvs",
+    "BVHAR" = "?bvhar_ssvs",
+    stop("Invalid 'x$prior' element")
+  )
+  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    if (is.matrix(param[[i]])) {
+      type <- "a"
+    } else if (length(param[[i]]) == 1) {
+      type <- "b"
+    } else {
+      type <- "c"
+    }
+    switch(
+      type,
+      "a" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      },
+      "b" = {
+        if (grepl(pattern = "^coef", names(param)[i]) && names(param)[i] != "coef_non") {
+          pseudo_param <- paste0("rep(", param[[i]], ", dim^2 * p)") # coef_
+        } else if (grepl(pattern = "^chol", names(param)[i])) {
+          pseudo_param <- paste0("rep(", param[[i]], ", dim * (dim - 1) / 2)") # chol_
+        } else {
+          pseudo_param <- paste0("rep(", param[[i]], ", dim)") # shape and rate
+        }
+        print.default(
+          pseudo_param,
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      },
+      "c" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      }
+    )
+    cat("\n")
+  }
+  cat("--------------------------------------------------------------\n")
+  cat("dim: time series dimension, p: VAR order")
+}
+
+#' @rdname set_ssvs
+#' @param x `ssvsinput` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.ssvsinput <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "ssvsinput",
+  knit_print.ssvsinput,
+  envir = asNamespace("knitr")
+)
+
+#' @rdname init_ssvs
+#' @param x `ssvsinit`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Gibbs Sampler Initialization for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix, Cholesky Factor, and Each Restriction Dummy\n")
+  # cat(paste0("Prior: ", x$prior, "\n"))
+  fit_func <- switch(
+    x$process,
+    "BVAR" = "?bvar_ssvs",
+    "BVHAR" = "?bvhar_ssvs",
+    stop("Invalid 'x$prior' element")
+  )
+  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Initialization for '", names(param)[i], "':\n"))
+    type <- "a" # not large
+    if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
+      type <- "b" # both large
+    } else if (nrow(param[[i]]) > 7 & ncol(param[[i]]) <= 6) {
+      type <- "c" # large row
+    } else if (nrow(param[[i]]) <= 7 & ncol(param[[i]]) > 6) {
+      type <- "d" # large column
+    }
+    switch(
+      type,
+      "a" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat("\n")
+      },
+      "b" = {
+        cat(
+          paste0("# A matrix: "), 
+          paste(nrow(param[[i]]), "x", ncol(param[[i]])),
+          "\n"
+        )
+        print.default(
+          param[[i]][1:7, 1:6],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
+      },
+      "c" = {
+        print.default(
+          param[[i]][1:7,],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
+      },
+      "d" = {
+        cat(
+          paste0("# A matrix: "), 
+          paste(nrow(param[[i]]), "x", ncol(param[[i]])), 
+          "\n"
+        )
+        print.default(
+          param[[i]][1:7, 1:6],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat("\n")
+      }
+    )
+  }
+}
+
+#' @rdname init_ssvs
+#' @param x `ssvsinit` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.ssvsinit <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "ssvsinit",
+  knit_print.ssvsinit,
+  envir = asNamespace("knitr")
+)

@@ -2,24 +2,44 @@
 % Please edit documentation in R/hyperparam-sparse.R
 \name{init_ssvs}
 \alias{init_ssvs}
-\title{Initial parameters and Hyperparameters for SSVS Model}
+\alias{print.ssvsinit}
+\alias{knit_print.ssvsinit}
+\title{Initial Parameters of Stochastic Search Variable Selection (SSVS) Model}
 \usage{
 init_ssvs(init_coef, init_coef_dummy, init_chol, init_chol_dummy)
+
+\method{print}{ssvsinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.ssvsinit(x, ...)
 }
 \arguments{
-\item{init_coef}{Initial k x m coefficient matrix.}
+\item{init_coef}{Initial coefficient matrix.}
 
-\item{init_coef_dummy}{Initial k x m indicator matrix (1-0) corresponding to each component of coefficient.}
+\item{init_coef_dummy}{Initial indicator matrix (1-0) corresponding to each component of coefficient.}
 
-\item{init_chol}{Initial m x m variance matrix.}
+\item{init_chol}{Initial cholesky factor (upper triangular).}
 
-\item{init_chol_dummy}{Initial m x m indicator matrix (1-0) corresponding to each component of variance matrix.}
+\item{init_chol_dummy}{Initial indicator matrix (1-0) corresponding to each component of cholesky factor.}
+
+\item{x}{\code{ssvsinit} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \description{
-Set initial parameters and hyperparameters of stochastic search variable selection for Bayesian VAR model.
+Set initial parameters before starting Gibbs sampler for SSVS.
 }
 \details{
-Get the default SSVS setting for given VAR model.
+Set SSVS initialization for the VAR model.
+\itemize{
+\item \code{init_coef}: (kp + 1) x m \eqn{A} coefficient matrix.
+\item \code{init_coef_dummy}: kp x m \eqn{\Gamma} dummy matrix to restrict the coefficients.
+\item \code{init_chol}: k x k \eqn{\Psi} upper triangular cholesky factor, which \eqn{\Psi \Psi^\intercal = \Sigma_e^{-1}}.
+\item \code{init_chol_dummy}: k x k \eqn{\Omega} upper triangular dummy matrix to restrict the cholesky factor.
+}
+
+Denote that \code{init_chol} and \code{init_chol_dummy} should be upper_triangular or the function gives error.
 }
 \references{
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
