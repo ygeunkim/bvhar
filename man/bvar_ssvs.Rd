@@ -11,8 +11,7 @@ bvar_ssvs(
   num_burn,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
-  include_mean = TRUE,
-  chain = 1
+  include_mean = TRUE
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ bvar_ssvs(
 \item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
-
-\item{chain}{The number of MCMC chains (Default = 1)}
 }
 \description{
 This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.

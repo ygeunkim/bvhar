@@ -5,7 +5,7 @@
 \title{Stochastic Search Variable Selection in VAR}
 \description{
 This page describes a stochastic search variable selection (SSVS) MCMC algorithm
-in a VAR VHAR model.
+in a VAR model.
 }
 \section{SSVS Prior}{
 

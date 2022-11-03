@@ -13,13 +13,13 @@ init_ssvs(init_coef, init_coef_dummy, init_chol, init_chol_dummy)
 knit_print.ssvsinit(x, ...)
 }
 \arguments{
-\item{init_coef}{Initial coefficient matrix.}
+\item{init_coef}{Initial coefficient matrix. Initialize with an array or list for multiple chains.}
 
-\item{init_coef_dummy}{Initial indicator matrix (1-0) corresponding to each component of coefficient.}
+\item{init_coef_dummy}{Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.}
 
-\item{init_chol}{Initial cholesky factor (upper triangular).}
+\item{init_chol}{Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.}
 
-\item{init_chol_dummy}{Initial indicator matrix (1-0) corresponding to each component of cholesky factor.}
+\item{init_chol_dummy}{Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.}
 
 \item{x}{\code{ssvsinit} object}
 
@@ -40,6 +40,8 @@ Set SSVS initialization for the VAR model.
 }
 
 Denote that \code{init_chol} and \code{init_chol_dummy} should be upper_triangular or the function gives error.
+
+For parallel chain initialization, assign three-dimensional array or three-length list.
 }
 \references{
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}

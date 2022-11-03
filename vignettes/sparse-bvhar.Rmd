@@ -171,8 +171,7 @@ fit <- bvar_ssvs(
   num_burn = 20,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
-  include_mean = TRUE,
-  chain = 1
+  include_mean = TRUE
 )
 ```
 

@@ -9,7 +9,6 @@
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param chain The number of MCMC chains (Default = 1)
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -35,8 +34,7 @@ bvar_ssvs <- function(y,
                       num_burn, 
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
-                      include_mean = TRUE,
-                      chain = 1) {
+                      include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -48,9 +46,7 @@ bvar_ssvs <- function(y,
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
   if (!is.ssvsinit(init_spec)) {
-    if (all(sapply(init_spec, is.ssvsinit))) {
-      stop("Provide 'ssvsinit' or list of 'ssvsinit' for 'init_spec'.")
-    }
+    stop("Provide 'ssvsinit' for 'init_spec'.")
   }
   # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
@@ -112,73 +108,6 @@ bvar_ssvs <- function(y,
     stop("Specify spike-and-slab of cholesky factor.")
   }
   # Error----------------------------
-  if (!(nrow(init_spec$init_coef) == dim_design || ncol(init_spec$init_coef) == dim_data)) {
-    stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
-  }
-  if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
-    stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
-  }
-  init_coef <- c(init_spec$init_coef)
-  init_coef_dummy <- c(init_spec$init_coef_dummy)
-  init_chol_diag <- diag(init_spec$init_chol)
-  init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
-  init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
-  
-  
-  # when parallel sampling chains-----------------------------
-  # change set_init function
-  # input: 3d array or list
-  
-  
-  if (chain > 1) {
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef)}))) != 1) {
-      stop("Dimension of 'init_coef' across every chain should be the same.")
-    }
-    if (any(
-      unlist(lapply(
-        seq_along(init_spec)[-1],
-        function(x) {
-          identical(init_spec[[1]]$init_coef, init_spec[[x]]$init_coef)
-        }
-      ))
-    )) {
-      stop("Initial setting of 'init_coef' in each chain should be different.")
-    }
-    init_coef <- 
-      lapply(init_spec, function(x) {c(x$init_coef)}) %>% 
-      unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_coef_dummy)}))) != 1) {
-      stop("Dimension of 'init_coef_dummy' across every chain should be the same.")
-    }
-    init_coef_dummy <- 
-      lapply(init_spec, function(x) {c(x$init_coef_dummy)}) %>% 
-      unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol)}))) != 1) {
-      stop("Dimension of 'init_chol' across every chain should be the same.")
-    }
-    if (any(
-      unlist(lapply(
-        seq_along(init_spec)[-1],
-        function(x) {
-          identical(init_spec[[1]]$init_chol, init_spec[[x]]$init_chol)
-        }
-      ))
-    )) {
-      stop("Initial setting of 'init_chol' in each chain should be different.")
-    }
-    init_chol_diag <- 
-      lapply(init_spec, function(x) {diag(x$init_chol)}) %>% 
-      unlist()
-    init_chol_upper <- 
-      lapply(init_spec, function(x) {x$init_chol[upper.tri(x$init_chol, diag = FALSE)]}) %>% 
-      unlist()
-    if (length(unique(lapply(init_spec, function(x) {dim(x$init_chol_dummy)}))) != 1) {
-      stop("Dimension of 'init_chol_dummy' across every chain should be the same.")
-    }
-    init_chol_dummy <- 
-      lapply(init_spec, function(x) {x$init_chol_dummy[upper.tri(x$init_chol_dummy, diag = FALSE)]}) %>% 
-      unlist()
-  }
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
@@ -196,30 +125,72 @@ bvar_ssvs <- function(y,
   )) {
     stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
   }
+  # Initial vectors-------------------
+  if (init_spec$chain == 1) {
+    if (!(nrow(init_spec$init_coef) == dim_design || ncol(init_spec$init_coef) == dim_data)) {
+      stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    }
+    if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
+      stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
+    }
+    init_coef <- c(init_spec$init_coef)
+    init_coef_dummy <- c(init_spec$init_coef_dummy)
+    init_chol_diag <- diag(init_spec$init_chol)
+    init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
+    init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
+  } else {
+    if (!(nrow(init_spec$init_coef[[1]]) == dim_design || ncol(init_spec$init_coef[[1]]) == dim_data)) {
+      stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    }
+    if (!(nrow(init_spec$init_coef_dummy[[1]]) == num_restrict || ncol(init_spec$init_coef_dummy[[1]]) == dim_data)) {
+      stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
+    }
+    init_coef <- unlist(init_spec$init_coef)
+    init_coef_dummy <- unlist(init_spec$init_coef_dummy)
+    init_chol_diag <- unlist(lapply(init_spec$init_chol, diag))
+    init_chol_upper <- unlist(lapply(
+      init_spec$init_chol,
+      function(x) x[upper.tri(x, diag = FALSE)]
+    ))
+    init_chol_dummy <- unlist(lapply(
+      init_spec$init_chol_dummy,
+      function(x) x[upper.tri(x, diag = FALSE)]
+    ))
+  }
   # MCMC-----------------------------
   ssvs_res <- estimate_bvar_ssvs(
     num_iter = num_iter,
     num_burn = num_burn,
     x = X0,
     y = Y0,
-    init_coef = init_coef, # initial alpha (matrix)
-    init_chol_diag = init_chol_diag, # initial psi_jj (vector)
-    init_chol_upper = init_chol_upper, # initial psi_ij (vector)
-    init_coef_dummy = init_coef_dummy, # initial gamma (vector)
-    init_chol_dummy = init_chol_dummy, # initial omega (vector)
-    coef_spike = bayes_spec$coef_spike, # alpha spike (vector)
-    coef_slab = bayes_spec$coef_slab, # alpha slab (vector)
-    coef_slab_weight = bayes_spec$coef_mixture, # pj (vector)
-    shape = bayes_spec$shape, # shape of gamma distn (vector)
-    rate = bayes_spec$rate, # rate of gamma distn (vector)
-    chol_spike = bayes_spec$chol_spike, # eta spike (vector)
-    chol_slab = bayes_spec$chol_slab, # eta slab (vector)
-    chol_slab_weight = bayes_spec$chol_mixture, # qij (vector)
+    init_coef = init_coef, # initial alpha
+    init_chol_diag = init_chol_diag, # initial psi_jj
+    init_chol_upper = init_chol_upper, # initial psi_ij
+    init_coef_dummy = init_coef_dummy, # initial gamma
+    init_chol_dummy = init_chol_dummy, # initial omega
+    coef_spike = bayes_spec$coef_spike, # alpha spike
+    coef_slab = bayes_spec$coef_slab, # alpha slab
+    coef_slab_weight = bayes_spec$coef_mixture, # pj
+    shape = bayes_spec$shape, # shape of gamma distn
+    rate = bayes_spec$rate, # rate of gamma distn
+    chol_spike = bayes_spec$chol_spike, # eta spike
+    chol_slab = bayes_spec$chol_slab, # eta slab
+    chol_slab_weight = bayes_spec$chol_mixture, # qij
     intercept_var = bayes_spec$coef_non, # c for constant c I
-    chain = chain
+    chain = init_spec$chain
   )
   # preprocess the results------------
-  
+  if (ssvs_res$chain > 1) {
+    # matrix to 3d array
+  } else {
+    colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
+    colnames(ssvs_res$tau_record) <- paste0("tau[", 1:num_restrict, "]")
+    colnames(ssvs_res$psi_ij_record) <- paste0("eta[", 1:num_eta, "]")
+    colnames(ssvs_res$omega_ij_record) <- paste0("omega[", 1:num_eta, "]")
+    colnames(ssvs_res$psi_jj_record) <- paste0("psi[", 1:dim_data, "]")
+    
+    
+  }
   # variables------------
   ssvs_res$df <- dim_design
   ssvs_res$p <- p

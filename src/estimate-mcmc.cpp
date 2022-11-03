@@ -228,17 +228,17 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
   // record-------------------------------------------------------
   int num_mcmc = num_iter + num_burn;
-  Eigen::MatrixXd coef_record(num_mcmc, num_coef * chain);
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_mcmc, num_coef * chain);
   coef_record.row(0) = init_coef;
-  Eigen::MatrixXd coef_dummy_record(num_mcmc, num_restrict * chain);
+  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_mcmc, num_restrict * chain);
   coef_dummy_record.row(0) = init_coef_dummy;
-  Eigen::MatrixXd chol_diag_record(num_mcmc, dim * chain);
+  Eigen::MatrixXd chol_diag_record = Eigen::MatrixXd::Zero(num_mcmc, dim * chain);
   chol_diag_record.row(0) = init_chol_diag;
-  Eigen::MatrixXd chol_upper_record(num_mcmc, num_upperchol * chain);
+  Eigen::MatrixXd chol_upper_record = Eigen::MatrixXd::Zero(num_mcmc, num_upperchol * chain);
   chol_upper_record.row(0) = init_chol_upper;
-  Eigen::MatrixXd chol_dummy_record(num_mcmc, num_upperchol * chain);
+  Eigen::MatrixXd chol_dummy_record = Eigen::MatrixXd::Zero(num_mcmc, num_upperchol * chain);
   chol_dummy_record.row(0) = init_chol_dummy;
-  Eigen::MatrixXd chol_factor_record(dim * num_mcmc, dim * chain); // 3d matrix alternative
+  Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_mcmc, dim * chain); // 3d matrix alternative
   // Some variables-----------------------------------------------
   Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
@@ -340,6 +340,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("tau_record") = coef_dummy_record.bottomRows(num_iter),
     Rcpp::Named("psi_record") = chol_factor_record,
     Rcpp::Named("sse") = sse_mat,
-    Rcpp::Named("coefficients") = coef_ols
+    Rcpp::Named("coefficients") = coef_ols,
+    Rcpp::Named("chain") = chain
   );
 }

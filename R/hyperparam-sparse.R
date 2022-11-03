@@ -163,80 +163,28 @@ set_ssvs <- function(coef_spike = .1,
 #' @order 1
 #' @export
 init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
-  is_multiple <- 
-    (length(dim(init_coef)) == 3 || is.list(init_coef)) &&
-    (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
-    (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
-    (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))
-  if (is_multiple) {
-    # 3d array to list---------------------------------------------------------
-    if (length(dim(init_coef)) == 3) {
-      init_coef <- lapply(
-        seq_len(dim(init_coef)[3]),
-        function(k) init_coef[,,k]
-      )
-    }
-    if (length(dim(init_coef_dummy))) {
-      init_coef_dummy <- lapply(
-        seq_len(dim(init_coef_dummy)[3]),
-        function(k) init_coef_dummy[,,k]
-      )
-    }
-    if (length(dim(init_chol))) {
-      init_chol <- lapply(
-        seq_len(dim(init_chol)[3]),
-        function(k) init_chol[,,k]
-      )
-    }
-    if (length(dim(init_chol_dummy))) {
-      init_chol_dummy <- lapply(
-        seq_len(dim(init_chol_dummy)[3]),
-        function(k) init_chol_dummy[,,k]
-      )
-    }
-    # Errors in multiple chain
+  if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
+      (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
+      (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
+      (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
+    # 3d array to list--------------------------------
+    init_coef <- change_to_list(init_coef)
+    init_coef_dummy <- change_to_list(init_coef_dummy)
+    init_chol <- change_to_list(init_chol)
+    init_chol_dummy <- change_to_list(init_chol_dummy)
+    # Errors in multiple chain------------------------
     if (length(
       unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
     ) > 1) {
       stop("Different chain(>1) number has been defined.")
     }
+    isnot_identical(init_coef, case = "dim")
+    isnot_identical(init_coef_dummy, case = "dim")
+    isnot_identical(init_chol, case = "dim")
+    isnot_identical(init_chol_dummy, case = "dim")
+    isnot_identical(init_coef, case = "values")
+    isnot_identical(init_chol, case = "values")
     num_chain <- length(init_coef)
-    if (length(
-      unique(lapply(init_coef, dim))
-    ) != 1) {
-      stop("Dimension of 'init_coef' across every chain should be the same.")
-    }
-    if (length(
-      unique(lapply(init_coef_dummy, dim))
-    ) != 1) {
-      stop("Dimension of 'init_coef_dummy' across every chain should be the same.")
-    }
-    if (length(
-      unique(lapply(init_chol, dim))
-    ) != 1) {
-      stop("Dimension of 'init_chol' across every chain should be the same.")
-    }
-    if (length(
-      unique(lapply(init_chol_dummy, dim))
-    ) != 1) {
-      stop("Dimension of 'init_chol_dummy' across every chain should be the same.")
-    }
-    if (any(
-      unlist(lapply(
-        seq_len(num_chain),
-        function(i) identical(init_coef[[1]], init_coef[[i]])
-      ))
-    )) {
-      warning("Initial setting of 'init_coef' in each chain is recommended to be differed.")
-    }
-    if (any(
-      unlist(lapply(
-        seq_len(num_chain),
-        function(i) identical(init_chol[[1]], init_chol[[i]])
-      ))
-    )) {
-      warning("Initial setting of 'init_chol' in each chain is recommended to be differed.")
-    }
     coef_mat <- init_coef[[1]]
     coef_dummy <- init_coef_dummy[[1]]
     chol_mat <- init_chol[[1]]
@@ -248,7 +196,7 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
     chol_mat <- init_chol
     chol_dummy <- init_chol_dummy
   }
-  # Check dimension validity---------------------------------------------------
+  # Check dimension validity-----------------------------
   dim_design <- nrow(coef_mat) # kp(+1)
   dim_data <- ncol(coef_mat) # k = dim
   if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
@@ -276,6 +224,62 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   )
   class(res) <- "ssvsinit"
   res
+}
+
+#' Changing 3d initial array Input to List
+#' 
+#' This function changes 3d array of [init_ssvs()] function to list.
+#' 
+#' @param init_array potentially 3d array initial input
+#' 
+#' @noRd
+change_to_list <- function(init_array) {
+  if (length(dim(init_array)) == 3) {
+    lapply(
+      seq_len(dim(init_array)[3]),
+      function(k) init_array[,, k]
+    )
+  } else {
+    init_array
+  }
+}
+
+#' Checking if the Parallel Initial List are not Identical
+#' 
+#' This function checks if the list of parallel initial matrices are identical.
+#' 
+#' @param init_list List of parallel initial matrix
+#' @param case Check dimension (`"dim"`) or values (`"values"`).
+#' 
+#' @noRd
+isnot_identical <- function(init_list, case = c("dim", "values")) {
+  case <- match.arg(case)
+  switch(
+    case,
+    "dim" = {
+      if (length(unique(lapply(init_list, dim))) != 1) {
+        stop(paste0(
+          "Dimension of '",
+          deparse(substitute(init_list)),
+          "' across every chain should be the same."
+        ))
+      }
+    },
+    "values" = {
+      if (any(unlist(
+        lapply(
+          seq_along(init_list)[-1], 
+          function(i) identical(init_list[[1]], init_list[[i]])
+        )
+      ))) {
+        warning(paste0(
+          "Initial setting of '",
+          deparse(substitute(init_list)),
+          "' in each chain is recommended to be differed."
+        ))
+      }
+    }
+  )
 }
 
 #' @rdname set_ssvs
@@ -384,9 +388,9 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   num_chain <- x$chain
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
-    type <- "a" # not large
+    type <- "a"
     if (is.list(param[[i]])) {
-      type <- "a"
+      # type <- "a"
       if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) > 6) {
         type <- "a_large" # both large
       } else if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) <= 6) {
@@ -395,7 +399,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         type <- "a_column" # large column
       }
     } else if (is.matrix(param[[i]])) {
-      type <- "b"
+      type <- "b" # not large one matrix
       if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
         type <- "c" # both large
       } else if (nrow(param[[i]]) > 7 & ncol(param[[i]]) <= 6) {
@@ -416,63 +420,58 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
             quote = FALSE
           )
         }
-        # if (type == "a_large") {
-        #   for (j in seq_along(param[[i]])) {
-        #     cat(sprintf("# In chain %d:\n", j))
-        #     cat(paste0(
-        #       "# A matrix: ",
-        #       nrow(param[[i]][[j]]), 
-        #       " x ", 
-        #       ncol(param[[i]][[j]]),
-        #       "\n"
-        #     ))
-        #     print.default(
-        #       param[[i]][[j]][1:7, 1:6],
-        #       digits = digits,
-        #       print.gap = 2L,
-        #       quote = FALSE
-        #     )
-        #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
-        #   }
-        # } else if (type == "a_row") {
-        #   for (j in seq_along(param[[i]])) {
-        #     cat(sprintf("# In chain %d:\n", j))
-        #     print.default(
-        #       param[[i]][[j]][1:7,],
-        #       digits = digits,
-        #       print.gap = 2L,
-        #       quote = FALSE
-        #     )
-        #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
-        #   }
-        # } else if (type == "a_column") {
-        #   for (j in seq_along(param[[i]])) {
-        #     cat(sprintf("# In chain %d:\n", j))
-        #     cat(paste0(
-        #       "# A matrix: ",
-        #       nrow(param[[i]][[j]]), 
-        #       " x ", 
-        #       ncol(param[[i]][[j]]),
-        #       "\n"
-        #     ))
-        #     print.default(
-        #       param[[i]][[j]][1:7, 1:6],
-        #       digits = digits,
-        #       print.gap = 2L,
-        #       quote = FALSE
-        #     )
-        #   }
-        # } else {
-        #   for (j in seq_along(param[[i]])) {
-        #     cat(sprintf("# In chain %d:\n", j))
-        #     print.default(
-        #       param[[i]][[j]],
-        #       digits = digits,
-        #       print.gap = 2L,
-        #       quote = FALSE
-        #     )
-        #   }
-        # }
+        cat("\n")
+      },
+      "a_large" = {
+        for (j in seq_along(param[[i]])) {
+          cat(sprintf("# In chain %d:\n", j))
+          cat(paste0(
+            "# A matrix: ",
+            nrow(param[[i]][[j]]),
+            " x ",
+            ncol(param[[i]][[j]]),
+            "\n"
+          ))
+          print.default(
+            param[[i]][[j]][1:7, 1:6],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+        }
+        cat("\n")
+      },
+      "a_row" = {
+        for (j in seq_along(param[[i]])) {
+          cat(sprintf("# In chain %d:\n", j))
+          print.default(
+            param[[i]][[j]][1:7,],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+          cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+        }
+        cat("\n")
+      },
+      "a_column" = {
+        for (j in seq_along(param[[i]])) {
+          cat(sprintf("# In chain %d:\n", j))
+          cat(paste0(
+            "# A matrix: ",
+            nrow(param[[i]][[j]]),
+            " x ",
+            ncol(param[[i]][[j]]),
+            "\n"
+          ))
+          print.default(
+            param[[i]][[j]][1:7, 1:6],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+        }
         cat("\n")
       },
       "b" = {
