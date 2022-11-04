@@ -26,6 +26,7 @@
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
@@ -181,15 +182,44 @@ bvar_ssvs <- function(y,
   )
   # preprocess the results------------
   if (ssvs_res$chain > 1) {
-    # matrix to 3d array
+    ssvs_res$alpha_record <- 
+      split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
+      as_draws_df()
+    ssvs_res$tau_record <- 
+      split_paramarray(ssvs_res$tau_record, chain = ssvs_res$chain, param_name = "tau") %>% 
+      as_draws_df()
+    ssvs_res$psi_jj_record <- 
+      split_paramarray(ssvs_res$psi_jj_record, chain = ssvs_res$chain, param_name = "psi") %>% 
+      as_draws_df()
+    ssvs_res$psi_ij_record <- 
+      split_paramarray(ssvs_res$psi_ij_record, chain = ssvs_res$chain, param_name = "eta") %>% 
+      as_draws_df()
+    ssvs_res$omega_ij_record <- 
+      split_paramarray(ssvs_res$omega_ij_record, chain = ssvs_res$chain, param_name = "omega") %>% 
+      as_draws_df()
+    ssvs_res$param <- bind_draws(
+      ssvs_res$alpha_record, 
+      ssvs_res$tau_record,
+      ssvs_res$psi_jj_record,
+      ssvs_res$psi_ij_record,
+      ssvs_res$omega_ij_record
+    )
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
     colnames(ssvs_res$tau_record) <- paste0("tau[", 1:num_restrict, "]")
+    colnames(ssvs_res$psi_jj_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$psi_ij_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_ij_record) <- paste0("omega[", 1:num_eta, "]")
-    colnames(ssvs_res$psi_jj_record) <- paste0("psi[", 1:dim_data, "]")
-    
-    
+    ssvs_res$param <- as_draws_df(
+      cbind(
+        ssvs_res$alpha_record,
+        ssvs_res$tau_record,
+        ssvs_res$psi_jj_record,
+        ssvs_res$psi_ij_record,
+        ssvs_res$omega_ij_record
+      ),
+      .nchains = ssvs_res$chain
+    )
   }
   # variables------------
   ssvs_res$df <- dim_design
@@ -210,4 +240,33 @@ bvar_ssvs <- function(y,
   # return S3 object------
   class(ssvs_res) <- c("bvarsp", "bvharssvs", "bvharmod")
   ssvs_res
+}
+
+#' Processing Multiple Chain Record Result Matrix from `RcppEigen`
+#' 
+#' Preprocess multiple chain record matrix for [posterior::posterior] package.
+#' 
+#' @param x Parameter matrix
+#' @param chain The number of the chains
+#' @param param_name The name of the parameter
+#' @details 
+#' Internal Gibbs sampler function gives multiple chain results by row-stacked form.
+#' This function processes the matrix appropriately for [posterior::draws_array()],
+#' i.e. iteration x chain x variable.
+#' @noRd
+split_paramarray <- function(x, chain, param_name) {
+  num_var <- ncol(x) / chain
+  res <- 
+    split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>% 
+    lapply(t) %>% 
+    unlist() %>% 
+    array(
+      dim = c(nrow(x), chain, num_var),
+      dimnames = list(
+        iteration = seq_len(nrow(x)),
+        chain = seq_len(chain),
+        variable = paste0(param_name, "[", seq_len(num_var), "]")
+      )
+    )
+  res
 }

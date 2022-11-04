@@ -245,6 +245,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
   #ifdef _OPENMP
+  Rprintf("Use parallel");
   #pragma \
   omp \
     parallel \

@@ -39,7 +39,9 @@ Imports:
     purrr,
     utils,
     stats,
-    optimParallel
+    optimParallel,
+    posterior,
+    bayesplot
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

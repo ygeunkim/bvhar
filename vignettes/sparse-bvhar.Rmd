@@ -167,8 +167,8 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 fit <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 100,
-  num_burn = 20,
+  num_iter = 10000,
+  num_burn = 2500,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
   include_mean = TRUE
@@ -202,6 +202,60 @@ Compare with:
 ```{r truepsi}
 var_chol
 ```
+
+
+### Multiple Initial values
+
+When initializing multiple chain MCMC, use 3d array or list.
+
+```{r diagnostics}
+# Random initial coefficients-----------------------------
+init_coefarray <- array(runif(7 * 6 * 5, -2, 2), dim = c(7, 6, 5))
+init_coefarray[,,1] <- matrix(0L, nrow = 7, ncol = 6)
+# Always starts with unrestricted model--------------------
+init_coef_dummyarray <- array(1L, dim = c(6, 6, 5))
+# Random upper triangular cholesky factor-----------------
+# init_chollist <- array(0L, dim = c(6, 6, 5))
+init_chollist <- lapply(1:5, function(x) matrix(0L, nrow = 6L, ncol = 6L))
+init_chollist[2:5] <- lapply(
+  1:4,
+  function(x) {
+    x <- diag(rgamma(6, shape = 1, rate = 1))
+    x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2)
+    x
+  }
+)
+# Always starts with unrestricted eta---------------------
+init_omegalist <- lapply(
+  1:5,
+  function(x) {
+    x <- matrix(1L, nrow = 6L, ncol = 6L)
+    x[lower.tri(x, diag = TRUE)] <- 0L
+    x
+  }
+)
+# Initialize----------------------------------------------
+(init_multi <- init_ssvs(
+  init_coef = init_coefarray,
+  init_coef_dummy = init_coef_dummyarray,
+  init_chol = init_chollist,
+  init_chol_dummy = init_chollist
+))
+```
+
+<!-- ```{r multiplessvs} -->
+<!-- fit_multiple <- bvar_ssvs( -->
+<!--   y = var_data, -->
+<!--   p = 1, -->
+<!--   num_iter = 100, -->
+<!--   num_burn = 0, -->
+<!--   bayes_spec = ssvs_spec, -->
+<!--   init_spec = init_multi, -->
+<!--   include_mean = TRUE -->
+<!-- ) -->
+<!-- ``` -->
+
+
 
 
 
