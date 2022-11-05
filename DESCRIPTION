@@ -19,6 +19,7 @@ License: MIT + file LICENSE
 URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
+    bayesplot,
     covr,
     knitr,
     parallel,
@@ -40,8 +41,7 @@ Imports:
     utils,
     stats,
     optimParallel,
-    posterior,
-    bayesplot
+    posterior
 LinkingTo: Rcpp, RcppEigen
 VignetteBuilder: knitr
 Depends: 

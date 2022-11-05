@@ -300,6 +300,7 @@ NULL
 #' }
 #' In turn, \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})}.
 #' 
+#' Blah Blah
 #' 
 #' After sampling \eqn{\psi_{jj}, \psi_{ij}}, and \eqn{\omega_{ij}}, generate \eqn{\alpha} by
 #' combining non-restricted constant term and potentially restricted coefficients vector term.
@@ -323,6 +324,7 @@ NULL
 #' }
 #' After this step, we move to generating Bernoulli \eqn{\gamma_j}.
 #' 
+#' Blah Blah
 #' 
 #' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
 #' \deqn{
@@ -344,11 +346,12 @@ NULL
 #'   u_{j2} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})(1 - p_i)
 #' }
 #' 
+#' Blah Blah
 #' 
 #' Let SSE matrix be \eqn{S(\hat{A}) = (Y_0 - X_0 \hat{A})^\intercal (Y_0 - X_0 \hat{A}) \in \mathbb{R}^{k \times k}},
 #' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(\hat{A})},
 #' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal}.
-#' For specified shape and rate of Gamma distribuion \eqn{a_j} and \eqn{b_j},
+#' For specified shape and rate of Gamma distribution \eqn{a_j} and \eqn{b_j},
 #' \deqn{
 #'   \psi_{jj}^2 \mid \alpha, \gamma, \omega, Y_0 \sim \gamma(a_i + n / 2, B_i)
 #' }
@@ -362,6 +365,7 @@ NULL
 #' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}
 #' is the one made by upper diagonal element of \eqn{\Psi} matrix.
 #' 
+#' Blah Blah
 #' 
 #' After drawing \eqn{\psi_{jj}}, generate upper elements by
 #' \deqn{
@@ -410,8 +414,10 @@ NULL
 #'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
 #'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
 #'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
+#' @references 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
-#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @keywords internal
 #' @name ssvs_bvar_algo
 NULL

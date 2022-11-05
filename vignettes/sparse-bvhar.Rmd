@@ -30,6 +30,11 @@ set.seed(1)
 library(bvhar)
 ```
 
+```{r otherpkg}
+library(bayesplot)
+```
+
+
 # Stochastic Search Variable Selection (SSVS)
 
 <!-- For $(\bbA, \Sigma)$ -->
