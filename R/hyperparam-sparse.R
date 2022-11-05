@@ -412,7 +412,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       type,
       "a" = {
         for (j in seq_along(param[[i]])) {
-          cat(sprintf("# In chain %d:\n", j))
+          cat(gettextf("# In chain %d:\n", j))
           print.default(
             param[[i]][[j]],
             digits = digits,
@@ -424,7 +424,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_large" = {
         for (j in seq_along(param[[i]])) {
-          cat(sprintf("# In chain %d:\n", j))
+          cat(gettextf("# In chain %d:\n", j))
           cat(paste0(
             "# A matrix: ",
             nrow(param[[i]][[j]]),
@@ -444,7 +444,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_row" = {
         for (j in seq_along(param[[i]])) {
-          cat(sprintf("# In chain %d:\n", j))
+          cat(gettextf("# In chain %d:\n", j))
           print.default(
             param[[i]][[j]][1:7,],
             digits = digits,
@@ -457,7 +457,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_column" = {
         for (j in seq_along(param[[i]])) {
-          cat(sprintf("# In chain %d:\n", j))
+          cat(gettextf("# In chain %d:\n", j))
           cat(paste0(
             "# A matrix: ",
             nrow(param[[i]][[j]]),

@@ -218,7 +218,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
   int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): dim vs -dim (if no constant)
-  // Eigen::VectorXd coef_vec = vectorize_eigen(init_coef);
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
   Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
   Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
@@ -245,7 +244,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
   #ifdef _OPENMP
-  Rprintf("Use parallel");
+  Rcpp::Rcout << "Use parallel" << std::endl;
   #pragma \
   omp \
     parallel \
