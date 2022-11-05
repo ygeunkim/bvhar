@@ -39,6 +39,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @export
 sim_var <- function(num_sim, 
                     num_burn, 
                     var_coef, 
