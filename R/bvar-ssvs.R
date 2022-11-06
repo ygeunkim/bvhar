@@ -6,6 +6,7 @@
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in
+#' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -31,8 +32,9 @@
 #' @export
 bvar_ssvs <- function(y, 
                       p, 
-                      num_iter, 
-                      num_burn, 
+                      num_iter = 100, 
+                      num_burn = 0, 
+                      thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
                       include_mean = TRUE) {
@@ -120,7 +122,7 @@ bvar_ssvs <- function(y,
     stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
   }
   if (!(
-    length(bayes_spec$chol_spike) == dim_data * (dim_data - 1) / 2 &&
+    length(bayes_spec$chol_spike) == num_eta &&
     length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
     length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
   )) {
@@ -181,42 +183,48 @@ bvar_ssvs <- function(y,
     chain = init_spec$chain
   )
   # preprocess the results------------
+  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  ssvs_res$alpha_record <- ssvs_res$alpha_record[thin_id,]
+  ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
+  ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
+  ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
+  ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
   if (ssvs_res$chain > 1) {
     ssvs_res$alpha_record <- 
       split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
       as_draws_df()
-    ssvs_res$tau_record <- 
-      split_paramarray(ssvs_res$tau_record, chain = ssvs_res$chain, param_name = "tau") %>% 
+    ssvs_res$gamma_record <- 
+      split_paramarray(ssvs_res$gamma_record, chain = ssvs_res$chain, param_name = "gamma") %>% 
       as_draws_df()
-    ssvs_res$psi_jj_record <- 
-      split_paramarray(ssvs_res$psi_jj_record, chain = ssvs_res$chain, param_name = "psi") %>% 
+    ssvs_res$psi_record <- 
+      split_paramarray(ssvs_res$psi_record, chain = ssvs_res$chain, param_name = "psi") %>% 
       as_draws_df()
-    ssvs_res$psi_ij_record <- 
-      split_paramarray(ssvs_res$psi_ij_record, chain = ssvs_res$chain, param_name = "eta") %>% 
+    ssvs_res$eta_record <- 
+      split_paramarray(ssvs_res$eta_record, chain = ssvs_res$chain, param_name = "eta") %>% 
       as_draws_df()
-    ssvs_res$omega_ij_record <- 
-      split_paramarray(ssvs_res$omega_ij_record, chain = ssvs_res$chain, param_name = "omega") %>% 
+    ssvs_res$omega_record <- 
+      split_paramarray(ssvs_res$omega_record, chain = ssvs_res$chain, param_name = "omega") %>% 
       as_draws_df()
     ssvs_res$param <- bind_draws(
       ssvs_res$alpha_record, 
-      ssvs_res$tau_record,
-      ssvs_res$psi_jj_record,
-      ssvs_res$psi_ij_record,
-      ssvs_res$omega_ij_record
+      ssvs_res$gamma_record,
+      ssvs_res$psi_record,
+      ssvs_res$eta_record,
+      ssvs_res$omega_record
     )
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
-    colnames(ssvs_res$tau_record) <- paste0("tau[", 1:num_restrict, "]")
-    colnames(ssvs_res$psi_jj_record) <- paste0("psi[", 1:dim_data, "]")
-    colnames(ssvs_res$psi_ij_record) <- paste0("eta[", 1:num_eta, "]")
-    colnames(ssvs_res$omega_ij_record) <- paste0("omega[", 1:num_eta, "]")
+    colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
+    colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
+    colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
+    colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
     ssvs_res$param <- as_draws_df(
       cbind(
         ssvs_res$alpha_record,
-        ssvs_res$tau_record,
-        ssvs_res$psi_jj_record,
-        ssvs_res$psi_ij_record,
-        ssvs_res$omega_ij_record
+        ssvs_res$gamma_record,
+        ssvs_res$psi_record,
+        ssvs_res$eta_record,
+        ssvs_res$omega_record
       ),
       .nchains = ssvs_res$chain
     )
@@ -233,6 +241,9 @@ bvar_ssvs <- function(y,
   ssvs_res$type <- ifelse(include_mean, "const", "none")
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
+  ssvs_res$iter <- num_iter
+  ssvs_res$burn <- num_burn
+  ssvs_res$thin <- thinning
   # data------------------
   ssvs_res$y0 <- Y0
   ssvs_res$design <- X0
@@ -257,8 +268,8 @@ bvar_ssvs <- function(y,
 split_paramarray <- function(x, chain, param_name) {
   num_var <- ncol(x) / chain
   res <- 
-    split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>% 
-    lapply(t) %>% 
+    split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>%
+    lapply(t) %>%
     unlist() %>% 
     array(
       dim = c(nrow(x), chain, num_var),
@@ -270,3 +281,34 @@ split_paramarray <- function(x, chain, param_name) {
     )
   res
 }
+
+#' @rdname bvar_ssvs
+#' @param x `bvarsp` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname bvar_ssvs
+#' @param x `bvarsp` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvarsp <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "bvarsp",
+  knit_print.bvarsp,
+  envir = asNamespace("knitr")
+)

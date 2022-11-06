@@ -2,17 +2,24 @@
 % Please edit documentation in R/bvar-ssvs.R
 \name{bvar_ssvs}
 \alias{bvar_ssvs}
+\alias{print.bvarsp}
+\alias{knit_print.bvarsp}
 \title{Fitting Bayesian VAR(p) of SSVS Prior}
 \usage{
 bvar_ssvs(
   y,
   p,
-  num_iter,
-  num_burn,
+  num_iter = 100,
+  num_burn = 0,
+  thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
   include_mean = TRUE
 )
+
+\method{print}{bvarsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.bvarsp(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
@@ -23,11 +30,19 @@ bvar_ssvs(
 
 \item{num_burn}{Number of burn-in}
 
+\item{thinning}{Thinning every thinning-th iteration}
+
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 
 \item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{x}{\code{bvarsp} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \description{
 This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.

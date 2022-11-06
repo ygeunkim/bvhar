@@ -213,7 +213,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
-  int num_upperchol = init_chol_upper.size(); // number of upper cholesky = dim (dim - 1) / 2
+  int num_upperchol = chol_slab.size(); // number of upper cholesky = dim (dim - 1) / 2
   // Initialize coefficients vector-------------------------------
   int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
@@ -231,18 +231,18 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   // Rcpp::Rcout << tmp_ols << std::endl;
   // Eigen::VectorXd coefvec_ols = coef_ols.reshaped().transpose();
   // record-------------------------------------------------------
-  int num_mcmc = num_iter + num_burn;
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_mcmc, num_coef * chain);
+  int num_mcmc = num_iter - num_burn;
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
   coef_record.row(0) = init_coef;
-  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_mcmc, num_restrict * chain);
+  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_restrict * chain);
   coef_dummy_record.row(0) = init_coef_dummy;
-  Eigen::MatrixXd chol_diag_record = Eigen::MatrixXd::Zero(num_mcmc, dim * chain);
+  Eigen::MatrixXd chol_diag_record = Eigen::MatrixXd::Zero(num_iter, dim * chain);
   chol_diag_record.row(0) = init_chol_diag;
-  Eigen::MatrixXd chol_upper_record = Eigen::MatrixXd::Zero(num_mcmc, num_upperchol * chain);
+  Eigen::MatrixXd chol_upper_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol * chain);
   chol_upper_record.row(0) = init_chol_upper;
-  Eigen::MatrixXd chol_dummy_record = Eigen::MatrixXd::Zero(num_mcmc, num_upperchol * chain);
+  Eigen::MatrixXd chol_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol * chain);
   chol_dummy_record.row(0) = init_chol_dummy;
-  Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_mcmc, dim * chain); // 3d matrix alternative
+  Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain); // 3d matrix alternative
   // Some variables-----------------------------------------------
   // Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
   Eigen::MatrixXd coef_mat(dim_design, dim); // coefficient matrix to compute sse_mat
@@ -262,7 +262,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       shared(prior_mean, XtX, coefvec_ols, sse_mat, dim, dim_design, num_restrict, num_non, num_design, num_upperchol,
              coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
   for (int b = 0; b < chain; b++) {
-    for (int i = 1; i < num_mcmc; i++) {
+    for (int i = 1; i < num_iter; i++) {
       coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.block(i - 1, b * num_coef, 1, num_coef).data(), dim_design, dim);
       sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
       // 1. Psi--------------------------
@@ -304,7 +304,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     }
   }
   #else
-  for (int i = 1; i < num_mcmc; i++) {
+  for (int i = 1; i < num_iter; i++) {
     coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i - 1).data(), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 1. Psi--------------------------
@@ -346,12 +346,12 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   }
   #endif
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter),
-    Rcpp::Named("psi_ij_record") = chol_upper_record.bottomRows(num_iter),
-    Rcpp::Named("psi_jj_record") = chol_diag_record.bottomRows(num_iter),
-    Rcpp::Named("omega_ij_record") = chol_dummy_record.bottomRows(num_iter),
-    Rcpp::Named("tau_record") = coef_dummy_record.bottomRows(num_iter),
-    Rcpp::Named("psi_record") = chol_factor_record,
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_mcmc),
+    Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_mcmc),
+    Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_mcmc),
+    Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_mcmc),
+    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_mcmc),
+    Rcpp::Named("chol_record") = chol_factor_record,
     Rcpp::Named("sse") = sse_mat,
     Rcpp::Named("coefficients") = coef_ols,
     Rcpp::Named("chain") = chain

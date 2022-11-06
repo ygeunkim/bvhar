@@ -173,7 +173,8 @@ fit <- bvar_ssvs(
   y = var_data,
   p = 1,
   num_iter = 10000,
-  num_burn = 2500,
+  num_burn = 5000,
+  thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
   include_mean = TRUE
@@ -183,7 +184,12 @@ fit <- bvar_ssvs(
 Average of the restriction indices $\gamma$ over all 100 samples:
 
 ```{r tauresult}
-colMeans(fit$tau_record) %>% 
+colMeans(fit$gamma_record) %>% 
+  matrix(ncol = ncol(fit$coefficients))
+```
+
+```{r alpharesult}
+colMeans(fit$alpha_record) %>% 
   matrix(ncol = ncol(fit$coefficients))
 ```
 
@@ -197,8 +203,8 @@ Average of the restriction indices $\omega$ over all 100 samples:
 
 ```{r omegaresult}
 omega_mean <- matrix(0L, nrow = nrow(init_omega), ncol = ncol(init_omega))
-diag(omega_mean) <- 1
-omega_mean[upper.tri(omega_mean, diag = FALSE)] <- colMeans(fit$omega_ij_record)
+diag(omega_mean) <- colMeans(fit$psi_record)
+omega_mean[upper.tri(omega_mean, diag = FALSE)] <- colMeans(fit$omega_record)
 omega_mean
 ```
 
@@ -208,6 +214,12 @@ Compare with:
 var_chol
 ```
 
+```{r aplot}
+color_scheme_set("mix-blue-pink")
+mcmc_trace(fit$param, regex_pars = "psi")
+```
+
+Converge?
 
 ### Multiple Initial values
 
@@ -252,13 +264,16 @@ init_omegalist <- lapply(
 fit_multiple <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 100,
+  num_iter = 1000,
   num_burn = 0,
+  thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = init_multi,
   include_mean = TRUE
 )
 ```
+
+
 
 
 
