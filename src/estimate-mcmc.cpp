@@ -225,6 +225,11 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
+  // Rcpp::Rcout << coefvec_ols.resize(dim_design, dim) << std::endl;
+  // Rcpp::Rcout << coef_ols << std::endl;
+  // Eigen::MatrixXd tmp_ols = Eigen::Map<Eigen::MatrixXd>(coefvec_ols.data(), dim_design, dim);
+  // Rcpp::Rcout << tmp_ols << std::endl;
+  // Eigen::VectorXd coefvec_ols = coef_ols.reshaped().transpose();
   // record-------------------------------------------------------
   int num_mcmc = num_iter + num_burn;
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_mcmc, num_coef * chain);
@@ -239,7 +244,11 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   chol_dummy_record.row(0) = init_chol_dummy;
   Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_mcmc, dim * chain); // 3d matrix alternative
   // Some variables-----------------------------------------------
-  Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
+  // Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
+  Eigen::MatrixXd coef_mat(dim_design, dim); // coefficient matrix to compute sse_mat
+  // coef_mat = Eigen::Map<Eigen::MatrixXd>(init_coef.data(), dim_design, dim);
+  // Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
+  Eigen::MatrixXd sse_mat(dim, dim);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
@@ -254,6 +263,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
              coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
   for (int b = 0; b < chain; b++) {
     for (int i = 1; i < num_mcmc; i++) {
+      coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.block(i - 1, b * num_coef, 1, num_coef).data(), dim_design, dim);
+      sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
       // 1. Psi--------------------------
       chol_mixture_mat = build_ssvs_sd(
         chol_spike,
@@ -294,6 +305,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   }
   #else
   for (int i = 1; i < num_mcmc; i++) {
+    coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i - 1).data(), dim_design, dim);
+    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 1. Psi--------------------------
     chol_mixture_mat = build_ssvs_sd(
       chol_spike,

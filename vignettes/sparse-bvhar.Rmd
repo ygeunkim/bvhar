@@ -248,17 +248,17 @@ init_omegalist <- lapply(
 ))
 ```
 
-<!-- ```{r multiplessvs} -->
-<!-- fit_multiple <- bvar_ssvs( -->
-<!--   y = var_data, -->
-<!--   p = 1, -->
-<!--   num_iter = 100, -->
-<!--   num_burn = 0, -->
-<!--   bayes_spec = ssvs_spec, -->
-<!--   init_spec = init_multi, -->
-<!--   include_mean = TRUE -->
-<!-- ) -->
-<!-- ``` -->
+```{r multiplessvs}
+fit_multiple <- bvar_ssvs(
+  y = var_data,
+  p = 1,
+  num_iter = 100,
+  num_burn = 0,
+  bayes_spec = ssvs_spec,
+  init_spec = init_multi,
+  include_mean = TRUE
+)
+```
 
 
 
