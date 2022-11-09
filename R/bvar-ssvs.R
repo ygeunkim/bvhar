@@ -23,10 +23,29 @@
 #' \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 #' 
 #' Gibbs sampler is used for the estimation.
+#' See [ssvs_bvar_algo] how it works.
+#' @return `bvar_ssvs` returns an object named `bvarsp` [class].
+#' It is a list with the following components:
+#' 
+#' \describe{
+#'   \item{coefficients}{Coefficient Matrix}
+#'   \item{p}{Lag of VAR}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
+#' }
 #' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @seealso 
+#' * Vectorization formulation [var_vec_formulation]
+#' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export

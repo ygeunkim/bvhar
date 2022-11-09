@@ -279,9 +279,15 @@ NULL
 #' This page describes a stochastic search variable selection (SSVS) MCMC algorithm
 #' in a VAR model.
 #' 
-#' # SSVS Prior
+#' @section SSVS Prior:
+#' Consider the vectorized formulation \eqn{vec(Y_0) = (I_k \otimes X_0) vec(A) + vec(Z_0)}.
+#' As the other Bayesian VAR model, this model handles coefficients \eqn{A} and variance matrix \eqn{\Sigma_e}.
+#' To shrink \eqn{\Sigma_e^{-1}}, however, upper cholesky factor is used as the alternative \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal} in this context.
 #' 
-#' Let \eqn{(\gamma_1, \ldots, \gamma_k)^\intercal} be dummy variables restricting coefficients vector.
+#' ## Prior of coefficients
+#' 
+#' Each \eqn{vec(A) = \alpha = (\alpha_1, \ldots, \alpha_{k^2 p + k})} except constant-corresponding term is restricted by
+#' \eqn{\gamma = (\gamma_1, \ldots, \gamma_{k^2 p})^\intercal}, which is dummy vector.
 #' Then
 #' \deqn{
 #'   h_i = \begin{cases}
@@ -289,68 +295,79 @@ NULL
 #'     \tau_{1i} & \text{if } \gamma_i = 1
 #'   \end{cases}
 #' }
-#' In turn, \eqn{D = diag(h_1, \ldots, h_k)}.
-#' Let \eqn{\omega_j = (\omega_{1j}, \ldots, \omega_{j - 1, j})^\intercal} be dummy variables restricting covariance matrix.
-#' Then
+#' with small \eqn{\tau_{0j}} and large \eqn{\tau_{1j}}.
+#' In turn, \eqn{D = diag(h_1, \ldots, h_{k^2 p})}.
+#' 
+#' Let \eqn{\alpha_{coef}} be the restricted coefficients vector
+#' and let \eqn{\alpha_{non}} be the not-restricted coefficients vector, i.e. vectorized constant term.
+#' Each term has its own prior.
+#' \deqn{
+#'   \alpha_{coef} \mid \gamma \sim N(0_{k^2 p}, DD),
+#'   \quad
+#'   \alpha_{non} \sim N(0_k, c I_k)
+#' }
+#' If \eqn{c} is large, then prior influence to \eqn{\alpha_{non}} decreases.
+#' By combining each term in appropriate order,
+#' \deqn{\alpha \mid \gamma \sim N(0_{k^2 p + k}, M)}
+#' is acquired by
+#' \deqn{
+#'   M_0 = I_{k p + 1} \otimes \begin{bmatrix}
+#'     DD & 0_{k^2 p} \\
+#'     0_{k^2 p}^\intercal & c
+#'   \end{bmatrix}
+#' }
+#' Sometimes nonzero prior mean \eqn{\alpha_0} is also considered.
+#' 
+#' ## Prior of Coefficients Restrictions
+#' 
+#' It is natural that 0-1 \eqn{\gamma_{j}} has Bernoulli distribution.
+#' \deqn{\gamma_j \sim Bernoulli(p_j)}
+#' If there is no information, set \eqn{p_j = 0.5}.
+#' 
+#' ## Prior of Cholesky Factor
+#' 
+#' Let \eqn{\Psi = [\psi_{ij}] \in \mathbb{R}^{k \times k}}.
+#' Recall that \eqn{\Psi} is an upper triangular matrix such that \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal}.
+#' 
+#' To define the prior distribution, George et al. (2008) divide the matrix in two parts
+#' 
+#' * Diagnonal element: \eqn{\psi = (\psi_{11}, \ldots, \psi_{kk})^\intercal}
+#' * Off-diagonal element: \eqn{\eta_j = (\psi_{1j}, \ldots, \psi_{j-1, j})^\intercal, j = 2, \ldots, k}
+#' 
+#' ## Prior of off-diagonal element
+#' 
+#' To restrict cholesky factor, dummy vector \eqn{\omega_j = (\omega_{1j}, \ldots, \omega_{j - 1, j})^\intercal}
+#' corresponding to off-diagonal elements are defined.
+#' Then the matrix \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})} is defined by
 #' \deqn{
 #'   h_{ij} = \begin{cases}
 #'     \kappa_{0ij} & \text{if } \omega_{ij} = 0 \\
 #'     \kappa_{1ij} & \text{if } \omega_{ij} = 1
 #'   \end{cases}
 #' }
-#' In turn, \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})}.
+#' with small \eqn{\kappa_{0ij}} and large \eqn{\kappa_{1ij}}.
+#' As coefficients vector, \eqn{\eta_j} has normal distribution
+#' \deqn{\eta_j \mid \omega_j \sim N(0_{j - 1}, D_j D_j), j = 2, \ldots, k}
 #' 
-#' Blah Blah
+#' ## Prior of off-diagonal element restrictions
 #' 
-#' After sampling \eqn{\psi_{jj}, \psi_{ij}}, and \eqn{\omega_{ij}}, generate \eqn{\alpha} by
-#' combining non-restricted constant term and potentially restricted coefficients vector term.
-#' This process is done outside of the function and gives each prior mean and prior precision.
-#' In turn,
-#' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N_{k^2 p} (\mu, \Delta)}
-#' The dimension \eqn{k^2 p} is when non-constant term.
-#' When there is constant term, it is \eqn{k (kp + 1)}.
-#' Here,
-#' \deqn{
-#'   \mu = (
-#''     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
-#'   )^{-1} (
-#''     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha}^{MLE} + M^{-1} \alpha_0
-#'   )
-#' }
-#' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha}.
-#' In regression, MLE is the same as OLS.
-#' \deqn{
-#'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
-#' }
-#' After this step, we move to generating Bernoulli \eqn{\gamma_j}.
+#' As \eqn{\gamma_j}, \eqn{\omega_{ij}} has Bernoulli distribution.
+#' \deqn{\omega_{ij} \sim Bernoulli(q_{ij})}
+#' \eqn{q_{ij} = 0.5} is the most common choice.
 #' 
-#' Blah Blah
+#' ## Prior of diagonal element
 #' 
-#' We draw \eqn{\omega_{ij}} and \eqn{\gamma_j} from Bernoulli distribution.
-#' \deqn{
-#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
-#' }
-#' If \eqn{R_j = I_{j - 1}},
-#' \deqn{
-#'   u_{ij1} = \frac{1}{\kappa_{1ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
-#'   u_{ij2} = \frac{1}{\kappa_{0ij} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
-#' }
-#' Otherwise, see George et al. (2008).
-#'' Also,
-#' \deqn{
-#'   \gamma_j \mid \alpha, \psi, \eta, \omega, Y_0 \sim Bernoulli(\frac{u_{i1}}{u_{j1} + u_{j2}})
-#' }
-#' Similarly, if \eqn{R = I_{k^2 p}},
-#' \deqn{
-#'   u_{j1} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})p_i,
-#'   u_{j2} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})(1 - p_i)
-#' }
+#' Since cholesky factor is positive definite, diagonal element of the matrix is given Gamma distribution.
+#' \deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
 #' 
-#' Blah Blah
+#' @section Gibbs Sampling:
+#' ## Full Conditional
 #' 
+#' George et al. (2008) presents every full conditionals.
 #' Let SSE matrix be \eqn{S(\hat{A}) = (Y_0 - X_0 \hat{A})^\intercal (Y_0 - X_0 \hat{A}) \in \mathbb{R}^{k \times k}},
-#' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(\hat{A})},
-#' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal}.
+#' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(A)},
+#' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal} of \eqn{S(A)}.
+#' 
 #' For specified shape and rate of Gamma distribution \eqn{a_j} and \eqn{b_j},
 #' \deqn{
 #'   \psi_{jj}^2 \mid \alpha, \gamma, \omega, Y_0 \sim \gamma(a_i + n / 2, B_i)
@@ -362,31 +379,54 @@ NULL
 #'     b_i + (s_{ii} - s_i^\intercal ( S_{i - 1} + (D_i R_i D_i)^(-1) )^(-1) s_i) & \text{if } i = 2, \ldots, k
 #'   \end{cases}
 #' }
-#' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}
-#' is the one made by upper diagonal element of \eqn{\Psi} matrix.
+#' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}.
 #' 
-#' Blah Blah
-#' 
-#' After drawing \eqn{\psi_{jj}}, generate upper elements by
+#' For every \eqn{j = 1, \ldots, k},
 #' \deqn{
-#'   \eta_j \mid \alpha, \gamma, \omega, \psi, Y_0 \sim N_{j - 1} (\mu_j, \Delta_j)
+#'   \eta_j \mid \alpha, \gamma, \omega, \psi, Y_0 \sim N (\mu_j, \Delta_j)
 #' }
 #' where
 #' \deqn{
-#'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j,
-#'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1}
+#'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j \in \mathbb{R}^{j - 1},
+#'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} \in \mathbb{R}^{(j - 1) \times (j - 1)}
 #' }
 #' 
-#' 
-#' 
-#' Consider \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal} where upper triangular \eqn{\Psi = [\psi_{ij}]}.
-#' Column vector for upper off-diagonal element is denoted by
+#' Consider restriction dummy vectors.
 #' \deqn{
-#'   \eta_j = (\psi_{12}, \ldots, \psi_{j-1, j})
+#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
 #' }
-#' for \eqn{j = 2, \ldots, k}.
+#' where
+#' \deqn{
+#'   u_{ij1} = \frac{1}{\kappa_{1ij}} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
+#'   u_{ij2} = \frac{1}{\kappa_{0ij}} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
+#' }
+#' Also,
+#' \deqn{
+#'   \gamma_j \mid \alpha, \psi, \eta, \omega, Y_0 \sim Bernoulli(\frac{u_{i1}}{u_{j1} + u_{j2}})
+#' }
+#' where
+#' \deqn{
+#'   u_{j1} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})p_i,
+#'   u_{j2} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})(1 - p_i)
+#' }
 #' 
-#' # Gibbs Sampling
+#' In case of coefficients vector,
+#' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N (\mu, \Delta)}
+#' where
+#' \deqn{
+#'   \mu = (
+#''     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
+#'   )^{-1} (
+#''     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha} + M^{-1} \alpha_0
+#'   )
+#' }
+#' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha \mid \gamma},
+#' and \eqn{\hat{\alpha}} is MLE (equivalently, OLS).
+#' \deqn{
+#'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
+#' }
+#' 
+#' ## Gibbs Sampling
 #' 
 #' Data: \eqn{X_0}, \eqn{Y_0}
 #' 
@@ -406,7 +446,7 @@ NULL
 #'     * \eqn{c_1}: large value (10)
 #' * Constant to reduce prior influence on constant term: \eqn{c}
 #' 
-#' Gibbs sampling:
+#' Algorithm:
 #' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\alpha}, \eqn{\gamma}
 #' 2. Iterate
 #'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
@@ -414,6 +454,11 @@ NULL
 #'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
 #'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
 #'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
+#' 
+#' Output:
+#' * Parameter trace
+#' * Update results
+#' * OLS
 #' @references 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 

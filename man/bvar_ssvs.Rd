@@ -44,6 +44,23 @@ knit_print.bvarsp(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{bvar_ssvs} returns an object named \code{bvarsp} \link{class}.
+It is a list with the following components:
+
+\describe{
+\item{coefficients}{Coefficient Matrix}
+\item{p}{Lag of VAR}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{totobs}{Total number of the observation}
+\item{call}{Matched call}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{y0}{\eqn{Y_0}}
+\item{design}{\eqn{X_0}}
+\item{y}{Raw input}
+}
+}
 \description{
 This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 }
@@ -60,9 +77,16 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 
 Gibbs sampler is used for the estimation.
+See \link{ssvs_bvar_algo} how it works.
 }
 \references{
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions. Journal of Econometrics}, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
 
 Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:\href{http://dx.doi.org/10.1561/0800000013}{10.1561/0800000013}
+}
+\seealso{
+\itemize{
+\item Vectorization formulation \link{var_vec_formulation}
+\item Gibbs sampler algorithm \link{ssvs_bvar_algo}
+}
 }

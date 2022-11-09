@@ -13,10 +13,7 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
-  Eigen::VectorXd res(Eigen::Map<Eigen::VectorXd>(
-    x.transpose().data(),
-    x.rows() * x.cols()
-  ));
+  Eigen::VectorXd res = Eigen::Map<Eigen::VectorXd>(x.transpose().data(), x.rows() * x.cols());
   return res;
 }
 
