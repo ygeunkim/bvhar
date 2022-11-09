@@ -181,33 +181,6 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
     .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
 }
 
-#' Generating Coefficient Vector in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
-#' 
-#' @param prior_mean The prior mean vector of the VAR coefficient vector
-#' @param prior_prec The prior precision matrix of the VAR coefficient vector
-#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
-#' @param chol_factor Cholesky factor of variance matrix
-#' @noRd
-ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
-    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_prec, XtX, coef_ols, chol_factor)
-}
-
-#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-#' 
-#' @param param_obs Realized parameters vector
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param slab_weight Proportion of nonzero coefficients
-#' @noRd
-ssvs_dummy <- function(param_obs, spike_sd, slab_sd, slab_weight) {
-    .Call(`_bvhar_ssvs_dummy`, param_obs, spike_sd, slab_sd, slab_weight)
-}
-
 #' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 #' 
 #' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
@@ -243,6 +216,46 @@ ssvs_chol_off <- function(sse_mat, chol_diag, inv_DRD) {
 #' @noRd
 build_chol <- function(diag_vec, off_diagvec) {
     .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
+}
+
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+#' 
+#' @param param_obs Realized parameters vector
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param slab_weight Proportion of nonzero coefficients
+#' @noRd
+ssvs_chol_dummy <- function(chol_upper, spike_sd, slab_sd, slab_weight) {
+    .Call(`_bvhar_ssvs_chol_dummy`, chol_upper, spike_sd, slab_sd, slab_weight)
+}
+
+#' Generating Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
+#' 
+#' @param prior_mean The prior mean vector of the VAR coefficient vector
+#' @param prior_prec The prior precision matrix of the VAR coefficient vector
+#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
+#' @param chol_factor Cholesky factor of variance matrix
+#' @noRd
+ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
+    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_prec, XtX, coef_ols, chol_factor)
+}
+
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+#' 
+#' @param param_obs Realized parameters vector
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param slab_weight Proportion of nonzero coefficients
+#' @noRd
+ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
+    .Call(`_bvhar_ssvs_coef_dummy`, coef, spike_sd, slab_sd, slab_weight)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler

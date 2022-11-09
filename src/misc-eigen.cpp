@@ -6,7 +6,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
-  Eigen::MatrixXd res = kroneckerProduct(x, y).eval();
+  Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
   return res;
 }
 

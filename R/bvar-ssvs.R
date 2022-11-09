@@ -62,7 +62,7 @@ bvar_ssvs <- function(y,
     name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p) # s x k
+  X0 <- build_design(y, p) # n x dim_design
   name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
   colnames(X0) <- name_lag
   # const or none---------------------
@@ -212,6 +212,9 @@ bvar_ssvs <- function(y,
       ssvs_res$eta_record,
       ssvs_res$omega_record
     )
+    # Cholesky factor 3d array
+    ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
+    ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
@@ -228,6 +231,9 @@ bvar_ssvs <- function(y,
       ),
       .nchains = ssvs_res$chain
     )
+    # Cholesky factor 3d array
+    ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
+    ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_burn + 1, to = num_iter, by = thinning)] # burn in
   }
   # variables------------
   ssvs_res$df <- dim_design
@@ -279,6 +285,46 @@ split_paramarray <- function(x, chain, param_name) {
         variable = paste0(param_name, "[", seq_len(num_var), "]")
       )
     )
+  res
+}
+
+#' Processing 3d Matrix from `RcppEigen`
+#' 
+#' Preprocess 3d record matrix
+#' 
+#' @param x Parameter matrix
+#' @param num_iter MCMC iteration number
+#' @param dim_data Data dimension
+#' @param chain The number of the chains
+#' @noRd
+split_psirecord <- function(x, chain = 1, varname = "cholesky") {
+  # res <- 
+  #   x %>% 
+  #   split.data.frame(gl(num_iter, dim_data))
+  res <- 
+    x %>% 
+    split.data.frame(gl(nrow(x) / ncol(x), ncol(x)))
+  if (chain == 1) {
+    return(res)
+  } else {
+    res <- lapply(
+      res,
+      function(y) {
+        num_var <- ncol(y) / chain
+        split.data.frame(t(y), gl(num_var, 1, ncol(y))) %>% 
+          lapply(t) %>% 
+          unlist() %>% 
+          array(
+            dim = c(nrow(y), chain, num_var),
+            dimnames = list(
+              iteration = seq_len(nrow(y)),
+              chain = seq_len(chain),
+              variable = paste0(param_name = varname, "[", seq_len(num_var), "]")
+            )
+          )
+      }
+    )
+  }
   res
 }
 

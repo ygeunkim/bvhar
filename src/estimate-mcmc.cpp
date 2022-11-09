@@ -28,55 +28,6 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
   return res;
 }
 
-//' Generating Coefficient Vector in SSVS Gibbs Sampler
-//' 
-//' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
-//' 
-//' @param prior_mean The prior mean vector of the VAR coefficient vector
-//' @param prior_prec The prior precision matrix of the VAR coefficient vector
-//' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-//' @param coef_ols OLS (MLE) estimator of the VAR coefficient
-//' @param chol_factor Cholesky factor of variance matrix
-//' @noRd
-// [[Rcpp::export]]
-Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
-                          Eigen::MatrixXd prior_prec,
-                          Eigen::MatrixXd XtX,
-                          Eigen::VectorXd coef_ols,
-                          Eigen::MatrixXd chol_factor) {
-  Eigen::MatrixXd prec_mat = chol_factor * chol_factor.transpose(); // Sigma^(-1) = chol * chol^T
-  Eigen::MatrixXd lhs_kronecker = kronecker_eigen(prec_mat, XtX); // Sigma^(-1) otimes (X_0^T X_0)
-  Eigen::MatrixXd normal_variance = (lhs_kronecker + prior_prec).inverse(); // Delta
-  Eigen::VectorXd normal_mean = normal_variance * (lhs_kronecker * coef_ols + prior_prec * prior_mean); // mu
-  return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
-}
-
-//' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-//' 
-//' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-//' 
-//' @param param_obs Realized parameters vector
-//' @param spike_sd Standard deviance for Spike normal distribution
-//' @param slab_sd Standard deviance for Slab normal distribution
-//' @param slab_weight Proportion of nonzero coefficients
-//' @noRd
-// [[Rcpp::export]]
-Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, 
-                           Eigen::VectorXd spike_sd,
-                           Eigen::VectorXd slab_sd,
-                           Eigen::VectorXd slab_weight) {
-  double bernoulli_param_spike;
-  double bernoulli_param_slab;
-  int num_latent = slab_weight.size();
-  Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
-  for (int i = 0; i < num_latent; i++) {
-    bernoulli_param_slab = slab_weight[i] * exp(- pow(param_obs[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
-    bernoulli_param_spike = (1.0 - slab_weight[i]) * exp(- pow(param_obs[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
-    res[i] = binom_rand(1.0, bernoulli_param_slab / (bernoulli_param_slab + bernoulli_param_spike)); // qj-bar
-  }
-  return res;
-}
-
 //' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 //' 
 //' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
@@ -136,7 +87,7 @@ Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat,
     sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1);
     normal_variance.block(0, 0, j, j) = (sse_mat.block(0, 0, j, j) + inv_DRD.block(block_id, block_id, j, j)).inverse();
     normal_mean.segment(0, j) = -chol_diag[j] * normal_variance.block(0, 0, j, j) * sse_colvec.segment(0, j);
-    res.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+    res.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean.segment(0, j), normal_variance.block(0, 0, j, j)));
     block_id += j;
   }
   return res;
@@ -153,14 +104,91 @@ Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat,
 Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
   int dim = diag_vec.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
-  res.diagonal() = diag_vec; // psi_ii
+  res.diagonal() = diag_vec; // psi
   int id = 0; // length of eta = m(m-1)/2
   for (int j = 1; j < dim; j++) {
+    // assign eta_j = (psi_1j, ..., psi_j-1,j)
     for (int i = 0; i < j; i++) {
-      // should assign eta (off_diagvec) column-wise
-      res(i, j) = off_diagvec[id + i];
+      res(i, j) = off_diagvec[id + i]; // assign i-th row = psi_ij
     }
     id += j;
+  }
+  return res;
+}
+
+//' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+//' 
+//' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+//' 
+//' @param param_obs Realized parameters vector
+//' @param spike_sd Standard deviance for Spike normal distribution
+//' @param slab_sd Standard deviance for Slab normal distribution
+//' @param slab_weight Proportion of nonzero coefficients
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_chol_dummy(Eigen::VectorXd chol_upper, 
+                                Eigen::VectorXd spike_sd,
+                                Eigen::VectorXd slab_sd,
+                                Eigen::VectorXd slab_weight) {
+  double bernoulli_param_spike;
+  double bernoulli_param_slab;
+  int num_latent = slab_weight.size();
+  Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
+  for (int i = 0; i < num_latent; i++) {
+    bernoulli_param_slab = slab_weight[i] * exp(- pow(chol_upper[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
+    bernoulli_param_spike = (1.0 - slab_weight[i]) * exp(- pow(chol_upper[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
+    res[i] = binom_rand(1.0, bernoulli_param_slab / (bernoulli_param_slab + bernoulli_param_spike)); // qj-bar
+  }
+  return res;
+}
+
+//' Generating Coefficient Vector in SSVS Gibbs Sampler
+//' 
+//' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
+//' 
+//' @param prior_mean The prior mean vector of the VAR coefficient vector
+//' @param prior_prec The prior precision matrix of the VAR coefficient vector
+//' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+//' @param coef_ols OLS (MLE) estimator of the VAR coefficient
+//' @param chol_factor Cholesky factor of variance matrix
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
+                          Eigen::MatrixXd prior_prec,
+                          Eigen::MatrixXd XtX,
+                          Eigen::VectorXd coef_ols,
+                          Eigen::MatrixXd chol_factor) {
+  Eigen::MatrixXd sig_inv_xtx = Eigen::kroneckerProduct(
+    chol_factor * chol_factor.transpose(), 
+    XtX
+  ).eval(); // Sigma^(-1) otimes (X_0^T X_0) where Sigma^(-1) = chol * chol^T
+  Eigen::MatrixXd normal_variance = (sig_inv_xtx + prior_prec).inverse(); // Delta
+  Eigen::VectorXd normal_mean = normal_variance * (sig_inv_xtx * coef_ols + prior_prec * prior_mean); // mu
+  return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+}
+
+//' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+//' 
+//' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+//' 
+//' @param param_obs Realized parameters vector
+//' @param spike_sd Standard deviance for Spike normal distribution
+//' @param slab_sd Standard deviance for Slab normal distribution
+//' @param slab_weight Proportion of nonzero coefficients
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef, 
+                                Eigen::VectorXd spike_sd,
+                                Eigen::VectorXd slab_sd,
+                                Eigen::VectorXd slab_weight) {
+  double bernoulli_param_spike;
+  double bernoulli_param_slab;
+  int num_latent = slab_weight.size();
+  Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
+  for (int i = 0; i < num_latent; i++) {
+    bernoulli_param_spike = slab_weight[i] * exp(- pow(coef[i], 2.0) / (2 * pow(spike_sd[i], 2.0)) ) / spike_sd[i];
+    bernoulli_param_slab = (1.0 - slab_weight[i]) * exp(- pow(coef[i], 2.0) / (2 * pow(slab_sd[i], 2.0)) ) / slab_sd[i];
+    res[i] = binom_rand(1.0, bernoulli_param_spike / (bernoulli_param_slab + bernoulli_param_spike)); // qj-bar
   }
   return res;
 }
@@ -218,20 +246,20 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
   int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): dim vs -dim (if no constant)
+  if (num_non == -dim) {
+    num_restrict += dim;
+  }
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
   Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
   Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
   Eigen::MatrixXd DRD = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // DRD
   Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
+  Eigen::MatrixXd cov_ols = (y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design);
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(cov_ols);
+  Eigen::MatrixXd chol_ols = lltOfscale.matrixU();
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
-  // Rcpp::Rcout << coefvec_ols.resize(dim_design, dim) << std::endl;
-  // Rcpp::Rcout << coef_ols << std::endl;
-  // Eigen::MatrixXd tmp_ols = Eigen::Map<Eigen::MatrixXd>(coefvec_ols.data(), dim_design, dim);
-  // Rcpp::Rcout << tmp_ols << std::endl;
-  // Eigen::VectorXd coefvec_ols = coef_ols.reshaped().transpose();
   // record-------------------------------------------------------
-  int num_mcmc = num_iter - num_burn;
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
   coef_record.row(0) = init_coef;
   Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_restrict * chain);
@@ -277,7 +305,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_chol_off(sse_mat, chol_diag_record.block(i, b * dim, 1, dim), chol_prior_prec);
       chol_factor_record.block(i * dim, b * dim, dim, dim) = build_chol(chol_diag_record.block(i, b * dim, 1, dim), chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol));
       // 3. omega--------------------------
-      chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_dummy(chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol), chol_spike, chol_slab, chol_slab_weight);
+      chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_chol_dummy(chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol), chol_spike, chol_slab, chol_slab_weight);
       // 4. alpha--------------------------
       coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol));
       DRD = coef_mixture_mat * coef_mixture_mat;
@@ -300,8 +328,10 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
           chol_factor_record.block(i * dim, b * dim, dim, dim)
         );
       // 5. gamma-------------------------
-      coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_dummy(coef_record.block(i, b * num_coef, 1, num_coef).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
+      coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(coef_record.block(i, b * num_coef, 1, num_coef).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
     }
+    coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.block(num_iter, b * num_coef, 1, num_coef).data(), dim_design, dim);
+    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat); // should be (dim, dim * chain)
   }
   #else
   for (int i = 1; i < num_iter; i++) {
@@ -319,7 +349,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_prior_prec);
     chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
     // 3. omega--------------------------
-    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_slab_weight);
+    chol_dummy_record.row(i) = ssvs_chol_dummy(chol_upper_record.row(i), chol_spike, chol_slab, chol_slab_weight);
     // 4. alpha--------------------------
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
     DRD = coef_mixture_mat * coef_mixture_mat;
@@ -342,18 +372,21 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       chol_factor_record.block(i * dim, 0, dim, dim)
     );
     // 5. gamma-------------------------
-    coef_dummy_record.row(i) = ssvs_dummy(coef_record.row(i).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
+    coef_dummy_record.row(i) = ssvs_coef_dummy(coef_record.row(i).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
   }
+  coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(num_iter).data(), dim_design, dim);
+  sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   #endif
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_mcmc),
-    Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_mcmc),
-    Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_mcmc),
-    Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_mcmc),
-    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_mcmc),
-    Rcpp::Named("chol_record") = chol_factor_record,
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("chol_record") = chol_factor_record, // Cholesky Factor matrix
     Rcpp::Named("sse") = sse_mat,
     Rcpp::Named("coefficients") = coef_ols,
+    Rcpp::Named("choleskyols") = chol_ols,
     Rcpp::Named("chain") = chain
   );
 }

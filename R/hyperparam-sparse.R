@@ -207,7 +207,7 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
     stop("Invalid dimension of 'init_chol'.")
   }
-  if (any(chol_mat[lower.tri(chol_mat, diag = TRUE)] != 0)) {
+  if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
     stop("'init_chol' should be upper triangular matrix.")
   }
   if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
