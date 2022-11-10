@@ -8,11 +8,11 @@
 #' 
 #' As mentioned in [var_lm()], we specify VAR(p) model by
 #' \deqn{Y_t = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
-#' Consider sample of n size, \eqn{y_1, \ldots, y_n}.
-#' Let \eqn{s = n - p}.
-#' \eqn{y_1, \ldots, y_n} data are rearranged as follows.
-#' \deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + s - 1})^\intercal}
-#' and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + s - 1})^\intercal}
+#' Consider sample of T size, \eqn{y_1, \ldots, y_n}.
+#' Let \eqn{n = T - p}.
+#' \eqn{y_1, \ldots, y_T} data are rearranged as follows.
+#' \deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + n - 1})^\intercal}
+#' and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + n - 1})^\intercal}
 #' For ordinary least squares (OLS) estimation,
 #' we define each response matrix and design matrix in multivariate OLS as follows.
 #' First, response matrix:
@@ -20,8 +20,8 @@
 #' Next, design matrix:
 #' \deqn{X_0 = [Y_p, \ldots, Y_1, 1]}
 #' Then we now have OLS model
-#' \deqn{Y_0 = X_0 A + Z}
-#' where \eqn{Z = Z_{p + 1}}
+#' \deqn{Y_0 = X_0 A + Z_0}
+#' where \eqn{Z_0 = Z_{p + 1}}
 #' Here,
 #' \deqn{A = [A_1, A_2, \ldots, A_p, c]^T}
 #' This gives that
@@ -30,11 +30,11 @@
 #' # Vector Heterogeneous Autoregressive Model
 #' 
 #' * VHAR model is linearly restricted VAR(22).
-#' * Let \eqn{Y_0 = X_1 \Phi + Z} be the OLS formula of VHAR.
+#' * Let \eqn{Y_0 = X_1 \Phi + Z_0} be the OLS formula of VHAR.
 #' * Let \eqn{T_0} be 3m x 22m matrix.
 #' 
 #' \deqn{
-#'   T_0 = \begin{bmatrix}
+#'   C_0 = \begin{bmatrix}
 #'   1 & 0 & 0 & 0 & 0 & 0 & \cdots & 0 \\
 #'   1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 0 & \cdots & 0 \\
 #'   1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & \cdots & 1 / 22
@@ -43,16 +43,16 @@
 #' 
 #' Define (3m + 1) x (22m + 1) matrix \eqn{T_{HAR}} by
 #' \deqn{
-#'   T_{HAR} \defn \begin{bmatrix}
-#'   T_0 & 0_{3m} \\
+#'   C_{HAR} \defn \begin{bmatrix}
+#'   C_0 & 0_{3m} \\
 #'   0_{3m}^\intercal & 1
 #' \end{bmatrix}
 #' }
 #' 
 #' Then by construction,
-#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^\intercal) \Phi + Z}
+#' \deqn{Y_0 = X_1 \Phi + Z_0 = (X_0 C_{HAR}^\intercal) \Phi + Z_0}
 #' i.e.
-#' \deqn{X_1 = X_0 T_{HAR}^\intercal}
+#' \deqn{X_1 = X_0 C_{HAR}^\intercal}
 #' 
 #' It follows that
 #' \deqn{\hat\Phi = (X_1^\intercal X_1)^{-1} X_1^\intercal Y_0}
@@ -97,7 +97,7 @@ NULL
 #' Design dummy matrix \eqn{X_p} is (m + k) x k matrix:
 #' \deqn{
 #'   X_p = \left[\begin{array}{c|c}
-#' J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{mp} \\ \hline
+#' J_p \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{mp} \\ \hline
 #' 0_{m \times mp} & 0_m \\ \hline
 #' 0_{mp}^\intercal & \epsilon
 #' \end{array}\right]
@@ -125,7 +125,7 @@ NULL
 #' For design matrix \eqn{X_0}, define (m + h) x h matrix \eqn{X_{HAR}}
 #' \deqn{
 #'   X_{HAR} = \left[\begin{array}{c|c}
-#'   J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & \zero_{3m} \\ \hline
+#'   J_3 \otimes diag\left( \sigma_1, \ldots, \sigma_m \right) / \lambda & 0_{3m} \\ \hline
 #'   0_{m \times 3m} & 0_m \\ \hline
 #'   0_{3m}^\intercal & \epsilon
 #' \end{array}\right]
@@ -222,4 +222,247 @@ NULL
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' @keywords internal
 #' @name bvar_predictive_density
+NULL
+
+#' Vectorized OLS Formulation
+#' 
+#' @description 
+#' This page specifies the OLS formulation, which is vectorized of [var_design_formulation].
+#' Notation and format here will be used in this entire package document.
+#' 
+#' # Vector Autoregressive Model
+#' 
+#' Recall k-dim VAR model \eqn{Y_0 = X_0 A + Z_0}.
+#' Applying \eqn{vec} operation, we have
+#' 
+#' \deqn{vec(Y_0) = (I_k \otimes X_0) vec(A) + vec(Z_0)}
+#' 
+#' Estimating \eqn{\alpha = vec(A)} is equivalent to estimating usual OLS.
+#' 
+#' # Vector Heterogeneous Autoregressive Model
+#' 
+#' Recall k-dim VHAR model \deqn{Y_0 = X_1 \Phi + Z_0 = (X_0 C_{HAR}^\intercal) \Phi + Z_0}.
+#' Then
+#' \deqn{vec(Y_0) = (I_k \otimes X_0 C_{HAR}^\intercal) vec(\Phi) + vec(Z_0) = (I_k \otimes X_1) vec(\Phi) + vec(Z_0)}
+#' 
+#' # Restrictions
+#' 
+#' \eqn{\phi = vec(\Phi)} is linear restriction of \eqn{\alpha = vec(A)}.
+#' Then
+#' \deqn{\alpha = vec(C_{HAR}^\intercal \Phi) = (I_k \otimes C_{HAR}^\intercal) \phi}
+#' 
+#' # Restrictions for Sparsity
+#' 
+#' Value of 0, 1 corresponding to \eqn{A_{i,j}} gives sparsity of the element.
+#' Let \eqn{\psi = (\psi_1, \ldots, \psi_{k^2 p})^\intercal} where \eqn{\psi_j = 0,1},
+#' and let \eqn{\Psi = diag(\psi) \in \mathbb{R}^{k^2 p \times k^2 p}}.
+#' 
+#' Then the new VAR coefficient vector \eqn{\theta = \Psi \alpha \in \mathbb{R}^{k^2 p}} becomes
+#' \eqn{\alpha_j = 0} if \eqn{\psi_j = 0} and \eqn{\alpha_j \neq 0} if \eqn{\psi = 1}.
+#' 
+#' 
+#' 
+#' @references 
+#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://doi.org/10.1016/j.ijforecast.2009.11.002)
+#' 
+#' Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2). doi:[10.1002/jae.1271](https://doi.org/10.1002/jae.1271)
+#' 
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' 
+#' @keywords internal
+#' @name var_vec_formulation
+NULL
+
+#' Stochastic Search Variable Selection in VAR
+#' 
+#' @description 
+#' This page describes a stochastic search variable selection (SSVS) MCMC algorithm
+#' in a VAR model.
+#' 
+#' @section SSVS Prior:
+#' Consider the vectorized formulation \eqn{vec(Y_0) = (I_k \otimes X_0) vec(A) + vec(Z_0)}.
+#' As the other Bayesian VAR model, this model handles coefficients \eqn{A} and variance matrix \eqn{\Sigma_e}.
+#' To shrink \eqn{\Sigma_e^{-1}}, however, upper cholesky factor is used as the alternative \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal} in this context.
+#' 
+#' ## Prior of coefficients
+#' 
+#' Each \eqn{vec(A) = \alpha = (\alpha_1, \ldots, \alpha_{k^2 p + k})} except constant-corresponding term is restricted by
+#' \eqn{\gamma = (\gamma_1, \ldots, \gamma_{k^2 p})^\intercal}, which is dummy vector.
+#' Then
+#' \deqn{
+#'   h_i = \begin{cases}
+#'     \tau_{0i} & \text{if } \gamma_i = 0 \\
+#'     \tau_{1i} & \text{if } \gamma_i = 1
+#'   \end{cases}
+#' }
+#' with small \eqn{\tau_{0j}} and large \eqn{\tau_{1j}}.
+#' In turn, \eqn{D = diag(h_1, \ldots, h_{k^2 p})}.
+#' 
+#' Let \eqn{\alpha_{coef}} be the restricted coefficients vector
+#' and let \eqn{\alpha_{non}} be the not-restricted coefficients vector, i.e. vectorized constant term.
+#' Each term has its own prior.
+#' \deqn{
+#'   \alpha_{coef} \mid \gamma \sim N(0_{k^2 p}, DD),
+#'   \quad
+#'   \alpha_{non} \sim N(0_k, c I_k)
+#' }
+#' If \eqn{c} is large, then prior influence to \eqn{\alpha_{non}} decreases.
+#' By combining each term in appropriate order,
+#' \deqn{\alpha \mid \gamma \sim N(0_{k^2 p + k}, M)}
+#' is acquired by
+#' \deqn{
+#'   M_0 = I_{k p + 1} \otimes \begin{bmatrix}
+#'     DD & 0_{k^2 p} \\
+#'     0_{k^2 p}^\intercal & c
+#'   \end{bmatrix}
+#' }
+#' Sometimes nonzero prior mean \eqn{\alpha_0} is also considered.
+#' 
+#' ## Prior of Coefficients Restrictions
+#' 
+#' It is natural that 0-1 \eqn{\gamma_{j}} has Bernoulli distribution.
+#' \deqn{\gamma_j \sim Bernoulli(p_j)}
+#' If there is no information, set \eqn{p_j = 0.5}.
+#' 
+#' ## Prior of Cholesky Factor
+#' 
+#' Let \eqn{\Psi = [\psi_{ij}] \in \mathbb{R}^{k \times k}}.
+#' Recall that \eqn{\Psi} is an upper triangular matrix such that \eqn{\Sigma_e^{-1} = \Psi \Psi^\intercal}.
+#' 
+#' To define the prior distribution, George et al. (2008) divide the matrix in two parts
+#' 
+#' * Diagnonal element: \eqn{\psi = (\psi_{11}, \ldots, \psi_{kk})^\intercal}
+#' * Off-diagonal element: \eqn{\eta_j = (\psi_{1j}, \ldots, \psi_{j-1, j})^\intercal, j = 2, \ldots, k}
+#' 
+#' ## Prior of off-diagonal element
+#' 
+#' To restrict cholesky factor, dummy vector \eqn{\omega_j = (\omega_{1j}, \ldots, \omega_{j - 1, j})^\intercal}
+#' corresponding to off-diagonal elements are defined.
+#' Then the matrix \eqn{D_j = diag(h_{1j}, \ldots, h_{j-1, j})} is defined by
+#' \deqn{
+#'   h_{ij} = \begin{cases}
+#'     \kappa_{0ij} & \text{if } \omega_{ij} = 0 \\
+#'     \kappa_{1ij} & \text{if } \omega_{ij} = 1
+#'   \end{cases}
+#' }
+#' with small \eqn{\kappa_{0ij}} and large \eqn{\kappa_{1ij}}.
+#' As coefficients vector, \eqn{\eta_j} has normal distribution
+#' \deqn{\eta_j \mid \omega_j \sim N(0_{j - 1}, D_j D_j), j = 2, \ldots, k}
+#' 
+#' ## Prior of off-diagonal element restrictions
+#' 
+#' As \eqn{\gamma_j}, \eqn{\omega_{ij}} has Bernoulli distribution.
+#' \deqn{\omega_{ij} \sim Bernoulli(q_{ij})}
+#' \eqn{q_{ij} = 0.5} is the most common choice.
+#' 
+#' ## Prior of diagonal element
+#' 
+#' Since cholesky factor is positive definite, diagonal element of the matrix is given Gamma distribution.
+#' \deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
+#' 
+#' @section Gibbs Sampling:
+#' ## Full Conditional
+#' 
+#' George et al. (2008) presents every full conditionals.
+#' Let SSE matrix be \eqn{S(\hat{A}) = (Y_0 - X_0 \hat{A})^\intercal (Y_0 - X_0 \hat{A}) \in \mathbb{R}^{k \times k}},
+#' let \eqn{S_j} be the upper-left j x j block matrix of \eqn{S(A)},
+#' and let \eqn{s_j = (s_{1j}, \ldots, s_{j - 1, j})^\intercal} of \eqn{S(A)}.
+#' 
+#' For specified shape and rate of Gamma distribution \eqn{a_j} and \eqn{b_j},
+#' \deqn{
+#'   \psi_{jj}^2 \mid \alpha, \gamma, \omega, Y_0 \sim \gamma(a_i + n / 2, B_i)
+#' }
+#' where
+#' \deqn{
+#'   B_i = \begin{cases}
+#'     b_1 + s_{11} / 2 & \text{if } i = 1 \\
+#'     b_i + (s_{ii} - s_i^\intercal ( S_{i - 1} + (D_i R_i D_i)^(-1) )^(-1) s_i) & \text{if } i = 2, \ldots, k
+#'   \end{cases}
+#' }
+#' , and \eqn{D_i = diag(h_{1j}, \ldots, h_{i - 1, i}) \in \mathbb{R}^{(j - 1) \times (j - 1)}}.
+#' 
+#' For every \eqn{j = 1, \ldots, k},
+#' \deqn{
+#'   \eta_j \mid \alpha, \gamma, \omega, \psi, Y_0 \sim N (\mu_j, \Delta_j)
+#' }
+#' where
+#' \deqn{
+#'   \mu_j = -\psi_{jj} (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} s_j \in \mathbb{R}^{j - 1},
+#'   \Delta_j = (S_{j - 1} + (D_j R_j D_j)^{-1})^{-1} \in \mathbb{R}^{(j - 1) \times (j - 1)}
+#' }
+#' 
+#' Consider restriction dummy vectors.
+#' \deqn{
+#'   \omega_{ij} \mid \eta_j, \psi_j, \alpha, \gamma, \omega_{j}^{(previous)} \sim Bernoulli(\frac{u_{ij1}}{u_{ij1} + u_{ij2}})
+#' }
+#' where
+#' \deqn{
+#'   u_{ij1} = \frac{1}{\kappa_{1ij}} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{1ij}^2}) q_{ij},
+#'   u_{ij2} = \frac{1}{\kappa_{0ij}} \exp(- \frac{\psi_{ij}^2}{2 \kappa_{0ij}^2}) (1 - q_{ij})
+#' }
+#' Also,
+#' \deqn{
+#'   \gamma_j \mid \alpha, \psi, \eta, \omega, Y_0 \sim Bernoulli(\frac{u_{i1}}{u_{j1} + u_{j2}})
+#' }
+#' where
+#' \deqn{
+#'   u_{j1} = \frac{1}{\tau_{0j}} \exp(- \frac{\alpha_j^2}{2 \tau_{0j}^2})p_i,
+#'   u_{j2} = \frac{1}{\tau_{1j}} \exp(- \frac{\alpha_j^2}{2 \tau_{1j}^2})(1 - p_i)
+#' }
+#' 
+#' In case of coefficients vector,
+#' \deqn{\alpha \mid \gamma, \eta, \omega, \psi, Y_0 \sim N (\mu, \Delta)}
+#' where
+#' \deqn{
+#'   \mu = (
+#''     (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1}
+#'   )^{-1} (
+#''     ( (\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) ) \hat{\alpha} + M^{-1} \alpha_0
+#'   )
+#' }
+#' where \eqn{\alpha_0} is the prior mean for \eqn{\alpha \mid \gamma},
+#' and \eqn{\hat{\alpha}} is MLE (equivalently, OLS).
+#' \deqn{
+#'   \Delta = ((\Psi \Psi^\intercal) \otimes (X_0 X_0^\intercal) + M^{-1})^{-1}
+#' }
+#' 
+#' ## Gibbs Sampling
+#' 
+#' Data: \eqn{X_0}, \eqn{Y_0}
+#' 
+#' Input:
+#' * VAR order p
+#' * MCMC iteration number
+#' * Weight of each slab: Bernoulli distribution parameters
+#'     * \eqn{p_j}: of coefficients
+#'     * \eqn{q_{ij}}: of cholesky factor
+#' * Gamma distribution parameters for cholesky factor diagonal elements \eqn{\psi_{jj}}
+#'     * \eqn{a_j}: shape
+#'     * \eqn{b_j}: rate
+#' * Correlation matrix of coefficient vector: \eqn{R = I_{k^2p}}
+#' * Correlation matrix to restrict cholesky factor (of \eqn{\eta_j}): \eqn{R_j = I_{j - 1}}
+#' * Tuning parameters for spike-and-slab sd semi-automatic approach
+#'     * \eqn{c_0}: small value (0.1)
+#'     * \eqn{c_1}: large value (10)
+#' * Constant to reduce prior influence on constant term: \eqn{c}
+#' 
+#' Algorithm:
+#' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\alpha}, \eqn{\gamma}
+#' 2. Iterate
+#'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     2. Off-diagonal elements of cholesky factor: \eqn{\eta^{(t)} \mid \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \alpha^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     4. Coefficient vector: \eqn{\alpha^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0}
+#'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \alpha^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
+#' 
+#' Output:
+#' * Parameter trace
+#' * Update results
+#' * OLS
+#' @references 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @keywords internal
+#' @name ssvs_bvar_algo
 NULL
