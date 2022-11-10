@@ -5,7 +5,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
-#' @param num_burn Number of burn-in
+#' @param num_burn Number of burn-in. Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
@@ -52,7 +52,7 @@
 bvar_ssvs <- function(y, 
                       p, 
                       num_iter = 100, 
-                      num_burn = 0, 
+                      num_burn = floor(num_iter), 
                       thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
@@ -69,6 +69,16 @@ bvar_ssvs <- function(y,
   }
   if (!is.ssvsinit(init_spec)) {
     stop("Provide 'ssvsinit' for 'init_spec'.")
+  }
+  # MCMC iterations-------------------
+  if (num_iter < 1) {
+    stop("Iterate more than 1 times for MCMC.")
+  }
+  if (num_iter < num_burn) {
+    stop("'num_iter' should be larger than 'num_burn'.")
+  }
+  if (thinning < 1) {
+    stop("'thinning' should be non-negative.")
   }
   # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k

@@ -21,9 +21,9 @@ Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd,
                               Eigen::VectorXd mixture_dummy) {
   int num_param = spike_sd.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
+  // diagonal term = spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
   for (int i = 0; i < num_param; i++) {
-    // spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
-    res(i, i) = (1.0 - mixture_dummy[i]) * spike_sd[i] + mixture_dummy[i] * slab_sd[i];
+    res(i, i) = (1 - mixture_dummy[i]) * spike_sd[i] + mixture_dummy[i] * slab_sd[i];
   }
   return res;
 }
@@ -106,8 +106,8 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
   res.diagonal() = diag_vec; // psi
   int id = 0; // length of eta = m(m-1)/2
+  // assign eta_j = (psi_1j, ..., psi_j-1,j)
   for (int j = 1; j < dim; j++) {
-    // assign eta_j = (psi_1j, ..., psi_j-1,j)
     for (int i = 0; i < j; i++) {
       res(i, j) = off_diagvec[id + i]; // assign i-th row = psi_ij
     }
