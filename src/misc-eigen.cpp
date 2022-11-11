@@ -6,17 +6,14 @@
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
-  Eigen::MatrixXd res = kroneckerProduct(x, y).eval();
+  Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
   return res;
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
-  Eigen::VectorXd res(Eigen::Map<Eigen::VectorXd>(
-    x.transpose().data(),
-    x.rows() * x.cols()
-  ));
+  Eigen::VectorXd res = Eigen::Map<Eigen::VectorXd>(x.transpose().data(), x.rows() * x.cols());
   return res;
 }
 
@@ -25,6 +22,26 @@ Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
   return es.eigenvalues();
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_inverse(Eigen::MatrixXd x) {
+  return x.inverse();
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_choleksy_lower(Eigen::MatrixXd x) {
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
+  return lltOfscale.matrixL(); // lower triangular matrix
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_choleksy_upper(Eigen::MatrixXd x) {
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
+  return lltOfscale.matrixU(); // upper triangular matrix
 }
 
 //' @noRd
@@ -80,4 +97,3 @@ double log_mgammafn(double x, int p) {
   }
   return res;
 }
-

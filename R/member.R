@@ -172,3 +172,15 @@ is.bvharemp <- function(x) {
 is.boundbvharemp <- function(x) {
   inherits(x, "boundbvharemp")
 }
+
+#' @rdname is.varlse
+#' @export
+is.ssvsinput <- function(x) {
+  inherits(x, "ssvsinput")
+}
+
+#' @rdname is.varlse
+#' @export
+is.ssvsinit <- function(x) {
+  inherits(x, "ssvsinit")
+}

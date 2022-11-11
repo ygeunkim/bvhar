@@ -1,0 +1,361 @@
+---
+title: "Sparse Priors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sparse Priors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\bbA}{\mathbb{A}}
+  \newcommand{\bfeps}{\boldsymbol\epsilon}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\bfy}{\mathbf{y}}
+  \newcommand{\bfc}{\mathbf{c}}
+---
+
+```{r rmdsetup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = .618
+)
+options(digits = 3)
+set.seed(1)
+```
+
+```{r setup}
+library(bvhar)
+```
+
+```{r otherpkg}
+# Bayes plot---------
+library(bayesplot)
+# Parallel loop------
+library(foreach)
+```
+
+
+# Stochastic Search Variable Selection (SSVS)
+
+<!-- For $(\bbA, \Sigma)$ -->
+
+## Spike-and-Slab
+
+## SSVS
+
+### Default semi-automatic approach
+
+### Covariance shrinkage
+
+$$\Sigma^{-1} = \Psi \Psi^\intercal$$
+
+where $\Psi$ is upper triangular matrix.
+
+
+## Example 1 of George et al. (2008)
+
+### VAR simulation
+
+6 variable VAR(1) with VAR coefficient $\bbA$:
+
+```{r truecoef}
+var_coef <- matrix(0L, nrow = 7, ncol = 6)
+# diag(var_coef[-7,]) <- 1
+diag(var_coef[-7,]) <- .9
+var_coef[7,] <- 1
+var_coef
+```
+
+and Choleksy factor $\Psi$:
+
+```{r varsetting}
+# Psi-------------------------------------
+var_chol <- diag(6)
+var_chol[1,2:6] <- .5
+var_chol
+```
+
+Note that the variance matrix for simulation is $\Sigma_e = (\Psi \Psi^\intercal)^{-1}$.
+
+- Simulate 100 Samples of Size $T = 50$.
+- Following Appendix D.1 of Helmut (2008), we compute the square root of multivariate normal distribution variance matrix by Cholesky decomposition.
+
+```{r varsimul}
+# var_data <- sim_var(
+#   num_sim = 50,
+#   num_burn = 10,
+#   var_coef = var_coef,
+#   var_lag = 1,
+#   sig_error = solve(var_chol %*% t(var_chol)),
+#   method = "chol"
+# )
+# colnames(var_data) <- paste0("y", 1:6)
+var_sample <- lapply(
+  1:100,
+  function(id) {
+    y <- 
+      sim_var(
+        num_sim = 50,
+        # num_burn = 10,
+        num_burn = 0,
+        var_coef = var_coef,
+        var_lag = 1,
+        sig_error = solve(var_chol %*% t(var_chol)),
+        init = matrix(runif(ncol(var_coef)), nrow = 1, ncol = ncol(var_coef)),
+        method = "chol"
+      )
+    colnames(y) <- paste0("y", 1:6)
+    y
+  }
+)
+```
+
+### SSVS spec
+
+`set_ssvs()` specifies SSVS input.
+
+- `coef_spike`: $\tau_{0i} = 0.1$
+- `coef_slab`: $\tau_{1i} = 5$
+    - For semi-automatic approach to $(\tau_{0i}, \tau_{1i})$, see the related work such as George et al. (2008)
+- `coef_mixture`: $p_j = 0.5$
+    - noninformative
+    - equally likely to be included as excluded
+- `shape`: $a_j = 0.01$
+- `rate`: $b_j = 0.01$
+    - absence of prior information about $\psi_{jj}$
+    - make the prior noninfluential with the hyperparameters $(a_j, b_j)$ set to small values
+- `chol_spike`: $\kappa_{0ij} = 0.1$
+- `chol_slab`: $\kappa_{1ij} = 5$
+    - For semi-automatic approach to $(\kappa_{0ij}, \kappa_{1ij})$, see the related work such as George et al. (2008)
+- `chol_mixture`: $q_{ij} = 0.5$
+    - noninformative
+    - equally likely to be included as excluded
+
+As every hyperparameter has set to be same for every $i,j$, value can be assigned as numeric value of length one.
+If you want to assign individually, you can use vector.
+On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_slab`, and `chol_mixture`.
+
+```{r paramset}
+(ssvs_spec <- set_ssvs(
+  coef_spike = .1,
+  coef_slab = 5,
+  coef_mixture = .5,
+  coef_non = 5,
+  shape = .01,
+  rate = .01,
+  chol_spike = .1,
+  chol_slab = 5,
+  chol_mixture = .5
+))
+```
+
+Before starting MCMC, set initial values.
+`init_ssvs()` sets initial values for each parameter.
+
+- `init_coef`: initial $\bbA = 0_{(kp + 1) \times k}$, k = 6, p = 1
+- `init_coef_dummy`: initial $\Gamma = 1_{kp \times k}$, k = 6, p = 1
+- `init_chol`: initial $\Psi = 0_{k \times \times}$ k = 6
+- `init_chol_dummy`: initial $\Omega =$ upper triangular matrix of which every diagonal and upper diagonal element is 1.
+
+```{r initset}
+# Upper triangular matrix----------------------
+init_omega <- matrix(1L, nrow = 6L, ncol = 6L)
+init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
+# initial values specification-----------------
+(init_spec <- init_ssvs(
+  init_coef = matrix(0L, nrow = 7L, ncol = 6L),
+  init_coef_dummy = matrix(1L, nrow = 6L, ncol = 6L),
+  init_chol = diag(.1, nrow = 6L, ncol = 6L),
+  init_chol_dummy = init_omega
+))
+```
+
+### Gibbs sampling
+
+- 50000 cycles 
+- after 10000 burn-in cycles.
+
+```{r gibbs}
+# fit <- bvar_ssvs(
+#   y = var_data,
+#   p = 1,
+#   num_iter = 10000,
+#   num_burn = 5000,
+#   thinning = 1,
+#   bayes_spec = ssvs_spec,
+#   init_spec = init_spec,
+#   include_mean = TRUE
+# )
+doMC::registerDoMC(cores = parallel::detectCores() - 1)
+fit_mc <- foreach(mcid = seq_along(var_sample)) %dopar% {
+  bvar_ssvs(
+    y = var_sample[[mcid]],
+    p = 1,
+    num_iter = 60000,
+    num_burn = 10000,
+    thinning = 1,
+    bayes_spec = ssvs_spec,
+    init_spec = init_spec,
+    include_mean = TRUE
+  )
+}
+```
+
+Average of OLS for coefficient $\bbA$ over 100 samples:
+
+```{r olsmccoef}
+coef_list <- lapply(seq_along(var_sample), function(id) fit_mc[[id]]$coefficients)
+Reduce("+", coef_list) / length(coef_list)
+```
+
+Average of OLS for cholesky factor $\Psi$ over 100 samples:
+
+```{r olsmcchol}
+cholols_list <- lapply(seq_along(var_sample), function(id) fit_mc[[id]]$choleskyols)
+Reduce("+", cholols_list) / length(cholols_list)
+```
+
+Average of the restriction indices $\gamma$ over 100 samples:
+
+```{r tauresult}
+gam_list <- lapply(
+  seq_along(var_sample), 
+  function(id) fit_mc[[id]]$gamma_posterior
+)
+colMeans(do.call(rbind, gam_list)) %>% 
+  matrix(ncol = ncol(var_coef))
+```
+
+Perfect match:
+
+```{r tauerr}
+do.call(rbind, gam_list) %>% 
+  apply(
+    1,
+    function(x) {
+      all(x == ifelse(c(var_coef[-7,]) == 0, 0, 1))
+    }
+  ) %>% 
+  sum()
+```
+
+Average of the restriction indices $\omega$ over 100 samples:
+
+```{r omega}
+omega_list <- lapply(
+  seq_along(var_sample), 
+  function(id) fit_mc[[id]]$omega_posterior
+)
+colMeans(do.call(rbind, omega_list))
+```
+
+Perfect match:
+
+```{r omegaerr}
+do.call(rbind, omega_list) %>% 
+  apply(
+    1, 
+    function(x) {
+      all(x == var_chol[upper.tri(var_chol, diag = FALSE)])
+    }
+  ) %>% 
+  sum()
+```
+
+Average of posterior mean for coefficient $\bbA$ over all 100 samples:
+
+```{r alpharesult}
+alpha_list <- lapply(
+  seq_along(var_sample), 
+  function(id) fit_mc[[id]]$alpha_posterior
+)
+colMeans(do.call(rbind, alpha_list)) %>% 
+  matrix(ncol = ncol(var_coef))
+```
+
+Average of posterior mean for Cholesky factor $\Psi$ over all 100 samples:
+
+```{r psiresult}
+chol_list <- lapply(
+  seq_along(var_sample), 
+  function(id) fit_mc[[id]]$chol_record[[length(fit_mc[[id]]$chol_record)]]
+)
+Reduce("+", chol_list) / length(chol_list)
+```
+
+
+## Plots for MCMC
+
+Since each parameter element is `posterior::draws_df` format, `bayesplot` package is applicable.
+
+```{r psiplot}
+color_scheme_set("blue")
+mcmc_trace(fit_mc[[1]]$param, regex_pars = "psi")
+```
+
+
+### Multiple Initial values
+
+When initializing multiple chain MCMC, use 3d array or list.
+
+```{r diagnostics}
+# Random initial coefficients-----------------------------
+init_coefarray <- array(runif(7 * 6 * 5, -2, 2), dim = c(7, 6, 5))
+init_coefarray[,,1] <- matrix(0L, nrow = 7, ncol = 6)
+# Always starts with unrestricted model--------------------
+init_coef_dummyarray <- array(1L, dim = c(6, 6, 5))
+# Random upper triangular cholesky factor-----------------
+# init_chollist <- array(0L, dim = c(6, 6, 5))
+init_chollist <- lapply(1:5, function(x) matrix(0L, nrow = 6L, ncol = 6L))
+init_chollist[2:5] <- lapply(
+  1:4,
+  function(x) {
+    x <- diag(rgamma(6, shape = 1, rate = 1))
+    x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2)
+    x
+  }
+)
+# Always starts with unrestricted eta---------------------
+init_omegalist <- lapply(
+  1:5,
+  function(x) {
+    x <- matrix(1L, nrow = 6L, ncol = 6L)
+    x[lower.tri(x, diag = TRUE)] <- 0L
+    x
+  }
+)
+# Initialize----------------------------------------------
+(init_multi <- init_ssvs(
+  init_coef = init_coefarray,
+  init_coef_dummy = init_coef_dummyarray,
+  init_chol = init_chollist,
+  init_chol_dummy = init_chollist
+))
+```
+
+```{r multiplessvs}
+fit_multiple <- bvar_ssvs(
+  y = var_sample[[1]],
+  p = 1,
+  num_iter = 1000,
+  num_burn = 0,
+  thinning = 1,
+  bayes_spec = ssvs_spec,
+  init_spec = init_multi,
+  include_mean = TRUE
+)
+```
+
+```{r aplot}
+color_scheme_set("mix-blue-pink")
+mcmc_trace(fit_multiple$psi_record)
+```
+
+
+
+
+
+

@@ -10,11 +10,11 @@ Notation and format here will be used in this entire package document.
 \section{Vector Autoregressive Model}{
 As mentioned in \code{\link[=var_lm]{var_lm()}}, we specify VAR(p) model by
 \deqn{Y_t = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
-Consider sample of n size, \eqn{y_1, \ldots, y_n}.
-Let \eqn{s = n - p}.
-\eqn{y_1, \ldots, y_n} data are rearranged as follows.
-\deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + s - 1})^\intercal}
-and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + s - 1})^\intercal}
+Consider sample of T size, \eqn{y_1, \ldots, y_n}.
+Let \eqn{n = T - p}.
+\eqn{y_1, \ldots, y_T} data are rearranged as follows.
+\deqn{Y_j = (y_j, y_{j + 1}, \ldots, y_{j + n - 1})^\intercal}
+and \eqn{Z_j = (\epsilon_j, \epsilon_{j + 1}, \ldots, \epsilon_{j + n - 1})^\intercal}
 For ordinary least squares (OLS) estimation,
 we define each response matrix and design matrix in multivariate OLS as follows.
 First, response matrix:
@@ -22,8 +22,8 @@ First, response matrix:
 Next, design matrix:
 \deqn{X_0 = [Y_p, \ldots, Y_1, 1]}
 Then we now have OLS model
-\deqn{Y_0 = X_0 A + Z}
-where \eqn{Z = Z_{p + 1}}
+\deqn{Y_0 = X_0 A + Z_0}
+where \eqn{Z_0 = Z_{p + 1}}
 Here,
 \deqn{A = [A_1, A_2, \ldots, A_p, c]^T}
 This gives that
@@ -33,12 +33,12 @@ This gives that
 \section{Vector Heterogeneous Autoregressive Model}{
 \itemize{
 \item VHAR model is linearly restricted VAR(22).
-\item Let \eqn{Y_0 = X_1 \Phi + Z} be the OLS formula of VHAR.
+\item Let \eqn{Y_0 = X_1 \Phi + Z_0} be the OLS formula of VHAR.
 \item Let \eqn{T_0} be 3m x 22m matrix.
 }
 
 \deqn{
-  T_0 = \begin{bmatrix}
+  C_0 = \begin{bmatrix}
   1 & 0 & 0 & 0 & 0 & 0 & \cdots & 0 \\
   1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 1 / 5 & 0 & \cdots & 0 \\
   1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & 1 / 22 & \cdots & 1 / 22
@@ -47,16 +47,16 @@ This gives that
 
 Define (3m + 1) x (22m + 1) matrix \eqn{T_{HAR}} by
 \deqn{
-  T_{HAR} \defn \begin{bmatrix}
-  T_0 & 0_{3m} \\
+  C_{HAR} \defn \begin{bmatrix}
+  C_0 & 0_{3m} \\
   0_{3m}^\intercal & 1
 \end{bmatrix}
 }
 
 Then by construction,
-\deqn{Y_0 = X_1 \Phi + Z = (X_0 T_{HAR}^\intercal) \Phi + Z}
+\deqn{Y_0 = X_1 \Phi + Z_0 = (X_0 C_{HAR}^\intercal) \Phi + Z_0}
 i.e.
-\deqn{X_1 = X_0 T_{HAR}^\intercal}
+\deqn{X_1 = X_0 C_{HAR}^\intercal}
 
 It follows that
 \deqn{\hat\Phi = (X_1^\intercal X_1)^{-1} X_1^\intercal Y_0}
