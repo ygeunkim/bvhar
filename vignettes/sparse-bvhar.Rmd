@@ -69,27 +69,6 @@ var_coef[7,] <- 1
 var_coef
 ```
 
-<!-- $$ -->
-<!-- \bbA = \begin{bmatrix} -->
-<!--   1 & 0 & 0 & 0 & 0 & 0 \\ -->
-<!--   0 & 1 & 0 & 0 & 0 & 0 \\ -->
-<!--   0 & 0 & 1 & 0 & 0 & 0 \\ -->
-<!--   0 & 0 & 0 & 1 & 0 & 0 \\ -->
-<!--   0 & 0 & 0 & 0 & 1 & 0 \\ -->
-<!--   0 & 0 & 0 & 0 & 0 & 1 \\ -->
-<!--   1 & 1 & 1 & 1 & 1 & 1 -->
-<!-- \end{bmatrix}, \quad -->
-
-<!-- \Psi = \begin{bmatrix} -->
-<!--   1 & 0.5 & 0.5 & 0.5 & 0.5 & 0.5 \\ -->
-<!--   0 & 1 & 0 & 0 & 0 & 0 \\ -->
-<!--   0 & 0 & 1 & 0 & 0 & 0 \\ -->
-<!--   0 & 0 & 0 & 1 & 0 & 0 \\ -->
-<!--   0 & 0 & 0 & 0 & 1 & 0 \\ -->
-<!--   0 & 0 & 0 & 0 & 0 & 1 -->
-<!-- \end{bmatrix} -->
-<!-- $$ -->
-
 and Choleksy factor $\Psi$:
 
 ```{r varsetting}
@@ -120,10 +99,12 @@ var_sample <- lapply(
     y <- 
       sim_var(
         num_sim = 50,
-        num_burn = 10,
+        # num_burn = 10,
+        num_burn = 0,
         var_coef = var_coef,
         var_lag = 1,
         sig_error = solve(var_chol %*% t(var_chol)),
+        init = matrix(runif(ncol(var_coef)), nrow = 1, ncol = ncol(var_coef)),
         method = "chol"
       )
     colnames(y) <- paste0("y", 1:6)
@@ -208,12 +189,12 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 #   init_spec = init_spec,
 #   include_mean = TRUE
 # )
-doMC::registerDoMC(cores = parallel::detectCores() - 2)
+doMC::registerDoMC(cores = parallel::detectCores() - 1)
 fit_mc <- foreach(mcid = seq_along(var_sample)) %dopar% {
   bvar_ssvs(
     y = var_sample[[mcid]],
     p = 1,
-    num_iter = 50000,
+    num_iter = 60000,
     num_burn = 10000,
     thinning = 1,
     bayes_spec = ssvs_spec,
@@ -242,10 +223,23 @@ Average of the restriction indices $\gamma$ over 100 samples:
 ```{r tauresult}
 gam_list <- lapply(
   seq_along(var_sample), 
-  function(id) fit_mc[[id]]$gamma_record[nrow(fit_mc[[1]]$gamma_record),]
+  function(id) fit_mc[[id]]$gamma_posterior
 )
 colMeans(do.call(rbind, gam_list)) %>% 
   matrix(ncol = ncol(var_coef))
+```
+
+Perfect match:
+
+```{r tauerr}
+do.call(rbind, gam_list) %>% 
+  apply(
+    1,
+    function(x) {
+      all(x == ifelse(c(var_coef[-7,]) == 0, 0, 1))
+    }
+  ) %>% 
+  sum()
 ```
 
 Average of the restriction indices $\omega$ over 100 samples:
@@ -253,9 +247,22 @@ Average of the restriction indices $\omega$ over 100 samples:
 ```{r omega}
 omega_list <- lapply(
   seq_along(var_sample), 
-  function(id) fit_mc[[id]]$omega_record[nrow(fit_mc[[1]]$omega_record),]
+  function(id) fit_mc[[id]]$omega_posterior
 )
 colMeans(do.call(rbind, omega_list))
+```
+
+Perfect match:
+
+```{r omegaerr}
+do.call(rbind, omega_list) %>% 
+  apply(
+    1, 
+    function(x) {
+      all(x == var_chol[upper.tri(var_chol, diag = FALSE)])
+    }
+  ) %>% 
+  sum()
 ```
 
 Average of posterior mean for coefficient $\bbA$ over all 100 samples:
@@ -263,7 +270,7 @@ Average of posterior mean for coefficient $\bbA$ over all 100 samples:
 ```{r alpharesult}
 alpha_list <- lapply(
   seq_along(var_sample), 
-  function(id) fit_mc[[id]]$alpha_record[nrow(fit_mc[[1]]$alpha_record),]
+  function(id) fit_mc[[id]]$alpha_posterior
 )
 colMeans(do.call(rbind, alpha_list)) %>% 
   matrix(ncol = ncol(var_coef))
@@ -290,62 +297,62 @@ mcmc_trace(fit_mc[[1]]$param, regex_pars = "psi")
 ```
 
 
-<!-- ### Multiple Initial values -->
+### Multiple Initial values
 
-<!-- When initializing multiple chain MCMC, use 3d array or list. -->
+When initializing multiple chain MCMC, use 3d array or list.
 
-<!-- ```{r diagnostics} -->
-<!-- # Random initial coefficients----------------------------- -->
-<!-- init_coefarray <- array(runif(7 * 6 * 5, -2, 2), dim = c(7, 6, 5)) -->
-<!-- init_coefarray[,,1] <- matrix(0L, nrow = 7, ncol = 6) -->
-<!-- # Always starts with unrestricted model-------------------- -->
-<!-- init_coef_dummyarray <- array(1L, dim = c(6, 6, 5)) -->
-<!-- # Random upper triangular cholesky factor----------------- -->
-<!-- # init_chollist <- array(0L, dim = c(6, 6, 5)) -->
-<!-- init_chollist <- lapply(1:5, function(x) matrix(0L, nrow = 6L, ncol = 6L)) -->
-<!-- init_chollist[2:5] <- lapply( -->
-<!--   1:4, -->
-<!--   function(x) { -->
-<!--     x <- diag(rgamma(6, shape = 1, rate = 1)) -->
-<!--     x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2) -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- # Always starts with unrestricted eta--------------------- -->
-<!-- init_omegalist <- lapply( -->
-<!--   1:5, -->
-<!--   function(x) { -->
-<!--     x <- matrix(1L, nrow = 6L, ncol = 6L) -->
-<!--     x[lower.tri(x, diag = TRUE)] <- 0L -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- # Initialize---------------------------------------------- -->
-<!-- (init_multi <- init_ssvs( -->
-<!--   init_coef = init_coefarray, -->
-<!--   init_coef_dummy = init_coef_dummyarray, -->
-<!--   init_chol = init_chollist, -->
-<!--   init_chol_dummy = init_chollist -->
-<!-- )) -->
-<!-- ``` -->
+```{r diagnostics}
+# Random initial coefficients-----------------------------
+init_coefarray <- array(runif(7 * 6 * 5, -2, 2), dim = c(7, 6, 5))
+init_coefarray[,,1] <- matrix(0L, nrow = 7, ncol = 6)
+# Always starts with unrestricted model--------------------
+init_coef_dummyarray <- array(1L, dim = c(6, 6, 5))
+# Random upper triangular cholesky factor-----------------
+# init_chollist <- array(0L, dim = c(6, 6, 5))
+init_chollist <- lapply(1:5, function(x) matrix(0L, nrow = 6L, ncol = 6L))
+init_chollist[2:5] <- lapply(
+  1:4,
+  function(x) {
+    x <- diag(rgamma(6, shape = 1, rate = 1))
+    x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2)
+    x
+  }
+)
+# Always starts with unrestricted eta---------------------
+init_omegalist <- lapply(
+  1:5,
+  function(x) {
+    x <- matrix(1L, nrow = 6L, ncol = 6L)
+    x[lower.tri(x, diag = TRUE)] <- 0L
+    x
+  }
+)
+# Initialize----------------------------------------------
+(init_multi <- init_ssvs(
+  init_coef = init_coefarray,
+  init_coef_dummy = init_coef_dummyarray,
+  init_chol = init_chollist,
+  init_chol_dummy = init_chollist
+))
+```
 
-<!-- ```{r multiplessvs} -->
-<!-- fit_multiple <- bvar_ssvs( -->
-<!--   y = var_data, -->
-<!--   p = 1, -->
-<!--   num_iter = 1000, -->
-<!--   num_burn = 0, -->
-<!--   thinning = 1, -->
-<!--   bayes_spec = ssvs_spec, -->
-<!--   init_spec = init_multi, -->
-<!--   include_mean = TRUE -->
-<!-- ) -->
-<!-- ``` -->
+```{r multiplessvs}
+fit_multiple <- bvar_ssvs(
+  y = var_sample[[1]],
+  p = 1,
+  num_iter = 1000,
+  num_burn = 0,
+  thinning = 1,
+  bayes_spec = ssvs_spec,
+  init_spec = init_multi,
+  include_mean = TRUE
+)
+```
 
-<!-- ```{r aplot} -->
-<!-- color_scheme_set("mix-blue-pink") -->
-<!-- mcmc_trace(fit_multiple$psi_record) -->
-<!-- ``` -->
+```{r aplot}
+color_scheme_set("mix-blue-pink")
+mcmc_trace(fit_multiple$psi_record)
+```
 
 
 
