@@ -967,6 +967,11 @@ vectorize_eigen <- function(x) {
 }
 
 #' @noRd
+unvectorize <- function(x, num_rows, num_cols) {
+    .Call(`_bvhar_unvectorize`, x, num_rows, num_cols)
+}
+
+#' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
 }

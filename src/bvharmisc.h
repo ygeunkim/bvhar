@@ -19,6 +19,8 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x);
 
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
+
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 
 double mgammafn(double x, int p);

@@ -27,13 +27,6 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
   }
-  // for (int i = 0; i < dim; i++) {
-  //   for (int j = 0; j < dim; j++) {
-  //     if (sig(i, j) != sig(j, i)) {
-  //       Rcpp::stop("'sig' must be a symmetric matrix.");
-  //     }
-  //   }
-  // }
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
@@ -66,13 +59,6 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
   }
-  // for (int i = 0; i < dim; i++) {
-  //   for (int j = 0; j < dim; j++) {
-  //     if (sig(i, j) != sig(j, i)) {
-  //       Rcpp::stop("'sig' must be a symmetric matrix.");
-  //     }
-  //   }
-  // }
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }

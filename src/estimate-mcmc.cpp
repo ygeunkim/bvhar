@@ -291,7 +291,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
              coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
   for (int b = 0; b < chain; b++) {
     for (int i = 1; i < num_iter; i++) {
-      coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.block(i - 1, b * num_coef, 1, num_coef).data(), dim_design, dim);
+      coef_mat = unvectorize(coef_record.block(i - 1, b * num_coef, 1, num_coef), dim_design, dim);
       sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
       // 1. Psi--------------------------
       chol_mixture_mat = build_ssvs_sd(
@@ -330,12 +330,12 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       // 5. gamma-------------------------
       coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(coef_record.block(i, b * num_coef, 1, num_coef).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
     }
-    coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.block(num_iter, b * num_coef, 1, num_coef).data(), dim_design, dim);
+    coef_mat = unvectorize(coef_record.block(num_iter, b * num_coef, 1, num_coef), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat); // should be (dim, dim * chain)
   }
   #else
   for (int i = 1; i < num_iter; i++) {
-    coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i - 1).data(), dim_design, dim);
+    coef_mat = unvectorize(coef_record.row(i - 1), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 1. Psi--------------------------
     chol_mixture_mat = build_ssvs_sd(
@@ -374,7 +374,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     // 5. gamma-------------------------
     coef_dummy_record.row(i) = ssvs_coef_dummy(coef_record.row(i).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
   }
-  coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(num_iter).data(), dim_design, dim);
+  coef_mat = unvectorize(coef_record.row(num_iter), dim_design, dim);
   sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   #endif
   return Rcpp::List::create(
@@ -388,7 +388,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("psi_posterior") = chol_diag_record.bottomRows(1),
     Rcpp::Named("omega_posterior") = chol_dummy_record.bottomRows(1),
     Rcpp::Named("gamma_posterior") = coef_dummy_record.bottomRows(1),
-    Rcpp::Named("chol_record") = chol_factor_record, // Cholesky Factor matrix
+    Rcpp::Named("chol_record") = chol_factor_record,
+    Rcpp::Named("chol_posterior") = chol_factor_record.bottomRows(dim),
     Rcpp::Named("sse") = sse_mat,
     Rcpp::Named("coefficients") = coef_ols,
     Rcpp::Named("choleskyols") = chol_ols,

@@ -250,15 +250,17 @@ bvar_ssvs <- function(y,
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
-    ssvs_res$param <- as_draws_df(
-      cbind(
-        ssvs_res$alpha_record,
-        ssvs_res$gamma_record,
-        ssvs_res$psi_record,
-        ssvs_res$eta_record,
-        ssvs_res$omega_record
-      ),
-      .nchains = ssvs_res$chain
+    ssvs_res$alpha_record <- as_draws_df(ssvs_res$alpha_record)
+    ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
+    ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
+    ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
+    ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
+    ssvs_res$param <- bind_draws(
+      ssvs_res$alpha_record, 
+      ssvs_res$gamma_record,
+      ssvs_res$psi_record,
+      ssvs_res$eta_record,
+      ssvs_res$omega_record
     )
     # Cholesky factor 3d array
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")

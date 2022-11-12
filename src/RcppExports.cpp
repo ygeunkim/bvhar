@@ -773,6 +773,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// unvectorize
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
+RcppExport SEXP _bvhar_unvectorize(SEXP xSEXP, SEXP num_rowsSEXP, SEXP num_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type num_rows(num_rowsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_cols(num_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(unvectorize(x, num_rows, num_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_eigenvalues
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 RcppExport SEXP _bvhar_compute_eigenvalues(SEXP xSEXP) {
@@ -1027,6 +1040,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
+    {"_bvhar_unvectorize", (DL_FUNC) &_bvhar_unvectorize, 3},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
     {"_bvhar_compute_inverse", (DL_FUNC) &_bvhar_compute_inverse, 1},
     {"_bvhar_compute_choleksy_lower", (DL_FUNC) &_bvhar_compute_choleksy_lower, 1},

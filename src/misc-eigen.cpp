@@ -19,6 +19,14 @@ Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
 
 //' @noRd
 // [[Rcpp::export]]
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols) {
+  // igen::Map<Eigen::MatrixXd>(coef_record.block(num_iter, b * num_coef, 1, num_coef).data(), dim_design, dim);
+  Eigen::MatrixXd res = Eigen::Map<Eigen::MatrixXd>(x.data(), num_rows, num_cols);
+  return res;
+}
+
+//' @noRd
+// [[Rcpp::export]]
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
   return es.eigenvalues();
