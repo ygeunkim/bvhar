@@ -1,5 +1,6 @@
 #ifdef _OPENMP
 #include <omp.h>
+// [[Rcpp::plugins(openmp)]]
 #endif
 #include <RcppEigen.h>
 #include "bvharmisc.h"
@@ -272,10 +273,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   chol_dummy_record.row(0) = init_chol_dummy;
   Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain); // 3d matrix alternative
   // Some variables-----------------------------------------------
-  // Eigen::MatrixXd sse_mat = (y - x * coef_ols).transpose() * (y - x * coef_ols);
   Eigen::MatrixXd coef_mat(dim_design, dim); // coefficient matrix to compute sse_mat
-  // coef_mat = Eigen::Map<Eigen::MatrixXd>(init_coef.data(), dim_design, dim);
-  // Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::MatrixXd sse_mat(dim, dim);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
@@ -287,7 +285,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     parallel \
     for \
       num_threads(chain) \
-      shared(prior_mean, XtX, coefvec_ols, sse_mat, dim, dim_design, num_restrict, num_non, num_design, num_upperchol,
+      shared(prior_mean, XtX, coefvec_ols, dim, dim_design, num_restrict, num_non, num_design, num_upperchol,
              coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
   for (int b = 0; b < chain; b++) {
     for (int i = 1; i < num_iter; i++) {
@@ -320,13 +318,13 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         // no constant term
         prior_variance = DRD;
       }
-        coef_record.block(i, b * num_coef, 1, num_coef) = ssvs_coef(
-          prior_mean, 
-          prior_variance.inverse(), 
-          XtX, 
-          coefvec_ols, 
-          chol_factor_record.block(i * dim, b * dim, dim, dim)
-        );
+      coef_record.block(i, b * num_coef, 1, num_coef) = ssvs_coef(
+        prior_mean, 
+        prior_variance.inverse(), 
+        XtX, 
+        coefvec_ols, 
+        chol_factor_record.block(i * dim, b * dim, dim, dim)
+      );
       // 5. gamma-------------------------
       coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(coef_record.block(i, b * num_coef, 1, num_coef).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
     }
@@ -365,10 +363,10 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       prior_variance = DRD;
     }
     coef_record.row(i) = ssvs_coef(
-      prior_mean, 
-      prior_variance.inverse(), 
-      XtX, 
-      coefvec_ols, 
+      prior_mean,
+      prior_variance.inverse(),
+      XtX,
+      coefvec_ols,
       chol_factor_record.block(i * dim, 0, dim, dim)
     );
     // 5. gamma-------------------------
@@ -384,8 +382,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("alpha_posterior") = coef_record.bottomRows(1),
-    Rcpp::Named("eta_posterior") = chol_upper_record.bottomRows(1),
-    Rcpp::Named("psi_posterior") = chol_diag_record.bottomRows(1),
     Rcpp::Named("omega_posterior") = chol_dummy_record.bottomRows(1),
     Rcpp::Named("gamma_posterior") = coef_dummy_record.bottomRows(1),
     Rcpp::Named("chol_record") = chol_factor_record,

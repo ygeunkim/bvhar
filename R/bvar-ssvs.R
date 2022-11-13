@@ -52,7 +52,7 @@
 bvar_ssvs <- function(y, 
                       p, 
                       num_iter = 100, 
-                      num_burn = floor(num_iter), 
+                      num_burn = floor(num_iter / 2), 
                       thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
@@ -241,9 +241,14 @@ bvar_ssvs <- function(y,
       ssvs_res$eta_record,
       ssvs_res$omega_record
     )
-    # Cholesky factor 3d array
+    # Cholesky factor 3d array-------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
+    # Posterior mean-------------------------
+    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_design, dim_data, ssvs_res$chain))
+    # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
+    
+    
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
@@ -262,9 +267,19 @@ bvar_ssvs <- function(y,
       ssvs_res$eta_record,
       ssvs_res$omega_record
     )
-    # Cholesky factor 3d array
+    # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_burn + 1, to = num_iter, by = thinning)] # burn in
+    # Posterior mean-------------------------
+    ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
+    mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
+    diag(mat_upper) <- rep(1L, dim_data)
+    mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
+    ssvs_res$omega_posterior <- mat_upper
+    ssvs_res$gamma_posterior <- matrix(ssvs_res$gamma_posterior, ncol = dim_data)
+    if (include_mean) {
+      ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
+    }
   }
   # variables------------
   ssvs_res$df <- dim_design

@@ -10,7 +10,7 @@ bvar_ssvs(
   y,
   p,
   num_iter = 100,
-  num_burn = floor(num_iter),
+  num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),

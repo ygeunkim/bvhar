@@ -154,6 +154,7 @@ On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_s
 
 Before starting MCMC, set initial values.
 `init_ssvs()` sets initial values for each parameter.
+Since George et al. (2008) did not mention how they specify the starting points, we initialize as follows.
 
 - `init_coef`: initial $\bbA = 0_{(kp + 1) \times k}$, k = 6, p = 1
 - `init_coef_dummy`: initial $\Gamma = 1_{kp \times k}$, k = 6, p = 1
@@ -182,6 +183,19 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 - after 10000 burn-in cycles.
 - If you perform the exactly same this setting, it will take about three minutes depending on the machines.
 - So in this vignette, we change the number of the iterations.
+    - 10000 iterations
+    - 5000 burn-in
+
+`bvar_ssvs()` performs SSVS for VAR model.
+
+- `y`: data
+- `p`: order
+- `num_iter`: Total number of iteration (including burn-in)
+- `num_burn`: The number of burn-in
+- `thinning`: Thinning
+- `bayes_spec`: SSVS specification using `set_ssvs()`.
+- `init_spec`: SSVS initialization specification using `init_ssvs()`.
+- `include_mean`: whether including the constant term in the model.
 
 ```{r gibbs}
 # doMC::registerDoMC(cores = parallel::detectCores() - 1)
@@ -224,21 +238,17 @@ gam_list <- lapply(
   seq_along(var_sample), 
   function(id) fit_mc[[id]]$gamma_posterior
 )
-colMeans(do.call(rbind, gam_list)) %>% 
-  matrix(ncol = ncol(var_coef))
+Reduce("+", gam_list) / length(gam_list)
 ```
 
 Perfect match:
 
 ```{r tauerr}
-do.call(rbind, gam_list) %>% 
-  apply(
-    1,
-    function(x) {
-      all(x == ifelse(c(var_coef[-7,]) == 0, 0, 1))
-    }
-  ) %>% 
-  sum()
+sapply(
+  gam_list,
+  function(x) all(x == var_coef)
+) %>% 
+  mean()
 ```
 
 Average of the restriction indices $\omega$ over 100 samples:
@@ -248,20 +258,17 @@ omega_list <- lapply(
   seq_along(var_sample), 
   function(id) fit_mc[[id]]$omega_posterior
 )
-colMeans(do.call(rbind, omega_list))
+Reduce("+", omega_list) / length(omega_list)
 ```
 
 Perfect match:
 
 ```{r omegaerr}
-do.call(rbind, omega_list) %>% 
-  apply(
-    1, 
-    function(x) {
-      all(x == var_chol[upper.tri(var_chol, diag = FALSE)])
-    }
-  ) %>% 
-  sum()
+sapply(
+  omega_list,
+  function(x) all(x == var_chol)
+) %>% 
+  mean()
 ```
 
 Average of posterior mean for coefficient $\bbA$ over all 100 samples:
@@ -271,8 +278,7 @@ alpha_list <- lapply(
   seq_along(var_sample), 
   function(id) fit_mc[[id]]$alpha_posterior
 )
-colMeans(do.call(rbind, alpha_list)) %>% 
-  matrix(ncol = ncol(var_coef))
+Reduce("+", alpha_list) / length(alpha_list)
 ```
 
 Average of posterior mean for Cholesky factor $\Psi$ over all 100 samples:
@@ -302,30 +308,34 @@ mcmc_trace(fit_mc[[1]]$param, regex_pars = "psi")
 
 <!-- ```{r diagnostics} -->
 <!-- # Random initial coefficients----------------------------- -->
-<!-- init_coefarray <- array(runif(7 * 6 * 5, -2, 2), dim = c(7, 6, 5)) -->
-<!-- init_coefarray[,,1] <- matrix(0L, nrow = 7, ncol = 6) -->
+<!-- init_coefarray <- array(runif(7 * 6 * 6, -2, 2), dim = c(7, 6, 6)) -->
+<!-- init_coefarray[,,6] <- matrix(0L, nrow = 7, ncol = 6) -->
+<!-- init_coefarray[,,1] <- init_spec$init_coef -->
 <!-- # Always starts with unrestricted model-------------------- -->
-<!-- init_coef_dummyarray <- array(1L, dim = c(6, 6, 5)) -->
+<!-- init_coef_dummyarray <- array(1L, dim = c(6, 6, 6)) -->
+<!-- # init_coef_dummyarray[,,6] <- init_spec$init_coef_dummy -->
 <!-- # Random upper triangular cholesky factor----------------- -->
 <!-- # init_chollist <- array(0L, dim = c(6, 6, 5)) -->
-<!-- init_chollist <- lapply(1:5, function(x) matrix(0L, nrow = 6L, ncol = 6L)) -->
-<!-- init_chollist[2:5] <- lapply( -->
-<!--   1:4, -->
+<!-- init_chollist <- lapply(1:6, function(x) matrix(0L, nrow = 6L, ncol = 6L)) -->
+<!-- init_chollist[2:6] <- lapply( -->
+<!--   1:5, -->
 <!--   function(x) { -->
 <!--     x <- diag(rgamma(6, shape = 1, rate = 1)) -->
 <!--     x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2) -->
 <!--     x -->
 <!--   } -->
 <!-- ) -->
+<!-- init_chollist[[1]] <- init_spec$init_chol -->
 <!-- # Always starts with unrestricted eta--------------------- -->
 <!-- init_omegalist <- lapply( -->
-<!--   1:5, -->
+<!--   1:6, -->
 <!--   function(x) { -->
 <!--     x <- matrix(1L, nrow = 6L, ncol = 6L) -->
 <!--     x[lower.tri(x, diag = TRUE)] <- 0L -->
 <!--     x -->
 <!--   } -->
 <!-- ) -->
+<!-- # init_omegalist[[6]] <- init_spec$init_chol_dummy -->
 <!-- # Initialize---------------------------------------------- -->
 <!-- (init_multi <- init_ssvs( -->
 <!--   init_coef = init_coefarray, -->
