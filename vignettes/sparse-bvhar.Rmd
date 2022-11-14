@@ -52,8 +52,7 @@ library(foreach)
 
 $$\Sigma^{-1} = \Psi \Psi^\intercal$$
 
-where $\Psi$ is upper triangular matrix.
-
+where $\Psi$ is an upper triangular matrix. Shrinking $\Psi$ gives the parsimony of precision matrix $\Sigma^{-1}$.
 
 ## Example 1 of George et al. (2008)
 
@@ -84,23 +83,13 @@ Note that the variance matrix for simulation is $\Sigma_e = (\Psi \Psi^\intercal
 - Following Appendix D.1 of Helmut (2008), we compute the square root of multivariate normal distribution variance matrix by Cholesky decomposition.
 
 ```{r varsimul}
-# var_data <- sim_var(
-#   num_sim = 50,
-#   num_burn = 10,
-#   var_coef = var_coef,
-#   var_lag = 1,
-#   sig_error = solve(var_chol %*% t(var_chol)),
-#   method = "chol"
-# )
-# colnames(var_data) <- paste0("y", 1:6)
 var_sample <- lapply(
   1:100,
   function(id) {
     y <- 
       sim_var(
-        num_sim = 50,
-        # num_burn = 10,
-        num_burn = 0,
+        num_sim = 100,
+        num_burn = 50,
         var_coef = var_coef,
         var_lag = 1,
         sig_error = solve(var_chol %*% t(var_chol)),
@@ -134,7 +123,7 @@ var_sample <- lapply(
     - noninformative
     - equally likely to be included as excluded
 
-As every hyperparameter has set to be same for every $i,j$, value can be assigned as numeric value of length one.
+As every hyperparameter has set to be the same for every $i,j$, value can be assigned as numeric value of length one.
 If you want to assign individually, you can use vector.
 On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_slab`, and `chol_mixture`.
 
@@ -183,8 +172,8 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 - after 10000 burn-in cycles.
 - If you perform the exactly same this setting, it will take about three minutes depending on the machines.
 - So in this vignette, we change the number of the iterations.
-    - 10000 iterations
-    - 5000 burn-in
+    - 5000 iterations
+    - 2500 burn-in
 
 `bvar_ssvs()` performs SSVS for VAR model.
 
@@ -198,23 +187,21 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 - `include_mean`: whether including the constant term in the model.
 
 ```{r gibbs}
-# doMC::registerDoMC(cores = parallel::detectCores() - 1)
-fit_mc <- foreach(mcid = seq_along(var_sample)) %do% {
-  bvar_ssvs(
-    y = var_sample[[mcid]],
-    p = 1,
-    # num_iter = 60000,
-    # num_iter = 20000,
-    num_iter = 10000,
-    # num_burn = 10000,
-    # num_burn = 10000,
-    num_burn = 5000,
-    thinning = 1,
-    bayes_spec = ssvs_spec,
-    init_spec = init_spec,
-    include_mean = TRUE
-  )
-}
+fit_mc <- lapply(
+  seq_along(var_sample),
+  function(mcid) {
+    bvar_ssvs(
+      y = var_sample[[mcid]],
+      p = 1,
+      num_iter = 5000,
+      num_burn = 2500,
+      thinning = 1,
+      bayes_spec = ssvs_spec,
+      init_spec = init_spec,
+      include_mean = TRUE
+    )
+  }
+)
 ```
 
 Average of OLS for coefficient $\bbA$ over 100 samples:
@@ -241,16 +228,6 @@ gam_list <- lapply(
 Reduce("+", gam_list) / length(gam_list)
 ```
 
-Perfect match:
-
-```{r tauerr}
-sapply(
-  gam_list,
-  function(x) all(x == var_coef)
-) %>% 
-  mean()
-```
-
 Average of the restriction indices $\omega$ over 100 samples:
 
 ```{r omega}
@@ -259,16 +236,6 @@ omega_list <- lapply(
   function(id) fit_mc[[id]]$omega_posterior
 )
 Reduce("+", omega_list) / length(omega_list)
-```
-
-Perfect match:
-
-```{r omegaerr}
-sapply(
-  omega_list,
-  function(x) all(x == var_chol)
-) %>% 
-  mean()
 ```
 
 Average of posterior mean for coefficient $\bbA$ over all 100 samples:
@@ -302,7 +269,7 @@ mcmc_trace(fit_mc[[1]]$param, regex_pars = "psi")
 ```
 
 
-### Multiple Initial values
+<!-- ### Multiple Initial values -->
 
 <!-- When initializing multiple chain MCMC, use 3d array or list. -->
 
