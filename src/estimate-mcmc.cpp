@@ -248,7 +248,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
   int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): dim vs -dim (if no constant)
   if (num_non == -dim) {
-    num_restrict += dim;
+    num_restrict += dim; // always dim^2 p
   }
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
   Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
@@ -273,8 +273,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   chol_dummy_record.row(0) = init_chol_dummy;
   Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain); // 3d matrix alternative
   // Some variables-----------------------------------------------
-  Eigen::MatrixXd coef_mat(dim_design, dim); // coefficient matrix to compute sse_mat
-  Eigen::MatrixXd sse_mat(dim, dim);
+  Eigen::MatrixXd coef_mat = unvectorize(init_coef, dim_design, dim); // coefficient matrix to compute sse_mat
+  Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
   // Start Gibbs sampling-----------------------------------------
@@ -289,8 +289,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
              coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
   for (int b = 0; b < chain; b++) {
     for (int i = 1; i < num_iter; i++) {
-      coef_mat = unvectorize(coef_record.block(i - 1, b * num_coef, 1, num_coef), dim_design, dim);
-      sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
       // 1. Psi--------------------------
       chol_mixture_mat = build_ssvs_sd(
         chol_spike,
@@ -325,16 +323,19 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         coefvec_ols, 
         chol_factor_record.block(i * dim, b * dim, dim, dim)
       );
+      coef_mat = unvectorize(coef_record.block(i, b * num_coef, 1, num_coef), dim_design, dim);
+      sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
       // 5. gamma-------------------------
-      coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(coef_record.block(i, b * num_coef, 1, num_coef).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
+      coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(
+        vectorize_eigen(coef_mat.topRows(num_restrict / dim)), 
+        coef_spike, 
+        coef_slab, 
+        coef_slab_weight
+      );
     }
-    coef_mat = unvectorize(coef_record.block(num_iter, b * num_coef, 1, num_coef), dim_design, dim);
-    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat); // should be (dim, dim * chain)
   }
   #else
   for (int i = 1; i < num_iter; i++) {
-    coef_mat = unvectorize(coef_record.row(i - 1), dim_design, dim);
-    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 1. Psi--------------------------
     chol_mixture_mat = build_ssvs_sd(
       chol_spike,
@@ -369,11 +370,16 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       coefvec_ols,
       chol_factor_record.block(i * dim, 0, dim, dim)
     );
+    coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
+    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 5. gamma-------------------------
-    coef_dummy_record.row(i) = ssvs_coef_dummy(coef_record.row(i).head(num_restrict), coef_spike, coef_slab, coef_slab_weight);
+    coef_dummy_record.row(i) = ssvs_coef_dummy(
+      vectorize_eigen(coef_mat.topRows(num_restrict / dim)), 
+      coef_spike, 
+      coef_slab, 
+      coef_slab_weight
+    );
   }
-  coef_mat = unvectorize(coef_record.row(num_iter), dim_design, dim);
-  sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   #endif
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
