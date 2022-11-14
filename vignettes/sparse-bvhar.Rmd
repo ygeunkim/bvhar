@@ -33,8 +33,6 @@ library(bvhar)
 ```{r otherpkg}
 # Bayes plot---------
 library(bayesplot)
-# Parallel loop------
-library(foreach)
 ```
 
 
