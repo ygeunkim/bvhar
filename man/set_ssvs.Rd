@@ -48,7 +48,7 @@ knit_print.ssvsinput(x, ...)
 \item{...}{not used}
 }
 \description{
-Set SSVS hyperparameters for VAR coefficient matrix and Cholesky factor.
+Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
 }
 \details{
 Let \eqn{\alpha} be the vectorized coefficient, \eqn{\alpha = vec(A)}.

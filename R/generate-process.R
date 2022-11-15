@@ -69,7 +69,66 @@ sim_var <- function(num_sim,
   }
   if (method == "eigen") {
     return( sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init) )
-  } else {
-    return( sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init) )
   }
+  sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init)
+}
+
+#' Generate Multivariate Time Series Process Following VAR(p)
+#' 
+#' This function generates multivariate time series dataset that follows VAR(p).
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param vhar_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param week Weekly order of VHAR. By default, `5`.
+#' @param month Weekly order of VHAR. By default, `22`.
+#' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param method `r lifecycle::badge("experimental")` Method to compute \eqn{\Sigma^{1/2}}.
+#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
+#' By default, `"eigen"`.
+#' @details 
+#' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
+#' 
+#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
+#' 2. For i = 1, ... n,
+#' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
+#' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
+#' 
+#' 2. For i = 1, ... n,
+#' \deqn{y_{p + i} = (y_{p + i - 1}^T, \ldots, y_i^T, 1)^T B + \epsilon_i}
+#' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
+#' 
+#' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @export
+sim_vhar <- function(num_sim, 
+                     num_burn, 
+                     vhar_coef, 
+                     week = 5L,
+                     month = 22L,
+                     sig_error = diag(ncol(var_coef)), 
+                     init = matrix(0L, nrow = month, ncol = ncol(vhar_coef)), 
+                     method = c("eigen", "chol")) {
+  method <- match.arg(method)
+  dim_data <- ncol(sig_error)
+  if (num_sim < 2) {
+    stop("Generate more than 1 series")
+  }
+  if (nrow(vhar_coef) != 3 * dim_data + 1 && nrow(var_lag) != 3 * dim_data) {
+    stop("'vhar_coef' is not VHAR coefficient. Check its dimension.")
+  }
+  if (ncol(vhar_coef) != dim_data) {
+    stop("Wrong 'var_coef' or 'sig_error' format.")
+  }
+  if (!isSymmetric(sig_error)) {
+    stop("'sig_error' must be a symmetric matrix.")
+  }
+  if (!(nrow(init) == month && ncol(init) == dim_data)) {
+    stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.")
+  }
+  if (method == "eigen") {
+    return( sim_var_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init) )
+  }
+  sim_var_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }

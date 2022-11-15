@@ -1,9 +1,9 @@
-#' Fitting Bayesian VAR(p) of SSVS Prior
+#' Fitting Bayesian VHAR of SSVS Prior
 #' 
 #' This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param p VAR lag
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in. Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
@@ -49,14 +49,14 @@
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
-bvar_ssvs <- function(y, 
-                      p, 
-                      num_iter = 100, 
-                      num_burn = floor(num_iter / 2), 
-                      thinning = 1,
-                      bayes_spec = set_ssvs(), 
-                      init_spec = init_ssvs(),
-                      include_mean = TRUE) {
+bvhar_ssvs <- function(y, 
+                       har = c(5, 22), 
+                       num_iter = 100, 
+                       num_burn = floor(num_iter / 2), 
+                       thinning = 1,
+                       bayes_spec = set_ssvs(), 
+                       init_spec = init_ssvs(),
+                       include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -82,7 +82,10 @@ bvar_ssvs <- function(y,
   }
   # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
-  Y0 <- build_y0(y, p, p + 1) # n x k
+  # dim_har <- 3 * dim_data + 1
+  # week <- har[1]
+  # month <- har[2]
+  Y0 <- build_y0(y, har[2], har[2] + 1) # n x k
   num_design <- nrow(Y0) # n
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -93,12 +96,15 @@ bvar_ssvs <- function(y,
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  X0 <- build_design(y, p, include_mean) # n x dim_design
-  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
-  colnames(X0) <- name_lag
-  dim_design <- ncol(X0)
+  X0 <- build_design(y, har[2], include_mean) # n x dim_design
+  
+  hartrans_mat <- scale_har(dim_data, week, month, include_mean)
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
+  X1 <- X0 %*% t(HARtrans)
+  colnames(X1) <- name_har
+  dim_har <- ncol(X1)
   # length 1 of bayes_spec--------------
-  num_restrict <- dim_data^2 * p # restrict only coefficients
+  num_restrict <- 3 * dim_data^2 # restrict only coefficients
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
   if (length(bayes_spec$coef_spike) == 1) {
     bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_restrict)
@@ -124,7 +130,6 @@ bvar_ssvs <- function(y,
   if (length(bayes_spec$chol_mixture) == 1) {
     bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
   }
-  # Temporary before making semiautomatic function---------
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
     # Conduct semiautomatic function using var_lm()
     stop("Specify spike-and-slab of coefficients.")
@@ -139,7 +144,7 @@ bvar_ssvs <- function(y,
     length(bayes_spec$coef_slab) == num_restrict &&
     length(bayes_spec$coef_mixture) == num_restrict
   )) {
-    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
+    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
   }
   if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
     stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
@@ -153,8 +158,8 @@ bvar_ssvs <- function(y,
   }
   # Initial vectors-------------------
   if (init_spec$chain == 1) {
-    if (!(nrow(init_spec$init_coef) == dim_design || ncol(init_spec$init_coef) == dim_data)) {
-      stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    if (!(nrow(init_spec$init_coef) == dim_har || ncol(init_spec$init_coef) == dim_data)) {
+      stop("Dimension of 'init_coef' should be (3 * dim) x dim or (3 * dim + 1) x dim.")
     }
     if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
       stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
@@ -165,7 +170,7 @@ bvar_ssvs <- function(y,
     init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
     init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
   } else {
-    if (!(nrow(init_spec$init_coef[[1]]) == dim_design || ncol(init_spec$init_coef[[1]]) == dim_data)) {
+    if (!(nrow(init_spec$init_coef[[1]]) == dim_har || ncol(init_spec$init_coef[[1]]) == dim_data)) {
       stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
     }
     if (!(nrow(init_spec$init_coef_dummy[[1]]) == num_restrict || ncol(init_spec$init_coef_dummy[[1]]) == dim_data)) {
@@ -187,7 +192,7 @@ bvar_ssvs <- function(y,
   ssvs_res <- estimate_bvar_ssvs(
     num_iter = num_iter,
     num_burn = num_burn,
-    x = X0,
+    x = X1,
     y = Y0,
     init_coef = init_coef, # initial alpha
     init_chol_diag = init_chol_diag, # initial psi_jj
@@ -295,17 +300,17 @@ bvar_ssvs <- function(y,
   ssvs_res$design <- X0
   ssvs_res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvarsp", "bvharssvs", "bvharmod")
+  class(ssvs_res) <- c("bvharsp", "bvharssvs", "bvharmod")
   ssvs_res
 }
 
-#' @rdname bvar_ssvs
-#' @param x `bvarsp` object
+#' @rdname bvhar_ssvs
+#' @param x `bvharsp` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvarsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   print(
     x$param,
     digits = digits,
@@ -314,18 +319,18 @@ print.bvarsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
 }
 
-#' @rdname bvar_ssvs
-#' @param x `bvarsp` object
+#' @rdname bvhar_ssvs
+#' @param x `bvharsp` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvarsp <- function(x, ...) {
+knit_print.bvharsp <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "bvarsp",
-  knit_print.bvarsp,
+  "knit_print", "bvharsp",
+  knit_print.bvharsp,
   envir = asNamespace("knitr")
 )

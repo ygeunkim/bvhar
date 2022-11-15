@@ -1,6 +1,6 @@
 #' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
 #' 
-#' Set SSVS hyperparameters for VAR coefficient matrix and Cholesky factor.
+#' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
 #' 
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).

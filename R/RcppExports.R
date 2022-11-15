@@ -1041,6 +1041,23 @@ sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) 
 #' @param month Order for monthly term. Try `22L` by default.
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
+    .Call(`_bvhar_sim_vhar_eigen`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+}
+
+#' Generate Multivariate Time Series Process Following VHAR using Cholesky Decomposition
+#' 
+#' This function generates multivariate time series dataset that follows VHAR.
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+#' @param week Order for weekly term. Try `5L` by default.
+#' @param month Order for monthly term. Try `22L` by default.
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 #' @details
 #' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
 #' 
@@ -1050,9 +1067,9 @@ sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) 
 #' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
-sim_vhar <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
-    .Call(`_bvhar_sim_vhar`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+#' @noRd
+sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
+    .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
