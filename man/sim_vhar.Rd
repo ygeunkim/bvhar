@@ -10,7 +10,7 @@ sim_vhar(
   vhar_coef,
   week = 5L,
   month = 22L,
-  sig_error = diag(ncol(var_coef)),
+  sig_error = diag(ncol(vhar_coef)),
   init = matrix(0L, nrow = month, ncol = ncol(vhar_coef)),
   method = c("eigen", "chol")
 )

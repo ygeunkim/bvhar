@@ -107,7 +107,7 @@ sim_vhar <- function(num_sim,
                      vhar_coef, 
                      week = 5L,
                      month = 22L,
-                     sig_error = diag(ncol(var_coef)), 
+                     sig_error = diag(ncol(vhar_coef)), 
                      init = matrix(0L, nrow = month, ncol = ncol(vhar_coef)), 
                      method = c("eigen", "chol")) {
   method <- match.arg(method)
@@ -128,7 +128,7 @@ sim_vhar <- function(num_sim,
     stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.")
   }
   if (method == "eigen") {
-    return( sim_var_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init) )
+    return( sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init) )
   }
-  sim_var_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+  sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
 }

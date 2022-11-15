@@ -98,9 +98,9 @@ bvhar_ssvs <- function(y,
   }
   X0 <- build_design(y, har[2], include_mean) # n x dim_design
   
-  hartrans_mat <- scale_har(dim_data, week, month, include_mean)
+  hartrans_mat <- scale_har(dim_data, har[1], har[2], include_mean)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
-  X1 <- X0 %*% t(HARtrans)
+  X1 <- X0 %*% t(hartrans_mat)
   colnames(X1) <- name_har
   dim_har <- ncol(X1)
   # length 1 of bayes_spec--------------
@@ -244,7 +244,7 @@ bvhar_ssvs <- function(y,
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
     # Posterior mean-------------------------
-    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_design, dim_data, ssvs_res$chain))
+    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_har, dim_data, ssvs_res$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
     
     
@@ -281,8 +281,10 @@ bvhar_ssvs <- function(y,
     }
   }
   # variables------------
-  ssvs_res$df <- dim_design
-  ssvs_res$p <- p
+  ssvs_res$df <- dim_har
+  ssvs_res$p <- 3
+  ssvs_res$week <- har[1]
+  ssvs_res$month <- har[2]
   ssvs_res$m <- dim_data
   ssvs_res$obs <- nrow(Y0)
   ssvs_res$totobs <- nrow(y)
