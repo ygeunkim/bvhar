@@ -78,18 +78,12 @@ var_lm <- function(y, p, include_mean = TRUE) {
     name_var <- paste0("y", seq_len(m))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
-  colnames(X0) <- name_lag
-  # const or none--------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  k <- m * p + 1 # df
-  if (!include_mean) {
-    X0 <- X0[, -k] # exclude 1 column
-    k <- k - 1 # df = no intercept
-  }
+  X0 <- build_design(y, p, include_mean)
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
+  colnames(X0) <- name_lag
   # estimate B-----------------------
   var_est <- estimate_var(X0, Y0)
   coef_est <- var_est$coef # Ahat
@@ -100,7 +94,7 @@ var_lm <- function(y, p, include_mean = TRUE) {
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
   # residual Covariance matrix------
-  covmat <- compute_cov(zhat, nrow(Y0), k) # Sighat = z^T %*% z / (s - k)
+  covmat <- compute_cov(zhat, nrow(Y0), ncol(X0)) # Sighat = z^T %*% z / (s - k)
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
   # return as new S3 class-----------
@@ -111,7 +105,7 @@ var_lm <- function(y, p, include_mean = TRUE) {
     residuals = zhat, # Y0 - X0 %*% Ahat
     covmat = covmat,
     # variables------------
-    df = k, # k = m * p + 1 or m * p
+    df = ncol(X0), # k = m * p + 1 or m * p
     p = p, # p
     m = m, # m
     obs = nrow(Y0), # s = n - p

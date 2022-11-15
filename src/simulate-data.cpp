@@ -124,7 +124,11 @@ Eigen::MatrixXd sim_vhar(int num_sim,
   }
   int num_har = vhar_coef.rows(); // 3m + 1 (const) or 3m (none)
   int dim_har = month * dim + 1; // 22m + 1 (const)
-  if (num_har == 3 * dim) dim_har -= 1; // 22m (none)
+  bool include_mean = true;
+  if (num_har == 3 * dim) {
+    dim_har -= 1;
+    include_mean = false;
+  } // 22m (none)
   if (vhar_coef.cols() != dim) {
     Rcpp::stop("Wrong VHAR coefficient format or Variance matrix");
   }
@@ -132,7 +136,7 @@ Eigen::MatrixXd sim_vhar(int num_sim,
     Rcpp::stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.");
   }
   int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = scale_har(dim, week, month).block(0, 0, num_har, dim_har);
+  Eigen::MatrixXd hartrans_mat = scale_har(dim, week, month, false).block(0, 0, num_har, dim_har);
   Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
   obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
   for (int i = 0; i < month; i++) {

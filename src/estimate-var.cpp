@@ -108,8 +108,7 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
   }
   Eigen::MatrixXd FullA = Eigen::MatrixXd::Zero(num_full_arows, dim); // same size with VMA coefficient matrix
   FullA.block(0, 0, dim * var_lag, dim) = var_coef.block(0, 0, dim * var_lag, dim); // fill first mp row with VAR coefficient matrix
-  Eigen::MatrixXd Im(dim, dim); // identity matrix
-  Im.setIdentity(dim, dim);
+  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim); // identity matrix
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
   ma.block(dim, 0, dim, dim) = FullA.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T

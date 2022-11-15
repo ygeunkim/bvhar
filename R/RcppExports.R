@@ -39,8 +39,8 @@ build_y0 <- function(y, var_lag, index) {
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @noRd
-build_design <- function(y, var_lag) {
-    .Call(`_bvhar_build_design`, y, var_lag)
+build_design <- function(y, var_lag, include_mean) {
+    .Call(`_bvhar_build_design`, y, var_lag, include_mean)
 }
 
 #' Diagonal Matrix
@@ -74,8 +74,8 @@ diag_misc <- function(x) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly) {
-    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, daily, weekly, monthly)
+build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly, include_mean) {
+    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, daily, weekly, monthly, include_mean)
 }
 
 #' Construct Dummy design matrix for Minnesota Prior
@@ -96,8 +96,8 @@ build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_xdummy <- function(lag_seq, lambda, sigma, eps) {
-    .Call(`_bvhar_build_xdummy`, lag_seq, lambda, sigma, eps)
+build_xdummy <- function(lag_seq, lambda, sigma, eps, include_mean) {
+    .Call(`_bvhar_build_xdummy`, lag_seq, lambda, sigma, eps, include_mean)
 }
 
 #' Parameters of Normal Inverted Wishart Prior
@@ -419,8 +419,8 @@ VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
 #' This function can change these numbers to get linear transformation matrix.
 #' 
 #' @noRd
-scale_har <- function(dim, week, month) {
-    .Call(`_bvhar_scale_har`, dim, week, month)
+scale_har <- function(dim, week, month, include_mean) {
+    .Call(`_bvhar_scale_har`, dim, week, month, include_mean)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -441,29 +441,8 @@ scale_har <- function(dim, week, month) {
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @importFrom Rcpp sourceCpp
 #' @noRd
-estimate_har <- function(x, y, week, month) {
-    .Call(`_bvhar_estimate_har`, x, y, week, month)
-}
-
-#' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
-#' 
-#' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
-#' 
-#' @param x Design matrix X0 (delete its last column)
-#' @param y Response matrix Y0
-#' @param week Integer, order for weekly term
-#' @param month Integer, order for monthly term
-#' @details
-#' Given Y0 and Y0, the function estimate least squares
-#' \deqn{Y_0 = X_1 \Phi + Z}
-#' 
-#' @references
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
-#' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-#' @noRd
-estimate_har_none <- function(x, y, week, month) {
-    .Call(`_bvhar_estimate_har_none`, x, y, week, month)
+estimate_har <- function(x, y, week, month, include_mean) {
+    .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean)
 }
 
 #' Statistic for VHAR

@@ -101,28 +101,19 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     name_var <- paste0("y", seq_len(m))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
-  colnames(X0) <- name_lag
-  s <- nrow(Y0)
-  k <- m * p + 1
-  # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(m), numeric(m))
-  colnames(Yp) <- name_var
-  Xp <- build_xdummy(1:p, lambda, sigma, eps)
-  colnames(Xp) <- name_lag
-  # const or none---------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  if (!include_mean) {
-    X0 <- X0[, -k] # exclude 1 column
-    Tp <- nrow(Yp)
-    Yp <- Yp[-Tp,] # exclude intercept block from Yp (last row)
-    Xp <- Xp[-Tp, -k] # exclude intercept block from Xp (last row and last column)
-    name_lag <- name_lag[-k] # colnames(X0)
-    k <- k - 1 # df = no intercept
-  }
+  X0 <- build_design(y, p, include_mean)
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
+  colnames(X0) <- name_lag
+  # s <- nrow(Y0)
+  # k <- m * p + 1
+  # dummy-----------------------------
+  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(m), numeric(m), include_mean)
+  colnames(Yp) <- name_var
+  Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
+  colnames(Xp) <- name_lag
   # estimate-bvar.cpp-----------------
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
@@ -151,12 +142,12 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     residuals = posterior$residuals,
     mn_prec = mn_prec, # posterior precision of MN
     iw_scale = iw_scale, # posterior scale of IW
-    iw_shape = prior_shape + s, # posterior shape of IW
+    iw_shape = prior_shape + nrow(Y0), # posterior shape of IW
     # variables------------
-    df = k, # k = m * p + 1 or m * p
+    df = nrow(mn_mean), # k = m * p + 1 or m * p
     p = p, # p
     m = m, # m = dimension of Y_t
-    obs = s, # n = T - p
+    obs = nrow(Y0), # n = T - p
     totobs = nrow(y), # T = total number of sample size
     # about model----------
     call = match.call(),
