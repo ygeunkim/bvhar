@@ -207,15 +207,14 @@ Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef,
 //' @param init_chol_upper Inital upper cholesky factor
 //' @param init_coef_dummy Initial indicator vector (0-1) corresponding to each coefficient vector
 //' @param init_chol_dummy Initial indicator vector (0-1) corresponding to each upper cholesky factor vector
-//' @param coef_slab_weight Bernoulli parameter for coefficients vector
 //' @param coef_spike Standard deviance for Spike normal distribution
 //' @param coef_slab Standard deviance for Slab normal distribution
-//' @param coef_slab_weight Bernoulli parameter for coefficients sparsity proportion
+//' @param coef_slab_weight Coefficients vector sparsity proportion
 //' @param shape Gamma shape parameters for precision matrix
 //' @param rate Gamma rate parameters for precision matrix
 //' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
-//' @param chol_slab_weight Bernoulli parameter for cholesky factor sparsity proportion
+//' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param intercept_var Hyperparameter for constant term
 //' @param chain The number of MCMC chains.
 //' @noRd

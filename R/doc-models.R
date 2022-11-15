@@ -245,30 +245,8 @@ NULL
 #' Then
 #' \deqn{vec(Y_0) = (I_k \otimes X_0 C_{HAR}^\intercal) vec(\Phi) + vec(Z_0) = (I_k \otimes X_1) vec(\Phi) + vec(Z_0)}
 #' 
-#' # Restrictions
-#' 
-#' \eqn{\phi = vec(\Phi)} is linear restriction of \eqn{\alpha = vec(A)}.
-#' Then
-#' \deqn{\alpha = vec(C_{HAR}^\intercal \Phi) = (I_k \otimes C_{HAR}^\intercal) \phi}
-#' 
-#' # Restrictions for Sparsity
-#' 
-#' Value of 0, 1 corresponding to \eqn{A_{i,j}} gives sparsity of the element.
-#' Let \eqn{\psi = (\psi_1, \ldots, \psi_{k^2 p})^\intercal} where \eqn{\psi_j = 0,1},
-#' and let \eqn{\Psi = diag(\psi) \in \mathbb{R}^{k^2 p \times k^2 p}}.
-#' 
-#' Then the new VAR coefficient vector \eqn{\theta = \Psi \alpha \in \mathbb{R}^{k^2 p}} becomes
-#' \eqn{\alpha_j = 0} if \eqn{\psi_j = 0} and \eqn{\alpha_j \neq 0} if \eqn{\psi = 1}.
-#' 
-#' 
-#' 
 #' @references 
-#' Jochmann, M., Koop, G., & Strachan, R. W. (2010). *Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks*. International Journal of Forecasting, 26(2), 326–347. doi:[10.1016/j.ijforecast.2009.11.002](https://doi.org/10.1016/j.ijforecast.2009.11.002)
-#' 
-#' Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2). doi:[10.1002/jae.1271](https://doi.org/10.1002/jae.1271)
-#' 
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' 
 #' @keywords internal
 #' @name var_vec_formulation
 NULL
@@ -465,4 +443,91 @@ NULL
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @keywords internal
 #' @name ssvs_bvar_algo
+NULL
+
+#' Stochastic Search Variable Selection in VHAR
+#' 
+#' @description 
+#' This page describes a stochastic search variable selection (SSVS) MCMC algorithm
+#' in a VHAR model.
+#' Recall that \eqn{\Sigma_e = \Psi \Psi^\intercal}.
+#' @section SSVS Prior:
+#' ## Prior of coefficients
+#' 
+#' Among \eqn{vec(\Phi) = \phi = (\phi_1, \ldots, \phi_{3 k^2 + k})},
+#' non-constant terms are restricted by dummy vector \eqn{\gamma = (\gamma_1, \ldots, \gamma_{3 k^2})^\intercal}.
+#' This defines the diagonal matrix \eqn{D = diag(h_1, \ldots, h_{k^2 p})} by
+#' \deqn{
+#'   h_i = \begin{cases}
+#'     \tau_{0i} & \text{if } \gamma_i = 0 \\
+#'     \tau_{1i} & \text{if } \gamma_i = 1
+#'   \end{cases}
+#' }
+#' with small \eqn{\tau_{0j}} and large \eqn{\tau_{1j}}.
+#' 
+#' Let \eqn{\phi_{coef}} be the restricted coefficients vector
+#' and let \eqn{\phi_{non}} be the not-restricted coefficients vector, i.e. vectorized constant term.
+#' Each term has its own prior.
+#' \deqn{
+#'   \phi_{coef} \mid \gamma \sim N(\phi_{0, coef}, DD),
+#'   \quad
+#'   \alpha_{non} \sim N(\phi_{0, non}, c I_k)
+#' }
+#' If \eqn{c} is large, then prior influence to \eqn{\phi_{non}} decreases.
+#' By combining each term in appropriate order,
+#' \deqn{\phi \mid \gamma \sim N(0_{3 k^2 + k}, M)}
+#' with
+#' \deqn{
+#'   M = I_{k p + 1} \otimes \begin{bmatrix}
+#'     DD & 0_{k^2 p} \\
+#'     0_{k^2 p}^\intercal & c
+#'   \end{bmatrix}
+#' }
+#' and \eqn{\phi_0} combined in the same way.
+#' 
+#' ## Prior of Other Parameters
+#' 
+#' We are using the the notations for the other parameters, so see [ssvs_bvar_algo].
+#' 
+#' @section Gibbs Sampling:
+#' 
+#' Data: \eqn{X_0}, \eqn{Y_0}, VAR linear transformation
+#' 
+#' Input:
+#' * VHAR order (week, month)
+#' * MCMC iteration number
+#' * Weight of each slab: Bernoulli distribution parameters
+#'     * \eqn{p_j}: of coefficients
+#'     * \eqn{q_{ij}}: of cholesky factor
+#' * Gamma distribution parameters for cholesky factor diagonal elements \eqn{\psi_{jj}}
+#'     * \eqn{a_j}: shape
+#'     * \eqn{b_j}: rate
+#' * Correlation matrix of coefficient vector: \eqn{R = I_{k^2p}}
+#' * Correlation matrix to restrict cholesky factor (of \eqn{\eta_j}): \eqn{R_j = I_{j - 1}}
+#' * Tuning parameters for spike-and-slab sd semi-automatic approach
+#'     * \eqn{c_0}: small value (0.1)
+#'     * \eqn{c_1}: large value (10)
+#' * Constant to reduce prior influence on constant term: \eqn{c}
+#' 
+#' Algorithm:
+#' 1. Initialize \eqn{\Psi}, \eqn{\omega}, \eqn{\phi}, \eqn{\gamma}
+#' 2. Iterate
+#'     1. Diagonal elements of cholesky factor: \eqn{\psi^{(t)} \mid \phi^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     2. Off-diagonal elements of cholesky factor: \eqn{\eta^{(t)} \mid \psi^{(t)} \phi^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     3. Dummy vector for cholesky factor: \eqn{\omega^{(t)} \mid \eta^{(t)}, \psi^{(t)} \phi^{(t - 1)}, \gamma^{(t - 1)}, \omega^{(t - 1)}, Y_0}
+#'     4. Coefficient vector: \eqn{\phi^{(t)} \mid \gamma^{(t - 1)}, \Sigma^{(t)}, \omega^{(t)}, Y_0 \sim \mu, \Delta)}
+#'         * where \eqn{\mu = ((\Psi \Psi^\intercal) \otimes (X_1 X_1^\intercal) + M^{-1})^{-1} (( (\Psi \Psi^\intercal) \otimes (X_1 X_1^\intercal) ) \hat{\phi} + M^{-1} \phi_0)}
+#'         * and \eqn{\Delta = ((\Psi \Psi^\intercal) \otimes (X_1 X_1^\intercal) + M^{-1})^{-1}}
+#'     5. Dummy vector for coefficient vector: \eqn{\gamma^{(t)} \mid \phi^{(t)}, \psi^{(t)}, \eta^{(t)}, \omega^{(t)}, Y_0}
+#' 
+#' Output:
+#' * Parameter trace
+#' * Update results
+#' * OLS
+#' @references 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @keywords internal
+#' @name ssvs_bvhar_algo
 NULL
