@@ -1,7 +1,7 @@
 #ifndef BVHARMISC_H
 #define BVHARMISC_H
 
-Eigen::MatrixXd scale_har(int dim, int week, int month);
+Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean);
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
@@ -18,6 +18,8 @@ Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::Mat
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x);
+
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
 
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 

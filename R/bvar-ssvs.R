@@ -7,7 +7,7 @@
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in. Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param bayes_spec A BVAR model specification by [set_ssvs()].
+#' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
@@ -51,8 +51,8 @@
 #' @export
 bvar_ssvs <- function(y, 
                       p, 
-                      num_iter = 100, 
-                      num_burn = floor(num_iter), 
+                      num_iter = 1000, 
+                      num_burn = floor(num_iter / 2), 
                       thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
@@ -82,7 +82,6 @@ bvar_ssvs <- function(y,
   }
   # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
-  dim_design <- dim_data * p + 1
   Y0 <- build_y0(y, p, p + 1) # n x k
   num_design <- nrow(Y0) # n
   if (!is.null(colnames(y))) {
@@ -91,18 +90,13 @@ bvar_ssvs <- function(y,
     name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p) # n x dim_design
-  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
-  colnames(X0) <- name_lag
-  # const or none---------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  if (!include_mean) {
-    X0 <- X0[, -dim_design] # exclude 1 column
-    name_lag <- name_lag[-dim_design] # colnames(X0)
-    dim_design <- dim_design - 1 # df = no intercept
-  }
+  X0 <- build_design(y, p, include_mean) # n x dim_design
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
+  colnames(X0) <- name_lag
+  dim_design <- ncol(X0)
   # length 1 of bayes_spec--------------
   num_restrict <- dim_data^2 * p # restrict only coefficients
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
@@ -241,28 +235,45 @@ bvar_ssvs <- function(y,
       ssvs_res$eta_record,
       ssvs_res$omega_record
     )
-    # Cholesky factor 3d array
+    # Cholesky factor 3d array-------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
+    # Posterior mean-------------------------
+    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_design, dim_data, ssvs_res$chain))
+    # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
+    
+    
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
-    ssvs_res$param <- as_draws_df(
-      cbind(
-        ssvs_res$alpha_record,
-        ssvs_res$gamma_record,
-        ssvs_res$psi_record,
-        ssvs_res$eta_record,
-        ssvs_res$omega_record
-      ),
-      .nchains = ssvs_res$chain
+    ssvs_res$alpha_record <- as_draws_df(ssvs_res$alpha_record)
+    ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
+    ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
+    ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
+    ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
+    ssvs_res$param <- bind_draws(
+      ssvs_res$alpha_record, 
+      ssvs_res$gamma_record,
+      ssvs_res$psi_record,
+      ssvs_res$eta_record,
+      ssvs_res$omega_record
     )
-    # Cholesky factor 3d array
+    # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_burn + 1, to = num_iter, by = thinning)] # burn in
+    # Posterior mean-------------------------
+    ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
+    mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
+    diag(mat_upper) <- rep(1L, dim_data)
+    mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
+    ssvs_res$omega_posterior <- mat_upper
+    ssvs_res$gamma_posterior <- matrix(ssvs_res$gamma_posterior, ncol = dim_data)
+    if (include_mean) {
+      ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
+    }
   }
   # variables------------
   ssvs_res$df <- dim_design
@@ -286,75 +297,6 @@ bvar_ssvs <- function(y,
   # return S3 object------
   class(ssvs_res) <- c("bvarsp", "bvharssvs", "bvharmod")
   ssvs_res
-}
-
-#' Processing Multiple Chain Record Result Matrix from `RcppEigen`
-#' 
-#' Preprocess multiple chain record matrix for [posterior::posterior] package.
-#' 
-#' @param x Parameter matrix
-#' @param chain The number of the chains
-#' @param param_name The name of the parameter
-#' @details 
-#' Internal Gibbs sampler function gives multiple chain results by row-stacked form.
-#' This function processes the matrix appropriately for [posterior::draws_array()],
-#' i.e. iteration x chain x variable.
-#' @noRd
-split_paramarray <- function(x, chain, param_name) {
-  num_var <- ncol(x) / chain
-  res <- 
-    split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>%
-    lapply(t) %>%
-    unlist() %>% 
-    array(
-      dim = c(nrow(x), chain, num_var),
-      dimnames = list(
-        iteration = seq_len(nrow(x)),
-        chain = seq_len(chain),
-        variable = paste0(param_name, "[", seq_len(num_var), "]")
-      )
-    )
-  res
-}
-
-#' Processing 3d Matrix from `RcppEigen`
-#' 
-#' Preprocess 3d record matrix
-#' 
-#' @param x Parameter matrix
-#' @param num_iter MCMC iteration number
-#' @param dim_data Data dimension
-#' @param chain The number of the chains
-#' @noRd
-split_psirecord <- function(x, chain = 1, varname = "cholesky") {
-  # res <- 
-  #   x %>% 
-  #   split.data.frame(gl(num_iter, dim_data))
-  res <- 
-    x %>% 
-    split.data.frame(gl(nrow(x) / ncol(x), ncol(x)))
-  if (chain == 1) {
-    return(res)
-  } else {
-    res <- lapply(
-      res,
-      function(y) {
-        num_var <- ncol(y) / chain
-        split.data.frame(t(y), gl(num_var, 1, ncol(y))) %>% 
-          lapply(t) %>% 
-          unlist() %>% 
-          array(
-            dim = c(nrow(y), chain, num_var),
-            dimnames = list(
-              iteration = seq_len(nrow(y)),
-              chain = seq_len(chain),
-              variable = paste0(param_name = varname, "[", seq_len(num_var), "]")
-            )
-          )
-      }
-    )
-  }
-  res
 }
 
 #' @rdname bvar_ssvs

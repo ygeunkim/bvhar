@@ -19,14 +19,13 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd scale_har(int dim, int week, int month) {
+Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
   if (week > month) {
     Rcpp::stop("'month' should be larger than 'week'.");
   }
   Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
   Eigen::MatrixXd HARtrans(3 * dim + 1, month * dim + 1); // 3m x (month * m)
-  Eigen::MatrixXd Im(dim, dim);
-  Im.setIdentity(dim, dim);
+  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim);
   HAR(0, 0) = 1.0;
   for (int i = 0; i < week; i++) {
     HAR(1, i) = 1.0 / week;
@@ -39,7 +38,10 @@ Eigen::MatrixXd scale_har(int dim, int week, int month) {
   HARtrans.block(0, month * dim, 3 * dim, 1) = Eigen::MatrixXd::Zero(3 * dim, 1);
   HARtrans.block(3 * dim, 0, 1, month * dim) = Eigen::MatrixXd::Zero(1, month * dim);
   HARtrans(3 * dim, month * dim) = 1.0;
-  return HARtrans;
+  if (include_mean) {
+    return HARtrans;
+  }
+  return HARtrans.block(0, 0, 3 * dim, month * dim);
 }
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -61,52 +63,12 @@ Eigen::MatrixXd scale_har(int dim, int week, int month) {
 //' @importFrom Rcpp sourceCpp
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean) {
   int dim = y.cols();
-  int num_har = 3 * dim + 1; // 3m + 1
-  Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
-  Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
-  Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, week, month); // linear transformation
-  x1 = x * HARtrans.transpose();
-  Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
-  yhat = x1 * Phi;
-  return Rcpp::List::create(
-    Rcpp::Named("HARtrans") = HARtrans,
-    Rcpp::Named("phihat") = Phi,
-    Rcpp::Named("fitted") = yhat
-  );
-}
-
-//' Compute Vector HAR Coefficient Matrices and Fitted Values without Constant Term
-//' 
-//' This function fits VHAR given response and design matrices of multivariate time series, when the model has no constant term.
-//' 
-//' @param x Design matrix X0 (delete its last column)
-//' @param y Response matrix Y0
-//' @param week Integer, order for weekly term
-//' @param month Integer, order for monthly term
-//' @details
-//' Given Y0 and Y0, the function estimate least squares
-//' \deqn{Y_0 = X_1 \Phi + Z}
-//' 
-//' @references
-//' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
-//' 
-//' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month) {
-  int dim = y.cols(); // m
-  int num_har = 3 * dim; // 3m
-  int dim_har = month * dim; // 22m
-  Eigen::MatrixXd x1(y.rows(), num_har); // HAR design matrix
-  Eigen::MatrixXd Phi(num_har, dim); // HAR estimator
-  Eigen::MatrixXd yhat(y.rows(), dim);
-  Eigen::MatrixXd HARtrans = scale_har(dim, week, month).block(0, 0, num_har, dim_har); // linear transformation
-  x1 = x * HARtrans.transpose();
-  Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
-  yhat = x1 * Phi;
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean); // linear transformation
+  Eigen::MatrixXd x1 = x * HARtrans.transpose(); // HAR design matrix
+  Eigen::MatrixXd Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // OLS
+  Eigen::MatrixXd yhat = x1 * Phi;
   return Rcpp::List::create(
     Rcpp::Named("HARtrans") = HARtrans,
     Rcpp::Named("phihat") = Phi,
@@ -169,8 +131,7 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
   if (lag_max < month) num_full_arows = month * dim; // for VMA coefficient q < VAR(p)
   Eigen::MatrixXd FullA = Eigen::MatrixXd::Zero(num_full_arows, dim); // same size with VMA coefficient matrix
   FullA.block(0, 0, month * dim, dim) = coef_mat.block(0, 0, month * dim, dim); // fill first mp row with VAR coefficient matrix
-  Eigen::MatrixXd Im(dim, dim); // identity matrix
-  Im.setIdentity(dim, dim);
+  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim); // identity matrix
   Eigen::MatrixXd ma = Eigen::MatrixXd::Zero(ma_rows, dim); // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
   ma.block(0, 0, dim, dim) = Im; // W0 = Im
   ma.block(dim, 0, dim, dim) = FullA.block(0, 0, dim, dim) * ma.block(0, 0, dim, dim); // W1^T = B1^T * W1^T

@@ -9,8 +9,8 @@
 bvar_ssvs(
   y,
   p,
-  num_iter = 100,
-  num_burn = 0,
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
@@ -28,11 +28,11 @@ knit_print.bvarsp(x, ...)
 
 \item{num_iter}{MCMC iteration number}
 
-\item{num_burn}{Number of burn-in}
+\item{num_burn}{Number of burn-in. Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
+\item{bayes_spec}{A SSVS model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 
 \item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
 

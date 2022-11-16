@@ -25,14 +25,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_design
-Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag);
-RcppExport SEXP _bvhar_build_design(SEXP ySEXP, SEXP var_lagSEXP) {
+Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean);
+RcppExport SEXP _bvhar_build_design(SEXP ySEXP, SEXP var_lagSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_design(y, var_lag));
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_design(y, var_lag, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -48,8 +49,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_ydummy
-Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly);
-RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP) {
+Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean);
+RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,13 +60,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type daily(dailySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type weekly(weeklySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type monthly(monthlySEXP);
-    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, daily, weekly, monthly));
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
 // build_xdummy
-Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps);
-RcppExport SEXP _bvhar_build_xdummy(SEXP lag_seqSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP) {
+Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean);
+RcppExport SEXP _bvhar_build_xdummy(SEXP lag_seqSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,7 +75,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_xdummy(lag_seq, lambda, sigma, eps));
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_xdummy(lag_seq, lambda, sigma, eps, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -329,21 +332,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // scale_har
-Eigen::MatrixXd scale_har(int dim, int week, int month);
-RcppExport SEXP _bvhar_scale_har(SEXP dimSEXP, SEXP weekSEXP, SEXP monthSEXP) {
+Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean);
+RcppExport SEXP _bvhar_scale_har(SEXP dimSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(scale_har(dim, week, month));
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_har(dim, week, month, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
 // estimate_har
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month);
-RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean);
+RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -351,21 +355,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_har(x, y, week, month));
-    return rcpp_result_gen;
-END_RCPP
-}
-// estimate_har_none
-Rcpp::List estimate_har_none(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month);
-RcppExport SEXP _bvhar_estimate_har_none(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_har_none(x, y, week, month));
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_har(x, y, week, month, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -773,6 +764,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// unvectorize
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
+RcppExport SEXP _bvhar_unvectorize(SEXP xSEXP, SEXP num_rowsSEXP, SEXP num_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type num_rows(num_rowsSEXP);
+    Rcpp::traits::input_parameter< int >::type num_cols(num_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(unvectorize(x, num_rows, num_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_eigenvalues
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 RcppExport SEXP _bvhar_compute_eigenvalues(SEXP xSEXP) {
@@ -884,9 +888,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_vhar
-Eigen::MatrixXd sim_vhar(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, int week, int month, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
-RcppExport SEXP _bvhar_sim_vhar(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+// sim_vhar_eigen
+Eigen::MatrixXd sim_vhar_eigen(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, int week, int month, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_vhar_eigen(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -897,7 +901,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_vhar(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
+    rcpp_result_gen = Rcpp::wrap(sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_vhar_chol
+Eigen::MatrixXd sim_vhar_chol(int num_sim, int num_burn, Eigen::MatrixXd vhar_coef, int week, int month, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
+RcppExport SEXP _bvhar_sim_vhar_chol(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP vhar_coefSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -972,10 +993,10 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
-    {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 2},
+    {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 3},
     {"_bvhar_diag_misc", (DL_FUNC) &_bvhar_diag_misc, 1},
-    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 6},
-    {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 4},
+    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 7},
+    {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 5},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
@@ -994,9 +1015,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_VARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VARcoeftoVMA_ortho, 4},
-    {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 3},
-    {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 4},
-    {"_bvhar_estimate_har_none", (DL_FUNC) &_bvhar_estimate_har_none, 4},
+    {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
+    {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 5},
     {"_bvhar_infer_vhar", (DL_FUNC) &_bvhar_infer_vhar, 1},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 4},
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
@@ -1027,6 +1047,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
+    {"_bvhar_unvectorize", (DL_FUNC) &_bvhar_unvectorize, 3},
     {"_bvhar_compute_eigenvalues", (DL_FUNC) &_bvhar_compute_eigenvalues, 1},
     {"_bvhar_compute_inverse", (DL_FUNC) &_bvhar_compute_inverse, 1},
     {"_bvhar_compute_choleksy_lower", (DL_FUNC) &_bvhar_compute_choleksy_lower, 1},
@@ -1036,7 +1057,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 6},
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 6},
-    {"_bvhar_sim_vhar", (DL_FUNC) &_bvhar_sim_vhar, 7},
+    {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 7},
+    {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
     {"_bvhar_compute_bic", (DL_FUNC) &_bvhar_compute_bic, 1},

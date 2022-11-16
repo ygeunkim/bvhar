@@ -22,26 +22,7 @@ Then
 \deqn{vec(Y_0) = (I_k \otimes X_0 C_{HAR}^\intercal) vec(\Phi) + vec(Z_0) = (I_k \otimes X_1) vec(\Phi) + vec(Z_0)}
 }
 
-\section{Restrictions}{
-\eqn{\phi = vec(\Phi)} is linear restriction of \eqn{\alpha = vec(A)}.
-Then
-\deqn{\alpha = vec(C_{HAR}^\intercal \Phi) = (I_k \otimes C_{HAR}^\intercal) \phi}
-}
-
-\section{Restrictions for Sparsity}{
-Value of 0, 1 corresponding to \eqn{A_{i,j}} gives sparsity of the element.
-Let \eqn{\psi = (\psi_1, \ldots, \psi_{k^2 p})^\intercal} where \eqn{\psi_j = 0,1},
-and let \eqn{\Psi = diag(\psi) \in \mathbb{R}^{k^2 p \times k^2 p}}.
-
-Then the new VAR coefficient vector \eqn{\theta = \Psi \alpha \in \mathbb{R}^{k^2 p}} becomes
-\eqn{\alpha_j = 0} if \eqn{\psi_j = 0} and \eqn{\alpha_j \neq 0} if \eqn{\psi = 1}.
-}
-
 \references{
-Jochmann, M., Koop, G., & Strachan, R. W. (2010). \emph{Bayesian forecasting using stochastic search variable selection in a VAR subject to breaks}. International Journal of Forecasting, 26(2), 326–347. doi:\href{https://doi.org/10.1016/j.ijforecast.2009.11.002}{10.1016/j.ijforecast.2009.11.002}
-
-Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2). doi:\href{https://doi.org/10.1002/jae.1271}{10.1002/jae.1271}
-
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 }
 \keyword{internal}
