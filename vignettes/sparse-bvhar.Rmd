@@ -38,8 +38,6 @@ library(bayesplot)
 
 # Stochastic Search Variable Selection (SSVS)
 
-<!-- For $(\bbA, \Sigma)$ -->
-
 ## Spike-and-Slab
 
 ## SSVS
@@ -77,27 +75,23 @@ var_chol
 
 Note that the variance matrix for simulation is $\Sigma_e = (\Psi \Psi^\intercal)^{-1}$.
 
-- Simulate 100 Samples of Size $T = 50$.
+- MC simulation: 100 Samples of Size $T = 50$.
+    - In this vignette, we only generate 1 sample, not MC simulation.
+    - This is because our goal is to show how the functions work, not reproduce the paper exactly.
 - Following Appendix D.1 of Helmut (2008), we compute the square root of multivariate normal distribution variance matrix by Cholesky decomposition.
 
 ```{r varsimul}
-var_sample <- lapply(
-  1:100,
-  function(id) {
-    y <- 
-      sim_var(
-        num_sim = 100,
-        num_burn = 50,
-        var_coef = var_coef,
-        var_lag = 1,
-        sig_error = solve(var_chol %*% t(var_chol)),
-        init = matrix(runif(ncol(var_coef)), nrow = 1, ncol = ncol(var_coef)),
-        method = "chol"
-      )
-    colnames(y) <- paste0("y", 1:6)
-    y
-  }
-)
+var_data <- 
+  sim_var(
+    num_sim = 100,
+    num_burn = 50,
+    var_coef = var_coef,
+    var_lag = 1,
+    sig_error = solve(var_chol %*% t(var_chol)),
+    init = matrix(runif(ncol(var_coef)), nrow = 1, ncol = ncol(var_coef)),
+    method = "chol"
+  )
+colnames(var_data) <- paste0("y", 1:6)
 ```
 
 ### SSVS spec
@@ -142,6 +136,8 @@ On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_s
 Before starting MCMC, set initial values.
 `init_ssvs()` sets initial values for each parameter.
 Since George et al. (2008) did not mention how they specify the starting points, we initialize as follows.
+If the initial values are set close to posterior modes, MCMC is known to be converged fast.
+Since Geoge et al. (2008) has already provides the average of posterior mean over 100 sample, we use them as initial points.
 
 - `init_coef`: initial $\bbA = 0_{(kp + 1) \times k}$, k = 6, p = 1
 - `init_coef_dummy`: initial $\Gamma = 1_{kp \times k}$, k = 6, p = 1
@@ -149,16 +145,46 @@ Since George et al. (2008) did not mention how they specify the starting points,
 - `init_chol_dummy`: initial $\Omega =$ upper triangular matrix of which every diagonal and upper diagonal element is 1.
 
 ```{r initset}
-# Upper triangular matrix----------------------
+# average posterior means of parameters-------
+init_coef <- matrix(c(
+  .87, .06, .07, .06, .07, .06,
+  .03, .80, .03, .04, .02, .04,
+  .02, .04, .81, .04, .04, .03,
+  .02, .03, .03, .80, .03, .04,
+  .03, .03, .03, .03, .81, .03,
+  .02, .04, .03, .03, .03, .79,
+  1.11, .95, .93, 1.12, 1.05, .98
+), nrow = 7, byrow = TRUE)
+init_coef_dummy <- matrix(c(
+  1.00, .04, rep(.05, 4),
+  .04, 1.00, rep(.04, 4),
+  .04, .05, 1.00, .05, .04, .04,
+  rep(.04, 3), 1.00, .04, .05,
+  rep(.04, 4), 1.00, .04,
+  rep(.04, 5), 1.00
+), nrow = 6, byrow = TRUE)
 init_chol <- matrix(0L, nrow = 6L, ncol = 6L)
-diag(init_chol) <- rgamma(6, shape = 1, rate = 1)
-init_chol[upper.tri(init_chol, diag = FALSE)] <- runif(15, -2, 2)
-init_omega <- matrix(1L, nrow = 6L, ncol = 6L)
-init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
+diag(init_chol) <- c(1.09, 1.08, 1.08, 1.11, 1.10, 1.10)
+init_chol[upper.tri(init_chol, diag = FALSE)] <- c(
+  .42, 
+  .40, -.04, 
+  .41, rep(-.03, 2), 
+  .39, rep(-.03, 3),
+  .38, -.04, -.03, rep(-.04, 2)
+)
+init_omega <- matrix(0L, nrow = 6L, ncol = 6L)
+diag(init_omega) <- 1
+init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
+  .58,
+  .55, .08,
+  .53, .08, .07,
+  .52, .07, rep(.08, 2),
+  .50, rep(.08, 2), .10, .09
+)
 # initial values specification-----------------
 (init_spec <- init_ssvs(
-  init_coef = matrix(runif(42, -2, 2), nrow = 7L, ncol = 6L),
-  init_coef_dummy = matrix(1L, nrow = 6L, ncol = 6L),
+  init_coef = init_coef,
+  init_coef_dummy = init_coef_dummy,
   init_chol = init_chol,
   init_chol_dummy = init_omega
 ))
@@ -168,10 +194,6 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 
 - 50000 cycles 
 - after 10000 burn-in cycles.
-- If you perform the exactly same this setting, it will take about three minutes depending on the machines.
-- So in this vignette, we change the number of the iterations.
-    - 5000 iterations
-    - 2500 burn-in
 
 `bvar_ssvs()` performs SSVS for VAR model.
 
@@ -185,75 +207,16 @@ init_omega[lower.tri(init_omega, diag = TRUE)] <- 0L
 - `include_mean`: whether including the constant term in the model.
 
 ```{r gibbs}
-fit_mc <- lapply(
-  seq_along(var_sample),
-  function(mcid) {
-    bvar_ssvs(
-      y = var_sample[[mcid]],
-      p = 1,
-      num_iter = 5000,
-      num_burn = 2500,
-      thinning = 1,
-      bayes_spec = ssvs_spec,
-      init_spec = init_spec,
-      include_mean = TRUE
-    )
-  }
-)
-```
-
-Average of OLS for coefficient $\bbA$ over 100 samples:
-
-```{r olsmccoef}
-coef_list <- lapply(seq_along(var_sample), function(id) fit_mc[[id]]$coefficients)
-Reduce("+", coef_list) / length(coef_list)
-```
-
-Average of OLS for cholesky factor $\Psi$ over 100 samples:
-
-```{r olsmcchol}
-cholols_list <- lapply(seq_along(var_sample), function(id) fit_mc[[id]]$choleskyols)
-Reduce("+", cholols_list) / length(cholols_list)
-```
-
-Average of the restriction indices $\gamma$ over 100 samples:
-
-```{r tauresult}
-gam_list <- lapply(
-  seq_along(var_sample), 
-  function(id) fit_mc[[id]]$gamma_posterior
-)
-Reduce("+", gam_list) / length(gam_list)
-```
-
-Average of the restriction indices $\omega$ over 100 samples:
-
-```{r omega}
-omega_list <- lapply(
-  seq_along(var_sample), 
-  function(id) fit_mc[[id]]$omega_posterior
-)
-Reduce("+", omega_list) / length(omega_list)
-```
-
-Average of posterior mean for coefficient $\bbA$ over all 100 samples:
-
-```{r alpharesult}
-alpha_list <- lapply(
-  seq_along(var_sample), 
-  function(id) fit_mc[[id]]$alpha_posterior
-)
-Reduce("+", alpha_list) / length(alpha_list)
-```
-
-Average of posterior mean for Cholesky factor $\Psi$ over all 100 samples:
-
-```{r psiresult}
-chol_list <- lapply(
-  seq_along(var_sample), 
-  function(id) fit_mc[[id]]$chol_posterior
-)
-Reduce("+", chol_list) / length(chol_list)
+(var_ssvs <- bvar_ssvs(
+  y = var_data,
+  p = 1,
+  num_iter = 60000,
+  num_burn = 10000,
+  thinning = 1,
+  bayes_spec = ssvs_spec,
+  init_spec = init_spec,
+  include_mean = TRUE
+))
 ```
 
 
@@ -263,7 +226,74 @@ Since each parameter element is `posterior::draws_df` format, `bayesplot` packag
 
 ```{r psiplot}
 color_scheme_set("blue")
-mcmc_trace(fit_mc[[1]]$param, regex_pars = "psi")
+mcmc_trace(var_ssvs$param, regex_pars = "psi")
+```
+
+```{r alphadens}
+mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
+```
+
+
+## SSVS for VHAR Model
+
+6 variable VHAR:
+
+```{r truevharcoef}
+vhar_coef <- matrix(0L, nrow = 6 * 3 + 1, ncol = 6)
+diag(vhar_coef[1:6,]) <- .2
+diag(vhar_coef[7:12,]) <- .2
+diag(vhar_coef[13:18,]) <- .2
+vhar_coef[19,] <- 1
+vhar_coef
+```
+
+and the same Cholesky factor with above example:
+
+```{r truevharchol}
+(vhar_chol <- var_chol)
+```
+
+```{r vharsimul}
+vhar_data <- 
+  sim_vhar(
+    num_sim = 100,
+    num_burn = 50,
+    vhar_coef = vhar_coef,
+    week = 5,
+    month = 22,
+    sig_error = solve(vhar_chol %*% t(vhar_chol)),
+    method = "chol"
+  )
+colnames(vhar_data) <- paste0("y", 1:6)
+```
+
+
+```{r initvhar}
+# Upper triangular matrix----------------------
+initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L)
+diag(initvhar_chol) <- .1
+initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L)
+initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
+# initial values specification-----------------
+(initvhar_spec <- init_ssvs(
+  init_coef = matrix(0L, nrow = 19L, ncol = 6L),
+  init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L),
+  init_chol = initvhar_chol,
+  init_chol_dummy = initvhar_omega
+))
+```
+
+```{r gibbsvhar}
+(vhar_ssvs <- bvhar_ssvs(
+  y = vhar_data,
+  har = c(5, 22),
+  num_iter = 20000,
+  num_burn = 10000,
+  thinning = 1,
+  bayes_spec = ssvs_spec,
+  init_spec = initvhar_spec,
+  include_mean = TRUE
+))
 ```
 
 

@@ -55,7 +55,7 @@ sim_var <- function(num_sim,
   if (num_sim < 2) {
     stop("Generate more than 1 series")
   }
-  if (nrow(var_coef) != dim_data * var_lag + 1 && nrow(var_lag) != dim_data * var_lag) {
+  if (nrow(var_coef) != dim_data * var_lag + 1 && nrow(var_coef) != dim_data * var_lag) {
     stop("'var_coef' is not VAR coefficient. Check its dimension.")
   }
   if (ncol(var_coef) != dim_data) {
@@ -115,7 +115,7 @@ sim_vhar <- function(num_sim,
   if (num_sim < 2) {
     stop("Generate more than 1 series")
   }
-  if (nrow(vhar_coef) != 3 * dim_data + 1 && nrow(var_lag) != 3 * dim_data) {
+  if (nrow(vhar_coef) != 3 * dim_data + 1 && nrow(vhar_coef) != 3 * dim_data) {
     stop("'vhar_coef' is not VHAR coefficient. Check its dimension.")
   }
   if (ncol(vhar_coef) != dim_data) {

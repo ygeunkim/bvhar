@@ -51,7 +51,7 @@
 #' @export
 bvhar_ssvs <- function(y, 
                        har = c(5, 22), 
-                       num_iter = 100, 
+                       num_iter = 1000, 
                        num_burn = floor(num_iter / 2), 
                        thinning = 1,
                        bayes_spec = set_ssvs(), 
@@ -80,11 +80,8 @@ bvhar_ssvs <- function(y,
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
   }
-  # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
   # dim_har <- 3 * dim_data + 1
-  # week <- har[1]
-  # month <- har[2]
   Y0 <- build_y0(y, har[2], har[2] + 1) # n x k
   num_design <- nrow(Y0) # n
   if (!is.null(colnames(y))) {
@@ -97,9 +94,10 @@ bvhar_ssvs <- function(y,
     stop("'include_mean' is logical.")
   }
   X0 <- build_design(y, har[2], include_mean) # n x dim_design
-  
+  name_lag <- concatenate_colnames(name_var, 1:har[2], include_mean)
+  colnames(X0) <- name_lag
   hartrans_mat <- scale_har(dim_data, har[1], har[2], include_mean)
-  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
   X1 <- X0 %*% t(hartrans_mat)
   colnames(X1) <- name_har
   dim_har <- ncol(X1)
@@ -171,10 +169,10 @@ bvhar_ssvs <- function(y,
     init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
   } else {
     if (!(nrow(init_spec$init_coef[[1]]) == dim_har || ncol(init_spec$init_coef[[1]]) == dim_data)) {
-      stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
+      stop("Dimension of 'init_coef' should be (3 * dim) x dim or (3 * dim + 1) x dim.")
     }
     if (!(nrow(init_spec$init_coef_dummy[[1]]) == num_restrict || ncol(init_spec$init_coef_dummy[[1]]) == dim_data)) {
-      stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
+      stop("Dimension of 'init_coef_dummy' should be (3 * dim) x dim x dim.")
     }
     init_coef <- unlist(init_spec$init_coef)
     init_coef_dummy <- unlist(init_spec$init_coef_dummy)
@@ -298,6 +296,7 @@ bvhar_ssvs <- function(y,
   ssvs_res$burn <- num_burn
   ssvs_res$thin <- thinning
   # data------------------
+  ssvs_res$HARtrans <- hartrans_mat
   ssvs_res$y0 <- Y0
   ssvs_res$design <- X0
   ssvs_res$y <- y
