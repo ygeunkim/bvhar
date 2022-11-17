@@ -119,6 +119,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// jointdens_hyperparam
+double jointdens_hyperparam(Eigen::VectorXd cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, int gamma_shape, int gamma_rate, int invgam_shape, int invgam_scl);
+RcppExport SEXP _bvhar_jointdens_hyperparam(SEXP cand_gammaSEXP, SEXP cand_invgamSEXP, SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shapeSEXP, SEXP gamma_rateSEXP, SEXP invgam_shapeSEXP, SEXP invgam_sclSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type cand_gamma(cand_gammaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type cand_invgam(cand_invgamSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type prior_shape(prior_shapeSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
+    Rcpp::traits::input_parameter< int >::type gamma_shape(gamma_shapeSEXP);
+    Rcpp::traits::input_parameter< int >::type gamma_rate(gamma_rateSEXP);
+    Rcpp::traits::input_parameter< int >::type invgam_shape(invgam_shapeSEXP);
+    Rcpp::traits::input_parameter< int >::type invgam_scl(invgam_sclSEXP);
+    rcpp_result_gen = Rcpp::wrap(jointdens_hyperparam(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shape, gamma_rate, invgam_shape, invgam_scl));
+    return rcpp_result_gen;
+END_RCPP
+}
 // build_ssvs_sd
 Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
@@ -856,6 +880,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// invgamma_dens
+double invgamma_dens(double x, double shp, double scl, bool lg);
+RcppExport SEXP _bvhar_invgamma_dens(SEXP xSEXP, SEXP shpSEXP, SEXP sclSEXP, SEXP lgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type shp(shpSEXP);
+    Rcpp::traits::input_parameter< double >::type scl(sclSEXP);
+    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(invgamma_dens(x, shp, scl, lg));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_var_eigen
 Eigen::MatrixXd sim_var_eigen(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
 RcppExport SEXP _bvhar_sim_var_eigen(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
@@ -919,6 +957,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_logml
+double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
+RcppExport SEXP _bvhar_compute_logml(SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1000,6 +1055,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
+    {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_diag", (DL_FUNC) &_bvhar_ssvs_chol_diag, 5},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},
@@ -1055,10 +1111,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_qr_eigen", (DL_FUNC) &_bvhar_qr_eigen, 1},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
+    {"_bvhar_invgamma_dens", (DL_FUNC) &_bvhar_invgamma_dens, 4},
     {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 6},
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 6},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 7},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 7},
+    {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
     {"_bvhar_compute_bic", (DL_FUNC) &_bvhar_compute_bic, 1},
