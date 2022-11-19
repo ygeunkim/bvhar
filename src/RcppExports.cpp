@@ -120,8 +120,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // jointdens_hyperparam
-double jointdens_hyperparam(Eigen::VectorXd cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, int gamma_shape, int gamma_rate, int invgam_shape, int invgam_scl);
-RcppExport SEXP _bvhar_jointdens_hyperparam(SEXP cand_gammaSEXP, SEXP cand_invgamSEXP, SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shapeSEXP, SEXP gamma_rateSEXP, SEXP invgam_shapeSEXP, SEXP invgam_sclSEXP) {
+double jointdens_hyperparam(Eigen::VectorXd cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, int gamma_shp, int gamma_rate, int invgam_shp, int invgam_scl);
+RcppExport SEXP _bvhar_jointdens_hyperparam(SEXP cand_gammaSEXP, SEXP cand_invgamSEXP, SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -135,11 +135,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
     Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
-    Rcpp::traits::input_parameter< int >::type gamma_shape(gamma_shapeSEXP);
+    Rcpp::traits::input_parameter< int >::type gamma_shp(gamma_shpSEXP);
     Rcpp::traits::input_parameter< int >::type gamma_rate(gamma_rateSEXP);
-    Rcpp::traits::input_parameter< int >::type invgam_shape(invgam_shapeSEXP);
+    Rcpp::traits::input_parameter< int >::type invgam_shp(invgam_shpSEXP);
     Rcpp::traits::input_parameter< int >::type invgam_scl(invgam_sclSEXP);
-    rcpp_result_gen = Rcpp::wrap(jointdens_hyperparam(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shape, gamma_rate, invgam_shape, invgam_scl));
+    rcpp_result_gen = Rcpp::wrap(jointdens_hyperparam(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl));
     return rcpp_result_gen;
 END_RCPP
 }

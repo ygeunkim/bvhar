@@ -38,20 +38,72 @@ double jointdens_hyperparam(Eigen::VectorXd cand_gamma,
                             Eigen::MatrixXd mn_prec,
                             Eigen::MatrixXd iw_scale,
                             int posterior_shape,
-                            int gamma_shape,
+                            int gamma_shp,
                             int gamma_rate,
-                            int invgam_shape,
+                            int invgam_shp,
                             int invgam_scl) {
   double res = compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);
   res += -dim * num_design / 2.0 * log(M_PI) +
     log_mgammafn((prior_shape + num_design) / 2.0, dim) -
     log_mgammafn(prior_shape / 2.0, dim); // constant term
   for (int i = 0; i < cand_gamma.size(); i++) {
-    res += gamma_dens(cand_gamma[i], gamma_shape, 1 / gamma_rate, true); // gamma distribution
+    res += gamma_dens(cand_gamma[i], gamma_shp, 1 / gamma_rate, true); // gamma distribution
   }
   for (int i = 0; i < cand_invgam.size(); i++) {
-    res += invgamma_dens(cand_invgam[i], invgam_shape, invgam_scl, true); // inverse gamma distribution
+    res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
   }
   return res;
 }
 
+//' Metropolis Algorithm for Normal-IW Hierarchical Model
+//' 
+//' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
+//' 
+//' @param num_iter Number of iteration for MCMC
+//' @param num_burn Number of burn-in for MCMC
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_hierachical_niw(int num_iter,
+                                    int num_burn,
+                                    Eigen::MatrixXd x, 
+                                    Eigen::MatrixXd y,
+                                    double init_lambda,
+                                    Eigen::VectorXd init_psi,
+                                    Eigen::MatrixXd init_coef,
+                                    Eigen::MatrixXd init_sig,
+                                    int chain) {
+  int dim = y.cols();
+  int dim_design = x.cols(); // dim*p(+1)
+  int num_design = y.rows(); // n = T - p
+  // Initialize coefficients vector-------------------------------
+  Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
+  Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
+  // record-------------------------------------------------------
+  Eigen::VectorXd lam_record = Eigen::VectorXd::Zero(num_iter * chain);
+  lam_record[0] = init_lambda;
+  Eigen::MatrixXd psi_record = Eigen::MatrixXd::Zero(num_iter, dim * chain);
+  psi_record.row(0) = init_psi;
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(dim_design * num_iter, dim * chain);
+  coef_record.topRows(dim_design) = init_coef;
+  Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain);
+  sig_record.topRows(dim) = init_sig;
+  // Some variables-----------------------------------------------
+  
+  // Start Metropolis
+  // typedef Matrix<bool,Dynamic,1> VectorXb;
+  typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
+  VectorXb is_accept(num_iter + 1);
+  is_accept[0] = true;
+  // Rcpp::LogicalVector is_accept(num_iter + 1);
+  // is_accept[0] = true;
+  
+  return Rcpp::List::create(
+    Rcpp::Named("alpha_record") = coef_record,
+    Rcpp::Named("sigma_record") = sig_record,
+    Rcpp::Named("coefficients") = coef_ols,
+    Rcpp::Named("chain") = chain
+  );
+}

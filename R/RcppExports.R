@@ -188,8 +188,8 @@ estimate_mn_flat <- function(x, y, U) {
 #' @param invgam_scl Scale of hyperprior Inverse gamma distribution
 #' 
 #' @noRd
-jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shape, gamma_rate, invgam_shape, invgam_scl) {
-    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shape, gamma_rate, invgam_shape, invgam_scl)
+jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
+    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
