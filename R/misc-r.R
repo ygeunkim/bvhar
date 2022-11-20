@@ -89,9 +89,6 @@ split_paramarray <- function(x, chain, param_name) {
 #' @param chain The number of the chains
 #' @noRd
 split_psirecord <- function(x, chain = 1, varname = "cholesky") {
-  # res <- 
-  #   x %>% 
-  #   split.data.frame(gl(num_iter, dim_data))
   res <- 
     x %>% 
     split.data.frame(gl(nrow(x) / ncol(x), ncol(x)))

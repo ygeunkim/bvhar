@@ -212,6 +212,9 @@ bvar_ssvs <- function(y,
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
+  ssvs_res$alpha_posterior <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
+  ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (ssvs_res$chain > 1) {
     ssvs_res$alpha_record <- 
       split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
@@ -235,6 +238,10 @@ bvar_ssvs <- function(y,
       ssvs_res$eta_record,
       ssvs_res$omega_record
     )
+    ssvs_res$chol_posterior <- Reduce(
+      "+",
+      split.data.frame(ssvs_res$chol_record, gl(num_iter / (dim_data * ssvs_res$chain), dim_data * ssvs_res$chain))[(num_burn + 1):num_iter]
+    ) / (num_iter - num_burn)
     # Cholesky factor 3d array-------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
@@ -243,6 +250,9 @@ bvar_ssvs <- function(y,
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
     
     
+    ssvs_res$chol_posterior <- 
+      split.data.frame(ssvs_res$chol_posterior, gl(ssvs_res$chain, dim_data / ssvs_res$chain)) %>% 
+      lapply(t)
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
@@ -274,6 +284,7 @@ bvar_ssvs <- function(y,
     if (include_mean) {
       ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
     }
+    ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
   }
   # variables------------
   ssvs_res$df <- dim_design
