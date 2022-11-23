@@ -115,3 +115,23 @@ split_psirecord <- function(x, chain = 1, varname = "cholesky") {
   }
   res
 }
+
+#' Get Gamma Distribution Parameters
+#' 
+#' Compute Gamma distribution parameters from its mode and sd
+#' 
+#' @param mode Mode of Gamma distribution
+#' @param sd Standard deviation of Gamma distribution
+#' @details 
+#' Parameters of Gamma distribution is computed using [quadratic formula](https://en.wikipedia.org/wiki/Quadratic_formula).
+#' @noRd
+get_gammaparam <- function(mode, sd) {
+  shp <- (
+    (2 + mode^2 / sd^2) + 
+      sqrt((2 + mode^2 / sd^2)^2 - 4)
+  ) / 2
+  list(
+    shape = shp,
+    rate = sqrt(shp) / sd
+  )
+}

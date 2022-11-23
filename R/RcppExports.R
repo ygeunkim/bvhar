@@ -192,6 +192,27 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
     .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
 }
 
+#' Metropolis Algorithm for Normal-IW Hierarchical Model
+#' 
+#' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param obs_information Observed Fisher information matrix
+#' @param acc_scale Scaling constant for acceptance rate to be about 20 percent
+#' @param init_lambda Initial lambda
+#' @param init_psi 
+#' @param init_coef
+#' @param init_sig
+#' @param chain The number of MCMC chains
+#' 
+#' @noRd
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain)
+}
+
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
