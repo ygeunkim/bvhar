@@ -2,20 +2,44 @@
 % Please edit documentation in R/bvar-hierarchical.R
 \name{set_lambda}
 \alias{set_lambda}
+\alias{set_psi}
+\alias{print.bvharpriorspec}
+\alias{knit_print.bvharpriorspec}
 \title{Hyperpriors for Bayesian Models}
 \usage{
-set_lambda(mode, sd)
+set_lambda(mode = 0.2, sd = 0.4)
+
+set_psi(shape = 4e-04, scale = 4e-04)
+
+\method{print}{bvharpriorspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.bvharpriorspec(x, ...)
 }
 \arguments{
 \item{mode}{Mode of Gamma distribution}
 
 \item{sd}{Standard deviation of Gamma distribution}
+
+\item{shape}{Shape of Inverse Gamma distribution}
+
+\item{scale}{Scale of Inverse Gamma distribution}
+
+\item{x}{\code{bvharpriorspec} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \description{
 Set hyperpriors of Bayesian VAR and VHAR models.
 }
 \details{
-Parameters of Gamma distribution is computed using \href{https://en.wikipedia.org/wiki/Quadratic_formula}{quadratic formula}.
+In addition to Normal-IW priors \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, and \code{\link[=set_weight_bvhar]{set_weight_bvhar()}},
+these functions give hierarchical structure to the model.
+\itemize{
+\item \code{set_lambda()} specifies hyperprior for \eqn{\lambda} (\code{lambda}), which is Gamma distribution.
+\item \code{set_psi()} specifies hyperprior for \eqn{\psi / (\nu_0 - k - 1) = \sigma^2} (\code{sigma}), which is Inverse gamma distribution.
+}
 }
 \references{
 Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}

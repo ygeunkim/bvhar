@@ -67,9 +67,9 @@ double jointdens_hyperparam(double cand_gamma,
 //' @param obs_information Observed Fisher information matrix
 //' @param acc_scale Scaling constant for acceptance rate to be about 20 percent
 //' @param init_lambda Initial lambda
-//' @param init_psi 
-//' @param init_coef
-//' @param init_sig
+//' @param init_psi Initial psi
+//' @param init_coef Initial coefficients
+//' @param init_sig Initial sig
 //' @param chain The number of MCMC chains
 //' 
 //' @noRd
@@ -81,6 +81,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
                                     Eigen::MatrixXd prior_prec,
                                     Eigen::MatrixXd prior_scale,
                                     int prior_shape,
+                                    Eigen::MatrixXd mn_mean,
                                     Eigen::MatrixXd mn_prec,
                                     Eigen::MatrixXd iw_scale,
                                     int posterior_shape,
@@ -99,18 +100,15 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
   Eigen::MatrixXd gaussian_variance = acc_scale * obs_information.inverse();
-  // Initialize coefficients vector-------------------------------
-  Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
-  Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
-  // Bayes point estimates----------------------------------------
-  
   // record-------------------------------------------------------
   Eigen::VectorXd lam_record = Eigen::MatrixXd::Zero(num_iter, chain);
   lam_record.row(0) = init_lambda;
   Eigen::MatrixXd psi_record = Eigen::MatrixXd::Zero(num_iter, dim * chain);
   psi_record.row(0) = init_psi;
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(dim_design * num_iter, dim * chain);
-  coef_record.topRows(dim_design) = init_coef;
+  // Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(dim_design * num_iter, dim * chain);
+  // coef_record.topRows(dim_design) = init_coef;
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, dim * dim_design * chain);
+  coef_record.row(0) = vectorize_eigen(init_coef);
   Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain);
   sig_record.topRows(dim) = init_sig;
   // Some variables-----------------------------------------------
@@ -118,18 +116,55 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   prevprior.segment(0, chain) = init_lambda;
   prevprior.segment(chain, dim * chain) = init_psi;
   Eigen::VectorXd candprior = Eigen::VectorXd::Zero((1 + dim) * chain);
-  Rcpp::List posterior_draw;
+  Rcpp::List posterior_draw = Rcpp::List::create(Rcpp::Named("mn"), Rcpp::Named("iw"));
   double numerator = 0;
   double denom = 0;
   // Start Metropolis---------------------------------------------
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
   is_accept[0] = true;
+#ifdef _OPENMP
+  Rcpp::Rcout << "Use parallel" << std::endl;
+#pragma                  \
+  omp                    \
+    parallel             \
+    for                  \
+      num_threads(chain) \
+      shared(gaussian_variance, mn_mean, mn_prec, iw_scale, posterior_shape, dim_design, dim)
+  for (int b = 0; b < chain; b++) {
+    for (int i = 1; i < num_iter; i ++) {
+      candprior = sim_mgaussian_chol(1, prevprior, gaussian_variance);
+      numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
+      denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
+      is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
+      if (is_accept[i]) {
+        lam_record.block(i, b * dim, 1, 1) = candprior.segment(b * (dim + 1), 1);
+        psi_record.block(i, b * dim, 1, dim) = candprior.segment(b * (dim + 1) + 1, dim);
+      } else {
+        lam_record.block(i, b * dim, 1, 1) = lam_record.block(i - 1, b * dim, 1, 1);
+        psi_record.block(i, b * dim, 1, dim) = psi_record.block(i - 1, b * dim, 1, dim);
+      }
+      posterior_draw = sim_mniw(
+        1,
+        mn_mean,
+        mn_prec.inverse(),
+        iw_scale,
+        posterior_shape
+      );
+      // coef_record.block(i * dim_design, b * dim, dim_design, dim) = Eigen::Map<Eigen::MatrixXd>(posterior_draw["mn"], dim_design, dim);
+      coef_record.block(i, b * dim, 1, dim * dim_design) = vectorize_eigen(posterior_draw["mn"]);
+      sig_record.block(i * dim, b * dim, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
+    }
+  }
+#else
   for (int i = 1; i < num_iter; i ++) {
+    // Candidate ~ N(previous, scaled hessian)
     candprior = sim_mgaussian_chol(1, prevprior, gaussian_variance);
+    // log of acceptance rate = numerator - denom
     numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
     denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
     is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
+    // Update
     if (is_accept[i]) {
       lam_record.row(i) = candprior.segment(0, 1);
       psi_record.row(i) = candprior.segment(1, dim);
@@ -138,13 +173,23 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
       psi_record.row(i) = psi_record.row(i - 1);
     }
     // Draw coef and Sigma
-    
+    posterior_draw = sim_mniw(
+      1,
+      mn_mean,
+      mn_prec.inverse(),
+      iw_scale,
+      posterior_shape
+    );
+    // coef_record.block(i * dim_design, 0, dim_design, dim) = Eigen::Map<Eigen::MatrixXd>(posterior_draw["mn"], dim_design, dim);
+    coef_record.row(i) = vectorize_eigen(posterior_draw["mn"]);
+    sig_record.block(i * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
   }
-  
+#endif
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record,
-    Rcpp::Named("sigma_record") = sig_record,
-    Rcpp::Named("coefficients") = coef_ols,
+    Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("sigma_record") = sig_record.bottomRows(dim * (num_iter - num_burn)),
     Rcpp::Named("chain") = chain
   );
 }

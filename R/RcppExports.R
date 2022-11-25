@@ -203,14 +203,14 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param obs_information Observed Fisher information matrix
 #' @param acc_scale Scaling constant for acceptance rate to be about 20 percent
 #' @param init_lambda Initial lambda
-#' @param init_psi 
-#' @param init_coef
-#' @param init_sig
+#' @param init_psi Initial psi
+#' @param init_coef Initial coefficients
+#' @param init_sig Initial sig
 #' @param chain The number of MCMC chains
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain)
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix

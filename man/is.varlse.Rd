@@ -13,6 +13,7 @@
 \alias{is.boundbvharemp}
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
+\alias{is.bvharpriorspec}
 \title{See if the Object a class in this package}
 \usage{
 is.varlse(x)
@@ -38,6 +39,8 @@ is.boundbvharemp(x)
 is.ssvsinput(x)
 
 is.ssvsinit(x)
+
+is.bvharpriorspec(x)
 }
 \arguments{
 \item{x}{Object}

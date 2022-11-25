@@ -57,29 +57,41 @@
 #' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  if (lambda <= 0) {
-    stop("'lambda' should be larger than 0.")
-  }
-  if (missing(sigma)) {
-    sigma <- NULL
-  }
-  if (length(sigma) > 0 & any(sigma <= 0)) {
-    stop("'sigma' should be larger than 0.")
-  }
+  hiearchical <- is.bvharpriorspec(sigma)
   if (missing(delta)) {
     delta <- NULL
   }
-  if (length(delta) > 0 & any(delta < 0)) {
-    stop("'delta' should not be smaller than 0.")
-  }
-  if (length(sigma) > 0 & length(delta) > 0) {
-    if (length(sigma) != length(delta)) {
-      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+  if (hiearchical) {
+    if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
     }
+    prior_type <- "Hierarchical"
+  } else {
+    if (lambda <= 0) {
+      stop("'lambda' should be larger than 0.")
+    }
+    if (missing(sigma)) {
+      sigma <- NULL
+    }
+    if (length(sigma) > 0 & any(sigma <= 0)) {
+      stop("'sigma' should be larger than 0.")
+    }
+    # if (missing(delta)) {
+    #   delta <- NULL
+    # }
+    if (length(delta) > 0 & any(delta < 0)) {
+      stop("'delta' should not be smaller than 0.")
+    }
+    if (length(sigma) > 0 & length(delta) > 0) {
+      if (length(sigma) != length(delta)) {
+        stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+      }
+    }
+    prior_type <- "Minnesota"
   }
   bvar_param <- list(
     process = "BVAR",
-    prior = "Minnesota",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     delta = delta,

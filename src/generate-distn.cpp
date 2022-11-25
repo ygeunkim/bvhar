@@ -95,8 +95,8 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, 
-                                Eigen::Map<Eigen::MatrixXd> mat_scale_u, 
-                                Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
+                                Eigen::MatrixXd mat_scale_u, 
+                                Eigen::MatrixXd mat_scale_v) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
   if (mat_scale_u.rows() != mat_scale_u.cols()) {
@@ -140,7 +140,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
+Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   int dim = mat_scale.cols();
   if (shape <= dim - 1) {
     Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
@@ -188,7 +188,7 @@ Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) 
 //' 
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
+Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
   Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
   Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
   return res;
@@ -215,8 +215,8 @@ Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
 // [[Rcpp::export]]
 Rcpp::List sim_mniw(int num_sim,
                     Eigen::MatrixXd mat_mean, 
-                    Eigen::Map<Eigen::MatrixXd> mat_scale_u, 
-                    Eigen::Map<Eigen::MatrixXd> mat_scale, 
+                    Eigen::MatrixXd mat_scale_u, 
+                    Eigen::MatrixXd mat_scale, 
                     double shape) {
   int ncol_mn = mat_mean.cols();
   int nrow_mn = mat_mean.rows();
@@ -237,7 +237,7 @@ Rcpp::List sim_mniw(int num_sim,
     res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_matgaussian(
       mat_mean, 
       mat_scale_u, 
-      Eigen::Map<Eigen::MatrixXd>(mat_scale_v.data(), dim_iw, dim_iw)
+      mat_scale_v
     );
   }
   return Rcpp::List::create(
