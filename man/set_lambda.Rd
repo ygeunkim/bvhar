@@ -7,22 +7,26 @@
 \alias{knit_print.bvharpriorspec}
 \title{Hyperpriors for Bayesian Models}
 \usage{
-set_lambda(mode = 0.2, sd = 0.4)
+set_lambda(mode = 0.2, sd = 0.4, lower = 1e-05, upper = 3)
 
-set_psi(shape = 4e-04, scale = 4e-04)
+set_psi(shape = 4e-04, scale = 4e-04, lower = 1e-05, upper = 3)
 
 \method{print}{bvharpriorspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 knit_print.bvharpriorspec(x, ...)
 }
 \arguments{
-\item{mode}{Mode of Gamma distribution}
+\item{mode}{Mode of Gamma distribution. By default, \code{.2}.}
 
-\item{sd}{Standard deviation of Gamma distribution}
+\item{sd}{Standard deviation of Gamma distribution. By default, \code{.4}.}
 
-\item{shape}{Shape of Inverse Gamma distribution}
+\item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound for \code{\link[stats:optim]{stats::optim()}}. By default, \code{1e-5}.}
 
-\item{scale}{Scale of Inverse Gamma distribution}
+\item{upper}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Upper bound for \code{\link[stats:optim]{stats::optim()}}. By default, \code{3}.}
+
+\item{shape}{Shape of Inverse Gamma distribution. By default, \code{(.02)^2}.}
+
+\item{scale}{Scale of Inverse Gamma distribution. By default, \code{(.02)^2}.}
 
 \item{x}{\code{bvharpriorspec} object}
 
@@ -40,6 +44,24 @@ these functions give hierarchical structure to the model.
 \item \code{set_lambda()} specifies hyperprior for \eqn{\lambda} (\code{lambda}), which is Gamma distribution.
 \item \code{set_psi()} specifies hyperprior for \eqn{\psi / (\nu_0 - k - 1) = \sigma^2} (\code{sigma}), which is Inverse gamma distribution.
 }
+
+The following set of \verb{(mode, sd)} are recommended by Sims and Zha (1998) for \code{set_lambda()}.
+\itemize{
+\item \verb{(mode = .2, sd = .4)}: default
+\item \verb{(mode = 1, sd = 1)}
+}
+
+Giannone et al. (2015) suggested data-based selection for \code{set_psi()}.
+It chooses (0.02)^2 based on its empirical data set.
+}
+\examples{
+# Hirearchical BVAR specification------------------------
+set_bvar(
+  sigma = set_psi(shape = 4e-4, scale = 4e-4),
+  lambda = set_lambda(mode = .2, sd = .4),
+  delta = rep(1, 3),
+  eps = 1e-04 # eps = 1e-04
+)
 }
 \references{
 Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}

@@ -110,7 +110,7 @@ double log_mgammafn(double x, int p) {
     Rcpp::stop("'x' should be larger than 0.");
   }
   if (p == 1) {
-    return gammafn(x);
+    return lgammafn(x);
   }
   if (2 * x < p) {
     Rcpp::stop("'x / 2' should be larger than 'p'.");
@@ -143,7 +143,7 @@ double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (scl <= 0 ) {
     Rcpp::stop("'scl' should be larger than 0.");
   }
-  double res = pow(scl, shp) * exp(-scl / x) / (gammafn(shp) * pow(x, shp + 1));
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
   if (lg) {
     return log(res);
   }

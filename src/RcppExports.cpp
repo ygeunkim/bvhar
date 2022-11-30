@@ -120,7 +120,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // jointdens_hyperparam
-double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, int gamma_shp, int gamma_rate, int invgam_shp, int invgam_scl);
+double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl);
 RcppExport SEXP _bvhar_jointdens_hyperparam(SEXP cand_gammaSEXP, SEXP cand_invgamSEXP, SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -135,16 +135,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
     Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
-    Rcpp::traits::input_parameter< int >::type gamma_shp(gamma_shpSEXP);
-    Rcpp::traits::input_parameter< int >::type gamma_rate(gamma_rateSEXP);
-    Rcpp::traits::input_parameter< int >::type invgam_shp(invgam_shpSEXP);
-    Rcpp::traits::input_parameter< int >::type invgam_scl(invgam_sclSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_shp(gamma_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_rate(gamma_rateSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_shp(invgam_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_scl(invgam_sclSEXP);
     rcpp_result_gen = Rcpp::wrap(jointdens_hyperparam(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl));
     return rcpp_result_gen;
 END_RCPP
 }
 // estimate_hierachical_niw
-Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, int gamma_shp, int gamma_rate, int invgam_shp, int invgam_scl, Eigen::MatrixXd obs_information, double acc_scale, Eigen::VectorXd init_lambda, Eigen::VectorXd init_psi, Eigen::MatrixXd init_coef, Eigen::MatrixXd init_sig, int chain);
+Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl, Eigen::MatrixXd obs_information, double acc_scale, Eigen::VectorXd init_lambda, Eigen::VectorXd init_psi, Eigen::MatrixXd init_coef, Eigen::MatrixXd init_sig, int chain);
 RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_meanSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP, SEXP obs_informationSEXP, SEXP acc_scaleSEXP, SEXP init_lambdaSEXP, SEXP init_psiSEXP, SEXP init_coefSEXP, SEXP init_sigSEXP, SEXP chainSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -160,10 +160,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
     Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
-    Rcpp::traits::input_parameter< int >::type gamma_shp(gamma_shpSEXP);
-    Rcpp::traits::input_parameter< int >::type gamma_rate(gamma_rateSEXP);
-    Rcpp::traits::input_parameter< int >::type invgam_shp(invgam_shpSEXP);
-    Rcpp::traits::input_parameter< int >::type invgam_scl(invgam_sclSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_shp(gamma_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_rate(gamma_rateSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_shp(invgam_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_scl(invgam_sclSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type obs_information(obs_informationSEXP);
     Rcpp::traits::input_parameter< double >::type acc_scale(acc_scaleSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_lambda(init_lambdaSEXP);

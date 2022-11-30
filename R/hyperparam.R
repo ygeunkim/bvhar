@@ -27,19 +27,21 @@
 #' If the argument is not specified, `NULL` is assigned here.
 #' The default values mentioned above will be considered in each fitting function.
 #' \describe{
-#'   \item{process}{Model name}
-#'   \item{prior}{Prior name}
-#'   \item{sigma}{Vector value assigned for sigma}
-#'   \item{lambda}{Value assigned for lambda}
+#'   \item{process}{Model name: `BVAR`, `BVHAR`}
+#'   \item{prior}{
+#'   Prior name: `Minnesota` (Minnesota prior for BVAR),
+#'   `Hierarchical` (Hierarchical prior for BVAR),
+#'   `MN_VAR` (BVHAR-S),
+#'   `MN_VHAR` (BVHAR-L),
+#'   `Flat` (Flat prior for BVAR)
+#'   }
+#'   \item{sigma}{Vector value (or `bvharpriorspec` class) assigned for sigma}
+#'   \item{lambda}{Value (or `bvharpriorspec` class) assigned for lambda}
 #'   \item{delta}{Vector value assigned for delta}
 #'   \item{eps}{Value assigned for epsilon}
 #' }
 #' @note 
-#' It prints one of four `Prior`.
-#' * `Minnesota`: Minnesota prior for BVAR
-#' * `MN_VAR`: BVHAR-S
-#' * `MN_VHAR`: BVHAR-L
-#' * `Flat`: Flat prior for BVAR
+#' By using [set_psi()] and [set_lambda()] each, hierarchical modeling is available.
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
@@ -54,6 +56,9 @@
 #' )
 #' class(bvar_spec)
 #' str(bvar_spec)
+#' @seealso 
+#' * lambda hyperprior specification [set_lambda()]
+#' * sigma hyperprior specification [set_psi()]
 #' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
@@ -76,9 +81,6 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     if (length(sigma) > 0 & any(sigma <= 0)) {
       stop("'sigma' should be larger than 0.")
     }
-    # if (missing(delta)) {
-    #   delta <- NULL
-    # }
     if (length(delta) > 0 & any(delta < 0)) {
       stop("'delta' should not be smaller than 0.")
     }

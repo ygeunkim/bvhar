@@ -38,18 +38,15 @@ double jointdens_hyperparam(double cand_gamma,
                             Eigen::MatrixXd mn_prec,
                             Eigen::MatrixXd iw_scale,
                             int posterior_shape,
-                            int gamma_shp,
-                            int gamma_rate,
-                            int invgam_shp,
-                            int invgam_scl) {
+                            double gamma_shp,
+                            double gamma_rate,
+                            double invgam_shp,
+                            double invgam_scl) {
   double res = compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);
   res += -dim * num_design / 2.0 * log(M_PI) +
     log_mgammafn((prior_shape + num_design) / 2.0, dim) -
     log_mgammafn(prior_shape / 2.0, dim); // constant term
-  // for (int i = 0; i < cand_gamma.size(); i++) {
-  //   res += gamma_dens(cand_gamma[i], gamma_shp, 1 / gamma_rate, true); // gamma distribution
-  // }
-  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true);
+  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
   for (int i = 0; i < cand_invgam.size(); i++) {
     res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
   }
@@ -85,10 +82,10 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
                                     Eigen::MatrixXd mn_prec,
                                     Eigen::MatrixXd iw_scale,
                                     int posterior_shape,
-                                    int gamma_shp,
-                                    int gamma_rate,
-                                    int invgam_shp,
-                                    int invgam_scl,
+                                    double gamma_shp,
+                                    double gamma_rate,
+                                    double invgam_shp,
+                                    double invgam_scl,
                                     Eigen::MatrixXd obs_information,
                                     double acc_scale,
                                     Eigen::VectorXd init_lambda,
@@ -116,10 +113,14 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   prevprior.segment(0, chain) = init_lambda;
   prevprior.segment(chain, dim * chain) = init_psi;
   Eigen::VectorXd candprior = Eigen::VectorXd::Zero((1 + dim) * chain);
-  Rcpp::List posterior_draw = Rcpp::List::create(Rcpp::Named("mn"), Rcpp::Named("iw"));
+  Rcpp::List posterior_draw = Rcpp::List::create(
+    Rcpp::Named("mn") = Eigen::MatrixXd::Zero(dim_design, dim),
+    Rcpp::Named("iw") = Eigen::MatrixXd::Zero(dim, dim)
+  );
   double numerator = 0;
   double denom = 0;
   // Start Metropolis---------------------------------------------
+  Rcpp::Rcout << "Start Metropolis" << std::endl;
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
   is_accept[0] = true;
@@ -159,20 +160,54 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
 #else
   for (int i = 1; i < num_iter; i ++) {
     // Candidate ~ N(previous, scaled hessian)
+    Rcpp::Rcout << "Candidate" << std::endl;
     candprior = sim_mgaussian_chol(1, prevprior, gaussian_variance);
     // log of acceptance rate = numerator - denom
-    numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-    denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
+    numerator = jointdens_hyperparam(
+      candprior[0],
+      candprior.segment(1, dim),
+      dim,
+      num_design,
+      prior_prec,
+      prior_scale,
+      prior_shape,
+      mn_prec,
+      iw_scale,
+      posterior_shape,
+      gamma_shp,
+      gamma_rate,
+      invgam_shp,
+      invgam_scl
+    );
+    denom = jointdens_hyperparam(
+      prevprior[0],
+      prevprior.segment(1, dim),
+      dim,
+      num_design,
+      prior_prec,
+      prior_scale,
+      prior_shape,
+      mn_prec,
+      iw_scale,
+      posterior_shape,
+      gamma_shp,
+      gamma_rate,
+      invgam_shp,
+      invgam_scl
+    );
     is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
     // Update
     if (is_accept[i]) {
+      Rcpp::Rcout << "Accept" << std::endl;
       lam_record.row(i) = candprior.segment(0, 1);
       psi_record.row(i) = candprior.segment(1, dim);
     } else {
+      Rcpp::Rcout << "Reject" << std::endl;
       lam_record.row(i) = lam_record.row(i - 1);
       psi_record.row(i) = psi_record.row(i - 1);
     }
     // Draw coef and Sigma
+    Rcpp::Rcout << "Draw coef" << std::endl;
     posterior_draw = sim_mniw(
       1,
       mn_mean,
