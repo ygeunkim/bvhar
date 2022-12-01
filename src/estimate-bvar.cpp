@@ -41,7 +41,7 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   Eigen::MatrixXd prior_prec = x_dummy.transpose() * x_dummy; // prior mn precision
   Eigen::MatrixXd prior_mean = prior_prec.inverse() * x_dummy.transpose() * y_dummy; // prior mn mean
   Eigen::MatrixXd prior_scale = (y_dummy - x_dummy * prior_mean).transpose() * (y_dummy - x_dummy * prior_mean);; // prior iw scale
-  int prior_shape = num_dummy - dim_design; // prior iw shape = Tp - k = m
+  int prior_shape = num_dummy - dim_design + 2;
   // posterior-------------------------------------------
   // initialize posteriors
   Eigen::MatrixXd ystar(num_augment, dim); // [Y0, Yp]
@@ -62,7 +62,7 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
     Rcpp::Named("prior_scale") = prior_scale,
-    Rcpp::Named("prior_shape") = prior_shape + 2,
+    Rcpp::Named("prior_shape") = prior_shape,
     Rcpp::Named("mnmean") = coef_mat,
     Rcpp::Named("mnprec") = prec_mat,
     Rcpp::Named("fitted") = yhat,
