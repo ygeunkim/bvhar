@@ -184,7 +184,7 @@ bvar_niwhm <- function(y,
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
   X0 <- build_design(y, p, include_mean)

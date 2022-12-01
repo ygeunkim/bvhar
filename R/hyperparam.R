@@ -62,10 +62,13 @@
 #' @order 1
 #' @export
 set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
-  hiearchical <- is.bvharpriorspec(sigma)
+  if (missing(sigma)) {
+    sigma <- NULL
+  }
   if (missing(delta)) {
     delta <- NULL
   }
+  hiearchical <- is.bvharpriorspec(sigma)
   if (hiearchical) {
     if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
       stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
@@ -74,9 +77,6 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   } else {
     if (lambda <= 0) {
       stop("'lambda' should be larger than 0.")
-    }
-    if (missing(sigma)) {
-      sigma <- NULL
     }
     if (length(sigma) > 0 & any(sigma <= 0)) {
       stop("'sigma' should be larger than 0.")

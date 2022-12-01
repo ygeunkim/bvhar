@@ -210,7 +210,7 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 60000,
+  num_iter = 20000,
   num_burn = 10000,
   thinning = 1,
   bayes_spec = ssvs_spec,
@@ -234,67 +234,67 @@ mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 ```
 
 
-## SSVS for VHAR Model
+<!-- ## SSVS for VHAR Model -->
 
-6 variable VHAR:
+<!-- 6 variable VHAR: -->
 
-```{r truevharcoef}
-vhar_coef <- matrix(0L, nrow = 6 * 3 + 1, ncol = 6)
-diag(vhar_coef[1:6,]) <- .2
-diag(vhar_coef[7:12,]) <- .2
-diag(vhar_coef[13:18,]) <- .2
-vhar_coef[19,] <- 1
-vhar_coef
-```
+<!-- ```{r truevharcoef} -->
+<!-- vhar_coef <- matrix(0L, nrow = 6 * 3 + 1, ncol = 6) -->
+<!-- diag(vhar_coef[1:6,]) <- .2 -->
+<!-- diag(vhar_coef[7:12,]) <- .2 -->
+<!-- diag(vhar_coef[13:18,]) <- .2 -->
+<!-- vhar_coef[19,] <- 1 -->
+<!-- vhar_coef -->
+<!-- ``` -->
 
-and the same Cholesky factor with above example:
+<!-- and the same Cholesky factor with above example: -->
 
-```{r truevharchol}
-(vhar_chol <- var_chol)
-```
+<!-- ```{r truevharchol} -->
+<!-- (vhar_chol <- var_chol) -->
+<!-- ``` -->
 
-```{r vharsimul}
-vhar_data <- 
-  sim_vhar(
-    num_sim = 100,
-    num_burn = 50,
-    vhar_coef = vhar_coef,
-    week = 5,
-    month = 22,
-    sig_error = solve(vhar_chol %*% t(vhar_chol)),
-    method = "chol"
-  )
-colnames(vhar_data) <- paste0("y", 1:6)
-```
+<!-- ```{r vharsimul} -->
+<!-- vhar_data <-  -->
+<!--   sim_vhar( -->
+<!--     num_sim = 100, -->
+<!--     num_burn = 50, -->
+<!--     vhar_coef = vhar_coef, -->
+<!--     week = 5, -->
+<!--     month = 22, -->
+<!--     sig_error = solve(vhar_chol %*% t(vhar_chol)), -->
+<!--     method = "chol" -->
+<!--   ) -->
+<!-- colnames(vhar_data) <- paste0("y", 1:6) -->
+<!-- ``` -->
 
 
-```{r initvhar}
-# Upper triangular matrix----------------------
-initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L)
-diag(initvhar_chol) <- .1
-initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L)
-initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
-# initial values specification-----------------
-(initvhar_spec <- init_ssvs(
-  init_coef = matrix(0L, nrow = 19L, ncol = 6L),
-  init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L),
-  init_chol = initvhar_chol,
-  init_chol_dummy = initvhar_omega
-))
-```
+<!-- ```{r initvhar} -->
+<!-- # Upper triangular matrix---------------------- -->
+<!-- initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L) -->
+<!-- diag(initvhar_chol) <- .1 -->
+<!-- initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L) -->
+<!-- initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L -->
+<!-- # initial values specification----------------- -->
+<!-- (initvhar_spec <- init_ssvs( -->
+<!--   init_coef = matrix(0L, nrow = 19L, ncol = 6L), -->
+<!--   init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L), -->
+<!--   init_chol = initvhar_chol, -->
+<!--   init_chol_dummy = initvhar_omega -->
+<!-- )) -->
+<!-- ``` -->
 
-```{r gibbsvhar}
-(vhar_ssvs <- bvhar_ssvs(
-  y = vhar_data,
-  har = c(5, 22),
-  num_iter = 20000,
-  num_burn = 10000,
-  thinning = 1,
-  bayes_spec = ssvs_spec,
-  init_spec = initvhar_spec,
-  include_mean = TRUE
-))
-```
+<!-- ```{r gibbsvhar} -->
+<!-- (vhar_ssvs <- bvhar_ssvs( -->
+<!--   y = vhar_data, -->
+<!--   har = c(5, 22), -->
+<!--   num_iter = 20000, -->
+<!--   num_burn = 10000, -->
+<!--   thinning = 1, -->
+<!--   bayes_spec = ssvs_spec, -->
+<!--   init_spec = initvhar_spec, -->
+<!--   include_mean = TRUE -->
+<!-- )) -->
+<!-- ``` -->
 
 
 <!-- ### Multiple Initial values -->
