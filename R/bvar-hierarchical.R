@@ -279,6 +279,10 @@ bvar_niwhm <- function(y,
     chain = 1
   )
   # preprocess the results------------
+  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
+  metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
+  metropolis_res$alpha_record <- metropolis_res$alpha_record[thin_id,]
   if (metropolis_res$chain > 1) {
     # 
   } else {
@@ -296,11 +300,14 @@ bvar_niwhm <- function(y,
     colnames(metropolis_res$alpha_record) <- paste0("psi[", seq_len(ncol(metropolis_res$alpha_record)), "]")
     metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter, by = thinning)]
     names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
     # posterior mean-------------------
     metropolis_res$alpha_posterior <- colMeans(metropolis_res$alpha_record)
     metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)
     metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
+    # acceptance rate------------------
+    metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
   }
   
   # variables-------------------------

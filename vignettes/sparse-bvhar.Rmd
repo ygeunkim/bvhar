@@ -192,9 +192,6 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 
 ### Gibbs sampling
 
-- 50000 cycles 
-- after 10000 burn-in cycles.
-
 `bvar_ssvs()` performs SSVS for VAR model.
 
 - `y`: data
@@ -210,9 +207,9 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 20000,
-  num_burn = 10000,
-  thinning = 1,
+  num_iter = 10000,
+  num_burn = 5000,
+  thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
   include_mean = TRUE

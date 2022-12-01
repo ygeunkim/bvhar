@@ -212,7 +212,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
     Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("alpha_record") = coef_record.bottomRows((num_iter - 1) - num_burn),
-    Rcpp::Named("sigma_record") = sig_record.bottomRows(dim * ((num_iter - 1) - num_burn)),
+    Rcpp::Named("sigma_record") = sig_record,
     Rcpp::Named("acceptance") = is_accept.tail(num_iter - num_burn),
     Rcpp::Named("chain") = chain
   );
