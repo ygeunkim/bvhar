@@ -102,6 +102,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param num_burn Number of burn-in. Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
+#' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @details 
@@ -141,6 +142,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
 #' @importFrom stats optim
 #' @importFrom optimParallel optimParallel
+#' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
 bvar_niwhm <- function(y, 
@@ -148,7 +150,8 @@ bvar_niwhm <- function(y,
                        num_iter = 1000, 
                        num_burn = floor(num_iter / 2), 
                        thinning = 1, 
-                       bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()), 
+                       bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
+                       scale_variance = 1,
                        include_mean = TRUE,
                        parallel = list()) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -269,21 +272,112 @@ bvar_niwhm <- function(y,
     gamma_rate = bayes_spec$lambda$param[2],
     invgam_shp = bayes_spec$sigma$param[1],
     invgam_scl = bayes_spec$sigma$param[2],
+    acc_scale = scale_variance,
     obs_information = hess,
-    acc_scale = .3,
     init_lambda = lambda,
     init_psi = psi,
-    init_coef = mn_mean,
-    init_sig = solve(mn_prec),
     chain = 1
   )
+  # preprocess the results------------
+  if (metropolis_res$chain > 1) {
+    # 
+  } else {
+    # hyperparameters------------------
+    colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
+    metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record)
+    colnames(metropolis_res$lambda_record) <- "lambda"
+    metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
+    metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
+    metropolis_res$hyperparam <- bind_draws(
+      metropolis_res$lambda_record,
+      metropolis_res$psi_record
+    )
+    # parameters-----------------------
+    colnames(metropolis_res$alpha_record) <- paste0("psi[", seq_len(ncol(metropolis_res$alpha_record)), "]")
+    metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
+    metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
+    names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
+    # posterior mean-------------------
+    metropolis_res$alpha_posterior <- colMeans(metropolis_res$alpha_record)
+    metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)
+    metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
+  }
   
+  # variables-------------------------
+  metropolis_res$df <- nrow(mn_mean)
+  metropolis_res$p <- p
+  metropolis_res$m <- dim_data
+  metropolis_res$obs <- nrow(Y0)
+  metropolis_res$totobs <- nrow(y)
+  # model-----------------------------
+  metropolis_res$call <- match.call()
+  metropolis_res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  metropolis_res$type <- ifelse(include_mean, "const", "none")
+  metropolis_res$spec <- bayes_spec
+  metropolis_res$iter <- num_iter
+  metropolis_res$burn <- num_burn
+  metropolis_res$thin <- thinning
+  # data------------------------------
+  metropolis_res$y0 <- Y0
+  metropolis_res$design <- X0
+  metropolis_res$y <- y
+  # return S3 object------
   class(metropolis_res) <- c("bvarhm", "bvharmod")
   metropolis_res
 }
 
+#' @rdname bvar_niwhm
+#' @param x `bvarhm` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
+  )
+  cat(sprintf("BVAR(%i) with Hierarchical Prior\n", x$p))
+  cat("====================================================\n\n")
+  cat("Hyperparameter Selection:\n")
+  print(
+    x$hyperparam,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("\n--------------------------------------------------\n")
+  cat("Coefficients ~ Matrix Normal Record:\n")
+  print(
+    x$alpha_record,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("Sigma ~ Inverse-Wishart Record:\n")
+  print(
+    x$sigma_record,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
 
+#' @rdname bvar_niwhm
+#' @param x `bvarhm` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvarhm <- function(x, ...) {
+  print(x)
+}
 
+#' @export
+registerS3method(
+  "knit_print", "bvarhm",
+  knit_print.bvarhm,
+  envir = asNamespace("knitr")
+)
 
 #' @rdname set_lambda
 #' @param x `bvharpriorspec` object

@@ -200,8 +200,8 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param num_burn Number of burn-in for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
+#' @param acc_scale Proposal distribution scaling constant to adjust an acceptance rate
 #' @param obs_information Observed Fisher information matrix
-#' @param acc_scale Scaling constant for acceptance rate to be about 20 percent
 #' @param init_lambda Initial lambda
 #' @param init_psi Initial psi
 #' @param init_coef Initial coefficients
@@ -209,8 +209,8 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param chain The number of MCMC chains
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, obs_information, acc_scale, init_lambda, init_psi, init_coef, init_sig, chain)
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix

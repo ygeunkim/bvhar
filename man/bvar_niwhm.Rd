@@ -2,17 +2,25 @@
 % Please edit documentation in R/bvar-hierarchical.R
 \name{bvar_niwhm}
 \alias{bvar_niwhm}
+\alias{print.bvarhm}
+\alias{knit_print.bvarhm}
 \title{Fitting Hierarchical Bayesian VAR(p)}
 \usage{
 bvar_niwhm(
   y,
   p,
-  num_iter,
-  num_burn,
-  thinning,
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
   bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
-  include_mean = TRUE
+  scale_variance = 1,
+  include_mean = TRUE,
+  parallel = list()
 )
+
+\method{print}{bvarhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+knit_print.bvarhm(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
@@ -27,7 +35,17 @@ bvar_niwhm(
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 
+\item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
+
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{x}{\code{bvarhm} object}
+
+\item{digits}{digit option to print}
+
+\item{...}{not used}
 }
 \value{
 \code{bvar_niwhm} returns an object named \code{bvarhm} \link{class}.

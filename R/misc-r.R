@@ -84,8 +84,6 @@ split_paramarray <- function(x, chain, param_name) {
 #' Preprocess 3d record matrix
 #' 
 #' @param x Parameter matrix
-#' @param num_iter MCMC iteration number
-#' @param dim_data Data dimension
 #' @param chain The number of the chains
 #' @noRd
 split_psirecord <- function(x, chain = 1, varname = "cholesky") {
