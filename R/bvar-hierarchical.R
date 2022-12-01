@@ -281,14 +281,15 @@ bvar_niwhm <- function(y,
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
-  metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
   metropolis_res$alpha_record <- metropolis_res$alpha_record[thin_id,]
   if (metropolis_res$chain > 1) {
     # 
+    metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
   } else {
     # hyperparameters------------------
     colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
     metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record)
+    metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
     colnames(metropolis_res$lambda_record) <- "lambda"
     metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
     metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
