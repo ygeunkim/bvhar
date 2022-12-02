@@ -169,6 +169,62 @@ estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
+#' Log of Joint Posterior Density of Hyperparameters
+#' 
+#' This function computes the log of joint posterior density of hyperparameters.
+#' 
+#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
+#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
+#' @param dim Dimension of the time series
+#' @param num_design The number of the data matrix, \eqn{n = T - p}
+#' @param prior_prec Prior precision of Matrix Normal distribution
+#' @param prior_scale Prior scale of Inverse-Wishart distribution
+#' @param mn_prec Posterior precision of Matrix Normal distribution
+#' @param iw_scale Posterior scale of Inverse-Wishart distribution
+#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
+#' @param gamma_shape Shape of hyperprior Gamma distribution
+#' @param gamma_rate Rate of hyperprior Gamma distribution
+#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
+#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
+#' 
+#' @noRd
+jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
+    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
+}
+
+#' Metropolis Algorithm for Normal-IW Hierarchical Model
+#' 
+#' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param prior_prec Prior precision of Matrix Normal distribution
+#' @param prior_scale Prior scale of Inverse-Wishart distribution
+#' @param prior_shape Prior degrees of freedom of Inverse-Wishart distribution
+#' @param mn_mean Posterior mean of Matrix Normal distribution
+#' @param mn_prec Posterior precision of Matrix Normal distribution
+#' @param iw_scale Posterior scale of Inverse-Wishart distribution
+#' @param posterior_shape Posterior degrees of freedom of Inverse-Wishart distribution
+#' @param gamma_shp Shape of hyperprior Gamma distribution
+#' @param gamma_rate Rate of hyperprior Gamma distribution
+#' @param invgam_shp Shape of hyperprior Inverse gamma distribution
+#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
+#' @param acc_scale Proposal distribution scaling constant to adjust an acceptance rate
+#' @param obs_information Observed Fisher information matrix
+#' @param init_lambda Initial lambda
+#' @param init_psi Initial psi
+#' @param init_coef Initial coefficients
+#' @param init_sig Initial sig
+#' @param chain The number of MCMC chains
+#' @param display_progress Progress bar
+#' 
+#' @noRd
+estimate_hierachical_niw <- function(num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
+}
+
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
@@ -263,7 +319,7 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' This function conducts Gibbs sampling for BVAR SSVS.
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in for MCMC
+#' @param num_warm Number of warm-up (burn-in) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_coef Initial k x m coefficient matrix.
@@ -281,9 +337,10 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' @param chol_slab_weight Cholesky factor sparsity proportion
 #' @param intercept_var Hyperparameter for constant term
 #' @param chain The number of MCMC chains.
+#' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain)
+estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -998,6 +1055,20 @@ log_mgammafn <- function(x, p) {
     .Call(`_bvhar_log_mgammafn`, x, p)
 }
 
+#' Density of Inverse Gamma Distribution
+#' 
+#' Compute the pdf of Inverse Gamma distribution
+#' 
+#' @param x non-negative argument
+#' @param shp Shape of the distribution
+#' @param scl Scale of the distribution
+#' @param lg If true, return log(f)
+#' 
+#' @noRd
+invgamma_dens <- function(x, shp, scl, lg) {
+    .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
+}
+
 #' Generate Multivariate Time Series Process Following VAR(p)
 #' 
 #' This function generates multivariate time series dataset that follows VAR(p).
@@ -1073,6 +1144,24 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
+#' 
+#' This function computes log of ML stable,
+#' excluding the constant term.
+#' 
+#' @param dim Dimension of the time series
+#' @param num_design The number of the data matrix, \eqn{n = T - p}
+#' @param prior_prec Prior precision of Matrix Normal distribution
+#' @param prior_scale Prior scale of Inverse-Wishart distribution
+#' @param mn_prec Posterior precision of Matrix Normal distribution
+#' @param iw_scale Posterior scale of Inverse-Wishart distribution
+#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
+#' 
+#' @noRd
+compute_logml <- function(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape) {
+    .Call(`_bvhar_compute_logml`, dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape)
+}
+
+#' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
 #' 
 #' This function computes log of ML stable,
 #' in purpose of objective function.

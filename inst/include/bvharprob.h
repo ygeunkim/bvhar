@@ -7,5 +7,6 @@
 #define gamma_rand Rf_rgamma
 #define binom_rand Rf_rbinom
 #define unif_rand Rf_runif
+#define gamma_dens Rf_dgamma
 
 #endif

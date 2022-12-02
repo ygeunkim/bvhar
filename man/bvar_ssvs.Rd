@@ -10,11 +10,12 @@ bvar_ssvs(
   y,
   p,
   num_iter = 1000,
-  num_burn = floor(num_iter/2),
+  num_warm = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
-  include_mean = TRUE
+  include_mean = TRUE,
+  verbose = FALSE
 )
 
 \method{print}{bvarsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -28,7 +29,7 @@ knit_print.bvarsp(x, ...)
 
 \item{num_iter}{MCMC iteration number}
 
-\item{num_burn}{Number of burn-in. Half of the iteration is the default choice.}
+\item{num_warm}{Number of warm-up (burn-in). Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
 
@@ -37,6 +38,8 @@ knit_print.bvarsp(x, ...)
 \item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{x}{\code{bvarsp} object}
 

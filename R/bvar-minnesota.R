@@ -82,6 +82,9 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (bayes_spec$process != "BVAR") {
     stop("'bayes_spec' must be the result of 'set_bvar()'.")
   }
+  if (bayes_spec$prior != "Minnesota") {
+    stop("In 'set_bvar()', just input numeric values.")
+  }
   if (is.null(bayes_spec$sigma)) {
     bayes_spec$sigma <- apply(y, 2, sd)
   }

@@ -50,10 +50,16 @@ It is the list of which the components are the same as the arguments provided.
 If the argument is not specified, \code{NULL} is assigned here.
 The default values mentioned above will be considered in each fitting function.
 \describe{
-\item{process}{Model name}
-\item{prior}{Prior name}
-\item{sigma}{Vector value assigned for sigma}
-\item{lambda}{Value assigned for lambda}
+\item{process}{Model name: \code{BVAR}, \code{BVHAR}}
+\item{prior}{
+Prior name: \code{Minnesota} (Minnesota prior for BVAR),
+\code{Hierarchical} (Hierarchical prior for BVAR),
+\code{MN_VAR} (BVHAR-S),
+\code{MN_VHAR} (BVHAR-L),
+\code{Flat} (Flat prior for BVAR)
+}
+\item{sigma}{Vector value (or \code{bvharpriorspec} class) assigned for sigma}
+\item{lambda}{Value (or \code{bvharpriorspec} class) assigned for lambda}
 \item{delta}{Vector value assigned for delta}
 \item{eps}{Value assigned for epsilon}
 }
@@ -102,13 +108,7 @@ Set hyperparameters of Bayesian VAR and VHAR models.
 }
 }
 \note{
-It prints one of four \code{Prior}.
-\itemize{
-\item \code{Minnesota}: Minnesota prior for BVAR
-\item \code{MN_VAR}: BVHAR-S
-\item \code{MN_VHAR}: BVHAR-L
-\item \code{Flat}: Flat prior for BVAR
-}
+By using \code{\link[=set_psi]{set_psi()}} and \code{\link[=set_lambda]{set_lambda()}} each, hierarchical modeling is available.
 }
 \examples{
 # Minnesota BVAR specification------------------------
@@ -158,4 +158,10 @@ Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior
 Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
 
 Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+}
+\seealso{
+\itemize{
+\item lambda hyperprior specification \code{\link[=set_lambda]{set_lambda()}}
+\item sigma hyperprior specification \code{\link[=set_psi]{set_psi()}}
+}
 }

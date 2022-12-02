@@ -119,6 +119,61 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// jointdens_hyperparam
+double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl);
+RcppExport SEXP _bvhar_jointdens_hyperparam(SEXP cand_gammaSEXP, SEXP cand_invgamSEXP, SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type cand_gamma(cand_gammaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type cand_invgam(cand_invgamSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type prior_shape(prior_shapeSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_shp(gamma_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_rate(gamma_rateSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_shp(invgam_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_scl(invgam_sclSEXP);
+    rcpp_result_gen = Rcpp::wrap(jointdens_hyperparam(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl));
+    return rcpp_result_gen;
+END_RCPP
+}
+// estimate_hierachical_niw
+Rcpp::List estimate_hierachical_niw(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl, double acc_scale, Eigen::MatrixXd obs_information, Eigen::VectorXd init_lambda, Eigen::VectorXd init_psi, int chain, bool display_progress);
+RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_meanSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP, SEXP acc_scaleSEXP, SEXP obs_informationSEXP, SEXP init_lambdaSEXP, SEXP init_psiSEXP, SEXP chainSEXP, SEXP display_progressSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type num_warm(num_warmSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type prior_shape(prior_shapeSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_mean(mn_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_shp(gamma_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma_rate(gamma_rateSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_shp(invgam_shpSEXP);
+    Rcpp::traits::input_parameter< double >::type invgam_scl(invgam_sclSEXP);
+    Rcpp::traits::input_parameter< double >::type acc_scale(acc_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type obs_information(obs_informationSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_lambda(init_lambdaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_psi(init_psiSEXP);
+    Rcpp::traits::input_parameter< int >::type chain(chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_hierachical_niw(num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress));
+    return rcpp_result_gen;
+END_RCPP
+}
 // build_ssvs_sd
 Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
@@ -216,13 +271,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_ssvs
-Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double intercept_var, int chain);
-RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_varSEXP, SEXP chainSEXP) {
+Rcpp::List estimate_bvar_ssvs(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double intercept_var, int chain, bool display_progress);
+RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_varSEXP, SEXP chainSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
+    Rcpp::traits::input_parameter< int >::type num_warm(num_warmSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_coef(init_coefSEXP);
@@ -240,7 +295,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab_weight(chol_slab_weightSEXP);
     Rcpp::traits::input_parameter< double >::type intercept_var(intercept_varSEXP);
     Rcpp::traits::input_parameter< int >::type chain(chainSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain));
+    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -657,52 +713,52 @@ BEGIN_RCPP
 END_RCPP
 }
 // sim_matgaussian
-Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale_v);
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v);
 RcppExport SEXP _bvhar_sim_matgaussian(SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scale_vSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_mean(mat_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_u(mat_scale_uSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_v(mat_scale_vSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale_u(mat_scale_uSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale_v(mat_scale_vSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v));
     return rcpp_result_gen;
 END_RCPP
 }
 // sim_iw_tri
-Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape);
 RcppExport SEXP _bvhar_sim_iw_tri(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale(mat_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_iw_tri(mat_scale, shape));
     return rcpp_result_gen;
 END_RCPP
 }
 // sim_iw
-Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape);
 RcppExport SEXP _bvhar_sim_iw(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale(mat_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_iw(mat_scale, shape));
     return rcpp_result_gen;
 END_RCPP
 }
 // sim_mniw
-Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::Map<Eigen::MatrixXd> mat_scale_u, Eigen::Map<Eigen::MatrixXd> mat_scale, double shape);
+Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape);
 RcppExport SEXP _bvhar_sim_mniw(SEXP num_simSEXP, SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scaleSEXP, SEXP shapeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_mean(mat_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale_u(mat_scale_uSEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type mat_scale(mat_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale_u(mat_scale_uSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale(mat_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape));
     return rcpp_result_gen;
@@ -856,6 +912,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// invgamma_dens
+double invgamma_dens(double x, double shp, double scl, bool lg);
+RcppExport SEXP _bvhar_invgamma_dens(SEXP xSEXP, SEXP shpSEXP, SEXP sclSEXP, SEXP lgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type shp(shpSEXP);
+    Rcpp::traits::input_parameter< double >::type scl(sclSEXP);
+    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(invgamma_dens(x, shp, scl, lg));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_var_eigen
 Eigen::MatrixXd sim_var_eigen(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
 RcppExport SEXP _bvhar_sim_var_eigen(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
@@ -919,6 +989,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_error(sig_errorSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init(initSEXP);
     rcpp_result_gen = Rcpp::wrap(sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_logml
+double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
+RcppExport SEXP _bvhar_compute_logml(SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1000,6 +1087,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
+    {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
+    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 21},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_diag", (DL_FUNC) &_bvhar_ssvs_chol_diag, 5},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},
@@ -1007,7 +1096,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_ssvs_chol_dummy", (DL_FUNC) &_bvhar_ssvs_chol_dummy, 4},
     {"_bvhar_ssvs_coef", (DL_FUNC) &_bvhar_ssvs_coef, 5},
     {"_bvhar_ssvs_coef_dummy", (DL_FUNC) &_bvhar_ssvs_coef_dummy, 4},
-    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 19},
+    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 20},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
@@ -1055,10 +1144,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_qr_eigen", (DL_FUNC) &_bvhar_qr_eigen, 1},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
+    {"_bvhar_invgamma_dens", (DL_FUNC) &_bvhar_invgamma_dens, 4},
     {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 6},
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 6},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 7},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 7},
+    {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
     {"_bvhar_compute_bic", (DL_FUNC) &_bvhar_compute_bic, 1},
