@@ -5,7 +5,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
-#' @param num_burn Number of burn-in. Half of the iteration is the default choice.
+#' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
@@ -53,7 +53,7 @@
 bvar_ssvs <- function(y, 
                       p, 
                       num_iter = 1000, 
-                      num_burn = floor(num_iter / 2), 
+                      num_warm = floor(num_iter / 2), 
                       thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
@@ -76,8 +76,8 @@ bvar_ssvs <- function(y,
   if (num_iter < 1) {
     stop("Iterate more than 1 times for MCMC.")
   }
-  if (num_iter < num_burn) {
-    stop("'num_iter' should be larger than 'num_burn'.")
+  if (num_iter < num_warm) {
+    stop("'num_iter' should be larger than 'num_warm'.")
   }
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
@@ -188,7 +188,7 @@ bvar_ssvs <- function(y,
   # MCMC-----------------------------
   ssvs_res <- estimate_bvar_ssvs(
     num_iter = num_iter,
-    num_burn = num_burn,
+    num_warm = num_warm,
     x = X0,
     y = Y0,
     init_coef = init_coef, # initial alpha
@@ -209,7 +209,7 @@ bvar_ssvs <- function(y,
     display_progress = verbose
   )
   # preprocess the results------------
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   ssvs_res$alpha_record <- ssvs_res$alpha_record[thin_id,]
   ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
@@ -243,11 +243,11 @@ bvar_ssvs <- function(y,
     )
     ssvs_res$chol_posterior <- Reduce(
       "+",
-      split.data.frame(ssvs_res$chol_record, gl(num_iter / (dim_data * ssvs_res$chain), dim_data * ssvs_res$chain))[(num_burn + 1):num_iter]
-    ) / (num_iter - num_burn)
+      split.data.frame(ssvs_res$chol_record, gl(num_iter / (dim_data * ssvs_res$chain), dim_data * ssvs_res$chain))[(num_warm + 1):num_iter]
+    ) / (num_iter - num_warm)
     # Cholesky factor 3d array-------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
-    ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
+    ssvs_res$chol_record <- ssvs_res$chol_record[(num_warm + 1):num_iter] # burn in
     # Posterior mean-------------------------
     ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_design, dim_data, ssvs_res$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
@@ -276,7 +276,7 @@ bvar_ssvs <- function(y,
     )
     # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
-    ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_burn + 1, to = num_iter, by = thinning)] # burn in
+    ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_warm + 1, to = num_iter, by = thinning)] # burn in
     # Posterior mean-------------------------
     ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
@@ -302,7 +302,7 @@ bvar_ssvs <- function(y,
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
   ssvs_res$iter <- num_iter
-  ssvs_res$burn <- num_burn
+  ssvs_res$burn <- num_warm
   ssvs_res$thin <- thinning
   # data------------------
   ssvs_res$y0 <- Y0

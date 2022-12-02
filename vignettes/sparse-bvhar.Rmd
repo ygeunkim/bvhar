@@ -197,7 +197,7 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 - `y`: data
 - `p`: order
 - `num_iter`: Total number of iteration (including burn-in)
-- `num_burn`: The number of burn-in
+- `num_warm`: The number of warm-up (burn-in)
 - `thinning`: Thinning
 - `bayes_spec`: SSVS specification using `set_ssvs()`.
 - `init_spec`: SSVS initialization specification using `init_ssvs()`.
@@ -208,7 +208,7 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
   y = var_data,
   p = 1,
   num_iter = 10000,
-  num_burn = 5000,
+  num_warm = 5000,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
@@ -254,7 +254,7 @@ mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 <!-- vhar_data <-  -->
 <!--   sim_vhar( -->
 <!--     num_sim = 100, -->
-<!--     num_burn = 50, -->
+<!--     num_warm = 50, -->
 <!--     vhar_coef = vhar_coef, -->
 <!--     week = 5, -->
 <!--     month = 22, -->
@@ -285,7 +285,7 @@ mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 <!--   y = vhar_data, -->
 <!--   har = c(5, 22), -->
 <!--   num_iter = 20000, -->
-<!--   num_burn = 10000, -->
+<!--   num_warm = 10000, -->
 <!--   thinning = 1, -->
 <!--   bayes_spec = ssvs_spec, -->
 <!--   init_spec = initvhar_spec, -->
@@ -342,7 +342,7 @@ mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 <!--   y = var_sample[[1]], -->
 <!--   p = 1, -->
 <!--   num_iter = 1000, -->
-<!--   num_burn = 0, -->
+<!--   num_warm = 0, -->
 <!--   thinning = 1, -->
 <!--   bayes_spec = ssvs_spec, -->
 <!--   init_spec = init_multi, -->

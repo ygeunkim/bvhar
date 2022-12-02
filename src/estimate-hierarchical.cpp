@@ -61,9 +61,20 @@ double jointdens_hyperparam(double cand_gamma,
 //' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
 //' 
 //' @param num_iter Number of iteration for MCMC
-//' @param num_burn Number of burn-in for MCMC
+//' @param num_warm Number of warm-up (burn-in) for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
+//' @param prior_prec Prior precision of Matrix Normal distribution
+//' @param prior_scale Prior scale of Inverse-Wishart distribution
+//' @param prior_shape Prior degrees of freedom of Inverse-Wishart distribution
+//' @param mn_mean Posterior mean of Matrix Normal distribution
+//' @param mn_prec Posterior precision of Matrix Normal distribution
+//' @param iw_scale Posterior scale of Inverse-Wishart distribution
+//' @param posterior_shape Posterior degrees of freedom of Inverse-Wishart distribution
+//' @param gamma_shp Shape of hyperprior Gamma distribution
+//' @param gamma_rate Rate of hyperprior Gamma distribution
+//' @param invgam_shp Shape of hyperprior Inverse gamma distribution
+//' @param invgam_scl Scale of hyperprior Inverse gamma distribution
 //' @param acc_scale Proposal distribution scaling constant to adjust an acceptance rate
 //' @param obs_information Observed Fisher information matrix
 //' @param init_lambda Initial lambda
@@ -76,7 +87,7 @@ double jointdens_hyperparam(double cand_gamma,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_hierachical_niw(int num_iter,
-                                    int num_burn,
+                                    int num_warm,
                                     Eigen::MatrixXd x, 
                                     Eigen::MatrixXd y,
                                     Eigen::MatrixXd prior_prec,
@@ -226,11 +237,11 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   }
 #endif
   return Rcpp::List::create(
-    Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("alpha_record") = coef_record.bottomRows((num_iter - 1) - num_burn),
+    Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("alpha_record") = coef_record.bottomRows((num_iter - 1) - num_warm),
     Rcpp::Named("sigma_record") = sig_record,
-    Rcpp::Named("acceptance") = is_accept.tail(num_iter - num_burn),
+    Rcpp::Named("acceptance") = is_accept.tail(num_iter - num_warm),
     Rcpp::Named("chain") = chain
   );
 }

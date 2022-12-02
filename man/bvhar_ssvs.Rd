@@ -10,7 +10,7 @@ bvhar_ssvs(
   y,
   har = c(5, 22),
   num_iter = 1000,
-  num_burn = floor(num_iter/2),
+  num_warm = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
@@ -28,7 +28,7 @@ knit_print.bvharsp(x, ...)
 
 \item{num_iter}{MCMC iteration number}
 
-\item{num_burn}{Number of burn-in. Half of the iteration is the default choice.}
+\item{num_warm}{Number of warm-up (burn-in). Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
 

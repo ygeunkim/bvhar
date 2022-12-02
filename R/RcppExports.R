@@ -197,9 +197,20 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in for MCMC
+#' @param num_warm Number of warm-up (burn-in) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
+#' @param prior_prec Prior precision of Matrix Normal distribution
+#' @param prior_scale Prior scale of Inverse-Wishart distribution
+#' @param prior_shape Prior degrees of freedom of Inverse-Wishart distribution
+#' @param mn_mean Posterior mean of Matrix Normal distribution
+#' @param mn_prec Posterior precision of Matrix Normal distribution
+#' @param iw_scale Posterior scale of Inverse-Wishart distribution
+#' @param posterior_shape Posterior degrees of freedom of Inverse-Wishart distribution
+#' @param gamma_shp Shape of hyperprior Gamma distribution
+#' @param gamma_rate Rate of hyperprior Gamma distribution
+#' @param invgam_shp Shape of hyperprior Inverse gamma distribution
+#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
 #' @param acc_scale Proposal distribution scaling constant to adjust an acceptance rate
 #' @param obs_information Observed Fisher information matrix
 #' @param init_lambda Initial lambda
@@ -210,8 +221,8 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param display_progress Progress bar
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
+estimate_hierachical_niw <- function(num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
@@ -308,7 +319,7 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' This function conducts Gibbs sampling for BVAR SSVS.
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in for MCMC
+#' @param num_warm Number of warm-up (burn-in) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_coef Initial k x m coefficient matrix.
@@ -328,8 +339,8 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

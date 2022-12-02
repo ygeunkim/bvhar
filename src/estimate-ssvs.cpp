@@ -202,7 +202,7 @@ Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef,
 //' This function conducts Gibbs sampling for BVAR SSVS.
 //' 
 //' @param num_iter Number of iteration for MCMC
-//' @param num_burn Number of burn-in for MCMC
+//' @param num_warm Number of warm-up (burn-in) for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_coef Initial k x m coefficient matrix.
@@ -224,7 +224,7 @@ Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_ssvs(int num_iter,
-                              int num_burn,
+                              int num_warm,
                               Eigen::MatrixXd x, 
                               Eigen::MatrixXd y, 
                               Eigen::VectorXd init_coef,
@@ -402,11 +402,11 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       }
 #endif
       return Rcpp::List::create(
-        Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-        Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_burn),
-        Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_burn),
-        Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_burn),
-        Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn),
+        Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
+        Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_warm),
+        Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_warm),
+        Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_warm),
+        Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("chol_record") = chol_factor_record,
         Rcpp::Named("sse") = sse_mat,
         Rcpp::Named("coefficients") = coef_ols,

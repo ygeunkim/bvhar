@@ -61,7 +61,7 @@ set_psi <- function(shape = 4e-4, scale = 4e-4, lower = 1e-5, upper = 3) {
   psi_prior
 }
 
-#' Log ML Function of BVAR to be in `optim`
+#' Log ML Function of Hierarchical BVAR to be in `optim`
 #' 
 #' This function is for `fn` of [stats::optim()].
 #' 
@@ -79,9 +79,9 @@ set_psi <- function(shape = 4e-4, scale = 4e-4, lower = 1e-5, upper = 3) {
 #' @noRd
 logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, ...) {
   dim_data <- ncol(y)
-  # if (length(param) != 2 * dim_data + 1) {
-  #   stop("The number of param is wrong.")
-  # }
+  if (length(param) != dim_data + 1) {
+    stop("The number of 'param' is wrong.")
+  }
   bvar_spec <- set_bvar(
     sigma = param[2:(dim_data + 1)],
     lambda = param[1],
@@ -99,7 +99,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
-#' @param num_burn Number of burn-in. Half of the iteration is the default choice.
+#' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
@@ -146,11 +146,11 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
-bvar_niwhm <- function(y, 
-                       p, 
+bvar_niwhm <- function(y,
+                       p,
                        num_iter = 1000, 
-                       num_burn = floor(num_iter / 2), 
-                       thinning = 1, 
+                       num_warm = floor(num_iter / 2),
+                       thinning = 1,
                        bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
                        scale_variance = .05,
                        include_mean = TRUE,
@@ -164,23 +164,40 @@ bvar_niwhm <- function(y,
   }
   # model specification---------------
   if (!is.bvharspec(bayes_spec)) {
-    stop("Provide 'bvharspec' for 'bayes_spec'.")
+    if (!(is.list(bayes_spec) && all(sapply(bayes_spec, is.bvharspec)))) {
+      stop("Provide 'bvharspec' for 'bayes_spec'. Or, it should be the list of 'bvharspec'.")
+    }
   }
-  if (bayes_spec$process != "BVAR") {
-    stop("'bayes_spec' must be the result of 'set_bvar()'.")
+  num_chain <- 1
+  if (all(sapply(bayes_spec, is.bvharspec))) {
+    num_chain <- length(bayes_spec)
   }
-  if (bayes_spec$prior != "Hierarchical") {
-    stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
+  if (num_chain > 1) {
+    if (any(sapply(bayes_spec, function(x) x$process) != "BVAR")) {
+      stop("'bayes_spec' must be the result of 'set_bvar()'.")
+    }
+    if (any(sapply(bayes_spec, function(x) x$prior) != "Hierarchical")) {
+      stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
+    }
+    
+    
+  } else {
+    if (bayes_spec$process != "BVAR") {
+      stop("'bayes_spec' must be the result of 'set_bvar()'.")
+    }
+    if (bayes_spec$prior != "Hierarchical") {
+      stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
+    }
+    psi <- bayes_spec$sigma$mode
+    dim_data <- ncol(y)
+    psi <- rep(psi, dim_data)
+    if (is.null(bayes_spec$delta)) {
+      bayes_spec$delta <- rep(1, dim_data)
+    }
+    delta <- bayes_spec$delta
+    lambda <- bayes_spec$lambda$mode
+    eps <- bayes_spec$eps
   }
-  psi <- bayes_spec$sigma$mode
-  dim_data <- ncol(y)
-  psi <- rep(psi, dim_data)
-  if (is.null(bayes_spec$delta)) {
-    bayes_spec$delta <- rep(1, dim_data)
-  }
-  delta <- bayes_spec$delta
-  lambda <- bayes_spec$lambda$mode
-  eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   if (!is.null(colnames(y))) {
@@ -260,7 +277,7 @@ bvar_niwhm <- function(y,
   # Metropolis algorithm--------------
   metropolis_res <- estimate_hierachical_niw(
     num_iter = num_iter,
-    num_burn = num_burn,
+    num_warm = num_warm,
     x = X0,
     y = Y0,
     prior_prec = prior_prec,
@@ -278,13 +295,13 @@ bvar_niwhm <- function(y,
     obs_information = hess,
     init_lambda = lambda,
     init_psi = psi,
-    chain = 1,
+    chain = num_chain,
     display_progress = verbose
   )
   # preprocess the results------------
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
-  metropolis_res$alpha_record <- metropolis_res$alpha_record[seq(from = 1, to = num_iter - 1 - num_burn, by = thinning),]
+  metropolis_res$alpha_record <- metropolis_res$alpha_record[seq(from = 1, to = num_iter - 1 - num_warm, by = thinning),]
   if (metropolis_res$chain > 1) {
     # hyperparameters------------------
     metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
@@ -297,7 +314,7 @@ bvar_niwhm <- function(y,
     # parameters-----------------------
     metropolis_res$alpha_record <- split_paramarray(metropolis_res$alpha_record, chain = metropolis_res$chain, param_name = "alpha")
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, metropolis_res$chain, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter - 1, by = thinning)] # check the index
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)] # check the index
     
     # posterior mean-------------------
     
@@ -310,10 +327,6 @@ bvar_niwhm <- function(y,
     colnames(metropolis_res$lambda_record) <- "lambda"
     metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
     metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
-    # metropolis_res$hyperparam <- bind_draws(
-    #   metropolis_res$lambda_record,
-    #   metropolis_res$psi_record
-    # )
     # parameters-----------------------
     colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
     metropolis_res$alpha_posterior <- 
@@ -323,7 +336,7 @@ bvar_niwhm <- function(y,
     rownames(metropolis_res$alpha_posterior) <- name_lag
     metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter - 1, by = thinning)]
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)]
     names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
     # posterior mean-------------------
     metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)
@@ -349,7 +362,7 @@ bvar_niwhm <- function(y,
   metropolis_res$type <- ifelse(include_mean, "const", "none")
   metropolis_res$spec <- bayes_spec
   metropolis_res$iter <- num_iter
-  metropolis_res$burn <- num_burn
+  metropolis_res$burn <- num_warm
   metropolis_res$thin <- thinning
   # data------------------------------
   metropolis_res$y0 <- Y0
