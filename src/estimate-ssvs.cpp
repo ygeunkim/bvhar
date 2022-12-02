@@ -5,8 +5,11 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 #include "bvharprob.h"
+#include <progress.hpp>
+#include <progress_bar.hpp>
 
 // [[Rcpp::depends(RcppEigen)]]
+// [[Rcpp::depends(RcppProgress)]]
 
 //' Building Spike-and-slab SD Diagonal Matrix
 //' 
@@ -217,6 +220,7 @@ Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef,
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param intercept_var Hyperparameter for constant term
 //' @param chain The number of MCMC chains.
+//' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_ssvs(int num_iter,
@@ -237,7 +241,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd chol_slab,
                               Eigen::VectorXd chol_slab_weight,
                               double intercept_var,
-                              int chain) {
+                              int chain,
+                              bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
@@ -276,6 +281,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
+  Progress p(chain * (num_iter - 1), display_progress);
   // Start Gibbs sampling-----------------------------------------
 #ifdef _OPENMP
   Rcpp::Rcout << "Use parallel" << std::endl;
@@ -335,6 +341,21 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
       }
 #else
       for (int i = 1; i < num_iter; i++) {
+        if (Progress::check_abort()) {
+          return Rcpp::List::create(
+            Rcpp::Named("alpha_record") = coef_record,
+            Rcpp::Named("eta_record") = chol_upper_record,
+            Rcpp::Named("psi_record") = chol_diag_record,
+            Rcpp::Named("omega_record") = chol_dummy_record,
+            Rcpp::Named("gamma_record") = coef_dummy_record,
+            Rcpp::Named("chol_record") = chol_factor_record,
+            Rcpp::Named("sse") = sse_mat,
+            Rcpp::Named("coefficients") = coef_ols,
+            Rcpp::Named("choleskyols") = chol_ols,
+            Rcpp::Named("chain") = chain
+          );
+        }
+        p.increment();
         // 1. Psi--------------------------
         chol_mixture_mat = build_ssvs_sd(
           chol_spike,

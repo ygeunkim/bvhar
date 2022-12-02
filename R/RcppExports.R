@@ -207,10 +207,11 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param init_coef Initial coefficients
 #' @param init_sig Initial sig
 #' @param chain The number of MCMC chains
+#' @param display_progress Progress bar
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain)
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
@@ -325,9 +326,10 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' @param chol_slab_weight Cholesky factor sparsity proportion
 #' @param intercept_var Hyperparameter for constant term
 #' @param chain The number of MCMC chains.
+#' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

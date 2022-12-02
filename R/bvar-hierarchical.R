@@ -105,6 +105,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -151,9 +152,10 @@ bvar_niwhm <- function(y,
                        num_burn = floor(num_iter / 2), 
                        thinning = 1, 
                        bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
-                       scale_variance = 1,
+                       scale_variance = .05,
                        include_mean = TRUE,
-                       parallel = list()) {
+                       parallel = list(),
+                       verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -276,41 +278,65 @@ bvar_niwhm <- function(y,
     obs_information = hess,
     init_lambda = lambda,
     init_psi = psi,
-    chain = 1
+    chain = 1,
+    display_progress = verbose
   )
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
-  metropolis_res$alpha_record <- metropolis_res$alpha_record[thin_id,]
+  metropolis_res$alpha_record <- metropolis_res$alpha_record[seq(from = 1, to = num_iter - 1 - num_burn, by = thinning),]
   if (metropolis_res$chain > 1) {
-    # 
+    # hyperparameters------------------
     metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
+    metropolis_res$psi_record <- 
+      split_paramarray(metropolis_res$psi_record, chain = metropolis_res$chain, param_name = "psi") %>% 
+      as_draws_df()
+    metropolis_res$lambda_record <- 
+      split_paramarray(metropolis_res$lambda_record, chain = metropolis_res$chain, param_name = "lambda") %>% 
+      as_draws_df()
+    # parameters-----------------------
+    metropolis_res$alpha_record <- split_paramarray(metropolis_res$alpha_record, chain = metropolis_res$chain, param_name = "alpha")
+    metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, metropolis_res$chain, "sigma")
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter - 1, by = thinning)] # check the index
+    
+    # posterior mean-------------------
+    
+    # acceptance rate------------------
+    metropolis_res$acc_rate <- colMeans(metropolis_res$acceptance) # result of parallel metropolis acceptance format should be matrix
   } else {
     # hyperparameters------------------
     colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
-    metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record)
-    metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
+    metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record[thin_id])
     colnames(metropolis_res$lambda_record) <- "lambda"
     metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
     metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
-    metropolis_res$hyperparam <- bind_draws(
-      metropolis_res$lambda_record,
-      metropolis_res$psi_record
-    )
+    # metropolis_res$hyperparam <- bind_draws(
+    #   metropolis_res$lambda_record,
+    #   metropolis_res$psi_record
+    # )
     # parameters-----------------------
-    colnames(metropolis_res$alpha_record) <- paste0("psi[", seq_len(ncol(metropolis_res$alpha_record)), "]")
+    colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
+    metropolis_res$alpha_posterior <- 
+      colMeans(metropolis_res$alpha_record) %>% 
+      matrix(ncol = dim_data)
+    colnames(metropolis_res$alpha_posterior) <- name_var
+    rownames(metropolis_res$alpha_posterior) <- name_lag
     metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter, by = thinning)]
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_burn + 1, to = num_iter - 1, by = thinning)]
     names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
     # posterior mean-------------------
-    metropolis_res$alpha_posterior <- colMeans(metropolis_res$alpha_record)
     metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)
+    colnames(metropolis_res$sigma_posterior) <- name_var
+    rownames(metropolis_res$sigma_posterior) <- name_var
     metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
     # acceptance rate------------------
     metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
   }
-  
+  metropolis_res$hyperparam <- bind_draws(
+    metropolis_res$lambda_record,
+    metropolis_res$psi_record
+  )
   # variables-------------------------
   metropolis_res$df <- nrow(mn_mean)
   metropolis_res$p <- p
@@ -362,7 +388,7 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
-  cat("Sigma ~ Inverse-Wishart Record:\n")
+  cat("\nSigma ~ Inverse-Wishart Record:\n")
   print(
     x$sigma_record,
     digits = digits,

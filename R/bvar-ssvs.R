@@ -10,6 +10,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -56,7 +57,8 @@ bvar_ssvs <- function(y,
                       thinning = 1,
                       bayes_spec = set_ssvs(), 
                       init_spec = init_ssvs(),
-                      include_mean = TRUE) {
+                      include_mean = TRUE,
+                      verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -203,7 +205,8 @@ bvar_ssvs <- function(y,
     chol_slab = bayes_spec$chol_slab, # eta slab
     chol_slab_weight = bayes_spec$chol_mixture, # qij
     intercept_var = bayes_spec$coef_non, # c for constant c I
-    chain = init_spec$chain
+    chain = init_spec$chain,
+    display_progress = verbose
   )
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)

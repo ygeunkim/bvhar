@@ -42,8 +42,13 @@ Imports:
     utils,
     stats,
     optimParallel,
-    posterior
-LinkingTo: Rcpp, RcppEigen
+    posterior,
+    RcppEigen,
+    RcppProgress
+LinkingTo: 
+    Rcpp,
+    RcppEigen,
+    RcppProgress
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.1.0)

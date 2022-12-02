@@ -13,9 +13,10 @@ bvar_niwhm(
   num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
-  scale_variance = 1,
+  scale_variance = 0.05,
   include_mean = TRUE,
-  parallel = list()
+  parallel = list(),
+  verbose = FALSE
 )
 
 \method{print}{bvarhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -40,6 +41,8 @@ knit_print.bvarhm(x, ...)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{x}{\code{bvarhm} object}
 

@@ -5,8 +5,11 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 #include "bvharprob.h"
+#include <progress.hpp>
+#include <progress_bar.hpp>
 
 // [[Rcpp::depends(RcppEigen)]]
+// [[Rcpp::depends(RcppProgress)]]
 
 //' Log of Joint Posterior Density of Hyperparameters
 //' 
@@ -68,6 +71,7 @@ double jointdens_hyperparam(double cand_gamma,
 //' @param init_coef Initial coefficients
 //' @param init_sig Initial sig
 //' @param chain The number of MCMC chains
+//' @param display_progress Progress bar
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -90,7 +94,8 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
                                     Eigen::MatrixXd obs_information,
                                     Eigen::VectorXd init_lambda,
                                     Eigen::VectorXd init_psi,
-                                    int chain) {
+                                    int chain,
+                                    bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
@@ -113,6 +118,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   );
   double numerator = 0;
   double denom = 0;
+  Progress p(chain * (num_iter - 1), display_progress);
   // Start Metropolis---------------------------------------------
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
@@ -152,6 +158,17 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   }
 #else
   for (int i = 1; i < num_iter; i ++) {
+    if (Progress::check_abort()) {
+      return Rcpp::List::create(
+        Rcpp::Named("lambda_record") = lam_record,
+        Rcpp::Named("psi_record") = psi_record,
+        Rcpp::Named("alpha_record") = coef_record,
+        Rcpp::Named("sigma_record") = sig_record,
+        Rcpp::Named("acceptance") = is_accept,
+        Rcpp::Named("chain") = chain
+      );
+    }
+    p.increment();
     // Candidate ~ N(previous, scaled hessian)
     candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
     // log of acceptance rate = numerator - denom
