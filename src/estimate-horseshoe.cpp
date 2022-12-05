@@ -153,4 +153,88 @@ double horseshoe_prior_var(Eigen::VectorXd response_vec,
     );
 }
 
+//' Gibbs Sampler for Horseshoe BVAR Estimator
+//' 
+//' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
+//' 
+//' @param num_iter Number of iteration for MCMC
+//' @param num_warm Number of warm-up (burn-in) for MCMC
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' @param init_priorvar Initial variance constant
+//' @param init_local Initial local shrinkage hyperparameters
+//' @param init_global Initial global shrinkage hyperparameter
+//' @param chain The number of MCMC chains.
+//' @param display_progress Progress bar
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_horseshoe_niw(int num_iter,
+                                  int num_warm,
+                                  Eigen::MatrixXd x,
+                                  Eigen::MatrixXd y,
+                                  Eigen::VectorXd init_local,
+                                  Eigen::VectorXd init_global,
+                                  Eigen::VectorXd init_priorvar,
+                                  int chain,
+                                  bool display_progress) {
+  int dim = y.cols();
+  int dim_design = x.cols(); // dim*p(+1)
+  int num_design = y.rows(); // n = T - p
+  int num_coef = dim * dim_design;
+  // record------------------------------------------------
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
+  Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
+  Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  Eigen::MatrixXd latent_local_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
+  Eigen::MatrixXd latent_global_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  local_record.row(0) = init_local;
+  global_record.row(0) = init_global;
+  sig_record.row(0) = init_priorvar;
+  // Some variables----------------------------------------
+  Eigen::MatrixXd design_mat = Eigen::kroneckerProduct(
+    Eigen::MatrixXd::Identity(dim, dim),
+    x
+  ).eval();
+  Eigen::VectorXd response_vec = vectorize_eigen(y);
+  Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(num_coef, num_coef);
+  // Start Gibbs sampling-----------------------------------
+  Progress p(chain * (num_iter - 1), display_progress);
+#ifdef _OPENMP
+  Rcpp::Rcout << "Parallel chains" << std::endl;
+#else
+  for (int i = 1; i < num_iter; i++) {
+    if (Progress::check_abort()) {
+      return Rcpp::List::create(
+        Rcpp::Named("alpha_record") = coef_record,
+        Rcpp::Named("lambda_record") = local_record,
+        Rcpp::Named("tau_record") = global_record,
+        Rcpp::Named("sigma_record") = sig_record,
+        Rcpp::Named("chain") = chain
+      );
+    }
+    p.increment();
+    // alpha
+    
+    // lambdaj
+    
+    // tau
+    
+    // nuj
+    
+    // xi
+    
+    // sigma
+    
+  }
+#endif
+  
+  return Rcpp::List::create(
+    Rcpp::Named("alpha_record") = coef_record,
+    Rcpp::Named("lambda_record") = local_record,
+    Rcpp::Named("tau_record") = global_record,
+    Rcpp::Named("sigma_record") = sig_record,
+    Rcpp::Named("chain") = chain
+  );
+}
 
