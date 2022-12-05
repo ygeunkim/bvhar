@@ -312,6 +312,19 @@ bvhar_ssvs <- function(y,
 #' @order 2
 #' @export
 print.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
+  )
+  cat("BVHAR with Hierarchical Prior\n")
+  cat("Fitted by Gibbs sampling\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
   print(
     x$param,
     digits = digits,
