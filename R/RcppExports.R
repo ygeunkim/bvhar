@@ -309,6 +309,24 @@ horseshoe_prior_var <- function(response_vec, design_mat, coef_vec, shrink_mat) 
     .Call(`_bvhar_horseshoe_prior_var`, response_vec, design_mat, coef_vec, shrink_mat)
 }
 
+#' Gibbs Sampler for Horseshoe BVAR Estimator
+#' 
+#' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param init_priorvar Initial variance constant
+#' @param init_local Initial local shrinkage hyperparameters
+#' @param init_global Initial global shrinkage hyperparameter
+#' @param chain The number of MCMC chains.
+#' @param display_progress Progress bar
+#' @noRd
+estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress) {
+    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress)
+}
+
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

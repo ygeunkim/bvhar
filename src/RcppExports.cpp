@@ -264,6 +264,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// estimate_horseshoe_niw
+Rcpp::List estimate_horseshoe_niw(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, Eigen::VectorXd init_priorvar, int chain, bool display_progress);
+RcppExport SEXP _bvhar_estimate_horseshoe_niw(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP chainSEXP, SEXP display_progressSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type num_warm(num_warmSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_priorvar(init_priorvarSEXP);
+    Rcpp::traits::input_parameter< int >::type chain(chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_horseshoe_niw(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress));
+    return rcpp_result_gen;
+END_RCPP
+}
 // build_ssvs_sd
 Eigen::MatrixXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
@@ -1186,6 +1205,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_horseshoe_latent_local", (DL_FUNC) &_bvhar_horseshoe_latent_local, 1},
     {"_bvhar_horseshoe_latent_global", (DL_FUNC) &_bvhar_horseshoe_latent_global, 1},
     {"_bvhar_horseshoe_prior_var", (DL_FUNC) &_bvhar_horseshoe_prior_var, 4},
+    {"_bvhar_estimate_horseshoe_niw", (DL_FUNC) &_bvhar_estimate_horseshoe_niw, 9},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_diag", (DL_FUNC) &_bvhar_ssvs_chol_diag, 5},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},

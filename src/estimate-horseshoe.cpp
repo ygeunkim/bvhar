@@ -179,7 +179,6 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
                                   bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
-  int num_design = y.rows(); // n = T - p
   int num_coef = dim * dim_design;
   // record------------------------------------------------
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
@@ -202,6 +201,49 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   Progress p(chain * (num_iter - 1), display_progress);
 #ifdef _OPENMP
   Rcpp::Rcout << "Parallel chains" << std::endl;
+#pragma                  \
+  omp                    \
+    parallel             \
+    for                  \
+      num_threads(chain) \
+      shared(response_vec, design_mat, num_coef)
+  for (int b = 0; b < chain; b++) {
+    for (int i = 1; i < num_iter; i++) {
+      if (Progress::check_abort()) {
+        return Rcpp::List::create(
+          Rcpp::Named("alpha_record") = coef_record,
+          Rcpp::Named("lambda_record") = local_record,
+          Rcpp::Named("tau_record") = global_record,
+          Rcpp::Named("sigma_record") = sig_record,
+          Rcpp::Named("chain") = chain
+        );
+      }
+      p.increment();
+      // 1. alpha (coefficient)
+      lambda_mat = build_shrink_mat(global_record(i - 1, chain), local_record.block(i - 1, b * num_coef, 1, num_coef));
+      coef_record.block(i, b * num_coef, 1, num_coef) = horseshoe_coef(response_vec, design_mat, sig_record(i - 1, chain), lambda_mat);
+      // 2. sigma (variance)
+      sig_record(i, chain) = horseshoe_prior_var(response_vec, design_mat, coef_record.block(i, b * num_coef, 1, num_coef), lambda_mat);
+      // 3. nuj (local latent)
+      latent_local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_latent_local(local_record.block(i - 1, b * num_coef, 1, num_coef));
+      // 4. xi (global latent)
+      latent_global_record(i, chain) = horseshoe_latent_global(global_record(i - 1, chain));
+      // 5. lambdaj (local shrinkage)
+      local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_local_sparsity(
+        latent_local_record.block(i, b * num_coef, 1, num_coef), 
+        global_record(i - 1, chain), 
+        coef_record.block(i, b * num_coef, 1, num_coef), 
+        sig_record(i, chain)
+      );
+      // 6. tau (global shrinkage)
+      global_record(i, chain) = horseshoe_global_sparsity(
+        latent_global_record(i, chain),
+        local_record.block(i, b * num_coef, 1, num_coef),
+        coef_record.block(i, b * num_coef, 1, num_coef),
+        sig_record(i, chain)
+      );
+    }
+  }
 #else
   for (int i = 1; i < num_iter; i++) {
     if (Progress::check_abort()) {
@@ -214,21 +256,31 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       );
     }
     p.increment();
-    // alpha
-    
-    // lambdaj
-    
-    // tau
-    
-    // nuj
-    
-    // xi
-    
-    // sigma
-    
+    // 1. alpha (coefficient)
+    lambda_mat = build_shrink_mat(global_record(i - 1, 0), local_record.row(i - 1));
+    coef_record.row(i) = horseshoe_coef(response_vec, design_mat, sig_record(i - 1, 0), lambda_mat);
+    // 2. sigma (variance)
+    sig_record(i, 0) = horseshoe_prior_var(response_vec, design_mat, coef_record.row(i), lambda_mat);
+    // 3. nuj (local latent)
+    latent_local_record.row(i) = horseshoe_latent_local(local_record.row(i - 1));
+    // 4. xi (global latent)
+    latent_global_record(i, 0) = horseshoe_latent_global(global_record(i - 1, 0));
+    // 5. lambdaj (local shrinkage)
+    local_record.row(i) = horseshoe_local_sparsity(
+      latent_local_record.row(i), 
+      global_record(i - 1, 0), 
+      coef_record.row(i), 
+      sig_record(i, 0)
+    );
+    // 6. tau (global shrinkage)
+    global_record(i, 0) = horseshoe_global_sparsity(
+      latent_global_record(i, 0),
+      local_record.row(i),
+      coef_record.row(i),
+      sig_record(i, 0)
+    );
   }
 #endif
-  
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record,
     Rcpp::Named("lambda_record") = local_record,
