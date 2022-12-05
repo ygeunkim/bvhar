@@ -385,6 +385,12 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   cat(sprintf("BVAR(%i) with Hierarchical Prior\n", x$p))
+  cat("Fitted by Metropolis algorithm\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
   cat("====================================================\n\n")
   cat("Hyperparameter Selection:\n")
   print(
