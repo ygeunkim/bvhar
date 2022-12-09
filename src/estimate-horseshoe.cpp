@@ -68,7 +68,7 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
     res[i] = sqrt(1 /
         gamma_rand(
           1.0,
-          1 / ( 1 / local_latent[i] + pow(coef_vec[i], 2.0) / (2 * pow(global_hyperparam * prior_var, 2.0)) )
+          1 / ( 1 / local_latent[i] + pow(coef_vec[i], 2.0) / (2 * prior_var * pow(global_hyperparam, 2.0)) )
         ));
   }
   return res;
@@ -91,7 +91,7 @@ double horseshoe_global_sparsity(double global_latent,
   int dim = coef_vec.size();
   double invgam_scl = 1 / global_latent;
   for (int i = 0; i < dim; i++) {
-    invgam_scl += pow(coef_vec[i], 2.0) / (2 * pow(local_hyperparam[i] * prior_var, 2.0));
+    invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
   }
   return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
 }
@@ -149,7 +149,7 @@ double horseshoe_prior_var(Eigen::VectorXd response_vec,
   return 1 /
     gamma_rand(
       (response_vec.size() + coef_vec.size()) / 2,
-      1 / (resid.sqrt().sum() / 2 + coef_vec.transpose() * shrink_mat.inverse() * coef_vec)
+      1 / (resid.squaredNorm() / 2 + coef_vec.transpose() * shrink_mat.inverse() * coef_vec)
     );
 }
 

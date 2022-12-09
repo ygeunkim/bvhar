@@ -226,60 +226,60 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   res
 }
 
-#' Changing 3d initial array Input to List
+#' Initial Hyperparameters of Horseshoe Prior
 #' 
-#' This function changes 3d array of [init_ssvs()] function to list.
+#' Set initial hyperparameters before starting Gibbs sampler for Horseshoe prior.
 #' 
-#' @param init_array potentially 3d array initial input
+#' @param init_local Initial local shrinkage hyperparameters
+#' @param init_global Initial global shrinkage hyperparameter
+#' @param init_var Initial variance of the error term
 #' 
-#' @noRd
-change_to_list <- function(init_array) {
-  if (length(dim(init_array)) == 3) {
-    lapply(
-      seq_len(dim(init_array)[3]),
-      function(k) init_array[,, k]
-    )
-  } else {
-    init_array
+#' @references 
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
+#' 
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
+#' @order 1
+#' @export
+init_horseshoe <- function(init_local, init_global, init_priorvar) {
+  if (length(init_global) != length(init_priorvar)) {
+    stop("'init_global' and 'init_priorvar' should have the same length.")
   }
-}
-
-#' Checking if the Parallel Initial List are not Identical
-#' 
-#' This function checks if the list of parallel initial matrices are identical.
-#' 
-#' @param init_list List of parallel initial matrix
-#' @param case Check dimension (`"dim"`) or values (`"values"`).
-#' 
-#' @noRd
-isnot_identical <- function(init_list, case = c("dim", "values")) {
-  case <- match.arg(case)
-  switch(
-    case,
-    "dim" = {
-      if (length(unique(lapply(init_list, dim))) != 1) {
-        stop(paste0(
-          "Dimension of '",
-          deparse(substitute(init_list)),
-          "' across every chain should be the same."
-        ))
-      }
-    },
-    "values" = {
-      if (any(unlist(
-        lapply(
-          seq_along(init_list)[-1], 
-          function(i) identical(init_list[[1]], init_list[[i]])
-        )
-      ))) {
-        warning(paste0(
-          "Initial setting of '",
-          deparse(substitute(init_list)),
-          "' in each chain is recommended to be differed."
-        ))
-      }
+  if ((length(dim(init_local) == 3) || is.list(init_local) || is.matrix(init_local)) &&
+      length(init_global) > 1 &&
+      length(init_priorvar) > 1) {
+    if (length(dim(init_local)) == 3) {
+      init_local <- lapply(
+        seq_len(dim(init_local)[3]),
+        function(k) init_local[,, k]
+      )
+    } else if (length(dim(init_local)) == 2) {
+      init_local <- lapply(
+        seq_len(dim(init_local)[2]),
+        function(k) init_local[, k]
+      )
     }
+    isnot_identical(init_local, case = "dim")
+    isnot_identical(init_local, case = "values")
+    num_chain <- length(init_global)
+  } else {
+    if (!(is.vector(init_local) || is.matrix(init_local))) {
+      stop("'init_local' should be a vector or a matrix.")
+    }
+    if (!(length(init_global) == 1 || length(init_priorvar) == 1)) {
+      stop("Each 'init_global' and 'init_priorvar' should be a scalar.")
+    }
+    num_chain <- 1
+  }
+  res <- list(
+    process = "BVAR",
+    prior = "Horseshoe",
+    init_local = init_local,
+    init_global = init_global,
+    init_priorvar = init_priorvar,
+    chain = num_chain
   )
+  class(res) <- "horseshoeinit"
+  res
 }
 
 #' @rdname set_ssvs
