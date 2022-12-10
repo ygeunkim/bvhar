@@ -28,6 +28,29 @@ Eigen::MatrixXd build_shrink_mat(double global_hyperparam,
   return res * global_hyperparam;
 }
 
+//' Fast Sampling Gaussian Scale Mixture Representation
+//' 
+//' This function generates full conditional coefficients of horseshoe prior fast.
+//' 
+//' @param diag_mat Diagonal covariance matrix
+//' @param scaled_x Phi
+//' @param scaled_y alpha
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd horseshoe_fastcoef(Eigen::MatrixXd diag_mat, Eigen::MatrixXd scaled_x, Eigen::VectorXd scaled_y) {
+  int dim = scaled_x.cols();
+  int sample_size = scaled_x.rows();
+  Eigen::VectorXd gaussian_u = sim_mgaussian_chol(1, Eigen::VectorXd::Zero(dim), diag_mat);
+  Eigen::VectorXd gaussian_delta(sample_size);
+  for (int i = 0; i < sample_size; i++) {
+    gaussian_delta[i] = norm_rand();
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOflin(scaled_x * diag_mat * scaled_x.transpose() + Eigen::MatrixXd::Identity(sample_size, sample_size));
+  Eigen::VectorXd lin_solve = lltOflin.solve(scaled_y - scaled_x * gaussian_u + gaussian_delta);
+  return gaussian_u + diag_mat * scaled_x.transpose() * lin_solve;
+}
+
 //' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
 //' 
 //' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
@@ -42,10 +65,23 @@ Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec,
                                Eigen::MatrixXd design_mat,
                                double prior_var,
                                Eigen::MatrixXd shrink_mat) {
-  Eigen::MatrixXd unscaled_var = design_mat.transpose() * design_mat + shrink_mat.inverse();
-  return vectorize_eigen(
-    sim_mgaussian_chol(1, unscaled_var.inverse() * design_mat.transpose() * response_vec, prior_var * unscaled_var)
-  );
+  // Eigen::MatrixXd unscaled_var = design_mat.transpose() * design_mat + shrink_mat.inverse();
+  // return vectorize_eigen(
+  //   sim_mgaussian_chol(1, unscaled_var.inverse() * design_mat.transpose() * response_vec, prior_var * unscaled_var)
+  // );
+  return horseshoe_fastcoef(prior_var * shrink_mat, design_mat / sqrt(prior_var), response_vec / sqrt(prior_var));
+  
+  // int dim = design_mat.cols();
+  // int sample_size = design_mat.rows();
+  // Eigen::VectorXd gaussian_u(dim);
+  // Eigen::VectorXd gaussian_delta(sample_size);
+  // for (int i = 0; i < dim; i++) {
+  //   gaussian_u[i] = rand_norm(0, sqrt(shrink_mat(i, i) * prior_var));
+  // }
+  // for (int i = 0; i < sample_size; i++) {
+  //   gaussian_delta[i] = norm_rand();
+  // }
+  
 }
 
 //' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler

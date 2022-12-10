@@ -26,7 +26,9 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
+#' Bhattacharya, A., Chakraborty, A., & Mallick, B. K. (2016). *Fast sampling with Gaussian scale mixture priors in high-dimensional regression*. Biometrika, 103(4), 985–991. doi:[10.1093/biomet/asw042](https://doi.org/10.1093/biomet/asw042)
+#' 
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @importFrom posterior as_draws_df bind_draws

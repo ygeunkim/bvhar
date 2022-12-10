@@ -237,6 +237,19 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
     .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
 }
 
+#' Fast Sampling Gaussian Scale Mixture Representation
+#' 
+#' This function generates full conditional coefficients of horseshoe prior fast.
+#' 
+#' @param diag_mat Diagonal covariance matrix
+#' @param scaled_x Phi
+#' @param scaled_y alpha
+#' 
+#' @noRd
+horseshoe_fastcoef <- function(diag_mat, scaled_x, scaled_y) {
+    .Call(`_bvhar_horseshoe_fastcoef`, diag_mat, scaled_x, scaled_y)
+}
+
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the coefficients vector.

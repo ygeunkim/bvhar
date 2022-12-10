@@ -186,6 +186,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// horseshoe_fastcoef
+Eigen::VectorXd horseshoe_fastcoef(Eigen::MatrixXd diag_mat, Eigen::MatrixXd scaled_x, Eigen::VectorXd scaled_y);
+RcppExport SEXP _bvhar_horseshoe_fastcoef(SEXP diag_matSEXP, SEXP scaled_xSEXP, SEXP scaled_ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type diag_mat(diag_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type scaled_x(scaled_xSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type scaled_y(scaled_ySEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_fastcoef(diag_mat, scaled_x, scaled_y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // horseshoe_coef
 Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, double prior_var, Eigen::MatrixXd shrink_mat);
 RcppExport SEXP _bvhar_horseshoe_coef(SEXP response_vecSEXP, SEXP design_matSEXP, SEXP prior_varSEXP, SEXP shrink_matSEXP) {
@@ -1199,6 +1212,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 21},
     {"_bvhar_build_shrink_mat", (DL_FUNC) &_bvhar_build_shrink_mat, 2},
+    {"_bvhar_horseshoe_fastcoef", (DL_FUNC) &_bvhar_horseshoe_fastcoef, 3},
     {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 4},
     {"_bvhar_horseshoe_local_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_sparsity, 4},
     {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 4},
