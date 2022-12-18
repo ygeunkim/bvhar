@@ -259,8 +259,8 @@ horseshoe_fastcoef <- function(diag_mat, scaled_x, scaled_y) {
 #' @param prior_var Variance constant of the likelihood
 #' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
-horseshoe_coef <- function(response_vec, design_mat, prior_var, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, response_vec, design_mat, prior_var, shrink_mat)
+horseshoe_coef <- function(x, y, sigma, shrink_mat) {
+    .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat)
 }
 
 #' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -272,8 +272,8 @@ horseshoe_coef <- function(response_vec, design_mat, prior_var, shrink_mat) {
 #' @param coef_vec Coefficients vector
 #' @param prior_var Variance constant of the likelihood
 #' @noRd
-horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
+horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, sigma) {
+    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef, sigma)
 }
 
 #' Generating the Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -285,8 +285,8 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @param coef_vec Coefficients vector
 #' @param prior_var Variance constant of the likelihood
 #' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, sigma) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef, sigma)
 }
 
 #' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
@@ -318,8 +318,8 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' @param coef_vec Coefficients vector
 #' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
-horseshoe_prior_var <- function(response_vec, design_mat, coef_vec, shrink_mat) {
-    .Call(`_bvhar_horseshoe_prior_var`, response_vec, design_mat, coef_vec, shrink_mat)
+horseshoe_prior_var <- function(x, y, coef, shrink_mat) {
+    .Call(`_bvhar_horseshoe_prior_var`, x, y, coef, shrink_mat)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -330,9 +330,9 @@ horseshoe_prior_var <- function(response_vec, design_mat, coef_vec, shrink_mat) 
 #' @param num_warm Number of warm-up (burn-in) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
-#' @param init_priorvar Initial variance constant
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
+#' @param init_priorvar Initial variance constant
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd

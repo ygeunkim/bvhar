@@ -8,6 +8,5 @@
 #define binom_rand Rf_rbinom
 #define unif_rand Rf_runif
 #define gamma_dens Rf_dgamma
-#define rand_norm Rf_rnorm
 
 #endif

@@ -77,11 +77,17 @@ bvar_horseshoe <- function(y,
   dim_data <- ncol(y)
   dim_design <- ncol(X0)
   if (init_spec$chain == 1) {
-    if (is.matrix(init_spec$init_local) &&
-        !(nrow(init_spec$init_local) == dim_design || ncol(init_spec$init_local) == dim_data)) {
-      stop("Dimension of the matrix 'init_local' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    # if (is.matrix(init_spec$init_local) &&
+    #     !(nrow(init_spec$init_local) == dim_design || ncol(init_spec$init_local) == dim_data)) {
+    #   stop("Dimension of the matrix 'init_local' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    # }
+    if (length(init_spec$init_local) != dim_design) {
+      stop("Length of the vector 'init_local' should be dim * p or dim * p + 1.")
     }
-    init_local <- c(init_spec$init_local)
+    if (ncol(init_spec$init_priorvar) != dim_data) {
+      stop("Dimension of the matrix 'init_priorvar' should be dim x dim.")
+    }
+    init_local <- init_spec$init_local
     init_global <- init_spec$init_global
     init_priorvar <- init_spec$init_priorvar
   } else {

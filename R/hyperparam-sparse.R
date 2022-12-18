@@ -241,12 +241,12 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
 #' @order 1
 #' @export
 init_horseshoe <- function(init_local, init_global, init_priorvar) {
-  if (length(init_global) != length(init_priorvar)) {
-    stop("'init_global' and 'init_priorvar' should have the same length.")
-  }
+  # if (length(init_global) != length(init_priorvar)) {
+  #   stop("'init_global' and 'init_priorvar' should have the same length.")
+  # }
   if ((length(dim(init_local) == 3) || is.list(init_local) || is.matrix(init_local)) &&
       length(init_global) > 1 &&
-      length(init_priorvar) > 1) {
+      (length(dim(init_priorvar) == 3) || is.list(init_priorvar) || is.matrix(init_priorvar))) {
     if (length(dim(init_local)) == 3) {
       init_local <- lapply(
         seq_len(dim(init_local)[3]),
@@ -262,11 +262,25 @@ init_horseshoe <- function(init_local, init_global, init_priorvar) {
     isnot_identical(init_local, case = "values")
     num_chain <- length(init_global)
   } else {
-    if (!(is.vector(init_local) || is.matrix(init_local))) {
-      stop("'init_local' should be a vector or a matrix.")
+    # if (!(is.vector(init_local) || is.matrix(init_local))) {
+    #   stop("'init_local' should be a vector or a matrix.")
+    # }
+    if (!is.vector(init_local)) {
+      stop("'init_local' should be a vector.")
     }
-    if (!(length(init_global) == 1 || length(init_priorvar) == 1)) {
-      stop("Each 'init_global' and 'init_priorvar' should be a scalar.")
+    if (!is.matrix(init_priorvar)) {
+      stop("'init_priorvar' should be a matrix.")
+    }
+    if (ncol(init_priorvar) != nrow(init_priorvar)) {
+      stop("'init_priorvar' should be a square matrix.")
+    }
+    # if (is.matrix(init_local)) {
+    #   if (ncol(init_local) != ncol(init_priorvar)) {
+    #     stop("Wrong dimension specifications for 'init_local' and 'init_priorvar'.")
+    #   }
+    # }
+    if (length(init_global) > 1) {
+      stop("'init_global' should be a scalar.")
     }
     num_chain <- 1
   }
