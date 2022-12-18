@@ -246,3 +246,40 @@ Rcpp::List sim_mniw(int num_sim,
   );
 }
 
+
+//' Generate Lower Triangular Matrix of Wishart
+//' 
+//' This function generates \eqn{A = L (Q^{-1})^T}.
+//' 
+//' @param mat_scale Scale matrix of Wishart
+//' @param shape Shape of Wishart
+//' @details
+//' This function generates Wishart random matrix.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
+  int dim = mat_scale.cols();
+  if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
+  if (mat_scale.rows() != mat_scale.cols()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  if (dim != mat_scale.rows()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
+  for (int i = 0; i < dim; i++) {
+    mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
+  }
+  for (int i = 0; i < dim; i++) {
+    for (int j = i + 1; j < dim; j++) {
+      mat_bartlett(i, j) = norm_rand();
+    }
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(mat_scale);
+  Eigen::MatrixXd chol_scale = lltOfscale.matrixL();
+  Eigen::MatrixXd chol_res = chol_scale * mat_bartlett;
+  return chol_res * chol_res.transpose();
+}

@@ -64,6 +64,7 @@ bvar_horseshoe <- function(y,
   }
   # Y0 = X0 A + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
+  dim_data <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -74,13 +75,8 @@ bvar_horseshoe <- function(y,
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
   colnames(X0) <- name_lag
   # Initial vectors-------------------
-  dim_data <- ncol(y)
   dim_design <- ncol(X0)
   if (init_spec$chain == 1) {
-    # if (is.matrix(init_spec$init_local) &&
-    #     !(nrow(init_spec$init_local) == dim_design || ncol(init_spec$init_local) == dim_data)) {
-    #   stop("Dimension of the matrix 'init_local' should be (dim * p) x dim or (dim * p + 1) x dim.")
-    # }
     if (length(init_spec$init_local) != dim_design) {
       stop("Length of the vector 'init_local' should be dim * p or dim * p + 1.")
     }
@@ -112,8 +108,46 @@ bvar_horseshoe <- function(y,
     display_progress = verbose
   )
   # preprocess the results-----------
-  
-  
+  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
+  if (res$chain > 1) {
+    # 
+  } else {
+    res$alpha_record <- res$alpha_record[thin_id,]
+    colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
+    res$alpha_posterior <- 
+      colMeans(res$alpha_record) %>% 
+      matrix(ncol = dim_data)
+    colnames(res$alpha_posterior) <- name_var
+    rownames(res$alpha_posterior) <- name_lag
+    res$alpha_record <- as_draws_df(res$alpha_record)
+    res$lambda_record <- res$lambda_record[thin_id,]
+    colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
+    res$lambda_record <- as_draws_df(res$lambda_record)
+    res$tau_record <- as.matrix(res$tau_record[thin_id])
+    colnames(res$tau_record) <- "tau"
+    res$tau_record <- as_draws_df(res$tau_record)
+    # diagonal of precision
+    res$psi_record <- split_psirecord(res$prec_record, varname = "psi")
+    res$psi_record <- res$psi_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)]
+    res$phi_record <- 
+      lapply(res$psi_record, diag) %>% 
+      do.call(rbind, .)
+    colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
+    res$phi_record <- as_draws_df(res$phi_record)
+    # upper diagonal of precision
+    res$eta_record <- 
+      lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>% 
+      do.call(rbind, .)
+    colnames(eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
+    res$eta_record <- as_draws_df(res$eta_record)
+  }
+  res$param <- bind_draws(
+    res$alpha_record,
+    res$lambda_record,
+    res$tau_record,
+    res$phi_record,
+    res$eta_record
+  )
   # variables------------
   res$df <- ncol(X0)
   res$p <- p
@@ -135,4 +169,40 @@ bvar_horseshoe <- function(y,
   # return S3 object-----------------
   class(res) <- c("bvarhs", "bvharmod")
   res
+}
+
+#' @rdname bvar_horseshoe
+#' @param x `bvarhs` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
+  )
+  cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
+  cat("Fitted by Metropolis algorithm\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname bvar_horseshoe
+#' @param x `bvarhs` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvarhm <- function(x, ...) {
+  print(x)
 }

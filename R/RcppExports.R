@@ -237,26 +237,13 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
     .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
 }
 
-#' Fast Sampling Gaussian Scale Mixture Representation
-#' 
-#' This function generates full conditional coefficients of horseshoe prior fast.
-#' 
-#' @param diag_mat Diagonal covariance matrix
-#' @param scaled_x Phi
-#' @param scaled_y alpha
-#' 
-#' @noRd
-horseshoe_fastcoef <- function(diag_mat, scaled_x, scaled_y) {
-    .Call(`_bvhar_horseshoe_fastcoef`, diag_mat, scaled_x, scaled_y)
-}
-
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
 #' 
 #' @param response_vec Response vector for vectorized formulation
 #' @param design_mat Design matrix for vectorized formulation
-#' @param prior_var Variance constant of the likelihood
+#' @param sigma Covariance matrix of the likelihood
 #' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_coef <- function(x, y, sigma, shrink_mat) {
@@ -270,10 +257,10 @@ horseshoe_coef <- function(x, y, sigma, shrink_mat) {
 #' @param local_latent Latent vectors defined for local sparsity vector
 #' @param global_hyperparam Global sparsity hyperparameter
 #' @param coef_vec Coefficients vector
-#' @param prior_var Variance constant of the likelihood
+#' @param prec Precision matrix of the likelihood
 #' @noRd
-horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, sigma) {
-    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef, sigma)
+horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec) {
+    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef, prec)
 }
 
 #' Generating the Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -283,10 +270,10 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, sigm
 #' @param global_latent Latent variable defined for global sparsity hyperparameter
 #' @param local_hyperparam Local sparsity hyperparameters vector
 #' @param coef_vec Coefficients vector
-#' @param prior_var Variance constant of the likelihood
+#' @param prec Precision matrix of the likelihood
 #' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, sigma) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef, sigma)
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, prec) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef, prec)
 }
 
 #' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
@@ -318,8 +305,8 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' @param coef_vec Coefficients vector
 #' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
-horseshoe_prior_var <- function(x, y, coef, shrink_mat) {
-    .Call(`_bvhar_horseshoe_prior_var`, x, y, coef, shrink_mat)
+horseshoe_prec_mat <- function(x, y, coef, shrink_mat) {
+    .Call(`_bvhar_horseshoe_prec_mat`, x, y, coef, shrink_mat)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -1043,6 +1030,20 @@ sim_iw <- function(mat_scale, shape) {
 #' @export
 sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+}
+
+#' Generate Lower Triangular Matrix of Wishart
+#' 
+#' This function generates \eqn{A = L (Q^{-1})^T}.
+#' 
+#' @param mat_scale Scale matrix of Wishart
+#' @param shape Shape of Wishart
+#' @details
+#' This function generates Wishart random matrix.
+#' 
+#' @noRd
+sim_wishart <- function(mat_scale, shape) {
+    .Call(`_bvhar_sim_wishart`, mat_scale, shape)
 }
 
 #' VAR(1) Representation Given VAR Coefficient Matrix
