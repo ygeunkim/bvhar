@@ -2,8 +2,8 @@
 % Please edit documentation in R/bvar-horseshoe.R
 \name{bvar_horseshoe}
 \alias{bvar_horseshoe}
-\alias{print.bvarhm}
-\alias{knit_print.bvarhm}
+\alias{print.bvarhs}
+\alias{knit_print.bvarhs}
 \title{Fitting Bayesian VAR(p) of Horseshoe Prior}
 \usage{
 bvar_horseshoe(
@@ -17,9 +17,9 @@ bvar_horseshoe(
   verbose = FALSE
 )
 
-\method{print}{bvarhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{bvarhs}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarhm(x, ...)
+knit_print.bvarhs(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

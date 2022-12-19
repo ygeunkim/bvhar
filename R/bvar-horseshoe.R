@@ -126,27 +126,35 @@ bvar_horseshoe <- function(y,
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
     res$tau_record <- as_draws_df(res$tau_record)
+    res$nu_record <- as.matrix(res$nu_record[thin_id])
+    colnames(res$nu_record) <- "nu"
+    res$nu_record <- as_draws_df(res$nu_record)
+    res$xi_record <- as.matrix(res$xi_record[thin_id])
+    colnames(res$xi_record) <- "xi"
+    res$xi_record <- as_draws_df(res$xi_record)
     # diagonal of precision
-    res$psi_record <- split_psirecord(res$prec_record, varname = "psi")
-    res$psi_record <- res$psi_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)]
-    res$phi_record <- 
+    res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
+    res$psi_record <- res$psi_record[thin_id]
+    res$omega_record <- 
       lapply(res$psi_record, diag) %>% 
       do.call(rbind, .)
-    colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-    res$phi_record <- as_draws_df(res$phi_record)
+    colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
+    res$omega_record <- as_draws_df(res$omega_record)
     # upper diagonal of precision
-    res$eta_record <- 
-      lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>% 
+    res$eta_record <-
+      lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>%
       do.call(rbind, .)
-    colnames(eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
+    colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
     res$eta_record <- as_draws_df(res$eta_record)
   }
   res$param <- bind_draws(
     res$alpha_record,
     res$lambda_record,
     res$tau_record,
-    res$phi_record,
-    res$eta_record
+    res$omega_record,
+    res$eta_record,
+    res$nu_record,
+    res$xi_record
   )
   # variables------------
   res$df <- ncol(X0)
@@ -177,7 +185,7 @@ bvar_horseshoe <- function(y,
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -203,6 +211,6 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvarhm <- function(x, ...) {
+knit_print.bvarhs <- function(x, ...) {
   print(x)
 }

@@ -225,9 +225,9 @@ estimate_hierachical_niw <- function(num_iter, num_warm, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
 }
 
-#' Building a Diagonal Matrix by Global and Local Hyperparameters
+#' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
 #' 
-#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast} defined by
+#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
 #' global and local sparsity levels.
 #' 
 #' @param global_hyperparam Global sparsity hyperparameter
@@ -244,7 +244,7 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
 #' @param response_vec Response vector for vectorized formulation
 #' @param design_mat Design matrix for vectorized formulation
 #' @param sigma Covariance matrix of the likelihood
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_coef <- function(x, y, sigma, shrink_mat) {
     .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat)
@@ -303,7 +303,7 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' @param response_vec Response vector for vectorized formulation
 #' @param design_mat Design matrix for vectorized formulation
 #' @param coef_vec Coefficients vector
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @param shrink_mat Inverse ddiagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_prec_mat <- function(x, y, coef, shrink_mat) {
     .Call(`_bvhar_horseshoe_prec_mat`, x, y, coef, shrink_mat)

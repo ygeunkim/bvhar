@@ -272,8 +272,6 @@ Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
   for (int i = 0; i < dim; i++) {
     mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
-  }
-  for (int i = 0; i < dim; i++) {
     for (int j = i + 1; j < dim; j++) {
       mat_bartlett(i, j) = norm_rand();
     }
