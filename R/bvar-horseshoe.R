@@ -7,7 +7,7 @@
 #' @param num_iter MCMC iteration number
 #' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param init_spec Horseshoe initialization specification by [init_horseshoe()].
+#' @param init_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvar_horseshoe` returns an object named [class].
@@ -26,8 +26,6 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Bhattacharya, A., Chakraborty, A., & Mallick, B. K. (2016). *Fast sampling with Gaussian scale mixture priors in high-dimensional regression*. Biometrika, 103(4), 985–991. doi:[10.1093/biomet/asw042](https://doi.org/10.1093/biomet/asw042)
-#' 
 #' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
@@ -39,7 +37,7 @@ bvar_horseshoe <- function(y,
                            num_iter = 1000, 
                            num_warm = floor(num_iter / 2),
                            thinning = 1,
-                           init_spec = init_horseshoe(),
+                           init_spec = set_horseshoe(),
                            include_mean = TRUE,
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -87,9 +85,11 @@ bvar_horseshoe <- function(y,
     init_global <- init_spec$init_global
     init_priorvar <- init_spec$init_priorvar
   } else {
-    if (is.matrix(init_spec$init_local[[1]]) &&
-        !(nrow(init_spec$init_local[[1]]) == dim_design || ncol(init_spec$init_local[[1]]) == dim_data)) {
-      stop("Dimension of the matrix 'init_local' should be (dim * p) x dim or (dim * p + 1) x dim.")
+    if (length(init_spec$init_local[[1]]) != dim_design) {
+      stop("Every length of the vector 'init_local' should be dim * p or dim * p + 1.")
+    }
+    if (ncol(init_spec$init_priorvar[[1]]) != dim_data) {
+      stop("Every dimension of the matrix 'init_priorvar' should be dim x dim.")
     }
     init_local <- unlist(init_spec$init_local)
     init_global <- init_spec$init_global
@@ -114,11 +114,11 @@ bvar_horseshoe <- function(y,
   } else {
     res$alpha_record <- res$alpha_record[thin_id,]
     colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
-    res$alpha_posterior <- 
+    res$coefficients <- 
       colMeans(res$alpha_record) %>% 
       matrix(ncol = dim_data)
-    colnames(res$alpha_posterior) <- name_var
-    rownames(res$alpha_posterior) <- name_lag
+    colnames(res$coefficients) <- name_var
+    rownames(res$coefficients) <- name_lag
     res$alpha_record <- as_draws_df(res$alpha_record)
     res$lambda_record <- res$lambda_record[thin_id,]
     colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
@@ -134,9 +134,9 @@ bvar_horseshoe <- function(y,
     # res$xi_record <- as_draws_df(res$xi_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
-    res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
-    colnames(res$psi_posterior) <- name_var
-    rownames(res$psi_posterior) <- name_var
+    res$covmat <- Reduce("+", res$psi_record) / length(res$psi_record)
+    colnames(res$covmat) <- name_var
+    rownames(res$covmat) <- name_var
     # diagonal of precision
     res$omega_record <- 
       lapply(res$psi_record, diag) %>% 
@@ -155,9 +155,7 @@ bvar_horseshoe <- function(y,
     res$lambda_record,
     res$tau_record,
     res$omega_record,
-    res$eta_record,
-    res$nu_record,
-    res$xi_record
+    res$eta_record
   )
   # variables------------
   res$df <- ncol(X0)
@@ -194,7 +192,7 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
-  cat("Fitted by Metropolis algorithm\n")
+  cat("Fitted by Gibbs sampling\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of warm-up: ", x$burn, "\n"))
   if (x$thin > 1) {

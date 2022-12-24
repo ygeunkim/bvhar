@@ -12,7 +12,7 @@ bvar_horseshoe(
   num_iter = 1000,
   num_warm = floor(num_iter/2),
   thinning = 1,
-  init_spec = init_horseshoe(),
+  init_spec = set_horseshoe(),
   include_mean = TRUE,
   verbose = FALSE
 )
@@ -32,7 +32,7 @@ knit_print.bvarhs(x, ...)
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{init_spec}{Horseshoe initialization specification by \code{\link[=init_horseshoe]{init_horseshoe()}}.}
+\item{init_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -65,8 +65,6 @@ It is a list with the following components:
 This function fits BVAR(p) with horseshoe prior.
 }
 \references{
-Bhattacharya, A., Chakraborty, A., & Mallick, B. K. (2016). \emph{Fast sampling with Gaussian scale mixture priors in high-dimensional regression}. Biometrika, 103(4), 985–991. doi:\href{https://doi.org/10.1093/biomet/asw042}{10.1093/biomet/asw042}
-
 Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465–480. doi:\href{https://doi.org/10.1093/biomet/asq017}{10.1093/biomet/asq017}
 
 Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179–182. doi:\href{https://doi.org/10.1109/LSP.2015.2503725}{10.1109/lsp.2015.2503725}

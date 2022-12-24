@@ -378,7 +378,7 @@ registerS3method(
   envir = asNamespace("knitr")
 )
 
-#' @rdname init_horseshoe
+#' @rdname set_horseshoe
 #' @param x `horseshoeinit`
 #' @param digits digit option to print
 #' @param ... not used
@@ -415,7 +415,7 @@ print.horseshoeinit <- function(x, digits = max(3L, getOption("digits") - 3L), .
   cat("'init_local': local shrinkage for each row of coefficients matrix")
 }
 
-#' @rdname set_ssvs
+#' @rdname set_horseshoe
 #' @param x `horseshoeinit` object
 #' @param ... not used
 #' @order 3

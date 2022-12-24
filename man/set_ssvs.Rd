@@ -4,7 +4,6 @@
 \alias{set_ssvs}
 \alias{print.ssvsinput}
 \alias{knit_print.ssvsinput}
-\alias{knit_print.horseshoeinit}
 \title{Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor}
 \usage{
 set_ssvs(
@@ -22,8 +21,6 @@ set_ssvs(
 \method{print}{ssvsinput}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 knit_print.ssvsinput(x, ...)
-
-knit_print.horseshoeinit(x, ...)
 }
 \arguments{
 \item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}
@@ -44,7 +41,7 @@ knit_print.horseshoeinit(x, ...)
 
 \item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
 
-\item{x}{\code{horseshoeinit} object}
+\item{x}{\code{ssvsinput} object}
 
 \item{digits}{digit option to print}
 

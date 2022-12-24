@@ -159,7 +159,7 @@ Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
     mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
   }
   // upper triangular (j > i) ~ N(0, 1)
-  for (int i = 0; i < dim; i ++) {
+  for (int i = 0; i < dim - 1; i ++) {
     for (int j = i + 1; j < dim; j++) {
       mat_bartlett(i, j) = norm_rand();
     }

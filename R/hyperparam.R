@@ -488,39 +488,42 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
 #' 
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
-#' @param init_var Initial variance of the error term
+#' @param init_priorvar Initial variance of the error term
+#' @details 
+#' Set horseshoe prior initialization for VAR family.
 #' 
+#' * `init_local`: (Initial) local shrinkage for each row of coefficients matrix.
+#' * `init_global`: (Initial) global shrinkage.
+#' * `init_priorvar`: Initial covariance matrix.
+#' 
+#' In this package, horseshoe prior model is estimated by Gibbs sampling,
+#' initial means initial values for that gibbs sampler.
 #' @references 
 #' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @order 1
 #' @export
-init_horseshoe <- function(init_local, init_global, init_priorvar) {
-  # if (length(init_global) != length(init_priorvar)) {
-  #   stop("'init_global' and 'init_priorvar' should have the same length.")
-  # }
-  if ((length(dim(init_local) == 3) || is.list(init_local) || is.matrix(init_local)) &&
+set_horseshoe <- function(init_local, init_global, init_priorvar) {
+  if (is.matrix(init_local) &&
       length(init_global) > 1 &&
       (length(dim(init_priorvar) == 3) || is.list(init_priorvar) || is.matrix(init_priorvar))) {
-    if (length(dim(init_local)) == 3) {
-      init_local <- lapply(
-        seq_len(dim(init_local)[3]),
-        function(k) init_local[,, k]
-      )
-    } else if (length(dim(init_local)) == 2) {
-      init_local <- lapply(
-        seq_len(dim(init_local)[2]),
-        function(k) init_local[, k]
-      )
-    }
+    init_local <- lapply(
+      seq_len(dim(init_local)[2]),
+      function(k) init_local[, k]
+    )
     isnot_identical(init_local, case = "dim")
     isnot_identical(init_local, case = "values")
+    if (length(dim(init_priorvar)) == 3) {
+      init_priorvar <- lapply(
+        seq_len(dim(init_priorvar)[3]),
+        function(k) init_priorvar[,, k]
+      )
+    }
+    isnot_identical(init_priorvar, case = "dim")
+    isnot_identical(init_priorvar, case = "values")
     num_chain <- length(init_global)
   } else {
-    # if (!(is.vector(init_local) || is.matrix(init_local))) {
-    #   stop("'init_local' should be a vector or a matrix.")
-    # }
     if (!is.vector(init_local)) {
       stop("'init_local' should be a vector.")
     }
@@ -530,11 +533,6 @@ init_horseshoe <- function(init_local, init_global, init_priorvar) {
     if (ncol(init_priorvar) != nrow(init_priorvar)) {
       stop("'init_priorvar' should be a square matrix.")
     }
-    # if (is.matrix(init_local)) {
-    #   if (ncol(init_local) != ncol(init_priorvar)) {
-    #     stop("Wrong dimension specifications for 'init_local' and 'init_priorvar'.")
-    #   }
-    # }
     if (length(init_global) > 1) {
       stop("'init_global' should be a scalar.")
     }

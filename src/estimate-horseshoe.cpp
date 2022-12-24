@@ -182,12 +182,15 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   Eigen::VectorXd latent_local = Eigen::VectorXd::Zero(dim_design);
   double latent_global = 0.0;
   Eigen::MatrixXd covmat = init_priorvar;
-  prec_record.block(0, 0, dim, dim) = covmat.inverse();
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   // Start Gibbs sampling-----------------------------------
   Progress p(chain * (num_iter - 1), display_progress);
 #ifdef _OPENMP
   Rcpp::Rcout << "Parallel chains" << std::endl;
+#pragma omp parallel for
+  for (int b = 0; b < chain; b++) {
+    prec_record.block(0, b * dim, dim, dim) = covmat.block(0, b * dim, dim, dim).inverse();
+  }
 #pragma                  \
   omp                    \
     parallel             \
@@ -210,11 +213,11 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       p.increment();
       // 1. alpha (coefficient)
       lambda_mat = build_shrink_mat(global_record(i - 1, chain), local_record.block(i - 1, b * num_coef, 1, num_coef));
-      coef_mat = horseshoe_coef(x, y, covmat, lambda_mat);
+      coef_mat = horseshoe_coef(x, y, covmat.block(0, b * dim, dim, dim), lambda_mat);
       coef_record.block(i, b * num_coef, 1, num_coef) = vectorize_eigen(coef_mat);
       // 2. sigma (variance)
-      covmat = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
-      prec_record.block(i * dim, b * dim, dim, dim) = covmat.inverse();
+      covmat.block(0, b * dim, dim, dim) = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
+      prec_record.block(i * dim, b * dim, dim, dim) = covmat.block(0, b * dim, dim, dim).inverse();
       // 3. nuj (local latent)
       latent_local = horseshoe_latent_local(local_record.block(i - 1, b * num_coef, 1, num_coef));
       // 4. xi (global latent)
@@ -236,6 +239,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     }
   }
 #else
+  prec_record.block(0, 0, dim, dim) = covmat.inverse();
   for (int i = 1; i < num_iter; i++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(
