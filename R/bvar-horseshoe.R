@@ -126,15 +126,18 @@ bvar_horseshoe <- function(y,
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
     res$tau_record <- as_draws_df(res$tau_record)
-    res$nu_record <- as.matrix(res$nu_record[thin_id])
-    colnames(res$nu_record) <- "nu"
-    res$nu_record <- as_draws_df(res$nu_record)
-    res$xi_record <- as.matrix(res$xi_record[thin_id])
-    colnames(res$xi_record) <- "xi"
-    res$xi_record <- as_draws_df(res$xi_record)
-    # diagonal of precision
+    # res$nu_record <- as.matrix(res$nu_record[thin_id])
+    # colnames(res$nu_record) <- "nu"
+    # res$nu_record <- as_draws_df(res$nu_record)
+    # res$xi_record <- as.matrix(res$xi_record[thin_id])
+    # colnames(res$xi_record) <- "xi"
+    # res$xi_record <- as_draws_df(res$xi_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
+    res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+    colnames(res$psi_posterior) <- name_var
+    rownames(res$psi_posterior) <- name_var
+    # diagonal of precision
     res$omega_record <- 
       lapply(res$psi_record, diag) %>% 
       do.call(rbind, .)

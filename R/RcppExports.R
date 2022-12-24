@@ -305,8 +305,8 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' @param coef_vec Coefficients vector
 #' @param shrink_mat Inverse ddiagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
-horseshoe_prec_mat <- function(x, y, coef, shrink_mat) {
-    .Call(`_bvhar_horseshoe_prec_mat`, x, y, coef, shrink_mat)
+horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
+    .Call(`_bvhar_horseshoe_cov_mat`, x, y, coef, shrink_mat)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR Estimator

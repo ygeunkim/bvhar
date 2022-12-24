@@ -157,7 +157,9 @@ Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   for (int i = 0; i < dim; i++) {
     // diagonal
     mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
-    // upper triangular (j > i) ~ N(0, 1)
+  }
+  // upper triangular (j > i) ~ N(0, 1)
+  for (int i = 0; i < dim; i ++) {
     for (int j = i + 1; j < dim; j++) {
       mat_bartlett(i, j) = norm_rand();
     }
@@ -272,7 +274,9 @@ Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
   for (int i = 0; i < dim; i++) {
     mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
-    for (int j = i + 1; j < dim; j++) {
+  }
+  for (int i = 1; i < dim; i++) {
+    for (int j = 0; j < i; j++) {
       mat_bartlett(i, j) = norm_rand();
     }
   }

@@ -61,12 +61,14 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
                                          Eigen::MatrixXd coef,
                                          Eigen::MatrixXd prec) {
   int dim_design = coef.rows();
+  int dim = coef.cols();
   Eigen::MatrixXd latent_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   latent_mat.diagonal() = 1 / local_latent.array();
   Eigen::MatrixXd invgam_scl = coef * prec * coef.transpose() / (2 * pow(global_hyperparam, 2.0)) + latent_mat;
   Eigen::VectorXd res(dim_design);
   for (int i = 0; i < dim_design; i++) {
-    res[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl(i, i)));
+    // res[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl(i, i)));
+    res[i] = sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl(i, i)));
   }
   return res;
 }
@@ -104,11 +106,7 @@ Eigen::VectorXd horseshoe_latent_local(Eigen::VectorXd local_hyperparam) {
   int dim = local_hyperparam.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
-    res[i] = 1 /
-      gamma_rand(
-        1.0,
-        1 / (1 + 1 / pow(local_hyperparam[i], 2.0))
-      );
+    res[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(local_hyperparam[i], 2.0)));
   }
   return res;
 }
@@ -121,11 +119,7 @@ Eigen::VectorXd horseshoe_latent_local(Eigen::VectorXd local_hyperparam) {
 //' @noRd
 // [[Rcpp::export]]
 double horseshoe_latent_global(double global_hyperparam) {
-  return 1 /
-    gamma_rand(
-      1.0,
-      1 / (1 + 1 / pow(global_hyperparam, 2.0))
-    );
+  return 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(global_hyperparam, 2.0)));
 }
 
 //' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
@@ -138,12 +132,13 @@ double horseshoe_latent_global(double global_hyperparam) {
 //' @param shrink_mat Inverse ddiagonal matrix made by global and local sparsity hyperparameters
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd horseshoe_prec_mat(Eigen::MatrixXd x,
-                                    Eigen::MatrixXd y,
-                                    Eigen::MatrixXd coef,
-                                    Eigen::MatrixXd shrink_mat) {
+Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x,
+                                  Eigen::MatrixXd y,
+                                  Eigen::MatrixXd coef,
+                                  Eigen::MatrixXd shrink_mat) {
   Eigen::MatrixXd resid = y - x * coef;
-  return sim_wishart(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
+  return sim_iw(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
+  // return sim_iw(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows() + 2);
 }
 
 //' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -177,15 +172,17 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
   Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter, dim_design * chain);
   Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter, chain);
-  Eigen::MatrixXd latent_local_record = Eigen::MatrixXd::Zero(num_iter, dim_design * chain);
-  Eigen::MatrixXd latent_global_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  // Eigen::MatrixXd latent_local_record = Eigen::MatrixXd::Zero(num_iter, dim_design * chain);
+  // Eigen::MatrixXd latent_global_record = Eigen::MatrixXd::Zero(num_iter, chain);
   Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain);
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat = Eigen::MatrixXd::Zero(dim_design, dim);
-  Eigen::MatrixXd sigma = init_priorvar;
-  prec_record.block(0, 0, dim, dim) = init_priorvar.inverse();
+  Eigen::VectorXd latent_local = Eigen::VectorXd::Zero(dim_design);
+  double latent_global = 0.0;
+  Eigen::MatrixXd covmat = init_priorvar;
+  prec_record.block(0, 0, dim, dim) = covmat.inverse();
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   // Start Gibbs sampling-----------------------------------
   Progress p(chain * (num_iter - 1), display_progress);
@@ -213,25 +210,25 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       p.increment();
       // 1. alpha (coefficient)
       lambda_mat = build_shrink_mat(global_record(i - 1, chain), local_record.block(i - 1, b * num_coef, 1, num_coef));
-      coef_mat = horseshoe_coef(x, y, prec_record.block((i - 1) * dim, b * dim, dim, dim), lambda_mat);
+      coef_mat = horseshoe_coef(x, y, covmat, lambda_mat);
       coef_record.block(i, b * num_coef, 1, num_coef) = vectorize_eigen(coef_mat);
       // 2. sigma (variance)
-      prec_record.block(i * dim, b * dim, dim, dim) = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
-      sigma = prec_record.block(i * dim, b * dim, dim, dim).inverse();
+      covmat = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
+      prec_record.block(i * dim, b * dim, dim, dim) = covmat.inverse();
       // 3. nuj (local latent)
-      latent_local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_latent_local(local_record.block(i - 1, b * num_coef, 1, num_coef));
+      latent_local = horseshoe_latent_local(local_record.block(i - 1, b * num_coef, 1, num_coef));
       // 4. xi (global latent)
-      latent_global_record(i, chain) = horseshoe_latent_global(global_record(i - 1, chain));
+      latent_global = horseshoe_latent_global(global_record(i - 1, chain));
       // 5. lambdaj (local shrinkage)
       local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_local_sparsity(
-        latent_local_record.block(i, b * num_coef, 1, num_coef), 
-        global_record(i - 1, chain), 
+        latent_local,
+        global_record(i - 1, chain),
         coef_mat, 
         prec_record.block(i * dim, b * dim, dim, dim)
       );
       // 6. tau (global shrinkage)
       global_record(i, chain) = horseshoe_global_sparsity(
-        latent_global_record(i, chain),
+        latent_global,
         local_record.block(i, b * num_coef, 1, num_coef),
         coef_mat,
         prec_record.block(i * dim, b * dim, dim, dim)
@@ -246,33 +243,33 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
         Rcpp::Named("lambda_record") = local_record,
         Rcpp::Named("tau_record") = global_record,
         Rcpp::Named("psi_record") = prec_record,
-        Rcpp::Named("nu_record") = latent_local_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("xi_record") = latent_global_record.bottomRows(num_iter - num_warm),
+        // Rcpp::Named("nu_record") = latent_local_record.bottomRows(num_iter - num_warm),
+        // Rcpp::Named("xi_record") = latent_global_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("chain") = chain
       );
     }
     p.increment();
     // 1. alpha (coefficient)
     lambda_mat = build_shrink_mat(global_record(i - 1, 0), local_record.row(i - 1));
-    coef_mat = horseshoe_coef(x, y, sigma, lambda_mat);
+    coef_mat = horseshoe_coef(x, y, covmat, lambda_mat);
     coef_record.row(i) = vectorize_eigen(coef_mat);
     // 2. sigma (variance)
-    prec_record.block(i * dim, 0, dim, dim) = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
-    sigma = prec_record.block(i * dim, 0, dim, dim).inverse();
+    covmat = horseshoe_cov_mat(x, y, coef_mat, lambda_mat);
+    prec_record.block(i * dim, 0, dim, dim) = covmat.inverse();
     // 3. nuj (local latent)
-    latent_local_record.row(i) = horseshoe_latent_local(local_record.row(i - 1));
+    latent_local = horseshoe_latent_local(local_record.row(i - 1));
     // 4. xi (global latent)
-    latent_global_record(i, 0) = horseshoe_latent_global(global_record(i - 1, 0));
+    latent_global = horseshoe_latent_global(global_record(i - 1, 0));
     // 5. lambdaj (local shrinkage)
     local_record.row(i) = horseshoe_local_sparsity(
-      latent_local_record.row(i),
+      latent_local,
       global_record(i - 1, 0),
       coef_mat,
       prec_record.block(i * dim, 0, dim, dim)
     );
     // 6. tau (global shrinkage)
     global_record(i, 0) = horseshoe_global_sparsity(
-      latent_global_record(i, 0),
+      latent_global,
       local_record.row(i),
       coef_mat,
       prec_record.block(i * dim, 0, dim, dim)
@@ -284,8 +281,8 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("psi_record") = prec_record.bottomRows(dim * (num_iter - num_warm)),
-    Rcpp::Named("nu_record") = latent_local_record.bottomRows(num_iter - num_warm),
-    Rcpp::Named("xi_record") = latent_global_record.bottomRows(num_iter - num_warm),
+    // Rcpp::Named("nu_record") = latent_local_record.bottomRows(num_iter - num_warm),
+    // Rcpp::Named("xi_record") = latent_global_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("chain") = chain
   );
 }
