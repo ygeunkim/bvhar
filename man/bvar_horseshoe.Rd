@@ -12,7 +12,7 @@ bvar_horseshoe(
   num_iter = 1000,
   num_warm = floor(num_iter/2),
   thinning = 1,
-  init_spec = set_horseshoe(),
+  bayes_spec = set_horseshoe(),
   include_mean = TRUE,
   verbose = FALSE
 )
@@ -32,7 +32,7 @@ knit_print.bvarhs(x, ...)
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{init_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
+\item{bayes_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 

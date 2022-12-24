@@ -7,7 +7,7 @@
 #' @param num_iter MCMC iteration number
 #' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param init_spec Horseshoe initialization specification by [set_horseshoe()].
+#' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvar_horseshoe` returns an object named [class].
@@ -37,7 +37,7 @@ bvar_horseshoe <- function(y,
                            num_iter = 1000, 
                            num_warm = floor(num_iter / 2),
                            thinning = 1,
-                           init_spec = set_horseshoe(),
+                           bayes_spec = set_horseshoe(),
                            include_mean = TRUE,
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -47,8 +47,8 @@ bvar_horseshoe <- function(y,
     y <- as.matrix(y)
   }
   # model specification---------------
-  if (!is.horseshoeinit(init_spec)) {
-    stop("Provide 'horseshoeinit' for 'init_spec'.")
+  if (!is.horseshoeinit(bayes_spec)) {
+    stop("Provide 'horseshoeinit' for 'bayes_spec'.")
   }
   # MCMC iterations-------------------
   if (num_iter < 1) {
@@ -74,26 +74,26 @@ bvar_horseshoe <- function(y,
   colnames(X0) <- name_lag
   # Initial vectors-------------------
   dim_design <- ncol(X0)
-  if (init_spec$chain == 1) {
-    if (length(init_spec$init_local) != dim_design) {
+  if (bayes_spec$chain == 1) {
+    if (length(bayes_spec$init_local) != dim_design) {
       stop("Length of the vector 'init_local' should be dim * p or dim * p + 1.")
     }
-    if (ncol(init_spec$init_priorvar) != dim_data) {
+    if (ncol(bayes_spec$init_priorvar) != dim_data) {
       stop("Dimension of the matrix 'init_priorvar' should be dim x dim.")
     }
-    init_local <- init_spec$init_local
-    init_global <- init_spec$init_global
-    init_priorvar <- init_spec$init_priorvar
+    init_local <- bayes_spec$init_local
+    init_global <- bayes_spec$init_global
+    init_priorvar <- bayes_spec$init_priorvar
   } else {
-    if (length(init_spec$init_local[[1]]) != dim_design) {
+    if (length(bayes_spec$init_local[[1]]) != dim_design) {
       stop("Every length of the vector 'init_local' should be dim * p or dim * p + 1.")
     }
-    if (ncol(init_spec$init_priorvar[[1]]) != dim_data) {
+    if (ncol(bayes_spec$init_priorvar[[1]]) != dim_data) {
       stop("Every dimension of the matrix 'init_priorvar' should be dim x dim.")
     }
-    init_local <- unlist(init_spec$init_local)
-    init_global <- init_spec$init_global
-    init_priorvar <- init_spec$init_priorvar
+    init_local <- unlist(bayes_spec$init_local)
+    init_global <- bayes_spec$init_global
+    init_priorvar <- bayes_spec$init_priorvar
   }
   # MCMC-----------------------------
   res <- estimate_horseshoe_niw(
@@ -104,7 +104,7 @@ bvar_horseshoe <- function(y,
     init_local = init_local,
     init_global = init_global,
     init_priorvar = init_priorvar,
-    chain = init_spec$chain,
+    chain = bayes_spec$chain,
     display_progress = verbose
   )
   # preprocess the results-----------
@@ -165,9 +165,9 @@ bvar_horseshoe <- function(y,
   res$totobs <- nrow(y)
   # model-----------------
   res$call <- match.call()
-  res$process <- paste(init_spec$process, init_spec$prior, sep = "_")
+  res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
-  res$spec <- init_spec
+  res$spec <- bayes_spec
   res$iter <- num_iter
   res$burn <- num_warm
   res$thin <- thinning
