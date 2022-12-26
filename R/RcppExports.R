@@ -394,13 +394,13 @@ ssvs_chol_dummy <- function(chol_upper, spike_sd, slab_sd, slab_weight) {
 #' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
 #' 
 #' @param prior_mean The prior mean vector of the VAR coefficient vector
-#' @param prior_prec The prior precision matrix of the VAR coefficient vector
+#' @param prior_var Diagonal prior variance matrix of the VAR coefficient vector
 #' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
 #' @param coef_ols OLS (MLE) estimator of the VAR coefficient
 #' @param chol_factor Cholesky factor of variance matrix
 #' @noRd
-ssvs_coef <- function(prior_mean, prior_prec, XtX, coef_ols, chol_factor) {
-    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_prec, XtX, coef_ols, chol_factor)
+ssvs_coef <- function(prior_mean, prior_var, XtX, coef_ols, chol_factor) {
+    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_var, XtX, coef_ols, chol_factor)
 }
 
 #' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler

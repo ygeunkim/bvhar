@@ -151,21 +151,21 @@ Eigen::VectorXd ssvs_chol_dummy(Eigen::VectorXd chol_upper,
 //' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
 //' 
 //' @param prior_mean The prior mean vector of the VAR coefficient vector
-//' @param prior_prec The prior precision matrix of the VAR coefficient vector
+//' @param prior_var Diagonal prior variance matrix of the VAR coefficient vector
 //' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
 //' @param coef_ols OLS (MLE) estimator of the VAR coefficient
 //' @param chol_factor Cholesky factor of variance matrix
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean,
-                          Eigen::MatrixXd prior_prec,
+                          Eigen::MatrixXd prior_var,
                           Eigen::MatrixXd XtX,
                           Eigen::VectorXd coef_ols,
                           Eigen::MatrixXd chol_factor) {
-  Eigen::MatrixXd sig_inv_xtx = Eigen::kroneckerProduct(
-    chol_factor * chol_factor.transpose(), 
-    XtX
-  ).eval(); // Sigma^(-1) otimes (X_0^T X_0) where Sigma^(-1) = chol * chol^T
+  // Eigen::MatrixXd sig_inv_xtx = Eigen::kroneckerProduct(chol_factor * chol_factor.transpose(), XtX).eval(); // Sigma^(-1) = chol * chol^T
+  Eigen::MatrixXd sig_inv_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
+  Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(prior_var.rows(), prior_var.cols());
+  prior_prec.diagonal() = 1 / prior_var.diagonal().array();
   Eigen::MatrixXd normal_variance = (sig_inv_xtx + prior_prec).inverse(); // Delta
   Eigen::VectorXd normal_mean = normal_variance * (sig_inv_xtx * coef_ols + prior_prec * prior_mean); // mu
   return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
@@ -258,7 +258,10 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd prior_variance = Eigen::MatrixXd::Zero(num_coef, num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
   Eigen::MatrixXd coef_mixture_mat = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // D
   Eigen::MatrixXd DRD = Eigen::MatrixXd::Zero(num_restrict, num_restrict); // DRD
-  Eigen::MatrixXd XtX = x.transpose() * x; // X_0^T X_0: k x k
+  // Eigen::MatrixXd design_mat = Eigen::kroneckerProduct(Eigen::MatrixXd::Identity(dim, dim), x);
+  // Eigen::MatrixXd XtX = design_mat.transpose() * design_mat;
+  // Eigen::MatrixXd coef_ols = (x.transpose() * x).inverse() * x.transpose() * y;
+  Eigen::MatrixXd XtX = x.transpose() * x;
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
   Eigen::MatrixXd cov_ols = (y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design);
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(cov_ols);
@@ -323,7 +326,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
           }
           coef_record.block(i, b * num_coef, 1, num_coef) = ssvs_coef(
             prior_mean, 
-            prior_variance.inverse(), 
+            prior_variance, 
             XtX, 
             coefvec_ols, 
             chol_factor_record.block(i * dim, b * dim, dim, dim)
@@ -385,7 +388,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         }
         coef_record.row(i) = ssvs_coef(
           prior_mean,
-          prior_variance.inverse(),
+          prior_variance,
           XtX,
           coefvec_ols,
           chol_factor_record.block(i * dim, 0, dim, dim)
@@ -407,7 +410,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("chol_record") = chol_factor_record,
+        Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
         Rcpp::Named("sse") = sse_mat,
         Rcpp::Named("coefficients") = coef_ols,
         Rcpp::Named("choleskyols") = chol_ols,

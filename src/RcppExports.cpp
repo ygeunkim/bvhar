@@ -351,17 +351,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssvs_coef
-Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor);
-RcppExport SEXP _bvhar_ssvs_coef(SEXP prior_meanSEXP, SEXP prior_precSEXP, SEXP XtXSEXP, SEXP coef_olsSEXP, SEXP chol_factorSEXP) {
+Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_var, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor);
+RcppExport SEXP _bvhar_ssvs_coef(SEXP prior_meanSEXP, SEXP prior_varSEXP, SEXP XtXSEXP, SEXP coef_olsSEXP, SEXP chol_factorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type prior_mean(prior_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_var(prior_varSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type XtX(XtXSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_ols(coef_olsSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type chol_factor(chol_factorSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_coef(prior_mean, prior_prec, XtX, coef_ols, chol_factor));
+    rcpp_result_gen = Rcpp::wrap(ssvs_coef(prior_mean, prior_var, XtX, coef_ols, chol_factor));
     return rcpp_result_gen;
 END_RCPP
 }

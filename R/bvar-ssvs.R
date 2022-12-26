@@ -276,7 +276,7 @@ bvar_ssvs <- function(y,
     )
     # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
-    ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_warm + 1, to = num_iter, by = thinning)] # burn in
+    ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
     # Posterior mean-------------------------
     ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
