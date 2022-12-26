@@ -412,7 +412,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
         Rcpp::Named("sse") = sse_mat,
-        Rcpp::Named("coefficients") = coef_ols,
+        Rcpp::Named("coefols") = coef_ols,
         Rcpp::Named("choleskyols") = chol_ols,
         Rcpp::Named("chain") = chain
       );

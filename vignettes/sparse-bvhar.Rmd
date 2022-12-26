@@ -202,17 +202,19 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 - `bayes_spec`: SSVS specification using `set_ssvs()`.
 - `init_spec`: SSVS initialization specification using `init_ssvs()`.
 - `include_mean`: whether including the constant term in the model.
+- `verbose`: whether to display the progress bar.
 
 ```{r gibbs}
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 10000,
-  num_warm = 5000,
+  num_iter = 5000,
+  num_warm = 2500,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
-  include_mean = TRUE
+  include_mean = TRUE,
+  verbose = FALSE
 ))
 ```
 
@@ -354,6 +356,76 @@ mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 <!-- color_scheme_set("mix-blue-pink") -->
 <!-- mcmc_trace(fit_multiple$psi_record) -->
 <!-- ``` -->
+
+
+# Horseshoe Prior
+
+Consider the similar example for convenience.
+
+```{r hssetting}
+# coefficients----------------------------
+hs_coef <- var_coef
+for (i in seq_len(ncol(hs_coef))) {
+  hs_coef[i, -i] <- 1e-3
+}
+# precision-------------------------------
+hs_sig <- solve(var_chol %*% t(var_chol))
+```
+
+```{r hssimul}
+hs_data <- 
+  sim_var(
+    num_sim = 100,
+    num_burn = 50,
+    var_coef = hs_coef,
+    var_lag = 1,
+    sig_error = hs_sig,
+    init = matrix(runif(ncol(hs_coef)), nrow = 1, ncol = ncol(hs_coef)),
+    method = "chol"
+  )
+colnames(var_data) <- paste0("y", 1:6)
+```
+
+### Horseshoe spec
+
+- `init_local`: local shrinkage level $\lambda_j$
+- `init_global`: global shrinkage level $\tau$
+- `init_priorvar`: covariance matrix of the data
+
+```{r hsspec}
+(hs_spec <- set_horseshoe(init_local = rep(.2, 7), init_global = .1, cov(hs_data)))
+```
+
+
+### Gibbs sampling
+
+`bvar_horseshoe()` performs BVAR model with horseshoe prior estimation.
+
+- `y`: data
+- `p`: order
+- `num_iter`: Total number of iteration (including burn-in)
+- `num_warm`: The number of warm-up (burn-in)
+- `thinning`: Thinning
+- `bayes_spec`: SSVS specification using `set_horseshoe()`.
+- `include_mean`: whether including the constant term in the model.
+- `verbose`: whether to display the progress bar.
+
+```{r hsgibbs}
+(var_hs <- bvar_horseshoe(
+  y = hs_data,
+  p = 1,
+  num_iter = 5000,
+  num_warm = 2500,
+  thinning = 1,
+  bayes_spec = hs_spec,
+  include_mean = TRUE,
+  verbose = FALSE
+))
+```
+
+
+
+
 
 
 

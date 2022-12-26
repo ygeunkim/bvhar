@@ -215,7 +215,7 @@ bvar_ssvs <- function(y,
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
-  ssvs_res$alpha_posterior <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (ssvs_res$chain > 1) {
@@ -249,7 +249,7 @@ bvar_ssvs <- function(y,
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_warm + 1):num_iter] # burn in
     # Posterior mean-------------------------
-    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_design, dim_data, ssvs_res$chain))
+    ssvs_res$coefficients <- array(ssvs_res$coefficients, dim = c(dim_design, dim_data, ssvs_res$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
     
     
@@ -278,7 +278,7 @@ bvar_ssvs <- function(y,
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
     # Posterior mean-------------------------
-    ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
+    ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
