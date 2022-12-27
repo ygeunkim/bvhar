@@ -219,7 +219,6 @@ Eigen::VectorXd ssvs_coef_dummy(Eigen::VectorXd coef,
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param intercept_var Hyperparameter for constant term
-//' @param chain The number of MCMC chains.
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
@@ -241,7 +240,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd chol_slab,
                               Eigen::VectorXd chol_slab_weight,
                               double intercept_var,
-                              int chain,
                               bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
@@ -268,81 +266,24 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd chol_ols = lltOfscale.matrixU();
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
   // record-------------------------------------------------------
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef);
   coef_record.row(0) = init_coef;
-  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_restrict * chain);
+  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_restrict);
   coef_dummy_record.row(0) = init_coef_dummy;
-  Eigen::MatrixXd chol_diag_record = Eigen::MatrixXd::Zero(num_iter, dim * chain);
+  Eigen::MatrixXd chol_diag_record = Eigen::MatrixXd::Zero(num_iter, dim);
   chol_diag_record.row(0) = init_chol_diag;
-  Eigen::MatrixXd chol_upper_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol * chain);
+  Eigen::MatrixXd chol_upper_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol);
   chol_upper_record.row(0) = init_chol_upper;
-  Eigen::MatrixXd chol_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol * chain);
+  Eigen::MatrixXd chol_dummy_record = Eigen::MatrixXd::Zero(num_iter, num_upperchol);
   chol_dummy_record.row(0) = init_chol_dummy;
-  Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain); // 3d matrix alternative
+  Eigen::MatrixXd chol_factor_record = Eigen::MatrixXd::Zero(dim * num_iter, dim); // 3d matrix alternative
   // Some variables-----------------------------------------------
   Eigen::MatrixXd coef_mat = unvectorize(init_coef, dim_design, dim); // coefficient matrix to compute sse_mat
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::MatrixXd chol_mixture_mat(num_upperchol, num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Eigen::MatrixXd chol_prior_prec = Eigen::MatrixXd::Zero(num_upperchol, num_upperchol); // DjRjDj^(-1)
-  Progress p(chain * (num_iter - 1), display_progress);
+  Progress p(num_iter - 1, display_progress);
   // Start Gibbs sampling-----------------------------------------
-#ifdef _OPENMP
-  Rcpp::Rcout << "Use parallel" << std::endl;
-#pragma                  \
-  omp                    \
-    parallel             \
-    for                  \
-      num_threads(chain) \
-      shared(prior_mean, XtX, coefvec_ols, dim, dim_design, num_restrict, num_non, num_design, num_upperchol,
-             coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var)
-      for (int b = 0; b < chain; b++) {
-        for (int i = 1; i < num_iter; i++) {
-          // 1. Psi--------------------------
-          chol_mixture_mat = build_ssvs_sd(
-            chol_spike,
-            chol_slab,
-            chol_dummy_record.block(i - 1, b * num_upperchol, 1, num_upperchol)
-          );
-          chol_prior_prec = (chol_mixture_mat * chol_mixture_mat).inverse();
-          chol_diag_record.block(i, b * dim, 1, dim) = ssvs_chol_diag(sse_mat, chol_prior_prec, shape, rate, num_design);
-          // 2. eta---------------------------
-          chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_chol_off(sse_mat, chol_diag_record.block(i, b * dim, 1, dim), chol_prior_prec);
-          chol_factor_record.block(i * dim, b * dim, dim, dim) = build_chol(chol_diag_record.block(i, b * dim, 1, dim), chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol));
-          // 3. omega--------------------------
-          chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_chol_dummy(chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol), chol_spike, chol_slab, chol_slab_weight);
-          // 4. alpha--------------------------
-          coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol));
-          DRD = coef_mixture_mat * coef_mixture_mat;
-          if (num_non == dim) {
-            // constant case
-            for (int j = 0; j < dim; j++) {
-              prior_variance.block(j * dim_design, j * dim_design, num_restrict / dim, num_restrict / dim) =
-                DRD.block(j * num_restrict / dim, j * num_restrict / dim, num_restrict / dim, num_restrict / dim); // kp x kp
-              prior_variance(j * dim_design + num_restrict / dim, j * dim_design + num_restrict / dim) = intercept_var;
-            }
-          } else if (num_non == -dim) {
-            // no constant term
-            prior_variance = DRD;
-          }
-          coef_record.block(i, b * num_coef, 1, num_coef) = ssvs_coef(
-            prior_mean, 
-            prior_variance, 
-            XtX, 
-            coefvec_ols, 
-            chol_factor_record.block(i * dim, b * dim, dim, dim)
-          );
-          coef_mat = unvectorize(coef_record.block(i, b * num_coef, 1, num_coef), dim_design, dim);
-          sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
-          // 5. gamma-------------------------
-          coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_coef_dummy(
-            vectorize_eigen(coef_mat.topRows(num_restrict / dim)), 
-            coef_spike, 
-            coef_slab, 
-            coef_slab_weight
-          );
-        }
-      }
-#else
       for (int i = 1; i < num_iter; i++) {
         if (Progress::check_abort()) {
           return Rcpp::List::create(
@@ -354,8 +295,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
             Rcpp::Named("chol_record") = chol_factor_record,
             Rcpp::Named("sse") = sse_mat,
             Rcpp::Named("coefficients") = coef_ols,
-            Rcpp::Named("choleskyols") = chol_ols,
-            Rcpp::Named("chain") = chain
+            Rcpp::Named("choleskyols") = chol_ols
           );
         }
         p.increment();
@@ -403,7 +343,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
           coef_slab_weight
         );
       }
-#endif
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
         Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_warm),
@@ -413,7 +352,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
         Rcpp::Named("sse") = sse_mat,
         Rcpp::Named("coefols") = coef_ols,
-        Rcpp::Named("choleskyols") = chol_ols,
-        Rcpp::Named("chain") = chain
+        Rcpp::Named("choleskyols") = chol_ols
       );
 }

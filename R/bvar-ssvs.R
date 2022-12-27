@@ -48,6 +48,8 @@
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
+#' @importFrom foreach foreach %dopar%
+#' @importFrom doRNG %dorng%
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
@@ -205,7 +207,6 @@ bvar_ssvs <- function(y,
     chol_slab = bayes_spec$chol_slab, # eta slab
     chol_slab_weight = bayes_spec$chol_mixture, # qij
     intercept_var = bayes_spec$coef_non, # c for constant c I
-    chain = init_spec$chain,
     display_progress = verbose
   )
   # preprocess the results------------

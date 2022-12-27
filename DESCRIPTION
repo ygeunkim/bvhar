@@ -42,7 +42,8 @@ Imports:
     utils,
     stats,
     optimParallel,
-    posterior
+    posterior,
+    doRNG
 LinkingTo: 
     Rcpp,
     RcppEigen,
