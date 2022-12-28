@@ -369,7 +369,7 @@ bvar_niwhm <- function(y,
   metropolis_res$design <- X0
   metropolis_res$y <- y
   # return S3 object------
-  class(metropolis_res) <- c("bvarhm", "bvharmod")
+  class(metropolis_res) <- c("bvarhm", "bvharsp")
   metropolis_res
 }
 

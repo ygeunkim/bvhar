@@ -2,8 +2,8 @@
 % Please edit documentation in R/bvar-ssvs.R
 \name{bvar_ssvs}
 \alias{bvar_ssvs}
-\alias{print.bvarsp}
-\alias{knit_print.bvarsp}
+\alias{print.bvarssvs}
+\alias{knit_print.bvarssvs}
 \title{Fitting Bayesian VAR(p) of SSVS Prior}
 \usage{
 bvar_ssvs(
@@ -18,9 +18,9 @@ bvar_ssvs(
   verbose = FALSE
 )
 
-\method{print}{bvarsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{bvarssvs}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarsp(x, ...)
+knit_print.bvarssvs(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
@@ -41,14 +41,14 @@ knit_print.bvarsp(x, ...)
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
-\item{x}{\code{bvarsp} object}
+\item{x}{\code{bvarssvs} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 }
 \value{
-\code{bvar_ssvs} returns an object named \code{bvarsp} \link{class}.
+\code{bvar_ssvs} returns an object named \code{bvarssvs} \link{class}.
 It is a list with the following components:
 
 \describe{

@@ -10,6 +10,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -24,7 +25,7 @@
 #' 
 #' Gibbs sampler is used for the estimation.
 #' See [ssvs_bvar_algo] how it works.
-#' @return `bvar_ssvs` returns an object named `bvarsp` [class].
+#' @return `bvhar_ssvs` returns an object named `bvharssvs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -56,7 +57,8 @@ bvhar_ssvs <- function(y,
                        thinning = 1,
                        bayes_spec = set_ssvs(), 
                        init_spec = init_ssvs(),
-                       include_mean = TRUE) {
+                       include_mean = TRUE,
+                       verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -206,7 +208,8 @@ bvhar_ssvs <- function(y,
     chol_slab = bayes_spec$chol_slab, # eta slab
     chol_slab_weight = bayes_spec$chol_mixture, # qij
     intercept_var = bayes_spec$coef_non, # c for constant c I
-    chain = init_spec$chain
+    chain = init_spec$chain,
+    display_progress = verbose
   )
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
@@ -215,6 +218,9 @@ bvhar_ssvs <- function(y,
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
+  ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
+  ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (ssvs_res$chain > 1) {
     ssvs_res$alpha_record <- 
       split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
@@ -268,7 +274,7 @@ bvhar_ssvs <- function(y,
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_warm + 1, to = num_iter, by = thinning)] # burn in
     # Posterior mean-------------------------
-    ssvs_res$alpha_posterior <- matrix(ssvs_res$alpha_posterior, ncol = dim_data)
+    ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -301,17 +307,17 @@ bvhar_ssvs <- function(y,
   ssvs_res$design <- X0
   ssvs_res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvharsp", "bvharssvs", "bvharmod")
+  class(ssvs_res) <- c("bvharssvs", "bvharsp")
   ssvs_res
 }
 
 #' @rdname bvhar_ssvs
-#' @param x `bvharsp` object
+#' @param x `bvharssvs` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvharssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -334,17 +340,17 @@ print.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvhar_ssvs
-#' @param x `bvharsp` object
+#' @param x `bvharssvs` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvharsp <- function(x, ...) {
+knit_print.bvharssvs <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "bvharsp",
-  knit_print.bvharsp,
+  "knit_print", "bvharssvs",
+  knit_print.bvharssvs,
   envir = asNamespace("knitr")
 )

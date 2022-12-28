@@ -45,7 +45,7 @@ knit_print.bvarhs(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvar_horseshoe} returns an object named \link{class}.
+\code{bvar_horseshoe} returns an object named \code{bvarhs} \link{class}.
 It is a list with the following components:
 
 \describe{

@@ -10,7 +10,7 @@
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' @return `bvar_horseshoe` returns an object named [class].
+#' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -176,7 +176,7 @@ bvar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  class(res) <- c("bvarhs", "bvharmod")
+  class(res) <- c("bvarhs", "bvharsp")
   res
 }
 
@@ -215,3 +215,10 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 knit_print.bvarhs <- function(x, ...) {
   print(x)
 }
+
+#' @export
+registerS3method(
+  "knit_print", "bvarhs",
+  knit_print.bvarhs,
+  envir = asNamespace("knitr")
+)

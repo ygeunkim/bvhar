@@ -25,7 +25,7 @@
 #' 
 #' Gibbs sampler is used for the estimation.
 #' See [ssvs_bvar_algo] how it works.
-#' @return `bvar_ssvs` returns an object named `bvarsp` [class].
+#' @return `bvar_ssvs` returns an object named `bvarssvs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -309,17 +309,17 @@ bvar_ssvs <- function(y,
   ssvs_res$design <- X0
   ssvs_res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvarsp", "bvharssvs", "bvharmod")
+  class(ssvs_res) <- c("bvarssvs", "bvharsp")
   ssvs_res
 }
 
 #' @rdname bvar_ssvs
-#' @param x `bvarsp` object
+#' @param x `bvarssvs` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvarsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -342,17 +342,17 @@ print.bvarsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_ssvs
-#' @param x `bvarsp` object
+#' @param x `bvarssvs` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvarsp <- function(x, ...) {
+knit_print.bvarssvs <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "bvarsp",
-  knit_print.bvarsp,
+  "knit_print", "bvarssvs",
+  knit_print.bvarssvs,
   envir = asNamespace("knitr")
 )
