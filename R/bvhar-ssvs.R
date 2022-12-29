@@ -194,13 +194,13 @@ bvhar_ssvs <- function(y,
     num_warm = num_warm,
     x = X1,
     y = Y0,
-    init_coef = init_coef, # initial alpha
+    init_coef = init_coef, # initial phi
     init_chol_diag = init_chol_diag, # initial psi_jj
     init_chol_upper = init_chol_upper, # initial psi_ij
     init_coef_dummy = init_coef_dummy, # initial gamma
     init_chol_dummy = init_chol_dummy, # initial omega
-    coef_spike = bayes_spec$coef_spike, # alpha spike
-    coef_slab = bayes_spec$coef_slab, # alpha slab
+    coef_spike = bayes_spec$coef_spike, # phi spike
+    coef_slab = bayes_spec$coef_slab, # phi slab
     coef_slab_weight = bayes_spec$coef_mixture, # pj
     shape = bayes_spec$shape, # shape of gamma distn
     rate = bayes_spec$rate, # rate of gamma distn
@@ -212,18 +212,19 @@ bvhar_ssvs <- function(y,
     display_progress = verbose
   )
   # preprocess the results------------
+  names(ssvs_res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(ssvs_res))
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
-  ssvs_res$alpha_record <- ssvs_res$alpha_record[thin_id,]
+  ssvs_res$phi_record <- ssvs_res$phi_record[thin_id,]
   ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
-  ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$coefficients <- colMeans(ssvs_res$phi_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (ssvs_res$chain > 1) {
-    ssvs_res$alpha_record <- 
-      split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
+    ssvs_res$phi_record <- 
+      split_paramarray(ssvs_res$phi_record, chain = ssvs_res$chain, param_name = "phi") %>% 
       as_draws_df()
     ssvs_res$gamma_record <- 
       split_paramarray(ssvs_res$gamma_record, chain = ssvs_res$chain, param_name = "gamma") %>% 
@@ -238,7 +239,7 @@ bvhar_ssvs <- function(y,
       split_paramarray(ssvs_res$omega_record, chain = ssvs_res$chain, param_name = "omega") %>% 
       as_draws_df()
     ssvs_res$param <- bind_draws(
-      ssvs_res$alpha_record, 
+      ssvs_res$phi_record, 
       ssvs_res$gamma_record,
       ssvs_res$psi_record,
       ssvs_res$eta_record,
@@ -248,23 +249,23 @@ bvhar_ssvs <- function(y,
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_warm + 1):num_iter] # burn in
     # Posterior mean-------------------------
-    ssvs_res$alpha_posterior <- array(ssvs_res$alpha_posterior, dim = c(dim_har, dim_data, ssvs_res$chain))
+    ssvs_res$coefficients <- array(ssvs_res$coefficients, dim = c(dim_har, dim_data, ssvs_res$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
     
     
   } else {
-    colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
+    colnames(ssvs_res$phi_record) <- paste0("phi[", seq_len(ncol(ssvs_res$phi_record)), "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
-    ssvs_res$alpha_record <- as_draws_df(ssvs_res$alpha_record)
+    ssvs_res$phi_record <- as_draws_df(ssvs_res$phi_record)
     ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
     ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
     ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
     ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
     ssvs_res$param <- bind_draws(
-      ssvs_res$alpha_record, 
+      ssvs_res$phi_record,
       ssvs_res$gamma_record,
       ssvs_res$psi_record,
       ssvs_res$eta_record,
@@ -322,7 +323,7 @@ print.bvharssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
-  cat("BVHAR with Hierarchical Prior\n")
+  cat("BVHAR with SSVS Prior\n")
   cat("Fitted by Gibbs sampling\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of warm-up: ", x$burn, "\n"))

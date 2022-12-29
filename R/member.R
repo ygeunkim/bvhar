@@ -193,6 +193,6 @@ is.bvharpriorspec <- function(x) {
 
 #' @rdname is.varlse
 #' @export
-is.horseshoeinit <- function(x) {
-  inherits(x, "horseshoeinit")
+is.horseshoespec <- function(x) {
+  inherits(x, "horseshoespec")
 }

@@ -361,27 +361,29 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 
 # Horseshoe Prior
 
+## Horseshoe Prior for VAR
+
 Consider the similar example for convenience.
 
 ```{r hssetting}
 # coefficients----------------------------
-hs_coef <- var_coef
-for (i in seq_len(ncol(hs_coef))) {
-  hs_coef[i, -i] <- 1e-3
+hsvar_coef <- var_coef
+for (i in seq_len(ncol(hsvar_coef))) {
+  hsvar_coef[i, -i] <- 1e-3
 }
 # precision-------------------------------
 hs_sig <- solve(var_chol %*% t(var_chol))
 ```
 
 ```{r hssimul}
-hs_data <- 
+hsvar_data <- 
   sim_var(
     num_sim = 100,
     num_burn = 50,
-    var_coef = hs_coef,
+    var_coef = hsvar_coef,
     var_lag = 1,
     sig_error = hs_sig,
-    init = matrix(runif(ncol(hs_coef)), nrow = 1, ncol = ncol(hs_coef)),
+    init = matrix(runif(ncol(hsvar_coef)), nrow = 1, ncol = ncol(hsvar_coef)),
     method = "chol"
   )
 colnames(var_data) <- paste0("y", 1:6)
@@ -394,7 +396,7 @@ colnames(var_data) <- paste0("y", 1:6)
 - `init_priorvar`: covariance matrix of the data
 
 ```{r hsspec}
-(hs_spec <- set_horseshoe(init_local = rep(.2, 7), init_global = .1, cov(hs_data)))
+(hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(hs_data)))
 ```
 
 
@@ -407,13 +409,13 @@ colnames(var_data) <- paste0("y", 1:6)
 - `num_iter`: Total number of iteration (including burn-in)
 - `num_warm`: The number of warm-up (burn-in)
 - `thinning`: Thinning
-- `bayes_spec`: SSVS specification using `set_horseshoe()`.
+- `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
 - `include_mean`: whether including the constant term in the model.
 - `verbose`: whether to display the progress bar.
 
 ```{r hsgibbs}
 (var_hs <- bvar_horseshoe(
-  y = hs_data,
+  y = hsvar_data,
   p = 1,
   num_iter = 5000,
   num_warm = 2500,
@@ -424,9 +426,56 @@ colnames(var_data) <- paste0("y", 1:6)
 ))
 ```
 
+## Horseshoe Prior for VHAR
 
+```{r hsvharsimul}
+# coefficients for VHAR------------
+hsvhar_coef <- vhar_coef
+for (i in seq_len(ncol(hsvhar_coef))) {
+  hsvhar_coef[i, -i] <- 1e-3
+}
+# simulation-----------------------
+hsvhar_data <- 
+  sim_vhar(
+    num_sim = 100,
+    num_burn = 50,
+    vhar_coef = hsvhar_coef,
+    sig_error = hs_sig,
+    method = "chol"
+  )
+colnames(var_data) <- paste0("y", 1:6)
+```
 
+Local shrinkage levels are also given to each row of the coefficients matrix.
+Here, VHAR coefficient.
 
+```{r hsvharspec}
+(hsvhar_spec <- set_horseshoe(local_sparsity = rep(.2, 3 * ncol(hsvhar_data) + 1), global_sparsity = .1, cov(hsvhar_data)))
+```
+
+`bvhar_horseshoe()` performs BVHAR model with horseshoe prior estimation.
+
+- `y`: data
+- `har`: `(week, month)` order.
+- `num_iter`: Total number of iteration (including burn-in)
+- `num_warm`: The number of warm-up (burn-in)
+- `thinning`: Thinning
+- `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
+- `include_mean`: whether including the constant term in the model.
+- `verbose`: whether to display the progress bar.
+
+```{r hsvharfit}
+(vhar_hs <- bvhar_horseshoe(
+  y = hsvhar_data,
+  har = c(5, 22),
+  num_iter = 1000,
+  num_warm = 500,
+  thinning = 1,
+  bayes_spec = hsvhar_spec,
+  include_mean = TRUE,
+  verbose = FALSE
+))
+```
 
 
 

@@ -1,16 +1,16 @@
-#' Fitting Bayesian VAR(p) of Horseshoe Prior
+#' Fitting Bayesian VHAR of Horseshoe Prior
 #' 
-#' This function fits BVAR(p) with horseshoe prior.
+#' This function fits VHAR with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param p VAR lag
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param num_iter MCMC iteration number
 #' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
+#' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -32,14 +32,14 @@
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
-bvar_horseshoe <- function(y,
-                           p,
-                           num_iter = 1000, 
-                           num_warm = floor(num_iter / 2),
-                           thinning = 1,
-                           bayes_spec = set_horseshoe(),
-                           include_mean = TRUE,
-                           verbose = FALSE) {
+bvhar_horseshoe <- function(y,
+                            har = c(5, 22),
+                            num_iter = 1000, 
+                            num_warm = floor(num_iter / 2),
+                            thinning = 1,
+                            bayes_spec = set_horseshoe(),
+                            include_mean = TRUE,
+                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -60,8 +60,8 @@ bvar_horseshoe <- function(y,
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
   }
-  # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  # Y0 = X1 Phi + Z-------------------
+  Y0 <- build_y0(y, har[2], har[2] + 1)
   dim_data <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -69,13 +69,17 @@ bvar_horseshoe <- function(y,
     name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, p, include_mean)
-  name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
+  X0 <- build_design(y, har[2], include_mean)
+  name_lag <- concatenate_colnames(name_var, 1:har[2], include_mean)
   colnames(X0) <- name_lag
+  hartrans_mat <- scale_har(dim_data, har[1], har[2], include_mean)
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
+  X1 <- X0 %*% t(hartrans_mat)
+  colnames(X1) <- name_har
   # Initial vectors-------------------
-  dim_design <- ncol(X0)
+  dim_har <- ncol(X1)
   if (bayes_spec$chain == 1) {
-    if (length(bayes_spec$local_sparsity) != dim_design) {
+    if (length(bayes_spec$local_sparsity) != dim_har) {
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
     if (ncol(bayes_spec$init_priorvar) != dim_data) {
@@ -85,7 +89,7 @@ bvar_horseshoe <- function(y,
     init_global <- bayes_spec$global_sparsity
     init_priorvar <- bayes_spec$init_priorvar
   } else {
-    if (length(bayes_spec$local_sparsity[[1]]) != dim_design) {
+    if (length(bayes_spec$local_sparsity[[1]]) != dim_har) {
       stop("Every length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
     if (ncol(bayes_spec$init_priorvar[[1]]) != dim_data) {
@@ -99,7 +103,7 @@ bvar_horseshoe <- function(y,
   res <- estimate_horseshoe_niw(
     num_iter = num_iter,
     num_warm = num_warm,
-    x = X0,
+    x = X1,
     y = Y0,
     init_local = init_local,
     init_global = init_global,
@@ -108,18 +112,19 @@ bvar_horseshoe <- function(y,
     display_progress = verbose
   )
   # preprocess the results-----------
+  names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   if (res$chain > 1) {
     # 
   } else {
-    res$alpha_record <- res$alpha_record[thin_id,]
-    colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
+    res$phi_record <- res$phi_record[thin_id,]
+    colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
     res$coefficients <- 
-      colMeans(res$alpha_record) %>% 
+      colMeans(res$phi_record) %>% 
       matrix(ncol = dim_data)
     colnames(res$coefficients) <- name_var
     rownames(res$coefficients) <- name_lag
-    res$alpha_record <- as_draws_df(res$alpha_record)
+    res$phi_record <- as_draws_df(res$phi_record)
     res$lambda_record <- res$lambda_record[thin_id,]
     colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
     res$lambda_record <- as_draws_df(res$lambda_record)
@@ -145,7 +150,7 @@ bvar_horseshoe <- function(y,
     res$eta_record <- as_draws_df(res$eta_record)
   }
   res$param <- bind_draws(
-    res$alpha_record,
+    res$phi_record,
     res$lambda_record,
     res$tau_record,
     res$omega_record,
@@ -153,7 +158,9 @@ bvar_horseshoe <- function(y,
   )
   # variables------------
   res$df <- ncol(X0)
-  res$p <- p
+  res$p <- 3
+  res$week <- har[1]
+  res$month <- har[2]
   res$m <- ncol(y)
   res$obs <- nrow(Y0)
   res$totobs <- nrow(y)
@@ -170,22 +177,22 @@ bvar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  class(res) <- c("bvarhs", "bvharsp")
+  class(res) <- c("bvharhs", "bvharsp")
   res
 }
 
-#' @rdname bvar_horseshoe
-#' @param x `bvarhs` object
+#' @rdname bvhar_horseshoe
+#' @param x `bvharhs` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.bvharhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
-  cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
+  cat("BVHAR with Horseshoe Prior\n")
   cat("Fitted by Gibbs sampling\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of warm-up: ", x$burn, "\n"))
@@ -202,17 +209,17 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_horseshoe
-#' @param x `bvarhs` object
+#' @param x `bvharhs` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.bvarhs <- function(x, ...) {
+knit_print.bvharhs <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "bvarhs",
-  knit_print.bvarhs,
+  "knit_print", "bvharhs",
+  knit_print.bvharhs,
   envir = asNamespace("knitr")
 )
