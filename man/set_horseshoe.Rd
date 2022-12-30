@@ -6,7 +6,7 @@
 \alias{knit_print.horseshoespec}
 \title{Horseshoe Prior Specification}
 \usage{
-set_horseshoe(local_sparsity, global_sparsity = 0.1, init_priorvar)
+set_horseshoe(local_sparsity, global_sparsity = 0.1, init_cov)
 
 \method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -17,7 +17,7 @@ knit_print.horseshoespec(x, ...)
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{init_priorvar}{Initial variance of the error term}
+\item{init_cov}{Initial variance of the error term}
 
 \item{x}{\code{horseshoespec} object}
 
@@ -33,7 +33,7 @@ Set horseshoe prior initialization for VAR family.
 \itemize{
 \item \code{local_sparsity}: Local shrinkage for each row of coefficients matrix.
 \item \code{global_sparsity}: (Initial) global shrinkage.
-\item \code{init_priorvar}: Initial covariance matrix.
+\item \code{init_cov}: Initial covariance matrix.
 }
 
 In this package, horseshoe prior model is estimated by Gibbs sampling,

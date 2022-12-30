@@ -34,6 +34,12 @@ coef.bvharmn <- function(object, ...) {
   object$coefficients
 }
 
+#' @rdname coef.varlse
+#' @export
+coef.bvharsp <- function(object, ...) {
+  object$coefficients
+}
+
 #' Residual Matrix from Multivariate Time Series Models
 #' 
 #' By defining [stats::residuals()] for each model, this function returns residual.

@@ -81,22 +81,22 @@ bvhar_horseshoe <- function(y,
     if (length(bayes_spec$local_sparsity) != dim_har) {
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
-    if (ncol(bayes_spec$init_priorvar) != dim_data) {
-      stop("Dimension of the matrix 'init_priorvar' should be dim x dim.")
+    if (ncol(bayes_spec$init_cov) != dim_data) {
+      stop("Dimension of the matrix 'init_cov' should be dim x dim.")
     }
     init_local <- bayes_spec$local_sparsity
     init_global <- bayes_spec$global_sparsity
-    init_priorvar <- bayes_spec$init_priorvar
+    init_priorvar <- bayes_spec$init_cov
   } else {
     if (length(bayes_spec$local_sparsity[[1]]) != dim_har) {
       stop("Every length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
-    if (ncol(bayes_spec$init_priorvar[[1]]) != dim_data) {
-      stop("Every dimension of the matrix 'init_priorvar' should be dim x dim.")
+    if (ncol(bayes_spec$init_cov[[1]]) != dim_data) {
+      stop("Every dimension of the matrix 'init_cov' should be dim x dim.")
     }
     init_local <- unlist(bayes_spec$local_sparsity)
     init_global <- bayes_spec$global_sparsity
-    init_priorvar <- bayes_spec$init_priorvar
+    init_priorvar <- bayes_spec$init_cov
   }
   # MCMC-----------------------------
   res <- estimate_horseshoe_niw(

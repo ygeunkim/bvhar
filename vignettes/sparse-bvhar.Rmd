@@ -30,7 +30,7 @@ set.seed(1)
 library(bvhar)
 ```
 
-```{r otherpkg}
+```{r otherpkg, message=FALSE}
 # Bayes plot---------
 library(bayesplot)
 ```
@@ -208,8 +208,8 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 500,
-  num_warm = 250,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
@@ -225,47 +225,17 @@ Since each parameter element is `posterior::draws_df` format, `bayesplot` packag
 
 ```{r psiplot}
 color_scheme_set("blue")
-mcmc_trace(var_ssvs$param, regex_pars = "psi")
+autoplot(var_ssvs, type = "trace", regex_pars = "psi")
 ```
 
 ```{r alphadens}
-mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
+autoplot(var_ssvs, type = "dens", pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 ```
 
 
 ## SSVS for VHAR Model
 
 6 variable VHAR:
-
-```{r truevharcoef}
-vhar_coef <- matrix(0L, nrow = 6 * 3 + 1, ncol = 6)
-diag(vhar_coef[1:6,]) <- .2
-diag(vhar_coef[7:12,]) <- .2
-diag(vhar_coef[13:18,]) <- .2
-vhar_coef[19,] <- 1
-vhar_coef
-```
-
-and the same Cholesky factor with above example:
-
-```{r truevharchol}
-(vhar_chol <- var_chol)
-```
-
-```{r vharsimul}
-vhar_data <-
-  sim_vhar(
-    num_sim = 100,
-    num_burn = 50,
-    vhar_coef = vhar_coef,
-    week = 5,
-    month = 22,
-    sig_error = solve(vhar_chol %*% t(vhar_chol)),
-    method = "chol"
-  )
-colnames(vhar_data) <- paste0("y", 1:6)
-```
-
 
 ```{r initvhar}
 # Upper triangular matrix----------------------
@@ -284,10 +254,10 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 
 ```{r gibbsvhar}
 (vhar_ssvs <- bvhar_ssvs(
-  y = vhar_data,
+  y = var_data,
   har = c(5, 22),
-  num_iter = 500,
-  num_warm = 250,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = initvhar_spec,
@@ -301,32 +271,6 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 
 ## Horseshoe Prior for VAR
 
-Consider the similar example for convenience.
-
-```{r hssetting}
-# coefficients----------------------------
-hsvar_coef <- var_coef
-for (i in seq_len(ncol(hsvar_coef))) {
-  hsvar_coef[i, -i] <- 1e-3
-}
-# precision-------------------------------
-hs_sig <- solve(var_chol %*% t(var_chol))
-```
-
-```{r hssimul}
-hsvar_data <- 
-  sim_var(
-    num_sim = 100,
-    num_burn = 50,
-    var_coef = hsvar_coef,
-    var_lag = 1,
-    sig_error = hs_sig,
-    init = matrix(runif(ncol(hsvar_coef)), nrow = 1, ncol = ncol(hsvar_coef)),
-    method = "chol"
-  )
-colnames(var_data) <- paste0("y", 1:6)
-```
-
 ### Horseshoe spec
 
 - `init_local`: local shrinkage level $\lambda_j$
@@ -334,9 +278,8 @@ colnames(var_data) <- paste0("y", 1:6)
 - `init_priorvar`: covariance matrix of the data
 
 ```{r hsspec}
-(hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(hs_data)))
+(hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(var_data)))
 ```
-
 
 ### Gibbs sampling
 
@@ -353,10 +296,10 @@ colnames(var_data) <- paste0("y", 1:6)
 
 ```{r hsgibbs}
 (var_hs <- bvar_horseshoe(
-  y = hsvar_data,
+  y = var_data,
   p = 1,
-  num_iter = 500,
-  num_warm = 250,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
@@ -366,29 +309,11 @@ colnames(var_data) <- paste0("y", 1:6)
 
 ## Horseshoe Prior for VHAR
 
-```{r hsvharsimul}
-# coefficients for VHAR------------
-hsvhar_coef <- vhar_coef
-for (i in seq_len(ncol(hsvhar_coef))) {
-  hsvhar_coef[i, -i] <- 1e-3
-}
-# simulation-----------------------
-hsvhar_data <- 
-  sim_vhar(
-    num_sim = 100,
-    num_burn = 50,
-    vhar_coef = hsvhar_coef,
-    sig_error = hs_sig,
-    method = "chol"
-  )
-colnames(var_data) <- paste0("y", 1:6)
-```
-
 Local shrinkage levels are also given to each row of the coefficients matrix.
 Here, VHAR coefficient.
 
 ```{r hsvharspec}
-(hsvhar_spec <- set_horseshoe(local_sparsity = rep(.2, 3 * ncol(hsvhar_data) + 1), global_sparsity = .1, cov(hsvhar_data)))
+(hsvhar_spec <- set_horseshoe(local_sparsity = rep(.2, 3 * ncol(var_data) + 1), global_sparsity = .1, cov(var_data)))
 ```
 
 `bvhar_horseshoe()` performs BVHAR model with horseshoe prior estimation.
@@ -404,10 +329,10 @@ Here, VHAR coefficient.
 
 ```{r hsvharfit}
 (vhar_hs <- bvhar_horseshoe(
-  y = hsvhar_data,
+  y = var_data,
   har = c(5, 22),
-  num_iter = 500,
-  num_warm = 250,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 1,
   bayes_spec = hsvhar_spec,
   include_mean = TRUE,
