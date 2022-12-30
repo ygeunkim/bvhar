@@ -208,8 +208,8 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 2000,
-  num_warm = 1000,
+  num_iter = 500,
+  num_warm = 250,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
@@ -286,8 +286,8 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 (vhar_ssvs <- bvhar_ssvs(
   y = vhar_data,
   har = c(5, 22),
-  num_iter = 1000,
-  num_warm = 500,
+  num_iter = 500,
+  num_warm = 250,
   thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = initvhar_spec,
@@ -295,68 +295,6 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
   verbose = FALSE
 ))
 ```
-
-
-<!-- ### Multiple Initial values -->
-
-<!-- When initializing multiple chain MCMC, use 3d array or list. -->
-
-<!-- ```{r diagnostics} -->
-<!-- # Random initial coefficients----------------------------- -->
-<!-- init_coefarray <- array(runif(7 * 6 * 6, -2, 2), dim = c(7, 6, 6)) -->
-<!-- init_coefarray[,,6] <- matrix(0L, nrow = 7, ncol = 6) -->
-<!-- init_coefarray[,,1] <- init_spec$init_coef -->
-<!-- # Always starts with unrestricted model-------------------- -->
-<!-- init_coef_dummyarray <- array(1L, dim = c(6, 6, 6)) -->
-<!-- # init_coef_dummyarray[,,6] <- init_spec$init_coef_dummy -->
-<!-- # Random upper triangular cholesky factor----------------- -->
-<!-- # init_chollist <- array(0L, dim = c(6, 6, 5)) -->
-<!-- init_chollist <- lapply(1:6, function(x) matrix(0L, nrow = 6L, ncol = 6L)) -->
-<!-- init_chollist[2:6] <- lapply( -->
-<!--   1:5, -->
-<!--   function(x) { -->
-<!--     x <- diag(rgamma(6, shape = 1, rate = 1)) -->
-<!--     x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2) -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- init_chollist[[1]] <- init_spec$init_chol -->
-<!-- # Always starts with unrestricted eta--------------------- -->
-<!-- init_omegalist <- lapply( -->
-<!--   1:6, -->
-<!--   function(x) { -->
-<!--     x <- matrix(1L, nrow = 6L, ncol = 6L) -->
-<!--     x[lower.tri(x, diag = TRUE)] <- 0L -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- # init_omegalist[[6]] <- init_spec$init_chol_dummy -->
-<!-- # Initialize---------------------------------------------- -->
-<!-- (init_multi <- init_ssvs( -->
-<!--   init_coef = init_coefarray, -->
-<!--   init_coef_dummy = init_coef_dummyarray, -->
-<!--   init_chol = init_chollist, -->
-<!--   init_chol_dummy = init_chollist -->
-<!-- )) -->
-<!-- ``` -->
-
-<!-- ```{r multiplessvs} -->
-<!-- fit_multiple <- bvar_ssvs( -->
-<!--   y = var_sample[[1]], -->
-<!--   p = 1, -->
-<!--   num_iter = 1000, -->
-<!--   num_warm = 0, -->
-<!--   thinning = 1, -->
-<!--   bayes_spec = ssvs_spec, -->
-<!--   init_spec = init_multi, -->
-<!--   include_mean = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-
-<!-- ```{r aplot} -->
-<!-- color_scheme_set("mix-blue-pink") -->
-<!-- mcmc_trace(fit_multiple$psi_record) -->
-<!-- ``` -->
 
 
 # Horseshoe Prior
@@ -417,8 +355,8 @@ colnames(var_data) <- paste0("y", 1:6)
 (var_hs <- bvar_horseshoe(
   y = hsvar_data,
   p = 1,
-  num_iter = 5000,
-  num_warm = 2500,
+  num_iter = 500,
+  num_warm = 250,
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
@@ -468,17 +406,13 @@ Here, VHAR coefficient.
 (vhar_hs <- bvhar_horseshoe(
   y = hsvhar_data,
   har = c(5, 22),
-  num_iter = 1000,
-  num_warm = 500,
+  num_iter = 500,
+  num_warm = 250,
   thinning = 1,
   bayes_spec = hsvhar_spec,
   include_mean = TRUE,
   verbose = FALSE
 ))
 ```
-
-
-
-
 
 

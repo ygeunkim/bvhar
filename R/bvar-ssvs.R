@@ -288,6 +288,16 @@ bvar_ssvs <- function(y,
       ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
     }
     ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
+    # names of posterior mean-----------------
+    colnames(ssvs_res$coefficients) <- name_var
+    rownames(ssvs_res$coefficients) <- name_lag
+    colnames(ssvs_res$omega_posterior) <- name_var
+    rownames(ssvs_res$omega_posterior) <- name_var
+    colnames(ssvs_res$gamma_posterior) <- name_var
+    rownames(ssvs_res$gamma_posterior) <- name_lag
+    colnames(ssvs_res$chol_posterior) <- name_var
+    rownames(ssvs_res$chol_posterior) <- name_var
+    ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
   }
   # variables------------
   ssvs_res$df <- dim_design

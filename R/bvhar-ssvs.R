@@ -96,8 +96,7 @@ bvhar_ssvs <- function(y,
     stop("'include_mean' is logical.")
   }
   X0 <- build_design(y, har[2], include_mean) # n x dim_design
-  name_lag <- concatenate_colnames(name_var, 1:har[2], include_mean)
-  colnames(X0) <- name_lag
+  colnames(X0) <- concatenate_colnames(name_var, 1:har[2], include_mean)
   hartrans_mat <- scale_har(dim_data, har[1], har[2], include_mean)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
   X1 <- X0 %*% t(hartrans_mat)
@@ -273,7 +272,7 @@ bvhar_ssvs <- function(y,
     )
     # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
-    ssvs_res$chol_record <- ssvs_res$chol_record[seq(from = num_warm + 1, to = num_iter, by = thinning)] # burn in
+    ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
@@ -284,6 +283,17 @@ bvhar_ssvs <- function(y,
     if (include_mean) {
       ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
     }
+    ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
+    # names of posterior mean-----------------
+    colnames(ssvs_res$coefficients) <- name_var
+    rownames(ssvs_res$coefficients) <- name_har
+    colnames(ssvs_res$omega_posterior) <- name_var
+    rownames(ssvs_res$omega_posterior) <- name_var
+    colnames(ssvs_res$gamma_posterior) <- name_var
+    rownames(ssvs_res$gamma_posterior) <- name_har
+    colnames(ssvs_res$chol_posterior) <- name_var
+    rownames(ssvs_res$chol_posterior) <- name_var
+    ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
   }
   # variables------------
   ssvs_res$df <- dim_har

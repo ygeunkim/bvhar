@@ -128,9 +128,10 @@ bvar_horseshoe <- function(y,
     res$tau_record <- as_draws_df(res$tau_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
-    res$covmat <- Reduce("+", res$psi_record) / length(res$psi_record)
-    colnames(res$covmat) <- name_var
-    rownames(res$covmat) <- name_var
+    res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+    colnames(res$psi_posterior) <- name_var
+    rownames(res$psi_posterior) <- name_var
+    res$covmat <- solve(res$psi_posterior)
     # diagonal of precision
     res$omega_record <- 
       lapply(res$psi_record, diag) %>% 

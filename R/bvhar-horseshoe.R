@@ -70,8 +70,7 @@ bvhar_horseshoe <- function(y,
   }
   colnames(Y0) <- name_var
   X0 <- build_design(y, har[2], include_mean)
-  name_lag <- concatenate_colnames(name_var, 1:har[2], include_mean)
-  colnames(X0) <- name_lag
+  colnames(X0) <- concatenate_colnames(name_var, 1:har[2], include_mean)
   hartrans_mat <- scale_har(dim_data, har[1], har[2], include_mean)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
   X1 <- X0 %*% t(hartrans_mat)
@@ -123,7 +122,7 @@ bvhar_horseshoe <- function(y,
       colMeans(res$phi_record) %>% 
       matrix(ncol = dim_data)
     colnames(res$coefficients) <- name_var
-    rownames(res$coefficients) <- name_lag
+    rownames(res$coefficients) <- name_har
     res$phi_record <- as_draws_df(res$phi_record)
     res$lambda_record <- res$lambda_record[thin_id,]
     colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
@@ -133,9 +132,10 @@ bvhar_horseshoe <- function(y,
     res$tau_record <- as_draws_df(res$tau_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
-    res$covmat <- Reduce("+", res$psi_record) / length(res$psi_record)
-    colnames(res$covmat) <- name_var
-    rownames(res$covmat) <- name_var
+    res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+    colnames(res$psi_posterior) <- name_var
+    rownames(res$psi_posterior) <- name_var
+    res$covmat <- solve(res$psi_posterior)
     # diagonal of precision
     res$omega_record <- 
       lapply(res$psi_record, diag) %>% 
