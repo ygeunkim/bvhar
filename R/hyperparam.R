@@ -482,19 +482,19 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
   res
 }
 
-#' Initial Hyperparameters of Horseshoe Prior
+#' Horseshoe Prior Specification
 #' 
-#' Set initial hyperparameters before starting Gibbs sampler for Horseshoe prior.
+#' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
 #' 
-#' @param init_local Initial local shrinkage hyperparameters
-#' @param init_global Initial global shrinkage hyperparameter
-#' @param init_priorvar Initial variance of the error term
+#' @param local_sparsity Initial local shrinkage hyperparameters
+#' @param global_sparsity Initial global shrinkage hyperparameter
+#' @param init_cov Initial variance of the error term
 #' @details 
 #' Set horseshoe prior initialization for VAR family.
 #' 
-#' * `init_local`: (Initial) local shrinkage for each row of coefficients matrix.
-#' * `init_global`: (Initial) global shrinkage.
-#' * `init_priorvar`: Initial covariance matrix.
+#' * `local_sparsity`: Local shrinkage for each row of coefficients matrix.
+#' * `global_sparsity`: (Initial) global shrinkage.
+#' * `init_cov`: Initial covariance matrix.
 #' 
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.
@@ -504,48 +504,48 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @order 1
 #' @export
-set_horseshoe <- function(init_local, init_global, init_priorvar) {
-  if (is.matrix(init_local) &&
-      length(init_global) > 1 &&
-      (length(dim(init_priorvar) == 3) || is.list(init_priorvar) || is.matrix(init_priorvar))) {
-    init_local <- lapply(
-      seq_len(dim(init_local)[2]),
-      function(k) init_local[, k]
+set_horseshoe <- function(local_sparsity, global_sparsity = .1, init_cov) {
+  if (is.matrix(local_sparsity) &&
+      length(global_sparsity) > 1 &&
+      (length(dim(init_cov) == 3) || is.list(init_cov) || is.matrix(init_cov))) {
+    local_sparsity <- lapply(
+      seq_len(dim(local_sparsity)[2]),
+      function(k) local_sparsity[, k]
     )
-    isnot_identical(init_local, case = "dim")
-    isnot_identical(init_local, case = "values")
-    if (length(dim(init_priorvar)) == 3) {
-      init_priorvar <- lapply(
-        seq_len(dim(init_priorvar)[3]),
-        function(k) init_priorvar[,, k]
+    isnot_identical(local_sparsity, case = "dim")
+    isnot_identical(local_sparsity, case = "values")
+    if (length(dim(init_cov)) == 3) {
+      init_cov <- lapply(
+        seq_len(dim(init_cov)[3]),
+        function(k) init_cov[,, k]
       )
     }
-    isnot_identical(init_priorvar, case = "dim")
-    isnot_identical(init_priorvar, case = "values")
-    num_chain <- length(init_global)
+    isnot_identical(init_cov, case = "dim")
+    isnot_identical(init_cov, case = "values")
+    num_chain <- length(global_sparsity)
   } else {
-    if (!is.vector(init_local)) {
-      stop("'init_local' should be a vector.")
+    if (!is.vector(local_sparsity)) {
+      stop("'local_sparsity' should be a vector.")
     }
-    if (!is.matrix(init_priorvar)) {
-      stop("'init_priorvar' should be a matrix.")
+    if (!is.matrix(init_cov)) {
+      stop("'init_cov' should be a matrix.")
     }
-    if (ncol(init_priorvar) != nrow(init_priorvar)) {
-      stop("'init_priorvar' should be a square matrix.")
+    if (ncol(init_cov) != nrow(init_cov)) {
+      stop("'init_cov' should be a square matrix.")
     }
-    if (length(init_global) > 1) {
-      stop("'init_global' should be a scalar.")
+    if (length(global_sparsity) > 1) {
+      stop("'global_sparsity' should be a scalar.")
     }
     num_chain <- 1
   }
   res <- list(
     process = "BVAR",
     prior = "Horseshoe",
-    init_local = init_local,
-    init_global = init_global,
-    init_priorvar = init_priorvar,
+    local_sparsity = local_sparsity,
+    global_sparsity = global_sparsity,
+    init_cov = init_cov,
     chain = num_chain
   )
-  class(res) <- "horseshoeinit"
+  class(res) <- "horseshoespec"
   res
 }

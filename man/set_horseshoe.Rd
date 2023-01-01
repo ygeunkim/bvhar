@@ -2,38 +2,38 @@
 % Please edit documentation in R/hyperparam.R, R/print-bvharspec.R
 \name{set_horseshoe}
 \alias{set_horseshoe}
-\alias{print.horseshoeinit}
-\alias{knit_print.horseshoeinit}
-\title{Initial Hyperparameters of Horseshoe Prior}
+\alias{print.horseshoespec}
+\alias{knit_print.horseshoespec}
+\title{Horseshoe Prior Specification}
 \usage{
-set_horseshoe(init_local, init_global, init_priorvar)
+set_horseshoe(local_sparsity, global_sparsity = 0.1, init_cov)
 
-\method{print}{horseshoeinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.horseshoeinit(x, ...)
+knit_print.horseshoespec(x, ...)
 }
 \arguments{
-\item{init_local}{Initial local shrinkage hyperparameters}
+\item{local_sparsity}{Initial local shrinkage hyperparameters}
 
-\item{init_global}{Initial global shrinkage hyperparameter}
+\item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{init_priorvar}{Initial variance of the error term}
+\item{init_cov}{Initial variance of the error term}
 
-\item{x}{\code{horseshoeinit} object}
+\item{x}{\code{horseshoespec} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 }
 \description{
-Set initial hyperparameters before starting Gibbs sampler for Horseshoe prior.
+Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
 }
 \details{
 Set horseshoe prior initialization for VAR family.
 \itemize{
-\item \code{init_local}: (Initial) local shrinkage for each row of coefficients matrix.
-\item \code{init_global}: (Initial) global shrinkage.
-\item \code{init_priorvar}: Initial covariance matrix.
+\item \code{local_sparsity}: Local shrinkage for each row of coefficients matrix.
+\item \code{global_sparsity}: (Initial) global shrinkage.
+\item \code{init_cov}: Initial covariance matrix.
 }
 
 In this package, horseshoe prior model is estimated by Gibbs sampling,

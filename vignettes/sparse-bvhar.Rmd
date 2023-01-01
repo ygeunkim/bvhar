@@ -30,7 +30,7 @@ set.seed(1)
 library(bvhar)
 ```
 
-```{r otherpkg}
+```{r otherpkg, message=FALSE}
 # Bayes plot---------
 library(bayesplot)
 ```
@@ -208,8 +208,8 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 (var_ssvs <- bvar_ssvs(
   y = var_data,
   p = 1,
-  num_iter = 5000,
-  num_warm = 2500,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
@@ -225,166 +225,51 @@ Since each parameter element is `posterior::draws_df` format, `bayesplot` packag
 
 ```{r psiplot}
 color_scheme_set("blue")
-mcmc_trace(var_ssvs$param, regex_pars = "psi")
+autoplot(var_ssvs, type = "trace", regex_pars = "psi")
 ```
 
 ```{r alphadens}
-mcmc_dens(var_ssvs$param, pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
+autoplot(var_ssvs, type = "dens", pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 ```
 
 
-<!-- ## SSVS for VHAR Model -->
+## SSVS for VHAR Model
 
-<!-- 6 variable VHAR: -->
+6 variable VHAR:
 
-<!-- ```{r truevharcoef} -->
-<!-- vhar_coef <- matrix(0L, nrow = 6 * 3 + 1, ncol = 6) -->
-<!-- diag(vhar_coef[1:6,]) <- .2 -->
-<!-- diag(vhar_coef[7:12,]) <- .2 -->
-<!-- diag(vhar_coef[13:18,]) <- .2 -->
-<!-- vhar_coef[19,] <- 1 -->
-<!-- vhar_coef -->
-<!-- ``` -->
+```{r initvhar}
+# Upper triangular matrix----------------------
+initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L)
+diag(initvhar_chol) <- .1
+initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L)
+initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
+# initial values specification-----------------
+(initvhar_spec <- init_ssvs(
+  init_coef = matrix(0L, nrow = 19L, ncol = 6L),
+  init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L),
+  init_chol = initvhar_chol,
+  init_chol_dummy = initvhar_omega
+))
+```
 
-<!-- and the same Cholesky factor with above example: -->
-
-<!-- ```{r truevharchol} -->
-<!-- (vhar_chol <- var_chol) -->
-<!-- ``` -->
-
-<!-- ```{r vharsimul} -->
-<!-- vhar_data <-  -->
-<!--   sim_vhar( -->
-<!--     num_sim = 100, -->
-<!--     num_warm = 50, -->
-<!--     vhar_coef = vhar_coef, -->
-<!--     week = 5, -->
-<!--     month = 22, -->
-<!--     sig_error = solve(vhar_chol %*% t(vhar_chol)), -->
-<!--     method = "chol" -->
-<!--   ) -->
-<!-- colnames(vhar_data) <- paste0("y", 1:6) -->
-<!-- ``` -->
-
-
-<!-- ```{r initvhar} -->
-<!-- # Upper triangular matrix---------------------- -->
-<!-- initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L) -->
-<!-- diag(initvhar_chol) <- .1 -->
-<!-- initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L) -->
-<!-- initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L -->
-<!-- # initial values specification----------------- -->
-<!-- (initvhar_spec <- init_ssvs( -->
-<!--   init_coef = matrix(0L, nrow = 19L, ncol = 6L), -->
-<!--   init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L), -->
-<!--   init_chol = initvhar_chol, -->
-<!--   init_chol_dummy = initvhar_omega -->
-<!-- )) -->
-<!-- ``` -->
-
-<!-- ```{r gibbsvhar} -->
-<!-- (vhar_ssvs <- bvhar_ssvs( -->
-<!--   y = vhar_data, -->
-<!--   har = c(5, 22), -->
-<!--   num_iter = 20000, -->
-<!--   num_warm = 10000, -->
-<!--   thinning = 1, -->
-<!--   bayes_spec = ssvs_spec, -->
-<!--   init_spec = initvhar_spec, -->
-<!--   include_mean = TRUE -->
-<!-- )) -->
-<!-- ``` -->
-
-
-<!-- ### Multiple Initial values -->
-
-<!-- When initializing multiple chain MCMC, use 3d array or list. -->
-
-<!-- ```{r diagnostics} -->
-<!-- # Random initial coefficients----------------------------- -->
-<!-- init_coefarray <- array(runif(7 * 6 * 6, -2, 2), dim = c(7, 6, 6)) -->
-<!-- init_coefarray[,,6] <- matrix(0L, nrow = 7, ncol = 6) -->
-<!-- init_coefarray[,,1] <- init_spec$init_coef -->
-<!-- # Always starts with unrestricted model-------------------- -->
-<!-- init_coef_dummyarray <- array(1L, dim = c(6, 6, 6)) -->
-<!-- # init_coef_dummyarray[,,6] <- init_spec$init_coef_dummy -->
-<!-- # Random upper triangular cholesky factor----------------- -->
-<!-- # init_chollist <- array(0L, dim = c(6, 6, 5)) -->
-<!-- init_chollist <- lapply(1:6, function(x) matrix(0L, nrow = 6L, ncol = 6L)) -->
-<!-- init_chollist[2:6] <- lapply( -->
-<!--   1:5, -->
-<!--   function(x) { -->
-<!--     x <- diag(rgamma(6, shape = 1, rate = 1)) -->
-<!--     x[upper.tri(x, diag = FALSE)] <- runif(15, -2, 2) -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- init_chollist[[1]] <- init_spec$init_chol -->
-<!-- # Always starts with unrestricted eta--------------------- -->
-<!-- init_omegalist <- lapply( -->
-<!--   1:6, -->
-<!--   function(x) { -->
-<!--     x <- matrix(1L, nrow = 6L, ncol = 6L) -->
-<!--     x[lower.tri(x, diag = TRUE)] <- 0L -->
-<!--     x -->
-<!--   } -->
-<!-- ) -->
-<!-- # init_omegalist[[6]] <- init_spec$init_chol_dummy -->
-<!-- # Initialize---------------------------------------------- -->
-<!-- (init_multi <- init_ssvs( -->
-<!--   init_coef = init_coefarray, -->
-<!--   init_coef_dummy = init_coef_dummyarray, -->
-<!--   init_chol = init_chollist, -->
-<!--   init_chol_dummy = init_chollist -->
-<!-- )) -->
-<!-- ``` -->
-
-<!-- ```{r multiplessvs} -->
-<!-- fit_multiple <- bvar_ssvs( -->
-<!--   y = var_sample[[1]], -->
-<!--   p = 1, -->
-<!--   num_iter = 1000, -->
-<!--   num_warm = 0, -->
-<!--   thinning = 1, -->
-<!--   bayes_spec = ssvs_spec, -->
-<!--   init_spec = init_multi, -->
-<!--   include_mean = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-
-<!-- ```{r aplot} -->
-<!-- color_scheme_set("mix-blue-pink") -->
-<!-- mcmc_trace(fit_multiple$psi_record) -->
-<!-- ``` -->
+```{r gibbsvhar}
+(vhar_ssvs <- bvhar_ssvs(
+  y = var_data,
+  har = c(5, 22),
+  num_iter = 1000,
+  num_warm = 500,
+  thinning = 1,
+  bayes_spec = ssvs_spec,
+  init_spec = initvhar_spec,
+  include_mean = TRUE,
+  verbose = FALSE
+))
+```
 
 
 # Horseshoe Prior
 
-Consider the similar example for convenience.
-
-```{r hssetting}
-# coefficients----------------------------
-hs_coef <- var_coef
-for (i in seq_len(ncol(hs_coef))) {
-  hs_coef[i, -i] <- 1e-3
-}
-# precision-------------------------------
-hs_sig <- solve(var_chol %*% t(var_chol))
-```
-
-```{r hssimul}
-hs_data <- 
-  sim_var(
-    num_sim = 100,
-    num_burn = 50,
-    var_coef = hs_coef,
-    var_lag = 1,
-    sig_error = hs_sig,
-    init = matrix(runif(ncol(hs_coef)), nrow = 1, ncol = ncol(hs_coef)),
-    method = "chol"
-  )
-colnames(var_data) <- paste0("y", 1:6)
-```
+## Horseshoe Prior for VAR
 
 ### Horseshoe spec
 
@@ -393,9 +278,8 @@ colnames(var_data) <- paste0("y", 1:6)
 - `init_priorvar`: covariance matrix of the data
 
 ```{r hsspec}
-(hs_spec <- set_horseshoe(init_local = rep(.2, 7), init_global = .1, cov(hs_data)))
+(hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(var_data)))
 ```
-
 
 ### Gibbs sampling
 
@@ -406,16 +290,16 @@ colnames(var_data) <- paste0("y", 1:6)
 - `num_iter`: Total number of iteration (including burn-in)
 - `num_warm`: The number of warm-up (burn-in)
 - `thinning`: Thinning
-- `bayes_spec`: SSVS specification using `set_horseshoe()`.
+- `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
 - `include_mean`: whether including the constant term in the model.
 - `verbose`: whether to display the progress bar.
 
 ```{r hsgibbs}
 (var_hs <- bvar_horseshoe(
-  y = hs_data,
+  y = var_data,
   p = 1,
-  num_iter = 5000,
-  num_warm = 2500,
+  num_iter = 1000,
+  num_warm = 500,
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
@@ -423,12 +307,37 @@ colnames(var_data) <- paste0("y", 1:6)
 ))
 ```
 
+## Horseshoe Prior for VHAR
 
+Local shrinkage levels are also given to each row of the coefficients matrix.
+Here, VHAR coefficient.
 
+```{r hsvharspec}
+(hsvhar_spec <- set_horseshoe(local_sparsity = rep(.2, 3 * ncol(var_data) + 1), global_sparsity = .1, cov(var_data)))
+```
 
+`bvhar_horseshoe()` performs BVHAR model with horseshoe prior estimation.
 
+- `y`: data
+- `har`: `(week, month)` order.
+- `num_iter`: Total number of iteration (including burn-in)
+- `num_warm`: The number of warm-up (burn-in)
+- `thinning`: Thinning
+- `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
+- `include_mean`: whether including the constant term in the model.
+- `verbose`: whether to display the progress bar.
 
-
-
+```{r hsvharfit}
+(vhar_hs <- bvhar_horseshoe(
+  y = var_data,
+  har = c(5, 22),
+  num_iter = 1000,
+  num_warm = 500,
+  thinning = 1,
+  bayes_spec = hsvhar_spec,
+  include_mean = TRUE,
+  verbose = FALSE
+))
+```
 
 

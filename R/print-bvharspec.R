@@ -379,12 +379,12 @@ registerS3method(
 )
 
 #' @rdname set_horseshoe
-#' @param x `horseshoeinit`
+#' @param x `horseshoespec`
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.horseshoeinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
   cat("Parameters: Coefficent matrix, Covariance (precision) matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
@@ -416,17 +416,17 @@ print.horseshoeinit <- function(x, digits = max(3L, getOption("digits") - 3L), .
 }
 
 #' @rdname set_horseshoe
-#' @param x `horseshoeinit` object
+#' @param x `horseshoespec` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.horseshoeinit <- function(x, ...) {
+knit_print.horseshoespec <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "horseshoeinit",
-  knit_print.horseshoeinit,
+  "knit_print", "horseshoespec",
+  knit_print.horseshoespec,
   envir = asNamespace("knitr")
 )

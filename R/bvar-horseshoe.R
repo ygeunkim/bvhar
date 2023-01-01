@@ -10,7 +10,7 @@
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' @return `bvar_horseshoe` returns an object named [class].
+#' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -47,8 +47,8 @@ bvar_horseshoe <- function(y,
     y <- as.matrix(y)
   }
   # model specification---------------
-  if (!is.horseshoeinit(bayes_spec)) {
-    stop("Provide 'horseshoeinit' for 'bayes_spec'.")
+  if (!is.horseshoespec(bayes_spec)) {
+    stop("Provide 'horseshoespec' for 'bayes_spec'.")
   }
   # MCMC iterations-------------------
   if (num_iter < 1) {
@@ -75,25 +75,25 @@ bvar_horseshoe <- function(y,
   # Initial vectors-------------------
   dim_design <- ncol(X0)
   if (bayes_spec$chain == 1) {
-    if (length(bayes_spec$init_local) != dim_design) {
-      stop("Length of the vector 'init_local' should be dim * p or dim * p + 1.")
+    if (length(bayes_spec$local_sparsity) != dim_design) {
+      stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
-    if (ncol(bayes_spec$init_priorvar) != dim_data) {
-      stop("Dimension of the matrix 'init_priorvar' should be dim x dim.")
+    if (ncol(bayes_spec$init_cov) != dim_data) {
+      stop("Dimension of the matrix 'init_cov' should be dim x dim.")
     }
-    init_local <- bayes_spec$init_local
-    init_global <- bayes_spec$init_global
-    init_priorvar <- bayes_spec$init_priorvar
+    init_local <- bayes_spec$local_sparsity
+    init_global <- bayes_spec$global_sparsity
+    init_priorvar <- bayes_spec$init_cov
   } else {
-    if (length(bayes_spec$init_local[[1]]) != dim_design) {
-      stop("Every length of the vector 'init_local' should be dim * p or dim * p + 1.")
+    if (length(bayes_spec$local_sparsity[[1]]) != dim_design) {
+      stop("Every length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
-    if (ncol(bayes_spec$init_priorvar[[1]]) != dim_data) {
-      stop("Every dimension of the matrix 'init_priorvar' should be dim x dim.")
+    if (ncol(bayes_spec$init_cov[[1]]) != dim_data) {
+      stop("Every dimension of the matrix 'init_cov' should be dim x dim.")
     }
-    init_local <- unlist(bayes_spec$init_local)
-    init_global <- bayes_spec$init_global
-    init_priorvar <- bayes_spec$init_priorvar
+    init_local <- unlist(bayes_spec$local_sparsity)
+    init_global <- bayes_spec$global_sparsity
+    init_priorvar <- bayes_spec$init_cov
   }
   # MCMC-----------------------------
   res <- estimate_horseshoe_niw(
@@ -126,17 +126,12 @@ bvar_horseshoe <- function(y,
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
     res$tau_record <- as_draws_df(res$tau_record)
-    # res$nu_record <- as.matrix(res$nu_record[thin_id])
-    # colnames(res$nu_record) <- "nu"
-    # res$nu_record <- as_draws_df(res$nu_record)
-    # res$xi_record <- as.matrix(res$xi_record[thin_id])
-    # colnames(res$xi_record) <- "xi"
-    # res$xi_record <- as_draws_df(res$xi_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
-    res$covmat <- Reduce("+", res$psi_record) / length(res$psi_record)
-    colnames(res$covmat) <- name_var
-    rownames(res$covmat) <- name_var
+    res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+    colnames(res$psi_posterior) <- name_var
+    rownames(res$psi_posterior) <- name_var
+    res$covmat <- solve(res$psi_posterior)
     # diagonal of precision
     res$omega_record <- 
       lapply(res$psi_record, diag) %>% 
@@ -176,7 +171,7 @@ bvar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  class(res) <- c("bvarhs", "bvharmod")
+  class(res) <- c("bvarhs", "bvharsp")
   res
 }
 
@@ -215,3 +210,10 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 knit_print.bvarhs <- function(x, ...) {
   print(x)
 }
+
+#' @export
+registerS3method(
+  "knit_print", "bvarhs",
+  knit_print.bvarhs,
+  envir = asNamespace("knitr")
+)

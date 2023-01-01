@@ -2,8 +2,8 @@
 % Please edit documentation in R/bvhar-ssvs.R
 \name{bvhar_ssvs}
 \alias{bvhar_ssvs}
-\alias{print.bvharsp}
-\alias{knit_print.bvharsp}
+\alias{print.bvharssvs}
+\alias{knit_print.bvharssvs}
 \title{Fitting Bayesian VHAR of SSVS Prior}
 \usage{
 bvhar_ssvs(
@@ -14,12 +14,13 @@ bvhar_ssvs(
   thinning = 1,
   bayes_spec = set_ssvs(),
   init_spec = init_ssvs(),
-  include_mean = TRUE
+  include_mean = TRUE,
+  verbose = FALSE
 )
 
-\method{print}{bvharsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{bvharssvs}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharsp(x, ...)
+knit_print.bvharssvs(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
@@ -38,14 +39,16 @@ knit_print.bvharsp(x, ...)
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{x}{\code{bvharsp} object}
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{x}{\code{bvharssvs} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 }
 \value{
-\code{bvar_ssvs} returns an object named \code{bvarsp} \link{class}.
+\code{bvhar_ssvs} returns an object named \code{bvharssvs} \link{class}.
 It is a list with the following components:
 
 \describe{
