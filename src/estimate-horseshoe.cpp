@@ -169,12 +169,12 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   int dim_design = x.cols(); // dim*p(+1)
   int num_coef = dim * dim_design;
   // record------------------------------------------------
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef * chain);
-  Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter, dim_design * chain);
-  Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef * chain);
+  Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter + 1, dim_design * chain);
+  Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter + 1, chain);
   // Eigen::MatrixXd latent_local_record = Eigen::MatrixXd::Zero(num_iter, dim_design * chain);
   // Eigen::MatrixXd latent_global_record = Eigen::MatrixXd::Zero(num_iter, chain);
-  Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain);
+  Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * chain);
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
   // Some variables----------------------------------------
@@ -184,7 +184,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   Eigen::MatrixXd covmat = init_priorvar;
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   // Start Gibbs sampling-----------------------------------
-  Progress p(chain * (num_iter - 1), display_progress);
+  Progress p(chain * num_iter, display_progress);
 #ifdef _OPENMP
   Rcpp::Rcout << "Parallel chains" << std::endl;
 #pragma omp parallel for
@@ -198,7 +198,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       num_threads(chain) \
       shared(y, x, num_coef)
   for (int b = 0; b < chain; b++) {
-    for (int i = 1; i < num_iter; i++) {
+    for (int i = 1; i < num_iter + 1; i++) {
       if (Progress::check_abort()) {
         return Rcpp::List::create(
           Rcpp::Named("alpha_record") = coef_record,
@@ -240,7 +240,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   }
 #else
   prec_record.block(0, 0, dim, dim) = covmat.inverse();
-  for (int i = 1; i < num_iter; i++) {
+  for (int i = 1; i < num_iter + 1; i++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record,

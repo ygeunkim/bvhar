@@ -349,8 +349,8 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
 #' @param rate Gamma rate parameters for precision matrix
 #' @param num_design The number of sample used, \eqn{n = T - p}
 #' @noRd
-ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
-    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, inv_DRD, shape, rate, num_design)
+ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
+    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
 }
 
 #' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -361,8 +361,8 @@ ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
 #' @param chol_diag Diagonal element of the cholesky factor
 #' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @noRd
-ssvs_chol_off <- function(sse_mat, chol_diag, inv_DRD) {
-    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, inv_DRD)
+ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
 }
 
 #' Filling Cholesky Factor Upper Triangular Matrix

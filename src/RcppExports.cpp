@@ -297,30 +297,30 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssvs_chol_diag
-Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::MatrixXd inv_DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design);
-RcppExport SEXP _bvhar_ssvs_chol_diag(SEXP sse_matSEXP, SEXP inv_DRDSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP num_designSEXP) {
+Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::MatrixXd DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design);
+RcppExport SEXP _bvhar_ssvs_chol_diag(SEXP sse_matSEXP, SEXP DRDSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP num_designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sse_mat(sse_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type inv_DRD(inv_DRDSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type DRD(DRDSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type shape(shapeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type rate(rateSEXP);
     Rcpp::traits::input_parameter< int >::type num_design(num_designSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_chol_diag(sse_mat, inv_DRD, shape, rate, num_design));
+    rcpp_result_gen = Rcpp::wrap(ssvs_chol_diag(sse_mat, DRD, shape, rate, num_design));
     return rcpp_result_gen;
 END_RCPP
 }
 // ssvs_chol_off
-Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::MatrixXd inv_DRD);
-RcppExport SEXP _bvhar_ssvs_chol_off(SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP inv_DRDSEXP) {
+Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::MatrixXd DRD);
+RcppExport SEXP _bvhar_ssvs_chol_off(SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP DRDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sse_mat(sse_matSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_diag(chol_diagSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type inv_DRD(inv_DRDSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_chol_off(sse_mat, chol_diag, inv_DRD));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type DRD(DRDSEXP);
+    rcpp_result_gen = Rcpp::wrap(ssvs_chol_off(sse_mat, chol_diag, DRD));
     return rcpp_result_gen;
 END_RCPP
 }
