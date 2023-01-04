@@ -261,7 +261,7 @@ set_weight_bvhar <- function(sigma,
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
 #' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
-#' @param coef_non Hyperparameter for constant term
+#' @param coef_non Standard deviance for constant term
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
@@ -282,6 +282,7 @@ set_weight_bvhar <- function(sigma,
 #' * `coef_mixture`: \eqn{p_j}
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * If one value is provided, model function will read it by replicated value.
+#' * `coef_non`: vectorized constant term is given prior Normal distribution with variance \eqn{cI}. Here, `coef_non` is \eqn{\sqrt{c}}.
 #' 
 #' Next for precision matrix \eqn{\Sigma_e^{-1}}, SSVS applies Cholesky decomposition.
 #' \deqn{\Sigma_e^{-1} = \Psi \Psi^T}

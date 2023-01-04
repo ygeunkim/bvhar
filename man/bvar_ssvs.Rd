@@ -52,7 +52,7 @@ knit_print.bvarssvs(x, ...)
 It is a list with the following components:
 
 \describe{
-\item{coefficients}{Coefficient Matrix}
+\item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
 \item{p}{Lag of VAR}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}

@@ -344,7 +344,7 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
 #' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
 #' 
 #' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @param shape Gamma shape parameters for precision matrix
 #' @param rate Gamma rate parameters for precision matrix
 #' @param num_design The number of sample used, \eqn{n = T - p}
@@ -359,7 +359,7 @@ ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
 #' 
 #' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
 #' @param chol_diag Diagonal element of the cholesky factor
-#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @noRd
 ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
     .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
@@ -374,19 +374,6 @@ ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
 #' @noRd
 build_chol <- function(diag_vec, off_diagvec) {
     .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
-}
-
-#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-#' 
-#' @param param_obs Realized parameters vector
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param slab_weight Proportion of nonzero coefficients
-#' @noRd
-ssvs_chol_dummy <- function(chol_upper, spike_sd, slab_sd, slab_weight) {
-    .Call(`_bvhar_ssvs_chol_dummy`, chol_upper, spike_sd, slab_sd, slab_weight)
 }
 
 #' Generating Coefficient Vector in SSVS Gibbs Sampler
@@ -408,12 +395,12 @@ ssvs_coef <- function(prior_mean, prior_var, XtX, coef_ols, chol_factor) {
 #' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 #' 
 #' @param param_obs Realized parameters vector
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param sd_numer Standard deviance for Spike or slab normal distribution, which will be used for numerator. spike in coefficients, slab in cholesky factor.
+#' @param sd_denom Standard deviance for Spike or slab normal distribution, which will be used for denominator. slab in coefficients, spike in cholesky factor.
 #' @param slab_weight Proportion of nonzero coefficients
 #' @noRd
-ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
-    .Call(`_bvhar_ssvs_coef_dummy`, coef, spike_sd, slab_sd, slab_weight)
+ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -437,12 +424,12 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 #' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 #' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param intercept_var Hyperparameter for constant term
+#' @param intercept_sd Hyperparameter for constant term
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, chain, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
