@@ -239,15 +239,28 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
 
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
 #' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
 #' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
 #' @param sigma Covariance matrix of the likelihood
 #' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_coef <- function(x, y, sigma, shrink_mat) {
     .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat)
+}
+
+#' Fast Sampling for Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients by Bhattacharya et al. (2016) method.
+#' 
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param sigma Covariance matrix of the likelihood
+#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_coef_fast <- function(x, y, sigma, shrink_mat) {
+    .Call(`_bvhar_horseshoe_coef_fast`, x, y, sigma, shrink_mat)
 }
 
 #' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -256,7 +269,7 @@ horseshoe_coef <- function(x, y, sigma, shrink_mat) {
 #' 
 #' @param local_latent Latent vectors defined for local sparsity vector
 #' @param global_hyperparam Global sparsity hyperparameter
-#' @param coef_vec Coefficients vector
+#' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
 #' @noRd
 horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec) {
@@ -269,7 +282,7 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec
 #' 
 #' @param global_latent Latent variable defined for global sparsity hyperparameter
 #' @param local_hyperparam Local sparsity hyperparameters vector
-#' @param coef_vec Coefficients vector
+#' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
 #' @noRd
 horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, prec) {
@@ -300,9 +313,9 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the prior variance.
 #' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param coef_vec Coefficients vector
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param coef Coefficients matrix
 #' @param shrink_mat Inverse ddiagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
