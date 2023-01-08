@@ -35,31 +35,23 @@ Eigen::MatrixXd build_shrink_mat(double global_hyperparam, Eigen::VectorXd local
 //' @param y Response matrix Y0
 //' @param sigma Covariance matrix of the likelihood
 //' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+//' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat) {
+Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat, int coef_type) {
+  if (coef_type == 2) {
+    int dim = sigma.cols();
+    int num_design = y.rows();
+    int dim_design = shrink_mat.rows();
+    Eigen::MatrixXd lam_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
+    lam_mat.diagonal() = 1 / shrink_mat.diagonal().array();
+    Eigen::MatrixXd identidy_mat = Eigen::MatrixXd::Identity(num_design, num_design);
+    Eigen::MatrixXd u_mat = sim_matgaussian(Eigen::MatrixXd::Zero(dim_design, dim), lam_mat, sigma);
+    Eigen::MatrixXd v_mat = x * u_mat + sim_matgaussian(Eigen::MatrixXd::Zero(num_design, dim), identidy_mat, sigma);
+    return u_mat + lam_mat * x.transpose() * (x * lam_mat * x.transpose() + identidy_mat).llt().solve(y - v_mat);
+  }
   Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).inverse();
   return sim_matgaussian(prec_mat * x.transpose() * y, prec_mat, sigma);
-}
-
-//' Fast Sampling for Coefficient Vector in Horseshoe Gibbs Sampler
-//' 
-//' In MCMC process of Horseshoe prior, this function generates the coefficients by Bhattacharya et al. (2016) method.
-//' 
-//' @param x Design matrix X0
-//' @param y Response matrix Y0
-//' @param sigma Covariance matrix of the likelihood
-//' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd horseshoe_coef_fast(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat) {
-  int num_design = y.rows();
-  // int dim_design = shrink_mat.rows();
-  int dim = sigma.cols();
-  Eigen::MatrixXd u_mat = sim_matgaussian(Eigen::MatrixXd::Zero(shrink_mat.rows(), dim), shrink_mat, sigma);
-  // Eigen::MatrixXd del_mat = sim_matgaussian(Eigen::MatrixXd::Zero(num_design, dim), Eigen::MatrixXd::Identity(num_design, num_design), sigma);
-  Eigen::MatrixXd v_mat = x * u_mat + sim_matgaussian(Eigen::MatrixXd::Zero(num_design, dim), Eigen::MatrixXd::Identity(num_design, num_design), sigma);
-  return u_mat + shrink_mat * x.transpose() * v_mat.llt().solve(y - v_mat);
 }
 
 //' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -159,6 +151,7 @@ Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' @param init_local Initial local shrinkage hyperparameters
 //' @param init_global Initial global shrinkage hyperparameter
 //' @param init_priorvar Initial variance constant
+//' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 //' @param chain The number of MCMC chains.
 //' @param display_progress Progress bar
 //' @noRd
@@ -170,6 +163,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
                                   Eigen::VectorXd init_local,
                                   Eigen::VectorXd init_global,
                                   Eigen::MatrixXd init_priorvar,
+                                  int coef_type,
                                   int chain,
                                   bool display_progress) {
   int dim = y.cols();
@@ -201,7 +195,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     parallel             \
     for                  \
       num_threads(chain) \
-      shared(y, x, num_coef)
+      shared(y, x, num_coef, dim, coef_type)
   for (int b = 0; b < chain; b++) {
     for (int i = 1; i < num_iter + 1; i++) {
       if (Progress::check_abort()) {
@@ -216,7 +210,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       p.increment();
       // 1. alpha (coefficient)
       lambda_mat = build_shrink_mat(global_record(i - 1, chain), local_record.block(i - 1, b * num_coef, 1, num_coef));
-      coef_mat = horseshoe_coef(x, y, covmat.block(0, b * dim, dim, dim), lambda_mat);
+      coef_mat = horseshoe_coef(x, y, covmat.block(0, b * dim, dim, dim), lambda_mat, coef_type);
       coef_record.block(i, b * num_coef, 1, num_coef) = vectorize_eigen(coef_mat);
       // 2. sigma (variance)
       covmat.block(0, b * dim, dim, dim) = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
@@ -226,19 +220,9 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
       // 4. xi (global latent)
       latent_global = horseshoe_latent_global(global_record(i - 1, chain));
       // 5. lambdaj (local shrinkage)
-      local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_local_sparsity(
-        latent_local,
-        global_record(i - 1, chain),
-        coef_mat, 
-        prec_record.block(i * dim, b * dim, dim, dim)
-      );
+      local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_local_sparsity(latent_local, global_record(i - 1, chain), coef_mat, prec_record.block(i * dim, b * dim, dim, dim));
       // 6. tau (global shrinkage)
-      global_record(i, chain) = horseshoe_global_sparsity(
-        latent_global,
-        local_record.block(i, b * num_coef, 1, num_coef),
-        coef_mat,
-        prec_record.block(i * dim, b * dim, dim, dim)
-      );
+      global_record(i, chain) = horseshoe_global_sparsity(latent_global, local_record.block(i, b * num_coef, 1, num_coef), coef_mat, prec_record.block(i * dim, b * dim, dim, dim));
     }
   }
 #else
@@ -256,7 +240,7 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     p.increment();
     // 1. alpha (coefficient)
     lambda_mat = build_shrink_mat(global_record(i - 1, 0), local_record.row(i - 1));
-    coef_mat = horseshoe_coef(x, y, covmat, lambda_mat);
+    coef_mat = horseshoe_coef(x, y, covmat, lambda_mat, coef_type);
     coef_record.row(i) = vectorize_eigen(coef_mat);
     // 2. sigma (variance)
     covmat = horseshoe_cov_mat(x, y, coef_mat, lambda_mat);

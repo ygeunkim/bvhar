@@ -303,6 +303,7 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
+  fast_sampling = FALSE,
   verbose = FALSE
 ))
 ```
@@ -336,6 +337,7 @@ Here, VHAR coefficient.
   thinning = 1,
   bayes_spec = hsvhar_spec,
   include_mean = TRUE,
+  fast_sampling = FALSE,
   verbose = FALSE
 ))
 ```

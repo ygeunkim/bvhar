@@ -187,8 +187,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // horseshoe_coef
-Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat);
-RcppExport SEXP _bvhar_horseshoe_coef(SEXP xSEXP, SEXP ySEXP, SEXP sigmaSEXP, SEXP shrink_matSEXP) {
+Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat, int coef_type);
+RcppExport SEXP _bvhar_horseshoe_coef(SEXP xSEXP, SEXP ySEXP, SEXP sigmaSEXP, SEXP shrink_matSEXP, SEXP coef_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -196,21 +196,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type shrink_mat(shrink_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_coef(x, y, sigma, shrink_mat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// horseshoe_coef_fast
-Eigen::MatrixXd horseshoe_coef_fast(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat);
-RcppExport SEXP _bvhar_horseshoe_coef_fast(SEXP xSEXP, SEXP ySEXP, SEXP sigmaSEXP, SEXP shrink_matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type shrink_mat(shrink_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_coef_fast(x, y, sigma, shrink_mat));
+    Rcpp::traits::input_parameter< int >::type coef_type(coef_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_coef(x, y, sigma, shrink_mat, coef_type));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -279,8 +266,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_horseshoe_niw
-Rcpp::List estimate_horseshoe_niw(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, Eigen::MatrixXd init_priorvar, int chain, bool display_progress);
-RcppExport SEXP _bvhar_estimate_horseshoe_niw(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP chainSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_horseshoe_niw(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, Eigen::MatrixXd init_priorvar, int coef_type, int chain, bool display_progress);
+RcppExport SEXP _bvhar_estimate_horseshoe_niw(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP coef_typeSEXP, SEXP chainSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -291,9 +278,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init_priorvar(init_priorvarSEXP);
+    Rcpp::traits::input_parameter< int >::type coef_type(coef_typeSEXP);
     Rcpp::traits::input_parameter< int >::type chain(chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_horseshoe_niw(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_horseshoe_niw(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1211,14 +1199,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 21},
     {"_bvhar_build_shrink_mat", (DL_FUNC) &_bvhar_build_shrink_mat, 2},
-    {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 4},
-    {"_bvhar_horseshoe_coef_fast", (DL_FUNC) &_bvhar_horseshoe_coef_fast, 4},
+    {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 5},
     {"_bvhar_horseshoe_local_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_sparsity, 4},
     {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 4},
     {"_bvhar_horseshoe_latent_local", (DL_FUNC) &_bvhar_horseshoe_latent_local, 1},
     {"_bvhar_horseshoe_latent_global", (DL_FUNC) &_bvhar_horseshoe_latent_global, 1},
     {"_bvhar_horseshoe_cov_mat", (DL_FUNC) &_bvhar_horseshoe_cov_mat, 4},
-    {"_bvhar_estimate_horseshoe_niw", (DL_FUNC) &_bvhar_estimate_horseshoe_niw, 9},
+    {"_bvhar_estimate_horseshoe_niw", (DL_FUNC) &_bvhar_estimate_horseshoe_niw, 10},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_diag", (DL_FUNC) &_bvhar_ssvs_chol_diag, 5},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},

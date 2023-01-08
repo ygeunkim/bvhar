@@ -60,7 +60,6 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 //' 
 //' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-//' @importFrom Rcpp sourceCpp
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean) {

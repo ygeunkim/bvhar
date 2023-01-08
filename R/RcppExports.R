@@ -245,22 +245,10 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
 #' @param y Response matrix Y0
 #' @param sigma Covariance matrix of the likelihood
 #' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+#' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 #' @noRd
-horseshoe_coef <- function(x, y, sigma, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat)
-}
-
-#' Fast Sampling for Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients by Bhattacharya et al. (2016) method.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param sigma Covariance matrix of the likelihood
-#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef_fast <- function(x, y, sigma, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef_fast`, x, y, sigma, shrink_mat)
+horseshoe_coef <- function(x, y, sigma, shrink_mat, coef_type) {
+    .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat, coef_type)
 }
 
 #' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -333,11 +321,12 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
 #' @param init_priorvar Initial variance constant
+#' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress) {
-    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress)
+estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
+    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
@@ -598,7 +587,6 @@ scale_har <- function(dim, week, month, include_mean) {
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-#' @importFrom Rcpp sourceCpp
 #' @noRd
 estimate_har <- function(x, y, week, month, include_mean) {
     .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean)

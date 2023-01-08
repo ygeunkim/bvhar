@@ -9,6 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param fast_sampling If `TRUE`, implement fast sampling algorithm for coefficients matrix. (Use this when `obs` <<< `m`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
@@ -26,6 +27,8 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
+#' Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
+#' 
 #' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
@@ -39,6 +42,7 @@ bvar_horseshoe <- function(y,
                            thinning = 1,
                            bayes_spec = set_horseshoe(),
                            include_mean = TRUE,
+                           fast_sampling = FALSE,
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -96,6 +100,7 @@ bvar_horseshoe <- function(y,
     init_priorvar <- bayes_spec$init_cov
   }
   # MCMC-----------------------------
+  coef_type <- ifelse(fast_sampling, 2, 1)
   res <- estimate_horseshoe_niw(
     num_iter = num_iter,
     num_warm = num_warm,
@@ -104,6 +109,7 @@ bvar_horseshoe <- function(y,
     init_local = init_local,
     init_global = init_global,
     init_priorvar = init_priorvar,
+    coef_type = coef_type,
     chain = bayes_spec$chain,
     display_progress = verbose
   )
@@ -162,6 +168,7 @@ bvar_horseshoe <- function(y,
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
+  res$algo <- ifelse(fast_sampling, "fast", "gibbs")
   res$spec <- bayes_spec
   res$iter <- num_iter
   res$burn <- num_warm
@@ -187,7 +194,8 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of warm-up: ", x$burn, "\n"))
   if (x$thin > 1) {
