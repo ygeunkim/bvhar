@@ -112,12 +112,12 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   int num_design = y.rows(); // n = T - p
   Eigen::MatrixXd gaussian_variance = acc_scale * obs_information.inverse();
   // record-------------------------------------------------------
-  Eigen::VectorXd lam_record = Eigen::MatrixXd::Zero(num_iter, chain);
+  Eigen::VectorXd lam_record = Eigen::MatrixXd::Zero(num_iter + 1, chain);
   lam_record.row(0) = init_lambda;
-  Eigen::MatrixXd psi_record = Eigen::MatrixXd::Zero(num_iter, dim * chain);
+  Eigen::MatrixXd psi_record = Eigen::MatrixXd::Zero(num_iter + 1, dim * chain);
   psi_record.row(0) = init_psi;
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter - 1, dim * dim_design * chain);
-  Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(dim * (num_iter - 1), dim * chain);
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, dim * dim_design * chain);
+  Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(dim * num_iter, dim * chain);
   // Some variables-----------------------------------------------
   Eigen::VectorXd prevprior = Eigen::VectorXd::Zero((1 + dim) * chain);
   prevprior.segment(0, chain) = init_lambda;
@@ -129,7 +129,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   );
   double numerator = 0;
   double denom = 0;
-  Progress p(chain * (num_iter - 1), display_progress);
+  Progress p(chain * num_iter, display_progress);
   // Start Metropolis---------------------------------------------
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
@@ -143,7 +143,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
       num_threads(chain) \
       shared(gaussian_variance, mn_mean, mn_prec, iw_scale, posterior_shape, dim_design, dim)
   for (int b = 0; b < chain; b++) {
-    for (int i = 1; i < num_iter; i ++) {
+    for (int i = 1; i < num_iter + 1; i ++) {
       candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
       numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
       denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
@@ -168,7 +168,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
     }
   }
 #else
-  for (int i = 1; i < num_iter; i ++) {
+  for (int i = 1; i < num_iter + 1; i ++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(
         Rcpp::Named("lambda_record") = lam_record,
@@ -239,8 +239,8 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   return Rcpp::List::create(
     Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_warm),
-    Rcpp::Named("alpha_record") = coef_record.bottomRows((num_iter - 1) - num_warm),
-    Rcpp::Named("sigma_record") = sig_record,
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - 1 - num_warm),
+    Rcpp::Named("sigma_record") = sig_record.bottomRows(dim * (num_iter - 1 - num_warm)),
     Rcpp::Named("acceptance") = is_accept.tail(num_iter - num_warm),
     Rcpp::Named("chain") = chain
   );

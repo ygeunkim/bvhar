@@ -29,7 +29,7 @@ knit_print.ssvsinput(x, ...)
 
 \item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
 
-\item{coef_non}{Hyperparameter for constant term}
+\item{coef_non}{Standard deviance for constant term}
 
 \item{shape}{Gamma shape parameters for precision matrix (See Details).}
 
@@ -65,6 +65,7 @@ and set \eqn{\tau_{1j}} large (symmetric by zero: slab distribution).
 \item \code{coef_mixture}: \eqn{p_j}
 \item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 \item If one value is provided, model function will read it by replicated value.
+\item \code{coef_non}: vectorized constant term is given prior Normal distribution with variance \eqn{cI}. Here, \code{coef_non} is \eqn{\sqrt{c}}.
 }
 
 Next for precision matrix \eqn{\Sigma_e^{-1}}, SSVS applies Cholesky decomposition.

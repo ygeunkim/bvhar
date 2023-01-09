@@ -239,15 +239,16 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
 
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
 #' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
 #' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
 #' @param sigma Covariance matrix of the likelihood
 #' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+#' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 #' @noRd
-horseshoe_coef <- function(x, y, sigma, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat)
+horseshoe_coef <- function(x, y, sigma, shrink_mat, coef_type) {
+    .Call(`_bvhar_horseshoe_coef`, x, y, sigma, shrink_mat, coef_type)
 }
 
 #' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -256,7 +257,7 @@ horseshoe_coef <- function(x, y, sigma, shrink_mat) {
 #' 
 #' @param local_latent Latent vectors defined for local sparsity vector
 #' @param global_hyperparam Global sparsity hyperparameter
-#' @param coef_vec Coefficients vector
+#' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
 #' @noRd
 horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec) {
@@ -269,7 +270,7 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec
 #' 
 #' @param global_latent Latent variable defined for global sparsity hyperparameter
 #' @param local_hyperparam Local sparsity hyperparameters vector
-#' @param coef_vec Coefficients vector
+#' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
 #' @noRd
 horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, prec) {
@@ -300,9 +301,9 @@ horseshoe_latent_global <- function(global_hyperparam) {
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the prior variance.
 #' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param coef_vec Coefficients vector
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param coef Coefficients matrix
 #' @param shrink_mat Inverse ddiagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
 horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
@@ -320,11 +321,12 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
 #' @param init_priorvar Initial variance constant
+#' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress) {
-    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, chain, display_progress)
+estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
+    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
@@ -344,13 +346,13 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
 #' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
 #' 
 #' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @param shape Gamma shape parameters for precision matrix
 #' @param rate Gamma rate parameters for precision matrix
 #' @param num_design The number of sample used, \eqn{n = T - p}
 #' @noRd
-ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
-    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, inv_DRD, shape, rate, num_design)
+ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
+    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
 }
 
 #' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -359,10 +361,10 @@ ssvs_chol_diag <- function(sse_mat, inv_DRD, shape, rate, num_design) {
 #' 
 #' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
 #' @param chol_diag Diagonal element of the cholesky factor
-#' @param inv_DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @noRd
-ssvs_chol_off <- function(sse_mat, chol_diag, inv_DRD) {
-    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, inv_DRD)
+ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
 }
 
 #' Filling Cholesky Factor Upper Triangular Matrix
@@ -374,19 +376,6 @@ ssvs_chol_off <- function(sse_mat, chol_diag, inv_DRD) {
 #' @noRd
 build_chol <- function(diag_vec, off_diagvec) {
     .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
-}
-
-#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-#' 
-#' @param param_obs Realized parameters vector
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param slab_weight Proportion of nonzero coefficients
-#' @noRd
-ssvs_chol_dummy <- function(chol_upper, spike_sd, slab_sd, slab_weight) {
-    .Call(`_bvhar_ssvs_chol_dummy`, chol_upper, spike_sd, slab_sd, slab_weight)
 }
 
 #' Generating Coefficient Vector in SSVS Gibbs Sampler
@@ -408,12 +397,12 @@ ssvs_coef <- function(prior_mean, prior_var, XtX, coef_ols, chol_factor) {
 #' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 #' 
 #' @param param_obs Realized parameters vector
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param sd_numer Standard deviance for Spike or slab normal distribution, which will be used for numerator. spike in coefficients, slab in cholesky factor.
+#' @param sd_denom Standard deviance for Spike or slab normal distribution, which will be used for denominator. slab in coefficients, spike in cholesky factor.
 #' @param slab_weight Proportion of nonzero coefficients
 #' @noRd
-ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
-    .Call(`_bvhar_ssvs_coef_dummy`, coef, spike_sd, slab_sd, slab_weight)
+ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -437,12 +426,12 @@ ssvs_coef_dummy <- function(coef, spike_sd, slab_sd, slab_weight) {
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 #' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 #' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param intercept_var Hyperparameter for constant term
+#' @param intercept_sd Hyperparameter for constant term
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_var, chain, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, chain, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -598,7 +587,6 @@ scale_har <- function(dim, week, month, include_mean) {
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-#' @importFrom Rcpp sourceCpp
 #' @noRd
 estimate_har <- function(x, y, week, month, include_mean) {
     .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean)

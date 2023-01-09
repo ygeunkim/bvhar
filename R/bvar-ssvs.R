@@ -29,7 +29,7 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{coefficients}{Coefficient Matrix}
+#'   \item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
@@ -206,7 +206,8 @@ bvar_ssvs <- function(y,
     chol_spike = bayes_spec$chol_spike, # eta spike
     chol_slab = bayes_spec$chol_slab, # eta slab
     chol_slab_weight = bayes_spec$chol_mixture, # qij
-    intercept_var = bayes_spec$coef_non, # c for constant c I
+    intercept_sd = bayes_spec$coef_non, # c for constant c I
+    chain = init_spec$chain,
     display_progress = verbose
   )
   # preprocess the results------------

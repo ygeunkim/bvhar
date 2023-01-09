@@ -300,8 +300,9 @@ bvar_niwhm <- function(y,
   )
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
+  thinparam_id <- seq(from = 1, to = num_iter - 1 - num_warm, by = thinning)
   metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
-  metropolis_res$alpha_record <- metropolis_res$alpha_record[seq(from = 1, to = num_iter - 1 - num_warm, by = thinning),]
+  metropolis_res$alpha_record <- metropolis_res$alpha_record[thinparam_id,]
   if (metropolis_res$chain > 1) {
     # hyperparameters------------------
     metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
@@ -314,7 +315,7 @@ bvar_niwhm <- function(y,
     # parameters-----------------------
     metropolis_res$alpha_record <- split_paramarray(metropolis_res$alpha_record, chain = metropolis_res$chain, param_name = "alpha")
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, metropolis_res$chain, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)] # check the index
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
     
     # posterior mean-------------------
     
@@ -336,7 +337,7 @@ bvar_niwhm <- function(y,
     rownames(metropolis_res$alpha_posterior) <- name_lag
     metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
     metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[seq(from = num_warm + 1, to = num_iter - 1, by = thinning)]
+    metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
     names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
     # posterior mean-------------------
     metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)

@@ -15,6 +15,7 @@ bvar_horseshoe(
   thinning = 1,
   bayes_spec = set_horseshoe(),
   include_mean = TRUE,
+  fast_sampling = FALSE,
   verbose = FALSE
 )
 
@@ -38,6 +39,8 @@ knit_print.bvharhs(x, ...)
 \item{bayes_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{fast_sampling}{If \code{TRUE}, implement fast sampling algorithm for coefficients matrix. (Use this when \code{obs} <<< \code{m}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -68,6 +71,8 @@ It is a list with the following components:
 This function fits BVAR(p) with horseshoe prior.
 }
 \references{
+Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:\href{https://doi.org/10.1016/j.jmva.2018.04.010}{10.1016/j.jmva.2018.04.010}
+
 Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465–480. doi:\href{https://doi.org/10.1093/biomet/asq017}{10.1093/biomet/asq017}
 
 Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179–182. doi:\href{https://doi.org/10.1109/LSP.2015.2503725}{10.1109/lsp.2015.2503725}
