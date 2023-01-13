@@ -242,107 +242,57 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Progress p(chain * num_iter, display_progress);
   // Start Gibbs sampling-----------------------------------------
-#ifdef _OPENMP
-  Rcpp::Rcout << "Use parallel" << std::endl;
-#pragma                  \
-  omp                    \
-    parallel             \
-    for                  \
-      num_threads(chain) \
-      shared(prior_mean, XtX, coefvec_ols, dim, dim_design, num_restrict, num_non, num_design, num_upperchol,
-             coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd)
-      for (int b = 0; b < chain; b++) {
-        chol_factor_record.block(0, b * dim, dim, dim) = build_chol(chol_diag_record.block(0, b * dim, 1, dim), chol_upper_record.block(0, b * num_upperchol, 1, num_upperchol));
-        for (int i = 1; i < num_iter + 1; i++) {
-          // 1. Psi--------------------------
-          chol_mixture_mat = build_ssvs_sd(
-            chol_spike,
-            chol_slab,
-            chol_dummy_record.block(i - 1, b * num_upperchol, 1, num_upperchol)
-          );
-          chol_diag_record.block(i, b * dim, 1, dim) = ssvs_chol_diag(sse_mat, chol_mixture_mat, shape, rate, num_design);
-          // 2. eta---------------------------
-          chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_chol_off(sse_mat, chol_diag_record.block(i, b * dim, 1, dim), chol_mixture_mat);
-          chol_factor_record.block(i * dim, b * dim, dim, dim) = build_chol(chol_diag_record.block(i, b * dim, 1, dim), chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol));
-          // 3. omega--------------------------
-          chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol) = ssvs_dummy(chol_upper_record.block(i, b * num_upperchol, 1, num_upperchol), chol_slab, chol_spike, chol_slab_weight);
-          // 4. alpha--------------------------
-          coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, chol_dummy_record.block(i, b * num_upperchol, 1, num_upperchol));
-          if (num_non == dim) {
-            // constant case
-            for (int j = 0; j < dim; j++) {
-              prior_variance.segment(j * dim_design, num_restrict / dim) = coef_mixture_mat.segment(j * num_restrict / dim, num_restrict / dim);
-              prior_variance[j * dim_design + num_restrict / dim] = intercept_sd;
-            }
-          } else if (num_non == -dim) {
-            // no constant term
-            prior_variance = coef_mixture_mat;
-          }
-          coef_record.block(i, b * num_coef, 1, num_coef) = ssvs_coef(
-            prior_mean, 
-            prior_variance, 
-            XtX, 
-            coefvec_ols, 
-            chol_factor_record.block(i * dim, b * dim, dim, dim)
-          );
-          coef_mat = unvectorize(coef_record.block(i, b * num_coef, 1, num_coef), dim_design, dim);
-          sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
-          // 5. gamma-------------------------
-          coef_dummy_record.block(i, b * num_restrict, 1, num_restrict) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_spike, coef_slab, coef_slab_weight);
-        }
-      }
-#else
-      chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
-      for (int i = 1; i < num_iter + 1; i++) {
-        if (Progress::check_abort()) {
-          return Rcpp::List::create(
-            Rcpp::Named("alpha_record") = coef_record,
-            Rcpp::Named("eta_record") = chol_upper_record,
-            Rcpp::Named("psi_record") = chol_diag_record,
-            Rcpp::Named("omega_record") = chol_dummy_record,
-            Rcpp::Named("gamma_record") = coef_dummy_record,
-            Rcpp::Named("chol_record") = chol_factor_record,
-            Rcpp::Named("ols_coef") = coef_ols,
-            Rcpp::Named("ols_cholesky") = chol_ols,
-            Rcpp::Named("chain") = chain
-          );
-        }
-        p.increment();
-        // 1. Psi--------------------------
-        chol_mixture_mat = build_ssvs_sd(chol_spike, chol_slab, chol_dummy_record.row(i - 1));
-        chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_mixture_mat, shape, rate, num_design);
-        // 2. eta---------------------------
-        chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_mixture_mat);
-        chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
-        // 3. omega--------------------------
-        chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_slab, chol_spike, chol_slab_weight);
-        // 4. alpha--------------------------
-        coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
-        if (num_non == dim) {
-          // constant case
-          for (int j = 0; j < dim; j++) {
-            prior_variance.segment(j * dim_design, num_restrict / dim) = coef_mixture_mat.segment(j * num_restrict / dim, num_restrict / dim);
-            prior_variance[j * dim_design + num_restrict / dim] = intercept_sd;
-          }
-        } else if (num_non == -dim) {
-          // no constant term
-          prior_variance = coef_mixture_mat;
-        }
-        coef_record.row(i) = ssvs_coef(prior_mean, prior_variance, XtX, coefvec_ols, chol_factor_record.block(i * dim, 0, dim, dim));
-        coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
-        sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
-        // 5. gamma-------------------------
-        coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_spike, coef_slab, coef_slab_weight);
-      }
+  chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
+  for (int i = 1; i < num_iter + 1; i++) {
+    if (Progress::check_abort()) {
       return Rcpp::List::create(
-        Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
-        Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
+        Rcpp::Named("alpha_record") = coef_record,
+        Rcpp::Named("eta_record") = chol_upper_record,
+        Rcpp::Named("psi_record") = chol_diag_record,
+        Rcpp::Named("omega_record") = chol_dummy_record,
+        Rcpp::Named("gamma_record") = coef_dummy_record,
+        Rcpp::Named("chol_record") = chol_factor_record,
         Rcpp::Named("ols_coef") = coef_ols,
         Rcpp::Named("ols_cholesky") = chol_ols,
         Rcpp::Named("chain") = chain
       );
+    }
+    p.increment();
+    // 1. Psi--------------------------
+    chol_mixture_mat = build_ssvs_sd(chol_spike, chol_slab, chol_dummy_record.row(i - 1));
+    chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_mixture_mat, shape, rate, num_design);
+    // 2. eta---------------------------
+    chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_mixture_mat);
+    chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
+    // 3. omega--------------------------
+    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_slab, chol_spike, chol_slab_weight);
+    // 4. alpha--------------------------
+    coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
+    if (num_non == dim) {
+      // constant case
+      for (int j = 0; j < dim; j++) {
+        prior_variance.segment(j * dim_design, num_restrict / dim) = coef_mixture_mat.segment(j * num_restrict / dim, num_restrict / dim);
+        prior_variance[j * dim_design + num_restrict / dim] = intercept_sd;
+      }
+    } else if (num_non == -dim) {
+      // no constant term
+      prior_variance = coef_mixture_mat;
+    }
+    coef_record.row(i) = ssvs_coef(prior_mean, prior_variance, XtX, coefvec_ols, chol_factor_record.block(i * dim, 0, dim, dim));
+    coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
+    sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
+    // 5. gamma-------------------------
+    coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_spike, coef_slab, coef_slab_weight);
+  }
+  return Rcpp::List::create(
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("eta_record") = chol_upper_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("psi_record") = chol_diag_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
+    Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
+    Rcpp::Named("ols_coef") = coef_ols,
+    Rcpp::Named("ols_cholesky") = chol_ols,
+    Rcpp::Named("chain") = chain
+  );
 }
