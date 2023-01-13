@@ -48,6 +48,8 @@
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
+#' @importFrom foreach foreach getDoParRegistered
+#' @importFrom doRNG %dorng%
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
@@ -166,6 +168,29 @@ bvar_ssvs <- function(y,
     init_chol_diag <- diag(init_spec$init_chol)
     init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
     init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
+    # MCMC-----------------------------
+    ssvs_res <- estimate_bvar_ssvs(
+      num_iter = num_iter,
+      num_warm = num_warm,
+      x = X0,
+      y = Y0,
+      init_coef = init_coef, # initial alpha
+      init_chol_diag = init_chol_diag, # initial psi_jj
+      init_chol_upper = init_chol_upper, # initial psi_ij
+      init_coef_dummy = init_coef_dummy, # initial gamma
+      init_chol_dummy = init_chol_dummy, # initial omega
+      coef_spike = bayes_spec$coef_spike, # alpha spike
+      coef_slab = bayes_spec$coef_slab, # alpha slab
+      coef_slab_weight = bayes_spec$coef_mixture, # pj
+      shape = bayes_spec$shape, # shape of gamma distn
+      rate = bayes_spec$rate, # rate of gamma distn
+      chol_spike = bayes_spec$chol_spike, # eta spike
+      chol_slab = bayes_spec$chol_slab, # eta slab
+      chol_slab_weight = bayes_spec$chol_mixture, # qij
+      intercept_sd = bayes_spec$coef_non, # c for constant c I
+      chain = init_spec$chain,
+      display_progress = verbose
+    )
   } else {
     if (!(nrow(init_spec$init_coef[[1]]) == dim_design || ncol(init_spec$init_coef[[1]]) == dim_data)) {
       stop("Dimension of 'init_coef' should be (dim * p) x dim or (dim * p + 1) x dim.")
@@ -173,41 +198,52 @@ bvar_ssvs <- function(y,
     if (!(nrow(init_spec$init_coef_dummy[[1]]) == num_restrict || ncol(init_spec$init_coef_dummy[[1]]) == dim_data)) {
       stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
     }
-    init_coef <- unlist(init_spec$init_coef)
-    init_coef_dummy <- unlist(init_spec$init_coef_dummy)
-    init_chol_diag <- unlist(lapply(init_spec$init_chol, diag))
-    init_chol_upper <- unlist(lapply(
+    if (!getDoParRegistered()) {
+      stop("Parallel backend is not registered.")
+    }
+    init_coef <- init_spec$init_coef
+    init_coef_dummy <- init_spec$init_coef_dummy
+    init_chol_diag <- lapply(init_spec$init_chol, diag)
+    init_chol_upper <- lapply(
       init_spec$init_chol,
       function(x) x[upper.tri(x, diag = FALSE)]
-    ))
-    init_chol_dummy <- unlist(lapply(
+    )
+    init_chol_dummy <- lapply(
       init_spec$init_chol_dummy,
       function(x) x[upper.tri(x, diag = FALSE)]
-    ))
+    )
+    # MCMC-----------------------------
+    ssvs_res <- foreach(id = seq_along(init_coef)) %dorng% {
+      estimate_bvar_ssvs(
+        num_iter = num_iter,
+        num_warm = num_warm,
+        x = X0,
+        y = Y0,
+        init_coef = init_coef[[id]], # initial alpha
+        init_chol_diag = init_chol_diag[[id]], # initial psi_jj
+        init_chol_upper = init_chol_upper[[id]], # initial psi_ij
+        init_coef_dummy = init_coef_dummy[[id]], # initial gamma
+        init_chol_dummy = init_chol_dummy[[id]], # initial omega
+        coef_spike = bayes_spec$coef_spike, # alpha spike
+        coef_slab = bayes_spec$coef_slab, # alpha slab
+        coef_slab_weight = bayes_spec$coef_mixture, # pj
+        shape = bayes_spec$shape, # shape of gamma distn
+        rate = bayes_spec$rate, # rate of gamma distn
+        chol_spike = bayes_spec$chol_spike, # eta spike
+        chol_slab = bayes_spec$chol_slab, # eta slab
+        chol_slab_weight = bayes_spec$chol_mixture, # qij
+        intercept_sd = bayes_spec$coef_non, # c for constant c I
+        chain = init_spec$chain,
+        display_progress = verbose
+      )
+    }
+    ssvs_res$alpha_record <- do.call(cbind, ssvs_res$alpha_record)
+    ssvs_res$eta_record <- do.call(cbind, ssvs_res$eta_record)
+    ssvs_res$psi_record <- do.call(cbind, ssvs_res$psi_record)
+    ssvs_res$omega_record <- do.call(cbind, ssvs_res$omega_record)
+    ssvs_res$gamma_record <- do.call(cbind, ssvs_res$gamma_record)
+    ssvs_res$chol_record <- do.call(cbind, ssvs_res$chol_record)
   }
-  # MCMC-----------------------------
-  ssvs_res <- estimate_bvar_ssvs(
-    num_iter = num_iter,
-    num_warm = num_warm,
-    x = X0,
-    y = Y0,
-    init_coef = init_coef, # initial alpha
-    init_chol_diag = init_chol_diag, # initial psi_jj
-    init_chol_upper = init_chol_upper, # initial psi_ij
-    init_coef_dummy = init_coef_dummy, # initial gamma
-    init_chol_dummy = init_chol_dummy, # initial omega
-    coef_spike = bayes_spec$coef_spike, # alpha spike
-    coef_slab = bayes_spec$coef_slab, # alpha slab
-    coef_slab_weight = bayes_spec$coef_mixture, # pj
-    shape = bayes_spec$shape, # shape of gamma distn
-    rate = bayes_spec$rate, # rate of gamma distn
-    chol_spike = bayes_spec$chol_spike, # eta spike
-    chol_slab = bayes_spec$chol_slab, # eta slab
-    chol_slab_weight = bayes_spec$chol_mixture, # qij
-    intercept_sd = bayes_spec$coef_non, # c for constant c I
-    chain = init_spec$chain,
-    display_progress = verbose
-  )
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   ssvs_res$alpha_record <- ssvs_res$alpha_record[thin_id,]

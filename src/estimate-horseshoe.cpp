@@ -184,48 +184,6 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   // Start Gibbs sampling-----------------------------------
   Progress p(chain * num_iter, display_progress);
-#ifdef _OPENMP
-  Rcpp::Rcout << "Parallel chains" << std::endl;
-#pragma omp parallel for
-  for (int b = 0; b < chain; b++) {
-    prec_record.block(0, b * dim, dim, dim) = covmat.block(0, b * dim, dim, dim).inverse();
-  }
-#pragma                  \
-  omp                    \
-    parallel             \
-    for                  \
-      num_threads(chain) \
-      shared(y, x, num_coef, dim, coef_type)
-  for (int b = 0; b < chain; b++) {
-    for (int i = 1; i < num_iter + 1; i++) {
-      if (Progress::check_abort()) {
-        return Rcpp::List::create(
-          Rcpp::Named("alpha_record") = coef_record,
-          Rcpp::Named("lambda_record") = local_record,
-          Rcpp::Named("tau_record") = global_record,
-          Rcpp::Named("sigma_record") = sig_record,
-          Rcpp::Named("chain") = chain
-        );
-      }
-      p.increment();
-      // 1. alpha (coefficient)
-      lambda_mat = build_shrink_mat(global_record(i - 1, chain), local_record.block(i - 1, b * num_coef, 1, num_coef));
-      coef_mat = horseshoe_coef(x, y, covmat.block(0, b * dim, dim, dim), lambda_mat, coef_type);
-      coef_record.block(i, b * num_coef, 1, num_coef) = vectorize_eigen(coef_mat);
-      // 2. sigma (variance)
-      covmat.block(0, b * dim, dim, dim) = horseshoe_prec_mat(x, y, coef_mat, lambda_mat);
-      prec_record.block(i * dim, b * dim, dim, dim) = covmat.block(0, b * dim, dim, dim).inverse();
-      // 3. nuj (local latent)
-      latent_local = horseshoe_latent_local(local_record.block(i - 1, b * num_coef, 1, num_coef));
-      // 4. xi (global latent)
-      latent_global = horseshoe_latent_global(global_record(i - 1, chain));
-      // 5. lambdaj (local shrinkage)
-      local_record.block(i, b * num_coef, 1, num_coef) = horseshoe_local_sparsity(latent_local, global_record(i - 1, chain), coef_mat, prec_record.block(i * dim, b * dim, dim, dim));
-      // 6. tau (global shrinkage)
-      global_record(i, chain) = horseshoe_global_sparsity(latent_global, local_record.block(i, b * num_coef, 1, num_coef), coef_mat, prec_record.block(i * dim, b * dim, dim, dim));
-    }
-  }
-#else
   prec_record.block(0, 0, dim, dim) = covmat.inverse();
   for (int i = 1; i < num_iter + 1; i++) {
     if (Progress::check_abort()) {
@@ -254,7 +212,6 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     // 6. tau (global shrinkage)
     global_record(i, 0) = horseshoe_global_sparsity(latent_global, local_record.row(i), coef_mat, prec_record.block(i * dim, 0, dim, dim));
   }
-#endif
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_warm),

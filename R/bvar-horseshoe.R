@@ -33,6 +33,8 @@
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @importFrom posterior as_draws_df bind_draws
+#' @importFrom foreach foreach getDoParRegistered
+#' @importFrom doRNG %dorng%
 #' @order 1
 #' @export
 bvar_horseshoe <- function(y,
@@ -78,6 +80,7 @@ bvar_horseshoe <- function(y,
   colnames(X0) <- name_lag
   # Initial vectors-------------------
   dim_design <- ncol(X0)
+  coef_type <- ifelse(fast_sampling, 2, 1)
   if (bayes_spec$chain == 1) {
     if (length(bayes_spec$local_sparsity) != dim_design) {
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
@@ -88,6 +91,19 @@ bvar_horseshoe <- function(y,
     init_local <- bayes_spec$local_sparsity
     init_global <- bayes_spec$global_sparsity
     init_priorvar <- bayes_spec$init_cov
+    # MCMC-----------------------------
+    res <- estimate_horseshoe_niw(
+      num_iter = num_iter,
+      num_warm = num_warm,
+      x = X0,
+      y = Y0,
+      init_local = init_local,
+      init_global = init_global,
+      init_priorvar = init_priorvar,
+      coef_type = coef_type,
+      chain = bayes_spec$chain,
+      display_progress = verbose
+    )
   } else {
     if (length(bayes_spec$local_sparsity[[1]]) != dim_design) {
       stop("Every length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
@@ -95,24 +111,32 @@ bvar_horseshoe <- function(y,
     if (ncol(bayes_spec$init_cov[[1]]) != dim_data) {
       stop("Every dimension of the matrix 'init_cov' should be dim x dim.")
     }
-    init_local <- unlist(bayes_spec$local_sparsity)
+    if (!getDoParRegistered()) {
+      stop("Parallel backend is not registered.")
+    }
+    init_local <- bayes_spec$local_sparsity
     init_global <- bayes_spec$global_sparsity
     init_priorvar <- bayes_spec$init_cov
+    # MCMC-----------------------------
+    res <- foreach(id = seq_along(init_local)) %dorng% {
+      estimate_horseshoe_niw(
+        num_iter = num_iter,
+        num_warm = num_warm,
+        x = X0,
+        y = Y0,
+        init_local = init_local[[id]],
+        init_global = init_global[[id]],
+        init_priorvar = init_priorvar[[id]],
+        coef_type = coef_type,
+        chain = bayes_spec$chain,
+        display_progress = verbose
+      )
+    }
+    res$alpha_record <- do.call(cbind, res$alpha_record)
+    res$lambda_record <- do.call(cbind, res$lambda_record)
+    res$tau_record <- do.call(cbind, res$tau_record)
+    res$psi_record <- do.call(cbind, res$psi_record)
   }
-  # MCMC-----------------------------
-  coef_type <- ifelse(fast_sampling, 2, 1)
-  res <- estimate_horseshoe_niw(
-    num_iter = num_iter,
-    num_warm = num_warm,
-    x = X0,
-    y = Y0,
-    init_local = init_local,
-    init_global = init_global,
-    init_priorvar = init_priorvar,
-    coef_type = coef_type,
-    chain = bayes_spec$chain,
-    display_progress = verbose
-  )
   # preprocess the results-----------
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   if (res$chain > 1) {
