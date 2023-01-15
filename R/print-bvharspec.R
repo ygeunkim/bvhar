@@ -159,6 +159,8 @@ print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
           pseudo_param <- paste0("rep(", param[[i]], ", dim^2 * p)") # coef_
         } else if (grepl(pattern = "^chol", names(param)[i])) {
           pseudo_param <- paste0("rep(", param[[i]], ", dim * (dim - 1) / 2)") # chol_
+        } else if (names(param)[i] == "coef_non") {
+          pseudo_param <- paste0("prior variance = ", param[[i]], "^2 I_dim")
         } else {
           pseudo_param <- paste0("rep(", param[[i]], ", dim)") # shape and rate
         }

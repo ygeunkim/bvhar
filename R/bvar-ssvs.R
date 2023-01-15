@@ -188,7 +188,6 @@ bvar_ssvs <- function(y,
       chol_slab = bayes_spec$chol_slab, # eta slab
       chol_slab_weight = bayes_spec$chol_mixture, # qij
       intercept_sd = bayes_spec$coef_non, # c for constant c I
-      chain = init_spec$chain,
       display_progress = verbose
     )
   } else {
@@ -233,7 +232,6 @@ bvar_ssvs <- function(y,
         chol_slab = bayes_spec$chol_slab, # eta slab
         chol_slab_weight = bayes_spec$chol_mixture, # qij
         intercept_sd = bayes_spec$coef_non, # c for constant c I
-        chain = init_spec$chain,
         display_progress = verbose
       )
     }
@@ -254,21 +252,21 @@ bvar_ssvs <- function(y,
   ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
-  if (ssvs_res$chain > 1) {
+  if (init_spec$chain > 1) {
     ssvs_res$alpha_record <- 
-      split_paramarray(ssvs_res$alpha_record, chain = ssvs_res$chain, param_name = "alpha") %>% 
+      split_paramarray(ssvs_res$alpha_record, chain = init_spec$chain, param_name = "alpha") %>% 
       as_draws_df()
     ssvs_res$gamma_record <- 
-      split_paramarray(ssvs_res$gamma_record, chain = ssvs_res$chain, param_name = "gamma") %>% 
+      split_paramarray(ssvs_res$gamma_record, chain = init_spec$chain, param_name = "gamma") %>% 
       as_draws_df()
     ssvs_res$psi_record <- 
-      split_paramarray(ssvs_res$psi_record, chain = ssvs_res$chain, param_name = "psi") %>% 
+      split_paramarray(ssvs_res$psi_record, chain = init_spec$chain, param_name = "psi") %>% 
       as_draws_df()
     ssvs_res$eta_record <- 
-      split_paramarray(ssvs_res$eta_record, chain = ssvs_res$chain, param_name = "eta") %>% 
+      split_paramarray(ssvs_res$eta_record, chain = init_spec$chain, param_name = "eta") %>% 
       as_draws_df()
     ssvs_res$omega_record <- 
-      split_paramarray(ssvs_res$omega_record, chain = ssvs_res$chain, param_name = "omega") %>% 
+      split_paramarray(ssvs_res$omega_record, chain = init_spec$chain, param_name = "omega") %>% 
       as_draws_df()
     ssvs_res$param <- bind_draws(
       ssvs_res$alpha_record, 
@@ -279,18 +277,18 @@ bvar_ssvs <- function(y,
     )
     ssvs_res$chol_posterior <- Reduce(
       "+",
-      split.data.frame(ssvs_res$chol_record, gl(num_iter / (dim_data * ssvs_res$chain), dim_data * ssvs_res$chain))[(num_warm + 1):num_iter]
+      split.data.frame(ssvs_res$chol_record, gl(num_iter / (dim_data * init_spec$chain), dim_data * init_spec$chain))[(num_warm + 1):num_iter]
     ) / (num_iter - num_warm)
     # Cholesky factor 3d array-------------
-    ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, ssvs_res$chain, "cholesky")
+    ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, init_spec$chain, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[(num_warm + 1):num_iter] # burn in
     # Posterior mean-------------------------
-    ssvs_res$coefficients <- array(ssvs_res$coefficients, dim = c(dim_design, dim_data, ssvs_res$chain))
+    ssvs_res$coefficients <- array(ssvs_res$coefficients, dim = c(dim_design, dim_data, init_spec$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
     
     
     ssvs_res$chol_posterior <- 
-      split.data.frame(ssvs_res$chol_posterior, gl(ssvs_res$chain, dim_data / ssvs_res$chain)) %>% 
+      split.data.frame(ssvs_res$chol_posterior, gl(init_spec$chain, dim_data / init_spec$chain)) %>% 
       lapply(t)
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
@@ -350,6 +348,7 @@ bvar_ssvs <- function(y,
   ssvs_res$iter <- num_iter
   ssvs_res$burn <- num_warm
   ssvs_res$thin <- thinning
+  ssvs_res$chain <- init_spec$chain
   # data------------------
   ssvs_res$y0 <- Y0
   ssvs_res$design <- X0
