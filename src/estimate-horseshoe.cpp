@@ -72,7 +72,6 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double gl
   Eigen::MatrixXd invgam_scl = coef * prec * coef.transpose() / (2 * pow(global_hyperparam, 2.0)) + latent_mat;
   Eigen::VectorXd res(dim_design);
   for (int i = 0; i < dim_design; i++) {
-    // res[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl(i, i)));
     res[i] = sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl(i, i)));
   }
   return res;
@@ -137,7 +136,6 @@ double horseshoe_latent_global(double global_hyperparam) {
 Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd coef, Eigen::MatrixXd shrink_mat) {
   Eigen::MatrixXd resid = y - x * coef;
   return sim_iw(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
-  // return sim_iw(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows() + 2);
 }
 
 //' Gibbs Sampler for Horseshoe BVAR Estimator

@@ -397,12 +397,21 @@ ssvs_coef <- function(prior_mean, prior_var, XtX, coef_ols, chol_factor) {
 #' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 #' 
 #' @param param_obs Realized parameters vector
-#' @param sd_numer Standard deviance for Spike or slab normal distribution, which will be used for numerator. spike in coefficients, slab in cholesky factor.
-#' @param sd_denom Standard deviance for Spike or slab normal distribution, which will be used for denominator. slab in coefficients, spike in cholesky factor.
+#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
+#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 #' @param slab_weight Proportion of nonzero coefficients
 #' @noRd
 ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
     .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
+}
+
+#' Computing Restricted VAR Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' @param coef_vec Coefficient vector
+#' @param coef_dummy Coefficient dummy vector
+#' @noRd
+ssvs_restrict <- function(coef_vec, coef_dummy) {
+    .Call(`_bvhar_ssvs_restrict`, coef_vec, coef_dummy)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler

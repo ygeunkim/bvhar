@@ -245,11 +245,13 @@ bvar_ssvs <- function(y,
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
   ssvs_res$alpha_record <- ssvs_res$alpha_record[thin_id,]
+  ssvs_res$restricted_record <- ssvs_res$restricted_record[thin_id,]
   ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
   ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$restricted_posterior <- colMeans(ssvs_res$restricted_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (init_spec$chain > 1) {
@@ -292,17 +294,20 @@ bvar_ssvs <- function(y,
       lapply(t)
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
+    colnames(ssvs_res$restricted_record) <- paste0("alpha_restricted[", 1:num_restrict, "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
     ssvs_res$alpha_record <- as_draws_df(ssvs_res$alpha_record)
+    ssvs_res$restricted_record <- as_draws_df(ssvs_res$restricted_record)
     ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
     ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
     ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
     ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
     ssvs_res$param <- bind_draws(
-      ssvs_res$alpha_record, 
+      ssvs_res$alpha_record,
+      ssvs_res$restricted_record,
       ssvs_res$gamma_record,
       ssvs_res$psi_record,
       ssvs_res$eta_record,
@@ -313,6 +318,7 @@ bvar_ssvs <- function(y,
     ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
+    ssvs_res$restricted_posterior <- matrix(ssvs_res$restricted_posterior, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -325,6 +331,8 @@ bvar_ssvs <- function(y,
     # names of posterior mean-----------------
     colnames(ssvs_res$coefficients) <- name_var
     rownames(ssvs_res$coefficients) <- name_lag
+    # colnames(ssvs_res$restricted_posterior) <- name_var
+    # rownames(ssvs_res$restricted_posterior) <- name_lag
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
     colnames(ssvs_res$gamma_posterior) <- name_var

@@ -21,8 +21,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy) {
-  int num_param = spike_sd.size();
-  Eigen::VectorXd res(num_param);
+  Eigen::VectorXd res(spike_sd.size());
   // diagonal term = spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
   res.array() = (1 - mixture_dummy.array()) * spike_sd.array() + mixture_dummy.array() * slab_sd.array();
   return res;
@@ -140,8 +139,8 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_var,
 //' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
 //' 
 //' @param param_obs Realized parameters vector
-//' @param sd_numer Standard deviance for Spike or slab normal distribution, which will be used for numerator. spike in coefficients, slab in cholesky factor.
-//' @param sd_denom Standard deviance for Spike or slab normal distribution, which will be used for denominator. slab in coefficients, spike in cholesky factor.
+//' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
+//' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 //' @param slab_weight Proportion of nonzero coefficients
 //' @noRd
 // [[Rcpp::export]]
@@ -153,6 +152,18 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
   for (int i = 0; i < num_latent; i++) {
     res[i] = binom_rand(1, bernoulli_param_u1[i] / (bernoulli_param_u1[i] + bernoulli_param_u2[i]));
   }
+  return res;
+}
+
+//' Computing Restricted VAR Coefficient Vector in SSVS Gibbs Sampler
+//' 
+//' @param coef_vec Coefficient vector
+//' @param coef_dummy Coefficient dummy vector
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_restrict(Eigen::VectorXd coef_vec, Eigen::VectorXd coef_dummy) {
+  Eigen::VectorXd res(coef_dummy.size());
+  res.array() = coef_dummy.array() * coef_vec.array();
   return res;
 }
 
@@ -237,6 +248,14 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd coef_mat = unvectorize(init_coef, dim_design, dim); // coefficient matrix to compute sse_mat
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
+  
+  Eigen::MatrixXd coef_restrict_record(num_iter + 1, num_restrict);
+  if (num_non == dim) {
+    coef_restrict_record.row(0) = vectorize_eigen(coef_mat.topRows(num_restrict / dim));
+  } else if (num_non == -dim) {
+    coef_restrict_record.row(0) = init_coef;
+  }
+  
   Progress p(num_iter, display_progress);
   // Start Gibbs sampling-----------------------------------------
   chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
@@ -249,6 +268,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         Rcpp::Named("omega_record") = chol_dummy_record,
         Rcpp::Named("gamma_record") = coef_dummy_record,
         Rcpp::Named("chol_record") = chol_factor_record,
+        Rcpp::Named("restricted_record") = coef_restrict_record,
         Rcpp::Named("ols_coef") = coef_ols,
         Rcpp::Named("ols_cholesky") = chol_ols
       );
@@ -278,8 +298,13 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 5. gamma-------------------------
-    // coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_spike, coef_slab, coef_slab_weight);
     coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_slab, coef_spike, coef_slab_weight);
+    // 6. restricted VAR----------------
+    if (num_non == dim) {
+      coef_restrict_record.row(i) = ssvs_restrict(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_dummy_record.row(i));
+    } else if (num_non == -dim) {
+      coef_restrict_record.row(i) = ssvs_restrict(coef_record.row(i), coef_dummy_record.row(i));
+    }
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
@@ -288,6 +313,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_warm)),
+    Rcpp::Named("restricted_record") = coef_restrict_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("ols_coef") = coef_ols,
     Rcpp::Named("ols_cholesky") = chol_ols
   );
