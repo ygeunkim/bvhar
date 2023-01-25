@@ -319,6 +319,7 @@ bvar_ssvs <- function(y,
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
     ssvs_res$restricted_posterior <- matrix(ssvs_res$restricted_posterior, ncol = dim_data)
+    ssvs_res$restricted_posterior <- rbind(ssvs_res$restricted_posterior, ssvs_res$coefficients[dim_design,])
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -331,8 +332,8 @@ bvar_ssvs <- function(y,
     # names of posterior mean-----------------
     colnames(ssvs_res$coefficients) <- name_var
     rownames(ssvs_res$coefficients) <- name_lag
-    # colnames(ssvs_res$restricted_posterior) <- name_var
-    # rownames(ssvs_res$restricted_posterior) <- name_lag
+    colnames(ssvs_res$restricted_posterior) <- name_var
+    rownames(ssvs_res$restricted_posterior) <- name_lag
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
     colnames(ssvs_res$gamma_posterior) <- name_var
@@ -362,7 +363,7 @@ bvar_ssvs <- function(y,
   ssvs_res$design <- X0
   ssvs_res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvarssvs", "bvharsp")
+  class(ssvs_res) <- c("bvarssvs", "ssvsmod", "bvharsp")
   ssvs_res
 }
 

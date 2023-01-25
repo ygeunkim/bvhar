@@ -2,12 +2,15 @@
 % Please edit documentation in R/summary-sparse.R
 \name{relspne}
 \alias{relspne}
-\alias{relspne.bvharsp}
+\alias{relspne.ssvsmod}
+\alias{relspne.mvhsmod}
 \title{Evaluate the Estimation Based on Relative Spectral Norm Error}
 \usage{
 relspne(x, y, ...)
 
-\method{relspne}{bvharsp}(x, y, ...)
+\method{relspne}{ssvsmod}(x, y, restrict = FALSE, ...)
+
+\method{relspne}{mvhsmod}(x, y, ...)
 }
 \arguments{
 \item{x}{Estimated model.}
@@ -15,6 +18,8 @@ relspne(x, y, ...)
 \item{y}{Coefficient matrix to be compared.}
 
 \item{...}{not used}
+
+\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \description{
 This function computes relative estimation error given estimated model and true coefficient.

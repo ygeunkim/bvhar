@@ -202,7 +202,7 @@ bvar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  class(res) <- c("bvarhs", "bvharsp")
+  class(res) <- c("bvarhs", "mvhsmod", "bvharsp")
   res
 }
 

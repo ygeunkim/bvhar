@@ -2,12 +2,15 @@
 % Please edit documentation in R/summary-sparse.R
 \name{spne}
 \alias{spne}
-\alias{spne.bvharsp}
+\alias{spne.ssvsmod}
+\alias{spne.mvhsmod}
 \title{Evaluate the Estimation Based on Spectral Norm Error}
 \usage{
 spne(x, y, ...)
 
-\method{spne}{bvharsp}(x, y, ...)
+\method{spne}{ssvsmod}(x, y, restrict = FALSE, ...)
+
+\method{spne}{mvhsmod}(x, y, ...)
 }
 \arguments{
 \item{x}{Estimated model.}
@@ -15,6 +18,8 @@ spne(x, y, ...)
 \item{y}{Coefficient matrix to be compared.}
 
 \item{...}{not used}
+
+\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \description{
 This function computes estimation error given estimated model and true coefficient.
