@@ -197,7 +197,7 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 - `y`: data
 - `p`: order
 - `num_iter`: Total number of iteration (including burn-in)
-- `num_warm`: The number of warm-up (burn-in)
+- `num_burn`: The number of burn-in (warm-up)
 - `thinning`: Thinning
 - `bayes_spec`: SSVS specification using `set_ssvs()`.
 - `init_spec`: SSVS initialization specification using `init_ssvs()`.
@@ -209,7 +209,7 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
   y = var_data,
   p = 1,
   num_iter = 1000,
-  num_warm = 500,
+  num_burn = 500,
   thinning = 3,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
@@ -257,7 +257,7 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
   y = var_data,
   har = c(5, 22),
   num_iter = 1000,
-  num_warm = 500,
+  num_burn = 500,
   thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = initvhar_spec,
@@ -288,7 +288,7 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 - `y`: data
 - `p`: order
 - `num_iter`: Total number of iteration (including burn-in)
-- `num_warm`: The number of warm-up (burn-in)
+- `num_burn`: The number of burn-in (warm-up)
 - `thinning`: Thinning
 - `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
 - `include_mean`: whether including the constant term in the model.
@@ -299,7 +299,7 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
   y = var_data,
   p = 1,
   num_iter = 1000,
-  num_warm = 500,
+  num_burn = 500,
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
@@ -322,7 +322,7 @@ Here, VHAR coefficient.
 - `y`: data
 - `har`: `(week, month)` order.
 - `num_iter`: Total number of iteration (including burn-in)
-- `num_warm`: The number of warm-up (burn-in)
+- `num_burn`: The number of burn-in (warm-up)
 - `thinning`: Thinning
 - `bayes_spec`: Horseshoe specification using `set_horseshoe()`.
 - `include_mean`: whether including the constant term in the model.
@@ -333,7 +333,7 @@ Here, VHAR coefficient.
   y = var_data,
   har = c(5, 22),
   num_iter = 1000,
-  num_warm = 500,
+  num_burn = 500,
   thinning = 1,
   bayes_spec = hsvhar_spec,
   include_mean = TRUE,

@@ -126,6 +126,7 @@ confusion <- function(x, y, threshold, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param threshold Threshold value indicating sparsity.
+#' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
@@ -138,23 +139,23 @@ confusion <- function(x, y, threshold, ...) {
 #' FN is false negative, and FN is false negative.
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-confusion.ssvsmod <- function(x, y, threshold = .01, restrict = FALSE, ...) {
+confusion.ssvsmod <- function(x, y, threshold = .01, truth_thr = 0, restrict = FALSE, ...) {
   if (restrict) {
     est <- c(x$restricted_posterior)
   } else {
     est <- c(x$coefficients)
   }
   est <- ifelse(abs(est) <= threshold, 0, 1)
-  table(truth = ifelse(c(y) == 0, 0, 1), estimation = est)
+  table(truth = ifelse(c(y) <= truth_thr, 0, 1), estimation = est)
 }
 
 #' @rdname confusion
 #' @export
-confusion.mvhsmod <- function(x, y, threshold = .01, ...) {
+confusion.mvhsmod <- function(x, y, threshold = .01, truth_thr = 0, ...) {
   est <- c(x$coefficients)
   est <- ifelse(abs(est) <= threshold, 0, est)
   est <- ifelse(abs(est) <= threshold, 0, 1)
-  table(truth = ifelse(c(y) == 0, 0, 1), estimation = est)
+  table(truth = ifelse(c(y) <= truth_thr, 0, 1), estimation = est)
 }
 
 #' Evaluate the Sparsity Estimation Based on Precision
@@ -164,6 +165,7 @@ confusion.mvhsmod <- function(x, y, threshold = .01, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param threshold Threshold value indicating sparsity.
+#' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @export
 conf_prec <- function(x, y, threshold, ...) {
@@ -174,6 +176,7 @@ conf_prec <- function(x, y, threshold, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param threshold Threshold value indicating sparsity.
+#' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
@@ -185,15 +188,15 @@ conf_prec <- function(x, y, threshold, ...) {
 #' where TP is true positive, and FP is false positive.
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-conf_prec.ssvsmod <- function(x, y, threshold = .01, restrict = FALSE, ...) {
-  conftab <- confusion(x, y, threshold = threshold, restrict = restrict)
+conf_prec.ssvsmod <- function(x, y, threshold = .01, truth_thr = 0, restrict = FALSE, ...) {
+  conftab <- confusion(x, y, threshold = threshold, truth_thr = truth_thr, restrict = restrict)
   conftab[1, 1] / (conftab[1, 1] + conftab[2, 1])
 }
 
 #' @rdname conf_prec
 #' @export
-conf_prec.mvhsmod <- function(x, y, threshold = .01, ...) {
-  conftab <- confusion(x, y, threshold = threshold)
+conf_prec.mvhsmod <- function(x, y, threshold = .01, truth_thr = 0, ...) {
+  conftab <- confusion(x, y, threshold = threshold, truth_thr = truth_thr)
   conftab[1, 1] / (conftab[1, 1] + conftab[2, 1])
 }
 
@@ -214,6 +217,7 @@ conf_recall <- function(x, y, threshold, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param threshold Threshold value indicating sparsity.
+#' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
@@ -225,15 +229,15 @@ conf_recall <- function(x, y, threshold, ...) {
 #' where TP is true positive, and FN is false negative.
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-conf_recall.ssvsmod <- function(x, y, threshold = .01, restrict = FALSE, ...) {
-  conftab <- confusion(x, y, threshold = threshold, restrict = restrict)
+conf_recall.ssvsmod <- function(x, y, threshold = .01, truth_thr = 0, restrict = FALSE, ...) {
+  conftab <- confusion(x, y, threshold = threshold, truth_thr = truth_thr, restrict = restrict)
   conftab[1, 1] / (conftab[1, 1] + conftab[1, 2])
 }
 
 #' @rdname conf_recall
 #' @export
-conf_recall.mvhsmod <- function(x, y, threshold = .01, ...) {
-  conftab <- confusion(x, y, threshold = threshold)
+conf_recall.mvhsmod <- function(x, y, threshold = .01, truth_thr = 0, ...) {
+  conftab <- confusion(x, y, threshold = threshold, truth_thr = truth_thr)
   conftab[1, 1] / (conftab[1, 1] + conftab[1, 2])
 }
 
@@ -254,6 +258,7 @@ conf_fscore <- function(x, y, threshold, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param threshold Threshold value indicating sparsity.
+#' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
@@ -263,16 +268,16 @@ conf_fscore <- function(x, y, threshold, ...) {
 #' Then the F1 score is computed by
 #' \deqn{F_1 = \frac{2 precision \times recall}{precision + recall}}
 #' @export
-conf_fscore.ssvsmod <- function(x, y, threshold = .01, restrict = FALSE, ...) {
-  prec_score <- conf_prec(x, y, threshold = threshold, restrict = restrict)
-  rec_score <- conf_recall(x, y, threshold = threshold, restrict = restrict)
+conf_fscore.ssvsmod <- function(x, y, threshold = .01, truth_thr = 0, restrict = FALSE, ...) {
+  prec_score <- conf_prec(x, y, threshold = threshold, truth_thr = truth_thr, restrict = restrict)
+  rec_score <- conf_recall(x, y, threshold = threshold, truth_thr = truth_thr, restrict = restrict)
   2 * prec_score * rec_score / (prec_score + rec_score)
 }
 
 #' @rdname conf_fscore
 #' @export
-conf_fscore.mvhsmod <- function(x, y, threshold = .01, ...) {
-  prec_score <- conf_prec(x, y, threshold = threshold)
-  rec_score <- conf_recall(x, y, threshold = threshold)
+conf_fscore.mvhsmod <- function(x, y, threshold = .01, truth_thr = 0, ...) {
+  prec_score <- conf_prec(x, y, threshold = threshold, truth_thr = truth_thr)
+  rec_score <- conf_recall(x, y, threshold = threshold, truth_thr = truth_thr)
   2 * prec_score * rec_score / (prec_score + rec_score)
 }

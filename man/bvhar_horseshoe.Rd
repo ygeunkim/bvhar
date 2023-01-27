@@ -9,7 +9,7 @@ bvhar_horseshoe(
   y,
   har = c(5, 22),
   num_iter = 1000,
-  num_warm = floor(num_iter/2),
+  num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_horseshoe(),
   include_mean = TRUE,
@@ -26,7 +26,7 @@ bvhar_horseshoe(
 
 \item{num_iter}{MCMC iteration number}
 
-\item{num_warm}{Number of warm-up (burn-in). Half of the iteration is the default choice.}
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
 

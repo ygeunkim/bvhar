@@ -5,7 +5,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param num_iter MCMC iteration number
-#' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
+#' @param num_burn Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()].
@@ -41,7 +41,9 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions. Journal of Econometrics*, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
 #' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @seealso 
@@ -55,7 +57,7 @@
 bvhar_ssvs <- function(y, 
                        har = c(5, 22), 
                        num_iter = 1000, 
-                       num_warm = floor(num_iter / 2), 
+                       num_burn = floor(num_iter / 2), 
                        thinning = 1,
                        bayes_spec = set_ssvs(), 
                        init_spec = init_ssvs(),
@@ -78,8 +80,8 @@ bvhar_ssvs <- function(y,
   if (num_iter < 1) {
     stop("Iterate more than 1 times for MCMC.")
   }
-  if (num_iter < num_warm) {
-    stop("'num_iter' should be larger than 'num_warm'.")
+  if (num_iter < num_burn) {
+    stop("'num_iter' should be larger than 'num_burn'.")
   }
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
@@ -173,7 +175,7 @@ bvhar_ssvs <- function(y,
     # MCMC-----------------------------
     ssvs_res <- estimate_bvar_ssvs(
       num_iter = num_iter,
-      num_warm = num_warm,
+      num_burn = num_burn,
       x = X1,
       y = Y0,
       init_coef = init_coef, # initial phi
@@ -213,7 +215,7 @@ bvhar_ssvs <- function(y,
     ssvs_res <- foreach(id = seq_along(init_coef)) %dorng% {
       estimate_bvar_ssvs(
         num_iter = num_iter,
-        num_warm = num_warm,
+        num_burn = num_burn,
         x = X0,
         y = Y0,
         init_coef = init_coef[[id]], # initial phi
@@ -242,7 +244,7 @@ bvhar_ssvs <- function(y,
   }
   # preprocess the results------------
   names(ssvs_res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(ssvs_res))
-  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
+  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   ssvs_res$phi_record <- ssvs_res$phi_record[thin_id,]
   ssvs_res$restricted_record <- ssvs_res$restricted_record[thin_id,]
   ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
@@ -278,7 +280,7 @@ bvhar_ssvs <- function(y,
     )
     # Cholesky factor 3d array-------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, init_spec$chain, "cholesky")
-    ssvs_res$chol_record <- ssvs_res$chol_record[(num_warm + 1):num_iter] # burn in
+    ssvs_res$chol_record <- ssvs_res$chol_record[(num_burn + 1):num_iter] # burn in
     # Posterior mean-------------------------
     ssvs_res$coefficients <- array(ssvs_res$coefficients, dim = c(dim_har, dim_data, init_spec$chain))
     # mat_upper <- array(0L, dim = c(dim_data, dim_data, ssvs_res$chain))
@@ -349,7 +351,7 @@ bvhar_ssvs <- function(y,
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
   ssvs_res$iter <- num_iter
-  ssvs_res$burn <- num_warm
+  ssvs_res$burn <- num_burn
   ssvs_res$thin <- thinning
   ssvs_res$chain <- init_spec$chain
   # data------------------
@@ -376,7 +378,7 @@ print.bvharssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   cat("BVHAR with SSVS Prior\n")
   cat("Fitted by Gibbs sampling\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
     cat(paste0("Thinning: ", x$thin, "\n"))
   }

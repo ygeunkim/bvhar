@@ -315,7 +315,7 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
 #' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_local Initial local shrinkage hyperparameters
@@ -325,8 +325,8 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_horseshoe_niw <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
-    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
+estimate_horseshoe_niw <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
+    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
@@ -419,7 +419,7 @@ ssvs_restrict <- function(coef_vec, coef_dummy) {
 #' This function conducts Gibbs sampling for BVAR SSVS.
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_coef Initial k x m coefficient matrix.
@@ -439,8 +439,8 @@ ssvs_restrict <- function(coef_vec, coef_dummy) {
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_warm, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_sd, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

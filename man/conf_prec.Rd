@@ -8,9 +8,9 @@
 \usage{
 conf_prec(x, y, threshold, ...)
 
-\method{conf_prec}{ssvsmod}(x, y, threshold = 0.01, restrict = FALSE, ...)
+\method{conf_prec}{ssvsmod}(x, y, threshold = 0.01, truth_thr = 0, restrict = FALSE, ...)
 
-\method{conf_prec}{mvhsmod}(x, y, threshold = 0.01, ...)
+\method{conf_prec}{mvhsmod}(x, y, threshold = 0.01, truth_thr = 0, ...)
 }
 \arguments{
 \item{x}{Estimated model.}
@@ -20,6 +20,8 @@ conf_prec(x, y, threshold, ...)
 \item{threshold}{Threshold value indicating sparsity.}
 
 \item{...}{not used}
+
+\item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 
 \item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }

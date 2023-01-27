@@ -8,9 +8,9 @@
 \usage{
 confusion(x, y, threshold, ...)
 
-\method{confusion}{ssvsmod}(x, y, threshold = 0.01, restrict = FALSE, ...)
+\method{confusion}{ssvsmod}(x, y, threshold = 0.01, truth_thr = 0, restrict = FALSE, ...)
 
-\method{confusion}{mvhsmod}(x, y, threshold = 0.01, ...)
+\method{confusion}{mvhsmod}(x, y, threshold = 0.01, truth_thr = 0, ...)
 }
 \arguments{
 \item{x}{Estimated model.}
@@ -20,6 +20,8 @@ confusion(x, y, threshold, ...)
 \item{threshold}{Threshold value indicating sparsity.}
 
 \item{...}{not used}
+
+\item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 
 \item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }

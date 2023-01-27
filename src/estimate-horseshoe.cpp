@@ -143,7 +143,7 @@ Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 //' 
 //' @param num_iter Number of iteration for MCMC
-//' @param num_warm Number of warm-up (burn-in) for MCMC
+//' @param num_burn Number of burn-in (warm-up) for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_local Initial local shrinkage hyperparameters
@@ -155,7 +155,7 @@ Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_horseshoe_niw(int num_iter,
-                                  int num_warm,
+                                  int num_burn,
                                   Eigen::MatrixXd x,
                                   Eigen::MatrixXd y,
                                   Eigen::VectorXd init_local,
@@ -211,10 +211,10 @@ Rcpp::List estimate_horseshoe_niw(int num_iter,
     global_record(i, 0) = horseshoe_global_sparsity(latent_global, local_record.row(i), coef_mat, prec_record.block(i * dim, 0, dim, dim));
   }
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_warm),
-    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_warm),
-    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_warm),
-    Rcpp::Named("psi_record") = prec_record.bottomRows(dim * (num_iter - num_warm)),
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("psi_record") = prec_record.bottomRows(dim * (num_iter - num_burn)),
     Rcpp::Named("chain") = chain
   );
 }

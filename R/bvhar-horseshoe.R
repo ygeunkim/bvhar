@@ -5,7 +5,7 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param num_iter MCMC iteration number
-#' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
+#' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -40,7 +40,7 @@
 bvhar_horseshoe <- function(y,
                             har = c(5, 22),
                             num_iter = 1000, 
-                            num_warm = floor(num_iter / 2),
+                            num_burn = floor(num_iter / 2),
                             thinning = 1,
                             bayes_spec = set_horseshoe(),
                             include_mean = TRUE,
@@ -60,8 +60,8 @@ bvhar_horseshoe <- function(y,
   if (num_iter < 1) {
     stop("Iterate more than 1 times for MCMC.")
   }
-  if (num_iter < num_warm) {
-    stop("'num_iter' should be larger than 'num_warm'.")
+  if (num_iter < num_burn) {
+    stop("'num_iter' should be larger than 'num_burn'.")
   }
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
@@ -97,7 +97,7 @@ bvhar_horseshoe <- function(y,
     # MCMC-----------------------------
     res <- estimate_horseshoe_niw(
       num_iter = num_iter,
-      num_warm = num_warm,
+      num_burn = num_burn,
       x = X1,
       y = Y0,
       init_local = init_local,
@@ -121,7 +121,7 @@ bvhar_horseshoe <- function(y,
     res <- foreach(id = seq_along(init_local)) %dorng% {
       estimate_horseshoe_niw(
         num_iter = num_iter,
-        num_warm = num_warm,
+        num_burn = num_burn,
         x = X0,
         y = Y0,
         init_local = init_local[[id]],
@@ -139,7 +139,7 @@ bvhar_horseshoe <- function(y,
   }
   # preprocess the results-----------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
-  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
+  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   if (res$chain > 1) {
     # 
   } else {
@@ -198,7 +198,7 @@ bvhar_horseshoe <- function(y,
   res$algo <- ifelse(fast_sampling, "fast", "gibbs")
   res$spec <- bayes_spec
   res$iter <- num_iter
-  res$burn <- num_warm
+  res$burn <- num_burn
   res$thin <- thinning
   # data------------------
   res$y0 <- Y0
@@ -224,7 +224,7 @@ print.bvharhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   # cat("Fitted by Gibbs sampling\n")
   cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
     cat(paste0("Thinning: ", x$thin, "\n"))
   }
