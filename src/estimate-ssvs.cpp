@@ -189,6 +189,7 @@ Eigen::VectorXd ssvs_restrict(Eigen::VectorXd coef_vec, Eigen::VectorXd coef_dum
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param intercept_sd Hyperparameter for constant term
+//' @param include_mean Add constant term
 //' @param chain The number of MCMC chains.
 //' @param display_progress Progress bar
 //' @noRd
@@ -211,6 +212,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd chol_slab,
                               Eigen::VectorXd chol_slab_weight,
                               double intercept_sd,
+                              bool include_mean,
                               bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
@@ -219,8 +221,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   // Initialize coefficients vector-------------------------------
   int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
-  int num_non = num_coef - num_restrict; // number of unrestricted coefs (constant vector): dim vs -dim (if no constant)
-  if (num_non == -dim) {
+  if (!include_mean) {
     num_restrict += dim; // always dim^2 p
   }
   Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
@@ -250,9 +251,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   
   Eigen::MatrixXd coef_restrict_record(num_iter + 1, num_restrict);
-  if (num_non == dim) {
+  if (include_mean) {
     coef_restrict_record.row(0) = vectorize_eigen(coef_mat.topRows(num_restrict / dim));
-  } else if (num_non == -dim) {
+  } else {
     coef_restrict_record.row(0) = init_coef;
   }
   
@@ -284,14 +285,12 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_slab, chol_spike, chol_slab_weight);
     // 4. alpha--------------------------
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
-    if (num_non == dim) {
-      // constant case
+    if (include_mean) {
       for (int j = 0; j < dim; j++) {
         prior_variance.segment(j * dim_design, num_restrict / dim) = coef_mixture_mat.segment(j * num_restrict / dim, num_restrict / dim);
         prior_variance[j * dim_design + num_restrict / dim] = intercept_sd;
       }
-    } else if (num_non == -dim) {
-      // no constant term
+    } else {
       prior_variance = coef_mixture_mat;
     }
     coef_record.row(i) = ssvs_coef(prior_mean, prior_variance, XtX, coefvec_ols, chol_factor_record.block(i * dim, 0, dim, dim));
@@ -300,9 +299,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     // 5. gamma-------------------------
     coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_slab, coef_spike, coef_slab_weight);
     // 6. restricted VAR----------------
-    if (num_non == dim) {
+    if (include_mean) {
       coef_restrict_record.row(i) = ssvs_restrict(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_dummy_record.row(i));
-    } else if (num_non == -dim) {
+    } else {
       coef_restrict_record.row(i) = ssvs_restrict(coef_record.row(i), coef_dummy_record.row(i));
     }
   }

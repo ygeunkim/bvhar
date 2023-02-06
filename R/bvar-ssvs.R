@@ -189,7 +189,8 @@ bvar_ssvs <- function(y,
       chol_spike = bayes_spec$chol_spike, # eta spike
       chol_slab = bayes_spec$chol_slab, # eta slab
       chol_slab_weight = bayes_spec$chol_mixture, # qij
-      intercept_sd = bayes_spec$coef_non, # c for constant c I
+      intercept_sd = bayes_spec$coef_non, # c for constant c I,
+      include_mean = include_mean,
       display_progress = verbose
     )
   } else {
@@ -321,7 +322,6 @@ bvar_ssvs <- function(y,
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
     ssvs_res$restricted_posterior <- matrix(ssvs_res$restricted_posterior, ncol = dim_data)
-    ssvs_res$restricted_posterior <- rbind(ssvs_res$restricted_posterior, ssvs_res$coefficients[dim_design,])
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -329,6 +329,7 @@ bvar_ssvs <- function(y,
     ssvs_res$gamma_posterior <- matrix(ssvs_res$gamma_posterior, ncol = dim_data)
     if (include_mean) {
       ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
+      ssvs_res$restricted_posterior <- rbind(ssvs_res$restricted_posterior, ssvs_res$coefficients[dim_design,])
     }
     ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
     # names of posterior mean-----------------
