@@ -2,28 +2,21 @@
 % Please edit documentation in R/summary-sparse.R
 \name{confusion}
 \alias{confusion}
-\alias{confusion.ssvsmod}
-\alias{confusion.mvhsmod}
+\alias{confusion.summary.bvharsp}
 \title{Evaluate the Sparsity Estimation Based on Confusion Matrix}
 \usage{
-confusion(x, y, threshold, ...)
+confusion(x, y, ...)
 
-\method{confusion}{ssvsmod}(x, y, threshold = 0.01, truth_thr = 0, restrict = FALSE, ...)
-
-\method{confusion}{mvhsmod}(x, y, threshold = 0.01, truth_thr = 0, ...)
+\method{confusion}{summary.bvharsp}(x, y, truth_thr = 0, ...)
 }
 \arguments{
-\item{x}{Estimated model.}
+\item{x}{\code{summary.bvharsp} object.}
 
 \item{y}{True coefficient matrix.}
-
-\item{threshold}{Threshold value indicating sparsity.}
 
 \item{...}{not used}
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
-
-\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \description{
 This function computes FDR (false discovery rate) and FNR (false negative rate) for sparse element of the true coefficients given threshold.

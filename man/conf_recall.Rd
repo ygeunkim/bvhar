@@ -2,28 +2,21 @@
 % Please edit documentation in R/summary-sparse.R
 \name{conf_recall}
 \alias{conf_recall}
-\alias{conf_recall.ssvsmod}
-\alias{conf_recall.mvhsmod}
+\alias{conf_recall.summary.bvharsp}
 \title{Evaluate the Sparsity Estimation Based on Recall}
 \usage{
-conf_recall(x, y, threshold, ...)
+conf_recall(x, y, ...)
 
-\method{conf_recall}{ssvsmod}(x, y, threshold = 0.01, truth_thr = 0, restrict = FALSE, ...)
-
-\method{conf_recall}{mvhsmod}(x, y, threshold = 0.01, truth_thr = 0, ...)
+\method{conf_recall}{summary.bvharsp}(x, y, truth_thr = 0, ...)
 }
 \arguments{
-\item{x}{Estimated model.}
+\item{x}{\code{summary.bvharsp} object.}
 
 \item{y}{True coefficient matrix.}
-
-\item{threshold}{Threshold value indicating sparsity.}
 
 \item{...}{not used}
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
-
-\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \description{
 This function computes recall for sparse element of the true coefficients given threshold.
