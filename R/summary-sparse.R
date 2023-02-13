@@ -7,6 +7,8 @@
 #' @param chol_threshold Threshold for variable selection in cholesky factor. By default, `0.5`.
 #' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
+#' @details 
+#' In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
 #' 
 #' @importFrom stats coef
 #' @references 
@@ -46,9 +48,12 @@ summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, re
 #' 
 #' Conduct variable selection.
 #' 
-#' @param object `ssvsmod` object
+#' @param object `mvhsmod` object
 #' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
 #' @param ... not used
+#' @details 
+#' MCMC can construct \eqn{100 (1 - \alpha)} credible interval.
+#' This interval can help variable selection.
 #' 
 #' @importFrom posterior summarise_draws subset_draws
 #' @importFrom stats quantile

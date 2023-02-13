@@ -26,6 +26,9 @@
 \description{
 Conduct variable selection.
 }
+\details{
+In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
+}
 \references{
 George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889. doi:\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353}{10.1080/01621459.1993.10476353}
 
