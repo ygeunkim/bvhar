@@ -23,8 +23,6 @@ This function computes F1 score for sparse element of the true coefficients give
 }
 \details{
 When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
-If the element of the estimate \eqn{\hat\Phi} is smaller than some threshold,
-it is treated to be zero.
 Then the F1 score is computed by
 \deqn{F_1 = \frac{2 precision \times recall}{precision + recall}}
 }

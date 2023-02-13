@@ -23,9 +23,7 @@ This function computes recall for sparse element of the true coefficients given 
 }
 \details{
 When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
-If the element of the estimate \eqn{\hat\Phi} is smaller than some threshold,
-it is treated to be zero.
-Then the precision is computed by
+Precision is computed by
 \deqn{recall = \frac{TP}{TP + FN}}
 where TP is true positive, and FN is false negative.
 }
