@@ -247,13 +247,11 @@ bvhar_ssvs <- function(y,
   names(ssvs_res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(ssvs_res))
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   ssvs_res$phi_record <- ssvs_res$phi_record[thin_id,]
-  ssvs_res$restricted_record <- ssvs_res$restricted_record[thin_id,]
   ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
   ssvs_res$coefficients <- colMeans(ssvs_res$phi_record)
-  ssvs_res$restricted_posterior <- colMeans(ssvs_res$restricted_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
   if (init_spec$chain > 1) {
@@ -289,20 +287,17 @@ bvhar_ssvs <- function(y,
     
   } else {
     colnames(ssvs_res$phi_record) <- paste0("phi[", seq_len(ncol(ssvs_res$phi_record)), "]")
-    colnames(ssvs_res$restricted_record) <- paste0("phi_restricted[", 1:num_restrict, "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
     ssvs_res$phi_record <- as_draws_df(ssvs_res$phi_record)
-    ssvs_res$restricted_record <- as_draws_df(ssvs_res$restricted_record)
     ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
     ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
     ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
     ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
     ssvs_res$param <- bind_draws(
       ssvs_res$phi_record,
-      ssvs_res$restricted_record,
       ssvs_res$gamma_record,
       ssvs_res$psi_record,
       ssvs_res$eta_record,
@@ -313,7 +308,6 @@ bvhar_ssvs <- function(y,
     ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
-    ssvs_res$restricted_posterior <- matrix(ssvs_res$restricted_posterior, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -321,14 +315,11 @@ bvhar_ssvs <- function(y,
     ssvs_res$gamma_posterior <- matrix(ssvs_res$gamma_posterior, ncol = dim_data)
     if (include_mean) {
       ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
-      ssvs_res$restricted_posterior <- rbind(ssvs_res$restricted_posterior, ssvs_res$coefficients[dim_har,])
     }
     ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
     # names of posterior mean-----------------
     colnames(ssvs_res$coefficients) <- name_var
     rownames(ssvs_res$coefficients) <- name_har
-    colnames(ssvs_res$restricted_posterior) <- name_var
-    rownames(ssvs_res$restricted_posterior) <- name_har
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
     colnames(ssvs_res$gamma_posterior) <- name_var

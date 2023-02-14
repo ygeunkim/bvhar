@@ -405,15 +405,6 @@ ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
     .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
 }
 
-#' Computing Restricted VAR Coefficient Vector in SSVS Gibbs Sampler
-#' 
-#' @param coef_vec Coefficient vector
-#' @param coef_dummy Coefficient dummy vector
-#' @noRd
-ssvs_restrict <- function(coef_vec, coef_dummy) {
-    .Call(`_bvhar_ssvs_restrict`, coef_vec, coef_dummy)
-}
-
 #' BVAR(p) SSVS by Gibbs Sampler
 #' 
 #' This function conducts Gibbs sampling for BVAR SSVS.

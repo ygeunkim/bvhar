@@ -5,7 +5,6 @@
 #' @param object `ssvsmod` object
 #' @param coef_threshold Threshold for variable selection. By default, `0.5`.
 #' @param chol_threshold Threshold for variable selection in cholesky factor. By default, `0.5`.
-#' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
 #' In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
@@ -20,9 +19,9 @@
 #' 
 #' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85–117. doi:[10.1214/09-ba403](https://doi.org/10.1214/09-BA403)
 #' @export
-summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, restrict = FALSE, ...) {
+summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ...) {
   # coefficients-------------------------------
-  coef_mean <- coef(object, restrict = restrict)
+  coef_mean <- object$coefficients
   coef_dummy <- object$gamma_posterior
   var_selection <- coef_dummy > coef_threshold
   coef_res <- ifelse(var_selection, coef_mean, 0L)
@@ -103,7 +102,6 @@ fromse <- function(x, y, ...) {
 #' @rdname fromse
 #' @param x Estimated model.
 #' @param y Coefficient matrix to be compared.
-#' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
 #' Consider the Frobenius Norm \eqn{\lVert \cdot \rVert_F}.
@@ -113,16 +111,7 @@ fromse <- function(x, y, ...) {
 #' \deqn{MSE = 100 \frac{\lVert \hat{\Phi} - \Phi \rVert_F}{nrow \times k}}
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-fromse.ssvsmod <- function(x, y, restrict = FALSE, ...) {
-  if (restrict) {
-    return(100 * norm(x$restricted_posterior - y, type = "F") / (x$df * x$m))
-  }
-  100 * norm(x$coefficients - y, type = "F") / (x$df * x$m)
-}
-
-#' @rdname fromse
-#' @export
-fromse.mvhsmod <- function(x, y, ...) {
+fromse.bvharsp <- function(x, y, ...) {
   100 * norm(x$coefficients - y, type = "F") / (x$df * x$m)
 }
 
@@ -141,7 +130,6 @@ spne <- function(x, y, ...) {
 #' @rdname spne
 #' @param x Estimated model.
 #' @param y Coefficient matrix to be compared.
-#' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
 #' Let \eqn{\lVert \cdot \rVert_2} be the spectral norm of a matrix,
@@ -151,16 +139,7 @@ spne <- function(x, y, ...) {
 #' \deqn{\lVert \hat{\Phi} - \Phi \rVert_2}
 #' @references Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' @export
-spne.ssvsmod <- function(x, y, restrict = FALSE, ...) {
-  if (restrict) {
-    return(norm(x$restricted_posterior - y, type = "2"))
-  }
-  norm(x$coefficients - y, type = "2")
-}
-
-#' @rdname spne
-#' @export
-spne.mvhsmod <- function(x, y, ...) {
+spne.bvharsp <- function(x, y, ...) {
   norm(x$coefficients - y, type = "2")
 }
 
@@ -179,7 +158,6 @@ relspne <- function(x, y, ...) {
 #' @rdname relspne
 #' @param x Estimated model.
 #' @param y Coefficient matrix to be compared.
-#' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @param ... not used
 #' @details 
 #' Let \eqn{\lVert \cdot \rVert_2} be the spectral norm of a matrix,
@@ -189,13 +167,7 @@ relspne <- function(x, y, ...) {
 #' \deqn{\frac{\lVert \hat{\Phi} - \Phi \rVert_2}{\lVert \Phi \rVert_2}}
 #' @references Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
 #' @export
-relspne.ssvsmod <- function(x, y, restrict = FALSE, ...) {
-  spne(x, y, restrict = restrict) / norm(y, type = "2")
-}
-
-#' @rdname relspne
-#' @export
-relspne.mvhsmod <- function(x, y, ...) {
+relspne.bvharsp <- function(x, y, ...) {
   spne(x, y) / norm(y, type = "2")
 }
 

@@ -6,8 +6,7 @@
 \alias{coef.bvarmn}
 \alias{coef.bvarflat}
 \alias{coef.bvharmn}
-\alias{coef.ssvsmod}
-\alias{coef.mvhsmod}
+\alias{coef.bvharsp}
 \title{Coefficient Matrix of Multivariate Time Series Models}
 \usage{
 \method{coef}{varlse}(object, ...)
@@ -20,16 +19,12 @@
 
 \method{coef}{bvharmn}(object, ...)
 
-\method{coef}{ssvsmod}(object, restrict = FALSE, ...)
-
-\method{coef}{mvhsmod}(object, ...)
+\method{coef}{bvharsp}(object, ...)
 }
 \arguments{
 \item{object}{Model object}
 
 \item{...}{not used}
-
-\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \value{
 \link{matrix} object with appropriate dimension.

@@ -35,18 +35,8 @@ coef.bvharmn <- function(object, ...) {
 }
 
 #' @rdname coef.varlse
-#' @param restrict Use restricted VAR. By default, `FALSE`.
 #' @export
-coef.ssvsmod <- function(object, restrict = FALSE, ...) {
-  if (restrict) {
-    return(object$restricted_posterior)
-  }
-  object$coefficients
-}
-
-#' @rdname coef.varlse
-#' @export
-coef.mvhsmod <- function(object, ...) {
+coef.bvharsp <- function(object, ...) {
   object$coefficients
 }
 

@@ -4,13 +4,7 @@
 \alias{summary.ssvsmod}
 \title{Summarizing VAR and VHAR with SSVS Prior Model}
 \usage{
-\method{summary}{ssvsmod}(
-  object,
-  coef_threshold = 0.5,
-  chol_threshold = 0.5,
-  restrict = FALSE,
-  ...
-)
+\method{summary}{ssvsmod}(object, coef_threshold = 0.5, chol_threshold = 0.5, ...)
 }
 \arguments{
 \item{object}{\code{ssvsmod} object}
@@ -18,8 +12,6 @@
 \item{coef_threshold}{Threshold for variable selection. By default, \code{0.5}.}
 
 \item{chol_threshold}{Threshold for variable selection in cholesky factor. By default, \code{0.5}.}
-
-\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 
 \item{...}{not used}
 }

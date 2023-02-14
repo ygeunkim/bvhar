@@ -2,15 +2,12 @@
 % Please edit documentation in R/summary-sparse.R
 \name{fromse}
 \alias{fromse}
-\alias{fromse.ssvsmod}
-\alias{fromse.mvhsmod}
+\alias{fromse.bvharsp}
 \title{Evaluate the Estimation Based on Frobenius Norm}
 \usage{
 fromse(x, y, ...)
 
-\method{fromse}{ssvsmod}(x, y, restrict = FALSE, ...)
-
-\method{fromse}{mvhsmod}(x, y, ...)
+\method{fromse}{bvharsp}(x, y, ...)
 }
 \arguments{
 \item{x}{Estimated model.}
@@ -18,8 +15,6 @@ fromse(x, y, ...)
 \item{y}{Coefficient matrix to be compared.}
 
 \item{...}{not used}
-
-\item{restrict}{Use restricted VAR. By default, \code{FALSE}.}
 }
 \description{
 This function computes estimation error given estimated model and true coefficient.

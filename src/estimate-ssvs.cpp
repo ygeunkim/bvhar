@@ -22,8 +22,7 @@
 // [[Rcpp::export]]
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy) {
   Eigen::VectorXd res(spike_sd.size());
-  // diagonal term = spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
-  res.array() = (1 - mixture_dummy.array()) * spike_sd.array() + mixture_dummy.array() * slab_sd.array();
+  res.array() = (1 - mixture_dummy.array()) * spike_sd.array() + mixture_dummy.array() * slab_sd.array(); // diagonal term = spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
   return res;
 }
 
@@ -155,18 +154,6 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
   return res;
 }
 
-//' Computing Restricted VAR Coefficient Vector in SSVS Gibbs Sampler
-//' 
-//' @param coef_vec Coefficient vector
-//' @param coef_dummy Coefficient dummy vector
-//' @noRd
-// [[Rcpp::export]]
-Eigen::VectorXd ssvs_restrict(Eigen::VectorXd coef_vec, Eigen::VectorXd coef_dummy) {
-  Eigen::VectorXd res(coef_dummy.size());
-  res.array() = coef_dummy.array() * coef_vec.array();
-  return res;
-}
-
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 
 //' This function conducts Gibbs sampling for BVAR SSVS.
@@ -249,14 +236,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd coef_mat = unvectorize(init_coef, dim_design, dim); // coefficient matrix to compute sse_mat
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
-  
-  Eigen::MatrixXd coef_restrict_record(num_iter + 1, num_restrict);
-  if (include_mean) {
-    coef_restrict_record.row(0) = vectorize_eigen(coef_mat.topRows(num_restrict / dim));
-  } else {
-    coef_restrict_record.row(0) = init_coef;
-  }
-  
   Progress p(num_iter, display_progress);
   // Start Gibbs sampling-----------------------------------------
   chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
@@ -269,7 +248,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
         Rcpp::Named("omega_record") = chol_dummy_record,
         Rcpp::Named("gamma_record") = coef_dummy_record,
         Rcpp::Named("chol_record") = chol_factor_record,
-        Rcpp::Named("restricted_record") = coef_restrict_record,
         Rcpp::Named("ols_coef") = coef_ols,
         Rcpp::Named("ols_cholesky") = chol_ols
       );
@@ -298,12 +276,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 5. gamma-------------------------
     coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_slab, coef_spike, coef_slab_weight);
-    // 6. restricted VAR----------------
-    if (include_mean) {
-      coef_restrict_record.row(i) = ssvs_restrict(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_dummy_record.row(i));
-    } else {
-      coef_restrict_record.row(i) = ssvs_restrict(coef_record.row(i), coef_dummy_record.row(i));
-    }
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
@@ -312,7 +284,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
     Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_burn)),
-    Rcpp::Named("restricted_record") = coef_restrict_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("ols_coef") = coef_ols,
     Rcpp::Named("ols_cholesky") = chol_ols
   );

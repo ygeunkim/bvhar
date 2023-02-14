@@ -367,18 +367,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ssvs_restrict
-Eigen::VectorXd ssvs_restrict(Eigen::VectorXd coef_vec, Eigen::VectorXd coef_dummy);
-RcppExport SEXP _bvhar_ssvs_restrict(SEXP coef_vecSEXP, SEXP coef_dummySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_vec(coef_vecSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_dummy(coef_dummySEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_restrict(coef_vec, coef_dummy));
-    return rcpp_result_gen;
-END_RCPP
-}
 // estimate_bvar_ssvs
 Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double intercept_sd, bool include_mean, bool display_progress);
 RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_sdSEXP, SEXP include_meanSEXP, SEXP display_progressSEXP) {
@@ -1224,7 +1212,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_chol", (DL_FUNC) &_bvhar_build_chol, 2},
     {"_bvhar_ssvs_coef", (DL_FUNC) &_bvhar_ssvs_coef, 5},
     {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 4},
-    {"_bvhar_ssvs_restrict", (DL_FUNC) &_bvhar_ssvs_restrict, 2},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 20},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
