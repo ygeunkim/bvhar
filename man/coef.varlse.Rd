@@ -7,6 +7,7 @@
 \alias{coef.bvarflat}
 \alias{coef.bvharmn}
 \alias{coef.bvharsp}
+\alias{coef.summary.bvharsp}
 \title{Coefficient Matrix of Multivariate Time Series Models}
 \usage{
 \method{coef}{varlse}(object, ...)
@@ -20,6 +21,8 @@
 \method{coef}{bvharmn}(object, ...)
 
 \method{coef}{bvharsp}(object, ...)
+
+\method{coef}{summary.bvharsp}(object, ...)
 }
 \arguments{
 \item{object}{Model object}

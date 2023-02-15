@@ -374,7 +374,7 @@ set_ssvs <- function(coef_spike = .1,
     chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
   }
   chol_param <- list(
-    process = "BVAR",
+    process = "VAR",
     prior = "SSVS",
     shape = shape,
     rate = rate,
@@ -475,7 +475,7 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
     stop("Invalid dimension of 'init_chol_dummy'.")
   }
   res <- list(
-    process = "BVAR",
+    process = "VAR",
     prior = "SSVS",
     chain = num_chain,
     init_coef = init_coef,
@@ -544,7 +544,7 @@ set_horseshoe <- function(local_sparsity, global_sparsity = .1, init_cov) {
     num_chain <- 1
   }
   res <- list(
-    process = "BVAR",
+    process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
     global_sparsity = global_sparsity,

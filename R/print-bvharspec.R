@@ -128,8 +128,8 @@ print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   cat(paste0("Prior: ", x$prior, "\n"))
   fit_func <- switch(
     x$process,
-    "BVAR" = "?bvar_ssvs",
-    "BVHAR" = "?bvhar_ssvs",
+    "VAR" = "?bvar_ssvs",
+    "VHAR" = "?bvhar_ssvs",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
@@ -214,8 +214,8 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   # cat(paste0("Prior: ", x$prior, "\n"))
   fit_func <- switch(
     x$process,
-    "BVAR" = "?bvar_ssvs",
-    "BVHAR" = "?bvhar_ssvs",
+    "VAR" = "?bvar_ssvs",
+    "VHAR" = "?bvhar_ssvs",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
@@ -392,8 +392,8 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   cat(paste0("Prior: ", x$prior, "\n"))
   fit_func <- switch(
     x$process,
-    "BVAR" = "?bvar_horseshoe",
-    "BVHAR" = "?bvhar_horseshoe",
+    "VAR" = "?bvar_horseshoe",
+    "VHAR" = "?bvhar_horseshoe",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))

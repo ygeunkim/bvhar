@@ -254,7 +254,7 @@ bvar_ssvs <- function(y,
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
   ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
-  ssvs_res$gamma_posterior <- colMeans(ssvs_res$gamma_record)
+  ssvs_res$pip <- colMeans(ssvs_res$gamma_record)
   if (init_spec$chain > 1) {
     ssvs_res$alpha_record <- 
       split_paramarray(ssvs_res$alpha_record, chain = init_spec$chain, param_name = "alpha") %>% 
@@ -320,9 +320,9 @@ bvar_ssvs <- function(y,
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
     ssvs_res$omega_posterior <- mat_upper
-    ssvs_res$gamma_posterior <- matrix(ssvs_res$gamma_posterior, ncol = dim_data)
+    ssvs_res$pip <- matrix(ssvs_res$pip, ncol = dim_data)
     if (include_mean) {
-      ssvs_res$gamma_posterior <- rbind(ssvs_res$gamma_posterior, rep(1L, dim_data))
+      ssvs_res$pip <- rbind(ssvs_res$pip, rep(1L, dim_data))
     }
     ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
     # names of posterior mean-----------------
@@ -330,8 +330,8 @@ bvar_ssvs <- function(y,
     rownames(ssvs_res$coefficients) <- name_lag
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
-    colnames(ssvs_res$gamma_posterior) <- name_var
-    rownames(ssvs_res$gamma_posterior) <- name_lag
+    colnames(ssvs_res$pip) <- name_var
+    rownames(ssvs_res$pip) <- name_lag
     colnames(ssvs_res$chol_posterior) <- name_var
     rownames(ssvs_res$chol_posterior) <- name_var
     ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
@@ -344,7 +344,7 @@ bvar_ssvs <- function(y,
   ssvs_res$totobs <- nrow(y)
   # model-----------------
   ssvs_res$call <- match.call()
-  ssvs_res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  ssvs_res$process <- paste("VAR", bayes_spec$prior, sep = "_")
   ssvs_res$type <- ifelse(include_mean, "const", "none")
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
@@ -360,47 +360,3 @@ bvar_ssvs <- function(y,
   class(ssvs_res) <- c("bvarssvs", "ssvsmod", "bvharsp")
   ssvs_res
 }
-
-#' @rdname bvar_ssvs
-#' @param x `bvarssvs` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat(sprintf("BVAR(%i) with Hierarchical Prior\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  cat("Parameter Record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvar_ssvs
-#' @param x `bvarssvs` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.bvarssvs <- function(x, ...) {
-  print(x)
-}
-
-#' @export
-registerS3method(
-  "knit_print", "bvarssvs",
-  knit_print.bvarssvs,
-  envir = asNamespace("knitr")
-)

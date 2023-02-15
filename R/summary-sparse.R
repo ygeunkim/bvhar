@@ -22,7 +22,7 @@
 summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ...) {
   # coefficients-------------------------------
   coef_mean <- object$coefficients
-  coef_dummy <- object$gamma_posterior
+  coef_dummy <- object$pip
   var_selection <- coef_dummy > coef_threshold
   coef_res <- ifelse(var_selection, coef_mean, 0L)
   rownames(coef_res) <- rownames(coef_mean)
@@ -34,8 +34,14 @@ summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ..
   chol_res <- ifelse(chol_selection, chol_mean, 0L)
   # return S3 object---------------------------
   res <- list(
+    call = object$call,
+    process = object$process,
+    p = object$p,
+    m = object$m,
+    type = object$type,
     coefficients = coef_res,
     cholesky = chol_res,
+    threshold = c(coef_threshold, chol_threshold),
     coef_choose = var_selection,
     chol_choose = chol_selection
   )
@@ -69,9 +75,8 @@ summary.mvhsmod <- function(object, level = .05, ...) {
         prob = c(level / 2, (1 - level / 2))
       )
     ) %>% 
-    rename("lower" = `2.5%`, "upper" = `97.5%`) %>% 
-    mutate(is_zero = ifelse(lower * upper < 0, FALSE, TRUE))
-  selection <- matrix(cred_int$is_zero, ncol = object$m)
+    rename("term" = "variable", "conf.low" = `2.5%`, "conf.high" = `97.5%`)
+  selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
   coef_res <- ifelse(selection, object$coefficients, 0L)
   rownames(selection) <- rownames(object$coefficients)
   colnames(selection) <- colnames(object$coefficients)
@@ -79,8 +84,14 @@ summary.mvhsmod <- function(object, level = .05, ...) {
   colnames(coef_res) <- colnames(object$coefficients)
   # return S3 object---------------------------
   res <- list(
+    call = object$call,
+    process = object$process,
+    p = object$p,
+    m = object$m,
+    type = object$type,
     interval = cred_int,
     coefficients = coef_res,
+    level = level,
     coef_choose = selection
   )
   class(res) <- c("summary.mvhsmod", "summary.bvharsp")
