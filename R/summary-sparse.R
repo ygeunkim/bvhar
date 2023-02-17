@@ -23,15 +23,15 @@ summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ..
   # coefficients-------------------------------
   coef_mean <- object$coefficients
   coef_dummy <- object$pip
-  var_selection <- coef_dummy > coef_threshold
-  coef_res <- ifelse(var_selection, coef_mean, 0L)
+  var_selection <- coef_dummy <= coef_threshold
+  coef_res <- ifelse(var_selection, 0L, coef_mean)
   rownames(coef_res) <- rownames(coef_mean)
   colnames(coef_res) <- colnames(coef_mean)
   # cholesky factor----------------------------
   chol_mean <- object$chol_posterior
   chol_dummy <- object$omega_posterior
-  chol_selection <- chol_dummy > chol_threshold
-  chol_res <- ifelse(chol_selection, chol_mean, 0L)
+  chol_selection <- chol_dummy <= chol_threshold
+  chol_res <- ifelse(chol_selection, 0L, chol_mean)
   # return S3 object---------------------------
   res <- list(
     call = object$call,
