@@ -208,7 +208,7 @@ confusion <- function(x, y, ...) {
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
-  est <- ifelse(c(x$coef_choose), 1L, 0L) %>% factor(levels = c(0L, 1L))
+  est <- factor(c(x$coef_choose * 1), levels = c(0L, 1L))
   truth <- ifelse(c(y) <= truth_thr, 0L, 1L) %>% factor(levels = c(0L, 1L))
   table(truth = truth, estimation = est)
 }
