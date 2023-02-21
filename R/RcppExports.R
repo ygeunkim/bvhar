@@ -703,6 +703,19 @@ forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
+#' Forecasting VAR(p) with SSVS
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
+}
+
 #' Forecasting Bayesian VHAR
 #' 
 #' @param object `bvharmn` object
@@ -723,6 +736,20 @@ forecast_bvar <- function(object, step, num_sim) {
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
+}
+
+#' Forecasting VAR(p) with SSVS
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window

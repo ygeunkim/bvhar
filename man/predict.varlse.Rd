@@ -6,6 +6,8 @@
 \alias{predict.bvarmn}
 \alias{predict.bvharmn}
 \alias{predict.bvarflat}
+\alias{predict.bvarssvs}
+\alias{predict.bvharssvs}
 \alias{print.predbvhar}
 \alias{knit_print.predbvhar}
 \title{Forecasting Multivariate Time Series}
@@ -19,6 +21,10 @@
 \method{predict}{bvharmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
 \method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{predict}{bvarssvs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvharssvs}(object, n_ahead, level = 0.05, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -153,4 +159,8 @@ Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregre
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
+
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
 }

@@ -111,3 +111,66 @@ Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim) {
     Rcpp::Named("predictive") = predictive_distn
   );
 }
+
+//' Forecasting VAR(p) with SSVS
+//' 
+//' @param var_lag VAR order.
+//' @param step Integer, Step to forecast.
+//' @param coef_mat Posterior mean of SSVS.
+//' @param alpha_record Matrix, MCMC trace of alpha.
+//' @param eta_record Matrix, MCMC trace of eta.
+//' @param psi_record Matrix, MCMC trace of psi.
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List forecast_bvarssvs(int var_lag,
+                             int step,
+                             Eigen::MatrixXd response_mat,
+                             Eigen::MatrixXd coef_mat,
+                             Eigen::MatrixXd alpha_record,
+                             Eigen::MatrixXd eta_record,
+                             Eigen::MatrixXd psi_record) {
+  int num_sim = alpha_record.rows();
+  int dim = response_mat.cols();
+  int num_design = response_mat.rows();
+  int dim_design = coef_mat.rows();
+  Eigen::MatrixXd point_forecast(step, dim);
+  Eigen::VectorXd density_forecast(dim);
+  Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+  Eigen::VectorXd last_pvec(dim_design);
+  Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
+  last_pvec[dim_design - 1] = 1.0;
+  for (int i = 0; i < var_lag; i++) {
+    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
+  }
+  point_forecast.row(0) = last_pvec.transpose() * coef_mat;
+  Eigen::MatrixXd chol_factor(dim, dim);
+  Eigen::MatrixXd sig_cycle(dim, dim);
+  for (int b = 0; b < num_sim; b++) {
+    density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim_design, dim);
+    chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+    sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
+    predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
+  }
+  if (step == 1) {
+    return Rcpp::List::create(
+      Rcpp::Named("posterior_mean") = point_forecast,
+      Rcpp::Named("predictive") = predictive_distn
+    );
+  }
+  for (int i = 1; i < step; i++) {
+    tmp_vec = last_pvec.segment(0, (var_lag - 1) * dim);
+    last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
+    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
+    point_forecast.row(i) = last_pvec.transpose() * coef_mat;
+    for (int b = 0; b < num_sim; b++) {
+      density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim_design, dim);
+      chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+      sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
+      predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
+    }
+  }
+  return Rcpp::List::create(
+    Rcpp::Named("posterior_mean") = point_forecast,
+    Rcpp::Named("predictive") = predictive_distn
+  );
+}
