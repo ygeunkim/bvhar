@@ -1,3 +1,7 @@
+#ifdef _OPENMP
+#include <omp.h>
+// [[Rcpp::plugins(openmp)]]
+#endif
 #include <RcppEigen.h>
 #include "fitvar.h"
 

@@ -8,6 +8,8 @@
 \alias{predict.bvarflat}
 \alias{predict.bvarssvs}
 \alias{predict.bvharssvs}
+\alias{predict.bvarhs}
+\alias{predict.bvharhs}
 \alias{print.predbvhar}
 \alias{knit_print.predbvhar}
 \title{Forecasting Multivariate Time Series}
@@ -25,6 +27,10 @@
 \method{predict}{bvarssvs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvharssvs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvarhs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -141,6 +147,24 @@ and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 
 See \link{bvar_predictive_density} how to generate the predictive distribution.
+}
+
+\section{n-step ahead forecasting VAR(p) with SSVS and Horseshoe}{
+
+The process of the computing point estimate is the same.
+However, predictive interval is achieved from each Gibbs sampler sample.
+
+\deqn{y_{n + 1} \mid A, \Sigma_e, y \sim N( vec(y_{(n)}^T A), \Sigma_e )}
+\deqn{y_{n + h} \mid A, \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e )}
+}
+
+\section{n-step ahead forecasting VHAR with SSVS and Horseshoe}{
+
+The process of the computing point estimate is the same.
+However, predictive interval is achieved from each Gibbs sampler sample.
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 }
 
 \references{

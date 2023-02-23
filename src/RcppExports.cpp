@@ -607,6 +607,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_bvarhs
+Rcpp::List forecast_bvarhs(int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd alpha_record, Eigen::MatrixXd eta_record, Eigen::MatrixXd omega_record);
+RcppExport SEXP _bvhar_forecast_bvarhs(SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP coef_matSEXP, SEXP alpha_recordSEXP, SEXP eta_recordSEXP, SEXP omega_recordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type alpha_record(alpha_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type eta_record(eta_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type omega_record(omega_recordSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarhs(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvharmn
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim);
 RcppExport SEXP _bvhar_forecast_bvharmn(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
@@ -635,6 +652,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type eta_record(eta_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type psi_record(psi_recordSEXP);
     rcpp_result_gen = Rcpp::wrap(forecast_bvharssvs(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forecast_bvharhs
+Rcpp::List forecast_bvharhs(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans, Eigen::MatrixXd phi_record, Eigen::MatrixXd eta_record, Eigen::MatrixXd omega_record);
+RcppExport SEXP _bvhar_forecast_bvharhs(SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP coef_matSEXP, SEXP HARtransSEXP, SEXP phi_recordSEXP, SEXP eta_recordSEXP, SEXP omega_recordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type phi_record(phi_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type eta_record(eta_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type omega_record(omega_recordSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharhs(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1070,6 +1105,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// build_cov
+Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
+RcppExport SEXP _bvhar_build_cov(SEXP diag_vecSEXP, SEXP off_diagvecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type diag_vec(diag_vecSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type off_diagvec(off_diagvecSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_cov(diag_vec, off_diagvec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_var_eigen
 Eigen::MatrixXd sim_var_eigen(int num_sim, int num_burn, Eigen::MatrixXd var_coef, int var_lag, Eigen::MatrixXd sig_error, Eigen::MatrixXd init);
 RcppExport SEXP _bvhar_sim_var_eigen(SEXP num_simSEXP, SEXP num_burnSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP sig_errorSEXP, SEXP initSEXP) {
@@ -1264,8 +1311,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VHARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VHARcoeftoVMA_ortho, 5},
     {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 3},
     {"_bvhar_forecast_bvarssvs", (DL_FUNC) &_bvhar_forecast_bvarssvs, 7},
+    {"_bvhar_forecast_bvarhs", (DL_FUNC) &_bvhar_forecast_bvarhs, 7},
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 3},
     {"_bvhar_forecast_bvharssvs", (DL_FUNC) &_bvhar_forecast_bvharssvs, 8},
+    {"_bvhar_forecast_bvharhs", (DL_FUNC) &_bvhar_forecast_bvharhs, 8},
     {"_bvhar_expand_var", (DL_FUNC) &_bvhar_expand_var, 5},
     {"_bvhar_expand_vhar", (DL_FUNC) &_bvhar_expand_vhar, 5},
     {"_bvhar_expand_bvar", (DL_FUNC) &_bvhar_expand_bvar, 6},
@@ -1299,6 +1348,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_invgamma_dens", (DL_FUNC) &_bvhar_invgamma_dens, 4},
+    {"_bvhar_build_cov", (DL_FUNC) &_bvhar_build_cov, 2},
     {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 6},
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 6},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 7},

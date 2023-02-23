@@ -52,13 +52,31 @@ knit_print.bvharhs(x, ...)
 It is a list with the following components:
 
 \describe{
-\item{coefficients}{Coefficient Matrix}
-\item{p}{Lag of VAR}
+\item{phi_record}{MCMC trace for vectorized coefficients (alpha \eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{lambda_record}{MCMC trace for local shrinkage level (lambda \eqn{\lambda}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{tau_record}{MCMC trace for global shrinkage level (tau \eqn{\tau}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{psi_record}{MCMC trace for precision matrix (psi \eqn{\Psi}) with \link{list} format.}
+\item{chain}{The numer of chains}
+\item{coefficients}{Posterior mean of VHAR coefficients.}
+\item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
+\item{covmat}{Posterior mean of covariance matrix}
+\item{omega_record}{MCMC trace for diagonal element of \eqn{\Psi} (omega) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{eta_record}{MCMC trace for upper triangular element of \eqn{\Psi} (eta) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, lambda, tau, omega, and eta}
+\item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
+\item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
+\item{process}{Description of the model, e.g. \code{"VHAR_Horseshoe"}}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{algo}{Usual Gibbs sampling (\code{"gibbs"}) or fast sampling (\code{"fast"})}
+\item{spec}{Horseshoe specification defined by \code{\link[=set_horseshoe]{set_horseshoe()}}}
+\item{iter}{Total iterations}
+\item{burn}{Burn-in}
+\item{thin}{Thinning}
+\item{HARtrans}{VHAR linear transformation matrix}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}

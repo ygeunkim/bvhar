@@ -37,4 +37,6 @@ double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen:
 
 Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
 
+Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
+
 #endif

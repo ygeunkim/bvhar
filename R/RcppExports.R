@@ -707,6 +707,7 @@ forecast_bvar <- function(object, step, num_sim) {
 #' 
 #' @param var_lag VAR order.
 #' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
 #' @param coef_mat Posterior mean of SSVS.
 #' @param alpha_record Matrix, MCMC trace of alpha.
 #' @param eta_record Matrix, MCMC trace of eta.
@@ -714,6 +715,20 @@ forecast_bvar <- function(object, step, num_sim) {
 #' @noRd
 forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record) {
     .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
+}
+
+#' Forecasting VAR(p) with Horseshoe Prior
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvarhs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record) {
+    .Call(`_bvhar_forecast_bvarhs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record)
 }
 
 #' Forecasting Bayesian VHAR
@@ -738,10 +753,11 @@ forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
 }
 
-#' Forecasting VAR(p) with SSVS
+#' Forecasting VHAR with SSVS
 #' 
 #' @param month VHAR month order.
 #' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
 #' @param coef_mat Posterior mean of SSVS.
 #' @param HARtrans VHAR linear transformation matrix
 #' @param phi_record Matrix, MCMC trace of alpha.
@@ -750,6 +766,21 @@ forecast_bvharmn <- function(object, step, num_sim) {
 #' @noRd
 forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record) {
     .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
+}
+
+#' Forecasting VHAR with Horseshoe Prior
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of phi.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvharhs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record) {
+    .Call(`_bvhar_forecast_bvharhs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -1199,6 +1230,17 @@ log_mgammafn <- function(x, p) {
 #' @noRd
 invgamma_dens <- function(x, shp, scl, lg) {
     .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
+}
+
+#' Filling Covariance Matrix
+#' 
+#' This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
+#' 
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+#' @noRd
+build_cov <- function(diag_vec, off_diagvec) {
+    .Call(`_bvhar_build_cov`, diag_vec, off_diagvec)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

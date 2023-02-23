@@ -52,13 +52,37 @@ knit_print.bvharssvs(x, ...)
 It is a list with the following components:
 
 \describe{
-\item{coefficients}{Coefficient Matrix}
-\item{p}{Lag of VAR}
+\item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{eta_record}{MCMC trace for upper triangular element of cholesky factor (eta \eqn{\eta}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{psi_record}{MCMC trace for diagonal element of cholesky factor (psi \eqn{\psi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{omega_record}{MCMC trace for indicator variable for \eqn{eta} (omega \eqn{\omega}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{gamma_record}{MCMC trace for indicator variable for \eqn{alpha} (gamma \eqn{\gamma}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{chol_record}{MCMC trace for cholesky factor matrix \eqn{\Psi} with \link{list} format.}
+\item{ols_coef}{OLS estimates for VAR coefficients.}
+\item{ols_cholesky}{OLS estimates for cholesky factor}
+\item{coefficients}{Posterior mean of VAR coefficients.}
+\item{omega_posterior}{Posterior mean of omega}
+\item{pip}{Posterior inclusion probability}
+\item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, eta, psi, omega, and gamma}
+\item{chol_posterior}{Posterior mean of cholesky factor matrix}
+\item{covmat}{Posterior mean of covariance matrix}
+\item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
+\item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
+\item{week}{Order for weekly term}
+\item{month}{Order for monthly term}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
+\item{process}{Description of the model, e.g. \code{"VHAR_SSVS"}}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
+\item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
+\item{iter}{Total iterations}
+\item{burn}{Burn-in}
+\item{thin}{Thinning}
+\item{chain}{The numer of chains}
+\item{HARtrans}{VHAR linear transformation matrix}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
