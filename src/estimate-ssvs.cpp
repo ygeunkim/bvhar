@@ -39,8 +39,9 @@ Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd,
 // [[Rcpp::export]]
 Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design) {
   int dim = sse_mat.cols();
+  int num_param = DRD.size();
   Eigen::VectorXd res(dim);
-  Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(DRD.size(), DRD.size());
+  Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
   inv_DRD.diagonal() = 1 / DRD.array().square();
   Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
   shape.array() += (double)num_design / 2;
@@ -52,7 +53,7 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eig
     rate[j] += (
       sse_mat(j, j) - 
         sse_colvec.segment(0, j).transpose() * 
-        (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).inverse() * 
+        (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).llt().solve(Eigen::MatrixXd::Identity(j, j)) * 
         sse_colvec.segment(0, j)
     ) / 2;
     res[j] = sqrt(gamma_rand(shape[j], 1 / rate[j])); // psi[jj]^2 ~ Gamma(shape, rate)
@@ -82,7 +83,7 @@ Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag
   int block_id = 0;
   for (int j = 1; j < dim; j++) {
     sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1);
-    normal_variance.topLeftCorner(j, j) = (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).inverse();
+    normal_variance.topLeftCorner(j, j) = (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).llt().solve(Eigen::MatrixXd::Identity(j, j));
     normal_mean.segment(0, j) = -chol_diag[j] * normal_variance.topLeftCorner(j, j) * sse_colvec.segment(0, j);
     res.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean.segment(0, j), normal_variance.topLeftCorner(j, j)));
     block_id += j;
@@ -125,10 +126,11 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_var, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor) {
+  int num_coef = prior_var.size();
   Eigen::MatrixXd scaled_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
-  Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(prior_var.size(), prior_var.size());
+  Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
   prior_prec.diagonal() = 1 / prior_var.array().square();
-  Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).inverse(); // Delta
+  Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).llt().solve(Eigen::MatrixXd::Identity(num_coef, num_coef)); // Delta
   Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
   return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
 }
