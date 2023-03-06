@@ -42,8 +42,8 @@ summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ..
     coefficients = coef_res,
     cholesky = chol_res,
     threshold = c(coef_threshold, chol_threshold),
-    coef_choose = var_selection,
-    chol_choose = chol_selection
+    coef_choose = !var_selection,
+    chol_choose = !chol_selection
   )
   class(res) <- c("summary.ssvsmod", "summary.bvharsp")
   res
