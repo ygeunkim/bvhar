@@ -575,3 +575,90 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
     }
   )
 }
+
+#' Choose the Hyperparameters Set of SSVS-VAR using a Default Semiautomatic Approach
+#' 
+#' `r lifecycle::badge("experimental")`
+#' This function chooses \eqn{(\tau_{0i}, \tau_{1i})} and \eqn{(\kappa_{0i}, \kappa_{1i})}
+#' using a default semiautomatic approach.
+#' 
+#' @param y Time series data of which columns indicate the variables.
+#' @param ord Order for VAR or VHAR.
+#' @param type Model type (Default: `"VAR"` or `"VHAR"`).
+#' @param param Preselected constants \eqn{c_0 << c_1}. By default, `0.1` and `10` (See Details).
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`).
+#' @param gamma_param Parameters (shape, rate) for Gamma distribution. This is for the output.
+#' @param coef_non Standard deviance for constant term. This is for the output.
+#' @details 
+#' Instead of using subjective values of \eqn{(\tau_{0i}, \tau_{1i})}, we can use
+#' \deqn{\tau_{ki} = c_k \hat{VAR(OLS)}}
+#' It must be \eqn{c_0 << c_1}.
+#' 
+#' In case of \eqn{(\omega_{0ij}, \omega_{1ij})},
+#' \deqn{\omega_{kij} = c_k = \hat{VAR(OLS)}}
+#' similarly.
+#' @references 
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @export
+choose_ssvs <- function(y, 
+                        ord, 
+                        type = c("VAR", "VHAR"), 
+                        param = c(.1, 10),
+                        include_mean = TRUE,
+                        gamma_param = c(.01, .01),
+                        coef_non = .1) {
+  type <- match.arg(type)
+  if (param[1] >= param[2]) {
+    stop("'param[2]' should be larger than 'param[1]'.")
+  }
+  res <- switch(
+    type,
+    "VAR" = {
+      fit <- summary(var_lm(y, p = ord, include_mean = include_mean))
+      coef_var <- fit$coefficients$std.error
+      chol_var <- chol(fit$covmat)
+      chol_var <- chol_var[upper.tri(chol_var, diag = FALSE)]
+      list(
+        coef_spike = param[1] * coef_var,
+        coef_slab = param[2] * coef_var,
+        coef_mixture = .5,
+        coef_non = coef_non,
+        process = "VAR",
+        prior = "SSVS",
+        shape = gamma_param[1],
+        rate = gamma_param[2],
+        chol_spike = param[1] * chol_var,
+        chol_slab = param[2] * chol_var,
+        chol_mixture = .5
+      )
+    },
+    "VHAR" = {
+      if (missing(ord)) {
+        ord <- c(5, 22)
+      }
+      fit <- summary(vhar_lm(y, har = ord, include_mean = include_mean))
+      coef_var <- fit$coefficients$std.error
+      chol_var <- chol(fit$covmat)
+      chol_var <- chol_var[upper.tri(chol_var, diag = FALSE)]
+      list(
+        coef_spike = param[1] * coef_var,
+        coef_slab = param[2] * coef_var,
+        coef_mixture = .5,
+        coef_non = coef_non,
+        process = "VHAR",
+        prior = "SSVS",
+        shape = gamma_param[1],
+        rate = gamma_param[2],
+        chol_spike = param[1] * chol_var,
+        chol_slab = param[2] * chol_var,
+        chol_mixture = .5
+      )
+    }
+  )
+  class(res) <- "ssvsinput"
+  res
+}
