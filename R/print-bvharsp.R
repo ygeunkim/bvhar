@@ -9,7 +9,7 @@ print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
-  cat(sprintf("BVAR(%i) with Hierarchical Prior\n", x$p))
+  cat(sprintf("BVAR(%i) with SSVS Prior\n", x$p))
   cat("Fitted by Gibbs sampling\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))

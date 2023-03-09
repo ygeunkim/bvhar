@@ -220,3 +220,311 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
   }
   res
 }
+
+#' Generate SSVS Parameters
+#' 
+#' This function generates parameters of VAR with SSVS prior.
+#' 
+#' @param bayes_spec A SSVS model specification by [set_ssvs()].
+#' @param p VAR lag
+#' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param method Method to compute \eqn{\Sigma^{1/2}}.
+#' @section VAR(p) with SSVS prior:
+#' Let \eqn{\alpha} be the vectorized coefficient of VAR(p).
+#' \deqn{(\alpha \mid \gamma)}
+#' \deqn{(\gamma_i)}
+#' \deqn{(\eta_j \mid \omega_j)}
+#' \deqn{(\omega_{ij})}
+#' \deqn{(\psi_{ii}^2)}
+#' 
+#' @references 
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
+#' 
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' 
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
+#' @importFrom stats rbinom rnorm rgamma
+#' @export
+sim_ssvs_var <- function(bayes_spec,
+                         p,
+                         dim_data = NULL,
+                         include_mean = TRUE,
+                         method = c("eigen", "chol")) {
+  if (!is.ssvsinput(bayes_spec)) {
+    stop("Provide 'ssvsinput' for 'bayes_spec'.")
+  }
+  dim_design <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
+  num_coef <- dim_data * dim_design
+  num_restrict <- dim_data^2 * p
+  num_eta <- dim_data * (dim_data - 1) / 2
+  if (length(bayes_spec$coef_spike) == 1) {
+    bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_restrict)
+  }
+  if (length(bayes_spec$coef_slab) == 1) {
+    bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_restrict)
+  }
+  if (length(bayes_spec$coef_mixture) == 1) {
+    bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_restrict)
+  }
+  if (length(bayes_spec$shape) == 1) {
+    bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
+  }
+  if (length(bayes_spec$rate) == 1) {
+    bayes_spec$rate <- rep(bayes_spec$rate, dim_data)
+  }
+  if (length(bayes_spec$chol_spike) == 1) {
+    bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+  }
+  if (length(bayes_spec$chol_slab) == 1) {
+    bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+  }
+  if (length(bayes_spec$chol_mixture) == 1) {
+    bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+  }
+  # dummy for coefficients-------------------------
+  coef_dummy <- rbinom(num_restrict, 1, bayes_spec$coef_mixture)
+  coef_diag <- diag((1 - coef_dummy) * bayes_spec$coef_spike^2 + coef_dummy * bayes_spec$coef_slab^2)
+  coef_gamma <- matrix(coef_dummy, ncol = dim_data)
+  # coefficients----------------------------------
+  coef_mat <- sim_mnormal(1, rep(0, num_restrict), coef_diag, method = method)
+  coef_mat <- matrix(coef_mat, ncol = dim_data)
+  eigen_root <- 
+    compute_stablemat(coef_mat) %>% 
+    eigen() %>% 
+    .$values %>% 
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  # when including constant term------------------
+  if (include_mean) {
+    coef_non <- sim_mnormal(1, rep(0, dim_data), bayes_spec$coef_non * diag(dim_data))
+    coef_mat <- rbind(coef_mat, coef_non)
+    coef_gamma <- rbind(coef_gamma, 1)
+  }
+  # dummy for cholesky factors--------------------
+  chol_dummy <- numeric(dim_data)
+  chol_omega <- diag(dim_data)
+  chol_diag <- matrix(nrow = dim_data, ncol = dim_data)
+  chol_mat <- diag(dim_data)
+  diag(chol_mat) <- rgamma(dim_data, shape = bayes_spec$shape, rate = bayes_spec$rate)
+  eta_id <- 1
+  for (i in 2:dim_data) {
+    chol_dummy <- rbinom(i - 1, 1, bayes_spec$chol_mixture)
+    chol_omega[1:(i - 1), i] <- chol_dummy
+    chol_diag <- (1 - chol_dummy) * bayes_spec$chol_spike[(eta_id):(eta_id + i - 2)]^2 + chol_dummy * bayes_spec$chol_slab[(eta_id):(eta_id + i - 2)]^2
+    if (i == 2) {
+      chol_mat[1, 2] <- rnorm(1, 0, sqrt(chol_diag))
+    } else {
+      chol_mat[1:(i - 1), i] <- sim_mnormal(1, rep(0, i - 1), diag(chol_diag), method = method)
+    }
+    eta_id <- eta_id + (i - 1)
+  }
+  prec_mat <- chol_mat %*% t(chol_mat)
+  sig_mat <- solve(prec_mat)
+  snr <- sapply(
+    1:p,
+    function(var_lag) {
+      norm(coef_mat[1:(dim_data * p),][((var_lag - 1) * dim_data + 1):(dim_data * var_lag),], type = "F") /
+        norm(sig_mat, type = "F")
+    }
+  )
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable,
+    snr = snr,
+    gamma = coef_gamma,
+    chol = chol_mat,
+    omega = chol_omega,
+    prec = prec_mat,
+    covmat = sig_mat
+  )
+  res
+}
+
+#' @rdname sim_ssvs_var
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#' @section VHAR with SSVS prior:
+#' Let \eqn{\phi} be the vectorized coefficient of VHAR.
+#' \deqn{(\phi \mid \gamma)}
+#' \deqn{(\gamma_i)}
+#' \deqn{(\eta_j \mid \omega_j)}
+#' \deqn{(\omega_{ij})}
+#' \deqn{(\psi_{ii}^2)}
+#' 
+#' @export
+sim_ssvs_vhar <- function(bayes_spec,
+                          har = c(5, 22),
+                          dim_data = NULL,
+                          include_mean = TRUE,
+                          method = c("eigen", "chol")) {
+  if (!is.ssvsinput(bayes_spec)) {
+    stop("Provide 'ssvsinput' for 'bayes_spec'.")
+  }
+  num_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
+  num_coef <- dim_data * num_har
+  num_restrict <- 3 * dim_data^2
+  num_eta <- dim_data * (dim_data - 1) / 2
+  if (length(bayes_spec$coef_spike) == 1) {
+    bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_restrict)
+  }
+  if (length(bayes_spec$coef_slab) == 1) {
+    bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_restrict)
+  }
+  if (length(bayes_spec$coef_mixture) == 1) {
+    bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_restrict)
+  }
+  if (length(bayes_spec$shape) == 1) {
+    bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
+  }
+  if (length(bayes_spec$rate) == 1) {
+    bayes_spec$rate <- rep(bayes_spec$rate, dim_data)
+  }
+  if (length(bayes_spec$chol_spike) == 1) {
+    bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+  }
+  if (length(bayes_spec$chol_slab) == 1) {
+    bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+  }
+  if (length(bayes_spec$chol_mixture) == 1) {
+    bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+  }
+  # dummy for coefficients-------------------------
+  coef_dummy <- rbinom(num_restrict, 1, bayes_spec$coef_mixture)
+  coef_diag <- diag((1 - coef_dummy) * bayes_spec$coef_spike^2 + coef_dummy * bayes_spec$coef_slab^2)
+  coef_gamma <- matrix(coef_dummy, ncol = dim_data)
+  # coefficients----------------------------------
+  coef_mat <- sim_mnormal(1, rep(0, num_restrict), coef_diag, method = method)
+  coef_mat <- matrix(coef_mat, ncol = dim_data)
+  har_trans <- scale_har(dim_data, har[1], har[2], FALSE)
+  eigen_root <-
+    compute_stablemat(t(har_trans) %*% coef_mat) %>%
+    eigen() %>%
+    .$values %>%
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  # when including constant term------------------
+  if (include_mean) {
+    coef_non <- sim_mnormal(1, rep(0, dim_data), bayes_spec$coef_non * diag(dim_data))
+    coef_mat <- rbind(coef_mat, coef_non)
+    coef_gamma <- rbind(coef_gamma, 1)
+  }
+  # dummy for cholesky factors--------------------
+  chol_dummy <- numeric(dim_data)
+  chol_omega <- diag(dim_data)
+  chol_diag <- matrix(nrow = dim_data, ncol = dim_data)
+  chol_mat <- diag(dim_data)
+  diag(chol_mat) <- rgamma(dim_data, shape = bayes_spec$shape, rate = bayes_spec$rate)
+  eta_id <- 1
+  for (i in 2:dim_data) {
+    chol_dummy <- rbinom(i - 1, 1, bayes_spec$chol_mixture)
+    chol_omega[1:(i - 1), i] <- chol_dummy
+    chol_diag <- (1 - chol_dummy) * bayes_spec$chol_spike[(eta_id):(eta_id + i - 2)]^2 + chol_dummy * bayes_spec$chol_slab[(eta_id):(eta_id + i - 2)]^2
+    if (i == 2) {
+      chol_mat[1, 2] <- rnorm(1, 0, sqrt(chol_diag))
+    } else {
+      chol_mat[1:(i - 1), i] <- sim_mnormal(1, rep(0, i - 1), diag(chol_diag), method = method)
+    }
+    eta_id <- eta_id + (i - 1)
+  }
+  prec_mat <- chol_mat %*% t(chol_mat)
+  sig_mat <- solve(prec_mat)
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable,
+    gamma = coef_gamma,
+    chol = chol_mat,
+    omega = chol_omega,
+    prec = prec_mat,
+    covmat = sig_mat
+  )
+  res
+}
+
+#' Generate Matrix-variate Horseshoe Parameters
+#' 
+#' This function generates parameters of VAR with SSVS prior.
+#' 
+#' @param bayes_spec Horseshoe specification by [set_horseshoe()].
+#' @param p VAR lag
+#' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' 
+#' @references 
+#' Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
+#' 
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465–480. doi:[10.1093/biomet/asq017](https://doi.org/10.1093/biomet/asq017)
+#' 
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
+#' @export
+sim_hs_var <- function(bayes_spec, p, dim_data = NULL, include_mean = TRUE) {
+  if (!is.horseshoespec(bayes_spec)) {
+    stop("Provide 'horseshoespec' for 'bayes_spec'.")
+  }
+  dim_design <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
+  # coefficients----------------------------------
+  coef_mat <- sim_matgaussian(
+    matrix(0L, nrow = dim_design, ncol = dim_data),
+    bayes_spec$global_sparsity^2 * diag(bayes_spec$local_sparsity^2),
+    bayes_spec$init_cov
+  )
+  eigen_root <- 
+    compute_stablemat(coef_mat[1:(dim_data * p),]) %>% 
+    eigen() %>% 
+    .$values %>% 
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  # cholesky factor and precision matrix---------
+  prec_mat <- solve(bayes_spec$init_cov)
+  chol_mat <- chol(prec_mat)
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable,
+    shrinkage_factor = 1 / (1 + bayes_spec$global_sparsity^2 * bayes_spec$local_sparsity^2),
+    covmat = bayes_spec$init_cov,
+    chol = chol_mat,
+    prec = prec_mat
+  )
+  res
+}
+
+#' @rdname sim_hs_var
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#' 
+#' @export
+sim_hs_vhar <- function(bayes_spec, har = c(5, 22), dim_data = NULL, include_mean = TRUE) {
+  if (!is.horseshoespec(bayes_spec)) {
+    stop("Provide 'horseshoespec' for 'bayes_spec'.")
+  }
+  num_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
+  # coefficients----------------------------------
+  coef_mat <- sim_matgaussian(
+    matrix(0L, nrow = num_har, ncol = dim_data),
+    bayes_spec$global_sparsity^2 * diag(bayes_spec$local_sparsity^2),
+    bayes_spec$init_cov
+  )
+  har_trans <- scale_har(dim_data, har[1], har[2], FALSE)
+  eigen_root <-
+    compute_stablemat(t(har_trans) %*% coef_mat[1:(3 * dim_data),]) %>%
+    eigen() %>%
+    .$values %>%
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  # cholesky factor and precision matrix---------
+  prec_mat <- solve(bayes_spec$init_cov)
+  chol_mat <- chol(prec_mat)
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable,
+    shrinkage_factor = 1 / (1 + bayes_spec$global_sparsity^2 * bayes_spec$local_sparsity^2),
+    covmat = bayes_spec$init_cov,
+    chol = chol_mat,
+    prec = prec_mat
+  )
+  res
+}
