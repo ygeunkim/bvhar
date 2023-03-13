@@ -185,17 +185,27 @@ bvhar_ssvs <- function(y,
   }
   # Initial vectors-------------------
   if (init_spec$chain == 1) {
-    if (!(nrow(init_spec$init_coef) == dim_har || ncol(init_spec$init_coef) == dim_data)) {
-      stop("Dimension of 'init_coef' should be (3 * dim) x dim or (3 * dim + 1) x dim.")
+    if (init_spec$type == "user") {
+      if (!(nrow(init_spec$init_coef) == dim_har || ncol(init_spec$init_coef) == dim_data)) {
+        stop("Dimension of 'init_coef' should be (3 * dim) x dim or (3 * dim + 1) x dim.")
+      }
+      if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
+        stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
+      }
+      init_coef <- c(init_spec$init_coef)
+      init_coef_dummy <- c(init_spec$init_coef_dummy)
+      init_chol_diag <- diag(init_spec$init_chol)
+      init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
+      init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
+      init_gibbs <- TRUE
+    } else {
+      init_coef <- 1L
+      init_coef_dummy <- 1L
+      init_chol_diag <- 1L
+      init_chol_upper <- 1L
+      init_chol_dummy <- 1L
+      init_gibbs <- FALSE
     }
-    if (!(nrow(init_spec$init_coef_dummy) == num_restrict || ncol(init_spec$init_coef_dummy) == dim_data)) {
-      stop("Dimension of 'init_coef_dummy' should be (dim * p) x dim x dim.")
-    }
-    init_coef <- c(init_spec$init_coef)
-    init_coef_dummy <- c(init_spec$init_coef_dummy)
-    init_chol_diag <- diag(init_spec$init_chol)
-    init_chol_upper <- init_spec$init_chol[upper.tri(init_spec$init_chol, diag = FALSE)]
-    init_chol_dummy <- init_spec$init_chol_dummy[upper.tri(init_spec$init_chol_dummy, diag = FALSE)]
     # MCMC-----------------------------
     ssvs_res <- estimate_bvar_ssvs(
       num_iter = num_iter,
@@ -217,6 +227,7 @@ bvhar_ssvs <- function(y,
       chol_slab_weight = bayes_spec$chol_mixture, # qij
       intercept_sd = bayes_spec$coef_non, # c for constant c I
       include_mean = include_mean,
+      init_gibbs = init_gibbs,
       display_progress = verbose
     )
   } else {
@@ -257,6 +268,8 @@ bvhar_ssvs <- function(y,
         chol_slab = bayes_spec$chol_slab, # eta slab
         chol_slab_weight = bayes_spec$chol_mixture, # qij
         intercept_sd = bayes_spec$coef_non, # c for constant c I
+        include_mean = include_mean,
+        init_gibbs = TRUE,
         display_progress = verbose
       )
     }
@@ -366,6 +379,13 @@ bvhar_ssvs <- function(y,
   ssvs_res$type <- ifelse(include_mean, "const", "none")
   ssvs_res$spec <- bayes_spec
   ssvs_res$init <- init_spec
+  if (!init_gibbs) {
+    ssvs_res$init$init_coef <- ssvs_res$ols_coef
+    ssvs_res$init$init_coef_dummy <- matrix(1L, nrow = dim_har, ncol = dim_data)
+    ssvs_res$init$init_chol <- ssvs_res$ols_cholesky
+    ssvs_res$init$init_chol_dummy <- matrix(0L, nrow = dim_data, ncol = dim_data)
+    ssvs_res$init$init_chol_dummy[upper.tri(ssvs_res$init$init_chol_dummy, diag = FALSE)] <- rep(1L, num_eta)
+  }
   ssvs_res$iter <- num_iter
   ssvs_res$burn <- num_burn
   ssvs_res$thin <- thinning

@@ -180,7 +180,7 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param intercept_sd Hyperparameter for constant term
 //' @param include_mean Add constant term
-//' @param chain The number of MCMC chains.
+//' @param init_gibbs Set custom initial values for Gibbs sampler
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
@@ -203,6 +203,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
                               Eigen::VectorXd chol_slab_weight,
                               double intercept_sd,
                               bool include_mean,
+                              bool init_gibbs,
                               bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
@@ -220,28 +221,39 @@ Rcpp::List estimate_bvar_ssvs(int num_iter,
   Eigen::MatrixXd XtX = x.transpose() * x;
   Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
   Eigen::MatrixXd cov_ols = (y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design);
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(cov_ols);
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(cov_ols.inverse());
   Eigen::MatrixXd chol_ols = lltOfscale.matrixU();
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
   // record-------------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
-  coef_record.row(0) = init_coef;
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_restrict);
-  coef_dummy_record.row(0) = init_coef_dummy;
   Eigen::MatrixXd chol_diag_record(num_iter + 1, dim);
-  chol_diag_record.row(0) = init_chol_diag;
   Eigen::MatrixXd chol_upper_record(num_iter + 1, num_upperchol);
-  chol_upper_record.row(0) = init_chol_upper;
   Eigen::MatrixXd chol_dummy_record(num_iter + 1, num_upperchol);
-  chol_dummy_record.row(0) = init_chol_dummy;
   Eigen::MatrixXd chol_factor_record(dim * (num_iter + 1), dim); // 3d matrix alternative
+  if (init_gibbs) {
+    coef_record.row(0) = init_coef;
+    coef_dummy_record.row(0) = init_coef_dummy;
+    chol_diag_record.row(0) = init_chol_diag;
+    chol_upper_record.row(0) = init_chol_upper;
+    chol_dummy_record.row(0) = init_chol_dummy;
+    chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
+  } else {
+    coef_record.row(0) = vectorize_eigen(coef_ols.topRows(num_restrict / dim));
+    coef_dummy_record.row(0) = Eigen::MatrixXd::Identity(num_restrict, num_restrict).diagonal();
+    chol_diag_record.row(0) = chol_ols.diagonal();
+    for (int i = 1; i < dim; i++) {
+      chol_upper_record.block(0, i * (i - 1) / 2, 1, i) = chol_ols.block(0, i, i, 1).transpose();
+    }
+    chol_dummy_record.row(0) = Eigen::MatrixXd::Identity(num_upperchol, num_upperchol).diagonal();
+    chol_factor_record.topLeftCorner(dim, dim) = chol_ols;
+  }
   // Some variables-----------------------------------------------
-  Eigen::MatrixXd coef_mat = unvectorize(init_coef, dim_design, dim); // coefficient matrix to compute sse_mat
+  Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim); // coefficient matrix to compute sse_mat
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
   Progress p(num_iter, display_progress);
   // Start Gibbs sampling-----------------------------------------
-  chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
   for (int i = 1; i < num_iter + 1; i++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(

@@ -404,6 +404,7 @@ set_ssvs <- function(coef_spike = .1,
 #' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
 #' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
 #' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
+#' @param type Type to choose initial values. One of `"user"` (User-given) and `"automatic"` (OLS for coefficients and 1 for dummy).
 #' @details 
 #' Set SSVS initialization for the VAR model.
 #' 
@@ -423,56 +424,69 @@ set_ssvs <- function(coef_spike = .1,
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:[10.1561/0800000013](http://dx.doi.org/10.1561/0800000013)
 #' @order 1
 #' @export
-init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
-  if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
-      (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
-      (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
-      (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
-    # 3d array to list--------------------------------
-    init_coef <- change_to_list(init_coef)
-    init_coef_dummy <- change_to_list(init_coef_dummy)
-    init_chol <- change_to_list(init_chol)
-    init_chol_dummy <- change_to_list(init_chol_dummy)
-    # Errors in multiple chain------------------------
-    if (length(
-      unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
-    ) > 1) {
-      stop("Different chain(>1) number has been defined.")
-    }
-    isnot_identical(init_coef, case = "dim")
-    isnot_identical(init_coef_dummy, case = "dim")
-    isnot_identical(init_chol, case = "dim")
-    isnot_identical(init_chol_dummy, case = "dim")
-    isnot_identical(init_coef, case = "values")
-    isnot_identical(init_chol, case = "values")
-    num_chain <- length(init_coef)
-    coef_mat <- init_coef[[1]]
-    coef_dummy <- init_coef_dummy[[1]]
-    chol_mat <- init_chol[[1]]
-    chol_dummy <- init_chol_dummy[[1]]
-  } else {
+init_ssvs <- function(init_coef,
+                      init_coef_dummy,
+                      init_chol,
+                      init_chol_dummy,
+                      type = c("user", "auto")) {
+  type <- match.arg(type)
+  if (type == "auto") {
+    init_coef <- NULL
+    init_coef_dummy <- NULL
+    init_chol <- NULL
+    init_chol_dummy <- NULL
     num_chain <- 1
-    coef_mat <- init_coef
-    coef_dummy <- init_coef_dummy
-    chol_mat <- init_chol
-    chol_dummy <- init_chol_dummy
-  }
-  # Check dimension validity-----------------------------
-  dim_design <- nrow(coef_mat) # kp(+1)
-  dim_data <- ncol(coef_mat) # k = dim
-  if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
-    if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
-      stop("Invalid dimension of 'init_coef_dummy'.")
+  } else {
+    if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
+        (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
+        (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
+        (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
+      # 3d array to list--------------------------------
+      init_coef <- change_to_list(init_coef)
+      init_coef_dummy <- change_to_list(init_coef_dummy)
+      init_chol <- change_to_list(init_chol)
+      init_chol_dummy <- change_to_list(init_chol_dummy)
+      # Errors in multiple chain------------------------
+      if (length(
+        unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
+      ) > 1) {
+        stop("Different chain(>1) number has been defined.")
+      }
+      isnot_identical(init_coef, case = "dim")
+      isnot_identical(init_coef_dummy, case = "dim")
+      isnot_identical(init_chol, case = "dim")
+      isnot_identical(init_chol_dummy, case = "dim")
+      isnot_identical(init_coef, case = "values")
+      isnot_identical(init_chol, case = "values")
+      num_chain <- length(init_coef)
+      coef_mat <- init_coef[[1]]
+      coef_dummy <- init_coef_dummy[[1]]
+      chol_mat <- init_chol[[1]]
+      chol_dummy <- init_chol_dummy[[1]]
+    } else {
+      num_chain <- 1
+      coef_mat <- init_coef
+      coef_dummy <- init_coef_dummy
+      chol_mat <- init_chol
+      chol_dummy <- init_chol_dummy
     }
-  }
-  if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
-    stop("Invalid dimension of 'init_chol'.")
-  }
-  if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
-    stop("'init_chol' should be upper triangular matrix.")
-  }
-  if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
-    stop("Invalid dimension of 'init_chol_dummy'.")
+    # Check dimension validity-----------------------------
+    dim_design <- nrow(coef_mat) # kp(+1)
+    dim_data <- ncol(coef_mat) # k = dim
+    if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
+      if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
+        stop("Invalid dimension of 'init_coef_dummy'.")
+      }
+    }
+    if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
+      stop("Invalid dimension of 'init_chol'.")
+    }
+    if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
+      stop("'init_chol' should be upper triangular matrix.")
+    }
+    if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
+      stop("Invalid dimension of 'init_chol_dummy'.")
+    }
   }
   res <- list(
     process = "VAR",
@@ -481,7 +495,8 @@ init_ssvs <- function(init_coef, init_coef_dummy, init_chol, init_chol_dummy) {
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
     init_chol = init_chol,
-    init_chol_dummy = init_chol_dummy
+    init_chol_dummy = init_chol_dummy,
+    type = type
   )
   class(res) <- "ssvsinit"
   res

@@ -6,7 +6,13 @@
 \alias{knit_print.ssvsinit}
 \title{Initial Parameters of Stochastic Search Variable Selection (SSVS) Model}
 \usage{
-init_ssvs(init_coef, init_coef_dummy, init_chol, init_chol_dummy)
+init_ssvs(
+  init_coef,
+  init_coef_dummy,
+  init_chol,
+  init_chol_dummy,
+  type = c("user", "auto")
+)
 
 \method{print}{ssvsinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -20,6 +26,8 @@ knit_print.ssvsinit(x, ...)
 \item{init_chol}{Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.}
 
 \item{init_chol_dummy}{Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.}
+
+\item{type}{Type to choose initial values. One of \code{"user"} (User-given) and \code{"automatic"} (OLS for coefficients and 1 for dummy).}
 
 \item{x}{\code{ssvsinit} object}
 
