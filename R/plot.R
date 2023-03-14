@@ -630,3 +630,25 @@ autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = c
   bayes_plt
 }
 
+#' Plot the Credible Interval of Matrix-variate Horseshoe Coefficients
+#' 
+#' Draw credible interval for horseshoe prior coefficients.
+#' 
+#' @param object `summary.mvhsmod` object
+#' @param colour Color of the credible interval line (By default, `"black"`).
+#' @param linetype Line type of the credible interval line (By default, `1`: solid).
+#' @param fill Color to fill between credible interval lines (By default, none: `NA`).
+#' @param ... Other arguments passed on the [ggplot2::geom_ribbon()].
+#' 
+#' @importFrom ggplot2 ggplot aes geom_path geom_ribbon
+#' @importFrom dplyr mutate n
+#' @export
+autoplot.summary.mvhsmod <- function(object, colour = "black", linetype = 1, fill = NA, ...) {
+  ci_df <- 
+    object$interval %>% 
+    mutate(estimate = c(object$posterior_mean), term = 1:n())
+  ci_df %>% 
+    ggplot(aes(x = term, y = estimate)) +
+    geom_path() +
+    geom_ribbon(aes(ymin = conf.low, ymax = conf.high), color = colour, linetype = linetype, fill = NA, ...)
+}

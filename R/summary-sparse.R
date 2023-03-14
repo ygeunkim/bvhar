@@ -38,6 +38,7 @@ summary.ssvsmod <- function(object, ...) {
     m = object$m,
     type = object$type,
     coefficients = coef_res,
+    posterior_mean = coef_mean,
     cholesky = chol_res,
     choose_coef = !var_selection,
     choose_chol = !chol_selection
@@ -88,6 +89,7 @@ summary.mvhsmod <- function(object, level = .05, ...) {
     type = object$type,
     interval = cred_int,
     coefficients = coef_res,
+    posterior_mean = object$coefficients,
     level = level,
     choose_coef = selection
   )
