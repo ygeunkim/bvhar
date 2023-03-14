@@ -129,14 +129,6 @@ print.summary.ssvsmod <- function(x, digits = max(3L, getOption("digits") - 3L),
     print.gap = 2L,
     quote = FALSE
   )
-  cat("--------------------------------------------------\n")
-  cat(
-    paste("Threshold for Coefficient selection:", x$threshold[1])
-  )
-  cat("\n")
-  cat(
-    paste("Threshold for Cholesky factor selection:", x$threshold[2])
-  )
 }
 
 #' @rdname summary.ssvsmod

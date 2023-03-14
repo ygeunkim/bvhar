@@ -10,7 +10,7 @@
 
 knit_print.summary.ssvsmod(x, ...)
 
-\method{summary}{ssvsmod}(object, coef_threshold = 0.5, chol_threshold = 0.5, ...)
+\method{summary}{ssvsmod}(object, ...)
 }
 \arguments{
 \item{x}{\code{summary.ssvsmod} object}
@@ -20,10 +20,6 @@ knit_print.summary.ssvsmod(x, ...)
 \item{...}{not used}
 
 \item{object}{\code{ssvsmod} object}
-
-\item{coef_threshold}{Threshold for variable selection. By default, \code{0.5}.}
-
-\item{chol_threshold}{Threshold for variable selection in cholesky factor. By default, \code{0.5}.}
 }
 \description{
 Conduct variable selection.

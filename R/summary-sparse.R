@@ -3,8 +3,6 @@
 #' Conduct variable selection.
 #' 
 #' @param object `ssvsmod` object
-#' @param coef_threshold Threshold for variable selection. By default, `0.5`.
-#' @param chol_threshold Threshold for variable selection in cholesky factor. By default, `0.5`.
 #' @param ... not used
 #' @details 
 #' In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
@@ -19,18 +17,18 @@
 #' 
 #' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85–117. doi:[10.1214/09-ba403](https://doi.org/10.1214/09-BA403)
 #' @export
-summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ...) {
+summary.ssvsmod <- function(object, ...) {
   # coefficients-------------------------------
   coef_mean <- object$coefficients
-  coef_dummy <- object$pip
-  var_selection <- coef_dummy <= coef_threshold
+  coef_spike <- matrix(object$spec$coef_spike, ncol = object$m)
+  var_selection <- abs(coef_mean) <= 3 * coef_spike
   coef_res <- ifelse(var_selection, 0L, coef_mean)
-  rownames(coef_res) <- rownames(coef_mean)
-  colnames(coef_res) <- colnames(coef_mean)
   # cholesky factor----------------------------
   chol_mean <- object$chol_posterior
-  chol_dummy <- object$omega_posterior
-  chol_selection <- chol_dummy <= chol_threshold
+  chol_spike <- diag(object$m)
+  chol_spike[upper.tri(chol_spike, diag = FALSE)] <- object$spec$chol_spike
+  chol_selection <- abs(chol_mean) <= 3 * chol_spike
+  diag(chol_selection) <- FALSE
   chol_res <- ifelse(chol_selection, 0L, chol_mean)
   # return S3 object---------------------------
   res <- list(
@@ -41,9 +39,8 @@ summary.ssvsmod <- function(object, coef_threshold = .5, chol_threshold = .5, ..
     type = object$type,
     coefficients = coef_res,
     cholesky = chol_res,
-    threshold = c(coef_threshold, chol_threshold),
-    coef_choose = !var_selection,
-    chol_choose = !chol_selection
+    choose_coef = !var_selection,
+    choose_chol = !chol_selection
   )
   class(res) <- c("summary.ssvsmod", "summary.bvharsp")
   res
@@ -92,7 +89,7 @@ summary.mvhsmod <- function(object, level = .05, ...) {
     interval = cred_int,
     coefficients = coef_res,
     level = level,
-    coef_choose = selection
+    choose_coef = selection
   )
   class(res) <- c("summary.mvhsmod", "summary.bvharsp")
   res
@@ -208,7 +205,7 @@ confusion <- function(x, y, ...) {
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
-  est <- factor(c(x$coef_choose * 1), levels = c(0L, 1L))
+  est <- factor(c(x$choose_coef * 1), levels = c(0L, 1L))
   truth <- ifelse(c(y) <= truth_thr, 0L, 1L) %>% factor(levels = c(0L, 1L))
   table(truth = truth, estimation = est)
 }
