@@ -8,5 +8,5 @@ utils::globalVariables(c(
   "sd",
   "impulse", "period", "response",
   "term", "statistic", "estimate",
-  "2.5%", "97.5%", "conf.low", "conf.high", "coef"
+  "conf.low", "conf.high", "coef"
 ))

@@ -25,7 +25,10 @@ knit_print.summary.ssvsmod(x, ...)
 Conduct variable selection.
 }
 \details{
-In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
+In each cell, variable selection can be done by giving threshold for each cell of coefficient:
+\deqn{\lvert \phi_{i} \rvert \le 3 \tau_{0i}}
+and
+\deqn{\lvert \eta_{ij} \rvert \le 3 \kappa_{0ij}}
 }
 \references{
 George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889. doi:\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353}{10.1080/01621459.1993.10476353}

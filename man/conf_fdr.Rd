@@ -12,7 +12,7 @@ conf_fdr(x, y, ...)
 \arguments{
 \item{x}{\code{summary.bvharsp} object.}
 
-\item{y}{True coefficient matrix.}
+\item{y}{True inclusion variable.}
 
 \item{...}{not used}
 
@@ -29,4 +29,7 @@ where TP is true positive, and FP is false positive.
 }
 \references{
 Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:\href{https://doi.org/10.1016/j.jmva.2018.04.010}{10.1016/j.jmva.2018.04.010}
+}
+\seealso{
+\code{\link[=confusion]{confusion()}}
 }

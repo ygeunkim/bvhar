@@ -12,7 +12,7 @@ conf_fscore(x, y, ...)
 \arguments{
 \item{x}{\code{summary.bvharsp} object.}
 
-\item{y}{True coefficient matrix.}
+\item{y}{True inclusion variable.}
 
 \item{...}{not used}
 
@@ -22,7 +22,9 @@ conf_fscore(x, y, ...)
 This function computes F1 score for sparse element of the true coefficients given threshold.
 }
 \details{
-When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
-Then the F1 score is computed by
+The F1 score is computed by
 \deqn{F_1 = \frac{2 precision \times recall}{precision + recall}}
+}
+\seealso{
+\code{\link[=confusion]{confusion()}}
 }

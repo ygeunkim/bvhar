@@ -5,9 +5,10 @@
 #' @param object `ssvsmod` object
 #' @param ... not used
 #' @details 
-#' In each cell, variable selection can be done by giving threshold for posterior mean of \eqn{\gamma}.
-#' 
-#' @importFrom stats coef
+#' In each cell, variable selection can be done by giving threshold for each cell of coefficient:
+#' \deqn{\lvert \phi_{i} \rvert \le 3 \tau_{0i}}
+#' and
+#' \deqn{\lvert \eta_{ij} \rvert \le 3 \kappa_{0ij}}
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889. doi:[10.1080/01621459.1993.10476353](https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353)
 #' 
@@ -60,20 +61,25 @@ summary.ssvsmod <- function(object, ...) {
 #' 
 #' @importFrom posterior summarise_draws subset_draws
 #' @importFrom stats quantile
-#' @importFrom dplyr rename mutate
+#' @importFrom dplyr rename
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 summary.mvhsmod <- function(object, level = .05, ...) {
+  low_lev <- level / 2
   cred_int <- 
     object$param %>% 
     subset_draws("alpha|phi", regex = TRUE) %>% 
     summarise_draws(
       ~quantile(
         .,
-        prob = c(level / 2, (1 - level / 2))
+        prob = c(low_lev, 1 - low_lev)
       )
     ) %>% 
-    rename("term" = "variable", "conf.low" = `2.5%`, "conf.high" = `97.5%`)
+    rename(
+      "term" = "variable",
+      "conf.low" = paste0(low_lev * 100, "%"),
+      "conf.high" = paste0((1 - low_lev) * 100, "%")
+    )
   selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
   coef_res <- ifelse(selection, object$coefficients, 0L)
   rownames(selection) <- rownames(object$coefficients)
@@ -186,7 +192,7 @@ relspne.bvharsp <- function(x, y, ...) {
 #' This function computes FDR (false discovery rate) and FNR (false negative rate) for sparse element of the true coefficients given threshold.
 #' 
 #' @param x Estimated model.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 confusion <- function(x, y, ...) {
@@ -195,7 +201,7 @@ confusion <- function(x, y, ...) {
 
 #' @rdname confusion
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
@@ -204,11 +210,18 @@ confusion <- function(x, y, ...) {
 #' In this confusion matrix, positive (0) means sparsity.
 #' FP is false positive, and TP is true positive.
 #' FN is false negative, and FN is false negative.
+#' 
+#' |True-estimate|Positive (0) | Negative (1) |
+#' |:-----------:|:-----------:|:------------:|
+#' | Positive (0) | TP | FN |
+#' | Negative (1) | FP | TN |
+#' 
+#' 
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   est <- factor(c(x$choose_coef * 1), levels = c(0L, 1L))
-  truth <- ifelse(c(y) <= truth_thr, 0L, 1L) %>% factor(levels = c(0L, 1L))
+  truth <- ifelse(c(abs(y)) <= truth_thr, 0L, 1L) %>% factor(levels = c(0L, 1L))
   table(truth = truth, estimation = est)
 }
 
@@ -217,7 +230,7 @@ confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' This function computes false discovery rate (FDR) for sparse element of the true coefficients given threshold.
 #' 
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 conf_fdr <- function(x, y, ...) {
@@ -226,7 +239,7 @@ conf_fdr <- function(x, y, ...) {
 
 #' @rdname conf_fdr
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
@@ -234,11 +247,12 @@ conf_fdr <- function(x, y, ...) {
 #' False discovery rate (FDR) is computed by
 #' \deqn{FDR = \frac{FP}{TP + FP}}
 #' where TP is true positive, and FP is false positive.
+#' @seealso [confusion()]
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 conf_fdr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
-  conftab[2, 1] / (conftab[1, 1] + conftab[2, 1])
+  conftab[2, 1] / sum(conftab[, 1])
 }
 
 #' Evaluate the Sparsity Estimation Based on Precision
@@ -246,7 +260,7 @@ conf_fdr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' This function computes precision for sparse element of the true coefficients given threshold.
 #' 
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 conf_prec <- function(x, y, ...) {
@@ -255,21 +269,21 @@ conf_prec <- function(x, y, ...) {
 
 #' @rdname conf_prec
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
-#' When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
 #' If the element of the estimate \eqn{\hat\Phi} is smaller than some threshold,
 #' it is treated to be zero.
 #' Then the precision is computed by
 #' \deqn{precision = \frac{TP}{TP + FP}}
 #' where TP is true positive, and FP is false positive.
+#' @seealso [confusion()]
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 conf_prec.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
-  conftab[1, 1] / (conftab[1, 1] + conftab[2, 1])
+  conftab[1, 1] / sum(conftab[, 1])
 }
 
 #' Evaluate the Sparsity Estimation Based on FNR
@@ -277,7 +291,7 @@ conf_prec.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' This function computes false negative rate (FNR) for sparse element of the true coefficients given threshold.
 #' 
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 conf_fnr <- function(x, y, ...) {
@@ -286,19 +300,19 @@ conf_fnr <- function(x, y, ...) {
 
 #' @rdname conf_fnr
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
-#' When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
 #' False negative rate (FNR) is computed by
 #' \deqn{FNR = \frac{FN}{TP + FN}}
 #' where TP is true positive, and FN is false negative.
+#' @seealso [confusion()]
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
 conf_fnr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
-  conftab[1, 2] / (conftab[1, 1] + conftab[1, 2])
+  conftab[1, 2] / sum(conftab[1,])
 }
 
 #' Evaluate the Sparsity Estimation Based on Recall
@@ -306,7 +320,7 @@ conf_fnr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' This function computes recall for sparse element of the true coefficients given threshold.
 #' 
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 conf_recall <- function(x, y, ...) {
@@ -315,19 +329,19 @@ conf_recall <- function(x, y, ...) {
 
 #' @rdname conf_recall
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
-#' When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
 #' Precision is computed by
 #' \deqn{recall = \frac{TP}{TP + FN}}
 #' where TP is true positive, and FN is false negative.
+#' @seealso [confusion()]
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-conf_recall.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
+conf_recall.summary.bvharsp <- function(x, y, truth_thr = 0L, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
-  conftab[1, 1] / (conftab[1, 1] + conftab[1, 2])
+  conftab[1, 1] / sum(conftab[1,])
 }
 
 #' Evaluate the Sparsity Estimation Based on F1 Score
@@ -335,7 +349,7 @@ conf_recall.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' This function computes F1 score for sparse element of the true coefficients given threshold.
 #' 
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param ... not used
 #' @export
 conf_fscore <- function(x, y, ...) {
@@ -344,13 +358,13 @@ conf_fscore <- function(x, y, ...) {
 
 #' @rdname conf_fscore
 #' @param x `summary.bvharsp` object.
-#' @param y True coefficient matrix.
+#' @param y True inclusion variable.
 #' @param truth_thr Threshold value when using non-sparse true coefficient matrix. By default, `0` for sparse matrix.
 #' @param ... not used
 #' @details 
-#' When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
-#' Then the F1 score is computed by
+#' The F1 score is computed by
 #' \deqn{F_1 = \frac{2 precision \times recall}{precision + recall}}
+#' @seealso [confusion()]
 #' @export
 conf_fscore.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   prec_score <- conf_prec(x, y, truth_thr = truth_thr)

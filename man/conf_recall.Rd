@@ -7,12 +7,12 @@
 \usage{
 conf_recall(x, y, ...)
 
-\method{conf_recall}{summary.bvharsp}(x, y, truth_thr = 0, ...)
+\method{conf_recall}{summary.bvharsp}(x, y, truth_thr = 0L, ...)
 }
 \arguments{
 \item{x}{\code{summary.bvharsp} object.}
 
-\item{y}{True coefficient matrix.}
+\item{y}{True inclusion variable.}
 
 \item{...}{not used}
 
@@ -22,11 +22,13 @@ conf_recall(x, y, ...)
 This function computes recall for sparse element of the true coefficients given threshold.
 }
 \details{
-When using this function, the true coefficient matrix \eqn{\Phi} should be sparse.
 Precision is computed by
 \deqn{recall = \frac{TP}{TP + FN}}
 where TP is true positive, and FN is false negative.
 }
 \references{
 Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:\href{https://doi.org/10.1016/j.jmva.2018.04.010}{10.1016/j.jmva.2018.04.010}
+}
+\seealso{
+\code{\link[=confusion]{confusion()}}
 }

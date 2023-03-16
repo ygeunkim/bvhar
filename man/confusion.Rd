@@ -12,7 +12,7 @@ confusion(x, y, ...)
 \arguments{
 \item{x}{\code{summary.bvharsp} object.}
 
-\item{y}{True coefficient matrix.}
+\item{y}{True inclusion variable.}
 
 \item{...}{not used}
 
@@ -26,7 +26,11 @@ When using this function, the true coefficient matrix \eqn{\Phi} should be spars
 
 In this confusion matrix, positive (0) means sparsity.
 FP is false positive, and TP is true positive.
-FN is false negative, and FN is false negative.
+FN is false negative, and FN is false negative.\tabular{ccc}{
+   True-estimate \tab Positive (0) \tab Negative (1) \cr
+   Positive (0) \tab TP \tab FN \cr
+   Negative (1) \tab FP \tab TN \cr
+}
 }
 \references{
 Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:\href{https://doi.org/10.1016/j.jmva.2018.04.010}{10.1016/j.jmva.2018.04.010}
