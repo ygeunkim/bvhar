@@ -228,6 +228,7 @@ bvhar_ssvs <- function(y,
       intercept_sd = bayes_spec$coef_non, # c for constant c I
       include_mean = include_mean,
       init_gibbs = init_gibbs,
+      # diag_restriction = TRUE,
       display_progress = verbose
     )
   } else {
@@ -270,6 +271,7 @@ bvhar_ssvs <- function(y,
         intercept_sd = bayes_spec$coef_non, # c for constant c I
         include_mean = include_mean,
         init_gibbs = TRUE,
+        # diag_restriction = TRUE,
         display_progress = verbose
       )
     }
@@ -288,7 +290,19 @@ bvhar_ssvs <- function(y,
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
-  ssvs_res$coefficients <- colMeans(ssvs_res$phi_record)
+  if (include_mean) {
+    phi_selection <- ssvs_res$phi_record[, -seq(from = dim_har, by = dim_har, length.out = dim_data)]
+    phi_selection <- ifelse(abs(phi_selection) <= 3 * bayes_spec$coef_spike, 0L, phi_selection)
+  } else {
+    phi_selection <- ifelse(abs(ssvs_res$phi_record) <= 3 * bayes_spec$coef_spike, 0L, ssvs_res$phi_record)
+  }
+  ssvs_res$coefficients <- colMeans(phi_selection)
+  ssvs_res$bma <- colMeans(ssvs_res$phi_record)
+  eta_selection <- ifelse(abs(ssvs_res$eta_record) <= 3 * bayes_spec$chol_spike, 0L, ssvs_res$eta_record)
+  chol_selection <- lapply(
+    seq_len(nrow(ssvs_res$psi_record)),
+    function(id) build_chol(ssvs_res$psi_record[id,], eta_selection[id,])
+  )
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$pip <- colMeans(ssvs_res$gamma_record)
   if (init_spec$chain > 1) {
@@ -343,8 +357,10 @@ bvhar_ssvs <- function(y,
     # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
+    chol_selection <- chol_selection[thin_id]
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
+    ssvs_res$bma <- matrix(ssvs_res$bma, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -352,17 +368,23 @@ bvhar_ssvs <- function(y,
     ssvs_res$pip <- matrix(ssvs_res$pip, ncol = dim_data)
     if (include_mean) {
       ssvs_res$pip <- rbind(ssvs_res$pip, rep(1L, dim_data))
+      ssvs_res$coefficients <- rbind(ssvs_res$coefficients, ssvs_res$bma[dim_har,])
     }
-    ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
+    ssvs_res$chol_posterior <- Reduce("+", chol_selection) / length(chol_selection)
+    ssvs_res$chol_bma <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
     # names of posterior mean-----------------
     colnames(ssvs_res$coefficients) <- name_var
     rownames(ssvs_res$coefficients) <- name_har
+    colnames(ssvs_res$bma) <- name_var
+    rownames(ssvs_res$bma) <- name_har
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
     colnames(ssvs_res$pip) <- name_var
     rownames(ssvs_res$pip) <- name_har
     colnames(ssvs_res$chol_posterior) <- name_var
     rownames(ssvs_res$chol_posterior) <- name_var
+    colnames(ssvs_res$chol_bma) <- name_var
+    rownames(ssvs_res$chol_bma) <- name_var
     ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
   }
   # variables------------

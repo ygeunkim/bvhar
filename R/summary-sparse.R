@@ -20,10 +20,23 @@
 #' @export
 summary.ssvsmod <- function(object, ...) {
   # coefficients-------------------------------
-  coef_mean <- object$coefficients
+  # coef_mean <- object$coefficients
+  coef_mean <- switch(
+    object$type,
+    "none" = object$coefficients,
+    "const" = object$coefficients[-object$df,]
+  )
   coef_spike <- matrix(object$spec$coef_spike, ncol = object$m)
   var_selection <- abs(coef_mean) <= 3 * coef_spike
   coef_res <- ifelse(var_selection, 0L, coef_mean)
+  coef_res <- switch(
+    object$type,
+    "none" = ifelse(var_selection, 0L, coef_mean),
+    "const" = rbind(ifelse(var_selection, 0L, coef_mean), object$coefficients[object$df,])
+  )
+  if (object$type == "const") {
+    rownames(coef_res)[object$df] <- "const"
+  }
   # cholesky factor----------------------------
   chol_mean <- object$chol_posterior
   chol_spike <- diag(object$m)

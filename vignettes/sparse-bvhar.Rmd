@@ -152,9 +152,8 @@ init_coef <- matrix(c(
   .02, .04, .81, .04, .04, .03,
   .02, .03, .03, .80, .03, .04,
   .03, .03, .03, .03, .81, .03,
-  .02, .04, .03, .03, .03, .79,
-  1.11, .95, .93, 1.12, 1.05, .98
-), nrow = 7, byrow = TRUE)
+  .02, .04, .03, .03, .03, .79
+), nrow = 6, byrow = TRUE)
 init_coef_dummy <- matrix(c(
   1.00, .04, rep(.05, 4),
   .04, 1.00, rep(.04, 4),
@@ -166,9 +165,9 @@ init_coef_dummy <- matrix(c(
 init_chol <- matrix(0L, nrow = 6L, ncol = 6L)
 diag(init_chol) <- c(1.09, 1.08, 1.08, 1.11, 1.10, 1.10)
 init_chol[upper.tri(init_chol, diag = FALSE)] <- c(
-  .42, 
-  .40, -.04, 
-  .41, rep(-.03, 2), 
+  .42,
+  .40, -.04,
+  .41, rep(-.03, 2),
   .39, rep(-.03, 3),
   .38, -.04, -.03, rep(-.04, 2)
 )
@@ -210,10 +209,10 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
   p = 1,
   num_iter = 1000,
   num_burn = 500,
-  thinning = 3,
+  thinning = 1,
   bayes_spec = ssvs_spec,
   init_spec = init_spec,
-  include_mean = TRUE,
+  include_mean = FALSE,
   verbose = FALSE
 ))
 ```
