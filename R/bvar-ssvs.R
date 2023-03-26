@@ -7,9 +7,10 @@
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param bayes_spec A SSVS model specification by [set_ssvs()].
-#' @param init_spec SSVS initialization specification by [init_ssvs()].
+#' @param bayes_spec A SSVS model specification by [set_ssvs()]. By default, use a default semiautomatic approach [choose_ssvs()].
+#' @param init_spec SSVS initialization specification by [init_ssvs()]. By default, use OLS for coefficient and cholesky factor while 1 for dummies.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param relax Only use off-diagonal terms of each coefficient matrices for restriction. By default, `FALSE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
@@ -80,9 +81,10 @@ bvar_ssvs <- function(y,
                       num_iter = 1000, 
                       num_burn = floor(num_iter / 2), 
                       thinning = 1,
-                      bayes_spec = set_ssvs(), 
-                      init_spec = init_ssvs(),
+                      bayes_spec = choose_ssvs(y = y, ord = p, type = "VAR", include_mean = include_mean, gamma_param = c(.01, .01), mean_non = 0, sd_non = .1), 
+                      init_spec = init_ssvs(type = "auto"),
                       include_mean = TRUE,
+                      relax = FALSE,
                       verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -126,9 +128,6 @@ bvar_ssvs <- function(y,
   dim_design <- ncol(X0)
   # length 1 of bayes_spec--------------
   num_restrict <- dim_data^2 * p # restrict only coefficients
-  
-  # num_restrict <- (dim_data - 1) * dim_data * p
-  
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
   if (length(bayes_spec$coef_spike) == 1) {
     bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_restrict)
@@ -139,6 +138,14 @@ bvar_ssvs <- function(y,
   if (length(bayes_spec$coef_mixture) == 1) {
     bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_restrict)
   }
+  
+  # if (length(bayes_spec$mean_coef) == 1) {
+  #   bayes_spec$mean_coef <- rep(bayes_spec$mean_coef, num_restrict)
+  # }
+  if (length(bayes_spec$mean_non) == 1) {
+    bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+  }
+  
   if (length(bayes_spec$shape) == 1) {
     bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
   }
@@ -168,6 +175,7 @@ bvar_ssvs <- function(y,
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
     length(bayes_spec$coef_mixture) == num_restrict
+    # && length(bayes_spec$mean_coef) == num_restrict
   )) {
     stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
   }
@@ -181,6 +189,36 @@ bvar_ssvs <- function(y,
   )) {
     stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
   }
+  
+  # no regularization for diagonal term---------------------
+  if (relax) {
+    coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
+    diag(coef_prob[[1]]) <- 1
+    bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
+  }
+  
+  # bayes_spec$coef_mixture <- 
+  #   switch(
+  #     relax,
+  #     "no" = bayes_spec$coef_mixture,
+  #     "minnesota" = {
+  #       coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
+  #       diag(coef_prob[[1]]) <- 1
+  #       c(do.call(rbind, coef_prob))
+  #     },
+  #     "longrun" = {
+  #       split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data)) %>% 
+  #         lapply(
+  #           function(pij) {
+  #             diag(pij) <- 1
+  #             pij
+  #           }
+  #         ) %>% 
+  #         do.call(rbind, .) %>% 
+  #         c()
+  #     }
+  #   )
+  
   # Initial vectors-------------------
   if (init_spec$chain == 1) {
     if (init_spec$type == "user") {
@@ -223,7 +261,9 @@ bvar_ssvs <- function(y,
       chol_spike = bayes_spec$chol_spike, # eta spike
       chol_slab = bayes_spec$chol_slab, # eta slab
       chol_slab_weight = bayes_spec$chol_mixture, # qij
-      intercept_sd = bayes_spec$coef_non, # c for constant c I,
+      # coef_mean = bayes_spec$mean_coef,
+      intercept_mean = bayes_spec$mean_non,
+      intercept_sd = bayes_spec$sd_non, # c for constant c I,
       include_mean = include_mean,
       init_gibbs = init_gibbs,
       # diag_restriction = TRUE,
@@ -270,7 +310,9 @@ bvar_ssvs <- function(y,
         chol_spike = bayes_spec$chol_spike, # eta spike
         chol_slab = bayes_spec$chol_slab, # eta slab
         chol_slab_weight = bayes_spec$chol_mixture, # qij
-        intercept_sd = bayes_spec$coef_non, # c for constant c I
+        # coef_mean = bayes_spec$mean_coef,
+        intercept_mean = bayes_spec$mean_non,
+        intercept_sd = bayes_spec$sd_non, # c for constant c I
         include_mean = include_mean,
         init_gibbs = TRUE,
         # diag_restriction = TRUE,
@@ -291,25 +333,7 @@ bvar_ssvs <- function(y,
   ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
   ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
   ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
-  if (include_mean) {
-    # alpha_selection <- ssvs_res$alpha_record[, seq(
-    #   from = dim_design,
-    #   by = dim_design,
-    #   length.out = dim_data)] * ssvs_res$gamma_record
-    alpha_selection <- ssvs_res$alpha_record[, -seq(from = dim_design, by = dim_design, length.out = dim_data)]
-    alpha_selection <- ifelse(abs(alpha_selection) <= 3 * bayes_spec$coef_spike, 0L, alpha_selection)
-  } else {
-    # alpha_selection <- ssvs_res$alpha_record * ssvs_res$gamma_record
-    alpha_selection <- ifelse(abs(ssvs_res$alpha_record) <= 3 * bayes_spec$coef_spike, 0L, ssvs_res$alpha_record)
-  }
-  # eta_selection <- ssvs_res$eta_record * ssvs_res$omega_record
-  eta_selection <- ifelse(abs(ssvs_res$eta_record) <= 3 * bayes_spec$chol_spike, 0L, ssvs_res$eta_record)
-  chol_selection <- lapply(
-    seq_len(nrow(ssvs_res$psi_record)),
-    function(id) build_chol(ssvs_res$psi_record[id,], eta_selection[id,])
-  )
-  ssvs_res$coefficients <- colMeans(alpha_selection)
-  ssvs_res$bma <- colMeans(ssvs_res$alpha_record)
+  ssvs_res$coefficients <- colMeans(ssvs_res$alpha_record)
   ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
   ssvs_res$pip <- colMeans(ssvs_res$gamma_record)
   if (init_spec$chain > 1) {
@@ -352,13 +376,11 @@ bvar_ssvs <- function(y,
       lapply(t)
   } else {
     colnames(ssvs_res$alpha_record) <- paste0("alpha[", seq_len(ncol(ssvs_res$alpha_record)), "]")
-    # colnames(ssvs_res$alpha_selection) <- paste0("alpha[", 1:num_restrict, "]")
     colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
     colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
     colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
     colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
     ssvs_res$alpha_record <- as_draws_df(ssvs_res$alpha_record)
-    # ssvs_res$alpha_selection <- as_draws_df(ssvs_res$alpha_selection)
     ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
     ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
     ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
@@ -373,10 +395,8 @@ bvar_ssvs <- function(y,
     # Cholesky factor 3d array---------------
     ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
     ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
-    chol_selection <- chol_selection[thin_id] # burn in
     # Posterior mean-------------------------
     ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
-    ssvs_res$bma <- matrix(ssvs_res$bma, ncol = dim_data)
     mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
     diag(mat_upper) <- rep(1L, dim_data)
     mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
@@ -384,24 +404,17 @@ bvar_ssvs <- function(y,
     ssvs_res$pip <- matrix(ssvs_res$pip, ncol = dim_data)
     if (include_mean) {
       ssvs_res$pip <- rbind(ssvs_res$pip, rep(1L, dim_data))
-      ssvs_res$coefficients <- rbind(ssvs_res$coefficients, ssvs_res$bma[dim_design,])
     }
-    ssvs_res$chol_bma <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
-    ssvs_res$chol_posterior <- Reduce("+", chol_selection) / length(chol_selection)
+    ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
     # names of posterior mean-----------------
     colnames(ssvs_res$coefficients) <- name_var
     rownames(ssvs_res$coefficients) <- name_lag
-    colnames(ssvs_res$bma) <- name_var
-    rownames(ssvs_res$bma) <- name_lag
     colnames(ssvs_res$omega_posterior) <- name_var
     rownames(ssvs_res$omega_posterior) <- name_var
     colnames(ssvs_res$pip) <- name_var
     rownames(ssvs_res$pip) <- name_lag
-    colnames(ssvs_res$chol_bma) <- name_var
-    rownames(ssvs_res$chol_bma) <- name_var
     colnames(ssvs_res$chol_posterior) <- name_var
     rownames(ssvs_res$chol_posterior) <- name_var
-    # ssvs_res$cov_bma <- solve(ssvs_res$chol_bma %*% t(ssvs_res$chol_bma))
     ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
   }
   # variables------------

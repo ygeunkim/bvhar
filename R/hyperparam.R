@@ -261,7 +261,8 @@ set_weight_bvhar <- function(sigma,
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
 #' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
-#' @param coef_non Standard deviance for constant term
+#' @param mean_non Prior mean of unrestricted coefficients
+#' @param sd_non Standard deviance for unrestricted coefficients
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
@@ -313,7 +314,8 @@ set_weight_bvhar <- function(sigma,
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
                      coef_mixture = .5,
-                     coef_non = .1,
+                     mean_non = 0,
+                     sd_non = .1,
                      shape = .01,
                      rate = .01,
                      chol_spike = .1,
@@ -323,14 +325,15 @@ set_ssvs <- function(coef_spike = .1,
         is.vector(coef_slab) && 
         is.vector(coef_mixture) &&
         is.vector(shape) &&
-        is.vector(rate))) {
-    stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', and 'rate' be a vector.")
+        is.vector(rate) &&
+        is.vector(mean_non))) {
+    stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
   }
-  if (length(coef_non) != 1) {
-    stop("'coef_non' should be length 1 numeric.")
+  if (length(sd_non) != 1) {
+    stop("'sd_non' should be length 1 numeric.")
   }
-  if (coef_non < 0) {
-    stop("'coef_non' should be positive.")
+  if (sd_non < 0) {
+    stop("'sd_non' should be positive.")
   }
   if (!(is.numeric(chol_spike) ||
         is.vector(chol_spike) || 
@@ -347,13 +350,17 @@ set_ssvs <- function(coef_spike = .1,
   coef_param <- list(
     coef_spike = coef_spike,
     coef_slab = coef_slab,
-    coef_mixture = coef_mixture,
-    coef_non = coef_non
+    coef_mixture = coef_mixture
+  )
+  non_param <- list(
+    mean_non = mean_non,
+    sd_non = sd_non
   )
   len_param <- sapply(coef_param, length)
   if (length(unique(len_param[len_param != 1])) > 1) {
     stop("The length of 'coef_spike', 'coef_slab', and 'coef_mixture' should be the same.")
   }
+  res <- append(coef_param, non_param)
   # cholesky factor-------------------
   if (is.matrix(chol_spike)) {
     if (any(chol_spike[lower.tri(chol_spike, diag = TRUE)] != 0)) {
@@ -374,13 +381,13 @@ set_ssvs <- function(coef_spike = .1,
     chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
   }
   chol_param <- list(
-    process = "VAR",
-    prior = "SSVS",
     shape = shape,
     rate = rate,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
-    chol_mixture = chol_mixture
+    chol_mixture = chol_mixture,
+    process = "VAR",
+    prior = "SSVS"
   )
   len_param <- sapply(chol_param, length)
   len_gamma <- len_param[1:2]
@@ -391,7 +398,7 @@ set_ssvs <- function(coef_spike = .1,
   if (length(unique(len_eta[len_eta != 1])) > 1) {
     stop("The size of 'chol_spike', 'chol_slab', and 'chol_mixture' should be the same.")
   }
-  res <- append(coef_param, chol_param)
+  res <- append(res, chol_param)
   class(res) <- "ssvsinput"
   res
 }

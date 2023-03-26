@@ -12,9 +12,11 @@ bvhar_ssvs(
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
-  bayes_spec = set_ssvs(),
-  init_spec = init_ssvs(),
+  bayes_spec = choose_ssvs(y = y, ord = har, type = "VHAR", include_mean = include_mean,
+    gamma_param = c(0.01, 0.01), mean_non = 0, sd_non = 0.1),
+  init_spec = init_ssvs(type = "auto"),
   include_mean = TRUE,
+  relax = c("no", "minnesota", "longrun"),
   verbose = FALSE
 )
 
@@ -33,11 +35,13 @@ knit_print.bvharssvs(x, ...)
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{bayes_spec}{A SSVS model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
+\item{bayes_spec}{A SSVS model specification by \code{\link[=set_ssvs]{set_ssvs()}}. By default, use a default semiautomatic approach \code{\link[=choose_ssvs]{choose_ssvs()}}.}
 
-\item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}.}
+\item{init_spec}{SSVS initialization specification by \code{\link[=init_ssvs]{init_ssvs()}}. By default, use OLS for coefficient and cholesky factor while 1 for dummies.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{relax}{Only use off-diagonal terms of each coefficient matrices for restriction. Two type: \code{"minnesota"} type and \code{"longrun"} type. By default, \code{"no"}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

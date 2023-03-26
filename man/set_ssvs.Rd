@@ -10,7 +10,8 @@ set_ssvs(
   coef_spike = 0.1,
   coef_slab = 5,
   coef_mixture = 0.5,
-  coef_non = 0.1,
+  mean_non = 0,
+  sd_non = 0.1,
   shape = 0.01,
   rate = 0.01,
   chol_spike = 0.1,
@@ -29,7 +30,9 @@ knit_print.ssvsinput(x, ...)
 
 \item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
 
-\item{coef_non}{Standard deviance for constant term}
+\item{mean_non}{Prior mean of unrestricted coefficients}
+
+\item{sd_non}{Standard deviance for unrestricted coefficients}
 
 \item{shape}{Gamma shape parameters for precision matrix (See Details).}
 

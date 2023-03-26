@@ -124,7 +124,7 @@ On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_s
   coef_spike = .1,
   coef_slab = 5,
   coef_mixture = .5,
-  coef_non = 5,
+  sd_non = 5,
   shape = .01,
   rate = .01,
   chol_spike = .1,

@@ -588,7 +588,8 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
 #' @param param Preselected constants \eqn{c_0 << c_1}. By default, `0.1` and `10` (See Details).
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`).
 #' @param gamma_param Parameters (shape, rate) for Gamma distribution. This is for the output.
-#' @param coef_non Standard deviance for constant term. This is for the output.
+#' @param mean_non Prior mean of unrestricted coefficients. This is for the output.
+#' @param sd_non Standard deviance of unrestricted coefficients. This is for the output.
 #' @details 
 #' Instead of using subjective values of \eqn{(\tau_{0i}, \tau_{1i})}, we can use
 #' \deqn{\tau_{ki} = c_k \hat{VAR(OLS)}}
@@ -610,7 +611,8 @@ choose_ssvs <- function(y,
                         param = c(.1, 10),
                         include_mean = TRUE,
                         gamma_param = c(.01, .01),
-                        coef_non = .1) {
+                        mean_non = 0,
+                        sd_non = .1) {
   type <- match.arg(type)
   if (param[1] >= param[2]) {
     stop("'param[2]' should be larger than 'param[1]'.")
@@ -619,20 +621,29 @@ choose_ssvs <- function(y,
     type,
     "VAR" = {
       fit <- summary(var_lm(y, p = ord, include_mean = include_mean))
-      coef_var <- fit$coefficients$std.error
-      chol_var <- chol(fit$covmat)
-      chol_var <- chol_var[upper.tri(chol_var, diag = FALSE)]
+      sd_coef <- fit$coefficients$std.error
+      mean_coef <- fit$coefficients$estimate
+      if (include_mean) {
+        id_const <- grep(pattern = "^const", fit$coefficients$term)
+        mean_non <- fit$coefficients$estimate[id_const]
+        # mean_coef <- fit$coefficients$estimate[-id_const]
+        sd_coef <- fit$coefficients$std.error[-id_const]
+      }
+      sd_chol <- chol(fit$covmat)
+      sd_chol <- sd_chol[upper.tri(sd_chol, diag = FALSE)]
       list(
-        coef_spike = param[1] * coef_var,
-        coef_slab = param[2] * coef_var,
+        coef_spike = param[1] * sd_coef,
+        coef_slab = param[2] * sd_coef,
         coef_mixture = .5,
-        coef_non = coef_non,
+        # mean_coef = mean_coef,
+        mean_non = mean_non,
+        sd_non = sd_non,
         process = "VAR",
         prior = "SSVS",
         shape = gamma_param[1],
         rate = gamma_param[2],
-        chol_spike = param[1] * chol_var,
-        chol_slab = param[2] * chol_var,
+        chol_spike = param[1] * sd_chol,
+        chol_slab = param[2] * sd_chol,
         chol_mixture = .5
       )
     },
@@ -642,19 +653,27 @@ choose_ssvs <- function(y,
       }
       fit <- summary(vhar_lm(y, har = ord, include_mean = include_mean))
       coef_var <- fit$coefficients$std.error
-      chol_var <- chol(fit$covmat)
-      chol_var <- chol_var[upper.tri(chol_var, diag = FALSE)]
+      if (include_mean) {
+        id_const <- grep(pattern = "^const", fit$coefficients$term)
+        mean_non <- fit$coefficients$estimate[id_const]
+        # mean_coef <- fit$coefficients$estimate[-id_const]
+        sd_coef <- fit$coefficients$std.error[-id_const]
+      }
+      sd_chol <- chol(fit$covmat)
+      sd_chol <- sd_chol[upper.tri(sd_chol, diag = FALSE)]
       list(
-        coef_spike = param[1] * coef_var,
-        coef_slab = param[2] * coef_var,
+        coef_spike = param[1] * sd_coef,
+        coef_slab = param[2] * sd_coef,
         coef_mixture = .5,
-        coef_non = coef_non,
+        # mean_coef = mean_coef,
+        mean_non = mean_non,
+        sd_non = sd_non,
         process = "VHAR",
         prior = "SSVS",
         shape = gamma_param[1],
         rate = gamma_param[2],
-        chol_spike = param[1] * chol_var,
-        chol_slab = param[2] * chol_var,
+        chol_spike = param[1] * sd_chol,
+        chol_slab = param[2] * sd_chol,
         chol_mixture = .5
       )
     }

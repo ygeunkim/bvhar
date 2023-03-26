@@ -11,7 +11,8 @@ choose_ssvs(
   param = c(0.1, 10),
   include_mean = TRUE,
   gamma_param = c(0.01, 0.01),
-  coef_non = 0.1
+  mean_non = 0,
+  sd_non = 0.1
 )
 }
 \arguments{
@@ -27,7 +28,9 @@ choose_ssvs(
 
 \item{gamma_param}{Parameters (shape, rate) for Gamma distribution. This is for the output.}
 
-\item{coef_non}{Standard deviance for constant term. This is for the output.}
+\item{mean_non}{Prior mean of unrestricted coefficients. This is for the output.}
+
+\item{sd_non}{Standard deviance of unrestricted coefficients. This is for the output.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
