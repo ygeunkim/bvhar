@@ -622,7 +622,7 @@ choose_ssvs <- function(y,
     "VAR" = {
       fit <- summary(var_lm(y, p = ord, include_mean = include_mean))
       sd_coef <- fit$coefficients$std.error
-      mean_coef <- fit$coefficients$estimate
+      # mean_coef <- fit$coefficients$estimate
       if (include_mean) {
         id_const <- grep(pattern = "^const", fit$coefficients$term)
         mean_non <- fit$coefficients$estimate[id_const]
@@ -652,7 +652,7 @@ choose_ssvs <- function(y,
         ord <- c(5, 22)
       }
       fit <- summary(vhar_lm(y, har = ord, include_mean = include_mean))
-      coef_var <- fit$coefficients$std.error
+      sd_coef <- fit$coefficients$std.error
       if (include_mean) {
         id_const <- grep(pattern = "^const", fit$coefficients$term)
         mean_non <- fit$coefficients$estimate[id_const]
