@@ -3,7 +3,6 @@
 // [[Rcpp::plugins(openmp)]]
 #endif
 #include <RcppEigen.h>
-// #include "ArithmeticSequence.h"
 #include "bvharmisc.h"
 #include "bvharprob.h"
 #include <progress.hpp>
@@ -205,7 +204,6 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   if (!include_mean) {
     num_restrict += dim; // always dim^2 p
   }
-  // Eigen::VectorXd prior_mean = Eigen::VectorXd::Zero(num_coef); // zero vector as prior mean
   Eigen::VectorXd prior_mean(num_coef);
   Eigen::VectorXd coef_mean = Eigen::VectorXd::Zero(num_restrict); // zero prior mean for restricted coefficient
   if (include_mean) {

@@ -45,12 +45,12 @@ Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::Matr
     int dim_design = shrink_mat.rows();
     Eigen::MatrixXd lam_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
     lam_mat.diagonal() = 1 / shrink_mat.diagonal().array();
-    Eigen::MatrixXd identidy_mat = Eigen::MatrixXd::Identity(num_design, num_design);
+    Eigen::MatrixXd identity_mat = Eigen::MatrixXd::Identity(num_design, num_design);
     Eigen::MatrixXd u_mat = sim_matgaussian(Eigen::MatrixXd::Zero(dim_design, dim), lam_mat, sigma);
-    Eigen::MatrixXd v_mat = x * u_mat + sim_matgaussian(Eigen::MatrixXd::Zero(num_design, dim), identidy_mat, sigma);
-    return u_mat + lam_mat * x.transpose() * (x * lam_mat * x.transpose() + identidy_mat).llt().solve(y - v_mat);
+    Eigen::MatrixXd v_mat = x * u_mat + sim_matgaussian(Eigen::MatrixXd::Zero(num_design, dim), identity_mat, sigma);
+    return u_mat + lam_mat * x.transpose() * (x * lam_mat * x.transpose() + identity_mat).llt().solve(y - v_mat);
   }
-  Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).inverse();
+  Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).llt().solve(Eigen::MatrixXd::Identity(shrink_mat.rows(), shrink_mat.rows()));
   return sim_matgaussian(prec_mat * x.transpose() * y, prec_mat, sigma);
 }
 

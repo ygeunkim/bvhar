@@ -630,25 +630,105 @@ autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = c
   bayes_plt
 }
 
+#' Make Data Form to Heatmap
+#' 
+#' @param object List of `summary.bvharsp`.
+#' @importFrom tibble rownames_to_column
+#' @importFrom tidyr pivot_longer separate_wider_delim
+#' @importFrom dplyr mutate case_when
+#' @noRd
+gather_heat <- function(object) {
+  heat_coef <- 
+    object$coefficients %>% 
+    as.data.frame() %>% 
+    rownames_to_column("term") %>% 
+    pivot_longer(-term, names_to = "x", values_to = "value")
+  is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
+  if (object$type == "const") {
+    heat_coef <- 
+      heat_coef %>% 
+      mutate(term = ifelse(
+        term == "const",
+        ifelse(
+          is_vhar,
+          concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
+          concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
+        ),
+        term
+      ))
+  }
+  heat_coef <- 
+    heat_coef %>% 
+    separate_wider_delim(term, delim = "_", names = c("y", "ord"))
+  # VHAR model--------------------------------
+  if (is_vhar) {
+    heat_coef <- 
+      heat_coef %>% 
+      mutate(
+        ord = case_when(
+          ord == "day" ~ "Daily",
+          ord == "week" ~ "Weekly",
+          ord == "month" ~ "Monthly"
+        ),
+        ord = factor(ord, levels = c("Daily", "Weekly", "Monthly"))
+      )
+  }
+  heat_coef
+}
+
+#' Plot the Heatmap of SSVS Coefficients
+#' 
+#' Draw heatmap for SSVS prior coefficients.
+#' 
+#' @param object `summary.bvharsp` object
+#' @param ... Other arguments passed on the [ggplot2::geom_tile()].
+#' 
+#' @importFrom ggplot2 ggplot aes geom_tile scale_x_discrete labs element_blank facet_grid
+#' @importFrom forcats fct_rev
+#' @export
+autoplot.summary.bvharsp <- function(object, ...) {
+  heat_coef <- gather_heat(object)
+  p <- 
+    heat_coef %>% 
+    ggplot(aes(x = x, y = fct_rev(y))) +
+    geom_tile(aes(fill = value), ...) +
+    scale_x_discrete(position = "top") +
+    labs(
+      x = element_blank(),
+      y = element_blank()
+    )
+  if (object$p == 1) {
+    return(p)
+  }
+  # plot for VHAR or p > 1-----------
+  p +
+    facet_grid(ord ~ ., switch = "x")
+}
+
 #' Plot the Credible Interval of Matrix-variate Horseshoe Coefficients
 #' 
 #' Draw credible interval for horseshoe prior coefficients.
 #' 
 #' @param object `summary.mvhsmod` object
-#' @param colour Color of the credible interval line (By default, `"black"`).
-#' @param linetype Line type of the credible interval line (By default, `1`: solid).
-#' @param fill Color to fill between credible interval lines (By default, none: `NA`).
+#' @param colour Color of the credible interval line (Try `"black"`).
+#' @param linetype Line type of the credible interval line (Try `1`: solid).
+#' @param fill Color to fill between credible interval lines (Try none: `NA`).
 #' @param ... Other arguments passed on the [ggplot2::geom_ribbon()].
 #' 
 #' @importFrom ggplot2 ggplot aes geom_path geom_ribbon
 #' @importFrom dplyr mutate n
 #' @export
-autoplot.summary.mvhsmod <- function(object, colour = "black", linetype = 1, fill = NA, ...) {
+autoplot.summary.mvhsmod <- function(object, colour = NULL, linetype = NULL, fill = NULL, ...) {
   ci_df <- 
     object$interval %>% 
     mutate(estimate = c(object$posterior_mean), term = 1:n())
-  ci_df %>% 
-    ggplot(aes(x = term, y = estimate)) +
-    geom_path() +
-    geom_ribbon(aes(ymin = conf.low, ymax = conf.high), color = colour, linetype = linetype, fill = NA, ...)
+  if (is.null(colour) || is.null(linetype) || is.null(fill)) {
+    NextMethod()
+  } else {
+    ci_df %>% 
+      ggplot(aes(x = term, y = estimate)) +
+      geom_path() +
+      geom_ribbon(aes(ymin = conf.low, ymax = conf.high), color = colour, linetype = linetype, fill = fill, ...)
+  }
 }
+

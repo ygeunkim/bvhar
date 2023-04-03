@@ -43,7 +43,8 @@ Imports:
     optimParallel,
     posterior,
     bayesplot,
-    doRNG
+    doRNG,
+    forcats
 LinkingTo: 
     Rcpp,
     RcppEigen,

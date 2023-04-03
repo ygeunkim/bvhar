@@ -207,7 +207,7 @@ bvar_horseshoe <- function(y,
   res$totobs <- nrow(y)
   # model-----------------
   res$call <- match.call()
-  res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  res$process <- paste("VAR", bayes_spec$prior, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
   res$algo <- ifelse(fast_sampling, "fast", "gibbs")
   res$spec <- bayes_spec
