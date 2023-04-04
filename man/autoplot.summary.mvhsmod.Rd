@@ -9,11 +9,11 @@
 \arguments{
 \item{object}{\code{summary.mvhsmod} object}
 
-\item{colour}{Color of the credible interval line (Try \code{"black"}).}
+\item{colour}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Color of the credible interval line (By default, \code{"black"}).}
 
-\item{linetype}{Line type of the credible interval line (Try \code{1}: solid).}
+\item{linetype}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Line type of the credible interval line (By default, \code{1}: solid).}
 
-\item{fill}{Color to fill between credible interval lines (Try none: \code{NA}).}
+\item{fill}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Color to fill between credible interval lines (By default, none: \code{NA}).}
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}.}
 }
