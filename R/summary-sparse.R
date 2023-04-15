@@ -67,6 +67,7 @@ summary.ssvsmod <- function(object, ...) {
 #' 
 #' @param object `mvhsmod` object
 #' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
+#' @param correction Multiple testing correction. By default, `FALSE`.
 #' @param ... not used
 #' @details 
 #' MCMC can construct \eqn{100 (1 - \alpha)} credible interval.
@@ -77,8 +78,9 @@ summary.ssvsmod <- function(object, ...) {
 #' @importFrom dplyr rename
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-summary.mvhsmod <- function(object, level = .05, ...) {
-  low_lev <- level / 2
+summary.mvhsmod <- function(object, level = .05, correction = FALSE, ...) {
+  # low_lev <- level / 2
+  low_lev <- ifelse(correction, level / (2 * object$df * object$m), level / 2)
   cred_int <- 
     object$param %>% 
     subset_draws("alpha|phi", regex = TRUE) %>% 
@@ -87,12 +89,14 @@ summary.mvhsmod <- function(object, level = .05, ...) {
         .,
         prob = c(low_lev, 1 - low_lev)
       )
-    ) %>% 
-    rename(
-      "term" = "variable",
-      "conf.low" = paste0(low_lev * 100, "%"),
-      "conf.high" = paste0((1 - low_lev) * 100, "%")
     )
+  # %>% 
+  #   rename(
+  #     "term" = "variable",
+  #     "conf.low" = paste0(low_lev * 100, "%"),
+  #     "conf.high" = paste0((1 - low_lev) * 100, "%")
+  #   )
+  colnames(cred_int) <- c("term", "conf.low", "conf.high")
   selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
   coef_res <- ifelse(selection, object$coefficients, 0L)
   rownames(selection) <- rownames(object$coefficients)

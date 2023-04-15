@@ -10,7 +10,7 @@
 
 knit_print.summary.mvhsmod(x, ...)
 
-\method{summary}{mvhsmod}(object, level = 0.05, ...)
+\method{summary}{mvhsmod}(object, level = 0.05, correction = FALSE, ...)
 }
 \arguments{
 \item{x}{\code{summary.mvhsmod} object}
@@ -22,6 +22,8 @@ knit_print.summary.mvhsmod(x, ...)
 \item{object}{\code{mvhsmod} object}
 
 \item{level}{Specify alpha of credible interval level 100(1 - alpha) percentage. By default, \code{.05}.}
+
+\item{correction}{Multiple testing correction. By default, \code{FALSE}.}
 }
 \description{
 Conduct variable selection.

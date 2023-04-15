@@ -154,16 +154,16 @@ Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_horseshoe_niw(int num_iter,
-                                  int num_burn,
-                                  Eigen::MatrixXd x,
-                                  Eigen::MatrixXd y,
-                                  Eigen::VectorXd init_local,
-                                  Eigen::VectorXd init_global,
-                                  Eigen::MatrixXd init_priorvar,
-                                  int coef_type,
-                                  int chain,
-                                  bool display_progress) {
+Rcpp::List estimate_bvar_horseshoe(int num_iter,
+                                   int num_burn,
+                                   Eigen::MatrixXd x,
+                                   Eigen::MatrixXd y,
+                                   Eigen::VectorXd init_local,
+                                   Eigen::VectorXd init_global,
+                                   Eigen::MatrixXd init_priorvar,
+                                   int coef_type,
+                                   int chain,
+                                   bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
   int num_coef = dim * dim_design;

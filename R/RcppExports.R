@@ -325,8 +325,8 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat) {
 #' @param chain The number of MCMC chains.
 #' @param display_progress Progress bar
 #' @noRd
-estimate_horseshoe_niw <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
-    .Call(`_bvhar_estimate_horseshoe_niw`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
+estimate_bvar_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress) {
+    .Call(`_bvhar_estimate_bvar_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, chain, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix

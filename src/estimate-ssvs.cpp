@@ -217,7 +217,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   Eigen::VectorXd prior_sd(num_coef); // M: diagonal matrix = DRD or merge of cI_dim and DRD
   Eigen::VectorXd coef_mixture_mat(num_restrict); // D = diag(hj)
   Eigen::MatrixXd XtX = x.transpose() * x;
-  Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
+  // Eigen::MatrixXd coef_ols = XtX.inverse() * x.transpose() * y;
+  Eigen::MatrixXd coef_ols = XtX.llt().solve(x.transpose() * y);
   Eigen::MatrixXd cov_ols = (y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design);
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(cov_ols.inverse());
   Eigen::MatrixXd chol_ols = lltOfscale.matrixU();

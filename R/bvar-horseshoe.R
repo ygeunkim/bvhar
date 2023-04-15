@@ -109,7 +109,7 @@ bvar_horseshoe <- function(y,
     init_global <- bayes_spec$global_sparsity
     init_priorvar <- bayes_spec$init_cov
     # MCMC-----------------------------
-    res <- estimate_horseshoe_niw(
+    res <- estimate_bvar_horseshoe(
       num_iter = num_iter,
       num_burn = num_burn,
       x = X0,
@@ -136,7 +136,7 @@ bvar_horseshoe <- function(y,
     init_priorvar <- bayes_spec$init_cov
     # MCMC-----------------------------
     res <- foreach(id = seq_along(init_local)) %dorng% {
-      estimate_horseshoe_niw(
+      estimate_bvar_horseshoe(
         num_iter = num_iter,
         num_burn = num_burn,
         x = X0,

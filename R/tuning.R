@@ -620,14 +620,15 @@ choose_ssvs <- function(y,
   res <- switch(
     type,
     "VAR" = {
-      fit <- summary(var_lm(y, p = ord, include_mean = include_mean))
-      sd_coef <- fit$coefficients$std.error
-      # mean_coef <- fit$coefficients$estimate
+      fit <- var_lm(y, p = ord, include_mean = include_mean)
+      fit_infer <- infer_var(var_lm(y, p = ord, include_mean = include_mean))$summary_stat
+      # mean_coef <- fit_infer[,1]
+      sd_coef <- fit_infer[,2]
+      
       if (include_mean) {
-        id_const <- grep(pattern = "^const", fit$coefficients$term)
-        mean_non <- fit$coefficients$estimate[id_const]
-        # mean_coef <- fit$coefficients$estimate[-id_const]
-        sd_coef <- fit$coefficients$std.error[-id_const]
+        id_const <- seq(from = fit$df, to = fit$df * fit$m, by = fit$df)
+        mean_non <- fit_infer[id_const, 1]
+        sd_coef <- fit_infer[-id_const]
       }
       sd_chol <- chol(fit$covmat)
       sd_chol <- sd_chol[upper.tri(sd_chol, diag = FALSE)]
@@ -651,13 +652,14 @@ choose_ssvs <- function(y,
       if (missing(ord)) {
         ord <- c(5, 22)
       }
-      fit <- summary(vhar_lm(y, har = ord, include_mean = include_mean))
-      sd_coef <- fit$coefficients$std.error
+      fit <- vhar_lm(y, har = ord, include_mean = include_mean)
+      fit_infer <- infer_vhar(fit)$summary_stat
+      sd_coef <- fit_infer[,2]
+      
       if (include_mean) {
-        id_const <- grep(pattern = "^const", fit$coefficients$term)
-        mean_non <- fit$coefficients$estimate[id_const]
-        # mean_coef <- fit$coefficients$estimate[-id_const]
-        sd_coef <- fit$coefficients$std.error[-id_const]
+        id_const <- seq(from = fit$df, to = fit$df * fit$m, by = fit$df)
+        mean_non <- fit_infer[id_const, 1]
+        sd_coef <- fit_infer[-id_const]
       }
       sd_chol <- chol(fit$covmat)
       sd_chol <- sd_chol[upper.tri(sd_chol, diag = FALSE)]
