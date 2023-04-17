@@ -77,31 +77,14 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE) {
     name_var <- paste0("y", seq_len(m))
   }
   colnames(Y0) <- name_var
-  X0 <- build_design(y, month) # 22
-  name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
-  # const or none--------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  num_coef <- 3 * m + 1
-  if (!include_mean) {
-    X0 <- X0[, -(month * m + 1)] # exclude 1 column
-    name_har <- name_har[-num_coef] # remove const (row)name
-    num_coef <- num_coef - 1 # df = 3 * m
-  }
-  # Y0 = X1 Phi + Z------------------
-  # X1 = X0 %*% t(HARtrans)
+  X0 <- build_design(y, month, include_mean) # 22
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # estimate Phi---------------------
   type <- ifelse(include_mean, "const", "none")
-  vhar_est <- switch(
-    type,
-    "const" = {
-      estimate_har(X0, Y0, week, month)
-    },
-    "none" = {
-      estimate_har_none(X0, Y0, week, month)
-    }
-  )
+  vhar_est <- estimate_har(X0, Y0, week, month, include_mean)
   Phihat <- vhar_est$phihat
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har
@@ -110,7 +93,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE) {
   colnames(yhat) <- colnames(Y0)
   zhat <- Y0 - yhat
   # residual Covariance matrix------
-  covmat <- compute_cov(zhat, nrow(Y0), num_coef) # Sighat = z^T %*% z / (s - (3m + 1))
+  covmat <- compute_cov(zhat, nrow(Y0), nrow(Phihat)) # Sighat = z^T %*% z / (s - (3m + 1))
   colnames(covmat) <- name_var
   rownames(covmat) <- name_var
   # return as new S3 class-----------
@@ -121,7 +104,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE) {
     residuals = zhat, # Y0 - X1 %*% Phihat
     covmat = covmat,
     # variables---------------
-    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
+    df = nrow(Phihat), # nrow(Phihat) = 3 * m + 1 or 3 * m
     p = 3, # add for other function (df = 3m + 1 = mp + 1)
     week = week, # default: 5
     month = month, # default: 22

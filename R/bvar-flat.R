@@ -80,20 +80,13 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
   } else {
     name_var <- paste0("y", seq_len(m))
   }
-  colnames(Y0) <- name_var
-  X0 <- build_design(y, p)
-  name_lag <- concatenate_colnames(name_var, 1:p) # in misc-r.R file
-  colnames(X0) <- name_lag
-  # const or none---------------------
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  k <- m * p + 1 # df
-  if (!include_mean) {
-    X0 <- X0[, -k] # exclude 1 column
-    k <- k - 1 # df = no intercept
-    name_lag <- name_lag[1:k] # colnames(X0)
-  }
+  colnames(Y0) <- name_var
+  X0 <- build_design(y, p, include_mean)
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
+  colnames(X0) <- name_lag
   # spec------------------------------
   if (is.null(bayes_spec$U)) {
     bayes_spec$U <- diag(ncol(X0)) # identity matrix
@@ -123,7 +116,7 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     iw_scale = iw_scale,
     iw_shape = posterior$iwshape,
     # variables-----------
-    df = k, # k = mp + 1 or mp
+    df = nrow(mn_mean), # k = mp + 1 or mp
     p = p, # p
     m = m, # m
     obs = nrow(Y0), # s = n - p

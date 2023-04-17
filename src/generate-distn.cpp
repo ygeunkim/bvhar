@@ -49,6 +49,40 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
   return res;
 }
 
+//' Generate Multivariate Normal Random Vector using Cholesky Decomposition
+//' 
+//' This function samples n x muti-dimensional normal random matrix with using Cholesky decomposition.
+//' 
+//' @param num_sim Number to generate process
+//' @param mu Mean vector
+//' @param sig Variance matrix
+//' @details
+//' This function computes \eqn{\Sigma^{1/2}} by choleksy decomposition.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
+  int dim = sig.cols();
+  if (sig.rows() != dim) {
+    Rcpp::stop("Invalid 'sig' dimension.");
+  }
+  if (dim != mu.size()) {
+    Rcpp::stop("Invalid 'mu' size.");
+  }
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  for (int i = 0; i < num_sim; i++) {
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = norm_rand();
+    }
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
+  Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig_sqrt;
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
 //' Generate Matrix Normal Random Matrix
 //' 
 //' This function samples one matrix gaussian matrix.
@@ -68,8 +102,8 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, 
-                                Eigen::Map<Eigen::MatrixXd> mat_scale_u, 
-                                Eigen::Map<Eigen::MatrixXd> mat_scale_v) {
+                                Eigen::MatrixXd mat_scale_u, 
+                                Eigen::MatrixXd mat_scale_v) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
   if (mat_scale_u.rows() != mat_scale_u.cols()) {
@@ -113,7 +147,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
+Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   int dim = mat_scale.cols();
   if (shape <= dim - 1) {
     Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
@@ -130,7 +164,9 @@ Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) 
   for (int i = 0; i < dim; i++) {
     // diagonal
     mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
-    // upper triangular (j > i) ~ N(0, 1)
+  }
+  // upper triangular (j > i) ~ N(0, 1)
+  for (int i = 0; i < dim - 1; i ++) {
     for (int j = i + 1; j < dim; j++) {
       mat_bartlett(i, j) = norm_rand();
     }
@@ -161,7 +197,7 @@ Eigen::MatrixXd sim_iw_tri(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) 
 //' 
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
+Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
   Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
   Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
   return res;
@@ -188,8 +224,8 @@ Eigen::MatrixXd sim_iw(Eigen::Map<Eigen::MatrixXd> mat_scale, double shape) {
 // [[Rcpp::export]]
 Rcpp::List sim_mniw(int num_sim,
                     Eigen::MatrixXd mat_mean, 
-                    Eigen::Map<Eigen::MatrixXd> mat_scale_u, 
-                    Eigen::Map<Eigen::MatrixXd> mat_scale, 
+                    Eigen::MatrixXd mat_scale_u, 
+                    Eigen::MatrixXd mat_scale, 
                     double shape) {
   int ncol_mn = mat_mean.cols();
   int nrow_mn = mat_mean.rows();
@@ -210,7 +246,7 @@ Rcpp::List sim_mniw(int num_sim,
     res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_matgaussian(
       mat_mean, 
       mat_scale_u, 
-      Eigen::Map<Eigen::MatrixXd>(mat_scale_v.data(), dim_iw, dim_iw)
+      mat_scale_v
     );
   }
   return Rcpp::List::create(
@@ -219,3 +255,39 @@ Rcpp::List sim_mniw(int num_sim,
   );
 }
 
+//' Generate Lower Triangular Matrix of Wishart
+//' 
+//' This function generates \eqn{A = L (Q^{-1})^T}.
+//' 
+//' @param mat_scale Scale matrix of Wishart
+//' @param shape Shape of Wishart
+//' @details
+//' This function generates Wishart random matrix.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
+  int dim = mat_scale.cols();
+  if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
+  if (mat_scale.rows() != mat_scale.cols()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  if (dim != mat_scale.rows()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
+  for (int i = 0; i < dim; i++) {
+    mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
+  }
+  for (int i = 1; i < dim; i++) {
+    for (int j = 0; j < i; j++) {
+      mat_bartlett(i, j) = norm_rand();
+    }
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(mat_scale);
+  Eigen::MatrixXd chol_scale = lltOfscale.matrixL();
+  Eigen::MatrixXd chol_res = chol_scale * mat_bartlett;
+  return chol_res * chol_res.transpose();
+}

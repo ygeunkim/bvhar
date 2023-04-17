@@ -102,8 +102,7 @@ Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   Eigen::MatrixXd mn_scale_mat(dim_design, dim_design); // MN scale 1 = inverse of precision
   Eigen::MatrixXd scale_mat(dim, dim); // IW scale
   Eigen::MatrixXd yhat(num_design, dim); // x %*% bhat
-  Eigen::MatrixXd Is(num_design, num_design);
-  Is.setIdentity(num_design, num_design);
+  Eigen::MatrixXd Is = Eigen::MatrixXd::Identity(num_design, num_design);
   prec_mat = (x.transpose() * x + U);
   mn_scale_mat = prec_mat.inverse();
   coef_mat = mn_scale_mat * x.transpose() * y;

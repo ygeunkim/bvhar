@@ -106,10 +106,12 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
     name_var <- paste0("y", seq_len(m))
   }
   colnames(Y0) <- name_var
-  s <- nrow(Y0)
-  X0 <- build_design(y, month)
-  HARtrans <- scale_har(m, week, month)
-  name_har <- concatenate_colnames(name_var, c("day", "week", "month")) # in misc-r.R file
+  if (!is.logical(include_mean)) {
+    stop("'include_mean' is logical.")
+  }
+  X0 <- build_design(y, month, include_mean)
+  HARtrans <- scale_har(m, week, month, include_mean)
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # dummy-----------------------------
   Yh <- switch(
     minnesota_type,
@@ -117,7 +119,7 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
       if (is.null(bayes_spec$delta)) {
         bayes_spec$delta <- rep(1, m)
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(m), numeric(m))
+      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(m), numeric(m), include_mean)
       colnames(Yh) <- name_var
       Yh
     },
@@ -137,27 +139,15 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
         lambda, 
         bayes_spec$daily, 
         bayes_spec$weekly, 
-        bayes_spec$monthly
+        bayes_spec$monthly,
+        include_mean
       )
       colnames(Yh) <- name_var
       Yh
     }
   )
-  Xh <- build_xdummy(1:3, lambda, sigma, eps)
+  Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
   colnames(Xh) <- name_har
-  # const or none---------------------
-  if (!is.logical(include_mean)) {
-    stop("'include_mean' is logical.")
-  }
-  if (!include_mean) {
-    X0 <- X0[, -(month * m + 1)] # exclude 1 column
-    HARtrans <- HARtrans[-num_coef, -(month * m + 1)] # HARtrans: 3m x 22m matrix
-    Th <- nrow(Yh)
-    Yh <- Yh[-Th,] # exclude intercept block from Yh (last row)
-    Xh <- Xh[-Th, -num_coef] # exclude intercept block from Xh (last row and last column)
-    name_har <- name_har[-num_coef] # remove const (row)name
-    num_coef <- num_coef - 1 # df = 3 * m
-  }
   X1 <- X0 %*% t(HARtrans)
   colnames(X1) <- name_har
   # estimate-bvar.cpp-----------------
@@ -188,14 +178,14 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
     residuals = posterior$residuals,
     mn_prec = mn_prec,
     iw_scale = iw_scale,
-    iw_shape = prior_shape + s, # if adding improper prior, d0 + s + 2
+    iw_shape = prior_shape + nrow(Y0), # if adding improper prior, d0 + s + 2
     # variables-----------
-    df = num_coef, # nrow(Phihat) = 3 * m + 1 or 3 * m
+    df = nrow(mn_mean), # 3 * m + 1 or 3 * m
     p = 3, # add for other function (df = 3m + 1 = mp + 1)
     week = week, # default: 5
     month = month, # default: 22
     m = m, # m
-    obs = s, # s = n - 22
+    obs = nrow(Y0), # n = T - 22
     totobs = N, # n
     # about model---------
     call = match.call(),

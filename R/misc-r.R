@@ -1,11 +1,15 @@
 #' @noRd
-concatenate_colnames <- function(var_name, prefix) {
-  lapply(
-    prefix,
-    function(lag) paste(var_name, lag, sep = "_")
-  ) %>% 
-    unlist() %>% 
-    c(., "const")
+concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
+  nm <- 
+    lapply(
+      prefix,
+      function(lag) paste(var_name, lag, sep = "_")
+    ) %>% 
+    unlist()
+  if (!include_mean) {
+    return(nm)
+  }
+  c(nm, "const")
 }
 
 #' Splitting Coefficient Matrix into List
