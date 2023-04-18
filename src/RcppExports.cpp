@@ -588,6 +588,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sim_mvt
+Eigen::MatrixXd sim_mvt(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method);
+RcppExport SEXP _bvhar_sim_mvt(SEXP num_simSEXP, SEXP dfSEXP, SEXP muSEXP, SEXP sigSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_mvt(num_sim, df, mu, sig, method));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_matgaussian
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v);
 RcppExport SEXP _bvhar_sim_matgaussian(SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scale_vSEXP) {
@@ -961,6 +976,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
     {"_bvhar_sim_mgaussian_chol", (DL_FUNC) &_bvhar_sim_mgaussian_chol, 3},
+    {"_bvhar_sim_mvt", (DL_FUNC) &_bvhar_sim_mvt, 5},
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
     {"_bvhar_sim_iw_tri", (DL_FUNC) &_bvhar_sim_iw_tri, 2},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},

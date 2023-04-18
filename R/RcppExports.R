@@ -740,6 +740,21 @@ sim_mgaussian_chol <- function(num_sim, mu, sig) {
     .Call(`_bvhar_sim_mgaussian_chol`, num_sim, mu, sig)
 }
 
+#' Generate Multivariate t Random Vector
+#' 
+#' This function samples n x muti-dimensional normal random matrix.
+#' 
+#' @param num_sim Number to generate process
+#' @param df Degrees of freedom
+#' @param mu Location vector
+#' @param sig Scale matrix
+#' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
+#' 
+#' @noRd
+sim_mvt <- function(num_sim, df, mu, sig, method) {
+    .Call(`_bvhar_sim_mvt`, num_sim, df, mu, sig, method)
+}
+
 #' Generate Matrix Normal Random Matrix
 #' 
 #' This function samples one matrix gaussian matrix.

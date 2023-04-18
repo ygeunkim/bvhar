@@ -27,13 +27,6 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
   }
-  for (int i = 0; i < dim; i++) {
-    for (int j = 0; j < dim; j++) {
-      if (sig(i, j) != sig(j, i)) {
-        Rcpp::stop("'sig' must be a symmetric matrix.");
-      }
-    }
-  }
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
@@ -79,6 +72,46 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
   Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
   res = standard_normal * sig_sqrt;
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+//' Generate Multivariate t Random Vector
+//' 
+//' This function samples n x muti-dimensional normal random matrix.
+//' 
+//' @param num_sim Number to generate process
+//' @param df Degrees of freedom
+//' @param mu Location vector
+//' @param sig Scale matrix
+//' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_mvt(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
+  int dim = sig.cols();
+  if (sig.rows() != dim) {
+    Rcpp::stop("Invalid 'sig' dimension.");
+  }
+  if (dim != mu.size()) {
+    Rcpp::stop("Invalid 'mu' size.");
+  }
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  switch (method) {
+  case 1:
+    standard_normal = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    break;
+  case 2:
+    standard_normal = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    break;
+  default:
+    Rcpp::stop("Invalid 'method' option.");
+  }
+  Eigen::MatrixXd res(num_sim, dim);
+  res =  standard_normal * sig.sqrt();
+  for (int i = 0; i < num_sim; i++) {
+    res.row(i) *= sqrt(df / chisq_rand(df));
+  }
   res.rowwise() += mu.transpose();
   return res;
 }
