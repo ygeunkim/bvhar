@@ -69,11 +69,59 @@ Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int mont
   int dim = y.cols();
   Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean); // linear transformation
   Eigen::MatrixXd x1 = x * HARtrans.transpose();
-  Eigen::MatrixXd Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
-  Eigen::MatrixXd yhat = x1 * Phi;
+  Eigen::MatrixXd coef_mat = (x1.transpose() * x1).inverse() * x1.transpose() * y; // estimation
+  Eigen::MatrixXd yhat = x1 * coef_mat;
   return Rcpp::List::create(
     Rcpp::Named("HARtrans") = HARtrans,
-    Rcpp::Named("phihat") = Phi,
+    Rcpp::Named("phihat") = coef_mat,
+    Rcpp::Named("fitted") = yhat
+  );
+}
+
+//' Compute VHAR using Cholesky Decomposition
+//' 
+//' This function fits VHAR using LLT.
+//' 
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_har_llt(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean) {
+  int dim = y.cols();
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean); // linear transformation
+  Eigen::MatrixXd x1 = x * HARtrans.transpose();
+  Eigen::MatrixXd coef_mat = (x1.transpose() * x1).llt().solve(x1.transpose() * y);
+  Eigen::MatrixXd yhat = x1 * coef_mat;
+  return Rcpp::List::create(
+    Rcpp::Named("coef") = coef_mat,
+    Rcpp::Named("fitted") = yhat
+  );
+}
+
+//' Compute VHAR using QR Decomposition
+//' 
+//' This function fits VHAR using QR.
+//' 
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_har_qr(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean) {
+  int dim = y.cols();
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean); // linear transformation
+  Eigen::MatrixXd x1 = x * HARtrans.transpose();
+  Eigen::MatrixXd coef_mat = x1.householderQr().solve(y);
+  Eigen::MatrixXd yhat = x1 * coef_mat;
+  return Rcpp::List::create(
+    Rcpp::Named("coef") = coef_mat,
     Rcpp::Named("fitted") = yhat
   );
 }

@@ -14,6 +14,7 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
     "Flat" = "?bvar_flat",
     "MN_VAR" = "?bvhar_minnesota",
     "MN_VHAR" = "?bvhar_minnesota",
+    "MN_Hierarchical" = "?bvar_",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
@@ -80,12 +81,21 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
         }
       )
     } else {
-      print.default(
-        param[[i]],
-        digits = digits,
-        print.gap = 2L,
-        quote = FALSE
-      )
+      if (is.bvharpriorspec(param[[i]])) {
+        print(
+          param[[i]],
+          digits = max(3L, getOption("digits") - 3L),
+          print.gap = 2L,
+          quote = FALSE
+        )
+      } else {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      }
       cat("\n")
     }
   }

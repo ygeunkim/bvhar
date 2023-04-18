@@ -5,6 +5,8 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param method Method to solve linear equation system.
+#' (`"nor"`: normal equation (default), `"chol"`: Cholesky, and `"qr"`: HouseholderQR)
 #' @details 
 #' For VHAR model
 #' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
@@ -53,13 +55,14 @@
 #' head(fitted(fit))
 #' @order 1
 #' @export
-vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE) {
+vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "chol", "qr")) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  method <- match.arg(method)
   if (length(har) != 2 || !is.numeric(har)) {
     stop("'har' should be numeric vector of length 2.")
   }
@@ -84,7 +87,12 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE) {
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # estimate Phi---------------------
   type <- ifelse(include_mean, "const", "none")
-  vhar_est <- estimate_har(X0, Y0, week, month, include_mean)
+  vhar_est <- switch (method,
+    "nor" = {estimate_har(X0, Y0, week, month, include_mean)},
+    "chol" = {estimate_har_llt(X0, Y0, week, month, include_mean)},
+    "qr" = {estimate_har_qr(X0, Y0, week, month, include_mean)}
+  )
+  # vhar_est <- estimate_har(X0, Y0, week, month, include_mean)
   Phihat <- vhar_est$phihat
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har

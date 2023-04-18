@@ -9,6 +9,7 @@
 \alias{is.predbvhar}
 \alias{is.bvharcv}
 \alias{is.bvharspec}
+\alias{is.bvharpriorspec}
 \alias{is.bvharemp}
 \alias{is.boundbvharemp}
 \title{See if the Object a class in this package}
@@ -28,6 +29,8 @@ is.predbvhar(x)
 is.bvharcv(x)
 
 is.bvharspec(x)
+
+is.bvharpriorspec(x)
 
 is.bvharemp(x)
 

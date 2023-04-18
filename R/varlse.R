@@ -5,6 +5,8 @@
 #' @param y Time series data of which columns indicate the variables
 #' @param p integer, lags of VAR
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param method Method to solve linear equation system.
+#' (`"nor"`: normal equation (default), `"chol"`: Cholesky, and `"qr"`: HouseholderQR)
 #' @details 
 #' This package specifies VAR(p) model as
 #' \deqn{Y_{t} = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
@@ -62,13 +64,14 @@
 #' head(fitted(fit))
 #' @order 1
 #' @export
-var_lm <- function(y, p, include_mean = TRUE) {
+var_lm <- function(y, p, include_mean = TRUE, method = c("nor", "chol", "qr")) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  method <- match.arg(method)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   m <- ncol(y)
@@ -85,7 +88,12 @@ var_lm <- function(y, p, include_mean = TRUE) {
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
   colnames(X0) <- name_lag
   # estimate B-----------------------
-  var_est <- estimate_var(X0, Y0)
+  var_est <- switch (method,
+    "nor" = {estimate_var(X0, Y0)},
+    "chol" = {estimate_var_llt(X0, Y0)},
+    "qr" = {estimate_var_qr(X0, Y0)}
+  )
+  # var_est <- estimate_var(X0, Y0)
   coef_est <- var_est$coef # Ahat
   colnames(coef_est) <- colnames(Y0)
   rownames(coef_est) <- colnames(X0)

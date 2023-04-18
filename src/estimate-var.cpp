@@ -16,10 +16,44 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y) {
-  Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
-  Eigen::MatrixXd yhat(y.rows(), y.cols());
-  coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
-  yhat = x * coef_mat;
+  Eigen::MatrixXd coef_mat = (x.transpose() * x).inverse() * x.transpose() * y; // Ahat
+  Eigen::MatrixXd yhat = x * coef_mat;
+  return Rcpp::List::create(
+    Rcpp::Named("coef") = coef_mat,
+    Rcpp::Named("fitted") = yhat
+  );
+}
+
+//' Compute VAR(p) using Cholesky Decomposition
+//' 
+//' This function fits VAR(p) using LLT.
+//' 
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_var_llt(Eigen::MatrixXd x, Eigen::MatrixXd y) {
+  Eigen::MatrixXd coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
+  Eigen::MatrixXd yhat = x * coef_mat;
+  return Rcpp::List::create(
+    Rcpp::Named("coef") = coef_mat,
+    Rcpp::Named("fitted") = yhat
+  );
+}
+
+//' Compute VAR(p) using QR Decomposition
+//' 
+//' This function fits VAR(p) using QR.
+//' 
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_var_qr(Eigen::MatrixXd x, Eigen::MatrixXd y) {
+  Eigen::MatrixXd coef_mat = x.householderQr().solve(y);
+  Eigen::MatrixXd yhat = x * coef_mat;
   return Rcpp::List::create(
     Rcpp::Named("coef") = coef_mat,
     Rcpp::Named("fitted") = yhat

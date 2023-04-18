@@ -81,3 +81,30 @@ double log_mgammafn(double x, int p) {
   return res;
 }
 
+//' Density of Inverse Gamma Distribution
+//' 
+//' Compute the pdf of Inverse Gamma distribution
+//' 
+//' @param x non-negative argument
+//' @param shp Shape of the distribution
+//' @param scl Scale of the distribution
+//' @param lg If true, return log(f)
+//' 
+//' @noRd
+// [[Rcpp::export]]
+double invgamma_dens(double x, double shp, double scl, bool lg) {
+  if (x < 0 ) {
+    Rcpp::stop("'x' should be larger than 0.");
+  }
+  if (shp <= 0 ) {
+    Rcpp::stop("'shp' should be larger than 0.");
+  }
+  if (scl <= 0 ) {
+    Rcpp::stop("'scl' should be larger than 0.");
+  }
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
+  if (lg) {
+    return log(res);
+  }
+  return res;
+}

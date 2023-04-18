@@ -6,7 +6,12 @@
 \alias{knit_print.vharlse}
 \title{Fitting Vector Heterogeneous Autoregressive Model}
 \usage{
-vhar_lm(y, har = c(5, 22), include_mean = TRUE)
+vhar_lm(
+  y,
+  har = c(5, 22),
+  include_mean = TRUE,
+  method = c("nor", "chol", "qr")
+)
 
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -18,6 +23,9 @@ knit_print.vharlse(x, ...)
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{method}{Method to solve linear equation system.
+(\code{"nor"}: normal equation (default), \code{"chol"}: Cholesky, and \code{"qr"}: HouseholderQR)}
 
 \item{x}{\code{vharlse} object}
 
