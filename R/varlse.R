@@ -72,6 +72,7 @@ var_lm <- function(y, p, include_mean = TRUE, method = c("nor", "chol", "qr")) {
     y <- as.matrix(y)
   }
   method <- match.arg(method)
+  method <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   m <- ncol(y)
@@ -88,11 +89,12 @@ var_lm <- function(y, p, include_mean = TRUE, method = c("nor", "chol", "qr")) {
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
   colnames(X0) <- name_lag
   # estimate B-----------------------
-  var_est <- switch (method,
-    "nor" = {estimate_var(X0, Y0)},
-    "chol" = {estimate_var_llt(X0, Y0)},
-    "qr" = {estimate_var_qr(X0, Y0)}
-  )
+  # var_est <- switch (method,
+  #   "nor" = {estimate_var(X0, Y0)},
+  #   "chol" = {estimate_var_llt(X0, Y0)},
+  #   "qr" = {estimate_var_qr(X0, Y0)}
+  # )
+  var_est <- estimate_var(X0, Y0, method)
   # var_est <- estimate_var(X0, Y0)
   coef_est <- var_est$coef # Ahat
   colnames(coef_est) <- colnames(Y0)

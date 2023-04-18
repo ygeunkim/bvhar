@@ -175,38 +175,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_var
-Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_estimate_var(SEXP xSEXP, SEXP ySEXP) {
+Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y, int method);
+RcppExport SEXP _bvhar_estimate_var(SEXP xSEXP, SEXP ySEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_var(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// estimate_var_llt
-Rcpp::List estimate_var_llt(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_estimate_var_llt(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_var_llt(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// estimate_var_qr
-Rcpp::List estimate_var_qr(Eigen::MatrixXd x, Eigen::MatrixXd y);
-RcppExport SEXP _bvhar_estimate_var_qr(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_var_qr(x, y));
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_var(x, y, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -300,8 +277,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_har
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean);
-RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean, int method);
+RcppExport SEXP _bvhar_estimate_har(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -310,37 +287,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_har(x, y, week, month, include_mean));
-    return rcpp_result_gen;
-END_RCPP
-}
-// estimate_har_llt
-Rcpp::List estimate_har_llt(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean);
-RcppExport SEXP _bvhar_estimate_har_llt(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_har_llt(x, y, week, month, include_mean));
-    return rcpp_result_gen;
-END_RCPP
-}
-// estimate_har_qr
-Rcpp::List estimate_har_qr(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean);
-RcppExport SEXP _bvhar_estimate_har_qr(SEXP xSEXP, SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP include_meanSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_har_qr(x, y, week, month, include_mean));
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_har(x, y, week, month, include_mean, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -983,9 +931,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 21},
-    {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 2},
-    {"_bvhar_estimate_var_llt", (DL_FUNC) &_bvhar_estimate_var_llt, 2},
-    {"_bvhar_estimate_var_qr", (DL_FUNC) &_bvhar_estimate_var_qr, 2},
+    {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 3},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
@@ -993,9 +939,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_VARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VARcoeftoVMA_ortho, 4},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
-    {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 5},
-    {"_bvhar_estimate_har_llt", (DL_FUNC) &_bvhar_estimate_har_llt, 5},
-    {"_bvhar_estimate_har_qr", (DL_FUNC) &_bvhar_estimate_har_qr, 5},
+    {"_bvhar_estimate_har", (DL_FUNC) &_bvhar_estimate_har, 6},
     {"_bvhar_infer_vhar", (DL_FUNC) &_bvhar_infer_vhar, 1},
     {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 4},
     {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},

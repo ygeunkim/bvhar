@@ -63,6 +63,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
     y <- as.matrix(y)
   }
   method <- match.arg(method)
+  method <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
   if (length(har) != 2 || !is.numeric(har)) {
     stop("'har' should be numeric vector of length 2.")
   }
@@ -87,11 +88,12 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # estimate Phi---------------------
   type <- ifelse(include_mean, "const", "none")
-  vhar_est <- switch (method,
-    "nor" = {estimate_har(X0, Y0, week, month, include_mean)},
-    "chol" = {estimate_har_llt(X0, Y0, week, month, include_mean)},
-    "qr" = {estimate_har_qr(X0, Y0, week, month, include_mean)}
-  )
+  # vhar_est <- switch (method,
+  #   "nor" = {estimate_har(X0, Y0, week, month, include_mean)},
+  #   "chol" = {estimate_har_llt(X0, Y0, week, month, include_mean)},
+  #   "qr" = {estimate_har_qr(X0, Y0, week, month, include_mean)}
+  # )
+  vhar_est <- estimate_har(X0, Y0, week, month, include_mean, method)
   # vhar_est <- estimate_har(X0, Y0, week, month, include_mean)
   Phihat <- vhar_est$phihat
   colnames(Phihat) <- name_var

@@ -233,38 +233,15 @@ estimate_hierachical_niw <- function(num_iter, num_warm, x, y, prior_prec, prior
 #' 
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' Y0 = X0 A + Z
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-estimate_var <- function(x, y) {
-    .Call(`_bvhar_estimate_var`, x, y)
-}
-
-#' Compute VAR(p) using Cholesky Decomposition
-#' 
-#' This function fits VAR(p) using LLT.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' 
-#' @noRd
-estimate_var_llt <- function(x, y) {
-    .Call(`_bvhar_estimate_var_llt`, x, y)
-}
-
-#' Compute VAR(p) using QR Decomposition
-#' 
-#' This function fits VAR(p) using QR.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' 
-#' @noRd
-estimate_var_qr <- function(x, y) {
-    .Call(`_bvhar_estimate_var_qr`, x, y)
+estimate_var <- function(x, y, method) {
+    .Call(`_bvhar_estimate_var`, x, y, method)
 }
 
 #' Covariance Estimate for Residual Covariance Matrix
@@ -398,6 +375,7 @@ scale_har <- function(dim, week, month, include_mean) {
 #' @param week Integer, order for weekly term
 #' @param month Integer, order for monthly term
 #' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
 #' @details
 #' Given Y0 and Y0, the function estimate least squares
 #' \deqn{Y_0 = X_1 \Phi + Z}
@@ -408,38 +386,8 @@ scale_har <- function(dim, week, month, include_mean) {
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @importFrom Rcpp sourceCpp
 #' @noRd
-estimate_har <- function(x, y, week, month, include_mean) {
-    .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean)
-}
-
-#' Compute VHAR using Cholesky Decomposition
-#' 
-#' This function fits VHAR using LLT.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param week Integer, order for weekly term
-#' @param month Integer, order for monthly term
-#' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
-#' 
-#' @noRd
-estimate_har_llt <- function(x, y, week, month, include_mean) {
-    .Call(`_bvhar_estimate_har_llt`, x, y, week, month, include_mean)
-}
-
-#' Compute VHAR using QR Decomposition
-#' 
-#' This function fits VHAR using QR.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param week Integer, order for weekly term
-#' @param month Integer, order for monthly term
-#' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
-#' 
-#' @noRd
-estimate_har_qr <- function(x, y, week, month, include_mean) {
-    .Call(`_bvhar_estimate_har_qr`, x, y, week, month, include_mean)
+estimate_har <- function(x, y, week, month, include_mean, method) {
+    .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean, method)
 }
 
 #' Statistic for VHAR
