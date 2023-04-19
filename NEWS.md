@@ -1,3 +1,5 @@
+# bvhar 0.12.0
+
 # bvhar 0.11.0
 
 * Added `method = c("nor", "chol", "qr")` option in VAR and VHAR fitting function to use cholesky and Householder QR method (`var_lm()` and `vhar_lm()`).
