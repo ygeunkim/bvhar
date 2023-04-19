@@ -751,8 +751,8 @@ sim_mgaussian_chol <- function(num_sim, mu, sig) {
 #' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
 #' 
 #' @noRd
-sim_mvt <- function(num_sim, df, mu, sig, method) {
-    .Call(`_bvhar_sim_mvt`, num_sim, df, mu, sig, method)
+sim_mstudent <- function(num_sim, df, mu, sig, method) {
+    .Call(`_bvhar_sim_mstudent`, num_sim, df, mu, sig, method)
 }
 
 #' Generate Matrix Normal Random Matrix
@@ -976,10 +976,12 @@ invgamma_dens <- function(x, shp, scl, lg) {
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
-    .Call(`_bvhar_sim_var_eigen`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
+sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
+    .Call(`_bvhar_sim_var_eigen`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
@@ -992,10 +994,12 @@ sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init)
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) {
-    .Call(`_bvhar_sim_var_chol`, num_sim, num_burn, var_coef, var_lag, sig_error, init)
+sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
+    .Call(`_bvhar_sim_var_chol`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
 }
 
 #' Generate Multivariate Time Series Process Following VHAR
@@ -1009,10 +1013,12 @@ sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init) 
 #' @param month Order for monthly term. Try `22L` by default.
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
-    .Call(`_bvhar_sim_vhar_eigen`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
+    .Call(`_bvhar_sim_vhar_eigen`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
 #' Generate Multivariate Time Series Process Following VHAR using Cholesky Decomposition
@@ -1026,6 +1032,8 @@ sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error,
 #' @param month Order for monthly term. Try `22L` by default.
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
 #' @details
 #' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
 #' 
@@ -1036,8 +1044,8 @@ sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error,
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init) {
-    .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
+    .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term

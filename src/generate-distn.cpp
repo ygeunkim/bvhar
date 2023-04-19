@@ -69,9 +69,9 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
       standard_normal(i, j) = norm_rand();
     }
   }
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
-  Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
-  res = standard_normal * sig_sqrt;
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
+  // Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
   res.rowwise() += mu.transpose();
   return res;
 }
@@ -88,7 +88,7 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_mvt(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
+Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
   int dim = sig.cols();
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
@@ -96,19 +96,17 @@ Eigen::MatrixXd sim_mvt(int num_sim, double df, Eigen::VectorXd mu, Eigen::Matri
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
-  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim);
   switch (method) {
   case 1:
-    standard_normal = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    res = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
     break;
   case 2:
-    standard_normal = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    res = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
     break;
   default:
     Rcpp::stop("Invalid 'method' option.");
   }
-  Eigen::MatrixXd res(num_sim, dim);
-  res =  standard_normal * sig.sqrt();
   for (int i = 0; i < num_sim; i++) {
     res.row(i) *= sqrt(df / chisq_rand(df));
   }
