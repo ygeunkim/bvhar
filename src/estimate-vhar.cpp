@@ -42,7 +42,7 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
   if (include_mean) {
     return HARtrans;
   }
-  return HARtrans;
+  return HARtrans.block(0, 0, 3 * dim, month * dim);
 }
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
