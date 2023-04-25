@@ -47,6 +47,6 @@ LinkingTo:
     RcppProgress
 VignetteBuilder: knitr
 Depends: 
-    R (>= 3.1.0)
+    R (>= 3.6.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

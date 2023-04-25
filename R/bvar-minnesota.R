@@ -118,23 +118,23 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
   Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
   colnames(Xp) <- name_lag
   # estimate-bvar.cpp-----------------
-  posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
+  bvar_est <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
-  prior_mean <- posterior$prior_mean # A0
-  prior_prec <- posterior$prior_prec # U0
-  prior_scale <- posterior$prior_scale # S0
-  prior_shape <- posterior$prior_shape # a0
+  prior_mean <- bvar_est$prior_mean # A0
+  prior_prec <- bvar_est$prior_prec # U0
+  prior_scale <- bvar_est$prior_scale # S0
+  prior_shape <- bvar_est$prior_shape # a0
   # Matrix normal---------------------
-  mn_mean <- posterior$mnmean # matrix normal mean
+  mn_mean <- bvar_est$mnmean # matrix normal mean
   colnames(mn_mean) <- name_var
   rownames(mn_mean) <- name_lag
-  mn_prec <- posterior$mnprec # matrix normal precision
+  mn_prec <- bvar_est$mnprec # matrix normal precision
   colnames(mn_prec) <- name_lag
   rownames(mn_prec) <- name_lag
-  yhat <- posterior$fitted
+  yhat <- bvar_est$fitted
   colnames(yhat) <- name_var
   # Inverse-wishart-------------------
-  iw_scale <- posterior$iwscale # IW scale
+  iw_scale <- bvar_est$iwscale # IW scale
   colnames(iw_scale) <- name_var
   rownames(iw_scale) <- name_var
   # S3--------------------------------
@@ -142,7 +142,7 @@ bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
     # posterior------------
     coefficients = mn_mean, # posterior mean of MN
     fitted.values = yhat,
-    residuals = posterior$residuals,
+    residuals = bvar_est$residuals,
     mn_prec = mn_prec, # posterior precision of MN
     iw_scale = iw_scale, # posterior scale of IW
     iw_shape = prior_shape + nrow(Y0), # posterior shape of IW
