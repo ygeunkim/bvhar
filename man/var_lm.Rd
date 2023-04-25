@@ -6,7 +6,7 @@
 \alias{knit_print.varlse}
 \title{Fitting Vector Autoregressive Model of Order p Model}
 \usage{
-var_lm(y, p, include_mean = TRUE)
+var_lm(y, p, include_mean = TRUE, method = c("nor", "chol", "qr"))
 
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -18,6 +18,9 @@ knit_print.varlse(x, ...)
 \item{p}{integer, lags of VAR}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{method}{Method to solve linear equation system.
+(\code{"nor"}: normal equation (default), \code{"chol"}: Cholesky, and \code{"qr"}: HouseholderQR)}
 
 \item{x}{\code{varlse} object}
 

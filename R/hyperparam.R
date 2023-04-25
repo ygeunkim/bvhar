@@ -73,7 +73,7 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
       stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
     }
-    prior_type <- "Hierarchical"
+    prior_type <- "MN_Hierarchical"
   } else {
     if (lambda <= 0) {
       stop("'lambda' should be larger than 0.")

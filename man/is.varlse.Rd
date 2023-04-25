@@ -9,6 +9,7 @@
 \alias{is.predbvhar}
 \alias{is.bvharcv}
 \alias{is.bvharspec}
+\alias{is.bvharpriorspec}
 \alias{is.bvharemp}
 \alias{is.boundbvharemp}
 \alias{is.ssvsinput}
@@ -32,6 +33,8 @@ is.predbvhar(x)
 is.bvharcv(x)
 
 is.bvharspec(x)
+
+is.bvharpriorspec(x)
 
 is.bvharemp(x)
 

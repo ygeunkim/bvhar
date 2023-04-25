@@ -69,9 +69,47 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
       standard_normal(i, j) = norm_rand();
     }
   }
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
-  Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
-  res = standard_normal * sig_sqrt;
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
+  // Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+//' Generate Multivariate t Random Vector
+//' 
+//' This function samples n x muti-dimensional normal random matrix.
+//' 
+//' @param num_sim Number to generate process
+//' @param df Degrees of freedom
+//' @param mu Location vector
+//' @param sig Scale matrix
+//' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
+  int dim = sig.cols();
+  if (sig.rows() != dim) {
+    Rcpp::stop("Invalid 'sig' dimension.");
+  }
+  if (dim != mu.size()) {
+    Rcpp::stop("Invalid 'mu' size.");
+  }
+  Eigen::MatrixXd res(num_sim, dim);
+  switch (method) {
+  case 1:
+    res = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    break;
+  case 2:
+    res = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    break;
+  default:
+    Rcpp::stop("Invalid 'method' option.");
+  }
+  for (int i = 0; i < num_sim; i++) {
+    res.row(i) *= sqrt(df / chisq_rand(df));
+  }
   res.rowwise() += mu.transpose();
   return res;
 }
@@ -248,6 +286,42 @@ Rcpp::List sim_mniw(int num_sim,
   );
 }
 
+//' Generate Lower Triangular Matrix of Wishart
+//' 
+//' This function generates \eqn{A = L (Q^{-1})^T}.
+//' 
+//' @param mat_scale Scale matrix of Wishart
+//' @param shape Shape of Wishart
+//' @details
+//' This function generates Wishart random matrix.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
+  int dim = mat_scale.cols();
+  if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
+  if (mat_scale.rows() != mat_scale.cols()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  if (dim != mat_scale.rows()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
+  for (int i = 0; i < dim; i++) {
+    mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
+  }
+  for (int i = 1; i < dim; i++) {
+    for (int j = 0; j < i; j++) {
+      mat_bartlett(i, j) = norm_rand();
+    }
+  }
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(mat_scale);
+  Eigen::MatrixXd chol_scale = lltOfscale.matrixL();
+  Eigen::MatrixXd chol_res = chol_scale * mat_bartlett;
+  return chol_res * chol_res.transpose();
+}
 
 //' Generate Lower Triangular Matrix of Wishart
 //' 

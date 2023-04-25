@@ -8,6 +8,7 @@
 //' 
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
+//' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' Y0 = X0 A + Z
@@ -15,11 +16,23 @@
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y) {
+Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y, int method) {
   Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
-  Eigen::MatrixXd yhat(y.rows(), y.cols());
-  coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
-  yhat = x * coef_mat;
+  switch (method) {
+  case 1:
+    coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
+    break;
+  case 2:
+    coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
+    break;
+  case 3:
+    coef_mat = x.householderQr().solve(y);
+    break;
+  default:
+    break;
+  }
+  // Eigen::MatrixXd coef_mat = (x.transpose() * x).inverse() * x.transpose() * y; // Ahat
+  Eigen::MatrixXd yhat = x * coef_mat;
   return Rcpp::List::create(
     Rcpp::Named("coef") = coef_mat,
     Rcpp::Named("fitted") = yhat

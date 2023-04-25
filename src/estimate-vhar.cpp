@@ -9,6 +9,7 @@
 //' @param dim Integer, dimension
 //' @param week Integer, order for weekly term
 //' @param month Integer, order for monthly term
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
 //' @details
 //' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
 //' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
@@ -52,6 +53,8 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' @param y Response matrix Y0
 //' @param week Integer, order for weekly term
 //' @param month Integer, order for monthly term
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+//' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
 //' @details
 //' Given Y0 and Y0, the function estimate least squares
 //' \deqn{Y_0 = X_1 \Phi + Z}
@@ -62,15 +65,28 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean) {
+Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
   int dim = y.cols();
-  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean); // linear transformation
-  Eigen::MatrixXd x1 = x * HARtrans.transpose(); // HAR design matrix
-  Eigen::MatrixXd Phi = (x1.transpose() * x1).inverse() * x1.transpose() * y; // OLS
-  Eigen::MatrixXd yhat = x1 * Phi;
+  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean);
+  Eigen::MatrixXd x1 = x * HARtrans.transpose();
+  Eigen::MatrixXd coef_mat(HARtrans.rows(), dim);
+  switch (method) {
+  case 1:
+    coef_mat = (x1.transpose() * x1).inverse() * x1.transpose() * y;
+    break;
+  case 2:
+    coef_mat = (x1.transpose() * x1).llt().solve(x1.transpose() * y);
+    break;
+  case 3:
+    coef_mat = x1.householderQr().solve(y);
+    break;
+  default:
+    break;
+  }
+  Eigen::MatrixXd yhat = x1 * coef_mat;
   return Rcpp::List::create(
     Rcpp::Named("HARtrans") = HARtrans,
-    Rcpp::Named("phihat") = Phi,
+    Rcpp::Named("phihat") = coef_mat,
     Rcpp::Named("fitted") = yhat
   );
 }

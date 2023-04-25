@@ -11,7 +11,9 @@ sim_var(
   var_lag,
   sig_error = diag(ncol(var_coef)),
   init = matrix(0L, nrow = var_lag, ncol = ncol(var_coef)),
-  method = c("eigen", "chol")
+  method = c("eigen", "chol"),
+  process = c("gaussian", "student"),
+  t_param = 5
 )
 }
 \arguments{
@@ -27,7 +29,12 @@ sim_var(
 
 \item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.}
 
-\item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Method to compute \eqn{\Sigma^{1/2}}.
+\item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Method to compute \eqn{\Sigma^{1/2}}.}
+
+\item{process}{Process to generate error term.
+\code{"gaussian"}: Normal distribution (default) or \code{"student"}: Multivariate t-distribution.}
+
+\item{t_param}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} argument for MVT, e.g. DF: 5.
 Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
 By default, \code{"eigen"}.}
 }

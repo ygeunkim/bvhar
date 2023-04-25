@@ -20,6 +20,29 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
   sim_mgaussian_chol(num_sim, mu, sig)
 }
 
+#' Generate Multivariate t Random Vector
+#' 
+#' This function samples n x multi-dimensional t-random matrix.
+#' 
+#' @param num_sim Number to generate process.
+#' @param df Degrees of freedom.
+#' @param mu Location vector
+#' @param sig Scale matrix.
+#' @param method Method to compute \eqn{\Sigma^{1/2}}.
+#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
+#' By default, `"eigen"`.
+#' @export
+sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
+  method <- match.arg(method)
+  if (!all.equal(unname(sig), unname(t(sig)))) {
+    stop("'sig' must be a symmetric matrix.")
+  }
+  if (method == "eigen") {
+    return( sim_mstudent(num_sim, df, mu, sig, 1) )
+  }
+  sim_mstudent(num_sim, df, mu, sig, 2)
+}
+
 #' Generate Multivariate Time Series Process Following VAR(p)
 #' 
 #' This function generates multivariate time series dataset that follows VAR(p).
@@ -31,6 +54,9 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
 #' @param method `r lifecycle::badge("experimental")` Method to compute \eqn{\Sigma^{1/2}}.
+#' @param process Process to generate error term.
+#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
 #' @details 
@@ -48,8 +74,12 @@ sim_var <- function(num_sim,
                     var_lag, 
                     sig_error = diag(ncol(var_coef)), 
                     init = matrix(0L, nrow = var_lag, ncol = ncol(var_coef)), 
-                    method = c("eigen", "chol")) {
+                    method = c("eigen", "chol"),
+                    process = c("gaussian", "student"),
+                    t_param = 5) {
   method <- match.arg(method)
+  process <- match.arg(process)
+  process <- switch(process, "gaussian" = 1, "student" = 2)
   dim_data <- ncol(sig_error)
   if (num_sim < 2) {
     stop("Generate more than 1 series")
@@ -67,9 +97,9 @@ sim_var <- function(num_sim,
     stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.")
   }
   if (method == "eigen") {
-    return( sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init) )
+    return( sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param) )
   }
-  sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init)
+  sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
@@ -86,6 +116,9 @@ sim_var <- function(num_sim,
 #' @param method `r lifecycle::badge("experimental")` Method to compute \eqn{\Sigma^{1/2}}.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
+#' @param process Process to generate error term.
+#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' @details 
 #' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
 #' 
@@ -108,8 +141,12 @@ sim_vhar <- function(num_sim,
                      month = 22L,
                      sig_error = diag(ncol(vhar_coef)), 
                      init = matrix(0L, nrow = month, ncol = ncol(vhar_coef)), 
-                     method = c("eigen", "chol")) {
+                     method = c("eigen", "chol"),
+                     process = c("gaussian", "student"),
+                     t_param = 5) {
   method <- match.arg(method)
+  process <- match.arg(process)
+  process <- switch(process, "gaussian" = 1, "student" = 2)
   dim_data <- ncol(sig_error)
   if (num_sim < 2) {
     stop("Generate more than 1 series")
@@ -127,7 +164,7 @@ sim_vhar <- function(num_sim,
     stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.")
   }
   if (method == "eigen") {
-    return( sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init) )
+    return( sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param) )
   }
-  sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init)
+  sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param)
 }

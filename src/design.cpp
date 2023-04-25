@@ -38,6 +38,7 @@ Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index) {
 //' 
 //' @param y Matrix, time series data
 //' @param var_lag VAR lag
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
 //' 
 //' @details
 //' X0 is
@@ -92,6 +93,7 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' @param daily Vector, prior belief about white noise (Litterman sets 1)
 //' @param weekly Vector, this was zero in the original Minnesota design
 //' @param monthly Vector, this was zero in the original Minnesota design
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
 //' 
 //' @details
 //' Bańbura et al. (2010) defines dummy observation and augment to the original data matrix to construct Litterman (1986) prior.

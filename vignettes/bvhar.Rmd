@@ -401,4 +401,3 @@ fit_bvhar_v2 <- bvhar_minnesota(
 )
 fit_bvhar_v2
 ```
-

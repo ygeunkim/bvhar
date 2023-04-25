@@ -1,7 +1,3 @@
-#ifdef _OPENMP
-#include <omp.h>
-// [[Rcpp::plugins(openmp)]]
-#endif
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 #include "bvharprob.h"
@@ -86,24 +82,12 @@ double jointdens_hyperparam(double cand_gamma,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_hierachical_niw(int num_iter,
-                                    int num_warm,
-                                    Eigen::MatrixXd x, 
-                                    Eigen::MatrixXd y,
-                                    Eigen::MatrixXd prior_prec,
-                                    Eigen::MatrixXd prior_scale,
-                                    int prior_shape,
-                                    Eigen::MatrixXd mn_mean,
-                                    Eigen::MatrixXd mn_prec,
-                                    Eigen::MatrixXd iw_scale,
-                                    int posterior_shape,
-                                    double gamma_shp,
-                                    double gamma_rate,
-                                    double invgam_shp,
-                                    double invgam_scl,
-                                    double acc_scale,
-                                    Eigen::MatrixXd obs_information,
-                                    Eigen::VectorXd init_lambda,
+Rcpp::List estimate_hierachical_niw(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y,
+                                    Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape,
+                                    Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,
+                                    int posterior_shape, double gamma_shp, double gamma_rate,
+                                    double invgam_shp, double invgam_scl, double acc_scale,
+                                    Eigen::MatrixXd obs_information, Eigen::VectorXd init_lambda,
                                     Eigen::VectorXd init_psi,
                                     int chain,
                                     bool display_progress) {
@@ -134,40 +118,6 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
   is_accept[0] = true;
-#ifdef _OPENMP
-  Rcpp::Rcout << "Use parallel" << std::endl;
-#pragma                  \
-  omp                    \
-    parallel             \
-    for                  \
-      num_threads(chain) \
-      shared(gaussian_variance, mn_mean, mn_prec, iw_scale, posterior_shape, dim_design, dim)
-  for (int b = 0; b < chain; b++) {
-    for (int i = 1; i < num_iter + 1; i ++) {
-      candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
-      numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-      denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-      is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
-      if (is_accept[i]) {
-        lam_record.block(i, b * dim, 1, 1) = candprior.segment(b * (dim + 1), 1);
-        psi_record.block(i, b * dim, 1, dim) = candprior.segment(b * (dim + 1) + 1, dim);
-      } else {
-        lam_record.block(i, b * dim, 1, 1) = lam_record.block(i - 1, b * dim, 1, 1);
-        psi_record.block(i, b * dim, 1, dim) = psi_record.block(i - 1, b * dim, 1, dim);
-      }
-      posterior_draw = sim_mniw(
-        1,
-        mn_mean,
-        mn_prec.inverse(),
-        iw_scale,
-        posterior_shape
-      );
-      // coef_record.block(i * dim_design, b * dim, dim_design, dim) = Eigen::Map<Eigen::MatrixXd>(posterior_draw["mn"], dim_design, dim);
-      coef_record.block(i - 1, b * dim, 1, dim * dim_design) = vectorize_eigen(posterior_draw["mn"]);
-      sig_record.block((i - 1) * dim, b * dim, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
-    }
-  }
-#else
   for (int i = 1; i < num_iter + 1; i ++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(
@@ -185,35 +135,35 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
     // log of acceptance rate = numerator - denom
     numerator = jointdens_hyperparam(
       candprior[0],
-      candprior.segment(1, dim),
-      dim,
-      num_design,
-      prior_prec,
-      prior_scale,
-      prior_shape,
-      mn_prec,
-      iw_scale,
-      posterior_shape,
-      gamma_shp,
-      gamma_rate,
-      invgam_shp,
-      invgam_scl
+               candprior.segment(1, dim),
+               dim,
+               num_design,
+               prior_prec,
+               prior_scale,
+               prior_shape,
+               mn_prec,
+               iw_scale,
+               posterior_shape,
+               gamma_shp,
+               gamma_rate,
+               invgam_shp,
+               invgam_scl
     );
     denom = jointdens_hyperparam(
       prevprior[0],
-      prevprior.segment(1, dim),
-      dim,
-      num_design,
-      prior_prec,
-      prior_scale,
-      prior_shape,
-      mn_prec,
-      iw_scale,
-      posterior_shape,
-      gamma_shp,
-      gamma_rate,
-      invgam_shp,
-      invgam_scl
+               prevprior.segment(1, dim),
+               dim,
+               num_design,
+               prior_prec,
+               prior_scale,
+               prior_shape,
+               mn_prec,
+               iw_scale,
+               posterior_shape,
+               gamma_shp,
+               gamma_rate,
+               invgam_shp,
+               invgam_scl
     );
     is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
     // Update
@@ -235,7 +185,6 @@ Rcpp::List estimate_hierachical_niw(int num_iter,
     coef_record.row(i - 1) = vectorize_eigen(posterior_draw["mn"]);
     sig_record.block((i - 1) * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
   }
-#endif
   return Rcpp::List::create(
     Rcpp::Named("lambda_record") = lam_record.bottomRows(num_iter - num_warm),
     Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_warm),
