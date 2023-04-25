@@ -119,19 +119,19 @@ As every hyperparameter has set to be the same for every $i,j$, value can be ass
 If you want to assign individually, you can use vector.
 On the other hand, you can use upper triangular matrix for `chol_spike`, `chol_slab`, and `chol_mixture`.
 
-```{r paramset}
-(ssvs_spec <- set_ssvs(
-  coef_spike = .1,
-  coef_slab = 5,
-  coef_mixture = .5,
-  sd_non = 5,
-  shape = .01,
-  rate = .01,
-  chol_spike = .1,
-  chol_slab = 5,
-  chol_mixture = .5
-))
-```
+<!-- ```{r paramset} -->
+<!-- (ssvs_spec <- set_ssvs( -->
+<!--   coef_spike = .1, -->
+<!--   coef_slab = 5, -->
+<!--   coef_mixture = .5, -->
+<!--   sd_non = 5, -->
+<!--   shape = .01, -->
+<!--   rate = .01, -->
+<!--   chol_spike = .1, -->
+<!--   chol_slab = 5, -->
+<!--   chol_mixture = .5 -->
+<!-- )) -->
+<!-- ``` -->
 
 Before starting MCMC, set initial values.
 `init_ssvs()` sets initial values for each parameter.
@@ -144,50 +144,55 @@ Since Geoge et al. (2008) has already provides the average of posterior mean ove
 - `init_chol`: initial $\Psi = 0_{k \times \times}$ k = 6
 - `init_chol_dummy`: initial $\Omega =$ upper triangular matrix of which every diagonal and upper diagonal element is 1.
 
-```{r initset}
-# average posterior means of parameters-------
-init_coef <- matrix(c(
-  .87, .06, .07, .06, .07, .06,
-  .03, .80, .03, .04, .02, .04,
-  .02, .04, .81, .04, .04, .03,
-  .02, .03, .03, .80, .03, .04,
-  .03, .03, .03, .03, .81, .03,
-  .02, .04, .03, .03, .03, .79
-), nrow = 6, byrow = TRUE)
-init_coef_dummy <- matrix(c(
-  1.00, .04, rep(.05, 4),
-  .04, 1.00, rep(.04, 4),
-  .04, .05, 1.00, .05, .04, .04,
-  rep(.04, 3), 1.00, .04, .05,
-  rep(.04, 4), 1.00, .04,
-  rep(.04, 5), 1.00
-), nrow = 6, byrow = TRUE)
-init_chol <- matrix(0L, nrow = 6L, ncol = 6L)
-diag(init_chol) <- c(1.09, 1.08, 1.08, 1.11, 1.10, 1.10)
-init_chol[upper.tri(init_chol, diag = FALSE)] <- c(
-  .42,
-  .40, -.04,
-  .41, rep(-.03, 2),
-  .39, rep(-.03, 3),
-  .38, -.04, -.03, rep(-.04, 2)
-)
-init_omega <- matrix(0L, nrow = 6L, ncol = 6L)
-diag(init_omega) <- 1
-init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
-  .58,
-  .55, .08,
-  .53, .08, .07,
-  .52, .07, rep(.08, 2),
-  .50, rep(.08, 2), .10, .09
-)
-# initial values specification-----------------
-(init_spec <- init_ssvs(
-  init_coef = init_coef,
-  init_coef_dummy = init_coef_dummy,
-  init_chol = init_chol,
-  init_chol_dummy = init_omega
-))
-```
+<!-- ```{r initset} -->
+<!-- # average posterior means of parameters------- -->
+<!-- init_coef <- matrix(c( -->
+<!--   .87, .06, .07, .06, .07, .06, -->
+<!--   .03, .80, .03, .04, .02, .04, -->
+<!--   .02, .04, .81, .04, .04, .03, -->
+<!--   .02, .03, .03, .80, .03, .04, -->
+<!--   .03, .03, .03, .03, .81, .03, -->
+<!--   .02, .04, .03, .03, .03, .79 -->
+<!-- ), nrow = 6, byrow = TRUE) -->
+<!-- init_coef_dummy <- matrix(c( -->
+<!--   1.00, .04, rep(.05, 4), -->
+<!--   .04, 1.00, rep(.04, 4), -->
+<!--   .04, .05, 1.00, .05, .04, .04, -->
+<!--   rep(.04, 3), 1.00, .04, .05, -->
+<!--   rep(.04, 4), 1.00, .04, -->
+<!--   rep(.04, 5), 1.00 -->
+<!-- ), nrow = 6, byrow = TRUE) -->
+<!-- init_chol <- matrix(0L, nrow = 6L, ncol = 6L) -->
+<!-- diag(init_chol) <- c(1.09, 1.08, 1.08, 1.11, 1.10, 1.10) -->
+<!-- init_chol[upper.tri(init_chol, diag = FALSE)] <- c( -->
+<!--   .42, -->
+<!--   .40, -.04, -->
+<!--   .41, rep(-.03, 2), -->
+<!--   .39, rep(-.03, 3), -->
+<!--   .38, -.04, -.03, rep(-.04, 2) -->
+<!-- ) -->
+<!-- init_omega <- matrix(0L, nrow = 6L, ncol = 6L) -->
+<!-- diag(init_omega) <- 1 -->
+<!-- init_omega[upper.tri(init_omega, diag = FALSE)] <- c( -->
+<!--   .58, -->
+<!--   .55, .08, -->
+<!--   .53, .08, .07, -->
+<!--   .52, .07, rep(.08, 2), -->
+<!--   .50, rep(.08, 2), .10, .09 -->
+<!-- ) -->
+<!-- # initial values specification----------------- -->
+<!-- (init_spec <- init_ssvs( -->
+<!--   init_coef = init_coef, -->
+<!--   init_coef_dummy = init_coef_dummy, -->
+<!--   init_chol = init_chol, -->
+<!--   init_chol_dummy = init_omega -->
+<!-- )) -->
+<!-- ``` -->
+
+Luckily, the package provides automatic process for both hyperparameter specification and initial value selection.
+
+- `choose_ssvs(y, ord, type, include_mean, gamma_param, mean_non, sd_non)`: A default semiautomatic approach
+- `init_ssvs(type = "auto")`: Use OLS for coefficients and 1 for indicators.
 
 ### Gibbs sampling
 
@@ -203,6 +208,8 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
 - `include_mean`: whether including the constant term in the model.
 - `verbose`: whether to display the progress bar.
 
+If each `bayes_spec` and `init_spec` is not specified, corresponding automatic approach is performed.
+
 ```{r gibbs}
 (var_ssvs <- bvar_ssvs(
   y = var_data,
@@ -210,8 +217,6 @@ init_omega[upper.tri(init_omega, diag = FALSE)] <- c(
   num_iter = 1000,
   num_burn = 500,
   thinning = 1,
-  bayes_spec = ssvs_spec,
-  init_spec = init_spec,
   include_mean = FALSE,
   verbose = FALSE
 ))
@@ -234,22 +239,22 @@ autoplot(var_ssvs, type = "dens", pars = c("alpha[1]", "alpha[2]", "alpha[9]"))
 
 ## SSVS for VHAR Model
 
-6 variable VHAR:
+<!-- 6 variable VHAR: -->
 
-```{r initvhar}
-# Upper triangular matrix----------------------
-initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L)
-diag(initvhar_chol) <- .1
-initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L)
-initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
-# initial values specification-----------------
-(initvhar_spec <- init_ssvs(
-  init_coef = matrix(0L, nrow = 19L, ncol = 6L),
-  init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L),
-  init_chol = initvhar_chol,
-  init_chol_dummy = initvhar_omega
-))
-```
+<!-- ```{r initvhar} -->
+<!-- # Upper triangular matrix---------------------- -->
+<!-- initvhar_chol <- matrix(0L, nrow = 6L, ncol = 6L) -->
+<!-- diag(initvhar_chol) <- .1 -->
+<!-- initvhar_omega <- matrix(1L, nrow = 6L, ncol = 6L) -->
+<!-- initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L -->
+<!-- # initial values specification----------------- -->
+<!-- (initvhar_spec <- init_ssvs( -->
+<!--   init_coef = matrix(0L, nrow = 19L, ncol = 6L), -->
+<!--   init_coef_dummy = matrix(1L, nrow = 18L, ncol = 6L), -->
+<!--   init_chol = initvhar_chol, -->
+<!--   init_chol_dummy = initvhar_omega -->
+<!-- )) -->
+<!-- ``` -->
 
 ```{r gibbsvhar}
 (vhar_ssvs <- bvhar_ssvs(
@@ -258,9 +263,7 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
   num_iter = 1000,
   num_burn = 500,
   thinning = 1,
-  bayes_spec = ssvs_spec,
-  init_spec = initvhar_spec,
-  include_mean = TRUE,
+  include_mean = FALSE,
   verbose = FALSE
 ))
 ```
@@ -275,6 +278,9 @@ initvhar_omega[lower.tri(initvhar_omega, diag = TRUE)] <- 0L
 - `init_local`: local shrinkage level $\lambda_j$
 - `init_global`: global shrinkage level $\tau$
 - `init_priorvar`: covariance matrix of the data
+
+Since this process is Full Bayesian, every hyperparameter is chosen by Gibbs sampler.
+Do not worry about setting each number.
 
 ```{r hsspec}
 (hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(var_data)))

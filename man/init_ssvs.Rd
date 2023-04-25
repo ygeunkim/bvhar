@@ -27,7 +27,7 @@ knit_print.ssvsinit(x, ...)
 
 \item{init_chol_dummy}{Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.}
 
-\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Type to choose initial values. One of \code{"user"} (User-given) and \code{"automatic"} (OLS for coefficients and 1 for dummy).}
+\item{type}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Type to choose initial values. One of \code{"user"} (User-given) and \code{"auto"} (OLS for coefficients and 1 for dummy).}
 
 \item{x}{\code{ssvsinit} object}
 

@@ -12,8 +12,8 @@ bvar_ssvs(
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
-  bayes_spec = choose_ssvs(y = y, ord = p, type = "VAR", include_mean = include_mean,
-    gamma_param = c(0.01, 0.01), mean_non = 0, sd_non = 0.1),
+  bayes_spec = choose_ssvs(y = y, ord = p, type = "VAR", param = c(0.1, 10), include_mean
+    = include_mean, gamma_param = c(0.01, 0.01), mean_non = 0, sd_non = 0.1),
   init_spec = init_ssvs(type = "auto"),
   include_mean = TRUE,
   relax = FALSE,

@@ -14,7 +14,6 @@
 \alias{is.boundbvharemp}
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
-\alias{is.bvharpriorspec}
 \alias{is.horseshoespec}
 \title{See if the Object a class in this package}
 \usage{
