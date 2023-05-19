@@ -234,13 +234,11 @@ Eigen::VectorXd hs_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat
   if (coef_type == 2) {
     int dim = design_mat.cols();
     int sample_size = design_mat.rows();
-    // Eigen::MatrixXd gaussian_u = sim_mgaussian_chol(1, Eigen::VectorXd::Zero(dim), prior_var * shrink_mat);
     Eigen::VectorXd gaussian_u(dim);
     for (int i = 0; i < dim; i++) {
       gaussian_u[i] = norm_rand();
     }
-    gaussian_u *= shrink_mat.diagonal();
-    // gaussian_u.array() *= sqrt(prior_var);
+    gaussian_u.array() *= shrink_mat.diagonal().array();
     Eigen::VectorXd gaussian_delta(sample_size);
     for (int i = 0; i < sample_size; i++) {
       gaussian_delta[i] = norm_rand();
