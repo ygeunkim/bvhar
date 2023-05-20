@@ -409,7 +409,7 @@ hs_prior_var <- function(response_vec, design_mat, coef_vec, shrink_mat) {
 #' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_priorvar Initial variance constant
@@ -418,8 +418,8 @@ hs_prior_var <- function(response_vec, design_mat, coef_vec, shrink_mat) {
 #' @param coef_type Algorithm for coefficient matrix. `1` (ordinary),  and `2` (fast sampling).
 #' @param display_progress Progress bar
 #' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, display_progress)
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, display_progress)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix

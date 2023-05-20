@@ -231,8 +231,8 @@ Rcpp::List estimate_bvar_horseshoe(int num_iter,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd hs_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, double prior_var, Eigen::MatrixXd shrink_mat, int coef_type) {
+  int dim = design_mat.cols();
   if (coef_type == 2) {
-    int dim = design_mat.cols();
     int sample_size = design_mat.rows();
     Eigen::VectorXd gaussian_u(dim);
     for (int i = 0; i < dim; i++) {
@@ -248,8 +248,9 @@ Eigen::VectorXd hs_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat
     return (gaussian_u + shrink_mat * design_mat.transpose() * lin_solve) * sqrt(prior_var);
   }
   Eigen::MatrixXd unscaled_var = design_mat.transpose() * design_mat + shrink_mat;
+  Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(Eigen::MatrixXd::Identity(dim, dim));
   return vectorize_eigen(
-    sim_mgaussian_chol(1, unscaled_var.inverse() * design_mat.transpose() * response_vec, prior_var * unscaled_var)
+    sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, prior_var * prec_mat)
   );
 }
 
@@ -354,7 +355,7 @@ double hs_prior_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Ei
 //' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 //' 
 //' @param num_iter Number of iteration for MCMC
-//' @param num_warm Number of warm-up (burn-in) for MCMC
+//' @param num_burn Number of burn-in (warm-up) for MCMC
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_priorvar Initial variance constant
@@ -364,7 +365,7 @@ double hs_prior_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Ei
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_sur_horseshoe(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y,
+Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y,
                                   Eigen::VectorXd init_local, double init_global, double init_priorvar,
                                   int coef_type, bool display_progress) {
   int dim = y.cols();
@@ -372,18 +373,14 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_warm, Eigen::MatrixXd x,
   int num_design = y.rows(); // n = T - p
   int num_coef = dim * dim_design;
   // record------------------------------------------------
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter, num_coef);
-  Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter, num_coef);
-  // Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter, chain);
-  Eigen::VectorXd global_record = Eigen::VectorXd::Zero(num_iter);
-  Eigen::MatrixXd latent_local_record = Eigen::MatrixXd::Zero(num_iter, num_coef);
-  // Eigen::MatrixXd latent_global_record = Eigen::MatrixXd::Zero(num_iter, chain);
-  Eigen::VectorXd latent_global_record = Eigen::VectorXd::Zero(num_iter);
-  // Eigen::MatrixXd sig_record = Eigen::MatrixXd::Zero(num_iter, chain);
-  Eigen::VectorXd sig_record = Eigen::VectorXd::Zero(num_iter);
+  Eigen::MatrixXd coef_record(num_iter, num_coef);
+  Eigen::MatrixXd local_record(num_iter, num_coef);
+  Eigen::VectorXd global_record(num_iter);
+  Eigen::VectorXd latent_local(num_coef);
+  double latent_global = 0.0;
+  Eigen::VectorXd sig_record(num_iter);
   local_record.row(0) = init_local;
   global_record[0] = init_global;
-  // sig_record.row(0) = init_priorvar;
   sig_record[0] = init_priorvar;
   // Some variables----------------------------------------
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
@@ -407,19 +404,19 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_warm, Eigen::MatrixXd x,
     // 2. sigma (variance)
     sig_record[i] = hs_prior_var(response_vec, design_mat, coef_record.row(i), lambda_mat);
     // 3. nuj (local latent)
-    latent_local_record.row(i) = hs_latent_local(local_record.row(i - 1));
+    latent_local = hs_latent_local(local_record.row(i - 1));
     // 4. xi (global latent)
-    latent_global_record[i] = hs_latent_global(global_record[i - 1]);
+    latent_global = hs_latent_global(global_record[i - 1]);
     // 5. lambdaj (local shrinkage)
-    local_record.row(i) = hs_local_sparsity(latent_local_record.row(i), global_record[i - 1], coef_record.row(i), sig_record[i]);
+    local_record.row(i) = hs_local_sparsity(latent_local, global_record[i - 1], coef_record.row(i), sig_record[i]);
     // 6. tau (global shrinkage)
-    global_record[i] = hs_global_sparsity(latent_global_record[i], local_record.row(i), coef_record.row(i), sig_record[i]);
+    global_record[i] = hs_global_sparsity(latent_global, local_record.row(i), coef_record.row(i), sig_record[i]);
   }
   return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = coef_record,
-    Rcpp::Named("lambda_record") = local_record,
-    Rcpp::Named("tau_record") = global_record,
-    Rcpp::Named("sigma_record") = sig_record
+    Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("tau_record") = global_record.tail(num_iter - num_burn),
+    Rcpp::Named("sigma_record") = sig_record.tail(num_iter - num_burn)
   );
 }
 

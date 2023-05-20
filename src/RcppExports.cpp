@@ -365,13 +365,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_sur_horseshoe
-Rcpp::List estimate_sur_horseshoe(int num_iter, int num_warm, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, double init_global, double init_priorvar, int coef_type, bool display_progress);
-RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_iterSEXP, SEXP num_warmSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP coef_typeSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, double init_global, double init_priorvar, int coef_type, bool display_progress);
+RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP coef_typeSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_warm(num_warmSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
@@ -379,7 +379,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type init_priorvar(init_priorvarSEXP);
     Rcpp::traits::input_parameter< int >::type coef_type(coef_typeSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_iter, num_warm, x, y, init_local, init_global, init_priorvar, coef_type, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, coef_type, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
