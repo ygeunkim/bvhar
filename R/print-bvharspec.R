@@ -399,7 +399,7 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n")
   param <- x[!(names(x) %in% c("process", "prior", "chain"))]
-  num_chain <- x$chain
+  # num_chain <- x$chain
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
     print.default(
@@ -409,10 +409,10 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
       quote = FALSE
     )
   }
-  if (num_chain > 1) {
-    cat("--------------------------------------------------------------\n")
-    cat("Initialized for multiple chain MCMC.")
-  }
+  # if (num_chain > 1) {
+  #   cat("--------------------------------------------------------------\n")
+  #   cat("Initialized for multiple chain MCMC.")
+  # }
   cat("--------------------------------------------------------\n")
   cat("'init_local': local shrinkage for each row of coefficients matrix")
 }

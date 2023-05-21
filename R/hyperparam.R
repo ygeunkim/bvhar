@@ -531,47 +531,27 @@ init_ssvs <- function(init_coef,
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity, global_sparsity = .1, init_cov) {
-  if (is.matrix(local_sparsity) &&
-      length(global_sparsity) > 1 &&
-      (length(dim(init_cov) == 3) || is.list(init_cov) || is.matrix(init_cov))) {
-    local_sparsity <- lapply(
-      seq_len(dim(local_sparsity)[2]),
-      function(k) local_sparsity[, k]
-    )
-    isnot_identical(local_sparsity, case = "dim")
-    isnot_identical(local_sparsity, case = "values")
-    if (length(dim(init_cov)) == 3) {
-      init_cov <- lapply(
-        seq_len(dim(init_cov)[3]),
-        function(k) init_cov[,, k]
-      )
-    }
-    isnot_identical(init_cov, case = "dim")
-    isnot_identical(init_cov, case = "values")
-    num_chain <- length(global_sparsity)
-  } else {
-    if (!is.vector(local_sparsity)) {
-      stop("'local_sparsity' should be a vector.")
-    }
-    if (!is.matrix(init_cov)) {
-      stop("'init_cov' should be a matrix.")
-    }
-    if (ncol(init_cov) != nrow(init_cov)) {
-      stop("'init_cov' should be a square matrix.")
-    }
-    if (length(global_sparsity) > 1) {
-      stop("'global_sparsity' should be a scalar.")
-    }
-    num_chain <- 1
+set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+  if (!is.vector(local_sparsity)) {
+    stop("'local_sparsity' should be a vector.")
+  }
+  # if (length(local_sparsity) > 1) {
+  #   warning("Scalar 'local_sparsity' works.")
+  # }
+  # if (!is.matrix(init_cov)) {
+  #   stop("'init_cov' should be a matrix.")
+  # }
+  # if (ncol(init_cov) != nrow(init_cov)) {
+  #   stop("'init_cov' should be a square matrix.")
+  # }
+  if (length(global_sparsity) > 1) {
+    stop("'global_sparsity' should be a scalar.")
   }
   res <- list(
     process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
-    global_sparsity = global_sparsity,
-    init_cov = init_cov,
-    chain = num_chain
+    global_sparsity = global_sparsity#,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
   res

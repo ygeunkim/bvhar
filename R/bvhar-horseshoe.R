@@ -9,7 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param fast_sampling If `TRUE`, implement fast sampling algorithm for coefficients matrix. (Use this when `obs` <<< `m`).
+#' @param sparsity Type of handling sparsity (Default, rowwise `"row"`) or (vectorized `"vec"`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
@@ -51,8 +51,6 @@
 #' 
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom foreach foreach getDoParRegistered
-#' @importFrom doRNG %dorng%
 #' @order 1
 #' @export
 bvhar_horseshoe <- function(y,
@@ -62,7 +60,7 @@ bvhar_horseshoe <- function(y,
                             thinning = 1,
                             bayes_spec = set_horseshoe(),
                             include_mean = TRUE,
-                            fast_sampling = FALSE,
+                            sparsity = c("row", "vec"),
                             verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -101,80 +99,73 @@ bvhar_horseshoe <- function(y,
   colnames(X1) <- name_har
   # Initial vectors-------------------
   dim_har <- ncol(X1)
-  coef_type <- ifelse(fast_sampling, 2, 1)
-  if (bayes_spec$chain == 1) {
-    if (length(bayes_spec$local_sparsity) != dim_har) {
-      stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
+  num_restrict <- switch (sparsity,
+    "row" = ifelse(include_mean, dim_data * 3 + 1, dim_data * 3),
+    "vec" = ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3)
+  )
+  if (length(bayes_spec$local_sparsity) != dim_har) {
+    if (length(bayes_spec$local_sparsity) == 1) {
+      bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+    } else {
+      stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
     }
-    if (ncol(bayes_spec$init_cov) != dim_data) {
-      stop("Dimension of the matrix 'init_cov' should be dim x dim.")
-    }
-    init_local <- bayes_spec$local_sparsity
-    init_global <- bayes_spec$global_sparsity
-    init_priorvar <- bayes_spec$init_cov
-    # MCMC-----------------------------
-    res <- estimate_bvar_horseshoe(
-      num_iter = num_iter,
-      num_burn = num_burn,
-      x = X1,
-      y = Y0,
-      init_local = init_local,
-      init_global = init_global,
-      init_priorvar = init_priorvar,
-      coef_type = coef_type,
-      chain = bayes_spec$chain,
-      display_progress = verbose
-    )
-  } else {
-    if (length(bayes_spec$local_sparsity[[1]]) != dim_har) {
-      stop("Every length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
-    }
-    if (ncol(bayes_spec$init_cov[[1]]) != dim_data) {
-      stop("Every dimension of the matrix 'init_cov' should be dim x dim.")
-    }
-    init_local <- bayes_spec$local_sparsity
-    init_global <- bayes_spec$global_sparsity
-    init_priorvar <- bayes_spec$init_cov
-    # MCMC-----------------------------
-    res <- foreach(id = seq_along(init_local)) %dorng% {
+  }
+  init_local <- bayes_spec$local_sparsity
+  init_global <- bayes_spec$global_sparsity
+  # MCMC-----------------------------
+  res <- switch (sparsity,
+    "row" = {
       estimate_bvar_horseshoe(
         num_iter = num_iter,
         num_burn = num_burn,
-        x = X0,
+        x = X1,
         y = Y0,
-        init_local = init_local[[id]],
-        init_global = init_global[[id]],
-        init_priorvar = init_priorvar[[id]],
-        coef_type = coef_type,
-        chain = bayes_spec$chain,
+        init_local = init_local,
+        init_global = init_global,
+        chain = 1,
+        display_progress = verbose
+      )
+    },
+    "vec" = {
+      estimate_sur_horseshoe(
+        num_iter = num_iter,
+        num_burn = num_burn,
+        x = X1,
+        y = Y0,
+        init_local = init_local,
+        init_global = init_global,
         display_progress = verbose
       )
     }
-    res$alpha_record <- do.call(cbind, res$alpha_record)
-    res$lambda_record <- do.call(cbind, res$lambda_record)
-    res$tau_record <- do.call(cbind, res$tau_record)
-    res$psi_record <- do.call(cbind, res$psi_record)
-  }
+  )
+  # res <- estimate_bvar_horseshoe(
+  #   num_iter = num_iter,
+  #   num_burn = num_burn,
+  #   x = X1,
+  #   y = Y0,
+  #   init_local = init_local,
+  #   init_global = init_global,
+  #   chain = 1,
+  #   display_progress = verbose
+  # )
   # preprocess the results-----------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  if (res$chain > 1) {
-    # 
-  } else {
-    res$phi_record <- res$phi_record[thin_id,]
-    colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-    res$coefficients <- 
-      colMeans(res$phi_record) %>% 
-      matrix(ncol = dim_data)
-    colnames(res$coefficients) <- name_var
-    rownames(res$coefficients) <- name_har
-    res$phi_record <- as_draws_df(res$phi_record)
+  res$phi_record <- res$phi_record[thin_id,]
+  colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
+  res$coefficients <- 
+    colMeans(res$phi_record) %>% 
+    matrix(ncol = dim_data)
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_har
+  res$phi_record <- as_draws_df(res$phi_record)
+  res$tau_record <- as.matrix(res$tau_record[thin_id])
+  colnames(res$tau_record) <- "tau"
+  res$tau_record <- as_draws_df(res$tau_record)
+  if (sparsity == "row") {
     res$lambda_record <- res$lambda_record[thin_id,]
     colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
     res$lambda_record <- as_draws_df(res$lambda_record)
-    res$tau_record <- as.matrix(res$tau_record[thin_id])
-    colnames(res$tau_record) <- "tau"
-    res$tau_record <- as_draws_df(res$tau_record)
     res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
     res$psi_record <- res$psi_record[thin_id]
     res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
@@ -193,14 +184,35 @@ bvhar_horseshoe <- function(y,
       do.call(rbind, .)
     colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
     res$eta_record <- as_draws_df(res$eta_record)
+    # Parameters-----------------
+    res$param <- bind_draws(
+      res$phi_record,
+      res$lambda_record,
+      res$tau_record,
+      res$omega_record,
+      res$eta_record
+    )
+  } else {
+    res$lambda_record <- as.matrix(res$lambda_record[thin_id])
+    colnames(res$lambda_record) <- "lambda"
+    res$lambda_record <- as_draws_df(res$lambda_record)
+    res$covmat <- mean(res$sigma) * diag(dim_data)
+    res$psi_posterior <- diag(dim_data) / mean(res$sigma)
+    colnames(res$covmat) <- name_var
+    rownames(res$covmat) <- name_var
+    colnames(res$psi_posterior) <- name_var
+    rownames(res$psi_posterior) <- name_var
+    res$sigma_record <- as.matrix(res$sigma_record[thin_id])
+    colnames(res$sigma_record) <- "sigma"
+    res$sigma_record <- as_draws_df(res$sigma_record)
+    # Parameters-----------------
+    res$param <- bind_draws(
+      res$alpha_record,
+      res$lambda_record,
+      res$tau_record,
+      res$sigma_record
+    )
   }
-  res$param <- bind_draws(
-    res$phi_record,
-    res$lambda_record,
-    res$tau_record,
-    res$omega_record,
-    res$eta_record
-  )
   # variables------------
   res$df <- ncol(X0)
   res$p <- 3
@@ -213,7 +225,7 @@ bvhar_horseshoe <- function(y,
   res$call <- match.call()
   res$process <- paste("VHAR", bayes_spec$prior, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
-  res$algo <- ifelse(fast_sampling, "fast", "gibbs")
+  # res$algo <- ifelse(fast_sampling, "fast", "gibbs")
   res$spec <- bayes_spec
   res$iter <- num_iter
   res$burn <- num_burn
@@ -224,6 +236,10 @@ bvhar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  class(res) <- c("bvharhs", "mvhsmod", "bvharsp")
+  if (sparsity == "row") {
+    class(res) <- c("bvarhs", "mvhsmod", "bvharsp")
+  } else {
+    class(res) <- c("bvarhs", "bvharsp")
+  }
   res
 }

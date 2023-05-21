@@ -159,8 +159,8 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
   )
   cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
-  # cat("Fitted by Gibbs sampling\n")
-  cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
+  cat("Fitted by blocked Gibbs sampling\n")
+  # cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {

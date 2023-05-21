@@ -6,7 +6,7 @@
 \alias{knit_print.horseshoespec}
 \title{Horseshoe Prior Specification}
 \usage{
-set_horseshoe(local_sparsity, global_sparsity = 0.1, init_cov)
+set_horseshoe(local_sparsity = 1, global_sparsity = 1)
 
 \method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -17,13 +17,13 @@ knit_print.horseshoespec(x, ...)
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{init_cov}{Initial variance of the error term}
-
 \item{x}{\code{horseshoespec} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
+
+\item{init_cov}{Initial variance of the error term}
 }
 \description{
 Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
