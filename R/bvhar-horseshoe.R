@@ -207,7 +207,7 @@ bvhar_horseshoe <- function(y,
     res$sigma_record <- as_draws_df(res$sigma_record)
     # Parameters-----------------
     res$param <- bind_draws(
-      res$alpha_record,
+      res$phi_record,
       res$lambda_record,
       res$tau_record,
       res$sigma_record
@@ -236,10 +236,6 @@ bvhar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  if (sparsity == "row") {
-    class(res) <- c("bvarhs", "mvhsmod", "bvharsp")
-  } else {
-    class(res) <- c("bvarhs", "bvharsp")
-  }
+  class(res) <- c("bvharhs", "hsmod", "bvharsp")
   res
 }

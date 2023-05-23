@@ -377,7 +377,7 @@ hs_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_
     .Call(`_bvhar_hs_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
 }
 
-#' Gibbs Sampler for Horseshoe BVAR Estimator
+#' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
 #' 
 #' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 #' 

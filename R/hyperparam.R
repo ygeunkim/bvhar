@@ -515,7 +515,6 @@ init_ssvs <- function(init_coef,
 #' 
 #' @param local_sparsity Initial local shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
-#' @param init_cov Initial variance of the error term
 #' @details 
 #' Set horseshoe prior initialization for VAR family.
 #' 

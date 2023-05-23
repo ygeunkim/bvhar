@@ -15,7 +15,6 @@ bvar_horseshoe(
   bayes_spec = set_horseshoe(),
   include_mean = TRUE,
   sparsity = c("row", "vec"),
-  fast_sampling = FALSE,
   verbose = FALSE
 )
 
@@ -39,8 +38,6 @@ knit_print.bvarhs(x, ...)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{sparsity}{Type of handling sparsity (Default, rowwise \code{"row"}) or (vectorized \code{"vec"}).}
-
-\item{fast_sampling}{If \code{TRUE}, implement fast sampling algorithm for coefficients matrix. (Use this when \code{obs} <<< \code{m}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

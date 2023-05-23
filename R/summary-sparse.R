@@ -26,9 +26,16 @@ summary.ssvsmod <- function(object, ...) {
     "none" = object$coefficients,
     "const" = object$coefficients[-object$df,]
   )
-  coef_spike <- matrix(object$spec$coef_spike, ncol = object$m)
-  var_selection <- abs(coef_mean) <= 3 * coef_spike
-  coef_res <- ifelse(var_selection, 0L, coef_mean)
+  # coef_spike <- matrix(object$spec$coef_spike, ncol = object$m)
+  coef_dummy <- object$pip
+  # var_selection <- abs(coef_mean) <= 3 * coef_spike
+  var_selection <- object$pip <= .5
+  # coef_res <- ifelse(var_selection, 0L, coef_mean)
+  # coef_res <- switch(
+  #   object$type,
+  #   "none" = ifelse(var_selection, 0L, coef_mean),
+  #   "const" = rbind(ifelse(var_selection, 0L, coef_mean), object$coefficients[object$df,])
+  # )
   coef_res <- switch(
     object$type,
     "none" = ifelse(var_selection, 0L, coef_mean),
@@ -39,10 +46,13 @@ summary.ssvsmod <- function(object, ...) {
   }
   # cholesky factor----------------------------
   chol_mean <- object$chol_posterior
-  chol_spike <- diag(object$m)
-  chol_spike[upper.tri(chol_spike, diag = FALSE)] <- object$spec$chol_spike
-  chol_selection <- abs(chol_mean) <= 3 * chol_spike
-  diag(chol_selection) <- FALSE
+  # chol_spike <- diag(object$m)
+  # chol_spike[upper.tri(chol_spike, diag = FALSE)] <- object$spec$chol_spike
+  # chol_selection <- abs(chol_mean) <= 3 * chol_spike
+  # diag(chol_selection) <- FALSE
+  # chol_res <- ifelse(chol_selection, 0L, chol_mean)
+  chol_dummy <- object$omega_posterior
+  chol_selection <- chol_dummy <= .5
   chol_res <- ifelse(chol_selection, 0L, chol_mean)
   # return S3 object---------------------------
   res <- list(
@@ -65,7 +75,7 @@ summary.ssvsmod <- function(object, ...) {
 #' 
 #' Conduct variable selection.
 #' 
-#' @param object `mvhsmod` object
+#' @param object `hsmod` object
 #' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
 #' @param correction Multiple testing correction. By default, `FALSE`.
 #' @param ... not used
@@ -78,7 +88,7 @@ summary.ssvsmod <- function(object, ...) {
 #' @importFrom dplyr rename
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
 #' @export
-summary.mvhsmod <- function(object, level = .05, correction = FALSE, ...) {
+summary.hsmod <- function(object, level = .05, correction = FALSE, ...) {
   # low_lev <- level / 2
   low_lev <- ifelse(correction, level / (2 * object$df * object$m), level / 2)
   cred_int <- 
@@ -90,12 +100,6 @@ summary.mvhsmod <- function(object, level = .05, correction = FALSE, ...) {
         prob = c(low_lev, 1 - low_lev)
       )
     )
-  # %>% 
-  #   rename(
-  #     "term" = "variable",
-  #     "conf.low" = paste0(low_lev * 100, "%"),
-  #     "conf.high" = paste0((1 - low_lev) * 100, "%")
-  #   )
   colnames(cred_int) <- c("term", "conf.low", "conf.high")
   selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
   coef_res <- ifelse(selection, object$coefficients, 0L)
@@ -116,7 +120,7 @@ summary.mvhsmod <- function(object, level = .05, correction = FALSE, ...) {
     level = level,
     choose_coef = selection
   )
-  class(res) <- c("summary.mvhsmod", "summary.bvharsp")
+  class(res) <- c("summary.hsmod", "summary.bvharsp")
   res
 }
 

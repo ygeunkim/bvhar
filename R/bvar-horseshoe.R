@@ -60,7 +60,6 @@ bvar_horseshoe <- function(y,
                            bayes_spec = set_horseshoe(),
                            include_mean = TRUE,
                            sparsity = c("row", "vec"),
-                           fast_sampling = FALSE,
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -233,10 +232,6 @@ bvar_horseshoe <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object-----------------
-  if (sparsity == "row") {
-    class(res) <- c("bvarhs", "mvhsmod", "bvharsp")
-  } else {
-    class(res) <- c("bvarhs", "bvharsp")
-  }
+  class(res) <- c("bvarhs", "hsmod", "bvharsp")
   res
 }

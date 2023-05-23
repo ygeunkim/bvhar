@@ -709,7 +709,7 @@ autoplot.summary.bvharsp <- function(object, ...) {
 #' 
 #' Draw credible interval for horseshoe prior coefficients.
 #' 
-#' @param object `summary.mvhsmod` object
+#' @param object `summary.hsmod` object
 #' @param colour `r lifecycle::badge("experimental")` Color of the credible interval line (By default, `"black"`).
 #' @param linetype `r lifecycle::badge("experimental")` Line type of the credible interval line (By default, `1`: solid).
 #' @param fill `r lifecycle::badge("experimental")` Color to fill between credible interval lines (By default, none: `NA`).
@@ -718,7 +718,7 @@ autoplot.summary.bvharsp <- function(object, ...) {
 #' @importFrom ggplot2 ggplot aes geom_path geom_ribbon
 #' @importFrom dplyr mutate n
 #' @export
-autoplot.summary.mvhsmod <- function(object, colour = NULL, linetype = NULL, fill = NULL, ...) {
+autoplot.summary.hsmod <- function(object, colour = NULL, linetype = NULL, fill = NULL, ...) {
   ci_df <- 
     object$interval %>% 
     mutate(estimate = c(object$posterior_mean), term = 1:n())

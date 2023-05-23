@@ -22,8 +22,6 @@ knit_print.horseshoespec(x, ...)
 \item{digits}{digit option to print}
 
 \item{...}{not used}
-
-\item{init_cov}{Initial variance of the error term}
 }
 \description{
 Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.

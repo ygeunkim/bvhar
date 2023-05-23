@@ -235,13 +235,13 @@ registerS3method(
   envir = asNamespace("knitr")
 )
 
-#' @rdname summary.mvhsmod
-#' @param x `summary.mvhsmod` object
+#' @rdname summary.hsmod
+#' @param x `summary.hsmod` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.summary.mvhsmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.summary.hsmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
     paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
@@ -282,19 +282,19 @@ print.summary.mvhsmod <- function(x, digits = max(3L, getOption("digits") - 3L),
   )
 }
 
-#' @rdname summary.mvhsmod
-#' @param x `summary.mvhsmod` object
+#' @rdname summary.hsmod
+#' @param x `summary.hsmod` object
 #' @param ... not used
 #' @order 3
 #' @export
-knit_print.summary.mvhsmod <- function(x, ...) {
+knit_print.summary.hsmod <- function(x, ...) {
   print(x)
 }
 
 #' @export
 registerS3method(
-  "knit_print", "summary.mvhsmod",
-  knit_print.summary.mvhsmod,
+  "knit_print", "summary.hsmod",
+  knit_print.summary.hsmod,
   envir = asNamespace("knitr")
 )
 

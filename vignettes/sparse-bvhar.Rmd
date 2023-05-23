@@ -283,7 +283,7 @@ Since this process is Full Bayesian, every hyperparameter is chosen by Gibbs sam
 Do not worry about setting each number.
 
 ```{r hsspec}
-(hs_spec <- set_horseshoe(local_sparsity = rep(.2, 7), global_sparsity = .1, cov(var_data)))
+(hs_spec <- set_horseshoe(local_sparsity = .2, global_sparsity = .1))
 ```
 
 ### Gibbs sampling
@@ -308,7 +308,7 @@ Do not worry about setting each number.
   thinning = 1,
   bayes_spec = hs_spec,
   include_mean = TRUE,
-  fast_sampling = FALSE,
+  sparsity = "row",
   verbose = FALSE
 ))
 ```
@@ -319,7 +319,7 @@ Local shrinkage levels are also given to each row of the coefficients matrix.
 Here, VHAR coefficient.
 
 ```{r hsvharspec}
-(hsvhar_spec <- set_horseshoe(local_sparsity = rep(.2, 3 * ncol(var_data) + 1), global_sparsity = .1, cov(var_data)))
+(hsvhar_spec <- set_horseshoe(local_sparsity = .2, global_sparsity = .1))
 ```
 
 `bvhar_horseshoe()` performs BVHAR model with horseshoe prior estimation.
@@ -342,7 +342,7 @@ Here, VHAR coefficient.
   thinning = 1,
   bayes_spec = hsvhar_spec,
   include_mean = TRUE,
-  fast_sampling = FALSE,
+  sparsity = "row",
   verbose = FALSE
 ))
 ```
