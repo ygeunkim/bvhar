@@ -297,16 +297,31 @@ horseshoe_latent_global <- function(global_hyperparam) {
     .Call(`_bvhar_horseshoe_latent_global`, global_hyperparam)
 }
 
+#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
+#' 
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param sigma Covariance matrix of the likelihood
+#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_mn_coef <- function(x, y, sigma, shrink_mat) {
+    .Call(`_bvhar_horseshoe_mn_coef`, x, y, sigma, shrink_mat)
+}
+
 #' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the prior variance.
 #' 
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
-#' @param prec_mat Precision matrix of coefficient full conditional
+#' @param coef Coefficients matrix
+#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
+#' @param mn_shrink Inverse diagonal matrix for column shrinkage
 #' @noRd
-horseshoe_cov_mat <- function(x, y, prec_mat) {
-    .Call(`_bvhar_horseshoe_cov_mat`, x, y, prec_mat)
+horseshoe_cov_mat <- function(x, y, coef, shrink_mat, mn_shrink) {
+    .Call(`_bvhar_horseshoe_cov_mat`, x, y, coef, shrink_mat, mn_shrink)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -319,11 +334,11 @@ horseshoe_cov_mat <- function(x, y, prec_mat) {
 #' @param y Response matrix Y0
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
-#' @param chain The number of MCMC chains.
+#' @param init_priorvar Initial covariance matrix
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, chain, display_progress) {
-    .Call(`_bvhar_estimate_bvar_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, chain, display_progress)
+estimate_bvar_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, blocked_gibbs, display_progress) {
+    .Call(`_bvhar_estimate_bvar_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, blocked_gibbs, display_progress)
 }
 
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
