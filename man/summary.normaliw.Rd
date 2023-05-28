@@ -6,7 +6,13 @@
 \alias{knit_print.summary.normaliw}
 \title{Summarizing Bayesian Multivariate Time Series Model}
 \usage{
-\method{summary}{normaliw}(object, n_iter = 100L, ...)
+\method{summary}{normaliw}(
+  object,
+  num_iter = 10000L,
+  num_burn = floor(num_iter/2),
+  thinning = 1L,
+  ...
+)
 
 \method{print}{summary.normaliw}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,7 +21,11 @@ knit_print.summary.normaliw(x, ...)
 \arguments{
 \item{object}{\code{normaliw} object}
 
-\item{n_iter}{Number to sample Matrix Normal Inverse-Wishart distribution}
+\item{num_iter}{Number to sample MNIW distribution}
+
+\item{num_burn}{Number of burn-in}
+
+\item{thinning}{Thinning every thinning-th iteration}
 
 \item{...}{not used}
 

@@ -44,17 +44,6 @@ build_design <- function(y, var_lag, include_mean) {
     .Call(`_bvhar_build_design`, y, var_lag, include_mean)
 }
 
-#' Diagonal Matrix
-#' 
-#' Construct a diagonal matrix.
-#' 
-#' @param Vector
-#' 
-#' @noRd
-diag_misc <- function(x) {
-    .Call(`_bvhar_diag_misc`, x)
-}
-
 #' Construct Dummy response for Minnesota Prior
 #' 
 #' Define dummy Y observations to add for Minnesota moments.

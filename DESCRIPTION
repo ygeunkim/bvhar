@@ -37,10 +37,10 @@ Imports:
     dplyr,
     foreach,
     purrr,
-    utils,
     stats,
     optimParallel,
-    posterior
+    posterior,
+    bayesplot
 LinkingTo: 
     Rcpp,
     RcppEigen,

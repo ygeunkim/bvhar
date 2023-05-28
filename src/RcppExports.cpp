@@ -37,17 +37,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// diag_misc
-Eigen::MatrixXd diag_misc(Eigen::VectorXd x);
-RcppExport SEXP _bvhar_diag_misc(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(diag_misc(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // build_ydummy
 Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean);
 RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP, SEXP include_meanSEXP) {
@@ -946,7 +935,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
     {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 3},
-    {"_bvhar_diag_misc", (DL_FUNC) &_bvhar_diag_misc, 1},
     {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 7},
     {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 5},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
