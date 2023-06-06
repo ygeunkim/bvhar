@@ -188,7 +188,7 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
 #' 
 #' @param num_iter Number of iteration for MCMC
-#' @param num_warm Number of warm-up (burn-in) for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param prior_prec Prior precision of Matrix Normal distribution
@@ -208,12 +208,11 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param init_psi Initial psi
 #' @param init_coef Initial coefficients
 #' @param init_sig Initial sig
-#' @param chain The number of MCMC chains
 #' @param display_progress Progress bar
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_warm, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, chain, display_progress)
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
