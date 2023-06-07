@@ -10,7 +10,7 @@ bvar_niwhm(
   y,
   p,
   num_iter = 1000,
-  num_warm = floor(num_iter/2),
+  num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
   scale_variance = 0.05,
@@ -30,7 +30,7 @@ knit_print.bvarhm(x, ...)
 
 \item{num_iter}{MCMC iteration number}
 
-\item{num_warm}{Number of warm-up (burn-in). Half of the iteration is the default choice.}
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
 

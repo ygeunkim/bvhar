@@ -6,28 +6,22 @@
 \usage{
 \method{autoplot}{summary.normaliw}(
   object,
-  type = c("coef", "variance"),
-  var_name,
-  true_est = NULL,
-  NROW = NULL,
-  NCOL = NULL,
+  type = c("trace", "dens", "area"),
+  pars = character(),
+  regex_pars = character(),
   ...
 )
 }
 \arguments{
 \item{object}{\code{summary.normaliw} object}
 
-\item{type}{Plot mean or variance. \code{"coef"} indicates VAR coefficients and \code{"variance"} for diagonal elements for Sigma (By default, coefficients).}
+\item{type}{The type of the plot. Trace plot (\code{"trace"}), kernel density plot (\code{"dens"}), and interval estimates plot (\code{"area"}).}
 
-\item{var_name}{Variable name (for coefficients)}
+\item{pars}{Parameter names to draw.}
 
-\item{true_est}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} True estimates to draw}
+\item{regex_pars}{Regular expression parameter names to draw.}
 
-\item{NROW}{Numer of facet row}
-
-\item{NCOL}{Numer of facet col}
-
-\item{...}{not used}
+\item{...}{Other options for each \code{\link[bayesplot:MCMC-traces]{bayesplot::mcmc_trace()}}, \code{\link[bayesplot:MCMC-distributions]{bayesplot::mcmc_dens()}}, and \code{\link[bayesplot:MCMC-intervals]{bayesplot::mcmc_areas()}}.}
 }
 \description{
 This function draws density plot for coefficient matrices of Minnesota prior VAR model.

@@ -3,91 +3,21 @@
 #' This function draws density plot for coefficient matrices of Minnesota prior VAR model.
 #' 
 #' @param object `summary.normaliw` object
-#' @param type Plot mean or variance. `"coef"` indicates VAR coefficients and `"variance"` for diagonal elements for Sigma (By default, coefficients).
-#' @param var_name Variable name (for coefficients)
-#' @param true_est `r lifecycle::badge("experimental")` True estimates to draw
-#' @param NROW Numer of facet row
-#' @param NCOL Numer of facet col
-#' @param ... not used
-#' @importFrom ggplot2 ggplot aes geom_density geom_vline geom_point facet_wrap labs element_text element_blank
-#' @importFrom dplyr filter mutate
-#' @importFrom tidyr pivot_longer
-#' @importFrom tibble rownames_to_column
+#' @param type The type of the plot. Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
+#' @param pars Parameter names to draw.
+#' @param regex_pars Regular expression parameter names to draw.
+#' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
+#' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
-autoplot.summary.normaliw <- function(object, 
-                                      type = c("coef", "variance"), 
-                                      var_name, 
-                                      true_est = NULL,
-                                      NROW = NULL, 
-                                      NCOL = NULL, ...) {
+autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
   type <- match.arg(type)
-  switch(
+  bayes_plt <- switch(
     type,
-    "coef" = {
-      X <- object$coefficients
-      if (missing(var_name)) {
-        stop("Provide 'var_name'")
-      }
-      X <- 
-        lapply(
-          1:(object$N),
-          function(x) {
-            X[,, x] %>% 
-              as.data.frame() %>% 
-              rownames_to_column(var = "lags")
-          }
-        ) %>% 
-        bind_rows() %>% 
-        pivot_longer(-lags, names_to = "name", values_to = "value") %>% 
-        filter(name == var_name) %>% 
-        mutate(coef_hat = rep(object$mn_mean[,var_name], object$N))
-    },
-    "variance" = {
-      X <- object$covmat
-      X <- 
-        lapply(
-          1:(object$N),
-          function(x) {
-            X[,, x] %>% 
-              diag()
-          }
-        ) %>% 
-        bind_rows() %>% 
-        mutate(id = 1:(object$N)) %>% 
-        pivot_longer(-id, names_to = "lags", values_to = "value")
-    }
+    "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
+    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
+    "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
   )
-  if (!is.null(true_est)) {
-    X <- 
-      X %>% 
-      mutate(true_est = rep(true_est, object$N))
-  }
-  p <- 
-    X %>% 
-    ggplot(aes(x = value)) +
-    geom_density() +
-    facet_wrap(
-      lags ~ .,
-      nrow = NROW,
-      ncol = NCOL,
-      scales = "free"
-    ) +
-    labs(
-      x = element_blank(),
-      y = element_blank()
-    )
-  if (type == "coef") {
-    p <- 
-      p +
-      geom_vline(aes(xintercept = coef_hat), col = "blue", alpha = .5)
-  }
-  # draw given coefficient estimates------------------------
-  if (!is.null(true_est)) {
-    p +
-      geom_vline(aes(xintercept = true_est), col = "red", alpha = .5)
-  } else {
-    p
-  }
+  bayes_plt
 }
 
 #' Residual Plot for Minnesota Prior VAR Model
@@ -592,15 +522,18 @@ gg_loss <- function(mod_list,
 #' @param object `bvharirf` object
 #' @param ... Other arguments passed on the [ggplot2::geom_path()].
 #' @seealso [analyze_ir()]
-#' @importFrom ggplot2 ggplot aes facet_grid labs geom_path scale_x_continuous labs element_blank
+#' @importFrom tidyr unite
+#' @importFrom ggplot2 ggplot aes facet_wrap vars labs geom_path scale_x_continuous labs element_blank
 #' @export
 autoplot.bvharirf <- function(object, ...) {
   irf_df <- object$df_long
   irf_df %>% 
+    unite("term", impulse, response, c("impulse", "response"), sep = "->") %>% 
     ggplot(aes(x = period, y = value)) +
     geom_path(...) +
     scale_x_continuous(breaks = 0:(object$lag_max)) +
-    facet_grid(response ~ impulse) + # y ~ x: impulse (x) -> response (y)
+    # facet_grid(response ~ impulse) + # y ~ x: impulse (x) -> response (y)
+    facet_wrap(vars(term), scales = "free_y") + # better be transposed
     labs(
       x = element_blank(),
       y = element_blank()

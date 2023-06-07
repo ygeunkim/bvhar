@@ -66,23 +66,6 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean) 
   return res;
 }
 
-//' Diagonal Matrix
-//' 
-//' Construct a diagonal matrix.
-//' 
-//' @param Vector
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
-  int n = x.size();
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(n, n);
-  for (int i = 0; i < n; i++) {
-    res(i, i) = x[i];
-  }
-  return res;
-}
-
 //' Construct Dummy response for Minnesota Prior
 //' 
 //' Define dummy Y observations to add for Minnesota moments.
@@ -105,33 +88,18 @@ Eigen::MatrixXd diag_misc(Eigen::VectorXd x) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_ydummy(int p, 
-                             Eigen::VectorXd sigma, 
-                             double lambda, 
-                             Eigen::VectorXd daily,
-                             Eigen::VectorXd weekly,
-                             Eigen::VectorXd monthly,
-                             bool include_mean) {
+Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean) {
   int dim = sigma.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * p + dim + 1, dim); // Yp
-  Eigen::VectorXd weight_day(dim); // deltai * sigma or di * sigma
-  Eigen::VectorXd weight_week(dim); // wi * sigma
-  Eigen::VectorXd weight_month(dim); // mi * sigma
-  for (int i = 0; i < dim; i++) {
-    weight_day[i] = daily[i] * sigma[i] / lambda;
-  }
-  for (int i = 0; i < dim; i++) {
-    weight_week[i] = weekly[i] * sigma[i] / lambda;
-  }
-  for (int i = 0; i < dim; i++) {
-    weight_month[i] = monthly[i] * sigma[i] / lambda;
-  }
   // first block------------------------
-  res.block(0, 0, dim, dim) = diag_misc(weight_day);
-  res.block(dim, 0, dim, dim) = diag_misc(weight_week);
-  res.block(2 * dim, 0, dim, dim) = diag_misc(weight_month);
+  res.block(0, 0, dim, dim).diagonal() = daily.array() * sigma.array(); // deltai * sigma or di * sigma
+  if (p > 1) {
+    // avoid error when p = 1
+    res.block(dim, 0, dim, dim).diagonal() = weekly.array() * sigma.array(); // wi * sigma
+    res.block(2 * dim, 0, dim, dim).diagonal() = monthly.array() * sigma.array(); // mi * sigma
+  }
   // second block-----------------------
-  res.block(dim * p, 0, dim, dim) = diag_misc(sigma);
+  res.block(dim * p, 0, dim, dim).diagonal() = sigma;
   if (include_mean) {
     return res;
   }
@@ -160,11 +128,12 @@ Eigen::MatrixXd build_ydummy(int p,
 Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
   int dim = sigma.size();
   int var_lag = lag_seq.size();
-  Eigen::MatrixXd Sig(dim, dim);
+  Eigen::MatrixXd Sig = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * var_lag + dim + 1, dim * var_lag + 1);
   // first block------------------
-  Eigen::MatrixXd Jp = diag_misc(lag_seq);
-  Sig = diag_misc(sigma) / lambda;
+  Eigen::MatrixXd Jp = Eigen::MatrixXd::Zero(var_lag, var_lag);
+  Jp.diagonal() = lag_seq;
+  Sig.diagonal() = sigma / lambda;
   res.block(0, 0, dim * var_lag, dim * var_lag) = Eigen::kroneckerProduct(Jp, Sig);
   // third block------------------
   res(dim * var_lag + dim, dim * var_lag) = eps;
