@@ -1,5 +1,9 @@
 # bvhar 0.12.1
 
+* Fix not working Hierarchical natural conjugate MNIW function (`bvar_niwhm()`).
+
+* Use `posterior` package for `summary.normaliw()` to improve processing and printing.
+
 # bvhar 0.12.0
 
 * Now can use heavy-tailed distribution ([Multivariate t-distribution](https://en.wikipedia.org/wiki/Multivariate_t-distribution)) when generating VAR and VHAR process (`sim_var()` and `sim_vhar()`).
