@@ -99,7 +99,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param num_iter MCMC iteration number
-#' @param num_warm Number of warm-up (burn-in). Half of the iteration is the default choice.
+#' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
@@ -135,7 +135,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 bvar_niwhm <- function(y,
                        p,
                        num_iter = 1000, 
-                       num_warm = floor(num_iter / 2),
+                       num_burn = floor(num_iter / 2),
                        thinning = 1,
                        bayes_spec = set_bvar(sigma = set_psi(), lambda = set_lambda()),
                        scale_variance = .05,
@@ -154,36 +154,22 @@ bvar_niwhm <- function(y,
       stop("Provide 'bvharspec' for 'bayes_spec'. Or, it should be the list of 'bvharspec'.")
     }
   }
-  num_chain <- 1
-  if (all(sapply(bayes_spec, is.bvharspec))) {
-    num_chain <- length(bayes_spec)
+  
+  if (bayes_spec$process != "BVAR") {
+    stop("'bayes_spec' must be the result of 'set_bvar()'.")
   }
-  if (num_chain > 1) {
-    if (any(sapply(bayes_spec, function(x) x$process) != "BVAR")) {
-      stop("'bayes_spec' must be the result of 'set_bvar()'.")
-    }
-    if (any(sapply(bayes_spec, function(x) x$prior) != "MN_Hierarchical")) {
-      stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
-    }
-    
-    
-  } else {
-    if (bayes_spec$process != "BVAR") {
-      stop("'bayes_spec' must be the result of 'set_bvar()'.")
-    }
-    if (bayes_spec$prior != "MN_Hierarchical") {
-      stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
-    }
-    psi <- bayes_spec$sigma$mode
-    dim_data <- ncol(y)
-    psi <- rep(psi, dim_data)
-    if (is.null(bayes_spec$delta)) {
-      bayes_spec$delta <- rep(1, dim_data)
-    }
-    delta <- bayes_spec$delta
-    lambda <- bayes_spec$lambda$mode
-    eps <- bayes_spec$eps
+  if (bayes_spec$prior != "MN_Hierarchical") {
+    stop("'bayes_spec' must be the result of 'set_lambda()' and 'set_psi()'.")
   }
+  psi <- bayes_spec$sigma$mode
+  dim_data <- ncol(y)
+  psi <- rep(psi, dim_data)
+  if (is.null(bayes_spec$delta)) {
+    bayes_spec$delta <- rep(1, dim_data)
+  }
+  delta <- bayes_spec$delta
+  lambda <- bayes_spec$lambda$mode
+  eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   if (!is.null(colnames(y))) {
@@ -263,7 +249,7 @@ bvar_niwhm <- function(y,
   # Metropolis algorithm--------------
   metropolis_res <- estimate_hierachical_niw(
     num_iter = num_iter,
-    num_warm = num_warm,
+    num_burn = num_burn,
     x = X0,
     y = Y0,
     prior_prec = prior_prec,
@@ -281,61 +267,55 @@ bvar_niwhm <- function(y,
     obs_information = hess,
     init_lambda = lambda,
     init_psi = psi,
-    chain = num_chain,
     display_progress = verbose
   )
+  
+  
   # preprocess the results------------
-  thin_id <- seq(from = 1, to = num_iter - num_warm, by = thinning)
-  thinparam_id <- seq(from = 1, to = num_iter - 1 - num_warm, by = thinning)
+  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  # thinparam_id <- seq(from = 1, to = num_iter - 1 - num_burn, by = thinning)
+  
+  thinparam_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  
   metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
   metropolis_res$alpha_record <- metropolis_res$alpha_record[thinparam_id,]
-  if (metropolis_res$chain > 1) {
-    # hyperparameters------------------
-    metropolis_res$lambda_record <- metropolis_res$lambda_record[thin_id,]
-    metropolis_res$psi_record <- 
-      split_paramarray(metropolis_res$psi_record, chain = metropolis_res$chain, param_name = "psi") %>% 
-      as_draws_df()
-    metropolis_res$lambda_record <- 
-      split_paramarray(metropolis_res$lambda_record, chain = metropolis_res$chain, param_name = "lambda") %>% 
-      as_draws_df()
-    # parameters-----------------------
-    metropolis_res$alpha_record <- split_paramarray(metropolis_res$alpha_record, chain = metropolis_res$chain, param_name = "alpha")
-    metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, metropolis_res$chain, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
-    
-    # posterior mean-------------------
-    
-    # acceptance rate------------------
-    metropolis_res$acc_rate <- colMeans(metropolis_res$acceptance) # result of parallel metropolis acceptance format should be matrix
-  } else {
-    # hyperparameters------------------
-    colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
-    metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record[thin_id])
-    colnames(metropolis_res$lambda_record) <- "lambda"
-    metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
-    metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
-    # parameters-----------------------
-    colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
-    metropolis_res$alpha_posterior <- 
-      colMeans(metropolis_res$alpha_record) %>% 
-      matrix(ncol = dim_data)
-    colnames(metropolis_res$alpha_posterior) <- name_var
-    rownames(metropolis_res$alpha_posterior) <- name_lag
-    metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
-    metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
-    metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
-    names(metropolis_res$sigma_record) <- paste0("sigma[", seq_along(metropolis_res$sigma_record), "]")
-    # posterior mean-------------------
-    metropolis_res$sigma_posterior <- Reduce("+", metropolis_res$sigma_record) / length(metropolis_res$sigma_record)
-    colnames(metropolis_res$sigma_posterior) <- name_var
-    rownames(metropolis_res$sigma_posterior) <- name_var
-    metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
-    # acceptance rate------------------
-    metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
-  }
+  
+  # hyperparameters------------------
+  colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
+  metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record[thin_id])
+  colnames(metropolis_res$lambda_record) <- "lambda"
+  metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
+  metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
+  # parameters-----------------------
+  colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
+  metropolis_res$coefficients <- 
+    colMeans(metropolis_res$alpha_record) %>% 
+    matrix(ncol = dim_data)
+  colnames(metropolis_res$coefficients) <- name_var
+  rownames(metropolis_res$coefficients) <- name_lag
+  metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
+  # posterior mean-------------------
+  metropolis_res$covmat <- Reduce("+", split_psirecord(metropolis_res$sigma_record, 1, "sigma")) / length(thinparam_id)
+  colnames(metropolis_res$covmat) <- name_var
+  rownames(metropolis_res$covmat) <- name_var
+  # metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
+  metropolis_res$sigma_record <- 
+    t(metropolis_res$sigma_record) %>% 
+    matrix(ncol = 1) %>% 
+    split.data.frame(gl(dim_data^2, 1, nrow(metropolis_res$sigma_record) * dim_data)) %>% 
+    lapply(function(x) x[thinparam_id,])
+  # metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
+  names(metropolis_res$sigma_record) <- paste0("sigma[", 1:(dim_data^2), "]")
+  metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
+  # acceptance rate------------------
+  metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
   metropolis_res$hyperparam <- bind_draws(
     metropolis_res$lambda_record,
     metropolis_res$psi_record
+  )
+  metropolis_res$param <- bind_draws(
+    metropolis_res$alpha_record,
+    metropolis_res$sigma_record
   )
   # variables-------------------------
   metropolis_res$df <- nrow(mn_mean)
@@ -349,7 +329,7 @@ bvar_niwhm <- function(y,
   metropolis_res$type <- ifelse(include_mean, "const", "none")
   metropolis_res$spec <- bayes_spec
   metropolis_res$iter <- num_iter
-  metropolis_res$burn <- num_warm
+  metropolis_res$burn <- num_burn
   metropolis_res$thin <- thinning
   # data------------------------------
   metropolis_res$y0 <- Y0
@@ -374,7 +354,7 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(sprintf("BVAR(%i) with Hierarchical Prior\n", x$p))
   cat("Fitted by Metropolis algorithm\n")
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of warm-up: ", x$burn, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
     cat(paste0("Thinning: ", x$thin, "\n"))
   }

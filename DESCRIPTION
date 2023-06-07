@@ -1,7 +1,7 @@
 Package: bvhar
 Type: Package
 Title: Bayesian Vector Heterogeneous Autoregressive Modeling
-Version: 0.12.0
+Version: 0.12.1
 Date: 2021-08-01
 Authors@R: 
     c(person(given = "Young Geun",
@@ -37,10 +37,10 @@ Imports:
     dplyr,
     foreach,
     purrr,
-    utils,
     stats,
     optimParallel,
-    posterior
+    posterior,
+    bayesplot
 LinkingTo: 
     Rcpp,
     RcppEigen,

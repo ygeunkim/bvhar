@@ -401,3 +401,26 @@ fit_bvhar_v2 <- bvhar_minnesota(
 )
 fit_bvhar_v2
 ```
+
+## Inference
+
+`summary()` method for `normaliw` object performs MCMC based on conjugate MNIW distribution.
+
+<!-- object, num_iter = 10000L, num_burn = floor(num_iter / 2), thinning = 1L, ... -->
+
+```{r conjmcmc}
+(inf_bvar <- summary(fit_bvar, num_iter = 10000, num_burn = 5000))
+```
+
+`autoplot()` gives several Bayes visualization based on `bayesplot` package.
+
+- `type = "trace"`
+- `type = "dens"`
+- `type = "area"`
+
+```{r mctrace}
+autoplot(inf_bvar, type = "trace", pars = c("alpha[1]", "alpha[2]"))
+```
+
+
+

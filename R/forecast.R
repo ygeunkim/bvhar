@@ -184,6 +184,7 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res <- list(
     process = object$process,
     forecast = pred_mean,
+    # forecast = apply(y_distn, c(1, 2), mean),
     se = est_se,
     lower = lower_quantile,
     upper = upper_quantile,
@@ -238,6 +239,7 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res <- list(
     process = object$process,
     forecast = pred_mean,
+    # forecast = apply(y_distn, c(1, 2), mean),
     se = est_se,
     lower = lower_quantile,
     upper = upper_quantile,
