@@ -1,3 +1,5 @@
+# bvhar 0.12.1
+
 # bvhar 0.12.0
 
 * Now can use heavy-tailed distribution ([Multivariate t-distribution](https://en.wikipedia.org/wiki/Multivariate_t-distribution)) when generating VAR and VHAR process (`sim_var()` and `sim_vhar()`).
