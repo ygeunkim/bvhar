@@ -6,6 +6,8 @@
 \alias{predict.bvarmn}
 \alias{predict.bvharmn}
 \alias{predict.bvarflat}
+\alias{predict.bvarsv}
+\alias{predict.bvharsv}
 \alias{print.predbvhar}
 \alias{knit_print.predbvhar}
 \title{Forecasting Multivariate Time Series}
@@ -19,6 +21,10 @@
 \method{predict}{bvharmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
 \method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{predict}{bvarsv}(object, n_ahead, ...)
+
+\method{predict}{bvharsv}(object, n_ahead, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

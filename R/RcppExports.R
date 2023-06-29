@@ -574,6 +574,18 @@ forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
+#' Forecasting VAR-SV
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' 
+#' @noRd
+forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
+    .Call(`_bvhar_forecast_bvarsv`, var_lag, step, response_mat, coef_mat)
+}
+
 #' Forecasting Bayesian VHAR
 #' 
 #' @param object `bvharmn` object
@@ -594,6 +606,19 @@ forecast_bvar <- function(object, step, num_sim) {
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
+}
+
+#' Forecasting VHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param HARtrans VHAR linear transformation matrix
+#' 
+#' @noRd
+forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
+    .Call(`_bvhar_forecast_bvharsv`, month, step, response_mat, coef_mat, HARtrans)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -750,6 +775,38 @@ roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @noRd
 roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_roll_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' 
+#' @noRd
+roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' 
+#' @noRd
+roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test) {
+    .Call(`_bvhar_roll_bvharsv`, y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test)
 }
 
 #' Forecasting Vector Autoregression

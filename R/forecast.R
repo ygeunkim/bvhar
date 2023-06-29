@@ -294,3 +294,53 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   class(res) <- "predbvhar"
   res
 }
+
+#' @rdname predict.varlse
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param ... not used
+#' @order 1
+#' @export
+predict.bvarsv <- function(object, n_ahead, ...) {
+  pred_res <- forecast_bvarsv(object$p, n_ahead, object$y0, object$coefficients)
+  var_names <- colnames(object$y0)
+  pred_mean <- pred_res
+  colnames(pred_mean) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = NULL,
+    lower = NULL,
+    upper = NULL,
+    lower_joint = NULL,
+    upper_joint = NULL,
+    y = object$y
+  )
+  class(res) <- c("predsv", "predbvhar")
+  res
+}
+
+#' @rdname predict.varlse
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param ... not used
+#' @order 1
+#' @export
+predict.bvharsv <- function(object, n_ahead, ...) {
+  pred_res <- forecast_bvharsv(object$month, n_ahead, object$y0, object$coefficients, object$HARtrans)
+  var_names <- colnames(object$y0)
+  pred_mean <- pred_res
+  colnames(pred_mean) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = NULL,
+    lower = NULL,
+    upper = NULL,
+    lower_joint = NULL,
+    upper_joint = NULL,
+    y = object$y
+  )
+  class(res) <- c("predsv", "predbvhar")
+  res
+}

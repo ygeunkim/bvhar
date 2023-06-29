@@ -59,7 +59,7 @@ bvar_sv <- function(y,
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {

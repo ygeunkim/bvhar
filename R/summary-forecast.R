@@ -66,6 +66,12 @@ forecast_roll <- function(object, n_ahead, y_test) {
     },
     "bvharmn" = {
       roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
+    },
+    "bvarsv" = {
+      roll_bvarsv(y, object$p, object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test)
+    },
+    "bvharsv" = {
+      roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test)
     }
   )
   num_horizon <- nrow(y_test) - n_ahead + 1

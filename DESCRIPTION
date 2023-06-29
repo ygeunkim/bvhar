@@ -31,7 +31,6 @@ Imports:
     lifecycle,
     magrittr,
     Rcpp,
-    RcppEigen,
     ggplot2,
     tidyr,
     tibble,
