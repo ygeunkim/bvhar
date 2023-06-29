@@ -215,6 +215,92 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
+#' Building Lower Triangular Matrix
+#' 
+#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
+#' 
+#' @param dim Dimension (dim x dim) of L
+#' @param lower_vec Vector a
+#' 
+#' @noRd
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
+}
+
+#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+#' 
+#' @param x Design matrix in SUR or stacked E_t
+#' @param y Response vector in SUR or stacked e_t
+#' @param prior_mean Prior mean vector
+#' @param prior_prec Prior precision matrix
+#' @param innov_prec Stacked precision matrix of innovation
+#' 
+#' @noRd
+varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+}
+
+#' Generating log-volatilities in MCMC
+#' 
+#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
+#' 
+#' @param sv_vec log-volatilities vector
+#' @param init_sv Initial log-volatility
+#' @param sv_sig Variance of log-volatilities
+#' @param latent_vec Auxiliary residual vector
+#' 
+#' @noRd
+varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec) {
+    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec)
+}
+
+#' Generating sig_h in MCMC
+#' 
+#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
+#' 
+#' @param shp Prior shape of sigma
+#' @param scl Prior scale of sigma
+#' @param init_sv Initial log volatility
+#' @param h1 Time-varying h1 matrix
+#' 
+#' @noRd
+varsv_sigh <- function(shp, scl, init_sv, h1) {
+    .Call(`_bvhar_varsv_sigh`, shp, scl, init_sv, h1)
+}
+
+#' Generating h0 in MCMC
+#' 
+#' In MCMC, this function samples h0 in VAR-SV.
+#' 
+#' @param prior_mean Prior mean vector of h0.
+#' @param prior_prec Prior precision matrix of h0.
+#' @param init_sv Initial log volatility
+#' @param h1 h1
+#' @param sv_sig Variance of log volatility
+#' 
+#' @noRd
+varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
+    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
+}
+
+#' VAR-SV by Gibbs Sampler
+#' 
+#' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
+#' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
+#' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param display_progress Progress bar
+#' 
+#' @noRd
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VAR(p) given response and design matrices of multivariate time series.
