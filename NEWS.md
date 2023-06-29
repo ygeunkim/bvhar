@@ -1,3 +1,7 @@
+# bvhar 0.13.0
+
+* Add stochastic volatility models VAR-SV and VHAR-SV (`bvar_sv()` and `bvhar_sv()`).
+
 # bvhar 0.12.1
 
 * Fix not working Hierarchical natural conjugate MNIW function (`bvar_niwhm()`).
