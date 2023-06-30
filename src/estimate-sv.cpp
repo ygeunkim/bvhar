@@ -196,7 +196,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat(dim_design, dim);
-  Eigen::MatrixXd chol_lower = build_inv_lower(dim, chol_lower_record.row(0)); // L in Sig_t^(-1) = L D_t^(-1) LT
+  Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
+  // Eigen::MatrixXd chol_lower_stack = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim);
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd reginnov_stack = Eigen::MatrixXd::Zero(num_design * dim, num_lowerchol); // stack t = 1, ..., n => e = E a + eta
   Eigen::MatrixXd innov_prec = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // D^(-1) = diag(D_1^(-1), ..., D_n^(-1)) with D_t = diag(exp(h_it))
@@ -218,9 +219,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
     p.increment();
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1));
+    // chol_lower_stack = kronecker_eigen(Eigen::MatrixXd::Identity(num_design, num_design), chol_lower);
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (-lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)).array().exp();
-      // innov_prec.block(t * dim, t * dim, dim, dim).diagonal().array() = (-lvol_record.block(num_design * (i - 1) + t, 0, 1, dim)).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
     }
     // prec_stack = chol_lower_stack.transpose() * innov_prec * chol_lower_stack;

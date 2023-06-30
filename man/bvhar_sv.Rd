@@ -45,7 +45,7 @@ knit_print.bvharsv(x, ...)
 \item{...}{not used}
 }
 \description{
-This function fits VHAR-SV with Minnesota belief.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR-SV with Minnesota belief.
 }
 \references{
 Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302. doi:\href{https://doi.org/10.1016/j.red.2004.10.009}{10.1016/j.red.2004.10.009}
