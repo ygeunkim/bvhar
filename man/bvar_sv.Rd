@@ -47,8 +47,12 @@ knit_print.bvarsv(x, ...)
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV with Minnesota belief.
 }
+\details{
+Cholesky stochastic volatility modeling for VAR based on
+\deqn{\Sigma_t = L^T D_t^{-1} L}
+}
 \references{
-Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302. doi:\href{https://doi.org/10.1016/j.red.2004.10.009}{10.1016/j.red.2004.10.009}
-
 Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press. doi:\href{https://doi.org/10.1017/9781108525947}{10.1017/9781108525947}
+
+Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302. doi:\href{https://doi.org/10.1016/j.red.2004.10.009}{10.1016/j.red.2004.10.009}
 }

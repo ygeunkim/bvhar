@@ -10,12 +10,16 @@
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' 
+#' @details
+#' Cholesky stochastic volatility modeling for VAR based on
+#' \deqn{\Sigma_t = L^T D_t^{-1} L}
 #' @references 
-#' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302. doi:[10.1016/j.red.2004.10.009](https://doi.org/10.1016/j.red.2004.10.009)
-#' 
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press. doi:[10.1017/9781108525947](https://doi.org/10.1017/9781108525947)
+#' 
+#' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302. doi:[10.1016/j.red.2004.10.009](https://doi.org/10.1016/j.red.2004.10.009)
 #' @importFrom posterior as_draws_df bind_draws
+#' @importFrom dplyr mutate
+#' @importFrom tidyr pivot_longer pivot_wider unite
 #' @order 1
 #' @export
 bvar_sv <- function(y,
@@ -94,8 +98,20 @@ bvar_sv <- function(y,
   res$a_record <- res$a_record[thin_id,]
   res$h0_record <- res$h0_record[thin_id,]
   res$sigh_record <- res$sigh_record[thin_id,]
-  res$h_record <- split.data.frame(res$h_record, gl(num_iter - num_burn, num_design))
-  res$h_record <- res$h_record[thin_id]
+  # res$h_record <- split.data.frame(res$h_record, gl(num_iter - num_burn, num_design))
+  # res$h_record <- res$h_record[thin_id]
+  colnames(res$h_record) <- paste("h", seq_len(ncol(res$h_record)), sep = "_")
+  res$h_record <- 
+    res$h_record %>% 
+    as.data.frame() %>% 
+    mutate(
+      iter_id = gl(num_iter - num_burn, num_design),
+      id = rep(1:num_design, num_iter - num_burn)
+    ) %>% 
+    pivot_longer(-c(iter_id, id), names_to = "h_name", values_to = "h_value") %>% 
+    unite("varying_name", h_name, id, sep = "") %>% 
+    pivot_wider(names_from = "varying_name", values_from = "h_value")
+  res$h_record <- as_draws_df(res$h_record[,-1])
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
@@ -108,6 +124,7 @@ bvar_sv <- function(y,
   res$param <- bind_draws(
     res$alpha_record,
     res$a_record,
+    res$h_record,
     res$h0_record
   )
   # variables------------
@@ -124,6 +141,9 @@ bvar_sv <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
+  # prior-----------------
+  res$prior_mean <- prior_mean
+  res$prior_prec <- prior_prec
   # data------------------
   res$y0 <- Y0
   res$design <- X0

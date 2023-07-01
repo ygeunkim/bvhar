@@ -188,16 +188,18 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
+  // Eigen::MatrixXd cov_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
+  // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): stack h_j row-wise
   // Initialize--------------------------------------------
   coef_record.row(0) = vectorize_eigen(coef_ols); // initialize alpha as OLS
   chol_lower_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
   lvol_init_record.row(0) = (y - x * coef_ols).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
   lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
+  // lvol_record.row(0) = lvol_init_record.row(0).replicate(1, num_design);
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat(dim_design, dim);
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
-  // Eigen::MatrixXd chol_lower_stack = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim);
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd reginnov_stack = Eigen::MatrixXd::Zero(num_design * dim, num_lowerchol); // stack t = 1, ..., n => e = E a + eta
   Eigen::MatrixXd innov_prec = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // D^(-1) = diag(D_1^(-1), ..., D_n^(-1)) with D_t = diag(exp(h_it))
@@ -219,12 +221,11 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
     p.increment();
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1));
-    // chol_lower_stack = kronecker_eigen(Eigen::MatrixXd::Identity(num_design, num_design), chol_lower);
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (-lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
+      // cov_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim).inverse();
     }
-    // prec_stack = chol_lower_stack.transpose() * innov_prec * chol_lower_stack;
     coef_record.row(i) = varsv_regression(design_mat, response_vec, prior_alpha_mean, prior_alpha_prec, prec_stack);
     // 2. h---------------------------------
     coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i).data(), dim_design, dim);
@@ -243,7 +244,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
         reginnov_id += j;
       }
       reginnov_id = 0;
-      // reginnov_stack.block(t * dim, 0, dim, num_lowerchol) = reginnov_design;
     }
     chol_lower_record.row(i) = varsv_regression(reginnov_stack, vectorize_eigen(latent_innov), prior_chol_mean, prior_chol_prec, innov_prec);
     // 4. sigma_h---------------------------

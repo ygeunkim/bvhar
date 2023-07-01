@@ -7,5 +7,6 @@ utils::globalVariables(c(
   "model",
   "sd",
   "impulse", "period", "response",
-  "term", "statistic"
+  "term", "statistic",
+  "iter_id", "h_name"
 ))
