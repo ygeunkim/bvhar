@@ -118,14 +118,17 @@ bvar_sv <- function(y,
   colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
   colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
   colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
+  colnames(res$sigh_record) <- paste0("sigh[", seq_len(ncol(res$sigh_record)), "]")
   res$alpha_record <- as_draws_df(res$alpha_record)
   res$a_record <- as_draws_df(res$a_record)
   res$h0_record <- as_draws_df(res$h0_record)
+  res$sigh_record <- as_draws_df(res$sigh_record)
   res$param <- bind_draws(
     res$alpha_record,
     res$a_record,
     res$h_record,
-    res$h0_record
+    res$h0_record,
+    res$sigh_record
   )
   # variables------------
   res$df <- dim_design

@@ -156,14 +156,17 @@ bvhar_sv <- function(y,
   colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
   colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
   colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
+  colnames(res$sigh_record) <- paste0("sigh[", seq_len(ncol(res$sigh_record)), "]")
   res$phi_record <- as_draws_df(res$phi_record)
   res$a_record <- as_draws_df(res$a_record)
   res$h0_record <- as_draws_df(res$h0_record)
+  res$sigh_record <- as_draws_df(res$sigh_record)
   res$param <- bind_draws(
     res$phi_record,
     res$a_record,
     res$h_record,
-    res$h0_record
+    res$h0_record,
+    res$sigh_record
   )
   # variables------------
   res$df <- dim_har
