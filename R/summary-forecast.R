@@ -24,6 +24,8 @@ divide_ts <- function(y, n_ahead) {
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @param roll_thread `r lifecycle::badge("experimental")` Number of threads when rolling window
+#' @param mod_thread `r lifecycle::badge("experimental")` Number of threads when fitting the models
 #' @details 
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
@@ -32,7 +34,7 @@ divide_ts <- function(y, n_ahead) {
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
 #' @order 1
 #' @export
-forecast_roll <- function(object, n_ahead, y_test) {
+forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -68,10 +70,10 @@ forecast_roll <- function(object, n_ahead, y_test) {
       roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
     },
     "bvarsv" = {
-      roll_bvarsv(y, object$p, object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test)
+      roll_bvarsv(y, object$p, object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
     },
     "bvharsv" = {
-      roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test)
+      roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
     }
   )
   num_horizon <- nrow(y_test) - n_ahead + 1

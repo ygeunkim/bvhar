@@ -10,6 +10,7 @@
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details
 #' Cholesky stochastic volatility modeling for VAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
@@ -29,7 +30,8 @@ bvar_sv <- function(y,
                     thinning = 1,
                     bayes_spec = set_bvar(),
                     include_mean = TRUE,
-                    verbose = FALSE) {
+                    verbose = FALSE,
+                    num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -90,7 +92,8 @@ bvar_sv <- function(y,
     prior_coef_mean = prior_mean,
     prior_coef_prec = prior_prec,
     prec_diag = diag(1 / sigma),
-    display_progress = verbose
+    display_progress = verbose,
+    nthreads = num_thread
   )
   # Preprocess the results--------------------------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)

@@ -221,10 +221,11 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' 
 #' @param dim Dimension (dim x dim) of L
 #' @param lower_vec Vector a
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-build_inv_lower <- function(dim, lower_vec) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
+build_inv_lower <- function(dim, lower_vec, nthreads) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec, nthreads)
 }
 
 #' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
@@ -248,10 +249,11 @@ varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
 #' @param init_sv Initial log-volatility
 #' @param sv_sig Variance of log-volatilities
 #' @param latent_vec Auxiliary residual vector
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec) {
-    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec)
+varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
+    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
 }
 
 #' Generating sig_h in MCMC
@@ -295,10 +297,11 @@ varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
 #' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
 #' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
 #' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -787,13 +790,15 @@ roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param nthreads_roll Number of threads when rolling windows
+#' @param nthreads_mod Number of threads when fitting models
 #' 
 #' @noRd
-roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test)
+roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
 }
 
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' Out-of-Sample Forecasting of VHAR-SV based on Rolling Window
 #' 
 #' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
 #' 
@@ -803,10 +808,12 @@ roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, includ
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param nthreads_roll Number of threads when rolling windows
+#' @param nthreads_mod Number of threads when fitting models
 #' 
 #' @noRd
-roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvharsv`, y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test)
+roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
+    .Call(`_bvhar_roll_bvharsv`, y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
 }
 
 #' Forecasting Vector Autoregression

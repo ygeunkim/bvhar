@@ -14,7 +14,8 @@ bvar_sv(
   thinning = 1,
   bayes_spec = set_bvar(),
   include_mean = TRUE,
-  verbose = FALSE
+  verbose = FALSE,
+  num_thread = 1
 )
 
 \method{print}{bvarsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -37,6 +38,8 @@ knit_print.bvarsv(x, ...)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 
 \item{x}{\code{bvarsv} object}
 

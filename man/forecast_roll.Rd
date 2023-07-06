@@ -6,7 +6,7 @@
 \alias{knit_print.bvharcv}
 \title{Out-of-sample Forecasting based on Rolling Window}
 \usage{
-forecast_roll(object, n_ahead, y_test)
+forecast_roll(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1)
 
 \method{print}{bvharcv}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -18,6 +18,10 @@ knit_print.bvharcv(x, ...)
 \item{n_ahead}{Step to forecast in rolling window scheme}
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
+
+\item{roll_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads when rolling window}
+
+\item{mod_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads when fitting the models}
 
 \item{x}{\code{bvharcv} object}
 
