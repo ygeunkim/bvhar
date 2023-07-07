@@ -224,8 +224,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-build_inv_lower <- function(dim, lower_vec, nthreads) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec, nthreads)
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
 #' Generating the Lower diagonal of LDLT Factor or Coefficients Vector

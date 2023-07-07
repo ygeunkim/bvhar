@@ -20,11 +20,11 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec, int nthreads) {
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
+#pragma omp parallel for num_threads(1)
   for (int i = 1; i < dim; i++) {
     res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
     id += dim - i;
@@ -109,23 +109,20 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd pj, Eigen::VectorXd muj, Eigen::VectorX
   Eigen::MatrixXd diff_mat = Eigen::MatrixXd::Identity(num_design, num_design);
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nthreads)
-  for (int i = 0; i < num_design; i++) {
+  for (int i = 0; i < num_design - 1; i++) {
     ds[i] = muj[binom_latent[i]];
     inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
-  }
-#pragma omp parallel for num_threads(nthreads)
-  for (int i = 0; i < num_design - 1; i++) {
     diff_mat(i + 1, i) = -1;
   }
 #else
-  for (int i = 0; i < num_design; i++) {
+  for (int i = 0; i < num_design - 1; i++) {
     ds[i] = muj[binom_latent[i]];
     inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
-  }
-  for (int i = 0; i < num_design - 1; i++) {
     diff_mat(i + 1, i) = -1;
   }
 #endif
+  ds[num_design - 1] = muj[binom_latent[num_design - 1]];
+  inv_sig_s(num_design - 1, num_design - 1) = 1 / sigj[binom_latent[num_design - 1]];
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
   Eigen::MatrixXd post_prec = (HtH / sv_sig + inv_sig_s).llt().solve(Eigen::MatrixXd::Identity(num_design, num_design));
   return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (HtH * init_sv * Eigen::VectorXd::Ones(num_design) / sv_sig + inv_sig_s * (latent_vec - ds)), post_prec));
@@ -262,7 +259,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
     }
     p.increment();
     // 1. alpha----------------------------
-    chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1), nthreads);
+    chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1));
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(nthreads)
     for (int t = 0; t < num_design; t++) {
@@ -282,19 +279,12 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
     latent_innov = y - x * coef_mat;
     ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
     ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
     for (int t = 0; t < dim; t++) {
       lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(pj, muj, sigj, lvol_record.col(t).segment(num_design * (i - 1), num_design), lvol_init_record(i - 1, t), lvol_sig_record(i - 1, t), ortho_latent.col(t), nthreads);
     }
-#else
-    for (int t = 0; t < dim; t++) {
-      lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(pj, muj, sigj, lvol_record.col(t).segment(num_design * (i - 1), num_design), lvol_init_record(i - 1, t), lvol_sig_record(i - 1, t), ortho_latent.col(t), nthreads);
-    }
-#endif
     // 3. a---------------------------------
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads) collapse(2)
+#pragma omp parallel for num_threads(1) collapse(2) reduction(+:reginnov_id)
     for (int t = 0; t < num_design; t++) {
       for (int j = 1; j < dim; j++) {
         reginnov_stack.block(t * dim, 0, dim, num_lowerchol).row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
