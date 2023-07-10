@@ -304,6 +304,40 @@ estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coe
     .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads)
 }
 
+#' Generating TVP-VAR Coefficients Vector in MCMC
+#' 
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param prior_mean Prior mean vector
+#' @param prior_prec Prior precision matrix
+#' @param innov_prec Stacked precision matrix of innovation
+#' 
+#' @noRd
+tvp_initcoef <- function(prior_mean, prior_prec, ar_coef, coef_prec) {
+    .Call(`_bvhar_tvp_initcoef`, prior_mean, prior_prec, ar_coef, coef_prec)
+}
+
+#' TVP-VAR by Gibbs Sampler
+#' 
+#' This function generates parameters \eqn{\beta, \beta_0, \Sigma, Q}.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
+#' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
+#' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param prior_sig_df Prior df of Minnesota IW
+#' @param prior_sig_scale Prior scale of Minnesota IW
+#' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+estimate_var_tvp <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_sig_df, prior_sig_scale, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_tvp`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_sig_df, prior_sig_scale, display_progress, nthreads)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VAR(p) given response and design matrices of multivariate time series.
