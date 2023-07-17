@@ -236,3 +236,38 @@ Rcpp::List forecast_bvarhs(int var_lag,
     Rcpp::Named("predictive") = predictive_distn
   );
 }
+
+//' Forecasting VAR-SV
+//' 
+//' @param var_lag VAR order.
+//' @param step Integer, Step to forecast.
+//' @param response_mat Response matrix.
+//' @param coef_mat Posterior mean.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat) {
+  int dim = response_mat.cols();
+  int num_design = response_mat.rows();
+  int dim_design = coef_mat.rows();
+  Eigen::MatrixXd point_forecast(step, dim);
+  // Eigen::VectorXd density_forecast(dim);
+  // Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+  Eigen::VectorXd last_pvec(dim_design);
+  Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
+  last_pvec[dim_design - 1] = 1.0;
+  for (int i = 0; i < var_lag; i++) {
+    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
+  }
+  point_forecast.row(0) = last_pvec.transpose() * coef_mat;
+  if (step == 1) {
+    return point_forecast;
+  }
+  for (int i = 1; i < step; i++) {
+    tmp_vec = last_pvec.segment(0, (var_lag - 1) * dim);
+    last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
+    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
+    point_forecast.row(i) = last_pvec.transpose() * coef_mat;
+  }
+  return point_forecast;
+}

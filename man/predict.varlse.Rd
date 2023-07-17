@@ -10,6 +10,8 @@
 \alias{predict.bvharssvs}
 \alias{predict.bvarhs}
 \alias{predict.bvharhs}
+\alias{predict.bvarsv}
+\alias{predict.bvharsv}
 \alias{print.predbvhar}
 \alias{knit_print.predbvhar}
 \title{Forecasting Multivariate Time Series}
@@ -31,6 +33,10 @@
 \method{predict}{bvarhs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvarsv}(object, n_ahead, ...)
+
+\method{predict}{bvharsv}(object, n_ahead, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

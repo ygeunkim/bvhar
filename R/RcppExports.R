@@ -504,6 +504,95 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
     .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress)
 }
 
+#' Building Lower Triangular Matrix
+#' 
+#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
+#' 
+#' @param dim Dimension (dim x dim) of L
+#' @param lower_vec Vector a
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
+}
+
+#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+#' 
+#' @param x Design matrix in SUR or stacked E_t
+#' @param y Response vector in SUR or stacked e_t
+#' @param prior_mean Prior mean vector
+#' @param prior_prec Prior precision matrix
+#' @param innov_prec Stacked precision matrix of innovation
+#' 
+#' @noRd
+varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+}
+
+#' Generating log-volatilities in MCMC
+#' 
+#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
+#' 
+#' @param sv_vec log-volatilities vector
+#' @param init_sv Initial log-volatility
+#' @param sv_sig Variance of log-volatilities
+#' @param latent_vec Auxiliary residual vector
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
+    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
+}
+
+#' Generating sig_h in MCMC
+#' 
+#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
+#' 
+#' @param shp Prior shape of sigma
+#' @param scl Prior scale of sigma
+#' @param init_sv Initial log volatility
+#' @param h1 Time-varying h1 matrix
+#' 
+#' @noRd
+varsv_sigh <- function(shp, scl, init_sv, h1) {
+    .Call(`_bvhar_varsv_sigh`, shp, scl, init_sv, h1)
+}
+
+#' Generating h0 in MCMC
+#' 
+#' In MCMC, this function samples h0 in VAR-SV.
+#' 
+#' @param prior_mean Prior mean vector of h0.
+#' @param prior_prec Prior precision matrix of h0.
+#' @param init_sv Initial log volatility
+#' @param h1 h1
+#' @param sv_sig Variance of log volatility
+#' 
+#' @noRd
+varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
+    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
+}
+
+#' VAR-SV by Gibbs Sampler
+#' 
+#' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
+#' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
+#' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VAR(p) given response and design matrices of multivariate time series.
@@ -804,6 +893,18 @@ forecast_bvarhs <- function(var_lag, step, response_mat, coef_mat, alpha_record,
     .Call(`_bvhar_forecast_bvarhs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record)
 }
 
+#' Forecasting VAR-SV
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' 
+#' @noRd
+forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
+    .Call(`_bvhar_forecast_bvarsv`, var_lag, step, response_mat, coef_mat)
+}
+
 #' Forecasting Bayesian VHAR
 #' 
 #' @param object `bvharmn` object
@@ -854,6 +955,19 @@ forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, ph
 #' @noRd
 forecast_bvharhs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record) {
     .Call(`_bvhar_forecast_bvharhs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record)
+}
+
+#' Forecasting VHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param HARtrans VHAR linear transformation matrix
+#' 
+#' @noRd
+forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
+    .Call(`_bvhar_forecast_bvharsv`, month, step, response_mat, coef_mat, HARtrans)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -1010,6 +1124,42 @@ roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @noRd
 roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_roll_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads_roll Number of threads when rolling windows
+#' @param nthreads_mod Number of threads when fitting models
+#' 
+#' @noRd
+roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
+}
+
+#' Out-of-Sample Forecasting of VHAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads_roll Number of threads when rolling windows
+#' @param nthreads_mod Number of threads when fitting models
+#' 
+#' @noRd
+roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
+    .Call(`_bvhar_roll_bvharsv`, y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
 }
 
 #' Forecasting Vector Autoregression
