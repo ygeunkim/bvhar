@@ -1,7 +1,4 @@
-#ifdef _OPENMP
-#include <omp.h>
-// [[Rcpp::plugins(openmp)]]
-#endif
+#include "bvharomp.h"
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 #include "bvharprob.h"

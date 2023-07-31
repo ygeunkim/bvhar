@@ -113,6 +113,62 @@ bvhar_horseshoe <- function(y,
   }
   init_local <- bayes_spec$local_sparsity
   init_global <- bayes_spec$global_sparsity
+  
+  # Minnesota-moment--------------------------------------
+  minnesota_type <- bayes_spec$minn$prior
+  if (is.null(bayes_spec$minn$sigma)) {
+    bayes_spec$minn$sigma <- apply(y, 2, sd)
+  }
+  sigma <- bayes_spec$minn$sigma
+  lambda <- bayes_spec$minn$lambda
+  eps <- bayes_spec$minn$eps
+  Yh <- switch(
+    minnesota_type,
+    "MN_VAR" = {
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$minn$delta <- rep(1, dim_data)
+      }
+      Yh <- build_ydummy(
+        3, sigma, lambda,
+        bayes_spec$minn$delta,
+        numeric(dim_data),
+        numeric(dim_data),
+        include_mean
+      )
+      colnames(Yh) <- name_var
+      Yh
+    },
+    "MN_VHAR" = {
+      if (is.null(bayes_spec$minn$daily)) {
+        bayes_spec$minn$daily <- rep(1, dim_data)
+      }
+      if (is.null(bayes_spec$minn$weekly)) {
+        bayes_spec$minn$weekly <- rep(1, dim_data)
+      }
+      if (is.null(bayes_spec$minn$monthly)) {
+        bayes_spec$minn$monthly <- rep(1, dim_data)
+      }
+      Yh <- build_ydummy(
+        3,
+        sigma, 
+        lambda, 
+        bayes_spec$minn$daily, 
+        bayes_spec$minn$weekly, 
+        bayes_spec$minn$monthly,
+        include_mean
+      )
+      colnames(Yh) <- name_var
+      Yh
+    }
+  )
+  
+  Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+  colnames(Xh) <- name_har
+  mn_prior <- minnesota_prior(Xh, Yh)
+  prior_mean <- mn_prior$prior_mean
+  # prior_prec <- mn_prior$prior_prec
+  prior_scale <- mn_prior$prior_scale
+  prior_shape <- mn_prior$prior_shape
   # MCMC-----------------------------
   res <- switch (sparsity,
     "row" = {
@@ -123,8 +179,11 @@ bvhar_horseshoe <- function(y,
         y = Y0,
         init_local = init_local,
         init_global = init_global,
-        init_priorvar = cov(y),
-        blocked_gibbs = 2,
+        init_sig = diag(sigma),
+        prior_mean = prior_mean,
+        prior_scale = prior_scale,
+        prior_shape = prior_shape,
+        # blocked_gibbs = 2,
         display_progress = verbose
       )
     },

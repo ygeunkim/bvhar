@@ -113,6 +113,26 @@ bvar_horseshoe <- function(y,
   }
   init_local <- bayes_spec$local_sparsity
   init_global <- bayes_spec$global_sparsity
+  # Minnesota-moment-------------------
+  if (is.null(bayes_spec$minn$sigma)) {
+    bayes_spec$minn$sigma <- apply(y, 2, sd)
+  }
+  sigma <- bayes_spec$minn$sigma
+  if (is.null(bayes_spec$minn$delta)) {
+    bayes_spec$minn$delta <- rep(1, dim_data)
+  }
+  delta <- bayes_spec$minn$delta
+  lambda <- bayes_spec$minn$lambda
+  eps <- bayes_spec$minn$eps
+  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+  colnames(Yp) <- name_var
+  Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
+  colnames(Xp) <- name_lag
+  mn_prior <- minnesota_prior(Xp, Yp)
+  prior_mean <- mn_prior$prior_mean
+  # prior_prec <- mn_prior$prior_prec
+  prior_scale <- mn_prior$prior_scale
+  prior_shape <- mn_prior$prior_shape
   # MCMC-----------------------------
   res <- switch (sparsity,
     "row" = {
@@ -123,8 +143,11 @@ bvar_horseshoe <- function(y,
         y = Y0,
         init_local = init_local,
         init_global = init_global,
-        init_priorvar = cov(y),
-        blocked_gibbs = 2,
+        init_sig = diag(sigma),
+        prior_mean = prior_mean,
+        prior_scale = prior_scale,
+        prior_shape = prior_shape,
+        # blocked_gibbs = 2,
         display_progress = verbose
       )
     },

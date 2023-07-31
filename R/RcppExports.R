@@ -227,18 +227,6 @@ build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
     .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
 }
 
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
-#' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef <- function(x, y, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, x, y, shrink_mat)
-}
-
 #' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
@@ -247,9 +235,10 @@ horseshoe_coef <- function(x, y, shrink_mat) {
 #' @param global_hyperparam Global sparsity hyperparameter
 #' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
+#' @param prior_coef_mean Prior mean of coefficients
 #' @noRd
-horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec) {
-    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef, prec)
+horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec, prior_coef_mean) {
+    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef, prec, prior_coef_mean)
 }
 
 #' Generating the Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -261,8 +250,8 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef, prec
 #' @param coef Coefficients matrix
 #' @param prec Precision matrix of the likelihood
 #' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, prec) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef, prec)
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef, prec, prior_coef_mean) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef, prec, prior_coef_mean)
 }
 
 #' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
@@ -285,17 +274,18 @@ horseshoe_latent_global <- function(global_hyperparam) {
     .Call(`_bvhar_horseshoe_latent_global`, global_hyperparam)
 }
 
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' Generating the Coefficient Matrix in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
 #' 
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
+#' @param prior_mean Prior mean of coefficients matrix
 #' @param sigma Covariance matrix of the likelihood
 #' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
 #' @noRd
-horseshoe_mn_coef <- function(x, y, sigma, shrink_mat) {
-    .Call(`_bvhar_horseshoe_mn_coef`, x, y, sigma, shrink_mat)
+horseshoe_coef <- function(x, y, prior_mean, sigma, shrink_mat) {
+    .Call(`_bvhar_horseshoe_coef`, x, y, prior_mean, sigma, shrink_mat)
 }
 
 #' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
@@ -308,8 +298,8 @@ horseshoe_mn_coef <- function(x, y, sigma, shrink_mat) {
 #' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
 #' @param mn_shrink Inverse diagonal matrix for column shrinkage
 #' @noRd
-horseshoe_cov_mat <- function(x, y, coef, shrink_mat, mn_shrink) {
-    .Call(`_bvhar_horseshoe_cov_mat`, x, y, coef, shrink_mat, mn_shrink)
+horseshoe_cov_mat <- function(x, y, coef, shrink_mat, prior_coef_mean, prior_var, prior_shape) {
+    .Call(`_bvhar_horseshoe_cov_mat`, x, y, coef, shrink_mat, prior_coef_mean, prior_var, prior_shape)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -322,11 +312,12 @@ horseshoe_cov_mat <- function(x, y, coef, shrink_mat, mn_shrink) {
 #' @param y Response matrix Y0
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
-#' @param init_priorvar Initial covariance matrix
+#' @param prior_scale Prior scale of IW
+#' @param prior_shape Prior shape of IW
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, blocked_gibbs, display_progress) {
-    .Call(`_bvhar_estimate_bvar_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_priorvar, blocked_gibbs, display_progress)
+estimate_bvar_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sig, prior_mean, prior_scale, prior_shape, display_progress) {
+    .Call(`_bvhar_estimate_bvar_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sig, prior_mean, prior_scale, prior_shape, display_progress)
 }
 
 #' Generating the Coefficient Vector in Horseshoe Gibbs Sampler

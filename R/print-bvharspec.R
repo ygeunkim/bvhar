@@ -392,8 +392,8 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   cat(paste0("Prior: ", x$prior, "\n"))
   fit_func <- switch(
     x$process,
-    "VAR" = "?bvar_horseshoe",
-    "VHAR" = "?bvhar_horseshoe",
+    "BVAR" = "?bvar_horseshoe",
+    "BVHAR" = "?bvhar_horseshoe",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
@@ -401,13 +401,18 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   param <- x[!(names(x) %in% c("process", "prior", "chain"))]
   # num_chain <- x$chain
   for (i in seq_along(param)) {
-    cat(paste0("Initialization for '", names(param)[i], "':\n"))
-    print.default(
-      param[[i]],
-      digits = digits,
-      print.gap = 2L,
-      quote = FALSE
-    )
+    if (is.bvharspec(param[[i]])) {
+      cat(paste0("\nMinnesota setting for '", names(param)[i], "':\n"))
+      print(param[[i]])
+    } else {
+      cat(paste0("Initialization for '", names(param)[i], "':\n"))
+      print.default(
+        param[[i]],
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    }
   }
   # if (num_chain > 1) {
   #   cat("--------------------------------------------------------------\n")

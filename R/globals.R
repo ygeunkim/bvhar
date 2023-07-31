@@ -9,6 +9,6 @@ utils::globalVariables(c(
   "impulse", "period", "response",
   "term", "statistic", "estimate",
   "conf.low", "conf.high", "coef",
-  "x", "y", "ord"
+  "x", "y", "ord",
   "iter_id", "h_name"
 ))

@@ -174,22 +174,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// horseshoe_coef
-Rcpp::List horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd shrink_mat);
-RcppExport SEXP _bvhar_horseshoe_coef(SEXP xSEXP, SEXP ySEXP, SEXP shrink_matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type shrink_mat(shrink_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_coef(x, y, shrink_mat));
-    return rcpp_result_gen;
-END_RCPP
-}
 // horseshoe_local_sparsity
-Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec);
-RcppExport SEXP _bvhar_horseshoe_local_sparsity(SEXP local_latentSEXP, SEXP global_hyperparamSEXP, SEXP coefSEXP, SEXP precSEXP) {
+Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec, Eigen::MatrixXd prior_coef_mean);
+RcppExport SEXP _bvhar_horseshoe_local_sparsity(SEXP local_latentSEXP, SEXP global_hyperparamSEXP, SEXP coefSEXP, SEXP precSEXP, SEXP prior_coef_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -197,13 +184,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type global_hyperparam(global_hyperparamSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef(coefSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prec(precSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_local_sparsity(local_latent, global_hyperparam, coef, prec));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_coef_mean(prior_coef_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_local_sparsity(local_latent, global_hyperparam, coef, prec, prior_coef_mean));
     return rcpp_result_gen;
 END_RCPP
 }
 // horseshoe_global_sparsity
-double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec);
-RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_hyperparamSEXP, SEXP coefSEXP, SEXP precSEXP) {
+double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec, Eigen::MatrixXd prior_coef_mean);
+RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_hyperparamSEXP, SEXP coefSEXP, SEXP precSEXP, SEXP prior_coef_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -211,7 +199,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_hyperparam(local_hyperparamSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef(coefSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prec(precSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_hyperparam, coef, prec));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_coef_mean(prior_coef_meanSEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_hyperparam, coef, prec, prior_coef_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -237,23 +226,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// horseshoe_mn_coef
-Eigen::MatrixXd horseshoe_mn_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat);
-RcppExport SEXP _bvhar_horseshoe_mn_coef(SEXP xSEXP, SEXP ySEXP, SEXP sigmaSEXP, SEXP shrink_matSEXP) {
+// horseshoe_coef
+Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_mean, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat);
+RcppExport SEXP _bvhar_horseshoe_coef(SEXP xSEXP, SEXP ySEXP, SEXP prior_meanSEXP, SEXP sigmaSEXP, SEXP shrink_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_mean(prior_meanSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type shrink_mat(shrink_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_mn_coef(x, y, sigma, shrink_mat));
+    rcpp_result_gen = Rcpp::wrap(horseshoe_coef(x, y, prior_mean, sigma, shrink_mat));
     return rcpp_result_gen;
 END_RCPP
 }
 // horseshoe_cov_mat
-Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd coef, Eigen::MatrixXd shrink_mat, Eigen::MatrixXd mn_shrink);
-RcppExport SEXP _bvhar_horseshoe_cov_mat(SEXP xSEXP, SEXP ySEXP, SEXP coefSEXP, SEXP shrink_matSEXP, SEXP mn_shrinkSEXP) {
+Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd coef, Eigen::MatrixXd shrink_mat, Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_var, double prior_shape);
+RcppExport SEXP _bvhar_horseshoe_cov_mat(SEXP xSEXP, SEXP ySEXP, SEXP coefSEXP, SEXP shrink_matSEXP, SEXP prior_coef_meanSEXP, SEXP prior_varSEXP, SEXP prior_shapeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -261,14 +251,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef(coefSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type shrink_mat(shrink_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_shrink(mn_shrinkSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_cov_mat(x, y, coef, shrink_mat, mn_shrink));
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_coef_mean(prior_coef_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_var(prior_varSEXP);
+    Rcpp::traits::input_parameter< double >::type prior_shape(prior_shapeSEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_cov_mat(x, y, coef, shrink_mat, prior_coef_mean, prior_var, prior_shape));
     return rcpp_result_gen;
 END_RCPP
 }
 // estimate_bvar_horseshoe
-Rcpp::List estimate_bvar_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, double init_global, Eigen::MatrixXd init_priorvar, int blocked_gibbs, bool display_progress);
-RcppExport SEXP _bvhar_estimate_bvar_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_priorvarSEXP, SEXP blocked_gibbsSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_bvar_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, double init_global, Eigen::MatrixXd init_sig, Eigen::MatrixXd prior_mean, Eigen::MatrixXd prior_scale, double prior_shape, bool display_progress);
+RcppExport SEXP _bvhar_estimate_bvar_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigSEXP, SEXP prior_meanSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -278,10 +270,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
     Rcpp::traits::input_parameter< double >::type init_global(init_globalSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init_priorvar(init_priorvarSEXP);
-    Rcpp::traits::input_parameter< int >::type blocked_gibbs(blocked_gibbsSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type init_sig(init_sigSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_mean(prior_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type prior_shape(prior_shapeSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_horseshoe(num_iter, num_burn, x, y, init_local, init_global, init_priorvar, blocked_gibbs, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_horseshoe(num_iter, num_burn, x, y, init_local, init_global, init_sig, prior_mean, prior_scale, prior_shape, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1540,16 +1534,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
-    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 21},
+    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
     {"_bvhar_build_shrink_mat", (DL_FUNC) &_bvhar_build_shrink_mat, 2},
-    {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 3},
-    {"_bvhar_horseshoe_local_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_sparsity, 4},
-    {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 4},
+    {"_bvhar_horseshoe_local_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_sparsity, 5},
+    {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 5},
     {"_bvhar_horseshoe_latent_local", (DL_FUNC) &_bvhar_horseshoe_latent_local, 1},
     {"_bvhar_horseshoe_latent_global", (DL_FUNC) &_bvhar_horseshoe_latent_global, 1},
-    {"_bvhar_horseshoe_mn_coef", (DL_FUNC) &_bvhar_horseshoe_mn_coef, 4},
-    {"_bvhar_horseshoe_cov_mat", (DL_FUNC) &_bvhar_horseshoe_cov_mat, 5},
-    {"_bvhar_estimate_bvar_horseshoe", (DL_FUNC) &_bvhar_estimate_bvar_horseshoe, 9},
+    {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 5},
+    {"_bvhar_horseshoe_cov_mat", (DL_FUNC) &_bvhar_horseshoe_cov_mat, 7},
+    {"_bvhar_estimate_bvar_horseshoe", (DL_FUNC) &_bvhar_estimate_bvar_horseshoe, 11},
     {"_bvhar_hs_coef", (DL_FUNC) &_bvhar_hs_coef, 3},
     {"_bvhar_hs_prior_var", (DL_FUNC) &_bvhar_hs_prior_var, 3},
     {"_bvhar_hs_local_sparsity", (DL_FUNC) &_bvhar_hs_local_sparsity, 4},
@@ -1562,7 +1555,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_ssvs_coef", (DL_FUNC) &_bvhar_ssvs_coef, 5},
     {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 4},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 22},
-    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 5},
     {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 8},

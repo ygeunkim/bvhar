@@ -1,7 +1,4 @@
-#ifdef _OPENMP
-#include <omp.h>
-// [[Rcpp::plugins(openmp)]]
-#endif
+#include "bvharomp.h"
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 #include "bvharprob.h"
@@ -27,21 +24,6 @@ Eigen::MatrixXd build_shrink_mat(double global_hyperparam, Eigen::VectorXd local
   return res / pow(global_hyperparam, 2.0);
 }
 
-//' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-//' 
-//' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
-//' 
-//' @param x Design matrix X0
-//' @param y Response matrix Y0
-//' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd shrink_mat) {
-  Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).llt().solve(Eigen::MatrixXd::Identity(shrink_mat.rows(), shrink_mat.rows()));
-  int num_design = y.rows();
-  return sim_mniw(1, prec_mat * x.transpose() * y, prec_mat, y.transpose() * (Eigen::MatrixXd::Identity(num_design, num_design) - x * prec_mat * x.transpose()) * y, num_design + x.cols());
-}
-
 //' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
 //' 
 //' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
@@ -50,14 +32,18 @@ Rcpp::List horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd 
 //' @param global_hyperparam Global sparsity hyperparameter
 //' @param coef Coefficients matrix
 //' @param prec Precision matrix of the likelihood
+//' @param prior_coef_mean Prior mean of coefficients
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec) {
+Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam,
+                                         Eigen::MatrixXd coef, Eigen::MatrixXd prec,
+                                         Eigen::MatrixXd prior_coef_mean) {
   int dim_design = coef.rows();
   int dim = coef.cols();
   Eigen::MatrixXd latent_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   latent_mat.diagonal() = 1 / local_latent.array();
-  Eigen::MatrixXd invgam_scl = coef * prec * coef.transpose() / (2 * pow(global_hyperparam, 2.0)) + latent_mat;
+  Eigen::MatrixXd coef_demean = coef - prior_coef_mean;
+  Eigen::MatrixXd invgam_scl = coef_demean * prec * coef_demean.transpose() / (2 * pow(global_hyperparam, 2.0)) + latent_mat;
   Eigen::VectorXd res(dim_design);
   for (int i = 0; i < dim_design; i++) {
     res[i] = sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl(i, i)));
@@ -75,12 +61,15 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double gl
 //' @param prec Precision matrix of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::MatrixXd coef, Eigen::MatrixXd prec) {
+double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam,
+                                 Eigen::MatrixXd coef, Eigen::MatrixXd prec,
+                                 Eigen::MatrixXd prior_coef_mean) {
   int dim_design = coef.rows();
   int dim = coef.cols();
   Eigen::MatrixXd local_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
   local_mat.diagonal() = 1 / local_hyperparam.array().square();
-  double invgam_scl = (prec * coef.transpose() * local_mat * coef).trace() / 2 + 1 / global_latent;
+  Eigen::MatrixXd coef_demean = coef - prior_coef_mean;
+  double invgam_scl = (prec * coef_demean.transpose() * local_mat * coef_demean).trace() / 2 + 1 / global_latent;
   return sqrt(1 / gamma_rand((dim_design * dim + 1) / 2, 1 / invgam_scl));
 }
 
@@ -111,19 +100,22 @@ double horseshoe_latent_global(double global_hyperparam) {
   return 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(global_hyperparam, 2.0)));
 }
 
-//' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+//' Generating the Coefficient Matrix in Horseshoe Gibbs Sampler
 //' 
 //' In MCMC process of Horseshoe prior, this function generates the coefficients matrix.
 //' 
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
+//' @param prior_mean Prior mean of coefficients matrix
 //' @param sigma Covariance matrix of the likelihood
 //' @param shrink_mat Inverse diagonal matrix made by global and local sparsity hyperparameters
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd horseshoe_mn_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat) {
-  Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).llt().solve(Eigen::MatrixXd::Identity(shrink_mat.rows(), shrink_mat.rows()));
-  return sim_matgaussian(prec_mat * x.transpose() * y, prec_mat, sigma);
+Eigen::MatrixXd horseshoe_coef(Eigen::MatrixXd x, Eigen::MatrixXd y,
+                                  Eigen::MatrixXd prior_mean,
+                                  Eigen::MatrixXd sigma, Eigen::MatrixXd shrink_mat) {
+  Eigen::MatrixXd prec_mat = (x.transpose() * x + shrink_mat).llt().solve(Eigen::MatrixXd::Identity(shrink_mat.rows(), shrink_mat.cols()));
+  return sim_matgaussian(prec_mat * (x.transpose() * y + shrink_mat * prior_mean), prec_mat, sigma);
 }
 
 //' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
@@ -137,10 +129,17 @@ Eigen::MatrixXd horseshoe_mn_coef(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' @param mn_shrink Inverse diagonal matrix for column shrinkage
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd coef, Eigen::MatrixXd shrink_mat, Eigen::MatrixXd mn_shrink) {
+Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y,
+                                  Eigen::MatrixXd coef, Eigen::MatrixXd shrink_mat,
+                                  Eigen::MatrixXd prior_coef_mean,
+                                  Eigen::MatrixXd prior_var, double prior_shape) {
   Eigen::MatrixXd resid = y - x * coef;
-  // return sim_iw(resid.transpose() * resid + coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
-  return sim_iw(resid.transpose() * resid + mn_shrink * coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
+  Eigen::MatrixXd coef_demean = coef - prior_coef_mean;
+  return sim_iw(
+    resid.transpose() * resid + coef_demean.transpose() * shrink_mat * coef_demean + prior_var,
+    y.rows() + coef.rows() + prior_shape
+  );
+  // return sim_iw(resid.transpose() * resid + mn_shrink * coef.transpose() * shrink_mat * coef, y.rows() + coef.rows());
 }
 
 //' Gibbs Sampler for Horseshoe BVAR Estimator
@@ -153,7 +152,8 @@ Eigen::MatrixXd horseshoe_cov_mat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::M
 //' @param y Response matrix Y0
 //' @param init_local Initial local shrinkage hyperparameters
 //' @param init_global Initial global shrinkage hyperparameter
-//' @param init_priorvar Initial covariance matrix
+//' @param prior_scale Prior scale of IW
+//' @param prior_shape Prior shape of IW
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
@@ -163,8 +163,10 @@ Rcpp::List estimate_bvar_horseshoe(int num_iter,
                                    Eigen::MatrixXd y,
                                    Eigen::VectorXd init_local,
                                    double init_global,
-                                   Eigen::MatrixXd init_priorvar,
-                                   int blocked_gibbs,
+                                   Eigen::MatrixXd init_sig,
+                                   Eigen::MatrixXd prior_mean,
+                                   Eigen::MatrixXd prior_scale,
+                                   double prior_shape,
                                    bool display_progress) {
   int dim = y.cols();
   int dim_design = x.cols(); // dim*p(+1)
@@ -174,21 +176,19 @@ Rcpp::List estimate_bvar_horseshoe(int num_iter,
   Eigen::MatrixXd local_record(num_iter + 1, dim_design);
   Eigen::VectorXd global_record(num_iter + 1);
   Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim);
+  prec_record.block(0, 0, dim, dim) = init_sig.inverse();
   local_record.row(0) = init_local;
   global_record[0] = init_global;
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat(dim_design, dim);
   Eigen::VectorXd latent_local(dim_design);
+  Eigen::MatrixXd sig_mat = init_sig;
   double latent_global = 0.0;
-  
+  // Eigen::MatrixXd prior_sigma = prior_prec.inverse();
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(dim_design, dim_design);
-  Eigen::MatrixXd mn_shrink = Eigen::MatrixXd::Identity(dim, dim);
-  Eigen::MatrixXd mn_inv = Eigen::MatrixXd::Identity(dim, dim);
-  Rcpp::List block_coef = Rcpp::List::create(Rcpp::Named("mn") = Eigen::MatrixXd::Zero(dim_design, dim), Rcpp::Named("iw") = Eigen::MatrixXd::Zero(dim, dim));
-  
+  // Rcpp::List block_coef = Rcpp::List::create(Rcpp::Named("mn") = Eigen::MatrixXd::Zero(dim_design, dim), Rcpp::Named("iw") = Eigen::MatrixXd::Zero(dim, dim));
   // Start Gibbs sampling-----------------------------------
   Progress p(num_iter, display_progress);
-  prec_record.block(0, 0, dim, dim) = init_priorvar.inverse();
   for (int i = 1; i < num_iter + 1; i++) {
     if (Progress::check_abort()) {
       return Rcpp::List::create(
@@ -201,33 +201,48 @@ Rcpp::List estimate_bvar_horseshoe(int num_iter,
     p.increment();
     // 1. alpha (coefficient) and 2. sigma (variance)
     lambda_mat = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
-    switch (blocked_gibbs) {
-    case 1 :
-      mn_shrink.diagonal() = local_record.row(i - 1).head(dim).array().square();
-      mn_inv.diagonal() = 1 / local_record.row(i - 1).head(dim).array().square();
-      // mn_shrinkmat.diagonal() = 1 / local_record.block(i - 1, 0, 1, dim).array().square();
-      coef_mat = horseshoe_mn_coef(x, y, init_priorvar * mn_shrink, lambda_mat);
-      coef_record.row(i) = vectorize_eigen(coef_mat);
-      init_priorvar = horseshoe_cov_mat(x, y, coef_mat, lambda_mat, mn_inv);
-      break;
-    case 2:
-      block_coef = horseshoe_coef(x, y, lambda_mat);
-      coef_mat = block_coef["mn"];
-      coef_record.row(i) = vectorize_eigen(coef_mat);
-      init_priorvar = block_coef["iw"];
-      break;
-    default:
-      break;
-    }
-    prec_record.block(i * dim, 0, dim, dim) = init_priorvar.inverse();
+    coef_mat = horseshoe_coef(x, y, prior_mean, sig_mat, lambda_mat);
+    coef_record.row(i) = vectorize_eigen(coef_mat);
+    sig_mat = horseshoe_cov_mat(x, y, coef_mat, lambda_mat, prior_mean, prior_scale, prior_shape);
+    // switch (blocked_gibbs) {
+    // case 1 :
+    //   mn_shrink.diagonal() = local_record.row(i - 1).head(dim).array().square();
+    //   mn_inv.diagonal() = 1 / local_record.row(i - 1).head(dim).array().square();
+    //   mn_shrinkmat.diagonal() = 1 / local_record.block(i - 1, 0, 1, dim).array().square();
+    //   coef_mat = horseshoe_mn_coef(x, y, init_priorvar * mn_shrink, lambda_mat);
+    //   coef_record.row(i) = vectorize_eigen(coef_mat);
+    //   init_priorvar = horseshoe_cov_mat(x, y, coef_mat, lambda_mat, mn_inv);
+    //   break;
+    // case 2:
+    //   block_coef = horseshoe_coef(x, y, lambda_mat);
+    //   coef_mat = block_coef["mn"];
+    //   coef_record.row(i) = vectorize_eigen(coef_mat);
+    //   init_priorvar = block_coef["iw"];
+    //   break;
+    // default:
+    //   break;
+    // }
+    prec_record.block(i * dim, 0, dim, dim) = sig_mat.inverse();
     // 3. nuj (local latent)
     latent_local = horseshoe_latent_local(local_record.row(i - 1));
     // 4. xi (global latent)
     latent_global = horseshoe_latent_global(global_record[i - 1]);
     // 5. lambdaj (local shrinkage)
-    local_record.row(i) = horseshoe_local_sparsity(latent_local, global_record[i - 1], coef_mat, mn_inv * prec_record.block(i * dim, 0, dim, dim));
+    local_record.row(i) = horseshoe_local_sparsity(
+      latent_local,
+      global_record[i - 1],
+      coef_mat,
+      prec_record.block(i * dim, 0, dim, dim),
+      prior_mean
+    );
     // 6. tau (global shrinkage)
-    global_record[i] = horseshoe_global_sparsity(latent_global, local_record.row(i), coef_mat, mn_inv * prec_record.block(i * dim, 0, dim, dim));
+    global_record[i] = horseshoe_global_sparsity(
+      latent_global,
+      local_record.row(i),
+      coef_mat,
+      prec_record.block(i * dim, 0, dim, dim),
+      prior_mean
+    );
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
