@@ -9,6 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
@@ -59,6 +60,7 @@ bvar_horseshoe <- function(y,
                            thinning = 1,
                            bayes_spec = set_horseshoe(),
                            include_mean = TRUE,
+                           algo = c("block", "gibbs"),
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -67,6 +69,8 @@ bvar_horseshoe <- function(y,
     y <- as.matrix(y)
   }
   # sparsity <- match.arg(sparsity)
+  algo <- match.arg(algo)
+  algo <- switch(algo, "gibbs" = 1, "block" = 2)
   # model specification---------------
   if (!is.horseshoespec(bayes_spec)) {
     stop("Provide 'horseshoespec' for 'bayes_spec'.")
@@ -95,9 +99,8 @@ bvar_horseshoe <- function(y,
   colnames(X0) <- name_lag
   # Initial vectors-------------------
   dim_design <- ncol(X0)
-  # coef_type <- ifelse(fast_sampling, 2, 1)
-  # num_restrict <- ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
-  num_restrict <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
+  num_restrict <- ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
+  # num_restrict <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
   # num_restrict <- switch (sparsity,
   #   "row" = ifelse(include_mean, dim_data * p + 1, dim_data * p),
   #   "vec" = ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
@@ -112,38 +115,56 @@ bvar_horseshoe <- function(y,
   init_local <- bayes_spec$local_sparsity
   init_global <- bayes_spec$global_sparsity
   # Minnesota-moment-------------------
-  if (is.null(bayes_spec$minn$sigma)) {
-    bayes_spec$minn$sigma <- apply(y, 2, sd)
-  }
-  sigma <- bayes_spec$minn$sigma
-  if (is.null(bayes_spec$minn$delta)) {
-    bayes_spec$minn$delta <- rep(1, dim_data)
-  }
-  delta <- bayes_spec$minn$delta
-  lambda <- bayes_spec$minn$lambda
-  eps <- bayes_spec$minn$eps
-  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
-  colnames(Yp) <- name_var
-  Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-  colnames(Xp) <- name_lag
-  mn_prior <- minnesota_prior(Xp, Yp)
-  prior_mean <- mn_prior$prior_mean
-  # prior_prec <- mn_prior$prior_prec
-  prior_scale <- mn_prior$prior_scale
-  prior_shape <- mn_prior$prior_shape
+  # if (is.null(bayes_spec$minn$sigma)) {
+  #   bayes_spec$minn$sigma <- apply(y, 2, sd)
+  # }
+  # sigma <- bayes_spec$minn$sigma
+  # if (is.null(bayes_spec$minn$delta)) {
+  #   bayes_spec$minn$delta <- rep(1, dim_data)
+  # }
+  # delta <- bayes_spec$minn$delta
+  # lambda <- bayes_spec$minn$lambda
+  # eps <- bayes_spec$minn$eps
+  # Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+  # colnames(Yp) <- name_var
+  # Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
+  # colnames(Xp) <- name_lag
+  # mn_prior <- minnesota_prior(Xp, Yp)
+  # prior_mean <- mn_prior$prior_mean
+  # # prior_prec <- mn_prior$prior_prec
+  # prior_scale <- mn_prior$prior_scale
+  # prior_shape <- mn_prior$prior_shape
   # MCMC-----------------------------
-  res <- estimate_bvar_horseshoe(
+  # res <- estimate_bvar_horseshoe(
+  #   num_iter = num_iter,
+  #   num_burn = num_burn,
+  #   x = X0,
+  #   y = Y0,
+  #   init_local = init_local,
+  #   init_global = init_global,
+  #   init_prec = diag(1 / sigma),
+  #   prior_mean = prior_mean,
+  #   prior_scale = prior_scale,
+  #   prior_shape = prior_shape,
+  #   blocked_gibbs = algo,
+  #   display_progress = verbose
+  # )
+  
+  num_design <- nrow(Y0)
+  fast <- FALSE
+  if (num_design <= num_restrict) {
+    fast <- TRUE
+  }
+  res <- estimate_sur_horseshoe(
     num_iter = num_iter,
     num_burn = num_burn,
     x = X0,
     y = Y0,
     init_local = init_local,
     init_global = init_global,
-    init_sig = diag(sigma),
-    prior_mean = prior_mean,
-    prior_scale = prior_scale,
-    prior_shape = prior_shape,
-    # blocked_gibbs = 2,
+    init_sigma = 1,
+    blocked_gibbs = algo,
+    fast = fast,
     display_progress = verbose
   )
   # preprocess the results-----------
@@ -159,53 +180,76 @@ bvar_horseshoe <- function(y,
   res$tau_record <- as.matrix(res$tau_record[thin_id])
   colnames(res$tau_record) <- "tau"
   res$tau_record <- as_draws_df(res$tau_record)
-  res$lambda_record <- res$lambda_record[thin_id,]
-  colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
+  
+  # res$lambda_record <- res$lambda_record[thin_id,]
+  # colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
+  # res$lambda_record <- as_draws_df(res$lambda_record)
+  # res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
+  # res$psi_record <- res$psi_record[thin_id]
+  # res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+  # colnames(res$psi_posterior) <- name_var
+  # rownames(res$psi_posterior) <- name_var
+  # res$covmat <- solve(res$psi_posterior)
+  # # diagonal of precision
+  # res$omega_record <- 
+  #   lapply(res$psi_record, diag) %>% 
+  #   do.call(rbind, .)
+  # colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
+  # res$omega_record <- as_draws_df(res$omega_record)
+  # # upper diagonal of precision
+  # res$eta_record <-
+  #   lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>%
+  #   do.call(rbind, .)
+  # colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
+  # res$eta_record <- as_draws_df(res$eta_record)
+  
+  res$lambda_record <- as.matrix(res$lambda_record[thin_id])
+  colnames(res$lambda_record) <- "lambda"
   res$lambda_record <- as_draws_df(res$lambda_record)
-  res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
-  res$psi_record <- res$psi_record[thin_id]
-  res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
+  res$covmat <- mean(res$sigma) * diag(dim_data)
+  res$psi_posterior <- diag(dim_data) / mean(res$sigma)
+  colnames(res$covmat) <- name_var
+  rownames(res$covmat) <- name_var
   colnames(res$psi_posterior) <- name_var
   rownames(res$psi_posterior) <- name_var
-  res$covmat <- solve(res$psi_posterior)
-  # diagonal of precision
-  res$omega_record <- 
-    lapply(res$psi_record, diag) %>% 
-    do.call(rbind, .)
-  colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
-  res$omega_record <- as_draws_df(res$omega_record)
-  # upper diagonal of precision
-  res$eta_record <-
-    lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>%
-    do.call(rbind, .)
-  colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
-  res$eta_record <- as_draws_df(res$eta_record)
+  res$sigma_record <- as.matrix(res$sigma_record[thin_id])
+  colnames(res$sigma_record) <- "sigma"
+  res$sigma_record <- as_draws_df(res$sigma_record)
+  
   # Parameters-----------------
+  # res$param <- bind_draws(
+  #   res$alpha_record,
+  #   res$lambda_record,
+  #   res$tau_record,
+  #   res$omega_record,
+  #   res$eta_record
+  # )
+  
   res$param <- bind_draws(
     res$alpha_record,
     res$lambda_record,
     res$tau_record,
-    res$omega_record,
-    res$eta_record
+    res$sigma_record
   )
+  
   # variables------------
   res$df <- ncol(X0)
   res$p <- p
   res$m <- ncol(y)
-  res$obs <- nrow(Y0)
+  res$obs <- num_design
   res$totobs <- nrow(y)
   # model-----------------
   res$call <- match.call()
   res$process <- paste("VAR", bayes_spec$prior, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
-  # res$algo <- ifelse(fast_sampling, "fast", "gibbs")
+  res$algo <- ifelse(algo == 1, "gibbs", "blocked")
   res$spec <- bayes_spec
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
-  res$prior_mean <- prior_mean
-  res$prior_scale <- prior_scale
-  res$prior_shape <- prior_shape
+  # res$prior_mean <- prior_mean
+  # res$prior_scale <- prior_scale
+  # res$prior_shape <- prior_shape
   # data------------------
   res$y0 <- Y0
   res$design <- X0

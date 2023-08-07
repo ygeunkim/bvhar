@@ -10,7 +10,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()]. By default, use a default semiautomatic approach [choose_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()]. By default, use OLS for coefficient and cholesky factor while 1 for dummies.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param relax Only use off-diagonal terms of each coefficient matrices for restriction. Two type: `"minnesota"` type and `"longrun"` type. By default, `"no"`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
@@ -87,7 +87,7 @@ bvhar_ssvs <- function(y,
                        bayes_spec = choose_ssvs(y = y, ord = har, type = "VHAR", param = c(.1, 10), include_mean = include_mean, gamma_param = c(.01, .01), mean_non = 0, sd_non = .1),
                        init_spec = init_ssvs(type = "auto"),
                        include_mean = TRUE,
-                       relax = c("no", "minnesota", "longrun"),
+                       minnesota = c("no", "short", "longrun"),
                        verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -95,7 +95,7 @@ bvhar_ssvs <- function(y,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
-  relax <- match.arg(relax)
+  minnesota <- match.arg(minnesota)
   # model specification---------------
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
@@ -199,9 +199,9 @@ bvhar_ssvs <- function(y,
   # no regularization for diagonal term---------------------
   bayes_spec$coef_mixture <- 
     switch(
-      relax,
+      minnesota,
       "no" = bayes_spec$coef_mixture,
-      "minnesota" = {
+      "short" = {
         coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data))
         diag(coef_prob[[1]]) <- 1
         c(do.call(rbind, coef_prob))

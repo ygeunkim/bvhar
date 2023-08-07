@@ -14,6 +14,7 @@ bvar_horseshoe(
   thinning = 1,
   bayes_spec = set_horseshoe(),
   include_mean = TRUE,
+  algo = c("block", "gibbs"),
   verbose = FALSE
 )
 
@@ -35,6 +36,8 @@ knit_print.bvarhs(x, ...)
 \item{bayes_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{algo}{Ordinary gibbs sampling (\code{"gibbs"}) or blocked gibbs (Default: \code{"block"}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

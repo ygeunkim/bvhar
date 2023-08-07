@@ -16,7 +16,7 @@ bvar_ssvs(
     = include_mean, gamma_param = c(0.01, 0.01), mean_non = 0, sd_non = 0.1),
   init_spec = init_ssvs(type = "auto"),
   include_mean = TRUE,
-  relax = FALSE,
+  minnesota = FALSE,
   verbose = FALSE
 )
 
@@ -41,7 +41,7 @@ knit_print.bvarssvs(x, ...)
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{relax}{Only use off-diagonal terms of each coefficient matrices for restriction. By default, \code{FALSE}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{FALSE}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

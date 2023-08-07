@@ -10,7 +10,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()]. By default, use a default semiautomatic approach [choose_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()]. By default, use OLS for coefficient and cholesky factor while 1 for dummies.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param relax Only use off-diagonal terms of each coefficient matrices for restriction. By default, `FALSE`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). By default, `FALSE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
@@ -84,7 +84,7 @@ bvar_ssvs <- function(y,
                       bayes_spec = choose_ssvs(y = y, ord = p, type = "VAR", param = c(.1, 10), include_mean = include_mean, gamma_param = c(.01, .01), mean_non = 0, sd_non = .1), 
                       init_spec = init_ssvs(type = "auto"),
                       include_mean = TRUE,
-                      relax = FALSE,
+                      minnesota = FALSE,
                       verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
@@ -191,7 +191,7 @@ bvar_ssvs <- function(y,
   }
   
   # no regularization for diagonal term---------------------
-  if (relax) {
+  if (minnesota) {
     coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
     diag(coef_prob[[1]]) <- 1
     bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
