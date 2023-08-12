@@ -6,7 +6,7 @@
 \alias{knit_print.horseshoespec}
 \title{Horseshoe Prior Specification}
 \usage{
-set_horseshoe(local_sparsity = 1, global_sparsity = 1, minn = set_bvar())
+set_horseshoe(local_sparsity = 1, global_sparsity = 1)
 
 \method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -16,8 +16,6 @@ knit_print.horseshoespec(x, ...)
 \item{local_sparsity}{Initial local shrinkage hyperparameters}
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
-
-\item{minn}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Minnesota setting for Covariance using \code{\link[=set_bvar]{set_bvar()}} (BVAR), \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} (BVHAR).}
 
 \item{x}{\code{horseshoespec} object}
 

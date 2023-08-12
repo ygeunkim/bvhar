@@ -515,7 +515,6 @@ init_ssvs <- function(init_coef,
 #' 
 #' @param local_sparsity Initial local shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
-#' @param minn `r lifecycle::badge("experimental")` Minnesota setting for Covariance using [set_bvar()] (BVAR), [set_bvhar()], or [set_weight_bvhar()] (BVHAR).
 #' @details 
 #' Set horseshoe prior initialization for VAR family.
 #' 
@@ -531,14 +530,10 @@ init_ssvs <- function(init_coef,
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182. doi:[10.1109/lsp.2015.2503725](https://doi.org/10.1109/LSP.2015.2503725)
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1, minn = set_bvar()) {
+set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
   if (!is.vector(local_sparsity)) {
     stop("'local_sparsity' should be a vector.")
   }
-  if (!is.bvharspec(minn)) {
-    stop("Provide 'bvharspec' for 'minn'.")
-  }
-  process <- minn$process
   # if (length(local_sparsity) > 1) {
   #   warning("Scalar 'local_sparsity' works.")
   # }
@@ -552,11 +547,10 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1, minn = set_bv
     stop("'global_sparsity' should be a scalar.")
   }
   res <- list(
-    process = process,
+    process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
-    global_sparsity = global_sparsity,#,init_cov = init_cov
-    minnesota = minn
+    global_sparsity = global_sparsity#,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
   res

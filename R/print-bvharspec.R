@@ -392,34 +392,29 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   cat(paste0("Prior: ", x$prior, "\n"))
   fit_func <- switch(
     x$process,
-    "BVAR" = "?bvar_horseshoe",
-    "BVHAR" = "?bvhar_horseshoe",
-    stop("Invalid 'x$prior' element")
+    "VAR" = "?bvar_horseshoe",
+    "VHAR" = "?bvhar_horseshoe",
+    stop("Invalid 'x$process' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n")
   param <- x[!(names(x) %in% c("process", "prior", "chain"))]
   # num_chain <- x$chain
   for (i in seq_along(param)) {
-    if (is.bvharspec(param[[i]])) {
-      cat(paste0("\nMinnesota setting for '", names(param)[i], "':\n"))
-      print(param[[i]])
-    } else {
-      cat(paste0("Initialization for '", names(param)[i], "':\n"))
-      print.default(
-        param[[i]],
-        digits = digits,
-        print.gap = 2L,
-        quote = FALSE
-      )
-    }
+    cat(paste0("Initialization for '", names(param)[i], "':\n"))
+    print.default(
+      param[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
   }
   # if (num_chain > 1) {
   #   cat("--------------------------------------------------------------\n")
   #   cat("Initialized for multiple chain MCMC.")
   # }
-  cat("--------------------------------------------------------\n")
-  cat("'init_local': local shrinkage for each row of coefficients matrix")
+  # cat("--------------------------------------------------------\n")
+  # cat("'init_local': local shrinkage for each row of coefficients matrix")
 }
 
 #' @rdname set_horseshoe

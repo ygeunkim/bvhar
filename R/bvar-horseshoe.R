@@ -100,11 +100,6 @@ bvar_horseshoe <- function(y,
   # Initial vectors-------------------
   dim_design <- ncol(X0)
   num_restrict <- ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
-  # num_restrict <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
-  # num_restrict <- switch (sparsity,
-  #   "row" = ifelse(include_mean, dim_data * p + 1, dim_data * p),
-  #   "vec" = ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
-  # )
   if (length(bayes_spec$local_sparsity) != dim_design) {
     if (length(bayes_spec$local_sparsity) == 1) {
       bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
@@ -114,42 +109,7 @@ bvar_horseshoe <- function(y,
   }
   init_local <- bayes_spec$local_sparsity
   init_global <- bayes_spec$global_sparsity
-  # Minnesota-moment-------------------
-  # if (is.null(bayes_spec$minn$sigma)) {
-  #   bayes_spec$minn$sigma <- apply(y, 2, sd)
-  # }
-  # sigma <- bayes_spec$minn$sigma
-  # if (is.null(bayes_spec$minn$delta)) {
-  #   bayes_spec$minn$delta <- rep(1, dim_data)
-  # }
-  # delta <- bayes_spec$minn$delta
-  # lambda <- bayes_spec$minn$lambda
-  # eps <- bayes_spec$minn$eps
-  # Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
-  # colnames(Yp) <- name_var
-  # Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-  # colnames(Xp) <- name_lag
-  # mn_prior <- minnesota_prior(Xp, Yp)
-  # prior_mean <- mn_prior$prior_mean
-  # # prior_prec <- mn_prior$prior_prec
-  # prior_scale <- mn_prior$prior_scale
-  # prior_shape <- mn_prior$prior_shape
   # MCMC-----------------------------
-  # res <- estimate_bvar_horseshoe(
-  #   num_iter = num_iter,
-  #   num_burn = num_burn,
-  #   x = X0,
-  #   y = Y0,
-  #   init_local = init_local,
-  #   init_global = init_global,
-  #   init_prec = diag(1 / sigma),
-  #   prior_mean = prior_mean,
-  #   prior_scale = prior_scale,
-  #   prior_shape = prior_shape,
-  #   blocked_gibbs = algo,
-  #   display_progress = verbose
-  # )
-  
   num_design <- nrow(Y0)
   fast <- FALSE
   if (num_design <= num_restrict) {
@@ -180,29 +140,6 @@ bvar_horseshoe <- function(y,
   res$tau_record <- as.matrix(res$tau_record[thin_id])
   colnames(res$tau_record) <- "tau"
   res$tau_record <- as_draws_df(res$tau_record)
-  
-  # res$lambda_record <- res$lambda_record[thin_id,]
-  # colnames(res$lambda_record) <- paste0("lambda[", seq_len(ncol(res$lambda_record)), "]")
-  # res$lambda_record <- as_draws_df(res$lambda_record)
-  # res$psi_record <- split_psirecord(res$psi_record, varname = "psi")
-  # res$psi_record <- res$psi_record[thin_id]
-  # res$psi_posterior <- Reduce("+", res$psi_record) / length(res$psi_record)
-  # colnames(res$psi_posterior) <- name_var
-  # rownames(res$psi_posterior) <- name_var
-  # res$covmat <- solve(res$psi_posterior)
-  # # diagonal of precision
-  # res$omega_record <- 
-  #   lapply(res$psi_record, diag) %>% 
-  #   do.call(rbind, .)
-  # colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
-  # res$omega_record <- as_draws_df(res$omega_record)
-  # # upper diagonal of precision
-  # res$eta_record <-
-  #   lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)]) %>%
-  #   do.call(rbind, .)
-  # colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
-  # res$eta_record <- as_draws_df(res$eta_record)
-  
   res$lambda_record <- as.matrix(res$lambda_record[thin_id])
   colnames(res$lambda_record) <- "lambda"
   res$lambda_record <- as_draws_df(res$lambda_record)
@@ -215,23 +152,19 @@ bvar_horseshoe <- function(y,
   res$sigma_record <- as.matrix(res$sigma_record[thin_id])
   colnames(res$sigma_record) <- "sigma"
   res$sigma_record <- as_draws_df(res$sigma_record)
-  
+  res$kappa_record <- res$kappa_record[thin_id,]
+  colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
+  res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+  colnames(res$pip) <- name_var
+  rownames(res$pip) <- name_lag
+  res$kappa_record <- as_draws_df(res$kappa_record)
   # Parameters-----------------
-  # res$param <- bind_draws(
-  #   res$alpha_record,
-  #   res$lambda_record,
-  #   res$tau_record,
-  #   res$omega_record,
-  #   res$eta_record
-  # )
-  
   res$param <- bind_draws(
     res$alpha_record,
     res$lambda_record,
     res$tau_record,
     res$sigma_record
   )
-  
   # variables------------
   res$df <- ncol(X0)
   res$p <- p
@@ -247,9 +180,6 @@ bvar_horseshoe <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
-  # res$prior_mean <- prior_mean
-  # res$prior_scale <- prior_scale
-  # res$prior_shape <- prior_shape
   # data------------------
   res$y0 <- Y0
   res$design <- X0
