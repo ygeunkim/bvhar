@@ -215,131 +215,6 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
-#' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
-#' 
-#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
-#' global and local sparsity levels.
-#' 
-#' @param global_hyperparam Global sparsity hyperparameter
-#' @param local_hyperparam Local sparsity hyperparameters
-#' @noRd
-build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
-    .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
-}
-
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef <- function(response_vec, design_mat, var, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, response_vec, design_mat, var, shrink_mat)
-}
-
-#' Generating the Coefficient Vector using Fast Sampling
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_fast_coef <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_fast_coef`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef_var <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef_var`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the prior variance.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param coef_vec Coefficients vector
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_var <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_var`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
-#' 
-#' @param local_latent Latent vectors defined for local sparsity vector
-#' @param global_hyperparam Global sparsity hyperparameter
-#' @param coef_vec Coefficients vector
-#' @param prior_var Variance constant of the likelihood
-#' @noRd
-horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
-}
-
-#' Generating the Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the global sparsity hyperparameter.
-#' 
-#' @param global_latent Latent variable defined for global sparsity hyperparameter
-#' @param local_hyperparam Local sparsity hyperparameters vector
-#' @param coef_vec Coefficients vector
-#' @param prior_var Variance constant of the likelihood
-#' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
-}
-
-#' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
-#' 
-#' @param local_hyperparam Local sparsity hyperparameters vector
-#' @noRd
-horseshoe_latent_local <- function(local_hyperparam) {
-    .Call(`_bvhar_horseshoe_latent_local`, local_hyperparam)
-}
-
-#' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the latent vector for global sparsity hyperparameters.
-#' 
-#' @param global_hyperparam Global sparsity hyperparameter
-#' @noRd
-horseshoe_latent_global <- function(global_hyperparam) {
-    .Call(`_bvhar_horseshoe_latent_global`, global_hyperparam)
-}
-
-#' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
-#' 
-#' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
-#' 
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param init_priorvar Initial variance constant
-#' @param init_local Initial local shrinkage hyperparameters
-#' @param init_global Initial global shrinkage hyperparameter
-#' @param init_sigma Initial sigma
-#' @param display_progress Progress bar
-#' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress)
-}
-
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
@@ -822,20 +697,6 @@ forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_recor
     .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
 }
 
-#' Forecasting VAR(p) with Horseshoe Prior
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvarhs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record) {
-    .Call(`_bvhar_forecast_bvarhs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record)
-}
-
 #' Forecasting VAR-SV
 #' 
 #' @param var_lag VAR order.
@@ -883,21 +744,6 @@ forecast_bvharmn <- function(object, step, num_sim) {
 #' @noRd
 forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record) {
     .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
-}
-
-#' Forecasting VHAR with Horseshoe Prior
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of phi.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvharhs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record) {
-    .Call(`_bvhar_forecast_bvharhs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record)
 }
 
 #' Forecasting VHAR-SV

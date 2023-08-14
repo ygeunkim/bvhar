@@ -8,8 +8,6 @@
 \alias{predict.bvarflat}
 \alias{predict.bvarssvs}
 \alias{predict.bvharssvs}
-\alias{predict.bvarhs}
-\alias{predict.bvharhs}
 \alias{predict.bvarsv}
 \alias{predict.bvharsv}
 \alias{print.predbvhar}
@@ -29,10 +27,6 @@
 \method{predict}{bvarssvs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvharssvs}(object, n_ahead, level = 0.05, ...)
-
-\method{predict}{bvarhs}(object, n_ahead, level = 0.05, ...)
-
-\method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvarsv}(object, n_ahead, ...)
 
