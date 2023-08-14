@@ -20,7 +20,6 @@ URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,
-    doMC,
     knitr,
     parallel,
     rmarkdown,
