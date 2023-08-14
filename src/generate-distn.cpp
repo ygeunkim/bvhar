@@ -3,9 +3,9 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-//' Generate Multivariate Normal Random Vector with Zero Mean
+//' Generate Multivariate Normal Random Vector
 //' 
-//' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+//' This function samples n x muti-dimensional normal random matrix.
 //' 
 //' @param num_sim Number to generate process
 //' @param mu Mean vector

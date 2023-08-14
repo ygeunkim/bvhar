@@ -172,7 +172,7 @@ Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
   Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
   Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precision
   Eigen::MatrixXd prior_scale(dim, dim); // prior iw scale
-  int prior_shape = x_dummy.rows() - dim_design;
+  int prior_shape = x_dummy.rows() - dim_design + 2;
   prior_prec = x_dummy.transpose() * x_dummy;
   prior_mean = prior_prec.inverse() * x_dummy.transpose() * y_dummy;
   prior_scale = (y_dummy - x_dummy * prior_mean).transpose() * (y_dummy - x_dummy * prior_mean);
@@ -180,6 +180,6 @@ Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
     Rcpp::Named("prior_scale") = prior_scale,
-    Rcpp::Named("prior_shape") = prior_shape + 2
+    Rcpp::Named("prior_shape") = prior_shape
   );
 }

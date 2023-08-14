@@ -235,14 +235,22 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
       // cov_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim).inverse();
     }
-    coef_record.row(i) = varsv_regression(design_mat, response_vec, prior_alpha_mean, prior_alpha_prec, prec_stack);
+    coef_record.row(i) = varsv_regression(
+      design_mat, response_vec, prior_alpha_mean, prior_alpha_prec, prec_stack
+    );
     // 2. h---------------------------------
     coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i).data(), dim_design, dim);
     latent_innov = y - x * coef_mat;
     ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
     ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
     for (int t = 0; t < dim; t++) {
-      lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(pj, muj, sigj, lvol_record.col(t).segment(num_design * (i - 1), num_design), lvol_init_record(i - 1, t), lvol_sig_record(i - 1, t), ortho_latent.col(t), nthreads);
+      lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(
+        pj, muj, sigj,
+        lvol_record.col(t).segment(num_design * (i - 1), num_design),
+        lvol_init_record(i - 1, t),
+        lvol_sig_record(i - 1, t),
+        ortho_latent.col(t), nthreads
+      );
     }
     // 3. a---------------------------------
 #ifdef _OPENMP
@@ -265,11 +273,28 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen:
       reginnov_id = 0;
     }
 #endif
-    chol_lower_record.row(i) = varsv_regression(reginnov_stack, vectorize_eigen(latent_innov), prior_chol_mean, prior_chol_prec, innov_prec);
+    chol_lower_record.row(i) = varsv_regression(
+      reginnov_stack,
+      vectorize_eigen(latent_innov),
+      prior_chol_mean,
+      prior_chol_prec,
+      innov_prec
+    );
     // 4. sigma_h---------------------------
-    lvol_sig_record.row(i) = varsv_sigh(prior_sig_shp, prior_sig_scl, lvol_init_record.row(i - 1), lvol_record.block(num_design * i, 0, num_design, dim));
+    lvol_sig_record.row(i) = varsv_sigh(
+      prior_sig_shp,
+      prior_sig_scl,
+      lvol_init_record.row(i - 1),
+      lvol_record.block(num_design * i, 0, num_design, dim)
+    );
     // 5. h0--------------------------------
-    lvol_init_record.row(i) = varsv_h0(prior_init_mean, prior_init_prec, lvol_init_record.row(i - 1), lvol_record.block(num_design * i, 0, num_design, dim).row(0), lvol_sig_record.row(i));
+    lvol_init_record.row(i) = varsv_h0(
+      prior_init_mean,
+      prior_init_prec,
+      lvol_init_record.row(i - 1),
+      lvol_record.block(num_design * i, 0, num_design, dim).row(0),
+      lvol_sig_record.row(i)
+    );
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),

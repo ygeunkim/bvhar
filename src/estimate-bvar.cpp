@@ -28,44 +28,41 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   int dim_design = x_dummy.cols(); // k = mp (+ 1)
   int num_dummy = x_dummy.rows(); // Tp = mp + m (+ 1)
   int num_augment = num_design + num_dummy; // T = s + Tp
-  if (num_dummy != y_dummy.rows()) Rcpp::stop("Wrong dimension: x_dummy and y_dummy");
-  if (dim_design != x.cols()) Rcpp::stop("Wrong dimension: x and x_dummy");
-  if (y_dummy.cols() != dim) Rcpp::stop("Wrong dimension: y_dummy");
+  if (num_dummy != y_dummy.rows()) {
+    Rcpp::stop("Wrong dimension: x_dummy and y_dummy");
+  }
+  if (dim_design != x.cols()) {
+    Rcpp::stop("Wrong dimension: x and x_dummy");
+  }
+  if (y_dummy.cols() != dim) {
+    Rcpp::stop("Wrong dimension: y_dummy");
+  }
   // prior-----------------------------------------------
-  Eigen::MatrixXd prior_mean(dim_design, dim); // prior mn mean
-  Eigen::MatrixXd prior_prec(dim_design, dim_design); // prior mn precision
-  Eigen::MatrixXd prior_scale(dim, dim); // prior iw scale
-  prior_prec = x_dummy.transpose() * x_dummy;
-  prior_mean = prior_prec.inverse() * x_dummy.transpose() * y_dummy;
-  prior_scale = (y_dummy - x_dummy * prior_mean).transpose() * (y_dummy - x_dummy * prior_mean);
-  int prior_shape = num_dummy - dim_design; // prior iw shape = Tp - k = m
+  Eigen::MatrixXd prior_prec = x_dummy.transpose() * x_dummy; // prior mn precision
+  Eigen::MatrixXd prior_mean = prior_prec.inverse() * x_dummy.transpose() * y_dummy; // prior mn mean
+  Eigen::MatrixXd prior_scale = (y_dummy - x_dummy * prior_mean).transpose() * (y_dummy - x_dummy * prior_mean);; // prior iw scale
+  int prior_shape = num_dummy - dim_design + 2;
   // posterior-------------------------------------------
   // initialize posteriors
   Eigen::MatrixXd ystar(num_augment, dim); // [Y0, Yp]
   Eigen::MatrixXd xstar(num_augment, dim_design); // [X0, Xp]
-  Eigen::MatrixXd coef_mat(dim_design, dim); // MN mean
-  Eigen::MatrixXd prec_mat(dim_design, dim_design); // MN precision
-  Eigen::MatrixXd yhat(num_design, dim); // X0 %*% ahat
-  Eigen::MatrixXd resid(num_design, dim); // Y0 - X0 %*% ahat
-  Eigen::MatrixXd yhat_star(num_augment, dim); // xstar %*% ahat
-  Eigen::MatrixXd scale_mat(dim, dim); // IW scale
   // augment
   ystar.block(0, 0, num_design, dim) = y;
   ystar.block(num_design, 0, num_dummy, dim) = y_dummy;
   xstar.block(0, 0, num_design, dim_design) = x;
   xstar.block(num_design, 0, num_dummy, dim_design) = x_dummy;
   // point estimation
-  prec_mat = (xstar.transpose() * xstar); // precision hat
-  coef_mat = prec_mat.inverse() * xstar.transpose() * ystar;
-  yhat = x * coef_mat;
-  resid = y - yhat;
-  yhat_star = xstar * coef_mat;
-  scale_mat = (ystar - yhat_star).transpose() * (ystar - yhat_star);
+  Eigen::MatrixXd prec_mat = (xstar.transpose() * xstar); // MN precision
+  Eigen::MatrixXd coef_mat = prec_mat.inverse() * xstar.transpose() * ystar; // MN mean
+  Eigen::MatrixXd yhat = x * coef_mat; // X0 %*% ahat
+  Eigen::MatrixXd resid = y - yhat; // Y0 - X0 %*% ahat
+  Eigen::MatrixXd yhat_star = xstar * coef_mat; // xstar %*% ahat
+  Eigen::MatrixXd scale_mat = (ystar - yhat_star).transpose() * (ystar - yhat_star); // IW scale
   return Rcpp::List::create(
     Rcpp::Named("prior_mean") = prior_mean,
     Rcpp::Named("prior_prec") = prior_prec,
     Rcpp::Named("prior_scale") = prior_scale,
-    Rcpp::Named("prior_shape") = prior_shape + 2,
+    Rcpp::Named("prior_shape") = prior_shape,
     Rcpp::Named("mnmean") = coef_mat,
     Rcpp::Named("mnprec") = prec_mat,
     Rcpp::Named("fitted") = yhat,
@@ -95,19 +92,18 @@ Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   int num_design = y.rows();
   int dim = y.cols();
   int dim_design = x.cols();
-  if (U.rows() != x.cols()) Rcpp::stop("Wrong dimension: U");
-  if (U.cols() != x.cols()) Rcpp::stop("Wrong dimension: U");
-  Eigen::MatrixXd coef_mat(dim_design, dim); // MN mean
-  Eigen::MatrixXd prec_mat(dim_design, dim_design); // MN precision
-  Eigen::MatrixXd mn_scale_mat(dim_design, dim_design); // MN scale 1 = inverse of precision
-  Eigen::MatrixXd scale_mat(dim, dim); // IW scale
-  Eigen::MatrixXd yhat(num_design, dim); // x %*% bhat
+  if (U.rows() != x.cols()) {
+    Rcpp::stop("Wrong dimension: U");
+  }
+  if (U.cols() != x.cols()) {
+    Rcpp::stop("Wrong dimension: U");
+  }
+  Eigen::MatrixXd prec_mat = (x.transpose() * x + U); // MN precision
+  Eigen::MatrixXd mn_scale_mat = prec_mat.inverse(); // MN scale 1 = inverse of precision
+  Eigen::MatrixXd coef_mat = mn_scale_mat * x.transpose() * y; // MN mean
+  Eigen::MatrixXd yhat = x * coef_mat; // x %*% bhat
   Eigen::MatrixXd Is = Eigen::MatrixXd::Identity(num_design, num_design);
-  prec_mat = (x.transpose() * x + U);
-  mn_scale_mat = prec_mat.inverse();
-  coef_mat = mn_scale_mat * x.transpose() * y;
-  yhat = x * coef_mat;
-  scale_mat = y.transpose() * (Is - x * mn_scale_mat * x.transpose()) * y;
+  Eigen::MatrixXd scale_mat = y.transpose() * (Is - x * mn_scale_mat * x.transpose()) * y; // IW scale
   return Rcpp::List::create(
     Rcpp::Named("mnmean") = coef_mat,
     Rcpp::Named("mnprec") = prec_mat,

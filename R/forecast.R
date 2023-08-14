@@ -296,6 +296,120 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 }
 
 #' @rdname predict.varlse
+#' 
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param ... not used
+#' @section n-step ahead forecasting VAR(p) with SSVS and Horseshoe:
+#' The process of the computing point estimate is the same.
+#' However, predictive interval is achieved from each Gibbs sampler sample.
+#' 
+#' \deqn{y_{n + 1} \mid A, \Sigma_e, y \sim N( vec(y_{(n)}^T A), \Sigma_e )}
+#' \deqn{y_{n + h} \mid A, \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e )}
+#' @references George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' @importFrom posterior as_draws_matrix
+#' @importFrom stats quantile
+#' @order 1
+#' @export
+predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
+  pred_res <- forecast_bvarssvs(
+    object$p,
+    n_ahead,
+    object$y0,
+    object$coefficients,
+    as_draws_matrix(object$alpha_record),
+    as_draws_matrix(object$eta_record),
+    as_draws_matrix(object$psi_record)
+  )
+  dim_data <- object$m
+  var_names <- colnames(object$y0)
+  pred_mean <- pred_res$posterior_mean
+  colnames(pred_mean) <- var_names
+  # Predictive distribution------------------------------------
+  num_step <- nrow(object$alpha_record)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, num_step))
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
+    y = object$y
+  )
+  class(res) <- "predbvhar"
+  res
+}
+
+#' @rdname predict.varlse
+#' 
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param ... not used
+#' @section n-step ahead forecasting VHAR with SSVS and Horseshoe:
+#' The process of the computing point estimate is the same.
+#' However, predictive interval is achieved from each Gibbs sampler sample.
+#' 
+#' \deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+#' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
+#' 
+#' @references George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580. doi:[10.1016/j.jeconom.2007.08.017](https://doi.org/10.1016/j.jeconom.2007.08.017)
+#' @importFrom posterior as_draws_matrix
+#' @importFrom stats quantile
+#' @order 1
+#' @export
+predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
+  pred_res <- forecast_bvharssvs(
+    object$month,
+    n_ahead,
+    object$y0,
+    object$coefficients,
+    object$HARtrans,
+    as_draws_matrix(object$phi_record),
+    as_draws_matrix(object$eta_record),
+    as_draws_matrix(object$psi_record)
+  )
+  dim_data <- object$m
+  var_names <- colnames(object$y0)
+  pred_mean <- pred_res$posterior_mean
+  colnames(pred_mean) <- var_names
+  # Predictive distribution------------------------------------
+  num_step <- nrow(object$phi_record)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, num_step))
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
+    y = object$y
+  )
+  class(res) <- "predbvhar"
+  res
+}
+
+#' @rdname predict.varlse
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param ... not used

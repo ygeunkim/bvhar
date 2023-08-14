@@ -6,6 +6,8 @@
 \alias{predict.bvarmn}
 \alias{predict.bvharmn}
 \alias{predict.bvarflat}
+\alias{predict.bvarssvs}
+\alias{predict.bvharssvs}
 \alias{predict.bvarsv}
 \alias{predict.bvharsv}
 \alias{print.predbvhar}
@@ -21,6 +23,10 @@
 \method{predict}{bvharmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
 
 \method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+
+\method{predict}{bvarssvs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvharssvs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvarsv}(object, n_ahead, ...)
 
@@ -143,6 +149,24 @@ and recursively,
 See \link{bvar_predictive_density} how to generate the predictive distribution.
 }
 
+\section{n-step ahead forecasting VAR(p) with SSVS and Horseshoe}{
+
+The process of the computing point estimate is the same.
+However, predictive interval is achieved from each Gibbs sampler sample.
+
+\deqn{y_{n + 1} \mid A, \Sigma_e, y \sim N( vec(y_{(n)}^T A), \Sigma_e )}
+\deqn{y_{n + h} \mid A, \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e )}
+}
+
+\section{n-step ahead forecasting VHAR with SSVS and Horseshoe}{
+
+The process of the computing point estimate is the same.
+However, predictive interval is achieved from each Gibbs sampler sample.
+
+\deqn{y_{n + 1} \mid \Sigma_e, y \sim N( vec(y_{(n)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n)}) )}
+\deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
+}
+
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
 
@@ -159,4 +183,8 @@ Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregre
 Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
 
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
+
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
 }

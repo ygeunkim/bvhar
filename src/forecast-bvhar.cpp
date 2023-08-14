@@ -107,6 +107,72 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   );
 }
 
+//' Forecasting VHAR with SSVS
+//' 
+//' @param month VHAR month order.
+//' @param step Integer, Step to forecast.
+//' @param response_mat Response matrix.
+//' @param coef_mat Posterior mean of SSVS.
+//' @param HARtrans VHAR linear transformation matrix
+//' @param phi_record Matrix, MCMC trace of alpha.
+//' @param eta_record Matrix, MCMC trace of eta.
+//' @param psi_record Matrix, MCMC trace of psi.
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List forecast_bvharssvs(int month,
+                              int step,
+                              Eigen::MatrixXd response_mat,
+                              Eigen::MatrixXd coef_mat,
+                              Eigen::MatrixXd HARtrans,
+                              Eigen::MatrixXd phi_record,
+                              Eigen::MatrixXd eta_record,
+                              Eigen::MatrixXd psi_record) {
+  int num_sim = phi_record.rows();
+  int dim = response_mat.cols();
+  int num_design = response_mat.rows();
+  int dim_har = HARtrans.cols();
+  Eigen::MatrixXd point_forecast(step, dim);
+  Eigen::VectorXd density_forecast(dim);
+  Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+  Eigen::VectorXd last_pvec(dim_har);
+  Eigen::VectorXd tmp_vec((month - 1) * dim);
+  last_pvec[dim_har - 1] = 1.0;
+  for (int i = 0; i < month; i++) {
+    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
+  }
+  point_forecast.row(0) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
+  Eigen::MatrixXd chol_factor(dim, dim);
+  Eigen::MatrixXd sig_cycle(dim, dim);
+  for (int b = 0; b < num_sim; b++) {
+    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+    chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+    sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
+    predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
+  }
+  if (step == 1) {
+    return Rcpp::List::create(
+      Rcpp::Named("posterior_mean") = point_forecast,
+      Rcpp::Named("predictive") = predictive_distn
+    );
+  }
+  for (int i = 1; i < step; i++) {
+    tmp_vec = last_pvec.segment(0, (month - 1) * dim);
+    last_pvec.segment(dim, (month - 1) * dim) = tmp_vec;
+    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
+    point_forecast.row(i) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
+    for (int b = 0; b < num_sim; b++) {
+      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+      chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+      sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
+      predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
+    }
+  }
+  return Rcpp::List::create(
+    Rcpp::Named("posterior_mean") = point_forecast,
+    Rcpp::Named("predictive") = predictive_distn
+  );
+}
+
 //' Forecasting VHAR-SV
 //' 
 //' @param month VHAR month order.

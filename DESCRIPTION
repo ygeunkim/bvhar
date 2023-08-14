@@ -1,7 +1,7 @@
 Package: bvhar
 Type: Package
 Title: Bayesian Vector Heterogeneous Autoregressive Modeling
-Version: 0.13.0
+Version: 0.14.0
 Date: 2021-08-01
 Authors@R: 
     c(person(given = "Young Geun",
@@ -20,6 +20,7 @@ URL: https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,
+    doMC,
     knitr,
     parallel,
     rmarkdown,
@@ -40,7 +41,9 @@ Imports:
     stats,
     optimParallel,
     posterior,
-    bayesplot
+    bayesplot,
+    doRNG,
+    forcats
 LinkingTo: 
     Rcpp,
     RcppEigen,

@@ -101,11 +101,25 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param bayes_spec A BVAR model specification by [set_bvar()].
+#' @param bayes_spec A BVAR model specification by [set_ssvs()].
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
+#' @details 
+#' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
+#' 
+#' \deqn{\alpha_j \mid \gamma_j \sim (1 - \gamma_j) N(0, \kappa_{0j}^2) + \gamma_j N(0, \kappa_{1j}^2)}
+#' \deqn{\gamma_j \sim Bernoulli(q_j)}
+#' 
+#' and for upper triangular matrix \eqn{\Psi},
+#' 
+#' \deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
+#' \deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
+#' \deqn{w_{ij} \sim Bernoulli(q_{ij})}
+#' 
+#' Gibbs sampler is used for the estimation.
+#' See [ssvs_bvar_algo] how it works.
 #' @return `bvar_niwhm` returns an object named `bvarhm` [class].
 #' It is a list with the following components:
 #' 
@@ -409,40 +423,40 @@ print.bvharpriorspec <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat(paste0("Hyperprior specification for ", x$hyperparam, "\n\n"))
   hyper_prior <- ifelse(x$hyperparam == "lambda", "Gamma", "Inv-Gamma")
   switch (hyper_prior,
-          "Gamma" = {
-            print.default(
-              paste0(
-                x$hyperparam,
-                " ~ ",
-                hyper_prior,
-                "(shape = ",
-                x$param[1],
-                ", rate =",
-                x$param[2],
-                ")"
-              ),
-              digits = digits,
-              print.gap = 2L,
-              quote = FALSE
-            )
-          },
-          "Inv-Gamma" = {
-            print.default(
-              paste0(
-                x$hyperparam,
-                " ~ ",
-                hyper_prior,
-                "(shape = ",
-                x$param[1],
-                ", scale =",
-                x$param[2],
-                ")"
-              ),
-              digits = digits,
-              print.gap = 2L,
-              quote = FALSE
-            )
-          }
+    "Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", rate =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    },
+    "Inv-Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", scale =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    }
   )
   cat(sprintf("with mode: %.3f", x$mode))
   invisible(x)

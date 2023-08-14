@@ -25,6 +25,8 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x);
 
+Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
+
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 
 double mgammafn(double x, int p);
@@ -34,5 +36,9 @@ double log_mgammafn(double x, int p);
 double invgamma_dens(double x, double shp, double scl, bool lg);
 
 double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
+
+Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
+
+Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
 
 #endif

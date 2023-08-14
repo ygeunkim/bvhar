@@ -34,7 +34,7 @@ knit_print.bvarhm(x, ...)
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+\item{bayes_spec}{A BVAR model specification by \code{\link[=set_ssvs]{set_ssvs()}}.}
 
 \item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
@@ -69,6 +69,21 @@ It is a list with the following components:
 }
 \description{
 This function fits hierarchical BVAR(p) with general Minnesota prior.
+}
+\details{
+SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
+
+\deqn{\alpha_j \mid \gamma_j \sim (1 - \gamma_j) N(0, \kappa_{0j}^2) + \gamma_j N(0, \kappa_{1j}^2)}
+\deqn{\gamma_j \sim Bernoulli(q_j)}
+
+and for upper triangular matrix \eqn{\Psi},
+
+\deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
+\deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
+\deqn{w_{ij} \sim Bernoulli(q_{ij})}
+
+Gibbs sampler is used for the estimation.
+See \link{ssvs_bvar_algo} how it works.
 }
 \references{
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}

@@ -34,6 +34,18 @@ coef.bvharmn <- function(object, ...) {
   object$coefficients
 }
 
+#' @rdname coef.varlse
+#' @export
+coef.bvharsp <- function(object, ...) {
+  object$coefficients
+}
+
+#' @rdname coef.varlse
+#' @export
+coef.summary.bvharsp <- function(object, ...) {
+  object$coefficients
+}
+
 #' Residual Matrix from Multivariate Time Series Models
 #' 
 #' By defining [stats::residuals()] for each model, this function returns residual.
@@ -177,4 +189,22 @@ is.bvharemp <- function(x) {
 #' @export
 is.boundbvharemp <- function(x) {
   inherits(x, "boundbvharemp")
+}
+
+#' @rdname is.varlse
+#' @export
+is.ssvsinput <- function(x) {
+  inherits(x, "ssvsinput")
+}
+
+#' @rdname is.varlse
+#' @export
+is.ssvsinit <- function(x) {
+  inherits(x, "ssvsinit")
+}
+
+#' @rdname is.varlse
+#' @export
+is.bvharpriorspec <- function(x) {
+  inherits(x, "bvharpriorspec")
 }

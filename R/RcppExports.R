@@ -215,6 +215,113 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
+#' Building Spike-and-slab SD Diagonal Matrix
+#' 
+#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
+#' 
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
+#' @noRd
+build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
+    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
+}
+
+#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param num_design The number of sample used, \eqn{n = T - p}
+#' @noRd
+ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
+    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
+}
+
+#' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates the off-diagonal component \eqn{\Psi} of variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param chol_diag Diagonal element of the cholesky factor
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @noRd
+ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
+}
+
+#' Filling Cholesky Factor Upper Triangular Matrix
+#' 
+#' This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.
+#' 
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+#' @noRd
+build_chol <- function(diag_vec, off_diagvec) {
+    .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
+}
+
+#' Generating Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
+#' 
+#' @param prior_mean The prior mean vector of the VAR coefficient vector
+#' @param prior_sd Diagonal prior sd matrix of the VAR coefficient vector
+#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
+#' @param chol_factor Cholesky factor of variance matrix
+#' @noRd
+ssvs_coef <- function(prior_mean, prior_sd, XtX, coef_ols, chol_factor) {
+    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_sd, XtX, coef_ols, chol_factor)
+}
+
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+#' 
+#' @param param_obs Realized parameters vector
+#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
+#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
+#' @param slab_weight Proportion of nonzero coefficients
+#' @noRd
+ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
+}
+
+#' BVAR(p) SSVS by Gibbs Sampler
+#' 
+#' This function conducts Gibbs sampling for BVAR SSVS.
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param init_coef Initial k x m coefficient matrix.
+#' @param init_chol_diag Inital diagonal cholesky factor
+#' @param init_chol_upper Inital upper cholesky factor
+#' @param init_coef_dummy Initial indicator vector (0-1) corresponding to each coefficient vector
+#' @param init_chol_dummy Initial indicator vector (0-1) corresponding to each upper cholesky factor vector
+#' @param coef_spike Standard deviance for Spike normal distribution
+#' @param coef_slab Standard deviance for Slab normal distribution
+#' @param coef_slab_weight Coefficients vector sparsity proportion
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
+#' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
+#' @param chol_slab_weight Cholesky factor sparsity proportion
+#' @param intercept_mean Prior mean of unrestricted coefficients
+#' @param intercept_sd Standard deviance for unrestricted coefficients
+#' @param include_mean Add constant term
+#' @param init_gibbs Set custom initial values for Gibbs sampler
+#' @param display_progress Progress bar
+#' @noRd
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress)
+}
+
 #' Building Lower Triangular Matrix
 #' 
 #' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
@@ -461,7 +568,6 @@ scale_har <- function(dim, week, month, include_mean) {
 #' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
-#' @importFrom Rcpp sourceCpp
 #' @noRd
 estimate_har <- function(x, y, week, month, include_mean, method) {
     .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean, method)
@@ -577,6 +683,20 @@ forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
+#' Forecasting VAR(p) with SSVS
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
+}
+
 #' Forecasting VAR-SV
 #' 
 #' @param var_lag VAR order.
@@ -609,6 +729,21 @@ forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
+}
+
+#' Forecasting VHAR with SSVS
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
 }
 
 #' Forecasting VHAR-SV
@@ -841,9 +976,9 @@ forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
-#' Generate Multivariate Normal Random Vector with Zero Mean
+#' Generate Multivariate Normal Random Vector
 #' 
-#' This function samples n x muti-dimensional normal random matrix with zero mean vector.
+#' This function samples n x muti-dimensional normal random matrix.
 #' 
 #' @param num_sim Number to generate process
 #' @param mu Mean vector
@@ -1057,8 +1192,28 @@ vectorize_eigen <- function(x) {
 }
 
 #' @noRd
+unvectorize <- function(x, num_rows, num_cols) {
+    .Call(`_bvhar_unvectorize`, x, num_rows, num_cols)
+}
+
+#' @noRd
 compute_eigenvalues <- function(x) {
     .Call(`_bvhar_compute_eigenvalues`, x)
+}
+
+#' @noRd
+compute_inverse <- function(x) {
+    .Call(`_bvhar_compute_inverse`, x)
+}
+
+#' @noRd
+compute_choleksy_lower <- function(x) {
+    .Call(`_bvhar_compute_choleksy_lower`, x)
+}
+
+#' @noRd
+compute_choleksy_upper <- function(x) {
+    .Call(`_bvhar_compute_choleksy_upper`, x)
 }
 
 #' @noRd
@@ -1102,6 +1257,17 @@ log_mgammafn <- function(x, p) {
 #' @noRd
 invgamma_dens <- function(x, shp, scl, lg) {
     .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
+}
+
+#' Filling Covariance Matrix
+#' 
+#' This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
+#' 
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+#' @noRd
+build_cov <- function(diag_vec, off_diagvec) {
+    .Call(`_bvhar_build_cov`, diag_vec, off_diagvec)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
