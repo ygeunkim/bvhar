@@ -1,3 +1,9 @@
+# bvhar 0.14.0
+
+* Add Stochastic Search Variable Selection (SSVS) models for VAR and VHAR (`bvar_ssvs()` and `bvhar_ssvs()`)
+
+* Can do corresponding variable selection (`summary.ssvsmod()`)
+
 # bvhar 0.13.0
 
 * Add stochastic volatility models VAR-SV and VHAR-SV (`bvar_sv()` and `bvhar_sv()`).

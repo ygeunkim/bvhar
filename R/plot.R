@@ -638,39 +638,3 @@ autoplot.summary.bvharsp <- function(object, ...) {
     facet_grid(ord ~ ., switch = "x")
 }
 
-#' Plot the Credible Interval of Matrix-variate Horseshoe Coefficients
-#' 
-#' Draw credible interval for horseshoe prior coefficients.
-#' 
-#' @param object `summary.hsmod` object
-#' @param colour `r lifecycle::badge("experimental")` Color of the credible interval line (By default, `"black"`).
-#' @param linetype `r lifecycle::badge("experimental")` Line type of the credible interval line (By default, `1`: solid).
-#' @param fill `r lifecycle::badge("experimental")` Color to fill between credible interval lines (By default, none: `NA`).
-#' @param ... Other arguments passed on the [ggplot2::geom_ribbon()].
-#' 
-#' @importFrom ggplot2 ggplot aes geom_path geom_ribbon
-#' @importFrom dplyr mutate n
-#' @export
-autoplot.summary.hsmod <- function(object, colour = NULL, linetype = NULL, fill = NULL, ...) {
-  ci_df <- 
-    object$interval %>% 
-    mutate(estimate = c(object$posterior_mean), term = 1:n())
-  if (is.null(colour) && is.null(linetype) && is.null(fill)) {
-    NextMethod()
-  } else {
-    if (is.null(colour)) {
-      colour <- "black"
-    }
-    if (is.null(linetype)) {
-      linetype <- 1
-    }
-    if (is.null(fill)) {
-      fill <- NA
-    }
-    ci_df %>% 
-      ggplot(aes(x = term, y = estimate)) +
-      geom_path() +
-      geom_ribbon(aes(ymin = conf.low, ymax = conf.high), color = colour, linetype = linetype, fill = fill, ...)
-  }
-}
-
