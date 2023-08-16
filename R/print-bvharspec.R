@@ -379,3 +379,56 @@ registerS3method(
   knit_print.ssvsinit,
   envir = asNamespace("knitr")
 )
+
+#' @rdname set_horseshoe
+#' @param x `horseshoespec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix, Covariance (precision) matrix\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  fit_func <- switch(
+    x$process,
+    "VAR" = "?bvar_horseshoe",
+    "VHAR" = "?bvhar_horseshoe",
+    stop("Invalid 'x$process' element")
+  )
+  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior", "chain"))]
+  # num_chain <- x$chain
+  for (i in seq_along(param)) {
+    cat(paste0("Initialization for '", names(param)[i], "':\n"))
+    print.default(
+      param[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+  }
+  # if (num_chain > 1) {
+  #   cat("--------------------------------------------------------------\n")
+  #   cat("Initialized for multiple chain MCMC.")
+  # }
+  # cat("--------------------------------------------------------\n")
+  # cat("'init_local': local shrinkage for each row of coefficients matrix")
+}
+
+#' @rdname set_horseshoe
+#' @param x `horseshoespec` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.horseshoespec <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "horseshoespec",
+  knit_print.horseshoespec,
+  envir = asNamespace("knitr")
+)
