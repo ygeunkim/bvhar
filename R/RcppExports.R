@@ -215,82 +215,6 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
-#' Building Spike-and-slab SD Diagonal Matrix
-#' 
-#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
-#' 
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
-#' @noRd
-build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
-    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
-}
-
-#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
-#' 
-#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
-#' @param shape Gamma shape parameters for precision matrix
-#' @param rate Gamma rate parameters for precision matrix
-#' @param num_design The number of sample used, \eqn{n = T - p}
-#' @noRd
-ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
-    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
-}
-
-#' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates the off-diagonal component \eqn{\Psi} of variance matrix
-#' 
-#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param chol_diag Diagonal element of the cholesky factor
-#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
-#' @noRd
-ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
-    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
-}
-
-#' Filling Cholesky Factor Upper Triangular Matrix
-#' 
-#' This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.
-#' 
-#' @param diag_vec Diagonal components
-#' @param off_diagvec Off-diagonal components
-#' @noRd
-build_chol <- function(diag_vec, off_diagvec) {
-    .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
-}
-
-#' Generating Coefficient Vector in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
-#' 
-#' @param prior_mean The prior mean vector of the VAR coefficient vector
-#' @param prior_sd Diagonal prior sd matrix of the VAR coefficient vector
-#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
-#' @param chol_factor Cholesky factor of variance matrix
-#' @noRd
-ssvs_coef <- function(prior_mean, prior_sd, XtX, coef_ols, chol_factor) {
-    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_sd, XtX, coef_ols, chol_factor)
-}
-
-#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-#' 
-#' @param param_obs Realized parameters vector
-#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
-#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
-#' @param slab_weight Proportion of nonzero coefficients
-#' @noRd
-ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
-    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
-}
-
 #' BVAR(p) SSVS by Gibbs Sampler
 #' 
 #' This function conducts Gibbs sampling for BVAR SSVS.
@@ -320,76 +244,6 @@ ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
 #' @noRd
 estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress) {
     .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress)
-}
-
-#' Building Lower Triangular Matrix
-#' 
-#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
-#' 
-#' @param dim Dimension (dim x dim) of L
-#' @param lower_vec Vector a
-#' @param nthreads Number of threads for openmp
-#' 
-#' @noRd
-build_inv_lower <- function(dim, lower_vec) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
-}
-
-#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
-#' 
-#' @param x Design matrix in SUR or stacked E_t
-#' @param y Response vector in SUR or stacked e_t
-#' @param prior_mean Prior mean vector
-#' @param prior_prec Prior precision matrix
-#' @param innov_prec Stacked precision matrix of innovation
-#' 
-#' @noRd
-varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
-    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
-}
-
-#' Generating log-volatilities in MCMC
-#' 
-#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
-#' 
-#' @param sv_vec log-volatilities vector
-#' @param init_sv Initial log-volatility
-#' @param sv_sig Variance of log-volatilities
-#' @param latent_vec Auxiliary residual vector
-#' @param nthreads Number of threads for openmp
-#' 
-#' @noRd
-varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
-    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
-}
-
-#' Generating sig_h in MCMC
-#' 
-#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
-#' 
-#' @param shp Prior shape of sigma
-#' @param scl Prior scale of sigma
-#' @param init_sv Initial log volatility
-#' @param h1 Time-varying h1 matrix
-#' 
-#' @noRd
-varsv_sigh <- function(shp, scl, init_sv, h1) {
-    .Call(`_bvhar_varsv_sigh`, shp, scl, init_sv, h1)
-}
-
-#' Generating h0 in MCMC
-#' 
-#' In MCMC, this function samples h0 in VAR-SV.
-#' 
-#' @param prior_mean Prior mean vector of h0.
-#' @param prior_prec Prior precision matrix of h0.
-#' @param init_sv Initial log volatility
-#' @param h1 h1
-#' @param sv_sig Variance of log volatility
-#' 
-#' @noRd
-varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
-    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
 }
 
 #' VAR-SV by Gibbs Sampler
@@ -1179,6 +1033,152 @@ compute_var_stablemat <- function(object) {
 #' @noRd
 compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
+}
+
+#' Building Spike-and-slab SD Diagonal Matrix
+#' 
+#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
+#' 
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
+#' @noRd
+build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
+    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
+}
+
+#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param num_design The number of sample used, \eqn{n = T - p}
+#' @noRd
+ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
+    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
+}
+
+#' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates the off-diagonal component \eqn{\Psi} of variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param chol_diag Diagonal element of the cholesky factor
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @noRd
+ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
+    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
+}
+
+#' Filling Cholesky Factor Upper Triangular Matrix
+#' 
+#' This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.
+#' 
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+#' @noRd
+build_chol <- function(diag_vec, off_diagvec) {
+    .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
+}
+
+#' Generating Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
+#' 
+#' @param prior_mean The prior mean vector of the VAR coefficient vector
+#' @param prior_sd Diagonal prior sd matrix of the VAR coefficient vector
+#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
+#' @param chol_factor Cholesky factor of variance matrix
+#' @noRd
+ssvs_coef <- function(prior_mean, prior_sd, XtX, coef_ols, chol_factor) {
+    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_sd, XtX, coef_ols, chol_factor)
+}
+
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+#' 
+#' @param param_obs Realized parameters vector
+#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
+#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
+#' @param slab_weight Proportion of nonzero coefficients
+#' @noRd
+ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
+    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
+}
+
+#' Building Lower Triangular Matrix
+#' 
+#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
+#' 
+#' @param dim Dimension (dim x dim) of L
+#' @param lower_vec Vector a
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
+}
+
+#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+#' 
+#' @param x Design matrix in SUR or stacked E_t
+#' @param y Response vector in SUR or stacked e_t
+#' @param prior_mean Prior mean vector
+#' @param prior_prec Prior precision matrix
+#' @param innov_prec Stacked precision matrix of innovation
+#' 
+#' @noRd
+varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+}
+
+#' Generating log-volatilities in MCMC
+#' 
+#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
+#' 
+#' @param sv_vec log-volatilities vector
+#' @param init_sv Initial log-volatility
+#' @param sv_sig Variance of log-volatilities
+#' @param latent_vec Auxiliary residual vector
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
+    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
+}
+
+#' Generating sig_h in MCMC
+#' 
+#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
+#' 
+#' @param shp Prior shape of sigma
+#' @param scl Prior scale of sigma
+#' @param init_sv Initial log volatility
+#' @param h1 Time-varying h1 matrix
+#' 
+#' @noRd
+varsv_sigh <- function(shp, scl, init_sv, h1) {
+    .Call(`_bvhar_varsv_sigh`, shp, scl, init_sv, h1)
+}
+
+#' Generating h0 in MCMC
+#' 
+#' In MCMC, this function samples h0 in VAR-SV.
+#' 
+#' @param prior_mean Prior mean vector of h0.
+#' @param prior_prec Prior precision matrix of h0.
+#' @param init_sv Initial log volatility
+#' @param h1 h1
+#' @param sv_sig Variance of log volatility
+#' 
+#' @noRd
+varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
+    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
 }
 
 #' @noRd

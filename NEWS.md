@@ -1,3 +1,5 @@
+# bvhar 0.14.1
+
 # bvhar 0.14.0
 
 * Add Stochastic Search Variable Selection (SSVS) models for VAR and VHAR (`bvar_ssvs()` and `bvhar_ssvs()`)

@@ -71,6 +71,59 @@ summary.ssvsmod <- function(object, ...) {
   res
 }
 
+#' Summarizing VAR and VHAR with Matrix-variate Horseshoe Prior Model
+#' 
+#' Conduct variable selection.
+#' 
+#' @param object `hsmod` object
+#' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
+#' @param correction Multiple testing correction. By default, `FALSE`.
+#' @param ... not used
+#' @details 
+#' MCMC can construct \eqn{100 (1 - \alpha)} credible interval.
+#' This interval can help variable selection.
+#' 
+#' @importFrom posterior summarise_draws subset_draws
+#' @importFrom stats quantile
+#' @importFrom dplyr rename
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
+#' @export
+summary.hsmod <- function(object, level = .05, correction = FALSE, ...) {
+  # low_lev <- level / 2
+  low_lev <- ifelse(correction, level / (2 * object$df * object$m), level / 2)
+  cred_int <- 
+    object$param %>% 
+    subset_draws("alpha|phi", regex = TRUE) %>% 
+    summarise_draws(
+      ~quantile(
+        .,
+        prob = c(low_lev, 1 - low_lev)
+      )
+    )
+  colnames(cred_int) <- c("term", "conf.low", "conf.high")
+  selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
+  coef_res <- ifelse(selection, object$coefficients, 0L)
+  rownames(selection) <- rownames(object$coefficients)
+  colnames(selection) <- colnames(object$coefficients)
+  rownames(coef_res) <- rownames(object$coefficients)
+  colnames(coef_res) <- colnames(object$coefficients)
+  # return S3 object---------------------------
+  res <- list(
+    call = object$call,
+    process = object$process,
+    p = object$p,
+    m = object$m,
+    type = object$type,
+    interval = cred_int,
+    coefficients = coef_res,
+    posterior_mean = object$coefficients,
+    level = level,
+    choose_coef = selection
+  )
+  class(res) <- c("summary.hsmod", "summary.bvharsp")
+  res
+}
+
 #' Evaluate the Estimation Based on Frobenius Norm
 #' 
 #' This function computes estimation error given estimated model and true coefficient.
