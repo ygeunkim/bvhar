@@ -279,8 +279,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1195,8 +1195,8 @@ varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
-    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
+varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
+    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
 }
 
 #' Generating sig_h in MCMC

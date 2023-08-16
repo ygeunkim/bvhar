@@ -200,11 +200,17 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd varsv_ht(Eigen::VectorXd pj,
-                         Eigen::VectorXd muj, Eigen::VectorXd sigj,
-                         Eigen::VectorXd sv_vec, double init_sv,
+Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
                          double sv_sig, Eigen::VectorXd latent_vec, int nthreads) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
+  // 7-component normal mixutre
+  Eigen::VectorXd pj(7); // p_t
+  pj << 0.0073, 0.10556, 0.00002, 0.04395, 0.34001, 0.24566, 0.2575;
+  Eigen::VectorXd muj(7); // mu_t
+  muj << -10.12999, -3.97281, -8.56686, 2.77786, 0.61942, 1.79518, -1.08819;
+  muj.array() -= 1.2704;
+  Eigen::VectorXd sigj(7); // sig_t^2
+  sigj << 5.79596, 2.61369, 5.17950, 0.16735, 0.64009, 0.34023, 1.26261;
   Eigen::VectorXd sdj = sigj.cwiseSqrt();
   Eigen::VectorXi binom_latent(num_design);
   Eigen::VectorXd ds(num_design); // (mu_st - 1.2704)

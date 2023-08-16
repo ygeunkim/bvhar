@@ -24,13 +24,22 @@
 // [[Rcpp::export]]
 Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::MatrixXd x, Eigen::MatrixXd y,
-                           Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec,
+                           Eigen::MatrixXd prior_coef_mean,
+                           Eigen::MatrixXd prior_coef_prec,
                            Eigen::MatrixXd prec_diag,
+                           int prior_type,
+                           Eigen::VectorXd init_local, double init_global,
+                           bool include_mean,
                            bool display_progress, int nthreads) {
   int dim = y.cols(); // k
   int dim_design = x.cols(); // kp(+1)
   int num_design = y.rows(); // n = T - p
   int num_lowerchol = dim * (dim - 1) / 2;
+  int num_coef = dim * dim_design;
+  int num_restrict = num_coef - dim;
+  if (!include_mean) {
+    num_restrict += dim; // always dim^2 p
+  }
   // SUR---------------------------------------------------
   Eigen::VectorXd response_vec = vectorize_eigen(y);
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
@@ -45,7 +54,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd prior_init_prec = Eigen::MatrixXd::Identity(dim, dim) / 10; // Inverse of B0 = .1 * I
   Eigen::MatrixXd coef_ols = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
   // record------------------------------------------------
-  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, dim * dim_design); // alpha in VAR
+  Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // alpha in VAR
   Eigen::MatrixXd chol_lower_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, ..., ak1, ..., ak(k-1)
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
@@ -68,14 +77,24 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd prec_stack = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // sigma^(-1) = diag(sigma_1^(-1), ..., sigma_n^(-1)) with sigma_t^(-1) = L^T D_t^(-1) L
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
   int reginnov_id = 0;
-  // 7-component normal mixutre
-  Eigen::VectorXd pj(7); // p_t
-  pj << 0.0073, 0.10556, 0.00002, 0.04395, 0.34001, 0.24566, 0.2575;
-  Eigen::VectorXd muj(7); // mu_t
-  muj << -10.12999, -3.97281, -8.56686, 2.77786, 0.61942, 1.79518, -1.08819;
-  muj.array() -= 1.2704;
-  Eigen::VectorXd sigj(7); // sig_t^2
-  sigj << 5.79596, 2.61369, 5.17950, 0.16735, 0.64009, 0.34023, 1.26261;
+  // SSVS------------
+  
+  
+  
+  // Horseshoe-------
+  if (prior_type == 3) {
+    prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
+  }
+  Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(num_coef, num_coef);
+  Eigen::MatrixXd local_record(num_iter + 1, num_coef);
+  Eigen::VectorXd global_record(num_iter + 1);
+  Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
+  local_record.row(0) = init_local;
+  global_record[0] = init_global;
+  shrink_record.row(0) = 1 / (1 + (init_global * init_local).array().square());
+  Eigen::VectorXd latent_local(num_coef);
+  double latent_global = 0.0;
+  
   // Start Gibbs sampling-----------------------------------
   Progress p(num_iter, display_progress);
   for (int i = 1; i < num_iter + 1; i ++) {
@@ -92,13 +111,42 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1));
     for (int t = 0; t < num_design; t++) {
-      innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (-lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)).array().exp();
+      innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
+        -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
+      ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
       // cov_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim).inverse();
     }
-    coef_record.row(i) = varsv_regression(
-      design_mat, response_vec, prior_alpha_mean, prior_alpha_prec, prec_stack
-    );
+    switch(prior_type) {
+    case 1:
+      coef_record.row(i) = varsv_regression(
+        design_mat, response_vec, prior_alpha_mean, prior_alpha_prec, prec_stack
+      );
+      break;
+    case 2:
+      // SSVS
+      break;
+    case 3:
+      // HS
+      lambda_mat = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
+      coef_record.row(i) = varsv_regression(
+        design_mat, response_vec,
+        prior_alpha_mean,
+        lambda_mat, prec_stack
+      );
+      latent_local = horseshoe_latent_local(local_record.row(i - 1));
+      latent_global = horseshoe_latent_global(global_record[i - 1]);
+      local_record.row(i) = horseshoe_local_sparsity(
+        latent_local, global_record[i - 1],
+        coef_record.row(i), 1
+      );
+      global_record[i] = horseshoe_global_sparsity(
+        latent_global, local_record.row(i),
+        coef_record.row(i), 1
+      );
+      shrink_record.row(i) = 1 / (1 + (global_record[i] * local_record.row(i)).array().square());
+      break;
+    }
     // 2. h---------------------------------
     coef_mat = Eigen::Map<Eigen::MatrixXd>(coef_record.row(i).data(), dim_design, dim);
     latent_innov = y - x * coef_mat;
@@ -106,7 +154,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
     for (int t = 0; t < dim; t++) {
       lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(
-        pj, muj, sigj,
         lvol_record.col(t).segment(num_design * (i - 1), num_design),
         lvol_init_record(i - 1, t),
         lvol_sig_record(i - 1, t),
