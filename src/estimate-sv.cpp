@@ -1,4 +1,3 @@
-#include "bvharomp.h"
 #include <RcppEigen.h>
 #include "bvhardraw.h"
 #include <progress.hpp>
