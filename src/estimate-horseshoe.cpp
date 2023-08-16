@@ -33,7 +33,8 @@ Eigen::MatrixXd build_shrink_mat(double global_hyperparam, Eigen::VectorXd local
 //' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, double var, Eigen::MatrixXd shrink_mat) {
+Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
+                               double var, Eigen::MatrixXd shrink_mat) {
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
     Eigen::MatrixXd::Identity(design_mat.cols(), design_mat.cols())
   );
@@ -117,7 +118,8 @@ double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, E
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam, Eigen::VectorXd coef_vec, double prior_var) {
+Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam,
+                                         Eigen::VectorXd coef_vec, double prior_var) {
   int dim = coef_vec.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -136,7 +138,8 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double gl
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::VectorXd coef_vec, double prior_var) {
+double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam,
+                                 Eigen::VectorXd coef_vec, double prior_var) {
   int dim = coef_vec.size();
   double invgam_scl = 1 / global_latent;
   for (int i = 0; i < dim; i++) {

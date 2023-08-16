@@ -107,8 +107,6 @@ bvar_horseshoe <- function(y,
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
   }
-  init_local <- bayes_spec$local_sparsity
-  init_global <- bayes_spec$global_sparsity
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -120,8 +118,8 @@ bvar_horseshoe <- function(y,
     num_burn = num_burn,
     x = X0,
     y = Y0,
-    init_local = init_local,
-    init_global = init_global,
+    init_local = bayes_spec$local_sparsity,
+    init_global = bayes_spec$global_sparsity,
     init_sigma = 1,
     blocked_gibbs = algo,
     fast = fast,
