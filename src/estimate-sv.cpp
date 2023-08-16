@@ -38,7 +38,9 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec) {
+Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
+                                 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
+                                 Eigen::MatrixXd innov_prec) {
   Eigen::MatrixXd post_prec = (prior_prec + x.transpose() * innov_prec * x).llt().solve(Eigen::MatrixXd::Identity(x.cols(), x.cols()));
   return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + x.transpose() * innov_prec * y), post_prec));
 }
@@ -55,7 +57,9 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::Ve
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd varsv_ht(Eigen::VectorXd pj, Eigen::VectorXd muj, Eigen::VectorXd sigj, Eigen::VectorXd sv_vec, double init_sv, double sv_sig, Eigen::VectorXd latent_vec, int nthreads) {
+Eigen::VectorXd varsv_ht(Eigen::VectorXd pj, Eigen::VectorXd muj, Eigen::VectorXd sigj,
+                         Eigen::VectorXd sv_vec, double init_sv, double sv_sig,
+                         Eigen::VectorXd latent_vec, int nthreads) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
   Eigen::VectorXd sdj = sigj.cwiseSqrt();
   Eigen::VectorXi binom_latent(num_design);
@@ -109,7 +113,8 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd pj, Eigen::VectorXd muj, Eigen::VectorX
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::VectorXd init_sv, Eigen::MatrixXd h1) {
+Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl,
+                           Eigen::VectorXd init_sv, Eigen::MatrixXd h1) {
   int dim = init_sv.size();
   int num_design = h1.rows();
   Eigen::VectorXd res(dim);
@@ -138,7 +143,9 @@ Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::Vect
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd init_sv, Eigen::VectorXd h1, Eigen::VectorXd sv_sig) {
+Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
+                         Eigen::VectorXd init_sv, Eigen::VectorXd h1,
+                         Eigen::VectorXd sv_sig) {
   int dim = init_sv.size();
   Eigen::MatrixXd post_h0_prec(dim, dim); // k_h0
   Eigen::MatrixXd h_diagprec = Eigen::MatrixXd::Zero(dim, dim); // diag(1 / sigma_h^2)
@@ -163,8 +170,10 @@ Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y,
-                           Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec, Eigen::MatrixXd prec_diag,
+Rcpp::List estimate_var_sv(int num_iter, int num_burn,
+                           Eigen::MatrixXd x, Eigen::MatrixXd y,
+                           Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec,
+                           Eigen::MatrixXd prec_diag,
                            bool display_progress, int nthreads) {
   int dim = y.cols(); // k
   int dim_design = x.cols(); // kp(+1)
