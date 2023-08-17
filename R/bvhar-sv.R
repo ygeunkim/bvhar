@@ -63,102 +63,122 @@ bvhar_sv <- function(y,
   if (!(is.bvharspec(bayes_spec) || is.horseshoespec(bayes_spec))) {
     stop("Provide 'bvharspec' or 'horseshoespec' for 'bayes_spec'.")
   }
-  init_local <- rep(.1, ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3))
-  init_global <- .1
-  if (is.bvharspec(bayes_spec)) {
-    if (bayes_spec$process != "BVHAR") {
-      stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
-    }
-    if (length(har) != 2 || !is.numeric(har)) {
-      stop("'har' should be numeric vector of length 2.")
-    }
-    if (har[1] > har[2]) {
-      stop("'har[1]' should be smaller than 'har[2]'.")
-    }
-    minnesota_type <- bayes_spec$prior
-    # N <- nrow(y)
-    # num_coef <- 3 * dim_data + 1
-    # model specification---------------
-    if (is.null(bayes_spec$sigma)) {
-      bayes_spec$sigma <- apply(y, 2, sd)
-    }
-    sigma <- bayes_spec$sigma
-    lambda <- bayes_spec$lambda
-    eps <- bayes_spec$eps
-  } else if (is.horseshoespec(bayes_spec)) {
-    num_restrict <- ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3)
-    if (length(bayes_spec$local_sparsity) != dim_har) {
-      if (length(bayes_spec$local_sparsity) == 1) {
-        bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
-      } else {
-        stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
+  prior_nm <- ifelse(
+    bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR",
+    "Minnesota",
+    bayes_spec$prior
+  )
+  res <- switch(
+    prior_nm,
+    "Minnesota" = {
+      if (bayes_spec$process != "BVHAR") {
+        stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
       }
-    }
-    init_local <- bayes_spec$local_sparsity
-    init_global <- bayes_spec$global_sparsity
-  }
-  # Minnesota-moment--------------------------------------
-  Yh <- switch(
-    minnesota_type,
-    "MN_VAR" = {
-      if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, dim_data)
+      if (length(har) != 2 || !is.numeric(har)) {
+        stop("'har' should be numeric vector of length 2.")
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data), include_mean)
-      colnames(Yh) <- name_var
-      Yh
-    },
-    "MN_VHAR" = {
-      if (is.null(bayes_spec$daily)) {
-        bayes_spec$daily <- rep(1, dim_data)
+      if (har[1] > har[2]) {
+        stop("'har[1]' should be smaller than 'har[2]'.")
       }
-      if (is.null(bayes_spec$weekly)) {
-        bayes_spec$weekly <- rep(1, dim_data)
+      minnesota_type <- bayes_spec$prior
+      if (is.null(bayes_spec$sigma)) {
+        bayes_spec$sigma <- apply(y, 2, sd)
       }
-      if (is.null(bayes_spec$monthly)) {
-        bayes_spec$monthly <- rep(1, dim_data)
-      }
-      Yh <- build_ydummy(
-        3,
-        sigma, 
-        lambda, 
-        bayes_spec$daily, 
-        bayes_spec$weekly, 
-        bayes_spec$monthly,
-        include_mean
+      sigma <- bayes_spec$sigma
+      lambda <- bayes_spec$lambda
+      eps <- bayes_spec$eps
+      # Minnesota-moment--------------------------------------
+      Yh <- switch(
+        minnesota_type,
+        "MN_VAR" = {
+          if (is.null(bayes_spec$delta)) {
+            bayes_spec$delta <- rep(1, dim_data)
+          }
+          Yh <- build_ydummy(
+            3,
+            sigma,
+            lambda,
+            bayes_spec$delta,
+            numeric(dim_data),
+            numeric(dim_data),
+            include_mean
+          )
+          colnames(Yh) <- name_var
+          Yh
+        },
+        "MN_VHAR" = {
+          if (is.null(bayes_spec$daily)) {
+            bayes_spec$daily <- rep(1, dim_data)
+          }
+          if (is.null(bayes_spec$weekly)) {
+            bayes_spec$weekly <- rep(1, dim_data)
+          }
+          if (is.null(bayes_spec$monthly)) {
+            bayes_spec$monthly <- rep(1, dim_data)
+          }
+          Yh <- build_ydummy(
+            3,
+            sigma,
+            lambda,
+            bayes_spec$daily,
+            bayes_spec$weekly,
+            bayes_spec$monthly,
+            include_mean
+          )
+          colnames(Yh) <- name_var
+          Yh
+        }
       )
-      colnames(Yh) <- name_var
-      Yh
+      Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+      colnames(Xh) <- name_har
+      mn_prior <- minnesota_prior(Xh, Yh)
+      prior_mean <- mn_prior$prior_mean
+      prior_prec <- mn_prior$prior_prec
+      # MCMC---------------------------------------------------
+      estimate_var_sv(
+        num_iter = num_iter,
+        num_burn = num_burn,
+        x = X1,
+        y = Y0,
+        prior_coef_mean = prior_mean,
+        prior_coef_prec = prior_prec,
+        prec_diag = diag(1 / sigma),
+        prior_type = 1,
+        init_local = rep(.1, ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3)),
+        init_global = .1,
+        include_mean = include_mean,
+        display_progress = verbose,
+        nthreads = num_thread
+      )
+    },
+    "Horseshoe" = {
+      num_restrict <- ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3)
+      if (length(bayes_spec$local_sparsity) != dim_har) {
+        if (length(bayes_spec$local_sparsity) == 1) {
+          bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+        } else {
+          stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
+        }
+      }
+      init_local <- bayes_spec$local_sparsity
+      init_global <- bayes_spec$global_sparsity
+      # MCMC---------------------------------------------------
+      estimate_var_sv(
+        num_iter = num_iter,
+        num_burn = num_burn,
+        x = X1,
+        y = Y0,
+        prior_coef_mean = matrix(0L, nrow = dim_har, ncol = dim_data),
+        prior_coef_prec = diag(dim_har),
+        prec_diag = diag(dim_data),
+        prior_type = 3,
+        init_local = init_local,
+        init_global = init_global,
+        include_mean = include_mean,
+        display_progress = verbose,
+        nthreads = num_thread
+      )
     }
-  )
-  Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
-  colnames(Xh) <- name_har
-  mn_prior <- minnesota_prior(Xh, Yh)
-  prior_mean <- mn_prior$prior_mean
-  prior_prec <- mn_prior$prior_prec
-  
-  prior_type <- bayes_spec$prior
-  prior_type <- switch(
-    bayes_spec$prior,
-    "Minnesota" = 1,
-    "SSVS" = 2,
-    "Horseshoe" = 3
-  )
-  # MCMC---------------------------------------------------
-  res <- estimate_var_sv(
-    num_iter = num_iter,
-    num_burn = num_burn,
-    x = X1,
-    y = Y0,
-    prior_coef_mean = prior_mean,
-    prior_coef_prec = prior_prec,
-    prec_diag = diag(1 / sigma),
-    prior_type = 1,
-    init_local = init_local,
-    init_global = init_global,
-    include_mean = include_mean,
-    display_progress = verbose,
-    nthreads = num_thread
   )
   # Preprocess the results--------------------------------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res)) # alpha to phi
@@ -193,7 +213,7 @@ bvhar_sv <- function(y,
   res$h0_record <- as_draws_df(res$h0_record)
   res$sigh_record <- as_draws_df(res$sigh_record)
   
-  if (prior_type == 3) {
+  if (bayes_spec$prior == "Horseshoe") {
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
     res$tau_record <- as_draws_df(res$tau_record)
@@ -213,7 +233,7 @@ bvhar_sv <- function(y,
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
     res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var
-    rownames(res$pip) <- name_lag
+    rownames(res$pip) <- name_har
     res$kappa_record <- as_draws_df(res$kappa_record)
   }
   
@@ -225,6 +245,17 @@ bvhar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
+  if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
+    res$prior_mean <- prior_mean
+    res$prior_prec <- prior_prec
+  } else if (bayes_spec$prior == "Horseshoe") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$tau_record
+    )
+  }
+  
   # variables------------
   res$df <- dim_har
   res$p <- 3
@@ -241,9 +272,6 @@ bvhar_sv <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
-  # prior-----------------
-  res$prior_mean <- prior_mean
-  res$prior_prec <- prior_prec
   # data------------------
   res$HARtrans <- HARtrans
   res$y0 <- Y0

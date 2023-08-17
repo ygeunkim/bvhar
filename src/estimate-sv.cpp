@@ -62,14 +62,15 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // Eigen::MatrixXd cov_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
   // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): stack h_j row-wise
   // Initialize--------------------------------------------
-  coef_record.row(0) = vectorize_eigen(coef_ols); // initialize alpha as OLS
+  Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
+  coef_record.row(0) = coefvec_ols; // initialize alpha as OLS
   chol_lower_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
   lvol_init_record.row(0) = (y - x * coef_ols).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
   lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
   // lvol_record.row(0) = lvol_init_record.row(0).replicate(1, num_design);
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // Some variables----------------------------------------
-  Eigen::MatrixXd coef_mat(dim_design, dim);
+  Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim);
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd reginnov_stack = Eigen::MatrixXd::Zero(num_design * dim, num_lowerchol); // stack t = 1, ..., n => e = E a + eta
@@ -78,8 +79,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
   int reginnov_id = 0;
   // SSVS------------
-  
-  
+  Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_restrict);
+  coef_dummy_record.row(0) = Eigen::MatrixXd::Identity(num_restrict, num_restrict).diagonal();
+  Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
+  Eigen::VectorXd coef_mixture_mat(num_restrict);
   
   // Horseshoe-------
   if (prior_type == 3) {
@@ -125,6 +128,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       break;
     case 2:
       // SSVS
+      // coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
+      
       break;
     case 3:
       // HS
@@ -202,6 +207,18 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       lvol_init_record.row(i - 1),
       lvol_record.block(num_design * i, 0, num_design, dim).row(0),
       lvol_sig_record.row(i)
+    );
+  }
+  if (prior_type == 3) {
+    return Rcpp::List::create(
+      Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
+      Rcpp::Named("a_record") = chol_lower_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("tau_record") = global_record.tail(num_iter - num_burn),
+      Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
     );
   }
   return Rcpp::List::create(
