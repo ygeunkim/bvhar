@@ -9,6 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). By default, `FALSE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details
@@ -30,6 +31,7 @@ bvar_sv <- function(y,
                     thinning = 1,
                     bayes_spec = set_bvar(),
                     include_mean = TRUE,
+                    minnesota = FALSE,
                     verbose = FALSE,
                     num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -55,9 +57,15 @@ bvar_sv <- function(y,
   colnames(X0) <- name_lag
   num_design <- nrow(Y0)
   dim_design <- ncol(X0)
+  num_alpha <- dim_data^2 * p
+  num_eta <- dim_data * (dim_data - 1) / 2
   # model specification---------------
-  if (!(is.bvharspec(bayes_spec) || is.horseshoespec(bayes_spec))) {
-    stop("Provide 'bvharspec' or 'horseshoespec' for 'bayes_spec'.")
+  if (!(
+    is.bvharspec(bayes_spec) ||
+    is.ssvsinput(bayes_spec) ||
+    is.horseshoespec(bayes_spec)
+  )) {
+    stop("Provide 'bvharspec', 'ssvsinput', or 'horseshoespec' for 'bayes_spec'.")
   }
   # MCMC iterations-------------------
   if (num_iter < 1) {
@@ -106,15 +114,77 @@ bvar_sv <- function(y,
         prior_coef_prec = prior_prec,
         prec_diag = diag(1 / sigma),
         prior_type = 1,
-        init_local = rep(.1, ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)),
+        init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
         init_global = .1,
+        coef_spike = rep(0.1, num_alpha),
+        coef_slab = rep(5, num_alpha),
+        coef_slab_weight = rep(.5, num_alpha),
+        intercept_mean = rep(0, dim_data),
+        intercept_sd = .1,
+        include_mean = include_mean,
+        display_progress = verbose,
+        nthreads = num_thread
+      )
+    },
+    "SSVS" = {
+      init_coef <- 1L
+      init_coef_dummy <- 1L
+      if (length(bayes_spec$coef_spike) == 1) {
+        bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
+      }
+      if (length(bayes_spec$coef_slab) == 1) {
+        bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_alpha)
+      }
+      if (length(bayes_spec$coef_mixture) == 1) {
+        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_alpha)
+      }
+      if (length(bayes_spec$mean_non) == 1) {
+        bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+      }
+      if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+        # Conduct semiautomatic function using var_lm()
+        stop("Specify spike-and-slab of coefficients.")
+      }
+      if (!(
+        length(bayes_spec$coef_spike) == num_alpha &&
+        length(bayes_spec$coef_slab) == num_alpha &&
+        length(bayes_spec$coef_mixture) == num_alpha
+      )) {
+        stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
+      }
+      if (minnesota) {
+        coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
+        diag(coef_prob[[1]]) <- 1
+        bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
+      }
+      # MCMC---------------------------------------------------
+      estimate_var_sv(
+        num_iter = num_iter,
+        num_burn = num_burn,
+        x = X0,
+        y = Y0,
+        prior_coef_mean = matrix(0L, nrow = dim_design, ncol = dim_data),
+        prior_coef_prec = diag(dim_design),
+        prec_diag = diag(dim_data),
+        prior_type = 2,
+        init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
+        init_global = .1,
+        coef_spike = bayes_spec$coef_spike,
+        coef_slab = bayes_spec$coef_slab,
+        coef_slab_weight = bayes_spec$coef_mixture,
+        intercept_mean = bayes_spec$mean_non,
+        intercept_sd = bayes_spec$sd_non,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
       )
     },
     "Horseshoe" = {
-      num_restrict <- ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
+      num_restrict <- ifelse(
+        include_mean,
+        num_alpha + dim_data,
+        num_alpha
+      )
       if (length(bayes_spec$local_sparsity) != dim_design) {
         if (length(bayes_spec$local_sparsity) == 1) {
           bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
@@ -136,6 +206,11 @@ bvar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
+        coef_spike = rep(0.1, num_alpha),
+        coef_slab = rep(5, num_alpha),
+        coef_slab_weight = rep(.5, num_alpha),
+        intercept_mean = rep(0, dim_data),
+        intercept_sd = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -173,22 +248,24 @@ bvar_sv <- function(y,
   res$a_record <- as_draws_df(res$a_record)
   res$h0_record <- as_draws_df(res$h0_record)
   res$sigh_record <- as_draws_df(res$sigh_record)
-  if (bayes_spec$prior == "Horseshoe") {
+  if (bayes_spec$prior == "SSVS") {
+    res$gamma_record <- res$gamma_record[thin_id,]
+    res$pip <- colMeans(res$gamma_record)
+    res$pip <- matrix(res$pip, ncol = dim_data)
+    if (include_mean) {
+      res$pip <- rbind(res$pip, rep(1L, dim_data))
+    }
+    colnames(res$gamma_record) <- paste0("gamma[", 1:num_alpha, "]")
+    res$gamma_record <- as_draws_df(res$gamma_record)
+    colnames(res$pip) <- name_var
+    rownames(res$pip) <- name_lag
+  } else if (bayes_spec$prior == "Horseshoe") {
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
     res$tau_record <- as_draws_df(res$tau_record)
     res$lambda_record <- as.matrix(res$lambda_record[thin_id])
     colnames(res$lambda_record) <- "lambda"
     res$lambda_record <- as_draws_df(res$lambda_record)
-    # res$covmat <- mean(res$sigma) * diag(dim_data)
-    # res$psi_posterior <- diag(dim_data) / mean(res$sigma)
-    # colnames(res$covmat) <- name_var
-    # rownames(res$covmat) <- name_var
-    # colnames(res$psi_posterior) <- name_var
-    # rownames(res$psi_posterior) <- name_var
-    # res$sigma_record <- as.matrix(res$sigma_record[thin_id])
-    # colnames(res$sigma_record) <- "sigma"
-    # res$sigma_record <- as_draws_df(res$sigma_record)
     res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
     res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
@@ -206,7 +283,12 @@ bvar_sv <- function(y,
   if (bayes_spec$prior == "Minnesota") {
     res$prior_mean <- prior_mean
     res$prior_prec <- prior_prec
-  } else if (bayes_spec$prior == "Horseshoe") {
+  } else if (bayes_spec$prior == "SSVS") {
+    res$param <- bind_draws(
+      res$param,
+      res$gamma_record
+    )
+  } else {
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
