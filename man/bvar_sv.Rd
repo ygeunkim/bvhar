@@ -14,6 +14,7 @@ bvar_sv(
   thinning = 1,
   bayes_spec = set_bvar(),
   include_mean = TRUE,
+  minnesota = FALSE,
   verbose = FALSE,
   num_thread = 1
 )
@@ -36,6 +37,8 @@ knit_print.bvarsv(x, ...)
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{FALSE}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

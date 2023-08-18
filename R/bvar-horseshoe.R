@@ -99,7 +99,11 @@ bvar_horseshoe <- function(y,
   colnames(X0) <- name_lag
   # Initial vectors-------------------
   dim_design <- ncol(X0)
-  num_restrict <- ifelse(include_mean, dim_data^2 * p + 1, dim_data^2 * p)
+  num_restrict <- ifelse(
+    include_mean,
+    dim_data^2 * p + dim_data,
+    dim_data^2 * p
+  )
   if (length(bayes_spec$local_sparsity) != dim_design) {
     if (length(bayes_spec$local_sparsity) == 1) {
       bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
