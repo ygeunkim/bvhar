@@ -103,7 +103,11 @@ bvhar_horseshoe <- function(y,
   colnames(X1) <- name_har
   # Initial vectors-------------------
   dim_har <- ncol(X1)
-  num_restrict <- ifelse(include_mean, dim_data^2 * 3 + 1, dim_data^2 * 3)
+  num_restrict <- ifelse(
+    include_mean,
+    dim_data^2 * 3 + dim_data,
+    dim_data^2 * 3
+  )
   if (length(bayes_spec$local_sparsity) != dim_har) {
     if (length(bayes_spec$local_sparsity) == 1) {
       bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)

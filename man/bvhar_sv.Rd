@@ -14,6 +14,7 @@ bvhar_sv(
   thinning = 1,
   bayes_spec = set_bvhar(),
   include_mean = TRUE,
+  minnesota = c("no", "short", "longrun"),
   verbose = FALSE,
   num_thread = 1
 )
@@ -36,6 +37,8 @@ knit_print.bvharsv(x, ...)
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} type. By default, \code{"no"}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
