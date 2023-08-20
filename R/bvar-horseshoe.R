@@ -111,6 +111,18 @@ bvar_horseshoe <- function(y,
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
   }
+  
+  
+  # if (minnesota) {
+  #   glob_idmat <- split.data.frame(
+  #     matrix(rep(bayes_spec$global_sparsity), ncol = dim_data),
+  #     gl(p, dim_data)
+  #   )
+  #   glob_idmat[[1]] <- diag(dim_data)
+  #   mn_id <- which(unlist(glob_idmat) == 1)
+  # }
+  
+  
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
