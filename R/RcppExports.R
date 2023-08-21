@@ -1315,6 +1315,19 @@ horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec,
     .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
 }
 
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_global_grp_sparsity <- function(global_latent, local_mn, coef_mn, prior_var) {
+    .Call(`_bvhar_horseshoe_global_grp_sparsity`, global_latent, local_mn, coef_mn, prior_var)
+}
+
 #' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
 #' 
 #' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.

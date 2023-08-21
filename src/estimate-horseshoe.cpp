@@ -32,13 +32,12 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
   int num_coef = dim * dim_design;
-  // if (blocked_gibbs == 2 && fast) {
-  //   Rcpp::stop("Invalid option.");
-  // }
+  // int mn_size = mn_id.size();
   // record------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
   Eigen::VectorXd global_record(num_iter + 1);
+  // Eigen::MatrixXd global_record(num_iter + 1, mn_size);
   Eigen::VectorXd sig_record(num_iter + 1);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   local_record.row(0) = init_local;
@@ -48,6 +47,8 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   // Some variables----------------------------------------
   Eigen::VectorXd latent_local(num_coef);
   double latent_global = 0.0;
+  // Eigen::VectorXd latent_global(mn_size);
+  // Eigen::VectorXd global_shrinkage(num_coef);
   Eigen::VectorXd block_coef(num_coef + 1);
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
   Eigen::VectorXd response_vec = vectorize_eigen(y);
@@ -67,6 +68,10 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
     p.increment();
     // 1. alpha (coefficient)
     lambda_mat = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
+    // global_shrinkage = global_record.row(i - 1).replicate(1, dim_design);
+    // lambda_mat.diagonal() = 1 / (
+    //   local_record.row(i - 1).array().square() * global_shrinkage.array().square()
+    // );
     switch (blocked_gibbs) {
     case 1:
       // alpha and sigma each
@@ -90,10 +95,12 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
     latent_local = horseshoe_latent_local(local_record.row(i - 1));
     // 4. xi (global latent)
     latent_global = horseshoe_latent_global(global_record[i - 1]);
+    // latent_global = horseshoe_latent_local(global_record.row(i - 1));
     // 5. lambdaj (local shrinkage)
     local_record.row(i) = horseshoe_local_sparsity(latent_local, global_record[i - 1], coef_record.row(i), block_coef[0]);
     // 6. tau (global shrinkage)
     global_record[i] = horseshoe_global_sparsity(latent_global, local_record.row(i), coef_record.row(i), block_coef[0]);
+    // global_record.row(i) = horseshoe_global_grp_sparsity()
     // kappa
     shrink_record.row(i) = 1 / (1 + (global_record[i] * local_record.row(i)).array().square());
   }
