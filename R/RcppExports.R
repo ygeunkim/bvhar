@@ -229,8 +229,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param init_sigma Initial sigma
 #' @param display_progress Progress bar
 #' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress)
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -1313,6 +1313,19 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @noRd
 horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
     .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
+#' 
+#' @param local_latent Latent vectors defined for local sparsity vector
+#' @param global_hyperparam Global sparsity hyperparameter vector
+#' @param coef_vec Coefficients vector
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_local_grp_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_local_grp_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
 }
 
 #' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler

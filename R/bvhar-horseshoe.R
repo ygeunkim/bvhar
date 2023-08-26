@@ -129,6 +129,7 @@ bvhar_horseshoe <- function(y,
     init_local = bayes_spec$local_sparsity,
     init_global = bayes_spec$global_sparsity,
     init_sigma = 1,
+    mn_id = seq_len(dim_data * dim_har),
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
