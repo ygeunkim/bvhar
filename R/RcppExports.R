@@ -227,6 +227,7 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
 #' @param init_sigma Initial sigma
+#' @param mn_id Index for Minnesota lag
 #' @param display_progress Progress bar
 #' @noRd
 estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress) {
@@ -275,12 +276,20 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
 #' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
 #' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param init_local Initial local shrinkage of Horseshoe
+#' @param init_global Initial global shrinkage of Horseshoe
+#' @param mn_id Index for Minnesota lag
+#' @param coef_spike SD of spike normal
+#' @param coef_slab_weight SD of slab normal
+#' @param intercept_mean Prior mean of unrestricted coefficients
+#' @param intercept_sd SD for unrestricted coefficients
+#' @param include_mean Constant term
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

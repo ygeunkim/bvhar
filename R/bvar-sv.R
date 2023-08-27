@@ -116,6 +116,7 @@ bvar_sv <- function(y,
         prior_type = 1,
         init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
         init_global = .1,
+        mn_id = seq_len(dim_data * dim_design),
         coef_spike = rep(0.1, num_alpha),
         coef_slab = rep(5, num_alpha),
         coef_slab_weight = rep(.5, num_alpha),
@@ -169,6 +170,7 @@ bvar_sv <- function(y,
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
         init_global = .1,
+        mn_id = seq_len(dim_data * dim_design),
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
@@ -192,8 +194,24 @@ bvar_sv <- function(y,
           stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
         }
       }
+      if (minnesota) {
+        if (include_mean) {
+          idx <- c(gl(p, dim_data), p + 1)
+        } else {
+          idx <- gl(p, dim_data)
+        }
+        glob_idmat <- split.data.frame(
+          matrix(rep(0, num_restrict), ncol = dim_data),
+          idx
+        )
+        glob_idmat[[1]] <- diag(dim_data)
+        mn_id <- which(unlist(glob_idmat) == 1)
+        init_global <- rep(bayes_spec$global_sparsity, length(mn_id))
+      } else {
+        mn_id <- seq_len(num_restrict)
+        init_global <- bayes_spec$global_sparsity
+      }
       init_local <- bayes_spec$local_sparsity
-      init_global <- bayes_spec$global_sparsity
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -206,6 +224,7 @@ bvar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
+        mn_id = mn_id - 1,
         coef_spike = rep(0.1, num_alpha),
         coef_slab = rep(5, num_alpha),
         coef_slab_weight = rep(.5, num_alpha),
@@ -260,8 +279,12 @@ bvar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_lag
   } else if (bayes_spec$prior == "Horseshoe") {
-    res$tau_record <- as.matrix(res$tau_record[thin_id])
-    colnames(res$tau_record) <- "tau"
+    if (minnesota) {
+    colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
+    } else {
+      res$tau_record <- as.matrix(res$tau_record[thin_id])
+      colnames(res$tau_record) <- "tau"
+    }
     res$tau_record <- as_draws_df(res$tau_record)
     res$lambda_record <- as.matrix(res$lambda_record[thin_id])
     colnames(res$lambda_record) <- "lambda"

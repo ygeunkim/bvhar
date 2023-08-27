@@ -17,6 +17,14 @@
 //' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
 //' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
 //' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+//' @param init_local Initial local shrinkage of Horseshoe
+//' @param init_global Initial global shrinkage of Horseshoe
+//' @param mn_id Index for Minnesota lag
+//' @param coef_spike SD of spike normal
+//' @param coef_slab_weight SD of slab normal
+//' @param intercept_mean Prior mean of unrestricted coefficients
+//' @param intercept_sd SD for unrestricted coefficients
+//' @param include_mean Constant term
 //' @param display_progress Progress bar
 //' @param nthreads Number of threads for openmp
 //' 
@@ -28,7 +36,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::MatrixXd prior_coef_prec,
                            Eigen::MatrixXd prec_diag,
                            int prior_type,
-                           Eigen::VectorXd init_local, double init_global,
+                           Eigen::VectorXd init_local,
+                           Eigen::VectorXd init_global,
+                           Eigen::VectorXd mn_id,
                            Eigen::VectorXd coef_spike,
                            Eigen::VectorXd coef_slab,
                            Eigen::VectorXd coef_slab_weight,
@@ -88,8 +98,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   // HS----------------
+  int mn_size = mn_id.size();
+  int glob_len = 1;
+  if (mn_size != num_coef) {
+    glob_len = mn_size;
+  }
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
-  Eigen::VectorXd global_record(num_iter + 1);
+  // Eigen::VectorXd global_record(num_iter + 1);
+  Eigen::MatrixXd global_record(num_iter + 1, glob_len);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   // Initialize--------------------------------------------
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
@@ -103,8 +119,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
   // HS----------------
   local_record.row(0) = init_local;
-  global_record[0] = init_global;
-  shrink_record.row(0) = 1 / (1 + (init_global * init_local).array().square());
+  // global_record[0] = init_global;
+  global_record.row(0) = init_global;
+  // shrink_record.row(0) = 1 / (1 + (init_global * init_local).array().square());
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim);
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
@@ -119,7 +136,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::VectorXd coef_mixture_mat(num_alpha);
   // HS----------------
   Eigen::VectorXd latent_local(num_coef);
-  double latent_global = 0.0;
+  Eigen::VectorXd latent_global(glob_len);
+  Eigen::VectorXd global_shrinkage(num_coef);
+  Eigen::VectorXd mn_coef(mn_size);
+  Eigen::VectorXd mn_local(mn_size);
   // Start Gibbs sampling-----------------------------------
   Progress p(num_iter, display_progress);
   for (int i = 1; i < num_iter + 1; i ++) {
@@ -201,7 +221,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       break;
     case 3:
       // HS
-      prior_alpha_prec = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
+      // prior_alpha_prec = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
+      global_shrinkage = vectorize_eigen(
+        global_record.row(i - 1).replicate(1, num_coef / glob_len)
+      );
+      prior_alpha_prec.diagonal() = 1 / (
+        init_local.array().square() * global_shrinkage.array().square()
+      );
+      shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
       coef_record.row(i) = varsv_regression(
         design_mat, response_vec,
         prior_alpha_mean,
@@ -209,16 +236,20 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         prec_stack
       );
       latent_local = horseshoe_latent_local(local_record.row(i - 1));
-      latent_global = horseshoe_latent_global(global_record[i - 1]);
-      local_record.row(i) = horseshoe_local_sparsity(
-        latent_local, global_record[i - 1],
+      latent_global = horseshoe_latent_local(global_record.row(i - 1));
+      init_local = horseshoe_local_grp_sparsity(
+        latent_local, global_shrinkage,
         coef_record.row(i), 1
       );
-      global_record[i] = horseshoe_global_sparsity(
-        latent_global, local_record.row(i),
-        coef_record.row(i), 1
+      local_record.row(i) = init_local;
+      for (int j = 0; j < mn_size; j++) {
+        mn_coef[j] = coef_record(i, mn_id[j]);
+        mn_local[j] = local_record(i, mn_id[j]);
+      }
+      global_record.row(i) = horseshoe_global_grp_sparsity(
+        latent_global, mn_local,
+        mn_coef, 1
       );
-      shrink_record.row(i) = 1 / (1 + (global_record[i] * local_record.row(i)).array().square());
       break;
     }
     // 2. h---------------------------------
@@ -288,6 +319,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
     );
   } else if (prior_type == 3) {
+    shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
@@ -295,7 +327,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("tau_record") = global_record.tail(num_iter - num_burn),
+      Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
     );
   }
