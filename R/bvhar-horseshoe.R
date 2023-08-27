@@ -9,6 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param minnesota Minnesota type
 #' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
@@ -61,6 +62,7 @@ bvhar_horseshoe <- function(y,
                             thinning = 1,
                             bayes_spec = set_horseshoe(),
                             include_mean = TRUE,
+                            minnesota = c("no", "short", "longrun"),
                             algo = c("block", "gibbs"),
                             verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -69,6 +71,7 @@ bvhar_horseshoe <- function(y,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  minnesota <- match.arg(minnesota)
   algo <- match.arg(algo)
   algo <- switch(algo, "gibbs" = 1, "block" = 2)
   # model specification---------------
@@ -115,6 +118,41 @@ bvhar_horseshoe <- function(y,
       stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
     }
   }
+  if (include_mean) {
+    idx <- c(gl(3, dim_data), 4)
+  } else {
+    idx <- gl(3, dim_data)
+  }
+  mn_id <- switch(
+    minnesota,
+    "no" = seq_len(num_restrict),
+    "short" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_restrict), ncol = dim_data),
+        idx
+      )
+      glob_idmat[[1]] <- diag(dim_data)
+      which(unlist(glob_idmat) == 1)
+    },
+    "longrun" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_restrict), ncol = dim_data),
+        idx
+      ) %>% 
+        lapply(
+          function(x) {
+            diag(x) <- 1
+            x
+          }
+        )
+      which(unlist(glob_idmat) == 1)
+    }
+  )
+  if (minnesota == "no") {
+    global_sparsity <- bayes_spec$global_sparsity
+  } else {
+    global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
+  }
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -127,9 +165,9 @@ bvhar_horseshoe <- function(y,
     x = X1,
     y = Y0,
     init_local = bayes_spec$local_sparsity,
-    init_global = bayes_spec$global_sparsity,
+    init_global = global_sparsity,
     init_sigma = 1,
-    mn_id = seq_len(dim_data * dim_har),
+    mn_id = mn_id - 1,
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
@@ -145,8 +183,16 @@ bvhar_horseshoe <- function(y,
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_har
   res$phi_record <- as_draws_df(res$phi_record)
-  res$tau_record <- as.matrix(res$tau_record[thin_id])
-  colnames(res$tau_record) <- "tau"
+  if (minnesota == "no") {
+    res$tau_record <- as.matrix(res$tau_record[thin_id])
+    colnames(res$tau_record) <- "tau"
+  } else {
+    colnames(res$tau_record) <- paste0(
+      "tau[",
+      seq_len(ncol(res$tau_record)),
+      "]"
+    )
+  }
   res$tau_record <- as_draws_df(res$tau_record)
   res$lambda_record <- as.matrix(res$lambda_record[thin_id])
   colnames(res$lambda_record) <- "lambda"
@@ -161,7 +207,11 @@ bvhar_horseshoe <- function(y,
   colnames(res$sigma_record) <- "sigma"
   res$sigma_record <- as_draws_df(res$sigma_record)
   res$kappa_record <- res$kappa_record[thin_id,]
-  colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
+  colnames(res$kappa_record) <- paste0(
+    "kappa[",
+    seq_len(ncol(res$kappa_record)),
+    "]"
+  )
   res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
   colnames(res$pip) <- name_var
   rownames(res$pip) <- name_har

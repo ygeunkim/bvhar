@@ -487,7 +487,7 @@ Eigen::VectorXd horseshoe_global_grp_sparsity(Eigen::VectorXd global_latent, Eig
   // for (int i = 0; i < num_grp; i++) {
   //   invgam_scl[mn_id[i]] += pow(coef_vec[mn_id[i]], 2.0) / (2 * pow(local_hyperparam[mn_id[i]], 2.0));
   // }
-  invgam_scl = 1 / global_latent.array() + coef_mn.array().square() / (2 * prior_var * local_mn).array();
+  invgam_scl = 1 / global_latent.array() + (coef_mn.array().square() / (2 * prior_var * local_mn).array()).sum();
   for (int i = 0; i < num_grp; i++) {
     res[i] = sqrt(1 / gamma_rand(
       (num_grp + 1) / 2,
