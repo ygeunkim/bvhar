@@ -227,10 +227,11 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param init_local Initial local shrinkage hyperparameters
 #' @param init_global Initial global shrinkage hyperparameter
 #' @param init_sigma Initial sigma
+#' @param mn_id Index for Minnesota lag
 #' @param display_progress Progress bar
 #' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, blocked_gibbs, fast, display_progress)
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -275,12 +276,20 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
 #' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
 #' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param init_local Initial local shrinkage of Horseshoe
+#' @param init_global Initial global shrinkage of Horseshoe
+#' @param mn_id Index for Minnesota lag
+#' @param coef_spike SD of spike normal
+#' @param coef_slab_weight SD of slab normal
+#' @param intercept_mean Prior mean of unrestricted coefficients
+#' @param intercept_sd SD for unrestricted coefficients
+#' @param include_mean Constant term
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1313,6 +1322,32 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @noRd
 horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
     .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
+#' 
+#' @param local_latent Latent vectors defined for local sparsity vector
+#' @param global_hyperparam Global sparsity hyperparameter vector
+#' @param coef_vec Coefficients vector
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_local_grp_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_local_grp_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_global_grp_sparsity <- function(global_latent, local_mn, coef_mn, prior_var) {
+    .Call(`_bvhar_horseshoe_global_grp_sparsity`, global_latent, local_mn, coef_mn, prior_var)
 }
 
 #' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler

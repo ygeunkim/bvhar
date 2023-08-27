@@ -443,6 +443,60 @@ double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyp
   return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
 }
 
+//' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
+//' 
+//' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
+//' 
+//' @param local_latent Latent vectors defined for local sparsity vector
+//' @param global_hyperparam Global sparsity hyperparameter vector
+//' @param coef_vec Coefficients vector
+//' @param prior_var Variance constant of the likelihood
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd horseshoe_local_grp_sparsity(Eigen::VectorXd local_latent, Eigen::VectorXd global_hyperparam,
+                                             Eigen::VectorXd coef_vec, double prior_var) {
+  int dim = coef_vec.size();
+  Eigen::VectorXd res(dim);
+  for (int i = 0; i < dim; i++) {
+    res[i] = sqrt(
+      1 / gamma_rand(
+          1.0,
+          1 / (1 / local_latent[i] + pow(coef_vec[i], 2.0) / (2 * prior_var * pow(global_hyperparam[i], 2.0)))
+      )
+    );
+  }
+  return res;
+}
+
+//' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+//' 
+//' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+//' 
+//' @param global_latent Latent global vector
+//' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+//' @param coef_mn Coefficients vector in the i = j lag or cross lag
+//' @param prior_var Variance constant of the likelihood
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd horseshoe_global_grp_sparsity(Eigen::VectorXd global_latent, Eigen::VectorXd local_mn,
+                                              Eigen::VectorXd coef_mn, double prior_var) {
+  int num_grp = global_latent.size();
+  Eigen::VectorXd res(num_grp);
+  // Eigen::VectorXd invgam_scl = 1 / global_latent.array();
+  Eigen::VectorXd invgam_scl(num_grp);
+  // for (int i = 0; i < num_grp; i++) {
+  //   invgam_scl[mn_id[i]] += pow(coef_vec[mn_id[i]], 2.0) / (2 * pow(local_hyperparam[mn_id[i]], 2.0));
+  // }
+  invgam_scl = 1 / global_latent.array() + (coef_mn.array().square() / (2 * prior_var * local_mn).array()).sum();
+  for (int i = 0; i < num_grp; i++) {
+    res[i] = sqrt(1 / gamma_rand(
+      (num_grp + 1) / 2,
+      1 / invgam_scl[i]
+    ));
+  }
+  return res;
+}
+
 //' Generating the Latent Vector for Local Sparsity Hyperparameters in Horseshoe Gibbs Sampler
 //' 
 //' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.

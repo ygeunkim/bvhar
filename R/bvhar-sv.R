@@ -40,6 +40,7 @@ bvhar_sv <- function(y,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  minnesota <- match.arg(minnesota)
   dim_data <- ncol(y)
   week <- har[1] # 5
   month <- har[2] # 22
@@ -154,6 +155,7 @@ bvhar_sv <- function(y,
         prior_type = 1,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
         init_global = .1,
+        mn_id = seq_len(dim_data * dim_har),
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, num_phi),
@@ -253,6 +255,7 @@ bvhar_sv <- function(y,
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
         init_global = .1,
+        mn_id = seq_len(dim_data * dim_har),
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
@@ -276,8 +279,42 @@ bvhar_sv <- function(y,
           stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
         }
       }
+      if (include_mean) {
+        idx <- c(gl(3, dim_data), 4)
+      } else {
+        idx <- gl(3, dim_data)
+      }
+      mn_id <- switch(
+        minnesota,
+        "no" = seq_len(num_restrict),
+        "short" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_restrict), ncol = dim_data),
+            idx
+          )
+          glob_idmat[[1]] <- diag(dim_data)
+          which(unlist(glob_idmat) == 1)
+        },
+        "longrun" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_restrict), ncol = dim_data),
+            idx
+          ) %>% 
+            lapply(
+              function(x) {
+                diag(x) <- 1
+                x
+              }
+            )
+          which(unlist(glob_idmat) == 1)
+        }
+      )
+      if (minnesota == "no") {
+        init_global <- bayes_spec$global_sparsity
+      } else {
+        init_global <- rep(bayes_spec$global_sparsity, length(mn_id))
+      }
       init_local <- bayes_spec$local_sparsity
-      init_global <- bayes_spec$global_sparsity
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -290,6 +327,7 @@ bvhar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
+        mn_id = mn_id - 1,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, num_phi),
@@ -345,8 +383,12 @@ bvhar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
   } else if (bayes_spec$prior == "Horseshoe") {
-    res$tau_record <- as.matrix(res$tau_record[thin_id])
-    colnames(res$tau_record) <- "tau"
+    if (minnesota == "no") {
+      res$tau_record <- as.matrix(res$tau_record[thin_id])
+      colnames(res$tau_record) <- "tau"
+    } else {
+      colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
+    }
     res$tau_record <- as_draws_df(res$tau_record)
     res$lambda_record <- as.matrix(res$lambda_record[thin_id])
     colnames(res$lambda_record) <- "lambda"
