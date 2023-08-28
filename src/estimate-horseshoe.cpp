@@ -77,9 +77,10 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
     global_shrinkage = vectorize_eigen(
       global_record.row(i - 1).replicate(1, num_coef / glob_len)
     );
-    lambda_mat.diagonal() = 1 / (
-      init_local.array().square() * global_shrinkage.array().square()
-    );
+    // lambda_mat.diagonal() = 1 / (
+    //   init_local.array().square() * global_shrinkage.array().square()
+    // );
+    lambda_mat = build_shrink_mat(global_shrinkage, init_local);
     shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + lambda_mat).inverse().diagonal();
     switch (blocked_gibbs) {
     case 1:
@@ -101,11 +102,11 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
       sig_record[i] = block_coef[0];
     }
     // 3. nuj (local latent)
-    latent_local = horseshoe_latent_local(local_record.row(i - 1));
+    latent_local = horseshoe_latent(local_record.row(i - 1));
     // 4. xi (global latent)
-    latent_global = horseshoe_latent_local(global_record.row(i - 1));
+    latent_global = horseshoe_latent(global_record.row(i - 1));
     // 5. lambdaj (local shrinkage)
-    init_local = horseshoe_local_grp_sparsity(
+    init_local = horseshoe_local_sparsity(
       latent_local,
       global_shrinkage,
       coef_record.row(i),
@@ -117,7 +118,7 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
       mn_coef[j] = coef_record(i, mn_id[j]);
       mn_local[j] = local_record(i, mn_id[j]);
     }
-    global_record.row(i) = horseshoe_global_grp_sparsity(
+    global_record.row(i) = horseshoe_global_sparsity(
       latent_global,
       mn_local,
       mn_coef,

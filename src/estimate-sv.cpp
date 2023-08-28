@@ -104,7 +104,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     glob_len = mn_size;
   }
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
-  // Eigen::VectorXd global_record(num_iter + 1);
   Eigen::MatrixXd global_record(num_iter + 1, glob_len);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   // Initialize--------------------------------------------
@@ -119,9 +118,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
   // HS----------------
   local_record.row(0) = init_local;
-  // global_record[0] = init_global;
   global_record.row(0) = init_global;
-  // shrink_record.row(0) = 1 / (1 + (init_global * init_local).array().square());
   // Some variables----------------------------------------
   Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim);
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
@@ -221,13 +218,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       break;
     case 3:
       // HS
-      // prior_alpha_prec = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
       global_shrinkage = vectorize_eigen(
         global_record.row(i - 1).replicate(1, num_coef / glob_len)
       );
-      prior_alpha_prec.diagonal() = 1 / (
-        init_local.array().square() * global_shrinkage.array().square()
-      );
+      prior_alpha_prec = build_shrink_mat(global_shrinkage, init_local);
       shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
       coef_record.row(i) = varsv_regression(
         design_mat, response_vec,
@@ -235,9 +229,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         prior_alpha_prec,
         prec_stack
       );
-      latent_local = horseshoe_latent_local(local_record.row(i - 1));
-      latent_global = horseshoe_latent_local(global_record.row(i - 1));
-      init_local = horseshoe_local_grp_sparsity(
+      latent_local = horseshoe_latent(local_record.row(i - 1));
+      latent_global = horseshoe_latent(global_record.row(i - 1));
+      init_local = horseshoe_local_sparsity(
         latent_local, global_shrinkage,
         coef_record.row(i), 1
       );
@@ -246,7 +240,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         mn_coef[j] = coef_record(i, mn_id[j]);
         mn_local[j] = local_record(i, mn_id[j]);
       }
-      global_record.row(i) = horseshoe_global_grp_sparsity(
+      global_record.row(i) = horseshoe_global_sparsity(
         latent_global, mn_local,
         mn_coef, 1
       );

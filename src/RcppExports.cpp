@@ -1065,12 +1065,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_shrink_mat
-Eigen::MatrixXd build_shrink_mat(double global_hyperparam, Eigen::VectorXd local_hyperparam);
+Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::VectorXd local_hyperparam);
 RcppExport SEXP _bvhar_build_shrink_mat(SEXP global_hyperparamSEXP, SEXP local_hyperparamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type global_hyperparam(global_hyperparamSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type global_hyperparam(global_hyperparamSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_hyperparam(local_hyperparamSEXP);
     rcpp_result_gen = Rcpp::wrap(build_shrink_mat(global_hyperparam, local_hyperparam));
     return rcpp_result_gen;
@@ -1130,36 +1130,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // horseshoe_local_sparsity
-Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, double global_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
+Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, Eigen::VectorXd global_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
 RcppExport SEXP _bvhar_horseshoe_local_sparsity(SEXP local_latentSEXP, SEXP global_hyperparamSEXP, SEXP coef_vecSEXP, SEXP prior_varSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_latent(local_latentSEXP);
-    Rcpp::traits::input_parameter< double >::type global_hyperparam(global_hyperparamSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_vec(coef_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type prior_var(prior_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_local_sparsity(local_latent, global_hyperparam, coef_vec, prior_var));
-    return rcpp_result_gen;
-END_RCPP
-}
-// horseshoe_global_sparsity
-double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
-RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_hyperparamSEXP, SEXP coef_vecSEXP, SEXP prior_varSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type global_latent(global_latentSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_hyperparam(local_hyperparamSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_vec(coef_vecSEXP);
-    Rcpp::traits::input_parameter< double >::type prior_var(prior_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_hyperparam, coef_vec, prior_var));
-    return rcpp_result_gen;
-END_RCPP
-}
-// horseshoe_local_grp_sparsity
-Eigen::VectorXd horseshoe_local_grp_sparsity(Eigen::VectorXd local_latent, Eigen::VectorXd global_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
-RcppExport SEXP _bvhar_horseshoe_local_grp_sparsity(SEXP local_latentSEXP, SEXP global_hyperparamSEXP, SEXP coef_vecSEXP, SEXP prior_varSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1167,13 +1139,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type global_hyperparam(global_hyperparamSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_vec(coef_vecSEXP);
     Rcpp::traits::input_parameter< double >::type prior_var(prior_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_local_grp_sparsity(local_latent, global_hyperparam, coef_vec, prior_var));
+    rcpp_result_gen = Rcpp::wrap(horseshoe_local_sparsity(local_latent, global_hyperparam, coef_vec, prior_var));
     return rcpp_result_gen;
 END_RCPP
 }
-// horseshoe_global_grp_sparsity
-Eigen::VectorXd horseshoe_global_grp_sparsity(Eigen::VectorXd global_latent, Eigen::VectorXd local_mn, Eigen::VectorXd coef_mn, double prior_var);
-RcppExport SEXP _bvhar_horseshoe_global_grp_sparsity(SEXP global_latentSEXP, SEXP local_mnSEXP, SEXP coef_mnSEXP, SEXP prior_varSEXP) {
+// horseshoe_global_sparsity
+Eigen::VectorXd horseshoe_global_sparsity(Eigen::VectorXd global_latent, Eigen::VectorXd local_mn, Eigen::VectorXd coef_mn, double prior_var);
+RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_mnSEXP, SEXP coef_mnSEXP, SEXP prior_varSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1181,29 +1153,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_mn(local_mnSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_mn(coef_mnSEXP);
     Rcpp::traits::input_parameter< double >::type prior_var(prior_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_global_grp_sparsity(global_latent, local_mn, coef_mn, prior_var));
+    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_mn, coef_mn, prior_var));
     return rcpp_result_gen;
 END_RCPP
 }
-// horseshoe_latent_local
-Eigen::VectorXd horseshoe_latent_local(Eigen::VectorXd local_hyperparam);
-RcppExport SEXP _bvhar_horseshoe_latent_local(SEXP local_hyperparamSEXP) {
+// horseshoe_latent
+Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam);
+RcppExport SEXP _bvhar_horseshoe_latent(SEXP hyperparamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_hyperparam(local_hyperparamSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_latent_local(local_hyperparam));
-    return rcpp_result_gen;
-END_RCPP
-}
-// horseshoe_latent_global
-double horseshoe_latent_global(double global_hyperparam);
-RcppExport SEXP _bvhar_horseshoe_latent_global(SEXP global_hyperparamSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type global_hyperparam(global_hyperparamSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_latent_global(global_hyperparam));
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type hyperparam(hyperparamSEXP);
+    rcpp_result_gen = Rcpp::wrap(horseshoe_latent(hyperparam));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1586,10 +1547,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_horseshoe_var", (DL_FUNC) &_bvhar_horseshoe_var, 3},
     {"_bvhar_horseshoe_local_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_sparsity, 4},
     {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 4},
-    {"_bvhar_horseshoe_local_grp_sparsity", (DL_FUNC) &_bvhar_horseshoe_local_grp_sparsity, 4},
-    {"_bvhar_horseshoe_global_grp_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_grp_sparsity, 4},
-    {"_bvhar_horseshoe_latent_local", (DL_FUNC) &_bvhar_horseshoe_latent_local, 1},
-    {"_bvhar_horseshoe_latent_global", (DL_FUNC) &_bvhar_horseshoe_latent_global, 1},
+    {"_bvhar_horseshoe_latent", (DL_FUNC) &_bvhar_horseshoe_latent, 1},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
     {"_bvhar_unvectorize", (DL_FUNC) &_bvhar_unvectorize, 3},
