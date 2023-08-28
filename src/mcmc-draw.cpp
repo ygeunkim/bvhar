@@ -184,8 +184,16 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
                                  Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
                                  Eigen::MatrixXd innov_prec) {
-  Eigen::MatrixXd post_prec = (prior_prec + x.transpose() * innov_prec * x).llt().solve(Eigen::MatrixXd::Identity(x.cols(), x.cols()));
-  return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + x.transpose() * innov_prec * y), post_prec));
+  int dim = prior_mean.size();
+  Eigen::VectorXd res(dim);
+  for (int i = 0; i < dim; i++) {
+    res[i] = norm_rand();
+  }
+  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * innov_prec * x;
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
+  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * innov_prec * y);
+  return post_mean + post_sig_upper.inverse() * res;
 }
 
 //' Generating log-volatilities in MCMC
@@ -248,8 +256,17 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   ds[num_design - 1] = muj[binom_latent[num_design - 1]];
   inv_sig_s(num_design - 1, num_design - 1) = 1 / sigj[binom_latent[num_design - 1]];
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
-  Eigen::MatrixXd post_prec = (HtH / sv_sig + inv_sig_s).llt().solve(Eigen::MatrixXd::Identity(num_design, num_design));
-  return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (HtH * init_sv * Eigen::VectorXd::Ones(num_design) / sv_sig + inv_sig_s * (latent_vec - ds)), post_prec));
+  Eigen::VectorXd res(num_design);
+  for (int i = 0; i < num_design; i++) {
+    res[i] = norm_rand();
+  }
+  Eigen::MatrixXd post_sig = HtH / sv_sig + inv_sig_s;
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
+  Eigen::VectorXd post_mean = lltOfscale.solve(
+    HtH * init_sv * Eigen::VectorXd::Ones(num_design) / sv_sig + inv_sig_s * (latent_vec - ds)
+  );
+  return post_mean + post_sig_upper.inverse() * res;
 }
 
 //' Generating sig_h in MCMC
@@ -296,11 +313,18 @@ Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
                          Eigen::VectorXd init_sv, Eigen::VectorXd h1,
                          Eigen::VectorXd sv_sig) {
   int dim = init_sv.size();
+  Eigen::VectorXd res(dim);
+  for (int i = 0; i < dim; i++) {
+    res[i] = norm_rand();
+  }
   Eigen::MatrixXd post_h0_prec(dim, dim); // k_h0
   Eigen::MatrixXd h_diagprec = Eigen::MatrixXd::Zero(dim, dim); // diag(1 / sigma_h^2)
   h_diagprec.diagonal() = 1 / sv_sig.array();
-  post_h0_prec = (prior_prec + h_diagprec).llt().solve(Eigen::MatrixXd::Identity(dim, dim));
-  return vectorize_eigen(sim_mgaussian_chol(1, post_h0_prec * (prior_prec * prior_mean + h_diagprec * h1), post_h0_prec));
+  Eigen::MatrixXd post_h0_sig = prior_prec + h_diagprec;
+  Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_h0_sig);
+  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
+  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + h_diagprec * h1);
+  return post_mean + post_sig_upper.inverse() * res;
 }
 
 //' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
