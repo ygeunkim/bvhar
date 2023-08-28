@@ -437,12 +437,10 @@ double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, E
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_local_sparsity(
-  Eigen::VectorXd local_latent,
-  Eigen::VectorXd global_hyperparam,
-  Eigen::VectorXd coef_vec,
-  double prior_var
-) {
+Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
+                                         Eigen::VectorXd global_hyperparam,
+                                         Eigen::VectorXd coef_vec,
+                                         double prior_var) {
   int dim = coef_vec.size();
   Eigen::VectorXd res(dim);
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
@@ -462,12 +460,10 @@ Eigen::VectorXd horseshoe_local_sparsity(
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_global_sparsity(
-  Eigen::VectorXd global_latent,
-  Eigen::VectorXd local_mn,
-  Eigen::VectorXd coef_mn,
-  double prior_var
-) {
+Eigen::VectorXd horseshoe_global_sparsity(Eigen::VectorXd global_latent,
+                                          Eigen::VectorXd local_mn,
+                                          Eigen::VectorXd coef_mn,
+                                          double prior_var) {
   int num_grp = global_latent.size();
   Eigen::VectorXd res(num_grp);
   Eigen::VectorXd invgam_scl(num_grp);

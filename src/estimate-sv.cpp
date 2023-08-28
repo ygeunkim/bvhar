@@ -55,12 +55,22 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   if (!include_mean) {
     num_alpha += dim; // always dim^2 p
   }
+  int mn_size = mn_id.size();
+  int glob_len = 1;
+  if (mn_size != num_coef) {
+    glob_len = mn_size;
+  }
+#ifdef _OPENMP
+  Eigen::initParallel();
+#endif
   // SUR---------------------------------------------------
   Eigen::VectorXd response_vec = vectorize_eigen(y);
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
   // Default setting---------------------------------------
   Eigen::VectorXd prior_alpha_mean(num_coef); // prior mean vector of alpha
   Eigen::MatrixXd prior_alpha_prec = Eigen::MatrixXd::Zero(num_coef, num_coef); // prior precision of alpha
+  Eigen::VectorXd prior_chol_mean = Eigen::VectorXd::Zero(num_lowerchol); // prior mean vector of a = 0
+  Eigen::MatrixXd prior_chol_prec = Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol); // prior precision of a = I
   switch(prior_type) {
     case 1:
       prior_alpha_mean = vectorize_eigen(prior_coef_mean);
@@ -80,8 +90,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
       break;
   }
-  Eigen::VectorXd prior_chol_mean = Eigen::VectorXd::Zero(num_lowerchol); // a0 = 0
-  Eigen::MatrixXd prior_chol_prec = Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol); // Va = I
   Eigen::VectorXd prior_sig_shp = 3 * Eigen::VectorXd::Ones(dim); // nu_h = 3 * 1_k
   Eigen::VectorXd prior_sig_scl = .01 * Eigen::VectorXd::Ones(dim); // S_h = .1^2 * 1_k
   Eigen::VectorXd prior_init_mean = Eigen::VectorXd::Ones(dim); // b0 = 1
@@ -98,11 +106,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   // HS----------------
-  int mn_size = mn_id.size();
-  int glob_len = 1;
-  if (mn_size != num_coef) {
-    glob_len = mn_size;
-  }
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
   Eigen::MatrixXd global_record(num_iter + 1, glob_len);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
