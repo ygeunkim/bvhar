@@ -187,6 +187,7 @@ bvhar_horseshoe <- function(y,
     res$tau_record <- as.matrix(res$tau_record[thin_id])
     colnames(res$tau_record) <- "tau"
   } else {
+    res$tau_record <- res$tau_record[thin_id,]
     colnames(res$tau_record) <- paste0(
       "tau[",
       seq_len(ncol(res$tau_record)),
@@ -194,8 +195,12 @@ bvhar_horseshoe <- function(y,
     )
   }
   res$tau_record <- as_draws_df(res$tau_record)
-  res$lambda_record <- as.matrix(res$lambda_record[thin_id])
-  colnames(res$lambda_record) <- "lambda"
+  res$lambda_record <- res$lambda_record[thin_id,]
+  colnames(res$lambda_record) <- paste0(
+    "lambda[",
+    seq_len(ncol(res$lambda_record)),
+    "]"
+  )
   res$lambda_record <- as_draws_df(res$lambda_record)
   res$covmat <- mean(res$sigma) * diag(dim_data)
   res$psi_posterior <- diag(dim_data) / mean(res$sigma)

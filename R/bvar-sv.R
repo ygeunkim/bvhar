@@ -280,14 +280,19 @@ bvar_sv <- function(y,
     rownames(res$pip) <- name_lag
   } else if (bayes_spec$prior == "Horseshoe") {
     if (minnesota) {
-    colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
+      res$tau_record <- res$tau_record[thin_id,]
+      colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
     } else {
       res$tau_record <- as.matrix(res$tau_record[thin_id])
       colnames(res$tau_record) <- "tau"
     }
     res$tau_record <- as_draws_df(res$tau_record)
-    res$lambda_record <- as.matrix(res$lambda_record[thin_id])
-    colnames(res$lambda_record) <- "lambda"
+    res$lambda_record <- res$lambda_record[thin_id,]
+    colnames(res$lambda_record) <- paste0(
+      "lambda[",
+      seq_len(ncol(res$lambda_record)),
+      "]"
+    )
     res$lambda_record <- as_draws_df(res$lambda_record)
     res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")

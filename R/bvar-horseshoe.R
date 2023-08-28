@@ -164,6 +164,7 @@ bvar_horseshoe <- function(y,
   rownames(res$coefficients) <- name_lag
   res$alpha_record <- as_draws_df(res$alpha_record)
   if (minnesota) {
+    res$tau_record <- res$tau_record[thin_id,]
     colnames(res$tau_record) <- paste0(
       "tau[",
       seq_len(ncol(res$tau_record)),
@@ -174,7 +175,7 @@ bvar_horseshoe <- function(y,
     colnames(res$tau_record) <- "tau"
   }
   res$tau_record <- as_draws_df(res$tau_record)
-  # res$lambda_record <- as.matrix(res$lambda_record[thin_id])
+  res$lambda_record <- res$lambda_record[thin_id,]
   colnames(res$lambda_record) <- paste0(
     "lambda[",
     seq_len(ncol(res$lambda_record)),
