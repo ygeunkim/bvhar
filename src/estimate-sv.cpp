@@ -263,8 +263,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       );
     }
     // 3. a---------------------------------
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(1)
     for (int t = 0; t < num_design; t++) {
       for (int j = 1; j < dim; j++) {
         reginnov_stack.block(t * dim, 0, dim, num_lowerchol).row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
@@ -272,17 +270,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       reginnov_id = 0;
     }
-#else
-    for (int t = 0; t < num_design; t++) {
-      for (int j = 1; j < dim; j++) {
-        reginnov_stack.block(t * dim, 0, dim, num_lowerchol).row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
-        // reginnov_design.row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
-        // reginnov_design.block(j, reginnov_id, 1, j) = -latent_innov.row(t).segment(0, j);
-        reginnov_id += j;
-      }
-      reginnov_id = 0;
-    }
-#endif
     chol_lower_record.row(i) = varsv_regression(
       reginnov_stack,
       vectorize_eigen(latent_innov),
