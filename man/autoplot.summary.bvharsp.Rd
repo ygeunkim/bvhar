@@ -4,7 +4,7 @@
 \alias{autoplot.summary.bvharsp}
 \title{Plot the Heatmap of SSVS Coefficients}
 \usage{
-\method{autoplot}{summary.bvharsp}(object, ...)
+\method{autoplot}{summary.bvharsp}(object, point = FALSE, ...)
 }
 \arguments{
 \item{object}{\code{summary.bvharsp} object}

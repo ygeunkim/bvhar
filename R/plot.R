@@ -616,16 +616,31 @@ gather_heat <- function(object) {
 #' @param object `summary.bvharsp` object
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' 
-#' @importFrom ggplot2 ggplot aes geom_tile scale_x_discrete labs element_blank facet_grid
+#' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_legend labs element_blank facet_grid
 #' @importFrom forcats fct_rev
 #' @export
-autoplot.summary.bvharsp <- function(object, ...) {
+autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
   p <- 
     heat_coef %>% 
-    ggplot(aes(x = x, y = fct_rev(y))) +
-    geom_tile(aes(fill = value), ...) +
-    scale_x_discrete(position = "top") +
+    ggplot(aes(x = x, y = fct_rev(y)))
+  if (point) {
+    p <- 
+      p +
+      geom_tile(fill = NA, colour = "#403d3d") +
+      geom_point(aes(colour = abs(value), size = abs(value))) +
+      guides(
+        colour = guide_legend(title = element_blank()),
+        size = "none"
+      )
+  } else {
+    p <- 
+      p +
+      geom_tile(aes(fill = value), ...) +
+      scale_x_discrete(position = "top")
+  }
+  p <- 
+    p +
     labs(
       x = element_blank(),
       y = element_blank()
