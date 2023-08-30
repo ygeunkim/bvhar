@@ -229,9 +229,9 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 #' @param p VAR lag
 #' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param relax Only use off-diagonal terms of each coefficient matrices for restriction.
+#' @param minnesota Only use off-diagonal terms of each coefficient matrices for restriction.
 #' In `sim_ssvs_var()` function, use `TRUE` or `FALSE` (default).
-#' In `sim_ssvs_vhar()` function, `"no"` (default), `"minnesota"` type, or `"longrun"` type.
+#' In `sim_ssvs_vhar()` function, `"no"` (default), `"short"` type, or `"longrun"` type.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' @section VAR(p) with SSVS prior:
 #' Let \eqn{\alpha} be the vectorized coefficient of VAR(p).
@@ -255,7 +255,7 @@ sim_ssvs_var <- function(bayes_spec,
                          p,
                          dim_data = NULL,
                          include_mean = TRUE,
-                         relax = FALSE,
+                         minnesota = FALSE,
                          method = c("eigen", "chol")) {
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
@@ -288,7 +288,7 @@ sim_ssvs_var <- function(bayes_spec,
   if (length(bayes_spec$chol_mixture) == 1) {
     bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
   }
-  if (relax) {
+  if (minnesota) {
     coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
     diag(coef_prob[[1]]) <- 1
     bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
@@ -373,12 +373,12 @@ sim_ssvs_vhar <- function(bayes_spec,
                           har = c(5, 22),
                           dim_data = NULL,
                           include_mean = TRUE,
-                          relax = c("no", "minnesota", "longrun"),
+                          minnesota = c("no", "short", "longrun"),
                           method = c("eigen", "chol")) {
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
-  relax <- match.arg(relax)
+  minnesota <- match.arg(minnesota)
   num_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
   num_coef <- dim_data * num_har
   num_restrict <- 3 * dim_data^2
@@ -409,9 +409,9 @@ sim_ssvs_vhar <- function(bayes_spec,
   }
   bayes_spec$coef_mixture <- 
     switch(
-      relax,
+      minnesota,
       "no" = bayes_spec$coef_mixture,
-      "minnesota" = {
+      "short" = {
         coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data))
         diag(coef_prob[[1]]) <- 1
         c(do.call(rbind, coef_prob))
