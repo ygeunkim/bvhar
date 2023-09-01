@@ -151,6 +151,26 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
   return res;
 }
 
+//' Generating Slab Weight Vector in SSVS Gibbs Sampler
+//' 
+//' In MCMC process of SSVS, this function generates \eqn{p_j}.
+//' 
+//' @param param_obs Indicator variables
+//' @param prior_s1 First prior shape of Beta distribution
+//' @param prior_s2 Second prior shape of Beta distribution
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2) {
+  int num_latent = param_obs.size();
+  Eigen::VectorXd res(num_latent);
+  double post_s1 = prior_s1 + param_obs.sum(); // s1 + number of ones
+  double post_s2 = prior_s2 + num_latent - param_obs.sum(); // s2 + number of zeros
+  for (int i = 0; i < num_latent; i++) {
+    res[i] = beta_rand(post_s1, post_s2);
+  }
+  return res;
+}
+
 //' Building Lower Triangular Matrix
 //' 
 //' In MCMC, this function builds \eqn{L} given \eqn{a} vector.

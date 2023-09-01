@@ -1167,6 +1167,18 @@ ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
     .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
 }
 
+#' Generating Slab Weight Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_weight <- function(param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_weight`, param_obs, prior_s1, prior_s2)
+}
+
 #' Building Lower Triangular Matrix
 #' 
 #' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
