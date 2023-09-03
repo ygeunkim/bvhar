@@ -258,15 +258,17 @@ bvar_ssvs <- function(y,
       coef_slab_weight = bayes_spec$coef_mixture, # pj
       shape = bayes_spec$shape, # shape of gamma distn
       rate = bayes_spec$rate, # rate of gamma distn
+      coef_s1 = .5,
+      coef_s2 = .5,
       chol_spike = bayes_spec$chol_spike, # eta spike
       chol_slab = bayes_spec$chol_slab, # eta slab
       chol_slab_weight = bayes_spec$chol_mixture, # qij
-      # coef_mean = bayes_spec$mean_coef,
+      chol_s1 = .5,
+      chol_s2 = .5,
       intercept_mean = bayes_spec$mean_non,
       intercept_sd = bayes_spec$sd_non, # c for constant c I,
       include_mean = include_mean,
       init_gibbs = init_gibbs,
-      # diag_restriction = TRUE,
       display_progress = verbose
     )
   } else {

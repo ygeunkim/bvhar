@@ -24,9 +24,13 @@
 //' @param coef_slab_weight Coefficients vector sparsity proportion
 //' @param shape Gamma shape parameters for precision matrix
 //' @param rate Gamma rate parameters for precision matrix
+//' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
+//' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
 //' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 //' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 //' @param chol_slab_weight Cholesky factor sparsity proportion
+//' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
+//' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
 //' @param intercept_mean Prior mean of unrestricted coefficients
 //' @param intercept_sd Standard deviance for unrestricted coefficients
 //' @param include_mean Add constant term
@@ -41,7 +45,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
                               Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy,
                               Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight,
                               Eigen::VectorXd shape, Eigen::VectorXd rate,
+                              double coef_s1, double coef_s2,
                               Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
+                              double chol_s1, double chol_s2,
                               Eigen::VectorXd intercept_mean, double intercept_sd,
                               bool include_mean,
                               bool init_gibbs,
@@ -78,10 +84,14 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   // record-------------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_restrict);
+  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_restrict);
   Eigen::MatrixXd chol_diag_record(num_iter + 1, dim);
   Eigen::MatrixXd chol_upper_record(num_iter + 1, num_upperchol);
   Eigen::MatrixXd chol_dummy_record(num_iter + 1, num_upperchol);
+  Eigen::MatrixXd chol_weight_record(num_iter + 1, num_upperchol);
   Eigen::MatrixXd chol_factor_record(dim * (num_iter + 1), dim); // 3d matrix alternative
+  coef_weight_record.row(0) = coef_slab_weight;
+  chol_weight_record.row(0) = chol_slab_weight;
   if (init_gibbs) {
     coef_record.row(0) = init_coef;
     coef_dummy_record.row(0) = init_coef_dummy;
@@ -114,6 +124,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
         Rcpp::Named("omega_record") = chol_dummy_record,
         Rcpp::Named("gamma_record") = coef_dummy_record,
         Rcpp::Named("chol_record") = chol_factor_record,
+        Rcpp::Named("p_record") = coef_weight_record,
+        Rcpp::Named("q_record") = chol_weight_record,
         Rcpp::Named("ols_coef") = coef_ols,
         Rcpp::Named("ols_cholesky") = chol_ols
       );
@@ -125,8 +137,15 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     // 2. eta---------------------------
     chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_mixture_mat);
     chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
+    // qij
+    chol_weight_record.row(i) = ssvs_weight(chol_dummy_record.row(i - 1), chol_s1, chol_s2);
     // 3. omega--------------------------
-    chol_dummy_record.row(i) = ssvs_dummy(chol_upper_record.row(i), chol_slab, chol_spike, chol_slab_weight);
+    chol_dummy_record.row(i) = ssvs_dummy(
+      chol_upper_record.row(i),
+      chol_slab,
+      chol_spike,
+      chol_weight_record.row(i)
+    );
     // 4. alpha--------------------------
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
     if (include_mean) {
@@ -140,8 +159,15 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     coef_record.row(i) = ssvs_coef(prior_mean, prior_sd, XtX, coefvec_ols, chol_factor_record.block(i * dim, 0, dim, dim));
     coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
+    // p
+    coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i - 1), coef_s1, coef_s2);
     // 5. gamma-------------------------
-    coef_dummy_record.row(i) = ssvs_dummy(vectorize_eigen(coef_mat.topRows(num_restrict / dim)), coef_slab, coef_spike, coef_slab_weight);
+    coef_dummy_record.row(i) = ssvs_dummy(
+      vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
+      coef_slab,
+      coef_spike,
+      coef_weight_record.row(i)
+    );
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
@@ -150,6 +176,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     Rcpp::Named("omega_record") = chol_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("chol_record") = chol_factor_record.bottomRows(dim * (num_iter - num_burn)),
+    Rcpp::Named("p_record") = coef_weight_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("q_record") = chol_weight_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("ols_coef") = coef_ols,
     Rcpp::Named("ols_cholesky") = chol_ols
   );
