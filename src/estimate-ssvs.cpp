@@ -31,8 +31,8 @@
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
 //' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
-//' @param intercept_mean Prior mean of unrestricted coefficients
-//' @param intercept_sd Standard deviance for unrestricted coefficients
+//' @param mean_non Prior mean of unrestricted coefficients
+//' @param sd_non Standard deviance for unrestricted coefficients
 //' @param include_mean Add constant term
 //' @param init_gibbs Set custom initial values for Gibbs sampler
 //' @param display_progress Progress bar
@@ -48,7 +48,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
                               double coef_s1, double coef_s2,
                               Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
                               double chol_s1, double chol_s2,
-                              Eigen::VectorXd intercept_mean, double intercept_sd,
+                              Eigen::VectorXd mean_non, double sd_non,
                               bool include_mean,
                               bool init_gibbs,
                               bool display_progress) {
@@ -67,7 +67,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   if (include_mean) {
     for (int j = 0; j < dim; j++) {
       prior_mean.segment(j * dim_design, num_restrict / dim) = coef_mean.segment(j * num_restrict / dim, num_restrict / dim);
-      prior_mean[j * dim_design + num_restrict / dim] = intercept_mean[j];
+      prior_mean[j * dim_design + num_restrict / dim] = mean_non[j];
     }
   } else {
     prior_mean = coef_mean;
@@ -151,7 +151,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     if (include_mean) {
       for (int j = 0; j < dim; j++) {
         prior_sd.segment(j * dim_design, num_restrict / dim) = coef_mixture_mat.segment(j * num_restrict / dim, num_restrict / dim);
-        prior_sd[j * dim_design + num_restrict / dim] = intercept_sd;
+        prior_sd[j * dim_design + num_restrict / dim] = sd_non;
       }
     } else {
       prior_sd = coef_mixture_mat;
