@@ -217,11 +217,12 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         prec_stack
       );
       coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
-      coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i - 1), coef_s1, coef_s2);
       coef_dummy_record.row(i) = ssvs_dummy(
         vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
-        coef_slab, coef_spike, coef_weight_record.row(i)
+        coef_slab, coef_spike,
+        coef_weight_record.row(i - 1)
       );
+      coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
       break;
     case 3:
       // HS

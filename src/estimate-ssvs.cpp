@@ -137,15 +137,15 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     // 2. eta---------------------------
     chol_upper_record.row(i) = ssvs_chol_off(sse_mat, chol_diag_record.row(i), chol_mixture_mat);
     chol_factor_record.block(i * dim, 0, dim, dim) = build_chol(chol_diag_record.row(i), chol_upper_record.row(i));
-    // qij
-    chol_weight_record.row(i) = ssvs_weight(chol_dummy_record.row(i - 1), chol_s1, chol_s2);
     // 3. omega--------------------------
     chol_dummy_record.row(i) = ssvs_dummy(
       chol_upper_record.row(i),
       chol_slab,
       chol_spike,
-      chol_weight_record.row(i)
+      chol_weight_record.row(i - 1)
     );
+    // qij
+    chol_weight_record.row(i) = ssvs_weight(chol_dummy_record.row(i), chol_s1, chol_s2);
     // 4. alpha--------------------------
     coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy_record.row(i - 1));
     if (include_mean) {
@@ -159,15 +159,15 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     coef_record.row(i) = ssvs_coef(prior_mean, prior_sd, XtX, coefvec_ols, chol_factor_record.block(i * dim, 0, dim, dim));
     coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
-    // p
-    coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i - 1), coef_s1, coef_s2);
     // 5. gamma-------------------------
     coef_dummy_record.row(i) = ssvs_dummy(
       vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
       coef_slab,
       coef_spike,
-      coef_weight_record.row(i)
+      coef_weight_record.row(i - 1)
     );
+    // p
+    coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
