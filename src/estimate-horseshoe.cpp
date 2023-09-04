@@ -36,10 +36,11 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   int num_design = y.rows(); // n = T - p
   int num_coef = dim * dim_design;
   int mn_size = mn_id.size(); // If vanilla Horseshoe, same as num_coef
-  int glob_len = 1;
-  if (mn_size != num_coef) {
-    glob_len = mn_size; // glob_len = mn_size = dim
-  }
+  // int glob_len = 1;
+  // if (mn_size != num_coef) {
+  //   glob_len = mn_size; // glob_len = mn_size = dim
+  // }
+  int glob_len = init_global.size(); // 2 in VAR and 6 in VHAR
   // record------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
@@ -50,12 +51,12 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   global_record.row(0) = init_global;
   sig_record[0] = init_sigma;
   // Some variables----------------------------------------
-  Eigen::VectorXd mn_coef(mn_size);
-  Eigen::VectorXd mn_local(mn_size);
   Eigen::VectorXd latent_local(num_coef);
-  // double latent_global = 0.0;
   Eigen::VectorXd latent_global(glob_len);
   Eigen::VectorXd global_shrinkage(num_coef);
+  Eigen::VectorXd mn_coef(mn_size); // coefficients in own-lags
+  Eigen::VectorXd mn_local(mn_size); // local shrinkage for own-lags
+  Eigen::VectorXd mn_latent_global(mn_size); // Latent to global shrinkage in own-lags
   Eigen::VectorXd block_coef(num_coef + 1);
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
   Eigen::VectorXd response_vec = vectorize_eigen(y);
@@ -74,9 +75,15 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
     }
     p.increment();
     // 1. alpha (coefficient)
+    // global_shrinkage = vectorize_eigen(
+    //   global_record.row(i - 1).replicate(1, num_coef / glob_len)
+    // );
     global_shrinkage = vectorize_eigen(
-      global_record.row(i - 1).replicate(1, num_coef / glob_len)
-    );
+      global_record.block(i - 1, glob_len - 1, 1, 1).replicate(1, num_coef)
+    ); // global shrinkage for cross-lag
+    for (int j = 0; j < mn_size; j ++) {
+      global_shrinkage[mn_id[j]] = global_record(i - 1, 0); // own-lag
+    }
     // lambda_mat.diagonal() = 1 / (
     //   init_local.array().square() * global_shrinkage.array().square()
     // );
@@ -118,8 +125,9 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
       mn_coef[j] = coef_record(i, mn_id[j]);
       mn_local[j] = local_record(i, mn_id[j]);
     }
+    mn_latent_global = vectorize_eigen(latent_global.replicate(1, mn_size / glob_len));
     global_record.row(i) = horseshoe_global_sparsity(
-      latent_global,
+      mn_latent_global,
       mn_local,
       mn_coef,
       sig_record[i]

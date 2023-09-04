@@ -125,7 +125,8 @@ bvar_horseshoe <- function(y,
     )
     glob_idmat[[1]] <- diag(dim_data)
     mn_id <- which(unlist(glob_idmat) == 1)
-    global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
+    # global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
+    global_sparsity <- rep(bayes_spec$global_sparsity, 2)
   } else {
     mn_id <- seq_len(num_restrict)
     global_sparsity <- bayes_spec$global_sparsity

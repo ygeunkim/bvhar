@@ -151,7 +151,9 @@ bvhar_horseshoe <- function(y,
   if (minnesota == "no") {
     global_sparsity <- bayes_spec$global_sparsity
   } else {
-    global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
+    # global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
+    global_sparsity <- rep(bayes_spec$global_sparsity, 2)
+    # global_sparsity <- rep(bayes_spec$global_sparsity, 2 * 3)
   }
   # MCMC-----------------------------
   num_design <- nrow(Y0)
