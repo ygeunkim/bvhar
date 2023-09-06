@@ -123,6 +123,7 @@ bvhar_horseshoe <- function(y,
   } else {
     idx <- gl(3, dim_data)
   }
+  glob_idmat <- matrix(1L, nrow = dim_har, ncol = dim_data)
   mn_id <- switch(
     minnesota,
     "no" = seq_len(num_restrict),
@@ -131,30 +132,31 @@ bvhar_horseshoe <- function(y,
         matrix(rep(0, num_restrict), ncol = dim_data),
         idx
       )
-      glob_idmat[[1]] <- diag(dim_data)
-      which(unlist(glob_idmat) == 1)
+      glob_idmat[[1]] <- diag(dim_data) + 1
+      id <- 1
+      for (i in 2:3) {
+        glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+        id <- id + 2
+      }
+      glob_idmat <- do.call(rbind, glob_idmat)
+      which(c(glob_idmat) == 2)
     },
     "longrun" = {
       glob_idmat <- split.data.frame(
         matrix(rep(0, num_restrict), ncol = dim_data),
         idx
-      ) %>% 
-        lapply(
-          function(x) {
-            diag(x) <- 1
-            x
-          }
-        )
-      which(unlist(glob_idmat) == 1)
+      )
+      id <- 1
+      for (i in 1:3) {
+        glob_idmat[[i]] <- diag(dim_data) + id
+        id <- id + 2
+      }
+      glob_idmat <- do.call(rbind, glob_idmat)
+      which(c(glob_idmat) %in% c(2, 4, 6))
     }
   )
-  if (minnesota == "no") {
-    global_sparsity <- bayes_spec$global_sparsity
-  } else {
-    # global_sparsity <- rep(bayes_spec$global_sparsity, length(mn_id))
-    global_sparsity <- rep(bayes_spec$global_sparsity, 2)
-    # global_sparsity <- rep(bayes_spec$global_sparsity, 2 * 3)
-  }
+  grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+  global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -169,11 +171,16 @@ bvhar_horseshoe <- function(y,
     init_local = bayes_spec$local_sparsity,
     init_global = global_sparsity,
     init_sigma = 1,
+    grp_id = grp_id,
+    grp_mat = glob_idmat,
     mn_id = mn_id - 1,
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
   )
+
+  return(res)
+  
   # preprocess the results-----------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)

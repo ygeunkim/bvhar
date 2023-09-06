@@ -163,8 +163,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_sur_horseshoe
-Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXd mn_id, int blocked_gibbs, bool fast, bool display_progress);
-RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP mn_idSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXd grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd mn_id, int blocked_gibbs, bool fast, bool display_progress);
+RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP mn_idSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -175,11 +175,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type grp_id(grp_idSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type mn_id(mn_idSEXP);
     Rcpp::traits::input_parameter< int >::type blocked_gibbs(blocked_gibbsSEXP);
     Rcpp::traits::input_parameter< bool >::type fast(fastSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, mn_id, blocked_gibbs, fast, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1479,7 +1481,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
-    {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 11},
+    {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 13},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 22},
     {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 19},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 3},
