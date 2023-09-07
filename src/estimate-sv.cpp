@@ -243,10 +243,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         mn_coef[j] = coef_record(i, mn_id[j]);
         mn_local[j] = local_record(i, mn_id[j]);
       }
-      global_record.row(i) = horseshoe_global_sparsity(
-        latent_global, mn_local,
-        mn_coef, 1
-      );
+      // global_record.row(i) = horseshoe_global_sparsity(
+      //   latent_global, mn_local,
+      //   mn_coef, 1
+      // );
       break;
     }
     // 2. h---------------------------------

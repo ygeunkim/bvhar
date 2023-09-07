@@ -163,7 +163,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_sur_horseshoe
-Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXd grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd mn_id, int blocked_gibbs, bool fast, bool display_progress);
+Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd mn_id, int blocked_gibbs, bool fast, bool display_progress);
 RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP mn_idSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -175,7 +175,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type grp_id(grp_idSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type mn_id(mn_idSEXP);
     Rcpp::traits::input_parameter< int >::type blocked_gibbs(blocked_gibbsSEXP);
@@ -1146,16 +1146,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // horseshoe_global_sparsity
-Eigen::VectorXd horseshoe_global_sparsity(Eigen::VectorXd global_latent, Eigen::VectorXd local_mn, Eigen::VectorXd coef_mn, double prior_var);
-RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_mnSEXP, SEXP coef_mnSEXP, SEXP prior_varSEXP) {
+double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
+RcppExport SEXP _bvhar_horseshoe_global_sparsity(SEXP global_latentSEXP, SEXP local_hyperparamSEXP, SEXP coef_vecSEXP, SEXP prior_varSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type global_latent(global_latentSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_mn(local_mnSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_mn(coef_mnSEXP);
+    Rcpp::traits::input_parameter< double >::type global_latent(global_latentSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type local_hyperparam(local_hyperparamSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_vec(coef_vecSEXP);
     Rcpp::traits::input_parameter< double >::type prior_var(prior_varSEXP);
-    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_mn, coef_mn, prior_var));
+    rcpp_result_gen = Rcpp::wrap(horseshoe_global_sparsity(global_latent, local_hyperparam, coef_vec, prior_var));
     return rcpp_result_gen;
 END_RCPP
 }

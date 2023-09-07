@@ -1320,8 +1320,8 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @param coef_mn Coefficients vector in the i = j lag or cross lag
 #' @param prior_var Variance constant of the likelihood
 #' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_mn, coef_mn, prior_var) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_mn, coef_mn, prior_var)
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
 }
 
 #' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
