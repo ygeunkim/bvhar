@@ -460,23 +460,29 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_global_sparsity(Eigen::VectorXd global_latent,
-                                          Eigen::VectorXd local_mn,
-                                          Eigen::VectorXd coef_mn,
-                                          double prior_var) {
-  int num_grp = global_latent.size();
-  Eigen::VectorXd res(num_grp);
-  Eigen::VectorXd invgam_scl(num_grp);
-  invgam_scl = 1 / global_latent.array() + (
-    coef_mn.array().square() / (2 * prior_var * local_mn.array().square())
-  ).sum();
-  for (int i = 0; i < num_grp; i++) {
-    res[i] = sqrt(1 / gamma_rand(
-      (num_grp + 1) / 2,
-      1 / invgam_scl[i]
-    ));
+double horseshoe_global_sparsity(double global_latent,
+                                 Eigen::VectorXd local_hyperparam,
+                                 Eigen::VectorXd coef_vec,
+                                 double prior_var) {
+  // int num_grp = global_latent.size();
+  int dim = coef_vec.size();
+  // Eigen::VectorXd res(num_grp);
+  // Eigen::VectorXd invgam_scl(num_grp);
+  // invgam_scl = 1 / global_latent.array() + (
+  //   coef_mn.array().square() / (2 * prior_var * local_mn.array().square())
+  // ).sum();
+  double invgam_scl = 1 / global_latent;
+  for (int i = 0; i < dim; i++) {
+    invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
   }
-  return res;
+  // for (int i = 0; i < num_grp; i++) {
+  //   res[i] = sqrt(1 / gamma_rand(
+  //     (num_grp + 1) / 2,
+  //     1 / invgam_scl[i]
+  //   ));
+  // }
+  // return res;
+  return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
 }
 
 //' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
