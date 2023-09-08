@@ -230,8 +230,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param mn_id Index for Minnesota lag
 #' @param display_progress Progress bar
 #' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, mn_id, blocked_gibbs, fast, display_progress)
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -292,8 +292,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, mn_id, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1336,8 +1336,23 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @param coef_mn Coefficients vector in the i = j lag or cross lag
 #' @param prior_var Variance constant of the likelihood
 #' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_mn, coef_mn, prior_var) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_mn, coef_mn, prior_var)
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_mn_global_sparsity <- function(grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_mn_global_sparsity`, grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var)
 }
 
 #' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler

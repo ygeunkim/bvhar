@@ -480,21 +480,74 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
 //' @param prior_var Variance constant of the likelihood
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd horseshoe_global_sparsity(Eigen::VectorXd global_latent,
-                                          Eigen::VectorXd local_mn,
-                                          Eigen::VectorXd coef_mn,
-                                          double prior_var) {
-  int num_grp = global_latent.size();
+double horseshoe_global_sparsity(double global_latent,
+                                 Eigen::VectorXd local_hyperparam,
+                                 Eigen::VectorXd coef_vec,
+                                 double prior_var) {
+  // int num_grp = global_latent.size();
+  int dim = coef_vec.size();
+  // Eigen::VectorXd res(num_grp);
+  // Eigen::VectorXd invgam_scl(num_grp);
+  // invgam_scl = 1 / global_latent.array() + (
+  //   coef_mn.array().square() / (2 * prior_var * local_mn.array().square())
+  // ).sum();
+  double invgam_scl = 1 / global_latent;
+  for (int i = 0; i < dim; i++) {
+    invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
+  }
+  // for (int i = 0; i < num_grp; i++) {
+  //   res[i] = sqrt(1 / gamma_rand(
+  //     (num_grp + 1) / 2,
+  //     1 / invgam_scl[i]
+  //   ));
+  // }
+  // return res;
+  return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
+}
+
+//' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+//' 
+//' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+//' 
+//' @param grp_vec Group vector
+//' @param grp_id Unique group id
+//' @param global_latent Latent global vector
+//' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+//' @param coef_mn Coefficients vector in the i = j lag or cross lag
+//' @param prior_var Variance constant of the likelihood
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
+                                             Eigen::VectorXi grp_id,
+                                             Eigen::VectorXd global_latent,
+                                             Eigen::VectorXd local_hyperparam,
+                                             Eigen::VectorXd coef_vec,
+                                             double prior_var) {
+  int num_grp = grp_id.size();
+  int num_coef = coef_vec.size();
+  Eigen::VectorXi global_id(num_coef);
+  int mn_size = 0;
+  int mn_id = 0;
   Eigen::VectorXd res(num_grp);
-  Eigen::VectorXd invgam_scl(num_grp);
-  invgam_scl = 1 / global_latent.array() + (
-    coef_mn.array().square() / (2 * prior_var * local_mn.array().square())
-  ).sum();
   for (int i = 0; i < num_grp; i++) {
-    res[i] = sqrt(1 / gamma_rand(
-      (num_grp + 1) / 2,
-      1 / invgam_scl[i]
-    ));
+    global_id = (grp_vec.array() == grp_id[i]).cast<int>();
+    mn_size = global_id.sum();
+    Eigen::VectorXd mn_coef(mn_size);
+    Eigen::VectorXd mn_local(mn_size);
+    for (int j = 0; j < num_coef; j++) {
+      if (global_id[j] == 1) {
+        mn_coef[mn_id] = coef_vec[j];
+        mn_local[mn_id] = local_hyperparam[j];
+        mn_id++;
+      }
+    }
+    mn_id = 0;
+    res[i] = horseshoe_global_sparsity(
+      global_latent[i],
+      mn_local,
+      mn_coef,
+      prior_var
+    ); 
   }
   return res;
 }
