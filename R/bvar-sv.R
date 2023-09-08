@@ -303,10 +303,12 @@ bvar_sv <- function(y,
     res$lambda_record <- as_draws_df(res$lambda_record)
     res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
-    res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+    res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_lag
     res$kappa_record <- as_draws_df(res$kappa_record)
+    res$group <- glob_idmat
+    res$num_group <- length(grp_id)
   }
   res$param <- bind_draws(
     res$alpha_record,
