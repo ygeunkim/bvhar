@@ -123,7 +123,6 @@ bvhar_horseshoe <- function(y,
   } else {
     idx <- gl(3, dim_data)
   }
-  glob_idmat <- matrix(1L, nrow = dim_har, ncol = dim_data)
   glob_idmat <- switch(
     minnesota,
     "no" = matrix(1L, nrow = dim_har, ncol = dim_data),

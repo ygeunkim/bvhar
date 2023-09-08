@@ -53,7 +53,6 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   Eigen::VectorXd global_shrinkage(num_coef);
   Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
-  Eigen::VectorXi global_id(num_coef); // 0 1 for the group
   int mn_size = 0;
   int mn_id = 0;
   Eigen::VectorXd block_coef(num_coef + 1);

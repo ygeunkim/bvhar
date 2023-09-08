@@ -114,7 +114,6 @@ bvar_horseshoe <- function(y,
     }
   }
   glob_idmat <- matrix(1L, nrow = dim_design, ncol = dim_data)
-  mn_id <- seq_len(num_restrict)
   if (minnesota) {
     if (include_mean) {
       idx <- c(gl(p, dim_data), p + 1)
@@ -132,7 +131,6 @@ bvar_horseshoe <- function(y,
       id <- id + 2
     }
     glob_idmat <- do.call(rbind, glob_idmat)
-    mn_id <- which(c(glob_idmat) == 2)
   }
   grp_id <- unique(c(glob_idmat[1:(dim_data * p),]))
   global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))

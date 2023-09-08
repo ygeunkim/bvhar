@@ -38,7 +38,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            int prior_type,
                            Eigen::VectorXd init_local,
                            Eigen::VectorXd init_global,
-                           Eigen::VectorXd mn_id,
+                           Eigen::VectorXi grp_id,
+                           Eigen::MatrixXd grp_mat,
                            Eigen::VectorXd coef_spike,
                            Eigen::VectorXd coef_slab,
                            Eigen::VectorXd coef_slab_weight,
@@ -55,11 +56,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   if (!include_mean) {
     num_alpha += dim; // always dim^2 p
   }
-  int mn_size = mn_id.size();
-  int glob_len = 1;
-  if (mn_size != num_coef) {
-    glob_len = mn_size;
-  }
+  int num_grp = grp_id.size();
 #ifdef _OPENMP
   Eigen::initParallel();
 #endif
@@ -107,7 +104,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   // HS----------------
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
-  Eigen::MatrixXd global_record(num_iter + 1, glob_len);
+  Eigen::MatrixXd global_record(num_iter + 1, num_grp);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   // Initialize--------------------------------------------
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
@@ -136,10 +133,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::VectorXd coef_mixture_mat(num_alpha);
   // HS----------------
   Eigen::VectorXd latent_local(num_coef);
-  Eigen::VectorXd latent_global(glob_len);
+  Eigen::VectorXd latent_global(num_grp);
   Eigen::VectorXd global_shrinkage(num_coef);
-  Eigen::VectorXd mn_coef(mn_size);
-  Eigen::VectorXd mn_local(mn_size);
+  Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
+  Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
   // Start Gibbs sampling-----------------------------------
   Progress p(num_iter, display_progress);
   for (int i = 1; i < num_iter + 1; i ++) {
@@ -221,9 +218,15 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       break;
     case 3:
       // HS
-      global_shrinkage = vectorize_eigen(
-        global_record.row(i - 1).replicate(1, num_coef / glob_len)
-      );
+      for (int j = 0; j < num_grp; j++) {
+        global_shrinkage_mat = (
+          grp_mat.array() == grp_id[j]
+        ).select(
+          global_record.row(i - 1).segment(j, 1).replicate(dim_design, dim),
+          global_shrinkage_mat
+        );
+      }
+      global_shrinkage = vectorize_eigen(global_shrinkage_mat);
       prior_alpha_prec = build_shrink_mat(global_shrinkage, init_local);
       shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
       coef_record.row(i) = varsv_regression(
@@ -239,14 +242,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         coef_record.row(i), 1
       );
       local_record.row(i) = init_local;
-      for (int j = 0; j < mn_size; j++) {
-        mn_coef[j] = coef_record(i, mn_id[j]);
-        mn_local[j] = local_record(i, mn_id[j]);
-      }
-      // global_record.row(i) = horseshoe_global_sparsity(
-      //   latent_global, mn_local,
-      //   mn_coef, 1
-      // );
+      global_record.row(i) = horseshoe_mn_global_sparsity(
+        grp_vec,
+        grp_id,
+        latent_global,
+        init_local,
+        coef_record.row(i),
+        1
+      );
       break;
     }
     // 2. h---------------------------------

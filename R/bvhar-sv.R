@@ -155,7 +155,8 @@ bvhar_sv <- function(y,
         prior_type = 1,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
         init_global = .1,
-        mn_id = seq_len(dim_data * dim_har),
+        grp_id = 1,
+        grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, num_phi),
@@ -255,7 +256,8 @@ bvhar_sv <- function(y,
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
         init_global = .1,
-        mn_id = seq_len(dim_data * dim_har),
+        grp_id = 1,
+        grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
@@ -284,37 +286,38 @@ bvhar_sv <- function(y,
       } else {
         idx <- gl(3, dim_data)
       }
-      mn_id <- switch(
+      glob_idmat <- switch(
         minnesota,
-        "no" = seq_len(num_restrict),
+        "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
         "short" = {
           glob_idmat <- split.data.frame(
             matrix(rep(0, num_restrict), ncol = dim_data),
             idx
           )
-          glob_idmat[[1]] <- diag(dim_data)
-          which(unlist(glob_idmat) == 1)
+          glob_idmat[[1]] <- diag(dim_data) + 1
+          id <- 1
+          for (i in 2:3) {
+            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
         },
         "longrun" = {
           glob_idmat <- split.data.frame(
             matrix(rep(0, num_restrict), ncol = dim_data),
             idx
-          ) %>% 
-            lapply(
-              function(x) {
-                diag(x) <- 1
-                x
-              }
-            )
-          which(unlist(glob_idmat) == 1)
+          )
+          id <- 1
+          for (i in 1:3) {
+            glob_idmat[[i]] <- diag(dim_data) + id
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
         }
       )
-      if (minnesota == "no") {
-        init_global <- bayes_spec$global_sparsity
-      } else {
-        init_global <- rep(bayes_spec$global_sparsity, length(mn_id))
-      }
       init_local <- bayes_spec$local_sparsity
+      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      init_global <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -327,7 +330,8 @@ bvhar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
-        mn_id = mn_id - 1,
+        grp_id = grp_id,
+        grp_mat = glob_idmat,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, num_phi),
