@@ -292,8 +292,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1181,6 +1181,20 @@ ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
 #' @noRd
 ssvs_weight <- function(param_obs, prior_s1, prior_s2) {
     .Call(`_bvhar_ssvs_weight`, param_obs, prior_s1, prior_s2)
+}
+
+#' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_mn_weight`, grp_vec, grp_id, param_obs, prior_s1, prior_s2)
 }
 
 #' Building Lower Triangular Matrix

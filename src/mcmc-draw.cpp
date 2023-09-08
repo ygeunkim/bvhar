@@ -171,6 +171,45 @@ Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double p
   return res;
 }
 
+//' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
+//' 
+//' In MCMC process of SSVS, this function generates \eqn{p_j}.
+//' 
+//' @param grp_vec Group vector
+//' @param grp_id Unique group id
+//' @param param_obs Indicator variables
+//' @param prior_s1 First prior shape of Beta distribution
+//' @param prior_s2 Second prior shape of Beta distribution
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
+                               Eigen::VectorXi grp_id,
+                               Eigen::VectorXd param_obs,
+                               double prior_s1,
+                               double prior_s2) {
+  int num_grp = grp_id.size();
+  int num_latent = param_obs.size();
+  Eigen::VectorXi global_id(num_latent);
+  Eigen::VectorXd res(num_grp);
+  int mn_size = 0;
+  int mn_id = 0;
+  for (int i = 0; i < num_grp; i++) {
+    global_id = (grp_vec.array() == grp_id[i]).cast<int>();
+    mn_size = global_id.sum();
+    Eigen::VectorXd mn_param(mn_size);
+    for (int j = 0; j < num_latent; j++) {
+      mn_param[mn_id] = param_obs[j];
+      mn_id++;
+    }
+    mn_id = 0;
+    res[i] = beta_rand(
+      prior_s1 + mn_param.sum(),
+      prior_s2 + mn_size - mn_param.sum()
+    );
+  }
+  return res;
+}
+
 //' Building Lower Triangular Matrix
 //' 
 //' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
