@@ -152,15 +152,10 @@ bvar_horseshoe <- function(y,
     init_sigma = 1,
     grp_id = grp_id,
     grp_mat = glob_idmat,
-    mn_id = mn_id - 1,
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
   )
-
-  return(res)
-
-
   # preprocess the results-----------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   res$alpha_record <- res$alpha_record[thin_id,]

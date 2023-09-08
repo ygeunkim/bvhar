@@ -230,8 +230,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param mn_id Index for Minnesota lag
 #' @param display_progress Progress bar
 #' @noRd
-estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, mn_id, blocked_gibbs, fast, display_progress) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, mn_id, blocked_gibbs, fast, display_progress)
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -1322,6 +1322,21 @@ horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, 
 #' @noRd
 horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
     .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_mn_global_sparsity <- function(grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_mn_global_sparsity`, grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var)
 }
 
 #' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler

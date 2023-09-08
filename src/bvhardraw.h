@@ -41,6 +41,8 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent, Eigen::Ve
 
 double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd local_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
 
+Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, Eigen::VectorXd global_latent, Eigen::VectorXd local_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
+
 Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam);
 
 #endif

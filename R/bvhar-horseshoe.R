@@ -124,9 +124,9 @@ bvhar_horseshoe <- function(y,
     idx <- gl(3, dim_data)
   }
   glob_idmat <- matrix(1L, nrow = dim_har, ncol = dim_data)
-  mn_id <- switch(
+  glob_idmat <- switch(
     minnesota,
-    "no" = seq_len(num_restrict),
+    "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
     "short" = {
       glob_idmat <- split.data.frame(
         matrix(rep(0, num_restrict), ncol = dim_data),
@@ -138,8 +138,7 @@ bvhar_horseshoe <- function(y,
         glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
         id <- id + 2
       }
-      glob_idmat <- do.call(rbind, glob_idmat)
-      which(c(glob_idmat) == 2)
+      do.call(rbind, glob_idmat)
     },
     "longrun" = {
       glob_idmat <- split.data.frame(
@@ -151,8 +150,7 @@ bvhar_horseshoe <- function(y,
         glob_idmat[[i]] <- diag(dim_data) + id
         id <- id + 2
       }
-      glob_idmat <- do.call(rbind, glob_idmat)
-      which(c(glob_idmat) %in% c(2, 4, 6))
+      do.call(rbind, glob_idmat)
     }
   )
   grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
@@ -173,14 +171,10 @@ bvhar_horseshoe <- function(y,
     init_sigma = 1,
     grp_id = grp_id,
     grp_mat = glob_idmat,
-    mn_id = mn_id - 1,
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
   )
-
-  return(res)
-  
   # preprocess the results-----------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)

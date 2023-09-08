@@ -485,6 +485,53 @@ double horseshoe_global_sparsity(double global_latent,
   return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
 }
 
+//' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+//' 
+//' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+//' 
+//' @param grp_vec Group vector
+//' @param grp_id Unique group id
+//' @param global_latent Latent global vector
+//' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+//' @param coef_mn Coefficients vector in the i = j lag or cross lag
+//' @param prior_var Variance constant of the likelihood
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
+                                             Eigen::VectorXi grp_id,
+                                             Eigen::VectorXd global_latent,
+                                             Eigen::VectorXd local_hyperparam,
+                                             Eigen::VectorXd coef_vec,
+                                             double prior_var) {
+  int num_grp = grp_id.size();
+  int num_coef = coef_vec.size();
+  Eigen::VectorXi global_id(num_coef);
+  int mn_size = 0;
+  int mn_id = 0;
+  Eigen::VectorXd res(num_grp);
+  for (int i = 0; i < num_grp; i++) {
+    global_id = (grp_vec.array() == grp_id[i]).cast<int>();
+    mn_size = global_id.sum();
+    Eigen::VectorXd mn_coef(mn_size);
+    Eigen::VectorXd mn_local(mn_size);
+    for (int j = 0; j < num_coef; j++) {
+      if (global_id[j] == 1) {
+        mn_coef[mn_id] = coef_vec[j];
+        mn_local[mn_id] = local_hyperparam[j];
+        mn_id++;
+      }
+    }
+    mn_id = 0;
+    res[i] = horseshoe_global_sparsity(
+      global_latent[i],
+      mn_local,
+      mn_coef,
+      prior_var
+    ); 
+  }
+  return res;
+}
+
 //' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
 //' 
 //' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
