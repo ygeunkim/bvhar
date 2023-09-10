@@ -98,7 +98,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
-  // Eigen::MatrixXd cov_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
+  Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
   // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): stack h_j row-wise
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
@@ -159,7 +159,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
           Rcpp::Named("sigh_record") = lvol_sig_record,
           Rcpp::Named("lambda_record") = local_record,
           Rcpp::Named("tau_record") = global_record,
-          Rcpp::Named("kappa_record") = shrink_record
+          Rcpp::Named("kappa_record") = shrink_record,
+          Rcpp::Named("prec_record") = prec_record
         );
       }
       return Rcpp::List::create(
@@ -178,7 +179,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
       ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
-      // cov_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim).inverse();
+      prec_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim);
     }
     switch(prior_type) {
     case 1:
@@ -315,7 +316,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
+      Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("prec_record") = prec_record.bottomRows(dim * (num_iter - num_burn))
     );
   }
   return Rcpp::List::create(
