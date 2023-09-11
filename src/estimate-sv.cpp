@@ -48,6 +48,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::VectorXd coef_spike,
                            Eigen::VectorXd coef_slab,
                            Eigen::VectorXd coef_slab_weight,
+                           Eigen::VectorXd chol_spike,
+                           Eigen::VectorXd chol_slab,
+                           Eigen::VectorXd chol_slab_weight,
                            Eigen::VectorXd intercept_mean,
                            double intercept_sd,
                            bool include_mean,
@@ -103,8 +106,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
-  // Eigen::MatrixXd prec_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
-  // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): stack h_j row-wise
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   // HS----------------
@@ -136,15 +137,13 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
   Eigen::VectorXd coef_mixture_mat(num_alpha);
+  Eigen::VectorXd contem_dummy = Eigen::VectorXd::Ones(num_lowerchol);
   // HS----------------
   Eigen::VectorXd latent_local(num_coef);
   Eigen::VectorXd latent_global(num_grp);
-  
-  // Eigen::VectorXd contem_global = vectorize_eigen(init_contem_global.replicate(1, num_lowerchol));
   Eigen::VectorXd contem_global(num_lowerchol);
   Eigen::VectorXd latent_contem_local(num_lowerchol);
   Eigen::VectorXd latent_contem_global(1);
-
   Eigen::VectorXd global_shrinkage(num_coef);
   Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
@@ -189,7 +188,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
       ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
-      // prec_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim);
     }
     switch(prior_type) {
     case 1:
@@ -214,7 +212,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       } else {
         prior_sd = coef_mixture_mat;
       }
-      prior_alpha_prec.diagonal() = 1 / prior_sd.array();
+      prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
       coef_record.row(i) = varsv_regression(
         design_mat, response_vec,
         prior_alpha_mean,
@@ -284,7 +282,19 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       reginnov_id = 0;
     }
-    if (prior_type == 3) {
+    switch (prior_type) {
+    case 2:
+      // SSVS
+      contem_dummy = ssvs_dummy(
+        contem_coef_record.row(i - 1),
+        chol_slab,
+        chol_spike,
+        chol_slab_weight
+      );
+      prior_chol_prec.diagonal() = 1 / build_ssvs_sd(chol_spike, chol_slab, contem_dummy).array().square();
+      break;
+    case 3:
+      // HS
       latent_contem_local = horseshoe_latent(init_contem_local);
       latent_contem_global = horseshoe_latent(init_contem_global);
       contem_global = vectorize_eigen(init_contem_global.replicate(1, num_lowerchol));
@@ -301,6 +311,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         1
       );
       prior_chol_prec = build_shrink_mat(contem_global, init_contem_local);
+      break;
+    default:
+      break;
     }
     contem_coef_record.row(i) = varsv_regression(
       reginnov_stack,
