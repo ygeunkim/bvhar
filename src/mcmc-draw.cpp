@@ -198,8 +198,10 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
     mn_size = global_id.sum();
     Eigen::VectorXd mn_param(mn_size);
     for (int j = 0; j < num_latent; j++) {
-      mn_param[mn_id] = param_obs[j];
-      mn_id++;
+      if (global_id[j] == 1) {
+        mn_param[mn_id] = param_obs[j];
+        mn_id++;
+      }
     }
     mn_id = 0;
     res[i] = beta_rand(

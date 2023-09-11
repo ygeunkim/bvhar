@@ -126,8 +126,30 @@ bvar_ssvs <- function(y,
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
   colnames(X0) <- name_lag
   dim_design <- ncol(X0)
-  # length 1 of bayes_spec--------------
+  # no regularization for diagonal term---------------------
   num_restrict <- dim_data^2 * p # restrict only coefficients
+  glob_idmat <- matrix(1L, nrow = num_restrict / dim_data, ncol = dim_data)
+  if (minnesota) {
+    # if (include_mean) {
+    #   idx <- c(gl(p, dim_data), p + 1)
+    # } else {
+    #   idx <- gl(p, dim_data)
+    # }
+    glob_idmat <- split.data.frame(
+      matrix(rep(0, num_restrict), ncol = dim_data),
+      gl(p, dim_data)
+    )
+    glob_idmat[[1]] <- diag(dim_data) + 1
+    id <- 1
+    for (i in 2:p) {
+      glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+      id <- id + 2
+    }
+    glob_idmat <- do.call(rbind, glob_idmat)
+  }
+  grp_id <- unique(c(glob_idmat[1:(dim_data * p),]))
+  num_grp <- length(grp_id)
+  # length 1 of bayes_spec--------------
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
   if (length(bayes_spec$coef_spike) == 1) {
     bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_restrict)
@@ -136,7 +158,7 @@ bvar_ssvs <- function(y,
     bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_restrict)
   }
   if (length(bayes_spec$coef_mixture) == 1) {
-    bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_restrict)
+    bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
   }
   
   # if (length(bayes_spec$mean_coef) == 1) {
@@ -174,7 +196,7 @@ bvar_ssvs <- function(y,
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
-    length(bayes_spec$coef_mixture) == num_restrict
+    length(bayes_spec$coef_mixture) == num_grp
     # && length(bayes_spec$mean_coef) == num_restrict
   )) {
     stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
@@ -189,36 +211,6 @@ bvar_ssvs <- function(y,
   )) {
     stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
   }
-  
-  # no regularization for diagonal term---------------------
-  if (minnesota) {
-    coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
-    diag(coef_prob[[1]]) <- 1
-    bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
-  }
-  
-  # bayes_spec$coef_mixture <- 
-  #   switch(
-  #     relax,
-  #     "no" = bayes_spec$coef_mixture,
-  #     "minnesota" = {
-  #       coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
-  #       diag(coef_prob[[1]]) <- 1
-  #       c(do.call(rbind, coef_prob))
-  #     },
-  #     "longrun" = {
-  #       split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data)) %>% 
-  #         lapply(
-  #           function(pij) {
-  #             diag(pij) <- 1
-  #             pij
-  #           }
-  #         ) %>% 
-  #         do.call(rbind, .) %>% 
-  #         c()
-  #     }
-  #   )
-  
   # Initial vectors-------------------
   if (init_spec$chain == 1) {
     if (init_spec$type == "user") {
@@ -265,6 +257,8 @@ bvar_ssvs <- function(y,
       chol_slab_weight = bayes_spec$chol_mixture, # qij
       chol_s1 = 1,
       chol_s2 = 1,
+      grp_id = grp_id,
+      grp_mat = glob_idmat,
       mean_non = bayes_spec$mean_non,
       sd_non = bayes_spec$sd_non, # c for constant c I,
       include_mean = include_mean,
@@ -442,6 +436,8 @@ bvar_ssvs <- function(y,
   ssvs_res$burn <- num_burn
   ssvs_res$thin <- thinning
   ssvs_res$chain <- init_spec$chain
+  ssvs_res$group <- glob_idmat
+  ssvs_res$num_group <- length(grp_id)
   # data------------------
   ssvs_res$y0 <- Y0
   ssvs_res$design <- X0

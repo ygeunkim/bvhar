@@ -48,6 +48,8 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
                               double coef_s1, double coef_s2,
                               Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
                               double chol_s1, double chol_s2,
+                              Eigen::VectorXi grp_id,
+                              Eigen::MatrixXd grp_mat,
                               Eigen::VectorXd mean_non, double sd_non,
                               bool include_mean,
                               bool init_gibbs,
@@ -56,6 +58,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
   int num_upperchol = chol_slab.size(); // number of upper cholesky = dim (dim - 1) / 2
+  int num_grp = grp_id.size();
   // Initialize coefficients vector-------------------------------
   int num_coef = dim * dim_design; // dim^2 p + dim vs dim^2 p (if no constant)
   int num_restrict = num_coef - dim; // number of restricted coefs: dim^2 p vs dim^2 p - dim (if no constant)
@@ -84,7 +87,7 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   // record-------------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_restrict);
-  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_restrict);
+  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_grp);
   Eigen::MatrixXd chol_diag_record(num_iter + 1, dim);
   Eigen::MatrixXd chol_upper_record(num_iter + 1, num_upperchol);
   Eigen::MatrixXd chol_dummy_record(num_iter + 1, num_upperchol);
@@ -113,6 +116,9 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim); // coefficient matrix to compute sse_mat
   Eigen::MatrixXd sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
   Eigen::VectorXd chol_mixture_mat(num_upperchol); // Dj = diag(h1j, ..., h(j-1,j))
+  Eigen::VectorXd slab_weight(num_restrict); // pij vector
+  Eigen::MatrixXd slab_weight_mat(num_restrict / dim, dim); // pij matrix: (dim*p) x dim
+  Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
   Progress p(num_iter, display_progress);
   // Start Gibbs sampling-----------------------------------------
   for (int i = 1; i < num_iter + 1; i++) {
@@ -160,14 +166,29 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
     sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
     // 5. gamma-------------------------
+    for (int j = 0; j < num_grp; j++) {
+      slab_weight_mat = (
+        grp_mat.array() == grp_id[j]
+      ).select(
+        coef_weight_record.row(i - 1).segment(j, 1).replicate(num_restrict / dim, dim),
+        slab_weight_mat
+      );
+    }
+    slab_weight = vectorize_eigen(slab_weight_mat);
     coef_dummy_record.row(i) = ssvs_dummy(
       vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
       coef_slab,
       coef_spike,
-      coef_weight_record.row(i - 1)
+      slab_weight
     );
     // p
-    coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
+    coef_weight_record.row(i) = ssvs_mn_weight(
+      grp_vec,
+      grp_id,
+      coef_dummy_record.row(i),
+      coef_s1,
+      coef_s2
+    );
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
