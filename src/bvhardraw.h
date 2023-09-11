@@ -17,6 +17,10 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, 
 
 Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, Eigen::VectorXd sd_denom, Eigen::VectorXd slab_weight);
 
+Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+
+Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 
 Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec);

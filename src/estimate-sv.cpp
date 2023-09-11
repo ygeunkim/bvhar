@@ -25,8 +25,8 @@
 //' @param grp_mat Group matrix
 //' @param coef_spike SD of spike normal
 //' @param coef_slab_weight SD of slab normal
-//' @param intercept_mean Prior mean of unrestricted coefficients
-//' @param intercept_sd SD for unrestricted coefficients
+//' @param mean_non Prior mean of unrestricted coefficients
+//' @param sd_non SD for unrestricted coefficients
 //' @param include_mean Constant term
 //' @param display_progress Progress bar
 //' @param nthreads Number of threads for openmp
@@ -53,6 +53,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::VectorXd chol_slab_weight,
                            Eigen::VectorXd intercept_mean,
                            double intercept_sd,
+                           double coef_s1, double coef_s2,
+                           Eigen::VectorXd mean_non,
+                           double sd_non,
                            bool include_mean,
                            bool display_progress, int nthreads) {
   int dim = y.cols(); // k
@@ -85,7 +88,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       if (include_mean) {
         for (int j = 0; j < dim; j++) {
           prior_alpha_mean.segment(j * dim_design, num_alpha / dim) = Eigen::VectorXd::Zero(num_alpha / dim);
-          prior_alpha_mean[j * dim_design + num_alpha / dim] = intercept_mean[j];
+          prior_alpha_mean[j * dim_design + num_alpha / dim] = mean_non[j];
         }
       } else {
         prior_alpha_mean = Eigen::VectorXd::Zero(num_alpha);
@@ -108,6 +111,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
+  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_alpha);
   // HS----------------
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
   Eigen::MatrixXd global_record(num_iter + 1, num_grp);
@@ -122,6 +126,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // SSVS--------------
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
+  coef_weight_record.row(0) = coef_slab_weight;
   // HS----------------
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
@@ -207,7 +212,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
             j * num_alpha / dim,
             num_alpha / dim
           );
-          prior_sd[j * dim_design + num_alpha / dim] = intercept_sd;
+          prior_sd[j * dim_design + num_alpha / dim] = sd_non;
         }
       } else {
         prior_sd = coef_mixture_mat;
@@ -222,8 +227,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
       coef_dummy_record.row(i) = ssvs_dummy(
         vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
-        coef_slab, coef_spike, coef_slab_weight
+        coef_slab, coef_spike,
+        coef_weight_record.row(i - 1)
       );
+      coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
       break;
     case 3:
       // HS

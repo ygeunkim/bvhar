@@ -185,8 +185,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_ssvs
-Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, Eigen::VectorXd intercept_mean, double intercept_sd, bool include_mean, bool init_gibbs, bool display_progress);
-RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_meanSEXP, SEXP intercept_sdSEXP, SEXP include_meanSEXP, SEXP init_gibbsSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, double coef_s1, double coef_s2, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double chol_s1, double chol_s2, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd mean_non, double sd_non, bool include_mean, bool init_gibbs, bool display_progress);
+RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP coef_s1SEXP, SEXP coef_s2SEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP chol_s1SEXP, SEXP chol_s2SEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP mean_nonSEXP, SEXP sd_nonSEXP, SEXP include_meanSEXP, SEXP init_gibbsSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -204,21 +204,27 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type coef_slab_weight(coef_slab_weightSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type shape(shapeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type rate(rateSEXP);
+    Rcpp::traits::input_parameter< double >::type coef_s1(coef_s1SEXP);
+    Rcpp::traits::input_parameter< double >::type coef_s2(coef_s2SEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_spike(chol_spikeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab(chol_slabSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab_weight(chol_slab_weightSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type intercept_mean(intercept_meanSEXP);
-    Rcpp::traits::input_parameter< double >::type intercept_sd(intercept_sdSEXP);
+    Rcpp::traits::input_parameter< double >::type chol_s1(chol_s1SEXP);
+    Rcpp::traits::input_parameter< double >::type chol_s2(chol_s2SEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean_non(mean_nonSEXP);
+    Rcpp::traits::input_parameter< double >::type sd_non(sd_nonSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< bool >::type init_gibbs(init_gibbsSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_ssvs(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, init_gibbs, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
 // estimate_var_sv
-Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec, Eigen::MatrixXd prec_diag, int prior_type, Eigen::VectorXd init_local, Eigen::VectorXd init_global, Eigen::VectorXd init_contem_local, Eigen::VectorXd init_contem_global, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, Eigen::VectorXd intercept_mean, double intercept_sd, bool include_mean, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_var_sv(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP prior_coef_meanSEXP, SEXP prior_coef_precSEXP, SEXP prec_diagSEXP, SEXP prior_typeSEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_contem_localSEXP, SEXP init_contem_globalSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_meanSEXP, SEXP intercept_sdSEXP, SEXP include_meanSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec, Eigen::MatrixXd prec_diag, int prior_type, Eigen::VectorXd init_local, Eigen::VectorXd init_global, Eigen::VectorXd init_contem_local, Eigen::VectorXd init_contem_global, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, Eigen::VectorXd intercept_mean, double intercept_sd, double coef_s1, double coef_s2, Eigen::VectorXd mean_non, double sd_non, bool include_mean, bool display_progress, int nthreads);
+RcppExport SEXP _bvhar_estimate_var_sv(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP prior_coef_meanSEXP, SEXP prior_coef_precSEXP, SEXP prec_diagSEXP, SEXP prior_typeSEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_contem_localSEXP, SEXP init_contem_globalSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP intercept_meanSEXP, SEXP intercept_sdSEXP, SEXP coef_s1SEXP, SEXP coef_s2SEXP, SEXP mean_nonSEXP, SEXP sd_nonSEXP, SEXP include_meanSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -244,10 +250,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_slab_weight(chol_slab_weightSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type intercept_mean(intercept_meanSEXP);
     Rcpp::traits::input_parameter< double >::type intercept_sd(intercept_sdSEXP);
+    Rcpp::traits::input_parameter< double >::type coef_s1(coef_s1SEXP);
+    Rcpp::traits::input_parameter< double >::type coef_s2(coef_s2SEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean_non(mean_nonSEXP);
+    Rcpp::traits::input_parameter< double >::type sd_non(sd_nonSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_var_sv(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_var_sv(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1000,6 +1010,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ssvs_weight
+Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+RcppExport SEXP _bvhar_ssvs_weight(SEXP param_obsSEXP, SEXP prior_s1SEXP, SEXP prior_s2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type param_obs(param_obsSEXP);
+    Rcpp::traits::input_parameter< double >::type prior_s1(prior_s1SEXP);
+    Rcpp::traits::input_parameter< double >::type prior_s2(prior_s2SEXP);
+    rcpp_result_gen = Rcpp::wrap(ssvs_weight(param_obs, prior_s1, prior_s2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ssvs_mn_weight
+Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+RcppExport SEXP _bvhar_ssvs_mn_weight(SEXP grp_vecSEXP, SEXP grp_idSEXP, SEXP param_obsSEXP, SEXP prior_s1SEXP, SEXP prior_s2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type grp_vec(grp_vecSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type param_obs(param_obsSEXP);
+    Rcpp::traits::input_parameter< double >::type prior_s1(prior_s1SEXP);
+    Rcpp::traits::input_parameter< double >::type prior_s2(prior_s2SEXP);
+    rcpp_result_gen = Rcpp::wrap(ssvs_mn_weight(grp_vec, grp_id, param_obs, prior_s1, prior_s2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // build_inv_lower
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP) {
@@ -1503,8 +1541,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
     {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 12},
-    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 22},
-    {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 25},
+    {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 28},
+    {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 29},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 3},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
@@ -1558,6 +1596,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_chol", (DL_FUNC) &_bvhar_build_chol, 2},
     {"_bvhar_ssvs_coef", (DL_FUNC) &_bvhar_ssvs_coef, 5},
     {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 4},
+    {"_bvhar_ssvs_weight", (DL_FUNC) &_bvhar_ssvs_weight, 3},
+    {"_bvhar_ssvs_mn_weight", (DL_FUNC) &_bvhar_ssvs_mn_weight, 5},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 5},
     {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 5},

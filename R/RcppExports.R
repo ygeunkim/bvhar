@@ -252,17 +252,21 @@ estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_gl
 #' @param coef_slab_weight Coefficients vector sparsity proportion
 #' @param shape Gamma shape parameters for precision matrix
 #' @param rate Gamma rate parameters for precision matrix
+#' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
+#' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 #' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 #' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param intercept_mean Prior mean of unrestricted coefficients
-#' @param intercept_sd Standard deviance for unrestricted coefficients
+#' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
+#' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
+#' @param mean_non Prior mean of unrestricted coefficients
+#' @param sd_non Standard deviance for unrestricted coefficients
 #' @param include_mean Add constant term
 #' @param init_gibbs Set custom initial values for Gibbs sampler
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, init_gibbs, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, init_gibbs, display_progress)
 }
 
 #' VAR-SV by Gibbs Sampler
@@ -284,15 +288,15 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param grp_mat Group matrix
 #' @param coef_spike SD of spike normal
 #' @param coef_slab_weight SD of slab normal
-#' @param intercept_mean Prior mean of unrestricted coefficients
-#' @param intercept_sd SD for unrestricted coefficients
+#' @param mean_non Prior mean of unrestricted coefficients
+#' @param sd_non SD for unrestricted coefficients
 #' @param include_mean Constant term
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -1168,6 +1172,32 @@ ssvs_coef <- function(prior_mean, prior_sd, XtX, coef_ols, chol_factor) {
 #' @noRd
 ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
     .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
+}
+
+#' Generating Slab Weight Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_weight <- function(param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_weight`, param_obs, prior_s1, prior_s2)
+}
+
+#' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_mn_weight`, grp_vec, grp_id, param_obs, prior_s1, prior_s2)
 }
 
 #' Building Lower Triangular Matrix
