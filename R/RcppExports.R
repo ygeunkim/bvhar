@@ -282,7 +282,10 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
 #' @param init_local Initial local shrinkage of Horseshoe
 #' @param init_global Initial global shrinkage of Horseshoe
-#' @param mn_id Index for Minnesota lag
+#' @param init_chol_local Initial local shrinkage for Cholesky factor in Horseshoe
+#' @param init_chol_global Initial global shrinkage for Cholesky factor in Horseshoe
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
 #' @param coef_spike SD of spike normal
 #' @param coef_slab_weight SD of slab normal
 #' @param mean_non Prior mean of unrestricted coefficients
@@ -292,8 +295,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, coef_s1, coef_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

@@ -19,7 +19,10 @@
 //' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
 //' @param init_local Initial local shrinkage of Horseshoe
 //' @param init_global Initial global shrinkage of Horseshoe
-//' @param mn_id Index for Minnesota lag
+//' @param init_chol_local Initial local shrinkage for Cholesky factor in Horseshoe
+//' @param init_chol_global Initial global shrinkage for Cholesky factor in Horseshoe
+//' @param grp_id Unique group id
+//' @param grp_mat Group matrix
 //' @param coef_spike SD of spike normal
 //' @param coef_slab_weight SD of slab normal
 //' @param mean_non Prior mean of unrestricted coefficients
@@ -38,11 +41,18 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            int prior_type,
                            Eigen::VectorXd init_local,
                            Eigen::VectorXd init_global,
+                           Eigen::VectorXd init_contem_local,
+                           Eigen::VectorXd init_contem_global,
                            Eigen::VectorXi grp_id,
                            Eigen::MatrixXd grp_mat,
                            Eigen::VectorXd coef_spike,
                            Eigen::VectorXd coef_slab,
                            Eigen::VectorXd coef_slab_weight,
+                           Eigen::VectorXd chol_spike,
+                           Eigen::VectorXd chol_slab,
+                           Eigen::VectorXd chol_slab_weight,
+                           Eigen::VectorXd intercept_mean,
+                           double intercept_sd,
                            double coef_s1, double coef_s2,
                            Eigen::VectorXd mean_non,
                            double sd_non,
@@ -95,12 +105,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd coef_ols = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
   // record------------------------------------------------
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // alpha in VAR
-  Eigen::MatrixXd chol_lower_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, ..., ak1, ..., ak(k-1)
+  Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, ..., ak1, ..., ak(k-1)
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
-  // Eigen::MatrixXd cov_record = Eigen::MatrixXd::Zero(dim * (num_iter + 1), dim * num_design); // sigma_t, t = 1, ..., n
-  // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): stack h_j row-wise
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   Eigen::MatrixXd coef_weight_record(num_iter + 1, num_alpha);
@@ -111,7 +119,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // Initialize--------------------------------------------
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
   coef_record.row(0) = coefvec_ols;
-  chol_lower_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
+  contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
   lvol_init_record.row(0) = (y - x * coef_ols).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
   lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
   // lvol_record.row(0) = lvol_init_record.row(0).replicate(1, num_design);
@@ -134,9 +142,13 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
   Eigen::VectorXd coef_mixture_mat(num_alpha);
+  Eigen::VectorXd contem_dummy = Eigen::VectorXd::Ones(num_lowerchol);
   // HS----------------
   Eigen::VectorXd latent_local(num_coef);
   Eigen::VectorXd latent_global(num_grp);
+  Eigen::VectorXd contem_global(num_lowerchol);
+  Eigen::VectorXd latent_contem_local(num_lowerchol);
+  Eigen::VectorXd latent_contem_global(1);
   Eigen::VectorXd global_shrinkage(num_coef);
   Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
@@ -148,7 +160,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         return Rcpp::List::create(
           Rcpp::Named("alpha_record") = coef_record,
           Rcpp::Named("h_record") = lvol_record,
-          Rcpp::Named("a_record") = chol_lower_record,
+          Rcpp::Named("a_record") = contem_coef_record,
           Rcpp::Named("h0_record") = lvol_init_record,
           Rcpp::Named("sigh_record") = lvol_sig_record,
           Rcpp::Named("gamma_record") = coef_dummy_record
@@ -157,7 +169,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         return Rcpp::List::create(
           Rcpp::Named("alpha_record") = coef_record,
           Rcpp::Named("h_record") = lvol_record,
-          Rcpp::Named("a_record") = chol_lower_record,
+          Rcpp::Named("a_record") = contem_coef_record,
           Rcpp::Named("h0_record") = lvol_init_record,
           Rcpp::Named("sigh_record") = lvol_sig_record,
           Rcpp::Named("lambda_record") = local_record,
@@ -168,20 +180,19 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record,
         Rcpp::Named("h_record") = lvol_record,
-        Rcpp::Named("a_record") = chol_lower_record,
+        Rcpp::Named("a_record") = contem_coef_record,
         Rcpp::Named("h0_record") = lvol_init_record,
         Rcpp::Named("sigh_record") = lvol_sig_record
       );
     }
     p.increment();
     // 1. alpha----------------------------
-    chol_lower = build_inv_lower(dim, chol_lower_record.row(i - 1));
+    chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
         -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
       ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
-      // cov_record.block(i * dim, t * dim, dim, dim) = prec_stack.block(t * dim, t * dim, dim, dim).inverse();
     }
     switch(prior_type) {
     case 1:
@@ -206,7 +217,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       } else {
         prior_sd = coef_mixture_mat;
       }
-      prior_alpha_prec.diagonal() = 1 / prior_sd.array();
+      prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
       coef_record.row(i) = varsv_regression(
         design_mat, response_vec,
         prior_alpha_mean,
@@ -278,7 +289,40 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       reginnov_id = 0;
     }
-    chol_lower_record.row(i) = varsv_regression(
+    switch (prior_type) {
+    case 2:
+      // SSVS
+      contem_dummy = ssvs_dummy(
+        contem_coef_record.row(i - 1),
+        chol_slab,
+        chol_spike,
+        chol_slab_weight
+      );
+      prior_chol_prec.diagonal() = 1 / build_ssvs_sd(chol_spike, chol_slab, contem_dummy).array().square();
+      break;
+    case 3:
+      // HS
+      latent_contem_local = horseshoe_latent(init_contem_local);
+      latent_contem_global = horseshoe_latent(init_contem_global);
+      contem_global = vectorize_eigen(init_contem_global.replicate(1, num_lowerchol));
+      init_contem_local = horseshoe_local_sparsity(
+        latent_contem_local,
+        contem_global,
+        contem_coef_record.row(i - 1),
+        1
+      );
+      init_contem_global[0] = horseshoe_global_sparsity(
+        latent_contem_global[0],
+        latent_contem_local,
+        contem_coef_record.row(i - 1),
+        1
+      );
+      prior_chol_prec = build_shrink_mat(contem_global, init_contem_local);
+      break;
+    default:
+      break;
+    }
+    contem_coef_record.row(i) = varsv_regression(
       reginnov_stack,
       vectorize_eigen(latent_innov),
       prior_chol_mean,
@@ -305,7 +349,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
-      Rcpp::Named("a_record") = chol_lower_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
@@ -315,7 +359,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
-      Rcpp::Named("a_record") = chol_lower_record.bottomRows(num_iter - num_burn),
+      Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
@@ -326,7 +370,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
-    Rcpp::Named("a_record") = chol_lower_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn)
   );

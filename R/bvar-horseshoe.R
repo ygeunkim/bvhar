@@ -202,7 +202,7 @@ bvar_horseshoe <- function(y,
     seq_len(ncol(res$kappa_record)),
     "]"
   )
-  res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+  res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
   colnames(res$pip) <- name_var
   rownames(res$pip) <- name_lag
   res$kappa_record <- as_draws_df(res$kappa_record)
@@ -228,6 +228,8 @@ bvar_horseshoe <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
+  res$group <- glob_idmat
+  res$num_group <- length(grp_id)
   # data------------------
   res$y0 <- Y0
   res$design <- X0

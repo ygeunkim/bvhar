@@ -116,11 +116,18 @@ bvar_sv <- function(y,
         prior_type = 1,
         init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
         init_global = .1,
+        init_contem_local = rep(.1, num_eta),
+        init_contem_global = .1,
         grp_id = 1,
         grp_mat = matrix(0L, nrow = dim_design, ncol = dim_data),
         coef_spike = rep(0.1, num_alpha),
         coef_slab = rep(5, num_alpha),
         coef_slab_weight = rep(.5, num_alpha),
+        chol_spike = rep(.1, num_eta),
+        chol_slab = rep(5, num_eta),
+        chol_slab_weight = rep(.5, num_eta),
+        intercept_mean = rep(0, dim_data),
+        intercept_sd = .1,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = rep(0, dim_data),
@@ -144,6 +151,15 @@ bvar_sv <- function(y,
       }
       if (length(bayes_spec$mean_non) == 1) {
         bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+      }
+      if (length(bayes_spec$chol_spike) == 1) {
+        bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+      }
+      if (length(bayes_spec$chol_slab) == 1) {
+        bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+      }
+      if (length(bayes_spec$chol_mixture) == 1) {
+        bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
       }
       if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
         # Conduct semiautomatic function using var_lm()
@@ -173,11 +189,18 @@ bvar_sv <- function(y,
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
         init_global = .1,
+        init_contem_local = rep(.1, num_eta),
+        init_contem_global = .1,
         grp_id = 1,
         grp_mat = matrix(0L, nrow = dim_design, ncol = dim_data),
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
+        chol_spike = bayes_spec$chol_spike,
+        chol_slab = bayes_spec$chol_slab,
+        chol_slab_weight = bayes_spec$chol_mixture,
+        intercept_mean = bayes_spec$mean_non,
+        intercept_sd = bayes_spec$sd_non,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = bayes_spec$mean_non,
@@ -234,11 +257,18 @@ bvar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
+        init_contem_local = rep(.1, num_eta),
+        init_contem_global = .1,
         grp_id = grp_id,
         grp_mat = glob_idmat,
         coef_spike = rep(0.1, num_alpha),
         coef_slab = rep(5, num_alpha),
         coef_slab_weight = rep(.5, num_alpha),
+        chol_spike = rep(.1, num_eta),
+        chol_slab = rep(5, num_eta),
+        chol_slab_weight = rep(.5, num_eta),
+        intercept_mean = rep(0, dim_data),
+        intercept_sd = .1,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = rep(0, dim_data),
@@ -270,8 +300,14 @@ bvar_sv <- function(y,
     pivot_wider(names_from = "varying_name", values_from = "h_value")
   res$h_record <- as_draws_df(res$h_record[,-1])
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  diag(mat_lower) <- rep(1L, dim_data)
+  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
+  res$chol_posterior <- mat_lower
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
   colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
   colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
   colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
@@ -309,10 +345,12 @@ bvar_sv <- function(y,
     res$lambda_record <- as_draws_df(res$lambda_record)
     res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
-    res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+    res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_lag
     res$kappa_record <- as_draws_df(res$kappa_record)
+    res$group <- glob_idmat
+    res$num_group <- length(grp_id)
   }
   res$param <- bind_draws(
     res$alpha_record,
