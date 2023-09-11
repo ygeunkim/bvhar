@@ -264,8 +264,14 @@ bvar_sv <- function(y,
     pivot_wider(names_from = "varying_name", values_from = "h_value")
   res$h_record <- as_draws_df(res$h_record[,-1])
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  diag(mat_lower) <- rep(1L, dim_data)
+  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
+  res$chol_posterior <- mat_lower
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
   colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
   colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
   colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
