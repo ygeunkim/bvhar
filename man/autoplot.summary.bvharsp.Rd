@@ -9,6 +9,8 @@
 \arguments{
 \item{object}{\code{summary.bvharsp} object}
 
+\item{point}{Use point for sparsity representation}
+
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile()}}.}
 }
 \description{

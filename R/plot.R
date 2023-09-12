@@ -614,6 +614,7 @@ gather_heat <- function(object) {
 #' Draw heatmap for SSVS prior coefficients.
 #' 
 #' @param object `summary.bvharsp` object
+#' @param point Use point for sparsity representation
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' 
 #' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid
