@@ -31,6 +31,8 @@
 //' @param chol_slab_weight Cholesky factor sparsity proportion
 //' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
 //' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
+//' @param grp_id Unique group id
+//' @param grp_mat Group matrix
 //' @param mean_non Prior mean of unrestricted coefficients
 //' @param sd_non Standard deviance for unrestricted coefficients
 //' @param include_mean Add constant term

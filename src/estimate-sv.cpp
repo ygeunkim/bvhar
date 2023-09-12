@@ -19,12 +19,17 @@
 //' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
 //' @param init_local Initial local shrinkage of Horseshoe
 //' @param init_global Initial global shrinkage of Horseshoe
-//' @param init_chol_local Initial local shrinkage for Cholesky factor in Horseshoe
-//' @param init_chol_global Initial global shrinkage for Cholesky factor in Horseshoe
+//' @param init_contem_local Initial local shrinkage for Cholesky factor in Horseshoe
+//' @param init_contem_global Initial global shrinkage for Cholesky factor in Horseshoe
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param coef_spike SD of spike normal
 //' @param coef_slab_weight SD of slab normal
+//' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
+//' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
+//' @param chol_slab_weight Cholesky factor sparsity proportion
+//' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
+//' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
 //' @param mean_non Prior mean of unrestricted coefficients
 //' @param sd_non SD for unrestricted coefficients
 //' @param include_mean Constant term
@@ -51,8 +56,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::VectorXd chol_spike,
                            Eigen::VectorXd chol_slab,
                            Eigen::VectorXd chol_slab_weight,
-                           Eigen::VectorXd intercept_mean,
-                           double intercept_sd,
                            double coef_s1, double coef_s2,
                            Eigen::VectorXd mean_non,
                            double sd_non,
@@ -111,7 +114,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
-  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_alpha);
+  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_grp);
   // HS----------------
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
   Eigen::MatrixXd global_record(num_iter + 1, num_grp);
@@ -141,6 +144,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   int reginnov_id = 0;
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
+  Eigen::VectorXd slab_weight(num_alpha); // pij vector
+  Eigen::MatrixXd slab_weight_mat(num_alpha / dim, dim); // pij matrix: (dim*p) x dim
   Eigen::VectorXd coef_mixture_mat(num_alpha);
   Eigen::VectorXd contem_dummy = Eigen::VectorXd::Ones(num_lowerchol);
   // HS----------------
@@ -225,12 +230,28 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         prec_stack
       );
       coef_mat = unvectorize(coef_record.row(i), dim_design, dim);
+      for (int j = 0; j < num_grp; j++) {
+        slab_weight_mat = (
+          grp_mat.array() == grp_id[j]
+        ).select(
+          coef_weight_record.row(i - 1).segment(j, 1).replicate(num_alpha / dim, dim),
+          slab_weight_mat
+        );
+      }
+      slab_weight = vectorize_eigen(slab_weight_mat);
       coef_dummy_record.row(i) = ssvs_dummy(
         vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
         coef_slab, coef_spike,
-        coef_weight_record.row(i - 1)
+        slab_weight
       );
-      coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
+      // coef_weight_record.row(i) = ssvs_weight(coef_dummy_record.row(i), coef_s1, coef_s2);
+      coef_weight_record.row(i) = ssvs_mn_weight(
+        grp_vec,
+        grp_id,
+        coef_dummy_record.row(i),
+        coef_s1,
+        coef_s2
+      );
       break;
     case 3:
       // HS

@@ -307,8 +307,8 @@ bvar_ssvs <- function(y,
         chol_slab = bayes_spec$chol_slab, # eta slab
         chol_slab_weight = bayes_spec$chol_mixture, # qij
         # coef_mean = bayes_spec$mean_coef,
-        intercept_mean = bayes_spec$mean_non,
-        intercept_sd = bayes_spec$sd_non, # c for constant c I
+        mean_non = bayes_spec$mean_non,
+        sd_non = bayes_spec$sd_non, # c for constant c I
         include_mean = include_mean,
         init_gibbs = TRUE,
         # diag_restriction = TRUE,

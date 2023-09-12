@@ -161,12 +161,10 @@ bvhar_sv <- function(y,
         grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
-        coef_slab_weight = rep(.5, num_phi),
+        coef_slab_weight = rep(.5, 1),
         chol_spike = rep(.1, num_eta),
         chol_slab = rep(5, num_eta),
         chol_slab_weight = rep(.5, num_eta),
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = rep(0, dim_data),
@@ -179,6 +177,37 @@ bvhar_sv <- function(y,
     "SSVS" = {
       init_coef <- 1L
       init_coef_dummy <- 1L
+      glob_idmat <- switch(
+        minnesota,
+        "no" = matrix(1L, nrow = num_phi / dim_data, ncol = dim_data),
+        "short" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_phi), ncol = dim_data),
+            gl(3, dim_data)
+          )
+          glob_idmat[[1]] <- diag(dim_data) + 1
+          id <- 1
+          for (i in 2:3) {
+            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        },
+        "longrun" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_phi), ncol = dim_data),
+            gl(3, dim_data)
+          )
+          id <- 1
+          for (i in 1:3) {
+            glob_idmat[[i]] <- diag(dim_data) + id
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        }
+      )
+      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      num_grp <- length(grp_id)
       if (length(bayes_spec$coef_spike) == 1) {
         bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
       }
@@ -186,7 +215,7 @@ bvhar_sv <- function(y,
         bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_phi)
       }
       if (length(bayes_spec$coef_mixture) == 1) {
-        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_phi)
+        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
       }
       if (length(bayes_spec$mean_non) == 1) {
         bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
@@ -217,7 +246,7 @@ bvhar_sv <- function(y,
       if (!(
         length(bayes_spec$coef_spike) == num_phi &&
         length(bayes_spec$coef_slab) == num_phi &&
-        length(bayes_spec$coef_mixture) == num_phi
+        length(bayes_spec$coef_mixture) == num_grp
         # && length(bayes_spec$mean_coef) == num_restrict
       )) {
         stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
@@ -264,19 +293,17 @@ bvhar_sv <- function(y,
         prec_diag = diag(dim_data),
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
-        init_global = .1,
+        init_global = rep(.1, num_grp),
         init_contem_local = rep(.1, dim_data * (dim_data - 1) / 2),
         init_contem_global = .1,
-        grp_id = 1,
-        grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
+        grp_id = grp_id,
+        grp_mat = glob_idmat,
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
         chol_spike = bayes_spec$chol_spike,
         chol_slab = bayes_spec$chol_slab,
         chol_slab_weight = bayes_spec$chol_mixture,
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = rep(0, dim_data),
@@ -354,12 +381,10 @@ bvhar_sv <- function(y,
         grp_mat = glob_idmat,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
-        coef_slab_weight = rep(.5, num_phi),
+        coef_slab_weight = rep(.5, length(grp_id)),
         chol_spike = rep(.1, num_eta),
         chol_slab = rep(5, num_eta),
         chol_slab_weight = rep(.5, num_eta),
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
         coef_s1 = 1,
         coef_s2 = 1,
         mean_non = rep(0, dim_data),
@@ -441,8 +466,6 @@ bvhar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
     res$kappa_record <- as_draws_df(res$kappa_record)
-    res$group <- glob_idmat
-    res$num_group <- length(grp_id)
   }
   res$param <- bind_draws(
     res$phi_record,
@@ -451,6 +474,10 @@ bvhar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
+  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
+    res$group <- glob_idmat
+    res$num_group <- length(grp_id)
+  }
   if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
     res$prior_mean <- prior_mean
     res$prior_prec <- prior_prec

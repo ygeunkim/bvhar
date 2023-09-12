@@ -18,7 +18,9 @@
 //' @param init_local Initial local shrinkage hyperparameters
 //' @param init_global Initial global shrinkage hyperparameter
 //' @param init_sigma Initial sigma
-//' @param mn_id Index for Minnesota lag
+//' @param grp_id Unique group id
+//' @param grp_mat Group matrix
+//' @param fast Fast sampling?
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
