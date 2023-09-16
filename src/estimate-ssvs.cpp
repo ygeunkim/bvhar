@@ -106,12 +106,12 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
     chol_factor_record.topLeftCorner(dim, dim) = build_chol(init_chol_diag, init_chol_upper);
   } else {
     coef_record.row(0) = coefvec_ols;
-    coef_dummy_record.row(0) = Eigen::MatrixXd::Identity(num_restrict, num_restrict).diagonal();
+    coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_restrict);
     chol_diag_record.row(0) = chol_ols.diagonal();
     for (int i = 1; i < dim; i++) {
       chol_upper_record.block(0, i * (i - 1) / 2, 1, i) = chol_ols.block(0, i, i, 1).transpose();
     }
-    chol_dummy_record.row(0) = Eigen::MatrixXd::Identity(num_upperchol, num_upperchol).diagonal();
+    chol_dummy_record.row(0) = Eigen::VectorXd::Ones(num_upperchol);
     chol_factor_record.topLeftCorner(dim, dim) = chol_ols;
   }
   // Some variables-----------------------------------------------

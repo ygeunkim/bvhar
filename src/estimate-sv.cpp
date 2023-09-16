@@ -57,6 +57,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::VectorXd chol_slab,
                            Eigen::VectorXd chol_slab_weight,
                            double coef_s1, double coef_s2,
+                           double chol_s1, double chol_s2,
                            Eigen::VectorXd mean_non,
                            double sd_non,
                            bool include_mean,
@@ -115,6 +116,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   Eigen::MatrixXd coef_weight_record(num_iter + 1, num_grp);
+  Eigen::MatrixXd contem_dummy_record(num_iter + 1, num_lowerchol);
+  Eigen::MatrixXd contem_weight_record(num_iter + 1, num_lowerchol);
   // HS----------------
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
   Eigen::MatrixXd global_record(num_iter + 1, num_grp);
@@ -130,6 +133,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // SSVS--------------
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
   coef_weight_record.row(0) = coef_slab_weight;
+  contem_dummy_record.row(0) = Eigen::VectorXd::Ones(num_lowerchol);
+  contem_weight_record.row(0) = chol_slab_weight;
   // HS----------------
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
@@ -319,6 +324,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         chol_spike,
         chol_slab_weight
       );
+      contem_dummy_record.row(i) = contem_dummy;
+      chol_slab_weight = ssvs_weight(contem_dummy, chol_s1, chol_s2);
+      contem_weight_record.row(i) = chol_slab_weight;
       prior_chol_prec.diagonal() = 1 / build_ssvs_sd(chol_spike, chol_slab, contem_dummy).array().square();
       break;
     case 3:

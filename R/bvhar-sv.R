@@ -167,6 +167,8 @@ bvhar_sv <- function(y,
         chol_slab_weight = rep(.5, num_eta),
         coef_s1 = 1,
         coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
         mean_non = rep(0, dim_data),
         sd_non = .1,
         include_mean = include_mean,
@@ -261,27 +263,6 @@ bvhar_sv <- function(y,
       )) {
         stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
       }
-      bayes_spec$coef_mixture <-
-        switch(
-          minnesota,
-          "no" = bayes_spec$coef_mixture,
-          "short" = {
-            coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data))
-            diag(coef_prob[[1]]) <- 1
-            c(do.call(rbind, coef_prob))
-          },
-          "longrun" = {
-            split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data)) %>%
-              lapply(
-                function(pij) {
-                  diag(pij) <- 1
-                  pij
-                }
-              ) %>%
-              do.call(rbind, .) %>%
-              c()
-          }
-        )
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -306,6 +287,8 @@ bvhar_sv <- function(y,
         chol_slab_weight = bayes_spec$chol_mixture,
         coef_s1 = 1,
         coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
         mean_non = rep(0, dim_data),
         sd_non = .1,
         include_mean = include_mean,
@@ -387,6 +370,8 @@ bvhar_sv <- function(y,
         chol_slab_weight = rep(.5, num_eta),
         coef_s1 = 1,
         coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
         mean_non = rep(0, dim_data),
         sd_non = .1,
         include_mean = include_mean,
