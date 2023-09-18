@@ -511,22 +511,46 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @rdname predict.varlse
 #' @param object Model object
 #' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
+#' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, ...) {
-  pred_res <- forecast_bvarsv(object$p, n_ahead, object$y0, object$coefficients)
+predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
+  dim_data <- object$m
+  h_record <- as_draws_matrix(object$h_record)
+  pred_res <- forecast_bvarsv_density(
+    object$p,
+    n_ahead,
+    object$y0,
+    object$coefficients,
+    as_draws_matrix(object$alpha_record),
+    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
+    as_draws_matrix(object$a_record),
+    as_draws_matrix(object$sigh_record)
+  )
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res
+  pred_mean <- pred_res$posterior_mean
   colnames(pred_mean) <- var_names
+  # Predictive distribution------------------------------------
+  num_step <- nrow(object$alpha_record)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, num_step))
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
   res <- list(
     process = object$process,
     forecast = pred_mean,
-    se = NULL,
-    lower = NULL,
-    upper = NULL,
-    lower_joint = NULL,
-    upper_joint = NULL,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     y = object$y
   )
   class(res) <- c("predsv", "predbvhar")
@@ -536,22 +560,47 @@ predict.bvarsv <- function(object, n_ahead, ...) {
 #' @rdname predict.varlse
 #' @param object Model object
 #' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
+#' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, ...) {
-  pred_res <- forecast_bvharsv(object$month, n_ahead, object$y0, object$coefficients, object$HARtrans)
+predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
+  dim_data <- object$m
+  h_record <- as_draws_matrix(object$h_record)
+  pred_res <- forecast_bvharsv_density(
+    object$p,
+    n_ahead,
+    object$y0,
+    object$coefficients,
+    object$HARtrans,
+    as_draws_matrix(object$phi_record),
+    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
+    as_draws_matrix(object$a_record),
+    as_draws_matrix(object$sigh_record)
+  )
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res
+  pred_mean <- pred_res$posterior_mean
   colnames(pred_mean) <- var_names
+  # Predictive distribution------------------------------------
+  num_step <- nrow(object$phi_record)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, num_step))
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(est_se) <- var_names
   res <- list(
     process = object$process,
     forecast = pred_mean,
-    se = NULL,
-    lower = NULL,
-    upper = NULL,
-    lower_joint = NULL,
-    upper_joint = NULL,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     y = object$y
   )
   class(res) <- c("predsv", "predbvhar")
