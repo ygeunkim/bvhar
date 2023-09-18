@@ -620,6 +620,22 @@ forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
     .Call(`_bvhar_forecast_bvarsv`, var_lag, step, response_mat, coef_mat)
 }
 
+#' Forecasting predictive density of VAR-SV
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param alpha_record MCMC record of coefficients
+#' @param h_last_record MCMC record of log-volatilities in last time
+#' @param a_record MCMC record of contemporaneous coefficients
+#' @param sigh_record MCMC record of variance of log-volatilities
+#' 
+#' @noRd
+forecast_bvarsv_density <- function(var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record) {
+    .Call(`_bvhar_forecast_bvarsv_density`, var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record)
+}
+
 #' Forecasting Bayesian VHAR
 #' 
 #' @param object `bvharmn` object
