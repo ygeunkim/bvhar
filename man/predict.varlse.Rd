@@ -36,7 +36,7 @@
 
 \method{predict}{bvarsv}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvharsv}(object, n_ahead, ...)
+\method{predict}{bvharsv}(object, n_ahead, level = 0.05, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
