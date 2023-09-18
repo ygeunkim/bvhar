@@ -254,8 +254,6 @@ Eigen::MatrixXd forecast_bvharsv(int month, int step, Eigen::MatrixXd response_m
   int num_design = response_mat.rows();
   int dim_har = HARtrans.cols();
   Eigen::MatrixXd point_forecast(step, dim);
-  // Eigen::VectorXd density_forecast(dim);
-  // Eigen::MatrixXd predictive_distn(step, num_sim * dim);
   Eigen::VectorXd last_pvec(dim_har);
   Eigen::VectorXd tmp_vec((month - 1) * dim);
   last_pvec[dim_har - 1] = 1.0;

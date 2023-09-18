@@ -252,8 +252,6 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
   int num_design = response_mat.rows();
   int dim_design = coef_mat.rows();
   Eigen::MatrixXd point_forecast(step, dim);
-  // Eigen::VectorXd density_forecast(dim);
-  // Eigen::MatrixXd predictive_distn(step, num_sim * dim);
   Eigen::VectorXd last_pvec(dim_design);
   Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
   last_pvec[dim_design - 1] = 1.0;

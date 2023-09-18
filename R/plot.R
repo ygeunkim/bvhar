@@ -545,16 +545,20 @@ autoplot.bvharirf <- function(object, ...) {
 #' Draw BVAR and BVHAR MCMC plots.
 #' 
 #' @param object `bvharsp` object
-#' @param type The type of the plot. Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
+#' @param type The type of the plot. Posterior coefficient (`"coef"`), Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
 #' @param pars Parameter names to draw.
 #' @param regex_pars Regular expression parameter names to draw.
 #' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
 #' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
-autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
+autoplot.bvharsp <- function(object,
+                             type = c("coef", "trace", "dens", "area"),
+                             pars = character(),
+                             regex_pars = character(), ...) {
   type <- match.arg(type)
   bayes_plt <- switch(
     type,
+    "coef" = autoplot.summary.bvharsp(object, point = TRUE, ...),
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
