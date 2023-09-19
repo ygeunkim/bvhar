@@ -530,13 +530,13 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
     as_draws_matrix(object$sigh_record)
   )
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
   num_step <- nrow(object$alpha_record)
   y_distn <- 
     pred_res$predictive %>% 
     array(dim = c(n_ahead, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
+  colnames(pred_mean) <- var_names
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   colnames(lower_quantile) <- var_names
@@ -580,13 +580,13 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
     as_draws_matrix(object$sigh_record)
   )
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
   num_step <- nrow(object$phi_record)
   y_distn <- 
     pred_res$predictive %>% 
     array(dim = c(n_ahead, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
+  colnames(pred_mean) <- var_names
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   colnames(lower_quantile) <- var_names
