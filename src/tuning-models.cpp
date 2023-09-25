@@ -1,4 +1,5 @@
 #include <RcppEigen.h>
+#include "bvhardraw.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 
@@ -165,3 +166,43 @@ Eigen::MatrixXd tune_var(Eigen::MatrixXd y, int lag_max, bool include_mean) {
   return ic_res;
 }
 
+//' Compute Log Predictive Likelihood
+//' 
+//' This function computes log-predictive likelihood (LPL).
+//' 
+//' @param True value
+//' @param Predicted value
+//' @param h_last_record MCMC record of log-volatilities in last time
+//' @param a_record MCMC record of contemporaneous coefficients
+//' @param sigh_record MCMC record of variance of log-volatilities
+//' 
+//' @noRd
+// [[Rcpp::export]]
+double compute_lpl(Eigen::MatrixXd y,
+                   Eigen::MatrixXd posterior_mean,
+                   Eigen::MatrixXd h_last_record,
+                   Eigen::MatrixXd a_record,
+                   Eigen::MatrixXd sigh_record) {
+  int num_sim = a_record.rows();
+  int dim = h_last_record.cols();
+  int num_pred = y.rows();
+  Eigen::VectorXd lpl_hist = Eigen::VectorXd::Zero(num_pred);
+  Eigen::VectorXd sv_update(dim);
+  Eigen::MatrixXd sv_cov = Eigen::MatrixXd::Zero(dim, dim);
+  for (int i = 0; i < num_pred; i++) {
+    for (int b = 0; b < num_sim; b++) {
+      sv_cov.diagonal() = 1 / sigh_record.row(b).array();
+      sv_update = vectorize_eigen(
+        sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
+      );
+      lpl_hist[i] += log_ldlt_dmvnorm(
+        y.row(i),
+        posterior_mean.row(i),
+        a_record.row(b),
+        sv_update
+      );
+    }
+    lpl_hist[i] /= num_sim;
+  }
+  return lpl_hist.mean();
+}

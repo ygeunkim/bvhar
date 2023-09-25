@@ -1266,6 +1266,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// log_ldlt_dmvnorm
+double log_ldlt_dmvnorm(Eigen::VectorXd x, Eigen::VectorXd mean_vec, Eigen::VectorXd lower_vec, Eigen::VectorXd diag_vec);
+RcppExport SEXP _bvhar_log_ldlt_dmvnorm(SEXP xSEXP, SEXP mean_vecSEXP, SEXP lower_vecSEXP, SEXP diag_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean_vec(mean_vecSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower_vec(lower_vecSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type diag_vec(diag_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_ldlt_dmvnorm(x, mean_vec, lower_vec, diag_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kronecker_eigen
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 RcppExport SEXP _bvhar_kronecker_eigen(SEXP xSEXP, SEXP ySEXP) {
@@ -1566,6 +1580,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_lpl
+double compute_lpl(Eigen::MatrixXd y, Eigen::MatrixXd posterior_mean, Eigen::MatrixXd h_last_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record);
+RcppExport SEXP _bvhar_compute_lpl(SEXP ySEXP, SEXP posterior_meanSEXP, SEXP h_last_recordSEXP, SEXP a_recordSEXP, SEXP sigh_recordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type posterior_mean(posterior_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_last_record(h_last_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigh_record(sigh_recordSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_lpl(y, posterior_mean, h_last_record, a_record, sigh_record));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
@@ -1651,6 +1680,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_horseshoe_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_global_sparsity, 4},
     {"_bvhar_horseshoe_mn_global_sparsity", (DL_FUNC) &_bvhar_horseshoe_mn_global_sparsity, 6},
     {"_bvhar_horseshoe_latent", (DL_FUNC) &_bvhar_horseshoe_latent, 1},
+    {"_bvhar_log_ldlt_dmvnorm", (DL_FUNC) &_bvhar_log_ldlt_dmvnorm, 4},
     {"_bvhar_kronecker_eigen", (DL_FUNC) &_bvhar_kronecker_eigen, 2},
     {"_bvhar_vectorize_eigen", (DL_FUNC) &_bvhar_vectorize_eigen, 1},
     {"_bvhar_unvectorize", (DL_FUNC) &_bvhar_unvectorize, 3},
@@ -1674,6 +1704,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_hq", (DL_FUNC) &_bvhar_compute_hq, 1},
     {"_bvhar_compute_fpe", (DL_FUNC) &_bvhar_compute_fpe, 1},
     {"_bvhar_tune_var", (DL_FUNC) &_bvhar_tune_var, 3},
+    {"_bvhar_compute_lpl", (DL_FUNC) &_bvhar_compute_lpl, 5},
     {NULL, NULL, 0}
 };
 
