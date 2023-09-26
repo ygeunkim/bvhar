@@ -10,7 +10,7 @@ sim_ssvs_var(
   p,
   dim_data = NULL,
   include_mean = TRUE,
-  relax = FALSE,
+  minnesota = FALSE,
   method = c("eigen", "chol")
 )
 
@@ -19,7 +19,7 @@ sim_ssvs_vhar(
   har = c(5, 22),
   dim_data = NULL,
   include_mean = TRUE,
-  relax = c("no", "minnesota", "longrun"),
+  minnesota = c("no", "short", "longrun"),
   method = c("eigen", "chol")
 )
 }
@@ -32,9 +32,9 @@ sim_ssvs_vhar(
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{relax}{Only use off-diagonal terms of each coefficient matrices for restriction.
+\item{minnesota}{Only use off-diagonal terms of each coefficient matrices for restriction.
 In \code{sim_ssvs_var()} function, use \code{TRUE} or \code{FALSE} (default).
-In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"minnesota"} type, or \code{"longrun"} type.}
+In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"short"} type, or \code{"longrun"} type.}
 
 \item{method}{Method to compute \eqn{\Sigma^{1/2}}.}
 

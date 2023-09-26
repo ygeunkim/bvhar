@@ -545,16 +545,20 @@ autoplot.bvharirf <- function(object, ...) {
 #' Draw BVAR and BVHAR MCMC plots.
 #' 
 #' @param object `bvharsp` object
-#' @param type The type of the plot. Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
+#' @param type The type of the plot. Posterior coefficient (`"coef"`), Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
 #' @param pars Parameter names to draw.
 #' @param regex_pars Regular expression parameter names to draw.
 #' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
 #' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
-autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
+autoplot.bvharsp <- function(object,
+                             type = c("coef", "trace", "dens", "area"),
+                             pars = character(),
+                             regex_pars = character(), ...) {
   type <- match.arg(type)
   bayes_plt <- switch(
     type,
+    "coef" = autoplot.summary.bvharsp(object, point = TRUE, ...),
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
@@ -614,18 +618,34 @@ gather_heat <- function(object) {
 #' Draw heatmap for SSVS prior coefficients.
 #' 
 #' @param object `summary.bvharsp` object
+#' @param point Use point for sparsity representation
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' 
-#' @importFrom ggplot2 ggplot aes geom_tile scale_x_discrete labs element_blank facet_grid
+#' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid
 #' @importFrom forcats fct_rev
 #' @export
-autoplot.summary.bvharsp <- function(object, ...) {
+autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
   p <- 
     heat_coef %>% 
-    ggplot(aes(x = x, y = fct_rev(y))) +
-    geom_tile(aes(fill = value), ...) +
-    scale_x_discrete(position = "top") +
+    ggplot(aes(x = x, y = fct_rev(y)))
+  if (point) {
+    p <- 
+      p +
+      geom_tile(fill = NA, colour = "#403d3d") +
+      geom_point(aes(colour = abs(value), size = abs(value))) +
+      guides(
+        colour = guide_colourbar(title = element_blank()),
+        size = "none"
+      )
+  } else {
+    p <- 
+      p +
+      geom_tile(aes(fill = value), ...) +
+      scale_x_discrete(position = "top")
+  }
+  p <- 
+    p +
     labs(
       x = element_blank(),
       y = element_blank()

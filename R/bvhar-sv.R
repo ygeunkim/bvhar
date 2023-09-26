@@ -40,6 +40,7 @@ bvhar_sv <- function(y,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  minnesota <- match.arg(minnesota)
   dim_data <- ncol(y)
   week <- har[1] # 5
   month <- har[2] # 22
@@ -154,11 +155,22 @@ bvhar_sv <- function(y,
         prior_type = 1,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
         init_global = .1,
+        init_contem_local = rep(.1, dim_data * (dim_data - 1) / 2),
+        init_contem_global = .1,
+        grp_id = 1,
+        grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
-        coef_slab_weight = rep(.5, num_phi),
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
+        coef_slab_weight = rep(.5, 1),
+        chol_spike = rep(.1, num_eta),
+        chol_slab = rep(5, num_eta),
+        chol_slab_weight = rep(.5, num_eta),
+        coef_s1 = 1,
+        coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
+        mean_non = rep(0, dim_data),
+        sd_non = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -167,6 +179,37 @@ bvhar_sv <- function(y,
     "SSVS" = {
       init_coef <- 1L
       init_coef_dummy <- 1L
+      glob_idmat <- switch(
+        minnesota,
+        "no" = matrix(1L, nrow = num_phi / dim_data, ncol = dim_data),
+        "short" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_phi), ncol = dim_data),
+            gl(3, dim_data)
+          )
+          glob_idmat[[1]] <- diag(dim_data) + 1
+          id <- 1
+          for (i in 2:3) {
+            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        },
+        "longrun" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_phi), ncol = dim_data),
+            gl(3, dim_data)
+          )
+          id <- 1
+          for (i in 1:3) {
+            glob_idmat[[i]] <- diag(dim_data) + id
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        }
+      )
+      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      num_grp <- length(grp_id)
       if (length(bayes_spec$coef_spike) == 1) {
         bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
       }
@@ -174,7 +217,7 @@ bvhar_sv <- function(y,
         bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_phi)
       }
       if (length(bayes_spec$coef_mixture) == 1) {
-        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_phi)
+        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
       }
       if (length(bayes_spec$mean_non) == 1) {
         bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
@@ -205,7 +248,7 @@ bvhar_sv <- function(y,
       if (!(
         length(bayes_spec$coef_spike) == num_phi &&
         length(bayes_spec$coef_slab) == num_phi &&
-        length(bayes_spec$coef_mixture) == num_phi
+        length(bayes_spec$coef_mixture) == num_grp
         # && length(bayes_spec$mean_coef) == num_restrict
       )) {
         stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
@@ -220,27 +263,6 @@ bvhar_sv <- function(y,
       )) {
         stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
       }
-      bayes_spec$coef_mixture <-
-        switch(
-          minnesota,
-          "no" = bayes_spec$coef_mixture,
-          "short" = {
-            coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data))
-            diag(coef_prob[[1]]) <- 1
-            c(do.call(rbind, coef_prob))
-          },
-          "longrun" = {
-            split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data)) %>%
-              lapply(
-                function(pij) {
-                  diag(pij) <- 1
-                  pij
-                }
-              ) %>%
-              do.call(rbind, .) %>%
-              c()
-          }
-        )
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -252,12 +274,23 @@ bvhar_sv <- function(y,
         prec_diag = diag(dim_data),
         prior_type = 2,
         init_local = rep(.1, ifelse(include_mean, num_phi + dim_data, num_phi)),
-        init_global = .1,
+        init_global = rep(.1, num_grp),
+        init_contem_local = rep(.1, dim_data * (dim_data - 1) / 2),
+        init_contem_global = .1,
+        grp_id = grp_id,
+        grp_mat = glob_idmat,
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
+        chol_spike = bayes_spec$chol_spike,
+        chol_slab = bayes_spec$chol_slab,
+        chol_slab_weight = bayes_spec$chol_mixture,
+        coef_s1 = 1,
+        coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
+        mean_non = rep(0, dim_data),
+        sd_non = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -276,8 +309,43 @@ bvhar_sv <- function(y,
           stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
         }
       }
+      if (include_mean) {
+        idx <- c(gl(3, dim_data), 4)
+      } else {
+        idx <- gl(3, dim_data)
+      }
+      glob_idmat <- switch(
+        minnesota,
+        "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
+        "short" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_restrict), ncol = dim_data),
+            idx
+          )
+          glob_idmat[[1]] <- diag(dim_data) + 1
+          id <- 1
+          for (i in 2:3) {
+            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        },
+        "longrun" = {
+          glob_idmat <- split.data.frame(
+            matrix(rep(0, num_restrict), ncol = dim_data),
+            idx
+          )
+          id <- 1
+          for (i in 1:3) {
+            glob_idmat[[i]] <- diag(dim_data) + id
+            id <- id + 2
+          }
+          do.call(rbind, glob_idmat)
+        }
+      )
       init_local <- bayes_spec$local_sparsity
-      init_global <- bayes_spec$global_sparsity
+      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      init_global <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -290,11 +358,22 @@ bvhar_sv <- function(y,
         prior_type = 3,
         init_local = init_local,
         init_global = init_global,
+        init_contem_local = rep(.1, dim_data * (dim_data - 1) / 2),
+        init_contem_global = .1,
+        grp_id = grp_id,
+        grp_mat = glob_idmat,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
-        coef_slab_weight = rep(.5, num_phi),
-        intercept_mean = rep(0, dim_data),
-        intercept_sd = .1,
+        coef_slab_weight = rep(.5, length(grp_id)),
+        chol_spike = rep(.1, num_eta),
+        chol_slab = rep(5, num_eta),
+        chol_slab_weight = rep(.5, num_eta),
+        coef_s1 = 1,
+        coef_s2 = 1,
+        chol_s1 = 1,
+        chol_s2 = 1,
+        mean_non = rep(0, dim_data),
+        sd_non = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -323,8 +402,14 @@ bvhar_sv <- function(y,
     pivot_wider(names_from = "varying_name", values_from = "h_value")
   res$h_record <- as_draws_df(res$h_record[,-1])
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  diag(mat_lower) <- rep(1L, dim_data)
+  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
+  res$chol_posterior <- mat_lower
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_har
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
   colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
   colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
   colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
@@ -345,15 +430,24 @@ bvhar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
   } else if (bayes_spec$prior == "Horseshoe") {
-    res$tau_record <- as.matrix(res$tau_record[thin_id])
-    colnames(res$tau_record) <- "tau"
+    if (minnesota == "no") {
+      res$tau_record <- as.matrix(res$tau_record[thin_id])
+      colnames(res$tau_record) <- "tau"
+    } else {
+      res$tau_record <- res$tau_record[thin_id,]
+      colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
+    }
     res$tau_record <- as_draws_df(res$tau_record)
-    res$lambda_record <- as.matrix(res$lambda_record[thin_id])
-    colnames(res$lambda_record) <- "lambda"
+    res$lambda_record <- res$lambda_record[thin_id,]
+    colnames(res$lambda_record) <- paste0(
+      "lambda[",
+      seq_len(ncol(res$lambda_record)),
+      "]"
+    )
     res$lambda_record <- as_draws_df(res$lambda_record)
     res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
-    res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+    res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
     res$kappa_record <- as_draws_df(res$kappa_record)
@@ -365,6 +459,10 @@ bvhar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
+  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
+    res$group <- glob_idmat
+    res$num_group <- length(grp_id)
+  }
   if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
     res$prior_mean <- prior_mean
     res$prior_prec <- prior_prec

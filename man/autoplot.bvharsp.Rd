@@ -6,7 +6,7 @@
 \usage{
 \method{autoplot}{bvharsp}(
   object,
-  type = c("trace", "dens", "area"),
+  type = c("coef", "trace", "dens", "area"),
   pars = character(),
   regex_pars = character(),
   ...
@@ -15,7 +15,7 @@
 \arguments{
 \item{object}{\code{bvharsp} object}
 
-\item{type}{The type of the plot. Trace plot (\code{"trace"}), kernel density plot (\code{"dens"}), and interval estimates plot (\code{"area"}).}
+\item{type}{The type of the plot. Posterior coefficient (\code{"coef"}), Trace plot (\code{"trace"}), kernel density plot (\code{"dens"}), and interval estimates plot (\code{"area"}).}
 
 \item{pars}{Parameter names to draw.}
 

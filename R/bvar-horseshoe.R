@@ -9,6 +9,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param minnesota Minnesota type
 #' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
@@ -60,6 +61,7 @@ bvar_horseshoe <- function(y,
                            thinning = 1,
                            bayes_spec = set_horseshoe(),
                            include_mean = TRUE,
+                           minnesota = FALSE,
                            algo = c("block", "gibbs"),
                            verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -111,6 +113,27 @@ bvar_horseshoe <- function(y,
       stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
     }
   }
+  glob_idmat <- matrix(1L, nrow = dim_design, ncol = dim_data)
+  if (minnesota) {
+    if (include_mean) {
+      idx <- c(gl(p, dim_data), p + 1)
+    } else {
+      idx <- gl(p, dim_data)
+    }
+    glob_idmat <- split.data.frame(
+      matrix(rep(0, num_restrict), ncol = dim_data),
+      idx
+    )
+    glob_idmat[[1]] <- diag(dim_data) + 1
+    id <- 1
+    for (i in 2:p) {
+      glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+      id <- id + 2
+    }
+    glob_idmat <- do.call(rbind, glob_idmat)
+  }
+  grp_id <- unique(c(glob_idmat[1:(dim_data * p),]))
+  global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -123,8 +146,10 @@ bvar_horseshoe <- function(y,
     x = X0,
     y = Y0,
     init_local = bayes_spec$local_sparsity,
-    init_global = bayes_spec$global_sparsity,
+    init_global = global_sparsity,
     init_sigma = 1,
+    grp_id = grp_id,
+    grp_mat = glob_idmat,
     blocked_gibbs = algo,
     fast = fast,
     display_progress = verbose
@@ -132,18 +157,35 @@ bvar_horseshoe <- function(y,
   # preprocess the results-----------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   res$alpha_record <- res$alpha_record[thin_id,]
-  colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
+  colnames(res$alpha_record) <- paste0(
+    "alpha[",
+    seq_len(ncol(res$alpha_record)),
+    "]"
+  )
   res$coefficients <- 
     colMeans(res$alpha_record) %>% 
     matrix(ncol = dim_data)
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
   res$alpha_record <- as_draws_df(res$alpha_record)
-  res$tau_record <- as.matrix(res$tau_record[thin_id])
-  colnames(res$tau_record) <- "tau"
+  if (minnesota) {
+    res$tau_record <- res$tau_record[thin_id,]
+    colnames(res$tau_record) <- paste0(
+      "tau[",
+      seq_len(ncol(res$tau_record)),
+      "]"
+    )
+  } else {
+    res$tau_record <- as.matrix(res$tau_record[thin_id])
+    colnames(res$tau_record) <- "tau"
+  }
   res$tau_record <- as_draws_df(res$tau_record)
-  res$lambda_record <- as.matrix(res$lambda_record[thin_id])
-  colnames(res$lambda_record) <- "lambda"
+  res$lambda_record <- res$lambda_record[thin_id,]
+  colnames(res$lambda_record) <- paste0(
+    "lambda[",
+    seq_len(ncol(res$lambda_record)),
+    "]"
+  )
   res$lambda_record <- as_draws_df(res$lambda_record)
   res$covmat <- mean(res$sigma) * diag(dim_data)
   res$psi_posterior <- diag(dim_data) / mean(res$sigma)
@@ -155,8 +197,12 @@ bvar_horseshoe <- function(y,
   colnames(res$sigma_record) <- "sigma"
   res$sigma_record <- as_draws_df(res$sigma_record)
   res$kappa_record <- res$kappa_record[thin_id,]
-  colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
-  res$pip <- matrix(1 - colMeans(res$kappa_record), ncol = dim_data)
+  colnames(res$kappa_record) <- paste0(
+    "kappa[",
+    seq_len(ncol(res$kappa_record)),
+    "]"
+  )
+  res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
   colnames(res$pip) <- name_var
   rownames(res$pip) <- name_lag
   res$kappa_record <- as_draws_df(res$kappa_record)
@@ -182,6 +228,8 @@ bvar_horseshoe <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
+  res$group <- glob_idmat
+  res$num_group <- length(grp_id)
   # data------------------
   res$y0 <- Y0
   res$design <- X0

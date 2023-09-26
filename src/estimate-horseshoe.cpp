@@ -18,13 +18,19 @@
 //' @param init_local Initial local shrinkage hyperparameters
 //' @param init_global Initial global shrinkage hyperparameter
 //' @param init_sigma Initial sigma
+//' @param grp_id Unique group id
+//' @param grp_mat Group matrix
+//' @param fast Fast sampling?
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
                                   Eigen::MatrixXd x, Eigen::MatrixXd y,
-                                  Eigen::VectorXd init_local, double init_global,
+                                  Eigen::VectorXd init_local,
+                                  Eigen::VectorXd init_global,
                                   double init_sigma,
+                                  Eigen::VectorXi grp_id,
+                                  Eigen::MatrixXd grp_mat,
                                   int blocked_gibbs,
                                   bool fast,
                                   bool display_progress) {
@@ -32,22 +38,25 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   int dim_design = x.cols(); // dim*p(+1)
   int num_design = y.rows(); // n = T - p
   int num_coef = dim * dim_design;
-  // if (blocked_gibbs == 2 && fast) {
-  //   Rcpp::stop("Invalid option.");
-  // }
+  int glob_len = init_global.size(); // p + 1 in VAR and 6 in VHAR
+  int num_grp = grp_id.size();
   // record------------------------------------------------
   Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
   Eigen::MatrixXd local_record(num_iter + 1, num_coef);
-  Eigen::VectorXd global_record(num_iter + 1);
+  Eigen::MatrixXd global_record(num_iter + 1, num_grp); // tau1: own-lag, tau2: cross-lag, ...
   Eigen::VectorXd sig_record(num_iter + 1);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   local_record.row(0) = init_local;
-  global_record[0] = init_global;
+  global_record.row(0) = init_global;
   sig_record[0] = init_sigma;
-  shrink_record.row(0) = 1 / (1 + (init_global * init_local).array().square());
   // Some variables----------------------------------------
   Eigen::VectorXd latent_local(num_coef);
-  double latent_global = 0.0;
+  Eigen::VectorXd latent_global(num_grp);
+  Eigen::VectorXd global_shrinkage(num_coef);
+  Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
+  Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
+  int mn_size = 0;
+  int mn_id = 0;
   Eigen::VectorXd block_coef(num_coef + 1);
   Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
   Eigen::VectorXd response_vec = vectorize_eigen(y);
@@ -66,7 +75,17 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
     }
     p.increment();
     // 1. alpha (coefficient)
-    lambda_mat = build_shrink_mat(global_record[i - 1], local_record.row(i - 1));
+    for (int j = 0; j < num_grp; j++) {
+      global_shrinkage_mat = (
+        grp_mat.array() == grp_id[j]
+      ).select(
+        global_record.row(i - 1).segment(j, 1).replicate(dim_design, dim),
+        global_shrinkage_mat
+      );
+    }
+    global_shrinkage = vectorize_eigen(global_shrinkage_mat);
+    lambda_mat = build_shrink_mat(global_shrinkage, init_local);
+    shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + lambda_mat).inverse().diagonal();
     switch (blocked_gibbs) {
     case 1:
       // alpha and sigma each
@@ -87,20 +106,32 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
       sig_record[i] = block_coef[0];
     }
     // 3. nuj (local latent)
-    latent_local = horseshoe_latent_local(local_record.row(i - 1));
+    latent_local = horseshoe_latent(local_record.row(i - 1));
     // 4. xi (global latent)
-    latent_global = horseshoe_latent_global(global_record[i - 1]);
+    latent_global = horseshoe_latent(global_record.row(i - 1));
     // 5. lambdaj (local shrinkage)
-    local_record.row(i) = horseshoe_local_sparsity(latent_local, global_record[i - 1], coef_record.row(i), block_coef[0]);
+    init_local = horseshoe_local_sparsity(
+      latent_local,
+      global_shrinkage,
+      coef_record.row(i),
+      sig_record[i]
+    );
+    local_record.row(i) = init_local;
     // 6. tau (global shrinkage)
-    global_record[i] = horseshoe_global_sparsity(latent_global, local_record.row(i), coef_record.row(i), block_coef[0]);
-    // kappa
-    shrink_record.row(i) = 1 / (1 + (global_record[i] * local_record.row(i)).array().square());
+    global_record.row(i) = horseshoe_mn_global_sparsity(
+      grp_vec,
+      grp_id,
+      latent_global,
+      init_local,
+      coef_record.row(i),
+      sig_record[i]
+    );
   }
+  shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + lambda_mat).inverse().diagonal();
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("tau_record") = global_record.tail(num_iter - num_burn),
+    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("sigma_record") = sig_record.tail(num_iter - num_burn),
     Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
   );
