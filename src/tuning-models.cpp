@@ -166,6 +166,32 @@ Eigen::MatrixXd tune_var(Eigen::MatrixXd y, int lag_max, bool include_mean) {
   return ic_res;
 }
 
+//' log Density of Multivariate Normal with LDLT Precision Matrix
+//' 
+//' Compute log density of multivariate normal with LDLT precision matrix decomposition.
+//' 
+//' @param x Point
+//' @param mean_vec Mean
+//' @param lower_vec row of a_record
+//' @param diag_vec row of h_record
+//' 
+//' @noRd
+// [[Rcpp::export]]
+double compute_log_dmgaussian(Eigen::VectorXd x,
+                              Eigen::VectorXd mean_vec,
+                              Eigen::VectorXd lower_vec,
+                              Eigen::VectorXd diag_vec) {
+  int dim = diag_vec.size();
+  Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim); // sqrt(D) in LDLT
+  diag_mat.diagonal() = 1 / diag_vec.array().exp().sqrt(); // exp since D = exp(h)
+  Eigen::MatrixXd lower_mat = build_inv_lower(dim, lower_vec);
+  x.array() -= mean_vec.array(); // x - mu
+  Eigen::VectorXd y = diag_mat * lower_mat * x; // sqrt(D) * L * (x - mu)
+  double res = -log(lower_vec.squaredNorm()) - log(diag_vec.sum()) / 2 - dim * log(2 * M_PI) / 2; // should fix this line?
+  res -= y.squaredNorm() / 2;
+  return res;
+}
+
 //' Compute Log Predictive Likelihood
 //' 
 //' This function computes log-predictive likelihood (LPL).
@@ -178,11 +204,11 @@ Eigen::MatrixXd tune_var(Eigen::MatrixXd y, int lag_max, bool include_mean) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-double compute_lpl(Eigen::MatrixXd y,
-                   Eigen::MatrixXd posterior_mean,
-                   Eigen::MatrixXd h_last_record,
-                   Eigen::MatrixXd a_record,
-                   Eigen::MatrixXd sigh_record) {
+Eigen::VectorXd compute_lpl(Eigen::MatrixXd y,
+                            Eigen::MatrixXd posterior_mean,
+                            Eigen::MatrixXd h_last_record,
+                            Eigen::MatrixXd a_record,
+                            Eigen::MatrixXd sigh_record) {
   int num_sim = a_record.rows();
   int dim = h_last_record.cols();
   int num_pred = y.rows();
@@ -195,7 +221,7 @@ double compute_lpl(Eigen::MatrixXd y,
       sv_update = vectorize_eigen(
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
       );
-      lpl_hist[i] += log_ldlt_dmvnorm(
+      lpl_hist[i] += compute_log_dmgaussian(
         y.row(i),
         posterior_mean.row(i),
         a_record.row(b),
@@ -204,5 +230,6 @@ double compute_lpl(Eigen::MatrixXd y,
     }
     lpl_hist[i] /= num_sim;
   }
-  return lpl_hist.mean();
+  // return lpl_hist.mean();
+  return lpl_hist;
 }

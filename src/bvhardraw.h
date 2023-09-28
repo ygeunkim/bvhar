@@ -31,8 +31,6 @@ Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::Vect
 
 Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd init_sv, Eigen::VectorXd h1, Eigen::VectorXd sv_sig);
 
-double log_ldlt_dmvnorm(Eigen::VectorXd x, Eigen::VectorXd mean_vec, Eigen::VectorXd lower_vec, Eigen::VectorXd diag_vec);
-
 Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::VectorXd local_hyperparam);
 
 Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, double var, Eigen::MatrixXd shrink_mat);

@@ -1420,20 +1420,6 @@ horseshoe_latent <- function(hyperparam) {
     .Call(`_bvhar_horseshoe_latent`, hyperparam)
 }
 
-#' log Density of Multivariate Normal with LDLT Precision Matrix
-#' 
-#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
-#' 
-#' @param x Point
-#' @param mean_vec Mean
-#' @param lower_vec row of a_record
-#' @param diag_vec row of h_record
-#' 
-#' @noRd
-log_ldlt_dmvnorm <- function(x, mean_vec, lower_vec, diag_vec) {
-    .Call(`_bvhar_log_ldlt_dmvnorm`, x, mean_vec, lower_vec, diag_vec)
-}
-
 #' @noRd
 kronecker_eigen <- function(x, y) {
     .Call(`_bvhar_kronecker_eigen`, x, y)
@@ -1690,6 +1676,20 @@ compute_fpe <- function(object) {
 #' @noRd
 tune_var <- function(y, lag_max, include_mean) {
     .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
+}
+
+#' log Density of Multivariate Normal with LDLT Precision Matrix
+#' 
+#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
+#' 
+#' @param x Point
+#' @param mean_vec Mean
+#' @param lower_vec row of a_record
+#' @param diag_vec row of h_record
+#' 
+#' @noRd
+compute_log_dmgaussian <- function(x, mean_vec, lower_vec, diag_vec) {
+    .Call(`_bvhar_compute_log_dmgaussian`, x, mean_vec, lower_vec, diag_vec)
 }
 
 #' Compute Log Predictive Likelihood
