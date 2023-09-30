@@ -160,29 +160,6 @@ estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
-#' Log of Joint Posterior Density of Hyperparameters
-#' 
-#' This function computes the log of joint posterior density of hyperparameters.
-#' 
-#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
-#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
-#' @param dim Dimension of the time series
-#' @param num_design The number of the data matrix, \eqn{n = T - p}
-#' @param prior_prec Prior precision of Matrix Normal distribution
-#' @param prior_scale Prior scale of Inverse-Wishart distribution
-#' @param mn_prec Posterior precision of Matrix Normal distribution
-#' @param iw_scale Posterior scale of Inverse-Wishart distribution
-#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-#' @param gamma_shape Shape of hyperprior Gamma distribution
-#' @param gamma_rate Rate of hyperprior Gamma distribution
-#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
-#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
-#' 
-#' @noRd
-jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
-    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
-}
-
 #' Metropolis Algorithm for Normal-IW Hierarchical Model
 #' 
 #' This function conducts Metropolis algorithm for Normal-IW Hierarchical BVAR or BVHAR.
@@ -1134,6 +1111,29 @@ compute_var_stablemat <- function(object) {
 #' @noRd
 compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
+}
+
+#' Log of Joint Posterior Density of Hyperparameters
+#' 
+#' This function computes the log of joint posterior density of hyperparameters.
+#' 
+#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
+#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
+#' @param dim Dimension of the time series
+#' @param num_design The number of the data matrix, \eqn{n = T - p}
+#' @param prior_prec Prior precision of Matrix Normal distribution
+#' @param prior_scale Prior scale of Inverse-Wishart distribution
+#' @param mn_prec Posterior precision of Matrix Normal distribution
+#' @param iw_scale Posterior scale of Inverse-Wishart distribution
+#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
+#' @param gamma_shape Shape of hyperprior Gamma distribution
+#' @param gamma_rate Rate of hyperprior Gamma distribution
+#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
+#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
+#' 
+#' @noRd
+jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
+    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
 }
 
 #' Building Spike-and-slab SD Diagonal Matrix
