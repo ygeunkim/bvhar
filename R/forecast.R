@@ -553,6 +553,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
     upper_joint = upper_quantile,
     y = object$y
   )
+  res$object <- object
   class(res) <- c("predsv", "predbvhar")
   res
 }
@@ -603,6 +604,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
     upper_joint = upper_quantile,
     y = object$y
   )
+  res$object <- object
   class(res) <- c("predsv", "predbvhar")
   res
 }
