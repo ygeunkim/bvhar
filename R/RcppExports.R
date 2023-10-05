@@ -398,6 +398,11 @@ compute_var_mse <- function(cov_mat, var_coef, var_lag, step) {
     .Call(`_bvhar_compute_var_mse`, cov_mat, var_coef, var_lag, step)
 }
 
+#' @noRd
+compute_var_fevd <- function(cov_mat, var_coef, var_lag, step) {
+    .Call(`_bvhar_compute_var_fevd`, cov_mat, var_coef, var_lag, step)
+}
+
 #' Compute Forecast MSE Matrices
 #' 
 #' Compute the forecast MSE matrices using VMA coefficients

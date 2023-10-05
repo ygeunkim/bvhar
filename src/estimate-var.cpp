@@ -169,9 +169,9 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_var_mse(Eigen::MatrixXd cov_mat,
-                                   Eigen::MatrixXd var_coef,
-                                   int var_lag,
-                                   int step) {
+                                Eigen::MatrixXd var_coef,
+                                int var_lag,
+                                int step) {
   int dim = cov_mat.cols(); // dimension of time series
   Eigen::MatrixXd vma_mat = VARcoeftoVMA(var_coef, var_lag, step);
   Eigen::MatrixXd mse(dim * step, dim);
@@ -179,6 +179,24 @@ Eigen::MatrixXd compute_var_mse(Eigen::MatrixXd cov_mat,
   for (int i = 1; i < step; i++) {
     mse.block(i * dim, 0, dim, dim) = mse.block((i - 1) * dim, 0, dim, dim) + 
       vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
+  }
+  return mse;
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_var_fevd(Eigen::MatrixXd cov_mat,
+                                 Eigen::MatrixXd var_coef,
+                                 int var_lag,
+                                 int step) {
+  int dim = cov_mat.cols(); // dimension of time series
+  Eigen::MatrixXd vma_mat = VARcoeftoVMA(var_coef, var_lag, step);
+  Eigen::MatrixXd mse(step, dim);
+  Eigen::MatrixXd decomp = cov_mat;
+  mse.row(0) = cov_mat.diagonal();
+  for (int i = 1; i < step; i++) {
+    decomp += vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat * vma_mat.block(i * dim, 0, dim, dim);
+    mse.row(i) = decomp.diagonal();
   }
   return mse;
 }

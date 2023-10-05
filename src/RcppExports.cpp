@@ -337,6 +337,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_var_fevd
+Eigen::MatrixXd compute_var_fevd(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coef, int var_lag, int step);
+RcppExport SEXP _bvhar_compute_var_fevd(SEXP cov_matSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_var_fevd(cov_mat, var_coef, var_lag, step));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_covmse
 Eigen::MatrixXd compute_covmse(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_compute_covmse(SEXP objectSEXP, SEXP stepSEXP) {
@@ -1644,6 +1658,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_var_mse", (DL_FUNC) &_bvhar_compute_var_mse, 4},
+    {"_bvhar_compute_var_fevd", (DL_FUNC) &_bvhar_compute_var_fevd, 4},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_VARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VARcoeftoVMA_ortho, 4},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
