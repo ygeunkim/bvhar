@@ -575,11 +575,12 @@ autoplot.bvharsp <- function(object,
 #' @importFrom dplyr mutate case_when
 #' @noRd
 gather_heat <- function(object) {
-  heat_coef <- 
-    object$coefficients %>% 
-    as.data.frame() %>% 
-    rownames_to_column("term") %>% 
-    pivot_longer(-term, names_to = "x", values_to = "value")
+  heat_coef <-
+    object$coefficients %>%
+    as.data.frame() %>%
+    rownames_to_column("term") %>%
+    pivot_longer(-term, names_to = "x", values_to = "value") %>%
+    mutate(x = factor(x, levels = colnames(object$coefficients)))
   is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
   if (object$type == "const") {
     heat_coef <- 
@@ -622,13 +623,12 @@ gather_heat <- function(object) {
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' 
 #' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid
-#' @importFrom forcats fct_rev
 #' @export
 autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
   p <- 
     heat_coef %>% 
-    ggplot(aes(x = x, y = fct_rev(y)))
+    ggplot(aes(x = x, y = y))
   if (point) {
     p <- 
       p +
