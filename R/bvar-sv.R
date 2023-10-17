@@ -405,7 +405,12 @@ bvar_sv <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvarsv", "svmod")
+  class(res) <- c("bvharsp", "bvarsv", "svmod")
+  if (bayes_spec$prior == "Horseshoe") {
+    class(res) <- c("hsmod", class(res))
+  } else if (bayes_spec$prior == "SSVS") {
+    class(res) <- c("ssvsmod", class(res))
+  }
   res
 }
 
