@@ -20,7 +20,7 @@
 #' 
 #' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302. doi:[10.1016/j.red.2004.10.009](https://doi.org/10.1016/j.red.2004.10.009)
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate group_by n select
 #' @importFrom tidyr pivot_longer pivot_wider unite
 #' @order 1
 #' @export
@@ -387,20 +387,21 @@ bvhar_sv <- function(y,
   res$a_record <- res$a_record[thin_id,]
   res$h0_record <- res$h0_record[thin_id,]
   res$sigh_record <- res$sigh_record[thin_id,]
-  # res$h_record <- split.data.frame(res$h_record, gl(num_iter - num_burn, num_design))
-  # res$h_record <- res$h_record[thin_id]
   colnames(res$h_record) <- paste("h", seq_len(ncol(res$h_record)), sep = "_")
-  res$h_record <- 
-    res$h_record %>% 
-    as.data.frame() %>% 
+  res$h_record <-
+    res$h_record %>%
+    as.data.frame() %>%
     mutate(
       iter_id = gl(num_iter - num_burn, num_design),
       id = rep(1:num_design, num_iter - num_burn)
-    ) %>% 
-    pivot_longer(-c(iter_id, id), names_to = "h_name", values_to = "h_value") %>% 
-    unite("varying_name", h_name, id, sep = "") %>% 
-    pivot_wider(names_from = "varying_name", values_from = "h_value")
-  res$h_record <- as_draws_df(res$h_record[,-1])
+    ) %>%
+    pivot_longer(-c(iter_id, id), names_to = "h_name", values_to = "h_value") %>%
+    unite("varying_name", h_name, id, sep = "") %>%
+    group_by(varying_name) %>%
+    mutate(row_unique = 1:n()) %>%
+    pivot_wider(names_from = "varying_name", values_from = "h_value") %>%
+    select(-row_unique, -iter_id)
+  res$h_record <- as_draws_df(res$h_record)
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
