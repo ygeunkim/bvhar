@@ -296,17 +296,16 @@ bvar_sv <- function(y,
   res$sigh_record <- res$sigh_record[thin_id,]
   res$h_record <- split.data.frame(
     res$h_record,
-    gl(num_design, num_iter - num_burn)
+    gl(num_design, num_iter + 1)
   ) %>%
     lapply(
       function(x) {
         colnames(x) <- paste0("h[", seq_len(ncol(x)), "]")
-        x
+        x[thin_id + 1,] # since num_iter + 1 rows
       }
     )
-  res$h_record <- res$h_record[thin_id]
   res$h_record <- lapply(
-    seq_along(thin_id),
+    seq_along(num_design),
     function(i) {
       colnames(res$h_record[[i]]) <- paste0(colnames(res$h_record[[i]]), i)
       res$h_record[[i]]
