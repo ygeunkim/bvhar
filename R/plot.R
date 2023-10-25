@@ -595,9 +595,10 @@ gather_heat <- function(object) {
         term
       ))
   }
-  heat_coef <- 
-    heat_coef %>% 
-    separate_wider_delim(term, delim = "_", names = c("y", "ord"))
+  heat_coef <-
+    heat_coef %>%
+    separate_wider_delim(term, delim = "_", names = c("y", "ord")) %>%
+    mutate(y = factor(y, levels = rev(colnames(object$coefficients))))
   # VHAR model--------------------------------
   if (is_vhar) {
     heat_coef <- 
@@ -641,11 +642,11 @@ autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   } else {
     p <- 
       p +
-      geom_tile(aes(fill = value), ...) +
-      scale_x_discrete(position = "top")
+      geom_tile(aes(fill = value), ...)
   }
-  p <- 
+  p <-
     p +
+    scale_x_discrete(position = "top") +
     labs(
       x = element_blank(),
       y = element_blank()
