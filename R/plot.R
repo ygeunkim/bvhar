@@ -634,7 +634,7 @@ autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
     p <- 
       p +
       geom_tile(fill = NA, colour = "#403d3d") +
-      geom_point(aes(colour = abs(value), size = abs(value))) +
+      geom_point(aes(colour = value, size = abs(value))) +
       guides(
         colour = guide_colourbar(title = element_blank()),
         size = "none"
