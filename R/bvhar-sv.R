@@ -20,8 +20,6 @@
 #' 
 #' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302. doi:[10.1016/j.red.2004.10.009](https://doi.org/10.1016/j.red.2004.10.009)
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom dplyr mutate
-#' @importFrom tidyr pivot_longer pivot_wider unite
 #' @order 1
 #' @export
 bvhar_sv <- function(y,
@@ -387,20 +385,25 @@ bvhar_sv <- function(y,
   res$a_record <- res$a_record[thin_id,]
   res$h0_record <- res$h0_record[thin_id,]
   res$sigh_record <- res$sigh_record[thin_id,]
-  # res$h_record <- split.data.frame(res$h_record, gl(num_iter - num_burn, num_design))
-  # res$h_record <- res$h_record[thin_id]
-  colnames(res$h_record) <- paste("h", seq_len(ncol(res$h_record)), sep = "_")
-  res$h_record <- 
-    res$h_record %>% 
-    as.data.frame() %>% 
-    mutate(
-      iter_id = gl(num_iter - num_burn, num_design),
-      id = rep(1:num_design, num_iter - num_burn)
-    ) %>% 
-    pivot_longer(-c(iter_id, id), names_to = "h_name", values_to = "h_value") %>% 
-    unite("varying_name", h_name, id, sep = "") %>% 
-    pivot_wider(names_from = "varying_name", values_from = "h_value")
-  res$h_record <- as_draws_df(res$h_record[,-1])
+  res$h_record <- split.data.frame(
+    res$h_record,
+    gl(num_design, num_iter + 1)
+  ) %>%
+    lapply(
+      function(x) {
+        colnames(x) <- paste0("h[", seq_len(ncol(x)), "]")
+        x[thin_id + 1,] # since num_iter + 1 rows
+      }
+    )
+  res$h_record <- lapply(
+    seq_along(num_design),
+    function(x) {
+      colnames(res$h_record[[x]]) <- paste0(colnames(res$h_record[[x]]), x)
+      res$h_record[[x]]
+    }
+  )
+  res$h_record <- do.call(cbind, res$h_record)
+  res$h_record <- as_draws_df(res$h_record)
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -499,7 +502,12 @@ bvhar_sv <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvharsv", "svmod")
+  class(res) <- c("bvharsp", "bvharsv", "svmod")
+  if (bayes_spec$prior == "Horseshoe") {
+    class(res) <- c("hsmod", class(res))
+  } else if (bayes_spec$prior == "SSVS") {
+    class(res) <- c("ssvsmod", class(res))
+  }
   res
 }
 

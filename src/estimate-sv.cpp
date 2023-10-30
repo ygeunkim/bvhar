@@ -377,7 +377,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   if (prior_type == 2) {
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
+      Rcpp::Named("h_record") = lvol_record,
       Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
@@ -387,7 +387,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
+      Rcpp::Named("h_record") = lvol_record,
       Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
@@ -398,7 +398,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = lvol_record.bottomRows(num_design * (num_iter - num_burn)),
+    Rcpp::Named("h_record") = lvol_record,
     Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn)

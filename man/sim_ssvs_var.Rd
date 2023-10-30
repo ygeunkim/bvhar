@@ -11,6 +11,7 @@ sim_ssvs_var(
   dim_data = NULL,
   include_mean = TRUE,
   minnesota = FALSE,
+  mn_prob = 1,
   method = c("eigen", "chol")
 )
 
@@ -20,6 +21,7 @@ sim_ssvs_vhar(
   dim_data = NULL,
   include_mean = TRUE,
   minnesota = c("no", "short", "longrun"),
+  mn_prob = 1,
   method = c("eigen", "chol")
 )
 }
@@ -35,6 +37,8 @@ sim_ssvs_vhar(
 \item{minnesota}{Only use off-diagonal terms of each coefficient matrices for restriction.
 In \code{sim_ssvs_var()} function, use \code{TRUE} or \code{FALSE} (default).
 In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"short"} type, or \code{"longrun"} type.}
+
+\item{mn_prob}{Probability for own-lags.}
 
 \item{method}{Method to compute \eqn{\Sigma^{1/2}}.}
 
