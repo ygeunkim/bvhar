@@ -30,5 +30,6 @@
 ## usethis namespace: start
 #' @importFrom lifecycle deprecated is_present deprecate_warn deprecate_soft
 #' @importFrom Rcpp evalCpp
+#' @importFrom Rcpp sourceCpp
 ## usethis namespace: end
 NULL

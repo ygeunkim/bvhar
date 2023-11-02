@@ -398,11 +398,6 @@ compute_var_mse <- function(cov_mat, var_coef, var_lag, step) {
     .Call(`_bvhar_compute_var_mse`, cov_mat, var_coef, var_lag, step)
 }
 
-#' @noRd
-compute_var_fevd <- function(cov_mat, var_coef, var_lag, step) {
-    .Call(`_bvhar_compute_var_fevd`, cov_mat, var_coef, var_lag, step)
-}
-
 #' Compute Forecast MSE Matrices
 #' 
 #' Compute the forecast MSE matrices using VMA coefficients
@@ -1604,6 +1599,29 @@ sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error,
 #' @noRd
 sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
+}
+
+#' h-step ahead Forecast Error Variance Decomposition
+#' 
+#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+#'
+#' @noRd
+compute_fevd <- function(vma_coef, cov_mat) {
+    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat)
+}
+
+#' h-step ahead Normalized Spillover
+#'
+#' @noRd
+compute_spillover <- function(fevd) {
+    .Call(`_bvhar_compute_spillover`, fevd)
+}
+
+#' h-step ahead Spillover Index
+#' 
+#' @noRd
+compute_sp_index <- function(spillover) {
+    .Call(`_bvhar_compute_sp_index`, spillover)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term

@@ -183,38 +183,6 @@ Eigen::MatrixXd compute_var_mse(Eigen::MatrixXd cov_mat,
   return mse;
 }
 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd compute_var_fevd(Eigen::MatrixXd cov_mat,
-                                 Eigen::MatrixXd var_coef,
-                                 int var_lag,
-                                 int step) {
-  int dim = cov_mat.cols();
-  Eigen::MatrixXd vma_mat = VARcoeftoVMA(var_coef, var_lag, step);
-  Eigen::MatrixXd innov_account = Eigen::MatrixXd::Zero(dim, dim);
-  Eigen::MatrixXd mse = Eigen::MatrixXd::Zero(dim * step, dim);
-  Eigen::MatrixXd ma_prod(dim, dim);
-  Eigen::VectorXd numer_vec = Eigen::VectorXd::Zero(dim);
-  Eigen::MatrixXd numer_sum = Eigen::MatrixXd::Zero(dim, dim);
-  Eigen::MatrixXd numer = Eigen::MatrixXd::Zero(dim * step, dim);
-  Eigen::MatrixXd denom = Eigen::MatrixXd::Zero(dim, dim);
-  // Eigen::MatrixXd fevd = Eigen::MatrixXd::Zero(step, dim);
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * step, dim);
-  Eigen::VectorXd sig_diag_inv = 1 / cov_mat.diagonal().cwiseSqrt().array(); // sigma_jj
-  for (int i = 0; i < step; i++) {
-    ma_prod = vma_mat.block(i * dim, 0, dim, dim).transpose() * cov_mat;
-    innov_account += ma_prod * vma_mat.block(i * dim, 0, dim, dim);
-    // mse.block(i * dim, 0, dim, dim) = innov_account;
-    numer_vec = ma_prod * sig_diag_inv;
-    numer_sum += numer_vec * numer_vec.transpose();
-    numer.block(i * dim, 0, dim, dim) = numer_sum;
-    // fevd.row(i) = numer_sum.array() / innov_account.diagonal().array();
-    denom.diagonal() = 1 / innov_account.diagonal().array();
-    res.block(i * dim, 0, dim, dim) = (numer_sum * numer_sum.transpose()) * denom;
-  }
-  return res;
-}
-
 //' Compute Forecast MSE Matrices
 //' 
 //' Compute the forecast MSE matrices using VMA coefficients

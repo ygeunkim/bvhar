@@ -337,20 +337,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_var_fevd
-Eigen::MatrixXd compute_var_fevd(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coef, int var_lag, int step);
-RcppExport SEXP _bvhar_compute_var_fevd(SEXP cov_matSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_var_fevd(cov_mat, var_coef, var_lag, step));
-    return rcpp_result_gen;
-END_RCPP
-}
 // compute_covmse
 Eigen::MatrixXd compute_covmse(Rcpp::List object, int step);
 RcppExport SEXP _bvhar_compute_covmse(SEXP objectSEXP, SEXP stepSEXP) {
@@ -1524,6 +1510,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_fevd
+Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat);
+RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vma_coef(vma_coefSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_spillover
+Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd);
+RcppExport SEXP _bvhar_compute_spillover(SEXP fevdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type fevd(fevdSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_spillover(fevd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_sp_index
+Eigen::VectorXd compute_sp_index(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_sp_index(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_sp_index(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_logml
 double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
 RcppExport SEXP _bvhar_compute_logml(SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP) {
@@ -1658,7 +1678,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
     {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
     {"_bvhar_compute_var_mse", (DL_FUNC) &_bvhar_compute_var_mse, 4},
-    {"_bvhar_compute_var_fevd", (DL_FUNC) &_bvhar_compute_var_fevd, 4},
     {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
     {"_bvhar_VARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VARcoeftoVMA_ortho, 4},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
@@ -1742,6 +1761,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
+    {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 2},
+    {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},
+    {"_bvhar_compute_sp_index", (DL_FUNC) &_bvhar_compute_sp_index, 1},
     {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
