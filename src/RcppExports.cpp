@@ -1533,14 +1533,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_sp_index
-Eigen::VectorXd compute_sp_index(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_sp_index(SEXP spilloverSEXP) {
+// compute_to_spillover
+Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_to_spillover(SEXP spilloverSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_sp_index(spillover));
+    rcpp_result_gen = Rcpp::wrap(compute_to_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_from_spillover
+Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_from_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_from_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_tot_spillover
+double compute_tot_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_tot_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_tot_spillover(spillover));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1763,7 +1785,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
     {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 2},
     {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},
-    {"_bvhar_compute_sp_index", (DL_FUNC) &_bvhar_compute_sp_index, 1},
+    {"_bvhar_compute_to_spillover", (DL_FUNC) &_bvhar_compute_to_spillover, 1},
+    {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
+    {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
     {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},

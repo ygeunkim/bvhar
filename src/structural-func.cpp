@@ -37,27 +37,44 @@ Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat) 
 Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd) {
     int dim = fevd.cols();
     int step = fevd.rows() / dim;
-    Eigen::MatrixXd block_mat(dim, dim);
+    Eigen::MatrixXd res(dim, dim);
     Eigen::VectorXd col_sum(dim);
-    for (int i = 0; i < step; i++) {
-        block_mat = fevd.block(i * dim, 0, dim, dim);
-        col_sum = block_mat.colwise().sum();
-        block_mat.array().colwise() /= col_sum.array();
-        fevd.block(i * dim, 0, dim, dim) = block_mat;
-        // Eigen::VectorXd tmp = fevd.rowwise().sum().eval();
-        // return fevd.array().rowwise() / tmp.array();
-        // fevd = fevd.rowwise().normalized();
-    }
-    return fevd.bottomRows(dim) * 100;
+    res = fevd.bottomRows(dim);
+    col_sum = res.colwise().sum();
+    res.array().colwise() /= col_sum.array();
+    // return res.transpose() * 100; // transpose: j to i
+    return res * 100; // i to j
 }
 
-//' h-step ahead Spillover Index
+//' To-others Spillovers
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd compute_sp_index(Eigen::MatrixXd spillover) {
+Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
+    int dim = spillover.cols();
+    Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
+    diag_mat.diagonal() = spillover.diagonal();
+    return (spillover - diag_mat).rowwise().sum();
+}
+
+//' From-others Spillovers
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
     int dim = spillover.cols();
     Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
     diag_mat.diagonal() = spillover.diagonal();
     return (spillover - diag_mat).colwise().sum();
+}
+
+//' Total Spillovers
+//' 
+//' @noRd
+// [[Rcpp::export]]
+double compute_tot_spillover(Eigen::MatrixXd spillover) {
+    int dim = spillover.cols();
+    Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
+    diag_mat.diagonal() = spillover.diagonal();
+    return (spillover - diag_mat).sum() / dim;
 }

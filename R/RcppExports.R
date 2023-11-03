@@ -1617,11 +1617,25 @@ compute_spillover <- function(fevd) {
     .Call(`_bvhar_compute_spillover`, fevd)
 }
 
-#' h-step ahead Spillover Index
+#' To-others Spillovers
 #' 
 #' @noRd
-compute_sp_index <- function(spillover) {
-    .Call(`_bvhar_compute_sp_index`, spillover)
+compute_to_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_to_spillover`, spillover)
+}
+
+#' From-others Spillovers
+#' 
+#' @noRd
+compute_from_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_from_spillover`, spillover)
+}
+
+#' Total Spillovers
+#' 
+#' @noRd
+compute_tot_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_tot_spillover`, spillover)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
