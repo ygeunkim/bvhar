@@ -1,4 +1,4 @@
-#' @rdname varshares
+#' @rdname spillover_volatility
 #' @param x `bvharspillover` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -20,7 +20,7 @@ print.bvharspillover <- function(x, digits = max(3L, getOption("digits") - 3L), 
   )
 }
 
-#' @rdname varshares
+#' @rdname spillover_volatility
 #' @param x `bvharspillover` object
 #' @param ... not used
 #' @order 3
