@@ -75,11 +75,7 @@ Also, it does not have \code{DATE} column for fitting.
 The number of rows is 1826 and the number of columns is 31.
 }
 \source{
-\url{https://realized.oxford-man.ox.ac.uk/data}
-
-Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/estimators}
-
-Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
+Realized library of oxford-man had been discontinued, so the source could not be listed.
 }
 \usage{
 oxfordman_rv

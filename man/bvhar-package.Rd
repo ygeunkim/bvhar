@@ -27,6 +27,7 @@ Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregres
 Useful links:
 \itemize{
   \item \url{https://ygeunkim.github.io/package/bvhar}
+  \item \url{https://github.com/ygeunkim/bvhar}
   \item Report bugs at \url{https://github.com/ygeunkim/bvhar/issues}
 }
 
