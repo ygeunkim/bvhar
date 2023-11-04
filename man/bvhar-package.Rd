@@ -19,30 +19,14 @@ Here, vector autoregressive modelling includes:
 \item Bayesian VAR (BVAR) model: \code{\link[=bvar_minnesota]{bvar_minnesota()}}, \code{\link[=bvar_flat]{bvar_flat()}}
 \item Bayesian VHAR (BVHAR) model: \code{\link[=bvhar_minnesota]{bvhar_minnesota()}}
 }
-
-Each function returns S3 class \code{varlse}, \code{vharlse}, \code{bvarmn}, \code{bvarflat}, and \code{bvharmn}.
-As dealing with other statistical functions (such as \code{\link[stats:lm]{stats::lm()}} and \code{\link[stats:glm]{stats::glm()}}),
-users can analyze multivariate time series (\code{data.frame} or \code{matrix}) with S3 methods:
-\itemize{
-\item Extract: \code{\link[=coef.varlse]{coef.varlse()}}, \code{\link[=residuals.varlse]{residuals.varlse()}}, \code{\link[=fitted.varlse]{fitted.varlse()}}
-\item Forecasting: \code{\link[=predict.varlse]{predict.varlse()}}
-}
 }
 \references{
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
-
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
-
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
-
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
-
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. under review.
+Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/ygeunkim/bvhar}
+  \item \url{https://ygeunkim.github.io/package/bvhar}
   \item Report bugs at \url{https://github.com/ygeunkim/bvhar/issues}
 }
 

@@ -3,7 +3,7 @@
 #' This function fits VAR(p) using OLS method.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param p integer, lags of VAR
+#' @param p Lag of VAR (Default: 1)
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param method Method to solve linear equation system.
 #' (`"nor"`: normal equation (default), `"chol"`: Cholesky, and `"qr"`: HouseholderQR)
@@ -25,7 +25,7 @@
 #' which gives
 #' 
 #' \deqn{\hat{A} = (X_0^T X_0)^{-1} X_0^T Y_0}
-#' @return `var_lm` returns an object named `varlse` [class].
+#' @return `var_lm()` returns an object named `varlse` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -45,6 +45,7 @@
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
 #' }
+#' It is also a `bvharmod` class.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @seealso 
 #' * Other package [vars::VAR()] is famous in VAR modeling.
@@ -64,7 +65,7 @@
 #' head(fitted(fit))
 #' @order 1
 #' @export
-var_lm <- function(y, p, include_mean = TRUE, method = c("nor", "chol", "qr")) {
+var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr")) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -89,11 +90,6 @@ var_lm <- function(y, p, include_mean = TRUE, method = c("nor", "chol", "qr")) {
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
   colnames(X0) <- name_lag
   # estimate B-----------------------
-  # var_est <- switch (method,
-  #   "nor" = {estimate_var(X0, Y0)},
-  #   "chol" = {estimate_var_llt(X0, Y0)},
-  #   "qr" = {estimate_var_qr(X0, Y0)}
-  # )
   var_est <- estimate_var(X0, Y0, method)
   # var_est <- estimate_var(X0, Y0)
   coef_est <- var_est$coef # Ahat

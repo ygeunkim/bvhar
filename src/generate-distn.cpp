@@ -10,17 +10,7 @@
 //' @param num_sim Number to generate process
 //' @param mu Mean vector
 //' @param sig Variance matrix
-//' @details
-//' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
-//' 
-//' 1. Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
-//' 2. Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
-//' 3. \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
-//' 4. \eqn{X_i = L Z_i + \mu}
-//' 
-//' This function does not care of \eqn{\mu}.
-//' 
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
   int dim = sig.cols();

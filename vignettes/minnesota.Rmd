@@ -28,7 +28,7 @@ library(bvhar)
 
 We provide functions to generate matrix-variate Normal and inverse-Wishart.
 
-- `sim_mgaussian(num_sim, mu, sig)`: `num_sim` of $\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)$.
+- `sim_mnormal(num_sim, mu, sig)`: `num_sim` of $\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)$.
 - `sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)`: One $X_{m \times n} \sim MN(M_{m \times n}, U_{m \times m}, V_{n \times n})$ which means that $vec(X) \sim N(vec(M), V \otimes U)$.
 - `sim_iw(mat_scale, shape)`: One $\Sigma \sim IW(\Psi, \nu)$.
 - `sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)`: `num_sim` of $(X_i, \Sigma_i) \stackrel{iid}{\sim} MNIW(M, U, V, \nu)$.
@@ -37,7 +37,7 @@ Multivariate Normal generation gives `num_sim` x dim matrix.
 For example, generating 3 vector from Normal($\boldsymbol{\mu} = \mathbf{0}_2$, $\Sigma = diag(\mathbf{1}_2)$):
 
 ```{r gennormal}
-sim_mgaussian(3, rep(0, 2), diag(2))
+sim_mnormal(3, rep(0, 2), diag(2))
 ```
 
 The output of `sim_matgaussian()` is a matrix.

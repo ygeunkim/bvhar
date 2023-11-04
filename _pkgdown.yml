@@ -151,7 +151,6 @@ reference:
   - sim_mncoef
   - sim_mnvhar_coef
   - sim_mnormal
-  - sim_mgaussian
   - sim_matgaussian
   - sim_iw
   - sim_mniw

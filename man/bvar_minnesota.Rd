@@ -6,7 +6,7 @@
 \alias{knit_print.bvarmn}
 \title{Fitting Bayesian VAR(p) of Minnesota Prior}
 \usage{
-bvar_minnesota(y, p, bayes_spec = set_bvar(), include_mean = TRUE)
+bvar_minnesota(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,7 +15,7 @@ knit_print.bvarmn(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{p}{VAR lag}
+\item{p}{VAR lag (Default: 1)}
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
@@ -28,7 +28,7 @@ knit_print.bvarmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvar_minnesota} returns an object \code{bvarmn} \link{class}.
+\code{bvar_minnesota()} returns an object \code{bvarmn} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -55,6 +55,7 @@ It is a list with the following components:
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input (\code{matrix})}
 }
+It is also \code{normaliw} and \code{bvharmod} class.
 }
 \description{
 This function fits BVAR(p) with Minnesota prior.

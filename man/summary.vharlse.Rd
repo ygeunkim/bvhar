@@ -24,10 +24,13 @@ knit_print.summary.vharlse(x, ...)
 \item{signif_code}{Check significant rows (Default: \code{TRUE})}
 }
 \value{
-\code{summary.varlse} \link{class} additionaly computes the following
+\code{summary.vharlse} \link{class} additionally computes the following
 \item{\code{names}}{Variable names}
 \item{\code{totobs}}{Total number of the observation}
 \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
+\item{\code{p}}{3}
+\item{\code{week}}{Order for weekly term}
+\item{\code{month}}{Order for monthly term}
 \item{\code{coefficients}}{Coefficient Matrix}
 \item{\code{call}}{Matched call}
 \item{\code{process}}{Process: VAR}
@@ -35,6 +38,7 @@ knit_print.summary.vharlse(x, ...)
 \item{\code{corrmat}}{Correlation matrix of the residuals}
 \item{\code{roots}}{Roots of characteristic polynomials}
 \item{\code{is_stable}}{Whether the process is stable or not based on \code{roots}}
+\item{\code{log_lik}}{log-likelihood}
 \item{\code{ic}}{Information criteria vector}
 \itemize{
 \item{\code{AIC}} - AIC

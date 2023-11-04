@@ -16,7 +16,7 @@ Description: A package aiming at researching Bayesian Vector heterogeneous autor
     `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
     It can also generate one Normal-inverse-Wishart matrix for the sake of simulation setting.
 License: MIT + file LICENSE
-URL: https://github.com/ygeunkim/bvhar
+URL: https://ygeunkim.github.io/package/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,

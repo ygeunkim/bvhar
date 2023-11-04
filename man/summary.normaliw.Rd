@@ -34,10 +34,29 @@ knit_print.summary.normaliw(x, ...)
 \item{digits}{digit option to print}
 }
 \value{
-\code{summary} for \code{bvarmn} object returns \code{summary.bvarmn} \link{class}.
+\code{summary.normaliw} \link{class} has the following components:
 \describe{
-\item{coefficients}{iter x k x m array: each column of the array indicate the draw for each lag corresponding to that variable}
-\item{covmat}{iter x m x m array: each column of teh array indicate the draw for each varable corresponding to that variable}
+\item{names}{Variable names}
+\item{totobs}{Total number of the observation}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{p}{Lag of VAR}
+\item{m}{Dimension of the data}
+\item{call}{Matched call}
+\item{spec}{Model specification (\code{bvharspec})}
+\item{mn_mean}{MN Mean of posterior distribution (MN-IW)}
+\item{mn_prec}{MN Precision of posterior distribution (MN-IW)}
+\item{iw_scale}{IW scale of posterior distribution (MN-IW)}
+\item{iw_shape}{IW df of posterior distribution (MN-IW)}
+\item{iter}{Number of MCMC iterations}
+\item{burn}{Number of MCMC burn-in}
+\item{thin}{MCMC thinning}
+\item{alpha_record (BVAR) and phi_record (BVHAR)}{MCMC record of coefficients vector}
+\item{psi_record}{MCMC record of upper cholesky factor}
+\item{omega_record}{MCMC record of diagonal of cholesky factor}
+\item{eta_record}{MCMC record of upper part of cholesky factor}
+\item{param}{MCMC record of every parameter}
+\item{coefficients}{Posterior mean of coefficients}
+\item{covmat}{Posterior mean of covariance}
 }
 }
 \description{
@@ -48,12 +67,12 @@ From Minnesota prior, set of coefficient matrices and residual covariance matrix
 
 BVAR:
 
-\deqn{(A, \Sigma_e) \sim MNIW(\hat{A}, \hat{V}^{-1}, \hat\Sigma_e, \alpha_0 + s)}
+\deqn{(A, \Sigma_e) \sim MNIW(\hat{A}, \hat{V}^{-1}, \hat\Sigma_e, \alpha_0 + n)}
 where \eqn{\hat{V} = X_\ast^T X_\ast} is the posterior precision of MN.
 
 BVHAR:
 
-\deqn{(\Phi, \Sigma_e) \sim MNIW(\hat\Phi, \hat{V}_H^{-1}, \hat\Sigma_e, d_0 + s)}
+\deqn{(\Phi, \Sigma_e) \sim MNIW(\hat\Phi, \hat{V}_H^{-1}, \hat\Sigma_e, \nu + n)}
 where \eqn{\hat{V}_H = X_{+}^T X_{+}} is the posterior precision of MN.
 }
 \references{

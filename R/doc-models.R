@@ -41,9 +41,9 @@
 #' \end{bmatrix} \otimes I_m
 #' }
 #' 
-#' Define (3m + 1) x (22m + 1) matrix \eqn{T_{HAR}} by
+#' Define (3m + 1) x (22m + 1) matrix \eqn{C_{HAR}} by
 #' \deqn{
-#'   C_{HAR} \defn \begin{bmatrix}
+#'   C_{HAR} = \begin{bmatrix}
 #'   C_0 & 0_{3m} \\
 #'   0_{3m}^\intercal & 1
 #' \end{bmatrix}

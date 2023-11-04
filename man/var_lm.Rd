@@ -6,7 +6,7 @@
 \alias{knit_print.varlse}
 \title{Fitting Vector Autoregressive Model of Order p Model}
 \usage{
-var_lm(y, p, include_mean = TRUE, method = c("nor", "chol", "qr"))
+var_lm(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"))
 
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,7 +15,7 @@ knit_print.varlse(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{p}{integer, lags of VAR}
+\item{p}{Lag of VAR (Default: 1)}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -29,7 +29,7 @@ knit_print.varlse(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{var_lm} returns an object named \code{varlse} \link{class}.
+\code{var_lm()} returns an object named \code{varlse} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -49,6 +49,7 @@ It is a list with the following components:
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
+It is also a \code{bvharmod} class.
 }
 \description{
 This function fits VAR(p) using OLS method.

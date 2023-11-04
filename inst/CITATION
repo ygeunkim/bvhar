@@ -1,0 +1,15 @@
+bibentry(
+  bibtype = "Article",
+  title = "Bayesian Vector Heterogeneous Autoregressive Modeling",
+  author = c(
+    person(given = "Young Geun", family = "Kim"),
+    person(given = "Changryong", family = "Baek")
+  ),
+  journal = "Journal of Statistical Computation and Simulation",
+  year     = "2023+"
+  #,
+  #volume   = {},
+  #number   = {},
+  #pages    = {},
+  #doi      = {}
+)

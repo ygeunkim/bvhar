@@ -3,7 +3,7 @@
 #' This function fits BVAR(p) with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param p VAR lag
+#' @param p VAR lag (Default: 1)
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
@@ -12,7 +12,7 @@
 #' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
-#' @return `bvar_minnesota` returns an object `bvarmn` [class].
+#' @return `bvar_minnesota()` returns an object `bvarmn` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -39,6 +39,7 @@
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input (`matrix`)}
 #' }
+#' It is also `normaliw` and `bvharmod` class.
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
@@ -68,7 +69,7 @@
 #' @importFrom stats sd
 #' @order 1
 #' @export
-bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
+bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
