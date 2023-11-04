@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A package aiming at researching Bayesian Vector heterogeneous autoregressive process. `bvhar` can model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR). It can also generate one Normal-inverse-Wishart matrix for the sake of simulation setting.
+Aim at researching Bayesian Vector heterogeneous autoregressive process. Model VAR, VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR).
 }
 \details{
 The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.
