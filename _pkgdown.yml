@@ -46,6 +46,10 @@ reference:
   contents:
   - set_bvar
   - summary.normaliw
+  - summary.ssvsmod
+  - init_ssvs
+  - set_ssvs
+  - set_lambda
 
 - title: BVAR
   desc: >
@@ -53,12 +57,17 @@ reference:
   contents:
   - bvar_minnesota
   - bvar_flat
+  - bvar_niwhm
+  - bvar_sv
+  - bvar_ssvs
 
 - title: BVHAR
   desc: >
     Bayesian VHAR model.
   contents:
   - bvhar_minnesota
+  - bvhar_sv
+  - bvhar_ssvs
 
 - title: Structural Analysis
   desc: ~
@@ -73,6 +82,10 @@ reference:
   - divide_ts
   - forecast_roll
   - forecast_expand
+
+- title: Evaluation
+  desc: ~
+  contents:
   - mse
   - mae
   - mape
@@ -83,6 +96,15 @@ reference:
   - rmafe
   - rmape
   - rmase
+  - conf_fdr
+  - conf_fnr
+  - conf_fscore
+  - conf_prec
+  - conf_recall
+  - confusion
+  - fromse
+  - spne
+  - relspne
 
 - title: Empirical Bayes
   desc: >
@@ -93,6 +115,7 @@ reference:
   - choose_bvhar
   - bound_bvhar
   - choose_bayes
+  - choose_ssvs
 
 - title: Information criteria
   desc: ~
@@ -117,6 +140,8 @@ reference:
   - geom_eval
   - gg_loss
   - autoplot.bvharirf
+  - autoplot.bvharsp
+  - autoplot.summary.bvharsp
 
 - title: Simulation and Random Generation
   desc: ~
@@ -125,10 +150,13 @@ reference:
   - sim_vhar
   - sim_mncoef
   - sim_mnvhar_coef
+  - sim_mnormal
   - sim_mgaussian
   - sim_matgaussian
   - sim_iw
   - sim_mniw
+  - sim_mvt
+  - sim_ssvs_var
 
 - title: Data
   desc: ~
@@ -145,7 +173,7 @@ reference:
   - is.varlse
   - split_coef
 
-destination: '../../GitHub/young-blogdown/static/package/bvhar'
+destination: '../../myprofile/young-blogdown/static/package/bvhar'
 
 navbar:
   structure:
