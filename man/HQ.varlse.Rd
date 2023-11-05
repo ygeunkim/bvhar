@@ -40,9 +40,9 @@ Then
 where the number of freely estimated parameters is \eqn{pm^2}.
 }
 \references{
-Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195. doi:\href{https://doi.org/10.1111/j.2517-6161.1979.tb01072.x}{10.1111/j.2517-6161.1979.tb01072.x}
+Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
 
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 
-Quinn, B.G. (1980). \emph{Order Determination for a Multivariate Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185. doi:\href{https://doi.org/10.1111/j.2517-6161.1980.tb01116.x}{10.1111/j.2517-6161.1980.tb01116.x}
+Quinn, B.G. (1980). \emph{Order Determination for a Multivariate Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185.
 }

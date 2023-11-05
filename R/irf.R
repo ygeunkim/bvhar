@@ -27,7 +27,7 @@ analyze_ir <- function(object, lag_max, orthogonal, impulse_var, response_var, .
 #' Here,
 #' \deqn{\Theta_i = W_i P}
 #' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso [VARtoVMA()]
 #' @importFrom dplyr mutate filter
 #' @importFrom tidyr pivot_longer

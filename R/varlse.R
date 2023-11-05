@@ -46,7 +46,7 @@
 #'   \item{y}{Raw input}
 #' }
 #' It is also a `bvharmod` class.
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso 
 #' * Other package [vars::VAR()] is famous in VAR modeling.
 #' * [coef.varlse()], [residuals.varlse()], and [fitted.varlse()]

@@ -26,5 +26,5 @@ whic can be computed by
 \code{AIC(object, ..., k = 2 * log(log(nobs(object))))} with \code{\link[stats:AIC]{stats::AIC()}}.
 }
 \references{
-Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195. doi:\href{https://doi.org/10.1111/j.2517-6161.1979.tb01072.x}{10.1111/j.2517-6161.1979.tb01072.x}
+Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
 }

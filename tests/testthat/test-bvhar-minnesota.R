@@ -1,5 +1,7 @@
 # Components of var-type--------------
 test_that("Test for VAR-type minnesota", {
+  skip_on_cran()
+  
   etf_ncol <- ncol(etf_vix)
   var_spec <- set_bvhar(
     sigma = apply(etf_vix, 2, sd),
@@ -23,6 +25,8 @@ test_that("Test for VAR-type minnesota", {
 })
 # Components of vhar-type--------------
 test_that("Test for VHAR-type minnesota", {
+  skip_on_cran()
+  
   etf_ncol <- ncol(etf_vix)
   vhar_spec <- set_weight_bvhar(
     sigma = apply(etf_vix, 2, sd),

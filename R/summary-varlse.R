@@ -27,7 +27,7 @@
 #' }
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' 
 #' @importFrom stats cor pt
 #' @importFrom tibble add_column

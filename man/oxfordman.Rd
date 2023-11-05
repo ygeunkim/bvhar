@@ -83,7 +83,7 @@ oxfordman_rv
 oxfordman_rk
 }
 \description{
-The realized measure of financial assets dataset provided by \href{https://www.oxford-man.ox.ac.uk}{Oxford-man Institute of Quantitative Finance}.
+The realized measure of financial assets dataset provided by \href{https://oxford-man.ox.ac.uk/research/realized-library/}{Oxford-man Institute of Quantitative Finance}.
 }
 \details{
 \itemize{

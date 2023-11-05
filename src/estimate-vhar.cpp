@@ -176,7 +176,7 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 //' Observe that
 //' \deqn{B = \tilde{T}^T \Phi}
 //' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {

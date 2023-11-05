@@ -78,17 +78,17 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).
 
-Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).
 
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25.
 
-KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132. doi:\href{https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}{10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}
+KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132.
 
-Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897.
 
-Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968. doi:\href{https://doi.org/10.2307/2527347}{10.2307/2527347}
+Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968.
 }
 \seealso{
 \itemize{

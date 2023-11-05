@@ -1,5 +1,7 @@
 # Components of vharlse--------------
 test_that("Test for vharlse class", {
+  skip_on_cran()
+  
   fit_test_vhar <- vhar_lm(etf_vix)
   num_col <- ncol(etf_vix)
   num_row <- nrow(etf_vix)

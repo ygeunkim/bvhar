@@ -98,7 +98,7 @@ NULL
 
 #' Oxford-Man Institute Realized Library
 #' 
-#' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://www.oxford-man.ox.ac.uk).
+#' The realized measure of financial assets dataset provided by [Oxford-man Institute of Quantitative Finance](https://oxford-man.ox.ac.uk/research/realized-library/).
 #' 
 #' @details 
 #' * As a raw dataset, we have internal dataset of long format `oxfordman_long`. It contains every realized measure.

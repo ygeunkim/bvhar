@@ -67,20 +67,10 @@ This function chooses the most simple non-hierarchical matrix normal prior in Se
 where U: precision matrix (MN: \href{https://en.wikipedia.org/wiki/Matrix_normal_distribution}{matrix normal}).
 \deqn{p (\Sigma_e) \propto 1}
 }
-\examples{
-# Perform the function using etf_vix dataset
-fit <- bvar_flat(y = etf_vix[,1:3], p = 2)
-class(fit)
-
-# Extract coef, fitted values, and residuals
-coef(fit)
-head(residuals(fit))
-head(fitted(fit))
-}
 \references{
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25.
 }
 \seealso{
 \itemize{

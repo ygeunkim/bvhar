@@ -15,9 +15,9 @@
 #' Cholesky stochastic volatility modeling for VHAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
 #' @references 
-#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press. doi:[10.1017/9781108525947](https://doi.org/10.1017/9781108525947)
+#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' 
-#' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302. doi:[10.1016/j.red.2004.10.009](https://doi.org/10.1016/j.red.2004.10.009)
+#' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
 #' @importFrom posterior as_draws_df bind_draws
 #' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer pivot_wider unite
