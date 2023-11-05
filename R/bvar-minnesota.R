@@ -32,7 +32,7 @@
 #'   \item{spec}{Model specification (`bvharspec`)}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
-#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}^{-1}}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 #'   \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
 #'   \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 #'   \item{y0}{\eqn{Y_0}}
