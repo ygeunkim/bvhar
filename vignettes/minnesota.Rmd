@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .618
   )
+orig_opts <- options("digits")
 options(digits = 3)
 set.seed(1)
 ```
@@ -156,4 +157,8 @@ $$\Sigma_e \sim IW(\Psi_0, \nu_0)$$
 
 ```{r simbvharl}
 (sim_mnvhar_coef(bvhar_vhar_spec))
+```
+
+```{r resetopts, include=FALSE}
+options(orig_opts)
 ```

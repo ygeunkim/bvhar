@@ -34,6 +34,7 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .618
   )
+orig_opts <- options("digits")
 options(digits = 3)
 ```
 
@@ -422,5 +423,7 @@ fit_bvhar_v2
 autoplot(inf_bvar, type = "trace", pars = c("alpha[1]", "alpha[2]"))
 ```
 
-
+```{r resetopts, include=FALSE}
+options(orig_opts)
+```
 
