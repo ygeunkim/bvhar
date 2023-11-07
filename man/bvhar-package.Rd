@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Aim at researching Bayesian Vector heterogeneous autoregressive (VHAR) model. Model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
+Tools to research Bayesian Vector heterogeneous autoregressive (VHAR) model, referring to Kim & Baek (2023+) (\doi{10.1080/00949655.2023.2281644}). 'bvhar' can model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
 }
 \details{
 The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.

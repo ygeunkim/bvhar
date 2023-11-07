@@ -11,8 +11,9 @@ Authors@R:
       person(given = "Changryong",
              family = "Baek",
              role = "ctb"))
-Description: Aim at researching Bayesian Vector heterogeneous autoregressive (VHAR) model.
-    Model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
+Description: Tools to research Bayesian Vector heterogeneous autoregressive (VHAR) model,
+    referring to Kim & Baek (2023+) (<doi:10.1080/00949655.2023.2281644>).
+    'bvhar' can model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
 License: MIT + file LICENSE
 URL: https://ygeunkim.github.io/package/bvhar/, https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
