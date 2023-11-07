@@ -18,6 +18,13 @@ confusion(x, y, ...)
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 }
+\value{
+Confusion table as following.\tabular{ccc}{
+   True-estimate \tab Positive (0) \tab Negative (1) \cr
+   Positive (0) \tab TP \tab FN \cr
+   Negative (1) \tab FP \tab TN \cr
+}
+}
 \description{
 This function computes FDR (false discovery rate) and FNR (false negative rate) for sparse element of the true coefficients given threshold.
 }
@@ -26,11 +33,7 @@ When using this function, the true coefficient matrix \eqn{\Phi} should be spars
 
 In this confusion matrix, positive (0) means sparsity.
 FP is false positive, and TP is true positive.
-FN is false negative, and FN is false negative.\tabular{ccc}{
-   True-estimate \tab Positive (0) \tab Negative (1) \cr
-   Positive (0) \tab TP \tab FN \cr
-   Negative (1) \tab FP \tab TN \cr
-}
+FN is false negative, and FN is false negative.
 }
 \references{
 Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.

@@ -19,6 +19,9 @@ mse(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MSE vector corresponding to each variable.
+}
 \description{
 This function computes MSE given prediction result versus evaluation set.
 }

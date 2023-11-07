@@ -4,6 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param n_ahead step to evaluate
+#' @return List of two datasets, train and test.
 #' @importFrom stats setNames
 #' @export
 divide_ts <- function(y, n_ahead) {
@@ -29,6 +30,7 @@ divide_ts <- function(y, n_ahead) {
 #' @details 
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
+#' @return `predbvhar_roll` [class]
 #' @seealso 
 #' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS.
@@ -98,7 +100,7 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
 #' @details 
 #' Expanding windows forecasting fixes the starting period.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
-#' 
+#' @return `predbvhar_expand` [class]
 #' @seealso 
 #' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
@@ -159,6 +161,7 @@ forecast_expand <- function(object, n_ahead, y_test) {
 #' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data and `predict$forecast`.
 #' @param ... not used
+#' @return MSE vector corresponding to each variable.
 #' @export
 mse <- function(x, y, ...) {
   UseMethod("mse", x)
@@ -197,6 +200,7 @@ mse.bvharcv <- function(x, y, ...) {
 #' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return MAE vector corressponding to each variable.
 #' @export
 mae <- function(x, y, ...) {
   UseMethod("mae", x)
@@ -248,6 +252,7 @@ mae.bvharcv <- function(x, y, ...) {
 #' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return MAPE vector corresponding to each variable.
 #' @export
 mape <- function(x, y, ...) {
   UseMethod("mape", x)
@@ -297,6 +302,7 @@ mape.bvharcv <- function(x, y, ...) {
 #' @param x Forecasting object
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return MASE vector corresponding to each variable.
 #' @export
 mase <- function(x, y, ...) {
   UseMethod("mase", x)
@@ -363,6 +369,7 @@ mase.bvharcv <- function(x, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return MRAE vector corresponding to each variable.
 #' @export
 mrae <- function(x, pred_bench, y, ...) {
   UseMethod("mrae", x)
@@ -426,6 +433,7 @@ mrae.bvharcv <- function(x, pred_bench, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return RelMAE vector corresponding to each variable.
 #' @export
 relmae <- function(x, pred_bench, y, ...) {
   UseMethod("relmae", x)
@@ -445,7 +453,6 @@ relmae <- function(x, pred_bench, y, ...) {
 #' \deqn{RelMAE = \frac{MAE}{MAE_b}}
 #' 
 #' where \eqn{MAE} is the MAE of our model.
-#' 
 #' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
 #' @export
 relmae.predbvhar <- function(x, pred_bench, y, ...) {
@@ -470,6 +477,7 @@ relmae.bvharcv <- function(x, pred_bench, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return RMAPE vector corresponding to each variable.
 #' @export
 rmape <- function(x, pred_bench, y, ...) {
   UseMethod("rmape", x)
@@ -512,6 +520,7 @@ rmape.bvharcv <- function(x, pred_bench, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return RMASE vector corresponding to each variable.
 #' @export
 rmase <- function(x, pred_bench, y, ...) {
   UseMethod("rmase", x)
@@ -554,6 +563,7 @@ rmase.bvharcv <- function(x, pred_bench, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return RMSFE vector corresponding to each variable.
 #' @export
 rmsfe <- function(x, pred_bench, y, ...) {
   UseMethod("rmsfe", x)
@@ -600,6 +610,7 @@ rmsfe.bvharcv <- function(x, pred_bench, y, ...) {
 #' @param pred_bench The same forecasting object from benchmark model
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
+#' @return RMAFE vector corresponding to each variable.
 #' @export
 rmafe <- function(x, pred_bench, y, ...) {
   UseMethod("rmafe", x)

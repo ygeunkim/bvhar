@@ -21,6 +21,9 @@ mrae(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MRAE vector corresponding to each variable.
+}
 \description{
 This function computes MRAE given prediction result versus evaluation set.
 }

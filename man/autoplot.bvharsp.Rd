@@ -23,6 +23,9 @@
 
 \item{...}{Other options for each \code{\link[bayesplot:MCMC-traces]{bayesplot::mcmc_trace()}}, \code{\link[bayesplot:MCMC-distributions]{bayesplot::mcmc_dens()}}, and \code{\link[bayesplot:MCMC-intervals]{bayesplot::mcmc_areas()}}.}
 }
+\value{
+A ggplot object
+}
 \description{
 Draw BVAR and BVHAR MCMC plots.
 }

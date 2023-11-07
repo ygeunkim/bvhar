@@ -35,6 +35,9 @@ knit_print.ssvsinit(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{ssvsinit} object
+}
 \description{
 Set initial parameters before starting Gibbs sampler for SSVS.
 }

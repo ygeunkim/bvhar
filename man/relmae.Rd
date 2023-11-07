@@ -21,6 +21,9 @@ relmae(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RelMAE vector corresponding to each variable.
+}
 \description{
 This function computes RelMAE given prediction result versus evaluation set.
 }

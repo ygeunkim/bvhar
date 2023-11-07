@@ -11,6 +11,9 @@ compute_dic(object, ...)
 
 \item{...}{not used}
 }
+\value{
+DIC value.
+}
 \description{
 Generic function that computes DIC.
 }

@@ -18,6 +18,9 @@ conf_prec(x, y, ...)
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 }
+\value{
+Precision value in confusion table
+}
 \description{
 This function computes precision for sparse element of the true coefficients given threshold.
 }

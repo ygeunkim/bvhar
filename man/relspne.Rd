@@ -16,6 +16,9 @@ relspne(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+Spectral norm value
+}
 \description{
 This function computes relative estimation error given estimated model and true coefficient.
 }

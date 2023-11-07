@@ -40,6 +40,9 @@ In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"minnesota"} ty
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 }
+\value{
+List including coefficients.
+}
 \description{
 This function generates parameters of VAR with SSVS prior.
 }

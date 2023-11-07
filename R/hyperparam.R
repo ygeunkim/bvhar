@@ -303,6 +303,7 @@ set_weight_bvhar <- function(sigma,
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
 #' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
+#' @return `ssvsinput` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 
@@ -423,6 +424,7 @@ set_ssvs <- function(coef_spike = .1,
 #' Denote that `init_chol` and `init_chol_dummy` should be upper_triangular or the function gives error.
 #' 
 #' For parallel chain initialization, assign three-dimensional array or three-length list.
+#' @return `ssvsinit` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 

@@ -49,6 +49,9 @@ analyze_ir(object, lag_max, orthogonal, impulse_var, response_var, ...)
 
 \item{digits}{digit option to print}
 }
+\value{
+\code{bvharirf} \link{class}
+}
 \description{
 Computes responses to impulses or orthogonal impulses
 }

@@ -17,6 +17,9 @@ compute_logml(object, ...)
 
 \item{...}{not used}
 }
+\value{
+log likelihood of Minnesota prior model.
+}
 \description{
 Compute log of marginal likelihood of Bayesian Fit
 }

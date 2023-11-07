@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+A \code{logLik} object.
+}
 \description{
 Compute log-likelihood function value of VAR(p), VHAR, BVAR(p), and BVHAR
 }

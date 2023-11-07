@@ -47,6 +47,9 @@ knit_print.bvharsv(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{bvhar_sv()} returns an object named \code{bvharsv} \link{class}.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR-SV with Minnesota belief.
 }

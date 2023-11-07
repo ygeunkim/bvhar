@@ -7,6 +7,7 @@
 #' @param pars Parameter names to draw.
 #' @param regex_pars Regular expression parameter names to draw.
 #' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
+#' @return A ggplot object
 #' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
 autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
@@ -28,6 +29,7 @@ autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"),
 #' @param hcol color of horizontal line = 0 (By default, grey)
 #' @param hsize size of horizontal line = 0 (By default, 1.5)
 #' @param ... additional options for geom_point
+#' @return A ggplot object
 #' @importFrom ggplot2 ggplot aes geom_point geom_hline facet_grid labs element_text element_blank
 #' @importFrom tidyr pivot_longer
 #' @export
@@ -165,6 +167,7 @@ geom_predbvhar <- function(mapping = NULL,
 #' @param NROW `nrow` of [ggplot2::facet_wrap()]
 #' @param NCOL `ncol` of [ggplot2::facet_wrap()]
 #' @param ... additional option for [ggplot2::geom_path()]
+#' @return A ggplot object
 #' @importFrom ggplot2 ggplot aes facet_grid geom_path labs element_blank scale_fill_viridis_d scale_colour_viridis_d
 #' @importFrom dplyr filter
 #' @export
@@ -228,6 +231,7 @@ autoplot.predbvhar <- function(object,
 }
 
 #' @rdname autoplot.predbvhar
+#' @return A ggplot layer
 #' @importFrom dplyr bind_rows mutate filter
 #' @importFrom ggplot2 ggplot aes facet_grid labs element_blank last_plot ggplot_build geom_path
 #' @export
@@ -259,6 +263,7 @@ autolayer.predbvhar <- function(object,
 #' @param data Test data to draw, which has the same format with the train data.
 #' @param colour Color of the line (By default, `"red"`).
 #' @param ... Other arguments passed on the [ggplot2::geom_path()].
+#' @return A ggplot layer
 #' @importFrom ggplot2 aes geom_path
 #' @importFrom dplyr filter mutate n
 #' @importFrom tidyr pivot_longer
@@ -455,6 +460,7 @@ geom_loss <- function(mapping = NULL,
 #' @param NROW `nrow` of [ggplot2::facet_wrap()]
 #' @param NCOL `ncol` of [ggplot2::facet_wrap()]
 #' @param ... Additional options for `geom_loss` (`inherit.aes` and `show.legend`)
+#' @return A ggplot object
 #' @seealso 
 #' * [mse()] to compute MSE for given forecast result
 #' * [mae()] to compute MAE for given forecast result
@@ -522,6 +528,7 @@ gg_loss <- function(mod_list,
 #' @param object `bvharirf` object
 #' @param ... Other arguments passed on the [ggplot2::geom_path()].
 #' @seealso [analyze_ir()]
+#' @return A ggplot object
 #' @importFrom tidyr unite
 #' @importFrom ggplot2 ggplot aes facet_wrap vars labs geom_path scale_x_continuous labs element_blank
 #' @export
@@ -549,6 +556,7 @@ autoplot.bvharirf <- function(object, ...) {
 #' @param pars Parameter names to draw.
 #' @param regex_pars Regular expression parameter names to draw.
 #' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
+#' @return A ggplot object
 #' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
 autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
@@ -615,7 +623,7 @@ gather_heat <- function(object) {
 #' 
 #' @param object `summary.bvharsp` object
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
-#' 
+#' @return A ggplot object
 #' @importFrom ggplot2 ggplot aes geom_tile scale_x_discrete labs element_blank facet_grid
 #' @importFrom forcats fct_rev
 #' @export

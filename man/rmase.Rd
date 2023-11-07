@@ -21,6 +21,9 @@ rmase(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMASE vector corresponding to each variable.
+}
 \description{
 This function computes RMASE given prediction result versus evaluation set.
 }

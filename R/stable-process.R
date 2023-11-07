@@ -2,7 +2,7 @@
 #' 
 #' @param x object
 #' @param ... not used
-#' 
+#' @return Numeric vector.
 #' @export
 stableroot <- function(x, ...) {
   UseMethod("stableroot", x)
@@ -12,7 +12,7 @@ stableroot <- function(x, ...) {
 #' 
 #' @param x object
 #' @param ... not used
-#' 
+#' @return logical class
 #' @export
 is.stable <- function(x, ...) {
   UseMethod("is.stable", x)

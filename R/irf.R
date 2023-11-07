@@ -8,6 +8,7 @@
 #' @param impulse_var Impulse variables character vector. If not specified, use every variable.
 #' @param response_var Response variables character vector. If not specified, use every variable.
 #' @param ... not used
+#' @return `bvharirf` [class]
 #' @export
 analyze_ir <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
   UseMethod("analyze_ir", object)

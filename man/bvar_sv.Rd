@@ -47,6 +47,9 @@ knit_print.bvarsv(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{bvar_sv()} returns an object named \code{bvarsv} \link{class}.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV with Minnesota belief.
 }

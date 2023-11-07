@@ -14,6 +14,7 @@
 #' @details
 #' Cholesky stochastic volatility modeling for VAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
+#' @return `bvar_sv()` returns an object named `bvarsv` [class].
 #' @references 
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' 

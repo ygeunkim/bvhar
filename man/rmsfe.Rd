@@ -21,6 +21,9 @@ rmsfe(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMSFE vector corresponding to each variable.
+}
 \description{
 This function computes RMSFE (Mean Squared Forecast Error Relative to the Benchmark)
 }

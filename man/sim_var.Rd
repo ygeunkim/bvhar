@@ -38,6 +38,9 @@ By default, \code{"eigen"}.}
 
 \item{t_param}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} argument for MVT, e.g. DF: 5.}
 }
+\value{
+T x k matrix
+}
 \description{
 This function generates multivariate time series dataset that follows VAR(p).
 }

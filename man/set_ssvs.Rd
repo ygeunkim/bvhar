@@ -50,6 +50,9 @@ knit_print.ssvsinput(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{ssvsinput} object
+}
 \description{
 Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
 }

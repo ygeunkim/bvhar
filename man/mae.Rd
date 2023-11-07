@@ -19,6 +19,9 @@ mae(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MAE vector corressponding to each variable.
+}
 \description{
 This function computes MAE given prediction result versus evaluation set.
 }

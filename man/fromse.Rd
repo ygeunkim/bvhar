@@ -16,6 +16,9 @@ fromse(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+Frobenius norm value
+}
 \description{
 This function computes estimation error given estimated model and true coefficient.
 }

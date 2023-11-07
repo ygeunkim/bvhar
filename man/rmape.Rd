@@ -21,6 +21,9 @@ rmape(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMAPE vector corresponding to each variable.
+}
 \description{
 This function computes RMAPE given prediction result versus evaluation set.
 }

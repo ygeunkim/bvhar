@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+AIC value.
+}
 \description{
 Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR
 }

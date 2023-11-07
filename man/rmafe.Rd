@@ -21,6 +21,9 @@ rmafe(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMAFE vector corresponding to each variable.
+}
 \description{
 This function computes RMAFE (Mean Absolute Forecast Error Relative to the Benchmark)
 }

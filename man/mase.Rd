@@ -19,6 +19,9 @@ mase(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MASE vector corresponding to each variable.
+}
 \description{
 This function computes MASE given prediction result versus evaluation set.
 }

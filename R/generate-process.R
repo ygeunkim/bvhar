@@ -15,6 +15,7 @@
 #' 2. Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
 #' 3. \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
 #' 4. \eqn{X_i = L Z_i + \mu}
+#' @return T x k matrix
 #' @export
 sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eigen", "chol")) {
   method <- match.arg(method)
@@ -38,6 +39,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
+#' @return T x k matrix
 #' @export
 sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
   method <- match.arg(method)
@@ -73,6 +75,7 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
+#' @return T x k matrix
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 sim_var <- function(num_sim, 
@@ -139,6 +142,7 @@ sim_var <- function(num_sim,
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
+#' @return T x k matrix
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 sim_vhar <- function(num_sim, 

@@ -27,6 +27,7 @@
 #' \deqn{\hat{B} = \hat{B}^{LS} = \hat{B}^{ML} = (X_0^T X_0)^{-1} X_0^T Y_0}
 #' \deqn{\hat\Sigma_e = \frac{1}{s - k} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B})}
 #' \deqn{\tilde\Sigma_e = \frac{1}{s} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B}) = \frac{s - k}{s} \hat\Sigma_e}
+#' @return A `logLik` object.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso
 #' * [var_lm()]
@@ -187,7 +188,7 @@ logLik.bvharmn <- function(object, ...) {
 #' \deqn{AIC(p) = \log \det \Sigma_e + \frac{2}{s}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
-#' 
+#' @return AIC value.
 #' @references
 #' Akaike, H. (1969). *Fitting autoregressive models for prediction*. Ann Inst Stat Math 21, 243–247.
 #' 
@@ -256,6 +257,7 @@ AIC.bvharmn <- function(object, ...) {
 #' 
 #' @param object Model fit
 #' @param ... not used
+#' @return FPE value.
 #' @export
 FPE <- function(object, ...) {
   UseMethod("FPE", object)
@@ -311,7 +313,7 @@ FPE.vharlse <- function(object, ...) {
 #' \deqn{BIC(p) = \log \det \Sigma_e + \frac{\log s}{s}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{pm^2}.
-#' 
+#' @return BIC value.
 #' @references 
 #' Gideon Schwarz. (1978). *Estimating the Dimension of a Model*. Ann. Statist. 6 (2) 461 - 464.
 #' 
@@ -374,6 +376,7 @@ BIC.bvharmn <- function(object, ...) {
 #' 
 #' @param object Model fit
 #' @param ... not used
+#' @return HQ value.
 #' @export
 HQ <- function(object, ...) {
   UseMethod("HQ", object)
@@ -413,7 +416,7 @@ HQ.logLik <- function(object, ...) {
 #' \deqn{HQ(p) = \log \det \Sigma_e + \frac{2 \log \log s}{s}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{pm^2}.
-#' 
+#' @return HQ value.
 #' @references
 #' Hannan, E.J. and Quinn, B.G. (1979). *The Determination of the Order of an Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
 #' 
@@ -473,6 +476,7 @@ HQ.bvharmn <- function(object, ...) {
 #' 
 #' @param object Model fit
 #' @param ... not used
+#' @return DIC value.
 #' @export
 compute_dic <- function(object, ...) {
   UseMethod("compute_dic", object)
@@ -539,6 +543,7 @@ compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
 #' 
 #' @param object Model fit
 #' @param ... not used
+#' @return log likelihood of Minnesota prior model.
 #' @references Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' @export
 compute_logml <- function(object, ...) {

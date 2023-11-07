@@ -11,6 +11,9 @@ divide_ts(y, n_ahead)
 
 \item{n_ahead}{step to evaluate}
 }
+\value{
+List of two datasets, train and test.
+}
 \description{
 Split a given time series dataset into train and test set for evaluation.
 }

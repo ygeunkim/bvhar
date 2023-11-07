@@ -14,6 +14,7 @@
 #' @details
 #' Cholesky stochastic volatility modeling for VHAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
+#' @return `bvhar_sv()` returns an object named `bvharsv` [class].
 #' @references 
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' 

@@ -19,6 +19,9 @@ mape(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MAPE vector corresponding to each variable.
+}
 \description{
 This function computes MAPE given prediction result versus evaluation set.
 }

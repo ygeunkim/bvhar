@@ -18,6 +18,9 @@ conf_fdr(x, y, ...)
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 }
+\value{
+FDR value in confusion table
+}
 \description{
 This function computes false discovery rate (FDR) for sparse element of the true coefficients given threshold.
 }

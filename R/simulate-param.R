@@ -240,7 +240,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 #' \deqn{(\eta_j \mid \omega_j)}
 #' \deqn{(\omega_{ij})}
 #' \deqn{(\psi_{ii}^2)}
-#' 
+#' @return List including coefficients.
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 

@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+BIC value.
+}
 \description{
 Compute BIC of VAR(p), VHAR, BVAR(p), and BVHAR
 }

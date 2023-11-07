@@ -14,6 +14,9 @@ HQ(object, ...)
 
 \item{...}{not used}
 }
+\value{
+HQ value.
+}
 \description{
 Generic function that computes HQ criterion.
 }

@@ -29,6 +29,9 @@ knit_print.bvharcv(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{predbvhar_roll} \link{class}
+}
 \description{
 This function conducts rolling window forecasting.
 }

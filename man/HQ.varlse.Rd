@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+HQ value.
+}
 \description{
 Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 }

@@ -9,6 +9,7 @@
 #' \deqn{\lvert \phi_{i} \rvert \le 3 \tau_{0i}}
 #' and
 #' \deqn{\lvert \eta_{ij} \rvert \le 3 \kappa_{0ij}}
+#' @return `summary.ssvsmod` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 
@@ -78,6 +79,7 @@ summary.ssvsmod <- function(object, ...) {
 #' @param x Estimated model.
 #' @param y Coefficient matrix to be compared.
 #' @param ... not used
+#' @return Frobenius norm value
 #' @export
 fromse <- function(x, y, ...) {
   UseMethod("fromse", x)
@@ -106,6 +108,7 @@ fromse.bvharsp <- function(x, y, ...) {
 #' @param x Estimated model.
 #' @param y Coefficient matrix to be compared.
 #' @param ... not used
+#' @return Spectral norm value
 #' @export
 spne <- function(x, y, ...) {
   UseMethod("spne", x)
@@ -134,6 +137,7 @@ spne.bvharsp <- function(x, y, ...) {
 #' @param x Estimated model.
 #' @param y True coefficient matrix.
 #' @param ... not used
+#' @return Spectral norm value
 #' @export
 relspne <- function(x, y, ...) {
   UseMethod("relspne", x)
@@ -162,6 +166,12 @@ relspne.bvharsp <- function(x, y, ...) {
 #' @param x Estimated model.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return Confusion table as following.
+#' 
+#' |True-estimate|Positive (0) | Negative (1) |
+#' |:-----------:|:-----------:|:------------:|
+#' | Positive (0) | TP | FN |
+#' | Negative (1) | FP | TN |
 #' @export
 confusion <- function(x, y, ...) {
   UseMethod("confusion", x)
@@ -178,13 +188,6 @@ confusion <- function(x, y, ...) {
 #' In this confusion matrix, positive (0) means sparsity.
 #' FP is false positive, and TP is true positive.
 #' FN is false negative, and FN is false negative.
-#' 
-#' |True-estimate|Positive (0) | Negative (1) |
-#' |:-----------:|:-----------:|:------------:|
-#' | Positive (0) | TP | FN |
-#' | Negative (1) | FP | TN |
-#' 
-#' 
 #' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
@@ -200,6 +203,7 @@ confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' @param x `summary.bvharsp` object.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return FDR value in confusion table
 #' @export
 conf_fdr <- function(x, y, ...) {
   UseMethod("conf_fdr", x)
@@ -230,6 +234,7 @@ conf_fdr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' @param x `summary.bvharsp` object.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return Precision value in confusion table
 #' @export
 conf_prec <- function(x, y, ...) {
   UseMethod("conf_prec", x)
@@ -261,6 +266,7 @@ conf_prec.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' @param x `summary.bvharsp` object.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return FNR value in confusion table
 #' @export
 conf_fnr <- function(x, y, ...) {
   UseMethod("conf_fnr", x)
@@ -290,6 +296,7 @@ conf_fnr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
 #' @param x `summary.bvharsp` object.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return Recall value in confusion table
 #' @export
 conf_recall <- function(x, y, ...) {
   UseMethod("conf_recall", x)
@@ -319,6 +326,7 @@ conf_recall.summary.bvharsp <- function(x, y, truth_thr = 0L, ...) {
 #' @param x `summary.bvharsp` object.
 #' @param y True inclusion variable.
 #' @param ... not used
+#' @return F1 score in confusion table
 #' @export
 conf_fscore <- function(x, y, ...) {
   UseMethod("conf_fscore", x)

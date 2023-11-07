@@ -22,6 +22,9 @@ sim_mnormal(
 Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
 By default, \code{"eigen"}.}
 }
+\value{
+T x k matrix
+}
 \description{
 This function samples n x muti-dimensional normal random matrix.
 }

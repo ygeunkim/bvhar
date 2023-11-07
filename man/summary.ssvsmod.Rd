@@ -21,6 +21,9 @@ knit_print.summary.ssvsmod(x, ...)
 
 \item{object}{\code{ssvsmod} object}
 }
+\value{
+\code{summary.ssvsmod} object
+}
 \description{
 Conduct variable selection.
 }
