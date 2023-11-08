@@ -41,22 +41,13 @@
 #'   \item{y}{Raw input (`matrix`)}
 #' }
 #' @references 
-#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). doi:[10.1080/01621459.2018.1437043](https://doi.org/10.1080/01621459.2018.1437043)
+#' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526).
 #' 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25.
 #' @seealso 
 #' * [set_bvar_flat()] to specify the hyperparameters of BVAR flat prior.
 #' * [coef.bvarflat()], [residuals.bvarflat()], and [fitted.bvarflat()]
 #' * [predict.bvarflat()] to forecast the BVHAR process
-#' @examples
-#' # Perform the function using etf_vix dataset
-#' fit <- bvar_flat(y = etf_vix[,1:3], p = 2)
-#' class(fit)
-#' 
-#' # Extract coef, fitted values, and residuals
-#' coef(fit)
-#' head(residuals(fit))
-#' head(fitted(fit))
 #' @order 1
 #' @export
 bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {

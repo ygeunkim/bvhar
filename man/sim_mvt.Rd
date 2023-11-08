@@ -19,6 +19,9 @@ sim_mvt(num_sim, df, mu, sig, method = c("eigen", "chol"))
 Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
 By default, \code{"eigen"}.}
 }
+\value{
+T x k matrix
+}
 \description{
 This function samples n x multi-dimensional t-random matrix.
 }

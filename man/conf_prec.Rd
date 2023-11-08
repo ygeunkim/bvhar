@@ -18,6 +18,9 @@ conf_prec(x, y, ...)
 
 \item{truth_thr}{Threshold value when using non-sparse true coefficient matrix. By default, \code{0} for sparse matrix.}
 }
+\value{
+Precision value in confusion table
+}
 \description{
 This function computes precision for sparse element of the true coefficients given threshold.
 }
@@ -29,7 +32,7 @@ Then the precision is computed by
 where TP is true positive, and FP is false positive.
 }
 \references{
-Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:\href{https://doi.org/10.1016/j.jmva.2018.04.010}{10.1016/j.jmva.2018.04.010}
+Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
 }
 \seealso{
 \code{\link[=confusion]{confusion()}}

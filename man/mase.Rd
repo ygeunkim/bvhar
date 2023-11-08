@@ -19,6 +19,9 @@ mase(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MASE vector corresponding to each variable.
+}
 \description{
 This function computes MASE given prediction result versus evaluation set.
 }
@@ -34,5 +37,5 @@ Then
 Here, \eqn{Y_i} are the points in the sample, i.e. errors are scaled by the in-sample mean absolute error (\eqn{mean(\lvert e_t \rvert)}) from the naive random walk forecasting.
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688. doi:\href{https://doi.org/10.1016/j.ijforecast.2006.03.001}{10.1016/j.ijforecast.2006.03.001}
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
 }

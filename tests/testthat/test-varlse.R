@@ -1,5 +1,7 @@
 # Components of varlse--------------
 test_that("Test for varlse class", {
+  skip_on_cran()
+  
   test_lag <- 3
   fit_test_var <- var_lm(etf_vix, test_lag)
   num_col <- ncol(etf_vix)

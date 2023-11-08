@@ -35,6 +35,9 @@ knit_print.ssvsinit(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{ssvsinit} object
+}
 \description{
 Set initial parameters before starting Gibbs sampler for SSVS.
 }
@@ -52,9 +55,9 @@ Denote that \code{init_chol} and \code{init_chol_dummy} should be upper_triangul
 For parallel chain initialization, assign three-dimensional array or three-length list.
 }
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889. doi:\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353}{10.1080/01621459.1993.10476353}
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:\href{http://dx.doi.org/10.1561/0800000013}{10.1561/0800000013}
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
 }

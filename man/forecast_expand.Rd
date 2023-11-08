@@ -13,6 +13,9 @@ forecast_expand(object, n_ahead, y_test)
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
 }
+\value{
+\code{predbvhar_expand} \link{class}
+}
 \description{
 This function conducts expanding window forecasting.
 }

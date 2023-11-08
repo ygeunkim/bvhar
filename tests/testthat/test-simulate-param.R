@@ -1,5 +1,7 @@
 # BVAR simlation---------------------
 test_that("BVAR simulation", {
+  skip_on_cran()
+  
   test_lag <- 2
   num_col <- 3
   bvar_spec <- set_bvar(
@@ -58,6 +60,8 @@ test_that("BVAR simulation", {
 
 # BVHAR simlation--------------------
 test_that("BVHAR simulation", {
+  skip_on_cran()
+  
   num_col <- 3
   bvhar_spec <- set_bvhar(
     sigma = rep(1, num_col),

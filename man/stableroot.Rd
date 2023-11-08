@@ -11,6 +11,9 @@ stableroot(x, ...)
 
 \item{...}{not used}
 }
+\value{
+Numeric vector.
+}
 \description{
 Roots of characteristic polynomial
 }

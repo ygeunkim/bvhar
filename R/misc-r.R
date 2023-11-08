@@ -22,6 +22,7 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
 #' Each result of [var_lm()], [vhar_lm()], [bvar_minnesota()], [bvar_flat()], and [bvhar_minnesota()] is a subclass of `bvharmod`.
 #' For example,
 #' `c("varlse", "bvharmod")`.
+#' @return A `list` object
 #' @export
 split_coef <- function(object, ...) {
   UseMethod("split_coef", object)

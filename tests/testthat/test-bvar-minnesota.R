@@ -1,5 +1,7 @@
 # Components of bvarmn--------------
 test_that("Test for bvarmn class", {
+  skip_on_cran()
+  
   test_lag <- 3
   etf_ncol <- ncol(etf_vix)
   etf_spec <- set_bvar(

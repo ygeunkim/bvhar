@@ -86,11 +86,11 @@ deal with them like as in \code{\link[stats:optim]{stats::optim()}} in order of 
 In other words, just arrange them in a vector.
 }
 \references{
-Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). \emph{A limited memory algorithm for bound constrained optimization}. SIAM Journal on scientific computing, 16(5), 1190-1208. doi:\href{https://doi.org/10.1137/0916069}{10.1137/0916069}.
+Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). \emph{A limited memory algorithm for bound constrained optimization}. SIAM Journal on scientific computing, 16(5), 1190-1208.
 
-Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC. \url{http://www.stat.columbia.edu/~gelman/book/}
+Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian data analysis}. Chapman and Hall/CRC.
 
-Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).
 
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 }

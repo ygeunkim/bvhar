@@ -44,6 +44,9 @@ In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"short"} type, 
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 }
+\value{
+List including coefficients.
+}
 \description{
 This function generates parameters of VAR with SSVS prior.
 }
@@ -68,11 +71,11 @@ Let \eqn{\phi} be the vectorized coefficient of VHAR.
 }
 
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889. doi:\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353}{10.1080/01621459.1993.10476353}
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580. doi:\href{https://doi.org/10.1016/j.jeconom.2007.08.017}{10.1016/j.jeconom.2007.08.017}
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
 
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358. doi:\href{http://dx.doi.org/10.1561/0800000013}{10.1561/0800000013}
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
 }

@@ -16,6 +16,9 @@ relspne(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+Spectral norm value
+}
 \description{
 This function computes relative estimation error given estimated model and true coefficient.
 }
@@ -27,5 +30,5 @@ Then the function computes relative estimation error by
 \deqn{\frac{\lVert \hat{\Phi} - \Phi \rVert_2}{\lVert \Phi \rVert_2}}
 }
 \references{
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 }

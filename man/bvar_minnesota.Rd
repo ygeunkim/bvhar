@@ -6,7 +6,7 @@
 \alias{knit_print.bvarmn}
 \title{Fitting Bayesian VAR(p) of Minnesota Prior}
 \usage{
-bvar_minnesota(y, p, bayes_spec = set_bvar(), include_mean = TRUE)
+bvar_minnesota(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,7 +15,7 @@ knit_print.bvarmn(x, ...)
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
-\item{p}{VAR lag}
+\item{p}{VAR lag (Default: 1)}
 
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
@@ -28,7 +28,7 @@ knit_print.bvarmn(x, ...)
 \item{...}{not used}
 }
 \value{
-\code{bvar_minnesota} returns an object \code{bvarmn} \link{class}.
+\code{bvar_minnesota()} returns an object \code{bvarmn} \link{class}.
 It is a list with the following components:
 
 \describe{
@@ -48,13 +48,14 @@ It is a list with the following components:
 \item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
-\item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}^{-1}}
+\item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
 \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input (\code{matrix})}
 }
+It is also \code{normaliw} and \code{bvharmod} class.
 }
 \description{
 This function fits BVAR(p) with Minnesota prior.
@@ -77,17 +78,17 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).
 
-Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2). doi:\href{https://doi.org/10.1162/REST_a_00483}{10.1162/REST_a_00483}
+Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).
 
-Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25. doi:\href{https://doi.org/10.2307/1391384}{10.2307/1391384}
+Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions: Five Years of Experience}. Journal of Business & Economic Statistics, 4(1), 25.
 
-KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132. doi:\href{https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}{10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A}
+KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132.
 
-Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897. doi:\href{https://doi.org/10.1016/B978-0-444-62731-5.00015-4}{10.1016/b978-0-444-62731-5.00015-4}
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897.
 
-Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968. doi:\href{https://doi.org/10.2307/2527347}{10.2307/2527347}
+Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968.
 }
 \seealso{
 \itemize{

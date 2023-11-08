@@ -2,30 +2,32 @@
 #' 
 #' `summary` method for `varlse` class.
 #' 
-#' @param object \code{varlse} object
+#' @param object `varlse` object
 #' @param ... not used
 #' 
-#' @return \code{summary.varlse} \link{class} additionaly computes the following
-#' \item{\code{names}}{Variable names}
-#' \item{\code{totobs}}{Total number of the observation}
-#' \item{\code{obs}}{Sample size used when training = \code{totobs} - \code{p}}
-#' \item{\code{coefficients}}{Coefficient Matrix}
-#' \item{\code{call}}{Matched call}
-#' \item{\code{process}}{Process: VAR}
-#' \item{\code{covmat}}{Covariance matrix of the residuals}
-#' \item{\code{corrmat}}{Correlation matrix of the residuals}
-#' \item{\code{roots}}{Roots of characteristic polynomials}
-#' \item{\code{is_stable}}{Whether the process is stable or not based on \code{roots}}
-#' \item{\code{ic}}{Information criteria vector}
+#' @return `summary.varlse` [class] additionally computes the following
+#' \item{`names`}{Variable names}
+#' \item{`totobs`}{Total number of the observation}
+#' \item{`obs`}{Sample size used when training = `totobs` - `p`}
+#' \item{`p`}{Lag of VAR}
+#' \item{`coefficients`}{Coefficient Matrix}
+#' \item{`call`}{Matched call}
+#' \item{`process`}{Process: VAR}
+#' \item{`covmat`}{Covariance matrix of the residuals}
+#' \item{`corrmat`}{Correlation matrix of the residuals}
+#' \item{`roots`}{Roots of characteristic polynomials}
+#' \item{`is_stable`}{Whether the process is stable or not based on `roots`}
+#' \item{`log_lik`}{log-likelihood}
+#' \item{`ic`}{Information criteria vector}
 #' \itemize{
-#'     \item{\code{AIC}} - AIC
-#'     \item{\code{BIC}} - BIC
-#'     \item{\code{HQ}} - HQ
-#'     \item{\code{FPE}} - FPE
+#'     \item{`AIC`} - AIC
+#'     \item{`BIC`} - BIC
+#'     \item{`HQ`} - HQ
+#'     \item{`FPE`} - FPE
 #' }
 #' 
 #' @references 
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' 
 #' @importFrom stats cor pt
 #' @importFrom tibble add_column

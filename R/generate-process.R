@@ -8,6 +8,14 @@
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
+#' @details
+#' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
+#' 
+#' 1. Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
+#' 2. Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
+#' 3. \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
+#' 4. \eqn{X_i = L Z_i + \mu}
+#' @return T x k matrix
 #' @export
 sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eigen", "chol")) {
   method <- match.arg(method)
@@ -31,6 +39,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
+#' @return T x k matrix
 #' @export
 sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
   method <- match.arg(method)
@@ -53,12 +62,12 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @param method `r lifecycle::badge("experimental")` Method to compute \eqn{\Sigma^{1/2}}.
+#' @param method Method to compute \eqn{\Sigma^{1/2}}.
+#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
+#' By default, `"eigen"`.
 #' @param process Process to generate error term.
 #' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
 #' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
 #' @details 
 #' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
 #' 2. For i = 1, ... n,
@@ -66,7 +75,8 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @return T x k matrix
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 sim_var <- function(num_sim, 
                     num_burn, 
@@ -113,7 +123,7 @@ sim_var <- function(num_sim,
 #' @param month Weekly order of VHAR. By default, `22`.
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-#' @param method `r lifecycle::badge("experimental")` Method to compute \eqn{\Sigma^{1/2}}.
+#' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
 #' By default, `"eigen"`.
 #' @param process Process to generate error term.
@@ -132,7 +142,8 @@ sim_var <- function(num_sim,
 #' 3. Then the output is \eqn{(y_{p + 1}, \ldots, y_{n + p})^T}
 #' 
 #' Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @return T x k matrix
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 sim_vhar <- function(num_sim, 
                      num_burn, 

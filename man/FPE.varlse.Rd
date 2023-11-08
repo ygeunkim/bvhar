@@ -14,12 +14,15 @@
 
 \item{...}{not used}
 }
+\value{
+FPE value.
+}
 \description{
 Compute FPE of VAR(p), VHAR, BVAR(p), and BVHAR
 }
 \details{
 Let \eqn{\tilde{\Sigma}_e} be the MLE
-and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from \code{\link[=compute_cov]{compute_cov()}} and the member named \code{covmat}) for \eqn{\Sigma_e}.
+and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (\code{covmat}) for \eqn{\Sigma_e}.
 Note that
 
 \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
@@ -29,5 +32,5 @@ Then
 \deqn{FPE(p) = (\frac{s + k}{s - k})^m \det \tilde{\Sigma}_e}
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }
