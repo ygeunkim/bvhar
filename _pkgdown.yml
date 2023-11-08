@@ -13,7 +13,7 @@ template:
   theme: github-dark
 
 development:
-  mode: auto
+  mode: release
 
 reference:
 - title: The bvhar package
