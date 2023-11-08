@@ -22,6 +22,18 @@ sim_mnormal(
 Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
 By default, \code{"eigen"}.}
 }
+\value{
+T x k matrix
+}
 \description{
 This function samples n x muti-dimensional normal random matrix.
+}
+\details{
+Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
+\enumerate{
+\item Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
+\item Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
+\item \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
+\item \eqn{X_i = L Z_i + \mu}
+}
 }

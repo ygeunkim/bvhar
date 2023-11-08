@@ -1,5 +1,7 @@
 # Model evaluation of VAR----------------
 test_that("VAR evaluation", {
+  skip_on_cran()
+  
   test_lag <- 3
   fit_test_var <- var_lm(etf_vix, test_lag)
   expect_s3_class(fit_test_var, "varlse")
@@ -11,6 +13,8 @@ test_that("VAR evaluation", {
 
 # Model evaluation of VAR----------------
 test_that("VHAR evaluation", {
+  skip_on_cran()
+  
   fit_test_vhar <- vhar_lm(etf_vix)
   expect_s3_class(logLik(fit_test_vhar), "logLik")
   
@@ -19,6 +23,8 @@ test_that("VHAR evaluation", {
 
 # Model evaluation of VAR----------------
 test_that("VAR evaluation", {
+  skip_on_cran()
+  
   fit_test_vhar <- vhar_lm(etf_vix)
   expect_s3_class(fit_test_vhar, "vharlse")
   
@@ -29,6 +35,8 @@ test_that("VAR evaluation", {
 
 # Model evaluation of BVAR----------------
 test_that("BVAR evaluation", {
+  skip_on_cran()
+  
   test_lag <- 3
   etf_ncol <- ncol(etf_vix)
   bvar_spec <- set_bvar(
@@ -46,6 +54,8 @@ test_that("BVAR evaluation", {
 
 # Model evaluation of BVHAR-S----------------
 test_that("BVHAR-S evaluation", {
+  skip_on_cran()
+  
   har <- c(5, 22)
   etf_ncol <- ncol(etf_vix)
   vhar_spec <- set_bvhar(
@@ -63,6 +73,8 @@ test_that("BVHAR-S evaluation", {
 
 # Model evaluation of BVHAR-L----------------
 test_that("BVHAR-L evaluation", {
+  skip_on_cran()
+  
   har <- c(5, 22)
   etf_ncol <- ncol(etf_vix)
   vhar_spec <- set_weight_bvhar(

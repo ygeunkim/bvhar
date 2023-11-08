@@ -47,15 +47,17 @@ It is a list with the following components:
 \item{week}{Order for weekly term}
 \item{month}{Order for monthly term}
 \item{m}{Dimension of the data}
-\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{obs}{Sample size used when training = \code{totobs} - 22}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
 \item{process}{Process: VHAR}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
+It is also a \code{bvharmod} class.
 }
 \description{
 This function fits VHAR using OLS method.
@@ -77,11 +79,11 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510. doi:\href{https://doi.org/10.1007/s42952-020-00090-5}{10.1007/s42952-020-00090-5}
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510.
 
-Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829–2841. doi:\href{https://doi.org/10.1016/j.jbankfin.2011.03.012}{10.1016/j.jbankfin.2011.03.012}
+Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829–2841.
 
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196. doi:\href{https://doi.org/10.1093/jjfinec/nbp001}{10.1093/jjfinec/nbp001}
+Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196.
 }
 \seealso{
 \itemize{

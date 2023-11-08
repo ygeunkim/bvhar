@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
 }
+\value{
+A ggplot object
+}
 \description{
 Draw impulse responses of response ~ impulse in the facet.
 }

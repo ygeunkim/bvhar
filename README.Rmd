@@ -21,9 +21,9 @@ options(digits = 3)
 # bvhar <img src='man/figures/logo.png' align="right" height="139" />
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions)
-[![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg?token=umidjitjiK)](https://codecov.io/gh/ygeunkim/bvhar?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar)
 <!-- badges: end -->
 
 ## Overview
@@ -39,11 +39,17 @@ Basically, the package focuses on the research with forecasting.
 
 ## Installation
 
-You can only install the development version at this point.
+```{r craninst, eval=FALSE}
+install.packages("bvhar")
+```
 
-```{r, eval=FALSE}
-# install.packages("remotes")
-remotes::install_github("ygeunkim/bvhar")
+### Development version
+
+You can install the development version from this repository.
+
+```{r devinst, eval=FALSE}
+# install.packages("pak")
+pak::pak("ygeunkim/bvhar")
 ```
 
 ## Models
@@ -55,15 +61,13 @@ library(dplyr)
 
 Repeatedly, `bvhar` is a research tool to analyze multivariate time series model above
 
-| Model | function | S3 |  
+| Model | function | class |  
 |:-----:|:--------:|:--:|  
 | VAR | `var_lm()` | `varlse` |  
 | VHAR | `vhar_lm()` | `vharlse` |  
 | BVAR | `bvar_minnesota()` | `bvarmn` |  
-| BVAR | `bvar_flat()` | `bvarflat` |  
 | BVHAR | `bvhar_minnesota()` | `bvharmn` |  
 
-As the other analyzer tools uses S3 such as `lm`, this package use methods `coef`, `predict`, etc.
 This readme document shows forecasting procedure briefly.
 Details about each function are in vignettes and help documents.
 
@@ -172,9 +176,7 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
 ```
 
-## Compare Models
-
-### Layers
+## Plots
 
 ```{r predfig}
 autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
@@ -182,20 +184,6 @@ autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_bvar, ci_alpha = .4) +
   autolayer(forecast_bvhar_v1, ci_alpha = .2) +
   autolayer(forecast_bvhar_v2, ci_alpha = .1)
-```
-
-### Erros
-
-```{r msefig}
-list(
-  forecast_var,
-  forecast_vhar,
-  forecast_bvar,
-  forecast_bvhar_v2
-) %>% 
-  gg_loss(y = etf_te, mean_line = TRUE, mean_param = list(alpha = .5)) +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
 ```
 
 

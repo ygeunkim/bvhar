@@ -3,7 +3,7 @@
 #' This function fits BVAR(p) with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param p VAR lag
+#' @param p VAR lag (Default: 1)
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @details 
@@ -12,7 +12,7 @@
 #' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
-#' @return `bvar_minnesota` returns an object `bvarmn` [class].
+#' @return `bvar_minnesota()` returns an object `bvarmn` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
@@ -32,25 +32,26 @@
 #'   \item{spec}{Model specification (`bvharspec`)}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
-#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0}^{-1}}
+#'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 #'   \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
 #'   \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input (`matrix`)}
 #' }
+#' It is also `normaliw` and `bvharmod` class.
 #' @references 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). doi:[10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
-#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2). doi:[10.1162/REST_a_00483](https://doi.org/10.1162/REST_a_00483)
+#' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. doi:[10.2307/1391384](https://doi.org/10.2307/1391384)
+#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25.
 #' 
-#' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132. doi:[10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A](https://doi.org/10.1002/(SICI)1099-1255(199703)12:2<99::AID-JAE429>3.0.CO;2-A)
+#' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132.
 #' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897.
 #' 
-#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968. doi:[10.2307/2527347](https://doi.org/10.2307/2527347)
+#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968.
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [coef.bvarmn()], [residuals.bvarmn()], and [fitted.bvarmn()]
@@ -68,7 +69,7 @@
 #' @importFrom stats sd
 #' @order 1
 #' @export
-bvar_minnesota <- function(y, p, bayes_spec = set_bvar(), include_mean = TRUE) {
+bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

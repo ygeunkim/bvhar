@@ -11,6 +11,9 @@ VHARtoVMA(object, lag_max)
 
 \item{lag_max}{Maximum lag for VMA}
 }
+\value{
+VMA coefficient of k(lag-max + 1) x k dimension
+}
 \description{
 Convert VHAR process to infinite vector MA process
 }
@@ -26,5 +29,5 @@ Observe that
 \deqn{B = \tilde{T}^T \Phi}
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }

@@ -15,6 +15,9 @@
 
 \item{...}{additional options for geom_point}
 }
+\value{
+A ggplot object
+}
 \description{
 This function draws residual plot for covariance matrix of Minnesota prior VAR model.
 }

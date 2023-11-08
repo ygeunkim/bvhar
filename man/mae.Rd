@@ -19,6 +19,9 @@ mae(x, y, ...)
 
 \item{...}{not used}
 }
+\value{
+MAE vector corressponding to each variable.
+}
 \description{
 This function computes MAE given prediction result versus evaluation set.
 }
@@ -31,5 +34,5 @@ MAE is defined by
 Some researchers prefer MAE to MSE because it is less sensitive to outliers.
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688. doi:\href{https://doi.org/10.1016/j.ijforecast.2006.03.001}{10.1016/j.ijforecast.2006.03.001}
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
 }

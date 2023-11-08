@@ -319,8 +319,8 @@ estimate_var <- function(x, y, method) {
 #' 
 #' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @export
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @noRd
 compute_cov <- function(z, num_design, dim_design) {
     .Call(`_bvhar_compute_cov`, z, num_design, dim_design)
 }
@@ -363,8 +363,8 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
 #' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
 #' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 VARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VARtoVMA`, object, lag_max)
@@ -483,8 +483,8 @@ VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
 #' 
 #' Observe that
 #' \deqn{B = \tilde{T}^T \Phi}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 VHARtoVMA <- function(object, lag_max) {
     .Call(`_bvhar_VHARtoVMA`, object, lag_max)
@@ -915,17 +915,7 @@ forecast_vhar <- function(object, step) {
 #' @param num_sim Number to generate process
 #' @param mu Mean vector
 #' @param sig Variance matrix
-#' @details
-#' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
-#' 
-#' 1. Lower triangular Cholesky decomposition: \eqn{\Sigma = L L^T}
-#' 2. Standard normal generation: \eqn{Z_{i1}, Z_{in} \stackrel{iid}{\sim} N(0, 1)}
-#' 3. \eqn{Z_i = (Z_{i1}, \ldots, Z_{in})^T}
-#' 4. \eqn{X_i = L Z_i + \mu}
-#' 
-#' This function does not care of \eqn{\mu}.
-#' 
-#' @export
+#' @noRd
 sim_mgaussian <- function(num_sim, mu, sig) {
     .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
 }
@@ -968,14 +958,14 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' @param mat_scale_u First scale matrix
 #' @param mat_scale_v Second scale matrix
 #' @details
-#' Consider s x m matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is s x m, U is s x s, and V is m x m.
+#' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 #' 
 #' 1. Lower triangular Cholesky decomposition: \eqn{U = P P^T} and \eqn{V = L L^T}
 #' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 #' 3. \eqn{Y_i = M + P Z_i L^T}
 #' 
 #' This function only generates one matrix, i.e. \eqn{Y_1}.
-#' 
+#' @return One n x k matrix following MN distribution.
 #' @export
 sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
     .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
@@ -1004,13 +994,13 @@ sim_iw_tri <- function(mat_scale, shape) {
 #' @details
 #' Consider \eqn{\Sigma \sim IW(\Psi, \nu)}.
 #' 
-#' 1. Upper triangular Bartlett decomposition: m x m matrix \eqn{Q = [q_{ij}]} upper triangular with
+#' 1. Upper triangular Bartlett decomposition: k x k matrix \eqn{Q = [q_{ij}]} upper triangular with
 #'     1. \eqn{q_{ii}^2 \chi_{\nu - i + 1}^2}
 #'     2. \eqn{q_{ij} \sim N(0, 1)} with i < j (upper triangular)
 #' 2. Lower triangular Cholesky decomposition: \eqn{\Psi = L L^T}
 #' 3. \eqn{A = L (Q^{-1})^T}
 #' 4. \eqn{\Sigma = A A^T \sim IW(\Psi, \nu)}
-#' 
+#' @return One k x k matrix following IW distribution
 #' @export
 sim_iw <- function(mat_scale, shape) {
     .Call(`_bvhar_sim_iw`, mat_scale, shape)
@@ -1029,10 +1019,11 @@ sim_iw <- function(mat_scale, shape) {
 #' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
 #' 
 #' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-#' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+#' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 #' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
 #' 4. \eqn{A_i = M + P Z_i C_i^T}
-#' 
+#' @return List of MN and IW matrices.
+#' Multiple samples are column-stacked.
 #' @export
 sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)

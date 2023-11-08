@@ -11,6 +11,9 @@ FPE(object, ...)
 
 \item{...}{not used}
 }
+\value{
+FPE value.
+}
 \description{
 Generic function that computes FPE criterion.
 }

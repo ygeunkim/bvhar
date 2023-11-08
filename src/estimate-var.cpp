@@ -56,8 +56,8 @@ Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y, int method) {
 //' 
 //' \deqn{\hat{\Sigma}_e = \frac{1}{s - k} (Y_0 - \hat{A} X_0)^T (Y_0 - \hat{A} X_0)}
 //' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @export
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+//' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_cov(Eigen::MatrixXd z, int num_design, int dim_design) {
   Eigen::MatrixXd cov_mat(z.cols(), z.cols());
@@ -152,8 +152,8 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
 //' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
 //' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
-//' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @return VMA coefficient of k(lag-max + 1) x k dimension
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {

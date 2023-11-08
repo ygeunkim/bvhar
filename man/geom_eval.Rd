@@ -13,6 +13,9 @@ geom_eval(data, colour = "red", ...)
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
 }
+\value{
+A ggplot layer
+}
 \description{
 This function adds a layer of test dataset.
 }
