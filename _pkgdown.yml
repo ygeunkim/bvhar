@@ -72,7 +72,6 @@ reference:
 - title: Structural Analysis
   desc: ~
   contents:
-  - compute_cov
   - analyze_ir
 
 - title: Forecasting
