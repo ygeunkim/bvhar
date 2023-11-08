@@ -41,6 +41,9 @@ gg_loss(
 
 \item{...}{Additional options for \code{geom_loss} (\code{inherit.aes} and \code{show.legend})}
 }
+\value{
+A ggplot object
+}
 \description{
 Draw plot of test error for given models
 }

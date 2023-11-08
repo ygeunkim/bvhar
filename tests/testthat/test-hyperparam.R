@@ -1,5 +1,7 @@
 # Bayesian model specification----------------
 test_that("Test for hyperparameter functions", {
+  skip_on_cran()
+  
   bvar_spec <- set_bvar(
     sigma = rep(.1, 3),
     lambda = .1,

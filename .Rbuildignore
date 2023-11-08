@@ -12,3 +12,6 @@
 ^doc$
 ^Meta$
 ^\.vscode$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^revdep$

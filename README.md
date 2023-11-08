@@ -5,11 +5,11 @@
 
 <!-- badges: start -->
 
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions)
 [![Codecov test
-coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg?token=umidjitjiK)](https://codecov.io/gh/ygeunkim/bvhar?branch=master)
+coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar)
 <!-- badges: end -->
 
 ## Overview
@@ -17,20 +17,26 @@ coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg?tok
 `bvhar` provides functions to analyze multivariate time series time
 series using
 
--   VAR
--   VHAR (Vector HAR)
--   BVAR (Bayesian VAR)
--   **BVHAR (Bayesian VHAR)**
+- VAR
+- VHAR (Vector HAR)
+- BVAR (Bayesian VAR)
+- **BVHAR (Bayesian VHAR)**
 
 Basically, the package focuses on the research with forecasting.
 
 ## Installation
 
-You can only install the development version at this point.
+``` r
+install.packages("bvhar")
+```
+
+### Development version
+
+You can install the development version from this repository.
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("ygeunkim/bvhar")
+# install.packages("pak")
+pak::pak("ygeunkim/bvhar")
 ```
 
 ## Models
@@ -43,18 +49,15 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |      function       |     S3     |
-|:-----:|:-------------------:|:----------:|
-|  VAR  |     `var_lm()`      |  `varlse`  |
-| VHAR  |     `vhar_lm()`     | `vharlse`  |
-| BVAR  | `bvar_minnesota()`  |  `bvarmn`  |
-| BVAR  |    `bvar_flat()`    | `bvarflat` |
-| BVHAR | `bvhar_minnesota()` | `bvharmn`  |
+| Model |      function       |   class   |
+|:-----:|:-------------------:|:---------:|
+|  VAR  |     `var_lm()`      | `varlse`  |
+| VHAR  |     `vhar_lm()`     | `vharlse` |
+| BVAR  | `bvar_minnesota()`  | `bvarmn`  |
+| BVHAR | `bvhar_minnesota()` | `bvharmn` |
 
-As the other analyzer tools uses S3 such as `lm`, this package use
-methods `coef`, `predict`, etc. This readme document shows forecasting
-procedure briefly. Details about each function are in vignettes and help
-documents.
+This readme document shows forecasting procedure briefly. Details about
+each function are in vignettes and help documents.
 
 h-step ahead forecasting:
 
@@ -149,9 +152,9 @@ MSE:
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>    4.651   13.248    1.845   10.356    9.894    0.667   21.040    6.262 
+#>    4.463   13.510    1.336   11.267    9.802    0.862   21.929    5.418 
 #> VXEWZCLS 
-#>    8.864
+#>    7.362
 ```
 
 ### BVHAR
@@ -193,9 +196,9 @@ MSE:
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>    3.199    6.067    1.471    5.142    5.946    0.878   12.165    2.553 
+#>     3.58     4.76     1.32     5.71     6.29     1.15    14.03     2.52 
 #> VXEWZCLS 
-#>    6.462
+#>     5.41
 ```
 
 BVHAR-L:
@@ -245,14 +248,12 @@ MSE:
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>     3.63     3.85     1.64     5.12     5.75     1.08    13.60     2.58 
+#>     3.63     4.39     1.37     5.63     6.16     1.19    14.18     2.52 
 #> VXEWZCLS 
-#>     5.54
+#>     5.23
 ```
 
-## Compare Models
-
-### Layers
+## Plots
 
 ``` r
 autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
@@ -263,22 +264,6 @@ autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
 ```
 
 <img src="man/figures/README-predfig-1.png" width="70%" style="display: block; margin: auto;" />
-
-### Erros
-
-``` r
-list(
-  forecast_var,
-  forecast_vhar,
-  forecast_bvar,
-  forecast_bvhar_v2
-) %>% 
-  gg_loss(y = etf_te, mean_line = TRUE, mean_param = list(alpha = .5)) +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = -1))
-```
-
-<img src="man/figures/README-msefig-1.png" width="70%" style="display: block; margin: auto;" />
 
 ## Code of Conduct
 

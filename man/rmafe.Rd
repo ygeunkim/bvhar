@@ -21,6 +21,9 @@ rmafe(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMAFE vector corresponding to each variable.
+}
 \description{
 This function computes RMAFE (Mean Absolute Forecast Error Relative to the Benchmark)
 }
@@ -33,9 +36,9 @@ RMAFE is the ratio of L1 norm of \eqn{e_t} from forecasting object and from benc
 where \eqn{e_t^{(b)}} is the error from the benchmark model.
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688. doi:\href{https://doi.org/10.1016/j.ijforecast.2006.03.001}{10.1016/j.ijforecast.2006.03.001}
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
 
-Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1). doi:\href{https://doi:10.1002/jae.1137}{10.1002/jae.1137}
+Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).
 
-Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526). doi:\href{https://doi.org/10.1080/01621459.2018.1437043}{10.1080/01621459.2018.1437043}
+Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 }

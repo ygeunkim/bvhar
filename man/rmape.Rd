@@ -21,6 +21,9 @@ rmape(x, pred_bench, y, ...)
 
 \item{...}{not used}
 }
+\value{
+RMAPE vector corresponding to each variable.
+}
 \description{
 This function computes RMAPE given prediction result versus evaluation set.
 }
@@ -34,5 +37,5 @@ Then
 where \eqn{MAPE} is the MAPE of our model.
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688. doi:\href{https://doi.org/10.1016/j.ijforecast.2006.03.001}{10.1016/j.ijforecast.2006.03.001}
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
 }

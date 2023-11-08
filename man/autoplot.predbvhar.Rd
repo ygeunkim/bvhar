@@ -43,6 +43,11 @@
 
 \item{ci_fill}{color of CI}
 }
+\value{
+A ggplot object
+
+A ggplot layer
+}
 \description{
 Plots the forecasting result with forecast regions.
 }

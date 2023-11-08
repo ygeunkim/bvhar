@@ -24,21 +24,23 @@
 #'   \item{week}{Order for weekly term}
 #'   \item{month}{Order for monthly term}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = `totobs` - `p`}
+#'   \item{obs}{Sample size used when training = `totobs` - 22}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: VHAR}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
 #' }
+#' It is also a `bvharmod` class.
 #' @references 
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510.
 #' 
-#' Bubák, V., Kočenda, E., & Žikeš, F. (2011). *Volatility transmission in emerging European foreign exchange markets*. Journal of Banking & Finance, 35(11), 2829–2841. doi:[10.1016/j.jbankfin.2011.03.012](https://doi.org/10.1016/j.jbankfin.2011.03.012)
+#' Bubák, V., Kočenda, E., & Žikeš, F. (2011). *Volatility transmission in emerging European foreign exchange markets*. Journal of Banking & Finance, 35(11), 2829–2841.
 #' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196.
 #' @seealso 
 #' * [coef.vharlse()], [residuals.vharlse()], and [fitted.vharlse()]
 #' * [summary.vharlse()] to summarize VHAR model
@@ -88,13 +90,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # estimate Phi---------------------
   type <- ifelse(include_mean, "const", "none")
-  # vhar_est <- switch (method,
-  #   "nor" = {estimate_har(X0, Y0, week, month, include_mean)},
-  #   "chol" = {estimate_har_llt(X0, Y0, week, month, include_mean)},
-  #   "qr" = {estimate_har_qr(X0, Y0, week, month, include_mean)}
-  # )
   vhar_est <- estimate_har(X0, Y0, week, month, include_mean, method)
-  # vhar_est <- estimate_har(X0, Y0, week, month, include_mean)
   Phihat <- vhar_est$phihat
   colnames(Phihat) <- name_var
   rownames(Phihat) <- name_har

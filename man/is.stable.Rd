@@ -11,6 +11,9 @@ is.stable(x, ...)
 
 \item{...}{not used}
 }
+\value{
+logical class
+}
 \description{
 Stability of the process
 }

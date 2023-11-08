@@ -45,11 +45,13 @@ It is a list with the following components:
 \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{\nu_0} - obs + 2). \eqn{\nu_0}: nrow(Dummy observation) - k}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
 \item{p}{3, this element exists to run the other functions}
+\item{week}{Order for weekly term}
+\item{month}{Order for monthly term}
 \item{m}{Dimension of the time series}
 \item{obs}{Sample size used when training = \code{totobs} - 22}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} or \code{"BVHAR_MN_VHAR"}}
+\item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} (BVHAR-S) or \code{"BVHAR_MN_VHAR"} (BVHAR-L)}
 \item{spec}{Model specification (\code{bvharspec})}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{M_0}}
@@ -61,6 +63,7 @@ It is a list with the following components:
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input (\code{matrix})}
 }
+It is also \code{normaliw} and \code{bvharmod} class.
 }
 \description{
 This function fits BVHAR with Minnesota prior.
@@ -92,12 +95,12 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 }
 \seealso{
 \itemize{
-\item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
-\item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
+\item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of BVHAR-S
+\item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of BVHAR-L
 \item \code{\link[=coef.bvharmn]{coef.bvharmn()}}, \code{\link[=residuals.bvharmn]{residuals.bvharmn()}}, and \code{\link[=fitted.bvharmn]{fitted.bvharmn()}}
 \item \code{\link[=summary.normaliw]{summary.normaliw()}} to summarize BVHAR model
 \item \code{\link[=predict.bvharmn]{predict.bvharmn()}} to forecast the BVHAR process

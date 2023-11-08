@@ -17,6 +17,10 @@ sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 
 \item{shape}{Shape of IW}
 }
+\value{
+List of MN and IW matrices.
+Multiple samples are column-stacked.
+}
 \description{
 This function samples normal inverse-wishart matrices.
 }
@@ -24,7 +28,7 @@ This function samples normal inverse-wishart matrices.
 Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
 \enumerate{
 \item Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-\item Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+\item Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 \item Lower triangular Cholesky decomposition: \eqn{U = P P^T}
 \item \eqn{A_i = M + P Z_i C_i^T}
 }

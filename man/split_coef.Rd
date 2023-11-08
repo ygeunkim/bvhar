@@ -17,6 +17,9 @@ split_coef(object, ...)
 
 \item{...}{not used}
 }
+\value{
+A \code{list} object
+}
 \description{
 Split \code{coefficients} into matrix list.
 }

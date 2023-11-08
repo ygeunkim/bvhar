@@ -29,14 +29,17 @@ sim_var(
 
 \item{init}{Initial y1, ..., yp matrix to simulate VAR model. Try \code{matrix(0L, nrow = var_lag, ncol = dim)}.}
 
-\item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Method to compute \eqn{\Sigma^{1/2}}.}
+\item{method}{Method to compute \eqn{\Sigma^{1/2}}.
+Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
+By default, \code{"eigen"}.}
 
 \item{process}{Process to generate error term.
 \code{"gaussian"}: Normal distribution (default) or \code{"student"}: Multivariate t-distribution.}
 
-\item{t_param}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} argument for MVT, e.g. DF: 5.
-Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
-By default, \code{"eigen"}.}
+\item{t_param}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} argument for MVT, e.g. DF: 5.}
+}
+\value{
+T x k matrix
 }
 \description{
 This function generates multivariate time series dataset that follows VAR(p).
@@ -52,5 +55,5 @@ This function generates multivariate time series dataset that follows VAR(p).
 Initial values might be set to be zero vector or \eqn{(I_m - A_1 - \cdots - A_p)^{-1} c}.
 }
 \references{
-Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing. doi:\href{https://doi.org/10.1007/978-3-540-27752-1}{10.1007/978-3-540-27752-1}
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }

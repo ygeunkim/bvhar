@@ -11,13 +11,16 @@ sim_iw(mat_scale, shape)
 
 \item{shape}{Shape}
 }
+\value{
+One k x k matrix following IW distribution
+}
 \description{
 This function samples one matrix IW matrix.
 }
 \details{
 Consider \eqn{\Sigma \sim IW(\Psi, \nu)}.
 \enumerate{
-\item Upper triangular Bartlett decomposition: m x m matrix \eqn{Q = [q_{ij}]} upper triangular with
+\item Upper triangular Bartlett decomposition: k x k matrix \eqn{Q = [q_{ij}]} upper triangular with
 \enumerate{
 \item \eqn{q_{ii}^2 \chi_{\nu - i + 1}^2}
 \item \eqn{q_{ij} \sim N(0, 1)} with i < j (upper triangular)

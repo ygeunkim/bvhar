@@ -75,11 +75,7 @@ Also, it does not have \code{DATE} column for fitting.
 The number of rows is 1826 and the number of columns is 31.
 }
 \source{
-\url{https://realized.oxford-man.ox.ac.uk/data}
-
-Available estimators: \url{https://realized.oxford-man.ox.ac.uk/documentation/estimators}
-
-Asset lists: \url{https://realized.oxford-man.ox.ac.uk/data/assets}
+Realized library of oxford-man had been discontinued, so the source could not be listed.
 }
 \usage{
 oxfordman_rv
@@ -87,7 +83,7 @@ oxfordman_rv
 oxfordman_rk
 }
 \description{
-The realized measure of financial assets dataset provided by \href{https://www.oxford-man.ox.ac.uk}{Oxford-man Institute of Quantitative Finance}.
+The realized measure of financial assets dataset provided by \href{https://oxford-man.ox.ac.uk/research/realized-library/}{Oxford-man Institute of Quantitative Finance}.
 }
 \details{
 \itemize{

@@ -34,6 +34,7 @@ knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .618
 )
+orig_opts <- options("digits")
 options(digits = 3)
 set.seed(1)
 ```
@@ -355,4 +356,8 @@ Do not forget shut down the cluster `cl`.
 
 ```{r stopparallel}
 parallel::stopCluster(cl)
+```
+
+```{r resetopts, include=FALSE}
+options(orig_opts)
 ```
