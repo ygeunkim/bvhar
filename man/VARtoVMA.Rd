@@ -11,6 +11,9 @@ VARtoVMA(object, lag_max)
 
 \item{lag_max}{Maximum lag for VMA}
 }
+\value{
+VMA coefficient of k(lag-max + 1) x k dimension
+}
 \description{
 Convert VAR process to infinite vector MA process
 }

@@ -178,7 +178,7 @@ logLik.bvharmn <- function(object, ...) {
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
-#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from [compute_cov()] and the member named `covmat`) for \eqn{\Sigma_e}.
+#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
 #' \deqn{\tilde{\Sigma}_e = \frac{s - k}{s} \hat{\Sigma}_e}
@@ -271,7 +271,7 @@ FPE <- function(object, ...) {
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
-#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from [compute_cov()] and the member named `covmat`) for \eqn{\Sigma_e}.
+#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
 #' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
@@ -279,9 +279,8 @@ FPE <- function(object, ...) {
 #' Then
 #' 
 #' \deqn{FPE(p) = (\frac{s + k}{s - k})^m \det \tilde{\Sigma}_e}
-#' 
+#' @return FPE value.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' 
 #' @export
 FPE.varlse <- function(object, ...) {
   compute_fpe(object)
@@ -303,7 +302,7 @@ FPE.vharlse <- function(object, ...) {
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
-#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from [compute_cov()] and the member named `covmat`) for \eqn{\Sigma_e}.
+#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
 #' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
@@ -406,7 +405,7 @@ HQ.logLik <- function(object, ...) {
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
-#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from [compute_cov()] and the member named `covmat`) for \eqn{\Sigma_e}.
+#' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
 #' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
@@ -470,9 +469,9 @@ HQ.bvharmn <- function(object, ...) {
     AIC()
 }
 
-#' Deviance Information Criterion
+#' Deviance Information Criterion of Multivariate Time Series Model
 #' 
-#' Generic function that computes DIC.
+#' Compute DIC of BVAR and BVHAR.
 #' 
 #' @param object Model fit
 #' @param ... not used
@@ -482,10 +481,7 @@ compute_dic <- function(object, ...) {
   UseMethod("compute_dic", object)
 }
 
-#' Deviance Information Criterion of Multivariate Time Series Model
-#' 
-#' Compute DIC of BVAR and BVHAR
-#' 
+#' @rdname compute_dic
 #' @param object Model fit
 #' @param n_iter Number to sample
 #' @param ... not used

@@ -13,11 +13,14 @@ sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)
 
 \item{mat_scale_v}{Second scale matrix}
 }
+\value{
+One n x k matrix following MN distribution.
+}
 \description{
 This function samples one matrix gaussian matrix.
 }
 \details{
-Consider s x m matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is s x m, U is s x s, and V is m x m.
+Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 \enumerate{
 \item Lower triangular Cholesky decomposition: \eqn{U = P P^T} and \eqn{V = L L^T}
 \item Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.

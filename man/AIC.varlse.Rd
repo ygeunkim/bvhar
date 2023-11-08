@@ -31,7 +31,7 @@ Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR
 }
 \details{
 Let \eqn{\tilde{\Sigma}_e} be the MLE
-and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (from \code{\link[=compute_cov]{compute_cov()}} and the member named \code{covmat}) for \eqn{\Sigma_e}.
+and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (\code{covmat}) for \eqn{\Sigma_e}.
 Note that
 
 \deqn{\tilde{\Sigma}_e = \frac{s - k}{s} \hat{\Sigma}_e}

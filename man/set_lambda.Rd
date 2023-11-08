@@ -34,6 +34,9 @@ knit_print.bvharpriorspec(x, ...)
 
 \item{...}{not used}
 }
+\value{
+\code{bvharpriorspec} object
+}
 \description{
 Set hyperpriors of Bayesian VAR and VHAR models.
 }

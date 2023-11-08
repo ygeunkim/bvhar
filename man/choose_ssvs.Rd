@@ -32,6 +32,9 @@ choose_ssvs(
 
 \item{sd_non}{Standard deviance of unrestricted coefficients. This is for the output.}
 }
+\value{
+\code{ssvsinput} object
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This function chooses \eqn{(\tau_{0i}, \tau_{1i})} and \eqn{(\kappa_{0i}, \kappa_{1i})}

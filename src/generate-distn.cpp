@@ -112,14 +112,14 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
 //' @param mat_scale_u First scale matrix
 //' @param mat_scale_v Second scale matrix
 //' @details
-//' Consider s x m matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is s x m, U is s x s, and V is m x m.
+//' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 //' 
 //' 1. Lower triangular Cholesky decomposition: \eqn{U = P P^T} and \eqn{V = L L^T}
 //' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 //' 3. \eqn{Y_i = M + P Z_i L^T}
 //' 
 //' This function only generates one matrix, i.e. \eqn{Y_1}.
-//' 
+//' @return One n x k matrix following MN distribution.
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, 
@@ -209,13 +209,13 @@ Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
 //' @details
 //' Consider \eqn{\Sigma \sim IW(\Psi, \nu)}.
 //' 
-//' 1. Upper triangular Bartlett decomposition: m x m matrix \eqn{Q = [q_{ij}]} upper triangular with
+//' 1. Upper triangular Bartlett decomposition: k x k matrix \eqn{Q = [q_{ij}]} upper triangular with
 //'     1. \eqn{q_{ii}^2 \chi_{\nu - i + 1}^2}
 //'     2. \eqn{q_{ij} \sim N(0, 1)} with i < j (upper triangular)
 //' 2. Lower triangular Cholesky decomposition: \eqn{\Psi = L L^T}
 //' 3. \eqn{A = L (Q^{-1})^T}
 //' 4. \eqn{\Sigma = A A^T \sim IW(\Psi, \nu)}
-//' 
+//' @return One k x k matrix following IW distribution
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
@@ -237,10 +237,11 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
 //' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
 //' 
 //' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-//' 2. Standard normal generation: s x m matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+//' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 //' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
 //' 4. \eqn{A_i = M + P Z_i C_i^T}
-//' 
+//' @return List of MN and IW matrices.
+//' Multiple samples are column-stacked.
 //' @export
 // [[Rcpp::export]]
 Rcpp::List sim_mniw(int num_sim,

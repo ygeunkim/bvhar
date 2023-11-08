@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+Numeric vector.
+}
 \description{
 Compute the character polynomial of VAR(p) coefficient matrix.
 }

@@ -175,7 +175,7 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 //' 
 //' Observe that
 //' \deqn{B = \tilde{T}^T \Phi}
-//' 
+//' @return VMA coefficient of k(lag-max + 1) x k dimension
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 //' @export
 // [[Rcpp::export]]

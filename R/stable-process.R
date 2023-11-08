@@ -30,9 +30,8 @@ is.stable <- function(x, ...) {
 #' \deqn{\det(I_m - A z) = 0}
 #' 
 #' where \eqn{A} is VAR(1) coefficient matrix representation.
-#' 
+#' @return Numeric vector.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' 
 #' @export
 stableroot.varlse <- function(x, ...) {
   compute_var_stablemat(x) %>% 
@@ -53,9 +52,8 @@ stableroot.varlse <- function(x, ...) {
 #' \deqn{\det(I_m - A z) \neq 0}
 #' 
 #' for \eqn{\lvert z \rvert \le 1}.
-#' 
+#' @return logical class
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' 
 #' @export
 is.stable.varlse <- function(x, ...) {
   all(stableroot(x) < 1)

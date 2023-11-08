@@ -23,6 +23,9 @@
 
 \item{...}{not used}
 }
+\value{
+logical class
+}
 \description{
 Check the stability condition of VAR(p) coefficient matrix.
 }

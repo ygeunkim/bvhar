@@ -19,6 +19,7 @@
 #'   delta = rep(1, 3),
 #'   eps = 1e-04 # eps = 1e-04
 #' )
+#' @return `bvharpriorspec` object
 #' @references Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' @order 1
 #' @export

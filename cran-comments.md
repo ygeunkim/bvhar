@@ -1,3 +1,9 @@
+## Re-resubmission v1.0.0
+This is second resubmission. Comments are included in italics.
+
+- *We still see: Missing Rd-tags ... Since you are using 'roxygen', please add a @return tag in the corresponding .R-file and re-roxygenize() your .Rd-files.*\
+**Response** We have added `@return` to each mentioned document.
+
 ## Resubmission
 This is a resubmission. Comments are included in italics.
 
@@ -15,3 +21,10 @@ This is a resubmission. Comments are included in italics.
 0 errors | 0 warnings | 1 note
 
 * This is a new release.
+
+## revdepcheck results
+
+We checked 0 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+
+ * We saw 0 new problems
+ * We failed to check 0 packages
