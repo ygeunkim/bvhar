@@ -1,3 +1,5 @@
+# bvhar (development version)
+
 # bvhar 1.0.0
 
 ## Bayesian Vector Heterogeneous Autoregressive Modeling, JSCS 
