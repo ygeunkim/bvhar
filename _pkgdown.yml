@@ -189,3 +189,12 @@ navbar:
       href: /software/
       aria-label: Back to the page
       text: Go back to the Software page
+
+news:
+  releases:
+  - text: "Version 0.9.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v0.9.0
+  - text: "Version 0.12.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v0.12.0
+  - text: "Version 1.0.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.0

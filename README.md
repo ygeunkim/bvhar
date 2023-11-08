@@ -5,10 +5,11 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar)
-[![JSCS-DOI](https://img.shields.io/badge/JSCS-10.1080/00949655.2023.2281644-blue.svg)](https://ygeunkim.github.io/publication/bvhar/)
 <!-- badges: end -->
 
 ## Overview
@@ -25,11 +26,17 @@ Basically, the package focuses on the research with forecasting.
 
 ## Installation
 
-You can only install the development version at this point.
+``` r
+install.packages("bvhar")
+```
+
+### Development version
+
+You can install the development version from this repository.
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("ygeunkim/bvhar")
+# install.packages("pak")
+pak::pak("ygeunkim/bvhar")
 ```
 
 ## Models
