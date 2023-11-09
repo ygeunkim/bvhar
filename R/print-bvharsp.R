@@ -297,3 +297,79 @@ registerS3method(
   knit_print.summary.hsmod,
   envir = asNamespace("knitr")
 )
+
+#' @rdname bvar_sv
+#' @param x `bvarsv` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat(sprintf("BVAR(%i) with Stochastic Volatility\n", x$p))
+  cat("Fitted by Gibbs sampling\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname bvar_sv
+#' @param x `bvarsv` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvarsv <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname bvhar_sv
+#' @param x `bvarsv` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat("BVHAR with Stochastic Volatility\n")
+  cat("Fitted by Gibbs sampling\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname bvhar_sv
+#' @param x `bvarsv` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.bvharsv <- function(x, ...) {
+  print(x)
+}
