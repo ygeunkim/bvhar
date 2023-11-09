@@ -1,8 +1,6 @@
 # bvhar (development version)
 
-# bvhar 1.1.0
-
-## New features
+## New features (starting new research)
 
 * Add Shrinkage priors SSVS and Horseshoe (`bvar_ssvs()`, `bvhar_ssvs()`, `bvar_horseshoe()`, and `bvhar_horseshoe()`).
 
