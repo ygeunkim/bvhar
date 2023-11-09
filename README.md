@@ -5,11 +5,15 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/workflows/R-CMD-check/badge.svg)](https://github.com/ygeunkim/bvhar/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
+[![monthly
+downloads](https://cranlogs.r-pkg.org/badges/last-month/bvhar?color=blue)](https://cran.r-project.org/package=bvhar)
+[![total
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/bvhar?color=blue)](https://cran.r-project.org/package=bvhar)
 <!-- badges: end -->
 
 ## Overview

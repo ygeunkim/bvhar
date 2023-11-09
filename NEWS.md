@@ -1,5 +1,13 @@
 # bvhar (development version)
 
+## New features (starting new research)
+
+* Add Shrinkage priors SSVS and Horseshoe (`bvar_ssvs()`, `bvhar_ssvs()`, `bvar_horseshoe()`, and `bvhar_horseshoe()`).
+
+* `bvar_sv()`, `bvhar_sv()` works with SSVS (`set_ssvs()`) and Horseshoe (`set_horseshoe()`).
+
+* Update the shrinkage structure in the spirit of Minnesota. (`minnesota = TRUE`, `minnesota = c("no", "short", "longrun")`).
+
 # bvhar 1.0.0
 
 ## Bayesian Vector Heterogeneous Autoregressive Modeling, JSCS 
