@@ -86,67 +86,6 @@ registerS3method(
   envir = asNamespace("knitr")
 )
 
-#' @rdname summary.ssvsmod
-#' @param x `summary.ssvsmod` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.summary.ssvsmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  mod_type <- gsub(pattern = "\\_SSVS$", replacement = "", x$process)
-  coef_list <- switch(
-    x$type,
-    "const" = {
-      split.data.frame(x$coefficients[-(x$p * x$m + 1),], gl(x$p, x$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
-        lapply(t)
-    }
-  )
-  cat(paste0("Variable Selection for ", mod_type, "(", sprintf("%i", x$p), ") using SSVS\n"))
-  cat("====================================================\n\n")
-  coef_nm <- ifelse(mod_type == "VAR", "A", "Phi")
-  for (i in seq_along(coef_list)) {
-    cat(paste0("Variable selection for ", sprintf("%s", coef_nm), sprintf("%i:\n", i)))
-    print.default(
-      coef_list[[i]],
-      digits = digits,
-      print.gap = 2L,
-      quote = FALSE
-    )
-  }
-  cat("\n")
-  cat("Variable selection for Cholesky factors:\n")
-  print.default(
-    x$cholesky,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname summary.ssvsmod
-#' @param x `summary.ssvsmod` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.summary.ssvsmod <- function(x, ...) {
-  print(x)
-}
-
-#' @export
-registerS3method(
-  "knit_print", "summary.ssvsmod",
-  knit_print.summary.ssvsmod,
-  envir = asNamespace("knitr")
-)
-
 #' @rdname bvar_horseshoe
 #' @param x `bvarhs` object
 #' @param digits digit option to print
@@ -235,69 +174,6 @@ registerS3method(
   envir = asNamespace("knitr")
 )
 
-#' @rdname summary.hsmod
-#' @param x `summary.hsmod` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.summary.hsmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  mod_type <- gsub(pattern = "\\_Horseshoe$", replacement = "", x$process)
-  coef_list <- switch(
-    x$type,
-    "const" = {
-      split.data.frame(x$coefficients[-(x$p * x$m + 1),], gl(x$p, x$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>% 
-        lapply(t)
-    }
-  )
-  cat(paste0("Variable Selection for ", mod_type, "(", sprintf("%i", x$p), ") using MVHS\n"))
-  cat("====================================================\n\n")
-  coef_nm <- ifelse(mod_type == "VAR", "A", "Phi")
-  for (i in seq_along(coef_list)) {
-    cat(paste0("Variable selection for ", sprintf("%s", coef_nm), sprintf("%i:\n", i)))
-    print.default(
-      coef_list[[i]],
-      digits = digits,
-      print.gap = 2L,
-      quote = FALSE
-    )
-  }
-  cat("--------------------------------------------------\n")
-  cat(
-    paste0("By 100(1-", sprintf("%g", x$level), ")% credible interval:\n")
-  )
-  print(
-    x$interval,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname summary.hsmod
-#' @param x `summary.hsmod` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.summary.hsmod <- function(x, ...) {
-  print(x)
-}
-
-#' @export
-registerS3method(
-  "knit_print", "summary.hsmod",
-  knit_print.summary.hsmod,
-  envir = asNamespace("knitr")
-)
-
 #' @rdname bvar_sv
 #' @param x `bvarsv` object
 #' @param digits digit option to print
@@ -373,3 +249,94 @@ print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 knit_print.bvharsv <- function(x, ...) {
   print(x)
 }
+
+#' @rdname summary.ssvsmod
+#' @param x `summary.ssvsmod` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  # mod_type <- gsub(pattern = "\\_SSVS$", replacement = "", x$process)
+  mod_type <- gsub(pattern = "\\_SSVS|\\_Horseshoe", replacement = "", x = x$process)
+  vhar_type <- gsub(pattern = "_SV$", replacement = "", x = mod_type)
+  selection_method <- x$method
+  coef_list <- switch(x$type,
+    "const" = {
+      split.data.frame(x$coefficients[-(x$p * x$m + 1), ], gl(x$p, x$m)) %>%
+        lapply(t)
+    },
+    "none" = {
+      split.data.frame(x$coefficients, gl(x$p, x$m)) %>%
+        lapply(t)
+    }
+  )
+  # cat(paste0("Variable Selection for ", mod_type, "(", sprintf("%i", x$p), ") using SSVS\n"))
+  cat(paste0(
+    "Variable Selection for ",
+    # mod_type,
+    ifelse(
+      vhar_type == "VHAR",
+      mod_type,
+      paste0(mod_type, "(", sprintf("%i", x$p), ")")
+    ),
+    # "(",
+    # sprintf("%i", x$p),
+    # ") using ",
+    " using ",
+    selection_method,
+    "*\n"
+  ))
+  cat("====================================================\n\n")
+  coef_nm <- ifelse(mod_type == "VAR", "A", "Phi")
+  vhar_name <- c("Day", "Week", "Month")
+  for (i in seq_along(coef_list)) {
+    if (vhar_type == "VAR") {
+      cat(paste0("A", sprintf("%i:\n", i)))
+    } else {
+      cat(paste0(vhar_name[i], ":\n"))
+    }
+    print.default(
+      coef_list[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n")
+  }
+  cat("--------------------------------------------------\n")
+  if (selection_method == "ci") {
+    cat(
+      paste0("* 100(1-", sprintf("%g", x$level), ")% credible interval:\n")
+    )
+    print(
+      x$interval,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+  } else {
+    cat(sprintf("* Threshold: %g", x$threshold))
+  }
+}
+
+#' @rdname summary.ssvsmod
+#' @param x `summary.ssvsmod` object
+#' @param ... not used
+#' @order 3
+#' @export
+knit_print.summary.bvharsp <- function(x, ...) {
+  print(x)
+}
+
+#' @export
+registerS3method(
+  "knit_print", "summary.bvharsp",
+  knit_print.summary.bvharsp,
+  envir = asNamespace("knitr")
+)
