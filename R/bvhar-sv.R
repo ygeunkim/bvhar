@@ -15,11 +15,53 @@
 #' @details
 #' Cholesky stochastic volatility modeling for VHAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
-#' @return `bvhar_sv()` returns an object named `bvharsv` [class].
+#' @return `bvhar_sv()` returns an object named `bvharsv` [class]. It is a list with the following components:
+#' \describe{
+#'   \item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with [posterior::draws_df] format.}
+#'   \item{h_record}{MCMC trace for log-volatilities.}
+#'   \item{a_record}{MCMC trace for contemporaneous coefficients.}
+#'   \item{h0_record}{MCMC trace for initial log-volatilities.}
+#'   \item{sigh_record}{MCMC trace for log-volatilities variance.}
+#'   \item{coefficients}{Posterior mean of coefficients.}
+#'   \item{chol_posterior}{Posterior mean of contemporaneous effects.}
+#'   \item{pip}{Posterior inclusion probabilities.}
+#'   \item{param}{Every set of MCMC trace.}
+#'   \item{group}{Indicators for group.}
+#'   \item{df}{Numer of Coefficients: `3m + 1` or `3m`}
+#'   \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
+#'   \item{week}{Order for weekly term}
+#'   \item{month}{Order for monthly term}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Description of the model, e.g. `"VHAR_SSVS_SV", `"VHAR_Horseshoe_SV", or `"VHAR_minnesota-part_SV"}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{spec}{SSVS specification defined by [set_ssvs()]}
+#'   \item{init}{Initial specification defined by [init_ssvs()]}
+#'   \item{iter}{Total iterations}
+#'   \item{burn}{Burn-in}
+#'   \item{thin}{Thinning}
+#'   \item{chain}{The numer of chains}
+#'   \item{HARtrans}{VHAR linear transformation matrix}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
+#' }
+#' Different members are added according to priors. If it is SSVS:
+#' \describe{
+#'   \item{gamma_record}{MCMC trace for dummy variable.}
+#' }
+#' Horseshoe:
+#' \describe{
+#'   \item{lambda_record}{MCMC trace for local shrinkage level.}
+#'   \item{tau_record}{MCMC trace for global shrinkage level.}
+#'   \item{kappa_record}{MCMC trace for shrinkage factor.}
+#' }
 #' @references 
-#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+#' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' 
-#' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
+#' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
@@ -510,41 +552,4 @@ bvhar_sv <- function(y,
     class(res) <- c("ssvsmod", class(res))
   }
   res
-}
-
-#' @rdname bvhar_sv
-#' @param x `bvarsv` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat("BVHAR with Stochastic Volatility\n")
-  cat("Fitted by Gibbs sampling\n")
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  cat("Parameter Record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvhar_sv
-#' @param x `bvarsv` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.bvharsv <- function(x, ...) {
-  print(x)
 }
