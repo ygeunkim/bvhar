@@ -87,7 +87,7 @@ summary.ssvsmod <- function(object, ...) {
 #' @importFrom posterior summarise_draws subset_draws
 #' @importFrom stats quantile
 #' @importFrom dplyr rename
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170. doi:[10.1016/j.jmva.2018.04.010](https://doi.org/10.1016/j.jmva.2018.04.010)
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
 #' @export
 summary.hsmod <- function(object, level = .05, correction = FALSE, ...) {
   # low_lev <- level / 2

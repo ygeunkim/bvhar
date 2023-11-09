@@ -667,9 +667,9 @@ lpl <- function(x, y, ...) {
 #' @param y Test data to be compared. should be the same format with the train data.
 #' @param ... not used
 #' @references
-#' Cross, J. L., Hou, C., & Poon, A. (2020). *Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity*. International Journal of Forecasting, 36(3), 899–915. doi:[10.1016/j.ijforecast.2019.10.002](https://doi.org/10.1016/j.ijforecast.2019.10.002)
+#' Cross, J. L., Hou, C., & Poon, A. (2020). *Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity*. International Journal of Forecasting, 36(3), 899–915.
 #' 
-#' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv. doi:[10.48550/arxiv.2206.04902](https://doi.org/10.48550/arXiv.2206.04902)
+#' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
 #' @importFrom posterior as_draws_matrix
 #' @export
 lpl.predsv <- function(x, y, ...) {

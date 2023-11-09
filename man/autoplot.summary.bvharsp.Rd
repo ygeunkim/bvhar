@@ -13,9 +13,6 @@
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile()}}.}
 }
-\value{
-A ggplot object
-}
 \description{
 Draw heatmap for SSVS prior coefficients.
 }

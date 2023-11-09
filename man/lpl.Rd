@@ -20,7 +20,7 @@ lpl(x, y, ...)
 This function computes LPL given prediction result versus evaluation set.
 }
 \references{
-Cross, J. L., Hou, C., & Poon, A. (2020). \emph{Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity}. International Journal of Forecasting, 36(3), 899–915. doi:\href{https://doi.org/10.1016/j.ijforecast.2019.10.002}{10.1016/j.ijforecast.2019.10.002}
+Cross, J. L., Hou, C., & Poon, A. (2020). \emph{Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity}. International Journal of Forecasting, 36(3), 899–915.
 
-Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!} arXiv. doi:\href{https://doi.org/10.48550/arXiv.2206.04902}{10.48550/arxiv.2206.04902}
+Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!} arXiv.
 }
