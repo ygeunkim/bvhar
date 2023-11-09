@@ -66,11 +66,9 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
-#' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#'
+#' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @seealso 
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]

@@ -20,6 +20,8 @@
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' 
 #' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
+#' 
+#' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
@@ -416,41 +418,4 @@ bvar_sv <- function(y,
     class(res) <- c("ssvsmod", class(res))
   }
   res
-}
-
-#' @rdname bvar_sv
-#' @param x `bvarsv` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat(sprintf("BVAR(%i) with Stochastic Volatility\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  cat("Parameter Record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvar_sv
-#' @param x `bvarsv` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.bvarsv <- function(x, ...) {
-  print(x)
 }
