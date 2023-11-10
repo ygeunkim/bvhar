@@ -10,20 +10,10 @@ print.bvharemp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname choose_bvar
-#' @param x `bvharemp` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharemp <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvharemp",
-  knit_print.bvharemp,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname bound_bvhar
 #' @param x `boundbvharemp` object
@@ -107,17 +97,7 @@ print.boundbvharemp <- function(x, digits = max(3L, getOption("digits") - 3L), .
 }
 
 #' @rdname bound_bvhar
-#' @param x `boundbvharemp` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.boundbvharemp <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "boundbvharemp",
-  knit_print.boundbvharemp,
-  envir = asNamespace("knitr")
-)

@@ -4,8 +4,8 @@
 \alias{analyze_ir.varlse}
 \alias{analyze_ir.vharlse}
 \alias{print.bvharirf}
-\alias{knit_print.bvharirf}
 \alias{analyze_ir}
+\alias{knit_print.bvharirf}
 \title{Impulse Response Analysis}
 \usage{
 \method{analyze_ir}{varlse}(
@@ -28,9 +28,9 @@
 
 \method{print}{bvharirf}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharirf(x, ...)
-
 analyze_ir(object, lag_max, orthogonal, impulse_var, response_var, ...)
+
+knit_print.bvharirf(x, ...)
 }
 \arguments{
 \item{object}{Model object}

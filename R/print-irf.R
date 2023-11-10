@@ -24,17 +24,7 @@ print.bvharirf <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname analyze_ir
-#' @param x `bvharirf` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharirf <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvharirf",
-  knit_print.bvharirf,
-  envir = asNamespace("knitr")
-)

@@ -1,4 +1,6 @@
-# bvhar (development version)
+# bvhar 1.0.1
+
+* Fix `knitr::knit_print()` method export methods [(#2)](https://github.com/ygeunkim/bvhar/issues/2).
 
 ## New features (starting new research)
 
