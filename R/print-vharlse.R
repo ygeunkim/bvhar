@@ -54,20 +54,10 @@ print.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname vhar_lm
-#' @param x \code{vharlse} object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.vharlse <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "vharlse",
-  knit_print.vharlse,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname summary.vharlse
 #' @param x `summary.vharlse` object
@@ -163,18 +153,7 @@ print.summary.vharlse <- function(x, digits = max(3L, getOption("digits") - 3L),
 }
 
 #' @rdname summary.vharlse
-#' @param x `summary.vharlse` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.summary.vharlse <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "summary.vharlse",
-  knit_print.summary.vharlse,
-  envir = asNamespace("knitr")
-)
-

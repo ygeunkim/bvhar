@@ -1,3 +1,23 @@
+if(!exists("meta") || is.null(meta)) {meta <- packageDescription("bvhar")}
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(
+  bibtype = "Manual",
+  title = "{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling",
+  author = c(
+    person(given = "Young Geun", family = "Kim"),
+    person(given = "Changryong", family = "Baek")
+  ),
+  #journal = {},
+  year     = "2023",
+  #volume   = {},
+  #number   = {},
+  #pages    = {},
+  #doi = {},
+  note = note,
+  url = "https://cran.r-project.org/package=bvhar"
+)
+
 bibentry(
   bibtype = "Article",
   title = "Bayesian Vector Heterogeneous Autoregressive Modeling",

@@ -44,7 +44,7 @@ knit_print.ssvsinput(x, ...)
 
 \item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
 
-\item{x}{\code{ssvsinput} object}
+\item{x}{\code{ssvsinput}}
 
 \item{digits}{digit option to print}
 

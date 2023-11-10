@@ -102,19 +102,10 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
 }
 
 #' @rdname set_bvar
-#' @param x `bvharspec` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharspec <- function(x, ...) {
   print(x)
 }
-
-registerS3method(
-  "knit_print", "bvharspec",
-  knit_print.bvharspec,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname set_ssvs
 #' @param x `ssvsinput`
@@ -187,20 +178,10 @@ print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
 }
 
 #' @rdname set_ssvs
-#' @param x `ssvsinput` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.ssvsinput <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "ssvsinput",
-  knit_print.ssvsinput,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname init_ssvs
 #' @param x `ssvsinit`
@@ -365,17 +346,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname init_ssvs
-#' @param x `ssvsinit` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.ssvsinit <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "ssvsinit",
-  knit_print.ssvsinit,
-  envir = asNamespace("knitr")
-)
