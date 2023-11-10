@@ -390,17 +390,7 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
 }
 
 #' @rdname set_horseshoe
-#' @param x `horseshoespec` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.horseshoespec <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "horseshoespec",
-  knit_print.horseshoespec,
-  envir = asNamespace("knitr")
-)
