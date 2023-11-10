@@ -1,4 +1,4 @@
-# bvhar (development version)
+# bvhar 1.0.1
 
 # bvhar 1.0.0
 
