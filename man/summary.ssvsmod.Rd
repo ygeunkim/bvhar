@@ -2,18 +2,18 @@
 % Please edit documentation in R/print-bvharsp.R, R/summary-sparse.R
 \name{print.summary.bvharsp}
 \alias{print.summary.bvharsp}
-\alias{knit_print.summary.bvharsp}
+\alias{knit_print.summary.ssvsmod}
 \alias{summary.ssvsmod}
 \alias{summary.hsmod}
 \title{Summarizing BVAR and BVHAR with Shrinkage Priors}
 \usage{
 \method{print}{summary.bvharsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.summary.bvharsp(x, ...)
+knit_print.summary.ssvsmod(x, ...)
 
 \method{summary}{ssvsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 
-\method{summary}{hsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
+\method{summary}{hsmod}(object, method = c("ci", "pip"), threshold = 0.5, level = 0.05, ...)
 }
 \arguments{
 \item{x}{\code{summary.ssvsmod} object}
