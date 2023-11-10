@@ -61,17 +61,7 @@ print.bvarflat <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_flat
-#' @param x \code{bvarflat} object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvarflat <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvarflat",
-  knit_print.bvarflat,
-  envir = asNamespace("knitr")
-)

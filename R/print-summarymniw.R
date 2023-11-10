@@ -57,17 +57,7 @@ print.summary.normaliw <- function(x, digits = max(3L, getOption("digits") - 3L)
 }
 
 #' @rdname summary.normaliw
-#' @param x `summary.normaliw` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.summary.normaliw <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "summary.normaliw",
-  knit_print.summary.normaliw,
-  envir = asNamespace("knitr")
-)
