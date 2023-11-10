@@ -399,20 +399,10 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_niwhm
-#' @param x `bvarhm` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvarhm <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvarhm",
-  knit_print.bvarhm,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname set_lambda
 #' @param x `bvharpriorspec` object
@@ -464,16 +454,7 @@ print.bvharpriorspec <- function(x, digits = max(3L, getOption("digits") - 3L), 
 }
 
 #' @rdname set_lambda
-#' @param x `bvharpriorspec` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharpriorspec <- function(x, ...) {
   print(x)
 }
-
-registerS3method(
-  "knit_print", "bvharpriorspec",
-  knit_print.bvharpriorspec,
-  envir = asNamespace("knitr")
-)

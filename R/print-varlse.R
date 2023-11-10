@@ -42,20 +42,10 @@ print.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname var_lm
-#' @param x \code{varlse} object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.varlse <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "varlse",
-  knit_print.varlse,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname summary.varlse
 #' @param x \code{summary.varlse} object
@@ -157,17 +147,7 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
 }
 
 #' @rdname summary.varlse
-#' @param x \code{summary.varlse} object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.summary.varlse <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "summary.varlse",
-  knit_print.summary.varlse,
-  envir = asNamespace("knitr")
-)

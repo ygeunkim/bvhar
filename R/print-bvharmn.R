@@ -60,17 +60,7 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvhar_minnesota
-#' @param x \code{bvarmn} object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharmn <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvharmn",
-  knit_print.bvharmn,
-  envir = asNamespace("knitr")
-)

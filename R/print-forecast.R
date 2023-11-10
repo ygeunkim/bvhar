@@ -11,20 +11,10 @@ print.predbvhar <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
 }
 
 #' @rdname predict.varlse
-#' @param x `predbvhar` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.predbvhar <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "predbvhar",
-  knit_print.predbvhar,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname forecast_roll
 #' @param x `bvharcv` object
@@ -38,17 +28,7 @@ print.bvharcv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname forecast_roll
-#' @param x `bvharcv` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharcv <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvharcv",
-  knit_print.bvharcv,
-  envir = asNamespace("knitr")
-)
