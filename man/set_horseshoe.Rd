@@ -17,7 +17,7 @@ knit_print.horseshoespec(x, ...)
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{x}{\code{horseshoespec} object}
+\item{x}{\code{horseshoespec}}
 
 \item{digits}{digit option to print}
 

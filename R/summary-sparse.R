@@ -88,7 +88,7 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
 #' @rdname summary.ssvsmod
 #' @return `summary.hsmod` object
 #' @export
-summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
+summary.hsmod <- function(object, method = c("ci", "pip"), threshold = .5, level = .05, ...) {
   method <- match.arg(method)
   if (method == "ci") {
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
@@ -98,11 +98,7 @@ summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level
   }
   rownames(selection) <- rownames(object$coefficients)
   colnames(selection) <- colnames(object$coefficients)
-  # cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE))
-  # selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
   coef_res <- ifelse(selection, object$coefficients, 0L)
-  # rownames(selection) <- rownames(object$coefficients)
-  # colnames(selection) <- colnames(object$coefficients)
   rownames(coef_res) <- rownames(object$coefficients)
   colnames(coef_res) <- colnames(object$coefficients)
   # return S3 object---------------------------
