@@ -27,20 +27,10 @@ print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 }
 
 #' @rdname bvar_ssvs
-#' @param x `bvarssvs` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvarssvs <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "bvarssvs",
-  knit_print.bvarssvs,
-  envir = asNamespace("knitr")
-)
 
 #' @rdname bvhar_ssvs
 #' @param x `bvharssvs` object
@@ -326,17 +316,7 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
 }
 
 #' @rdname summary.ssvsmod
-#' @param x `summary.ssvsmod` object
-#' @param ... not used
-#' @order 3
-#' @export
-knit_print.summary.bvharsp <- function(x, ...) {
+#' @exportS3Method knitr::knit_print
+knit_print.summary.ssvsmod <- function(x, ...) {
   print(x)
 }
-
-#' @export
-registerS3method(
-  "knit_print", "summary.bvharsp",
-  knit_print.summary.bvharsp,
-  envir = asNamespace("knitr")
-)
