@@ -36,7 +36,7 @@ Chicago Board Options Exchage (CBOE) Exchange Traded Funds (ETFs) volatility ind
 Copyright, 2016, Chicago Board Options Exchange, Inc.
 
 Note that, in this data frame, dates column is removed.
-This dataset interpolated 36 missing observations (nontrading dates) using \code{\link[imputeTS:na_interpolation]{imputeTS::na_interpolation()}}.
+This dataset interpolated 36 missing observations (nontrading dates) using \code{imputeTS::na_interpolation()}.
 }
 \references{
 Chicago Board Options Exchange, CBOE Gold ETF Volatility Index (GVZCLS), retrieved from FRED, Federal Reserve Bank of St. Louis; \url{https://fred.stlouisfed.org/series/GVZCLS}, July 31, 2021.

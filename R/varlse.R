@@ -48,7 +48,6 @@
 #' It is also a `bvharmod` class.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso 
-#' * Other package [vars::VAR()] is famous in VAR modeling.
 #' * [coef.varlse()], [residuals.varlse()], and [fitted.varlse()]
 #' * [summary.varlse()] to summarize VAR model
 #' * [predict.varlse()] to forecast the VAR process

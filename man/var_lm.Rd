@@ -90,7 +90,6 @@ Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}.
 }
 \seealso{
 \itemize{
-\item Other package \code{\link[vars:VAR]{vars::VAR()}} is famous in VAR modeling.
 \item \code{\link[=coef.varlse]{coef.varlse()}}, \code{\link[=residuals.varlse]{residuals.varlse()}}, and \code{\link[=fitted.varlse]{fitted.varlse()}}
 \item \code{\link[=summary.varlse]{summary.varlse()}} to summarize VAR model
 \item \code{\link[=predict.varlse]{predict.varlse()}} to forecast the VAR process
