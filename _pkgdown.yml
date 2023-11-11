@@ -13,7 +13,7 @@ template:
   theme: github-dark
 
 development:
-  mode: release
+  mode: auto
 
 reference:
 - title: The bvhar package
@@ -26,27 +26,19 @@ reference:
     Vector autoregressive model.
   contents:
   - var_lm
-  - summary.varlse
   - VARtoVMA
-  - stableroot
-  - stableroot.varlse
-  - is.stable
-  - is.stable.varlse
 
 - title: VHAR
   desc: >
     Vector heterogeneous autoregressive model.
   contents:
   - vhar_lm
-  - summary.vharlse
   - VHARtoVMA
 
 - title: Bayesian Model
   desc: ~
   contents:
   - set_bvar
-  - summary.normaliw
-  - summary.ssvsmod
   - init_ssvs
   - set_ssvs
   - set_lambda
@@ -69,10 +61,13 @@ reference:
   - bvhar_sv
   - bvhar_ssvs
 
-- title: Structural Analysis
+- title: Summary method
   desc: ~
   contents:
-  - analyze_ir
+  - summary.varlse
+  - summary.vharlse
+  - summary.normaliw
+  - summary.ssvsmod
 
 - title: Forecasting
   desc: ~
@@ -105,9 +100,8 @@ reference:
   - spne
   - relspne
 
-- title: Empirical Bayes
-  desc: >
-    Hyperparameter selection.
+- title: Tuning
+  desc: ~
   contents:
   - compute_logml
   - choose_bvar
@@ -165,6 +159,11 @@ reference:
 - title: Other generic functions
   desc: ~
   contents:
+  - analyze_ir
+  - stableroot
+  - stableroot.varlse
+  - is.stable
+  - is.stable.varlse
   - coef.varlse
   - residuals.varlse
   - fitted.varlse
@@ -191,9 +190,11 @@ navbar:
 
 news:
   releases:
-  - text: "Version 0.9.0"
+  - text: "JSCS submission ver"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v0.9.0
-  - text: "Version 0.12.0"
+  - text: "JSCS revision ver"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v0.12.0
   - text: "Version 1.0.0"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.0
+  - text: "Version 1.0.1"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.1

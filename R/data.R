@@ -53,7 +53,7 @@ NULL
 #' Copyright, 2016, Chicago Board Options Exchange, Inc.
 #' 
 #' Note that, in this data frame, dates column is removed.
-#' This dataset interpolated 36 missing observations (nontrading dates) using [imputeTS::na_interpolation()].
+#' This dataset interpolated 36 missing observations (nontrading dates) using `imputeTS::na_interpolation()`.
 #' 
 #' @format A data frame of 1006 row and 9 columns:
 #' 
@@ -106,7 +106,7 @@ NULL
 #' * For analysis, we widened the data for 5-min realized volatility (`rv5`) and realized kernel variance (`rk_parzen`), respectively.
 #'     * `oxfordman_wide_rv`
 #'     * `oxfordman_wide_rk`
-#' * `oxford_rv` and `oxford_rk` are the sets whose `NA` values interpolated using [imputeTS::na_interpolation()].
+#' * `oxford_rv` and `oxford_rk` are the sets whose `NA` values interpolated using `imputeTS::na_interpolation()`.
 #' * First three datasets should be called using [data()] function: `data(..., package = "bvhar")`.
 #' * Only `oxford_rv` and `oxford_rk` is lazy loaded.
 #' 

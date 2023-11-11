@@ -94,7 +94,7 @@ The realized measure of financial assets dataset provided by \href{https://oxfor
 \item \code{oxfordman_wide_rv}
 \item \code{oxfordman_wide_rk}
 }
-\item \code{oxford_rv} and \code{oxford_rk} are the sets whose \code{NA} values interpolated using \code{\link[imputeTS:na_interpolation]{imputeTS::na_interpolation()}}.
+\item \code{oxford_rv} and \code{oxford_rk} are the sets whose \code{NA} values interpolated using \code{imputeTS::na_interpolation()}.
 \item First three datasets should be called using \code{\link[=data]{data()}} function: \code{data(..., package = "bvhar")}.
 \item Only \code{oxford_rv} and \code{oxford_rk} is lazy loaded.
 }
