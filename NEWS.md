@@ -1,14 +1,16 @@
-# bvhar 1.0.1
+# bvhar (development version)
 
-* Fix `knitr::knit_print()` method export methods [(#2)](https://github.com/ygeunkim/bvhar/issues/2).
-
-## New features (starting new research)
+* For new research, add new features for shrinkage priors.
 
 * Add Shrinkage priors SSVS and Horseshoe (`bvar_ssvs()`, `bvhar_ssvs()`, `bvar_horseshoe()`, and `bvhar_horseshoe()`).
 
 * `bvar_sv()`, `bvhar_sv()` works with SSVS (`set_ssvs()`) and Horseshoe (`set_horseshoe()`).
 
 * Update the shrinkage structure in the spirit of Minnesota. (`minnesota = TRUE`, `minnesota = c("no", "short", "longrun")`).
+
+# bvhar 1.0.1
+
+* Fix `knitr::knit_print()` method export methods [(#2)](https://github.com/ygeunkim/bvhar/issues/2).
 
 # bvhar 1.0.0
 
