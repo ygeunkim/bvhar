@@ -1076,14 +1076,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // build_inv_lower
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
-RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP) {
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec, int nthreads);
+RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower_vec(lower_vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_inv_lower(dim, lower_vec));
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_inv_lower(dim, lower_vec, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1666,7 +1667,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_ssvs_dummy", (DL_FUNC) &_bvhar_ssvs_dummy, 4},
     {"_bvhar_ssvs_weight", (DL_FUNC) &_bvhar_ssvs_weight, 3},
     {"_bvhar_ssvs_mn_weight", (DL_FUNC) &_bvhar_ssvs_mn_weight, 5},
-    {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
+    {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 3},
     {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 5},
     {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 5},
     {"_bvhar_varsv_sigh", (DL_FUNC) &_bvhar_varsv_sigh, 4},

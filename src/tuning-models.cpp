@@ -184,7 +184,7 @@ double compute_log_dmgaussian(Eigen::VectorXd x,
   int dim = diag_vec.size();
   Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim); // sqrt(D) in LDLT
   diag_mat.diagonal() = 1 / diag_vec.array().exp().sqrt(); // exp since D = exp(h)
-  Eigen::MatrixXd lower_mat = build_inv_lower(dim, lower_vec);
+  Eigen::MatrixXd lower_mat = build_inv_lower(dim, lower_vec, 1);
   x.array() -= mean_vec.array(); // x - mu
   Eigen::VectorXd y = diag_mat * lower_mat * x; // sqrt(D) * L * (x - mu)
   double res = -log(lower_vec.squaredNorm()) - log(diag_vec.sum()) / 2 - dim * log(2 * M_PI) / 2; // should fix this line?

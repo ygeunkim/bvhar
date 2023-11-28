@@ -222,13 +222,20 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec, int nthreads) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(nthreads)
+  for (int i = 1; i < dim; i++) {
+    res.col(i - 1).segment(i, dim - i) = lower_vec.segment((i - 1) * dim - i * (i - 1) / 2, dim - i);
+  }
+#else
   int id = 0;
   for (int i = 1; i < dim; i++) {
     res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
     id += dim - i;
   }
+#endif
   return res;
 }
 
@@ -329,6 +336,12 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   );
   return post_mean + post_sig_upper.inverse() * res;
 }
+
+
+
+
+
+
 
 //' Generating sig_h in MCMC
 //' 

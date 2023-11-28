@@ -197,7 +197,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     }
     p.increment();
     // 1. alpha----------------------------
-    chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
+    chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1), nthreads);
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
         -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
@@ -308,6 +308,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       );
     }
     // 3. a---------------------------------
+  #ifdef _OPENMP
+  #pragma omp parallel for num_threads(nthreads) collapse(2)
+    for (int t = 0; t < num_design; t++) {
+      for (int j = 1; j < dim; j++) {
+        reginnov_stack.block(t * dim + j, j * (j - 1) / 2, 1, j) = -latent_innov.block(t, 0, 1, j);
+      }
+    }
+  #else
     for (int t = 0; t < num_design; t++) {
       for (int j = 1; j < dim; j++) {
         reginnov_stack.block(t * dim, 0, dim, num_lowerchol).row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
@@ -315,6 +323,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       reginnov_id = 0;
     }
+  #endif
     switch (prior_type) {
     case 2:
       // SSVS
