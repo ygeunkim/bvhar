@@ -197,13 +197,23 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     }
     p.increment();
     // 1. alpha----------------------------
-    chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1), nthreads);
+    chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
+  #ifdef _OPENMP
+  #pragma omp parallel for num_threads(nthreads)
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
-        -lvol_record.block(num_design * (i - 1), 0, num_design, dim).row(t)
-      ).array().exp();
+        -lvol_record.block(num_design * (i - 1) + t, 0, 1, dim)
+      ).transpose().array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
     }
+  #else
+    for (int t = 0; t < num_design; t++) {
+      innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
+        -lvol_record.block(num_design * (i - 1) + t, 0, 1, dim)
+      ).transpose().array().exp();
+      prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
+    }
+  #endif
     switch(prior_type) {
     case 1:
       coef_record.row(i) = varsv_regression(

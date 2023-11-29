@@ -222,7 +222,7 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec, int nthreads) {
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
   for (int i = 1; i < dim; i++) {
@@ -309,11 +309,20 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   }
   binom_latent.array() = 7 - (inv_method.rowwise().replicate(7).array() < mixture_cumsum.array()).cast<int>().rowwise().sum().array(); // 0 to 6 for indexing
   Eigen::MatrixXd diff_mat = Eigen::MatrixXd::Identity(num_design, num_design);
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(nthreads)
   for (int i = 0; i < num_design - 1; i++) {
     ds[i] = muj[binom_latent[i]];
     inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
     diff_mat(i + 1, i) = -1;
   }
+#else
+  for (int i = 0; i < num_design - 1; i++) {
+    ds[i] = muj[binom_latent[i]];
+    inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
+    diff_mat(i + 1, i) = -1;
+  }
+#endif
   ds[num_design - 1] = muj[binom_latent[num_design - 1]];
   inv_sig_s(num_design - 1, num_design - 1) = 1 / sigj[binom_latent[num_design - 1]];
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
@@ -329,12 +338,6 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   );
   return post_mean + post_sig_upper.inverse() * res;
 }
-
-
-
-
-
-
 
 //' Generating sig_h in MCMC
 //' 

@@ -1238,8 +1238,8 @@ ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-build_inv_lower <- function(dim, lower_vec, nthreads) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec, nthreads)
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
 #' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
