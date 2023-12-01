@@ -128,7 +128,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
   lvol_init_record.row(0) = (y - x * coef_ols).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
   lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
-  // lvol_record.row(0) = lvol_init_record.row(0).replicate(1, num_design);
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // SSVS--------------
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
@@ -146,7 +145,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd innov_prec = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // D^(-1) = diag(D_1^(-1), ..., D_n^(-1)) with D_t = diag(exp(h_it))
   Eigen::MatrixXd prec_stack = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // sigma^(-1) = diag(sigma_1^(-1), ..., sigma_n^(-1)) with sigma_t^(-1) = L^T D_t^(-1) L
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
-  int reginnov_id = 0;
+  Eigen::MatrixXd lvol_draw = lvol_record.block(0, 0, num_design, dim);
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
   Eigen::VectorXd slab_weight(num_alpha); // pij vector
@@ -202,15 +201,15 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   #pragma omp parallel for num_threads(nthreads)
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
-        -lvol_record.block(num_design * (i - 1) + t, 0, 1, dim)
-      ).transpose().array().exp();
+        -lvol_draw.row(t)
+      ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
     }
   #else
     for (int t = 0; t < num_design; t++) {
       innov_prec.block(t * dim, t * dim, dim, dim).diagonal() = (
-        -lvol_record.block(num_design * (i - 1) + t, 0, 1, dim)
-      ).transpose().array().exp();
+        -lvol_draw.row(t)
+      ).array().exp();
       prec_stack.block(t * dim, t * dim, dim, dim) = chol_lower.transpose() * innov_prec.block(t * dim, t * dim, dim, dim) * chol_lower;
     }
   #endif
@@ -310,13 +309,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
     ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
     for (int t = 0; t < dim; t++) {
-      lvol_record.col(t).segment(num_design * i, num_design) = varsv_ht(
-        lvol_record.col(t).segment(num_design * (i - 1), num_design),
+      lvol_draw.col(t) = varsv_ht(
+        lvol_draw.col(t),
         lvol_init_record(i - 1, t),
         lvol_sig_record(i - 1, t),
         ortho_latent.col(t), nthreads
       );
     }
+    lvol_record.block(num_design * i, 0, num_design, dim) = lvol_draw;
     // 3. a---------------------------------
   #ifdef _OPENMP
   #pragma omp parallel for num_threads(nthreads) collapse(2)
@@ -328,10 +328,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   #else
     for (int t = 0; t < num_design; t++) {
       for (int j = 1; j < dim; j++) {
-        reginnov_stack.block(t * dim, 0, dim, num_lowerchol).row(j).segment(reginnov_id, j) = -latent_innov.row(t).segment(0, j);
-        reginnov_id += j;
+        reginnov_stack.block(t * dim + j, j * (j - 1) / 2, 1, j) = -latent_innov.block(t, 0, 1, j);
       }
-      reginnov_id = 0;
     }
   #endif
     switch (prior_type) {
@@ -382,14 +380,14 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       prior_sig_shp,
       prior_sig_scl,
       lvol_init_record.row(i - 1),
-      lvol_record.block(num_design * i, 0, num_design, dim)
+      lvol_draw
     );
     // 5. h0--------------------------------
     lvol_init_record.row(i) = varsv_h0(
       prior_init_mean,
       prior_init_prec,
       lvol_init_record.row(i - 1),
-      lvol_record.block(num_design * i, 0, num_design, dim).row(0),
+      lvol_draw.row(0),
       lvol_sig_record.row(i)
     );
   }
