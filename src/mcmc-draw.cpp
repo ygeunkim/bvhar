@@ -293,17 +293,7 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   for (int i = 0; i < 7; i++) {
     mixture_pdf.col(i) = (-((latent_vec.array() - sv_vec.array() - muj[i]).array() / sdj[i]).array().square() / 2).exp() * pj[i] / (sdj[i] * sqrt(2 * M_PI));
   }
-  Eigen::VectorXd ct = mixture_pdf.rowwise().sum().array();
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
-  for (int i = 0; i < num_design; i++) {
-    mixture_pdf.row(i).array() = mixture_pdf.row(i).array() / ct[i];
-  }
-#else
-  for (int i = 0; i < num_design; i++) {
-    mixture_pdf.row(i).array() = mixture_pdf.row(i).array() / ct[i];
-  }
-#endif
+  mixture_pdf.array().colwise() /= mixture_pdf.rowwise().sum().array();
   for (int i = 0; i < 7; i++) {
     mixture_cumsum.block(0, i, num_design, 7 - i) += mixture_pdf.col(i).rowwise().replicate(7 - i);
   }
