@@ -109,7 +109,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd coef_ols = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
   // record------------------------------------------------
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // alpha in VAR
-  Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, ..., ak1, ..., ak(k-1)
+  Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
   Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block

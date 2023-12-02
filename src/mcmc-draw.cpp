@@ -226,8 +226,10 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
   for (int i = 1; i < dim; i++) {
-    res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
-    id += dim - i;
+    // res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
+    // id += dim - i;
+    res.row(i).segment(0, i) = lower_vec.segment(id, i);
+    id += i;
   }
   return res;
 }
