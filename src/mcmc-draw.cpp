@@ -226,8 +226,10 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
   for (int i = 1; i < dim; i++) {
-    res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
-    id += dim - i;
+    // res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
+    // id += dim - i;
+    res.row(i).segment(0, i) = lower_vec.segment(id, i);
+    id += i;
   }
   return res;
 }
@@ -293,27 +295,26 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   for (int i = 0; i < 7; i++) {
     mixture_pdf.col(i) = (-((latent_vec.array() - sv_vec.array() - muj[i]).array() / sdj[i]).array().square() / 2).exp() * pj[i] / (sdj[i] * sqrt(2 * M_PI));
   }
-  Eigen::VectorXd ct = mixture_pdf.rowwise().sum().array();
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
-  for (int i = 0; i < num_design; i++) {
-    mixture_pdf.row(i).array() = mixture_pdf.row(i).array() / ct[i];
-  }
-#else
-  for (int i = 0; i < num_design; i++) {
-    mixture_pdf.row(i).array() = mixture_pdf.row(i).array() / ct[i];
-  }
-#endif
+  mixture_pdf.array().colwise() /= mixture_pdf.rowwise().sum().array();
   for (int i = 0; i < 7; i++) {
     mixture_cumsum.block(0, i, num_design, 7 - i) += mixture_pdf.col(i).rowwise().replicate(7 - i);
   }
   binom_latent.array() = 7 - (inv_method.rowwise().replicate(7).array() < mixture_cumsum.array()).cast<int>().rowwise().sum().array(); // 0 to 6 for indexing
   Eigen::MatrixXd diff_mat = Eigen::MatrixXd::Identity(num_design, num_design);
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(nthreads)
   for (int i = 0; i < num_design - 1; i++) {
     ds[i] = muj[binom_latent[i]];
     inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
     diff_mat(i + 1, i) = -1;
   }
+#else
+  for (int i = 0; i < num_design - 1; i++) {
+    ds[i] = muj[binom_latent[i]];
+    inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
+    diff_mat(i + 1, i) = -1;
+  }
+#endif
   ds[num_design - 1] = muj[binom_latent[num_design - 1]];
   inv_sig_s(num_design - 1, num_design - 1) = 1 / sigj[binom_latent[num_design - 1]];
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
