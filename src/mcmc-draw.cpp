@@ -247,17 +247,16 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
-                                 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
-                                 Eigen::MatrixXd innov_prec) {
+                                 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
     res[i] = norm_rand();
   }
-  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * innov_prec * x;
+  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
   Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
-  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * innov_prec * y);
+  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
   return post_mean + post_sig_upper.inverse() * res;
 }
 

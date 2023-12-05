@@ -1088,8 +1088,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // varsv_regression
-Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec);
-RcppExport SEXP _bvhar_varsv_regression(SEXP xSEXP, SEXP ySEXP, SEXP prior_meanSEXP, SEXP prior_precSEXP, SEXP innov_precSEXP) {
+Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec);
+RcppExport SEXP _bvhar_varsv_regression(SEXP xSEXP, SEXP ySEXP, SEXP prior_meanSEXP, SEXP prior_precSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1097,8 +1097,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type prior_mean(prior_meanSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type innov_prec(innov_precSEXP);
-    rcpp_result_gen = Rcpp::wrap(varsv_regression(x, y, prior_mean, prior_prec, innov_prec));
+    rcpp_result_gen = Rcpp::wrap(varsv_regression(x, y, prior_mean, prior_prec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1667,7 +1666,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_ssvs_weight", (DL_FUNC) &_bvhar_ssvs_weight, 3},
     {"_bvhar_ssvs_mn_weight", (DL_FUNC) &_bvhar_ssvs_mn_weight, 5},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
-    {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 5},
+    {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 4},
     {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 5},
     {"_bvhar_varsv_sigh", (DL_FUNC) &_bvhar_varsv_sigh, 4},
     {"_bvhar_varsv_h0", (DL_FUNC) &_bvhar_varsv_h0, 5},

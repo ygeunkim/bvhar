@@ -143,15 +143,13 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
   Eigen::MatrixXd lvol_draw = lvol_record.block(0, 0, num_design, dim);
-  // Equation by equation----------------
+  // Corrected triangular factorization-------
   Eigen::VectorXd prior_mean_j = Eigen::VectorXd::Zero(dim_design); // Prior mean vector of j-th column of A
   Eigen::MatrixXd prior_prec_j = Eigen::MatrixXd::Identity(dim_design, dim_design); // Prior precision of j-th column of A
   Eigen::MatrixXd coef_j = coef_mat; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
   coef_j.col(0) = Eigen::VectorXd::Zero(dim_design);
-  Eigen::MatrixXd design_coef(num_design * dim, dim_design); // l_j otimes X0: nk x (nk + 1) or nk x nk -> Design matrix of j-th column coef equation
-  Eigen::VectorXd response_j(num_design * dim); // Response vector of j-th column coef equation: nk-dim
-  Eigen::MatrixXd inv_sv_j = Eigen::MatrixXd::Zero(num_design * dim, num_design * dim); // Stack D_j. = diag(exp(h_j1), ..., exp(h_jn)) to D = diag(D_1., ..., D_n.): nk x nk
   Eigen::VectorXd response_contem(num_design); // j-th column of Z0 = Y0 - X0 * A: n-dim
+  Eigen::MatrixXd sqrt_sv(num_design, dim); // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
   int contem_id = 0;
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
@@ -204,20 +202,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     p.increment();
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
-  #ifdef _OPENMP
-  #pragma omp parallel for num_threads(nthreads)
-    for (int t = 0; t < dim; t++) {
-      inv_sv_j.block(t * num_design, t * num_design, num_design, num_design).diagonal() = (
-        -lvol_draw.col(t)
-      ).array().exp();
-    }
-  #else
-    for (int t = 0; t < dim; t++) {
-      inv_sv_j.block(t * num_design, t * num_design, num_design, num_design).diagonal() = (
-        -lvol_draw.col(t)
-      ).array().exp();
-    }
-  #endif
     switch(prior_type) {
     case 2:
       // SSVS
@@ -250,17 +234,21 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
       break;
     }
+    sqrt_sv = (-lvol_draw / 2).array().exp(); // n x k
     for (int j = 0; j < dim; j++) {
       prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
       prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
       coef_j = coef_mat;
       coef_j.col(j) = Eigen::VectorXd::Zero(dim_design);
-      design_coef = kronecker_eigen(chol_lower.col(j), x);
-      response_j = vectorize_eigen((y - x * coef_j) * chol_lower.transpose());
+      Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
+      Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
+      Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+      Eigen::VectorXd response_j = vectorize_eigen(
+        ((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+      ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
       coef_mat.col(j) = varsv_regression(
         design_coef, response_j,
-        prior_mean_j, prior_prec_j,
-        inv_sv_j
+        prior_mean_j, prior_prec_j
       );
     }
     coef_record.row(i) = vectorize_eigen(coef_mat);
@@ -362,14 +350,13 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       break;
     }
     for (int j = 2; j < dim + 1; j++) {
-      response_contem = latent_innov.col(j - 2);
-      Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1); // n x (j - 1)
+      response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
+      Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
       contem_id = (j - 1) * (j - 2) / 2;
       contem_coef_record.block(i, contem_id, 1, j - 1).transpose() = varsv_regression(
         design_contem, response_contem,
         prior_chol_mean.segment(contem_id, j - 1),
-        prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1),
-        inv_sv_j.block(contem_id, contem_id, num_design, num_design)
+        prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1)
       );
     }
     // 4. sigma_h---------------------------

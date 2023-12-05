@@ -1253,8 +1253,8 @@ build_inv_lower <- function(dim, lower_vec) {
 #' @param innov_prec Stacked precision matrix of innovation
 #' 
 #' @noRd
-varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
-    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+varsv_regression <- function(x, y, prior_mean, prior_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec)
 }
 
 #' Generating log-volatilities in MCMC
