@@ -74,10 +74,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   int num_grp = grp_id.size();
 #ifdef _OPENMP
   Eigen::initParallel();
+  omp_set_num_threads(nthreads);
 #endif
-  // SUR---------------------------------------------------
-  Eigen::VectorXd response_vec = vectorize_eigen(y);
-  Eigen::MatrixXd design_mat = kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), x);
   // Default setting---------------------------------------
   Eigen::VectorXd prior_alpha_mean(num_coef); // prior mean vector of alpha
   Eigen::MatrixXd prior_alpha_prec = Eigen::MatrixXd::Zero(num_coef, num_coef); // prior precision of alpha
@@ -106,7 +104,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::VectorXd prior_sig_scl = .01 * Eigen::VectorXd::Ones(dim); // S_h = .1^2 * 1_k
   Eigen::VectorXd prior_init_mean = Eigen::VectorXd::Ones(dim); // b0 = 1
   Eigen::MatrixXd prior_init_prec = Eigen::MatrixXd::Identity(dim, dim) / 10; // Inverse of B0 = .1 * I
-  Eigen::MatrixXd coef_ols = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
+  Eigen::MatrixXd coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
   // record------------------------------------------------
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // alpha in VAR
   Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
@@ -123,10 +121,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd global_record(num_iter + 1, num_grp);
   Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
   // Initialize--------------------------------------------
-  Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_ols);
+  Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_mat);
   coef_record.row(0) = coefvec_ols;
   contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
-  lvol_init_record.row(0) = (y - x * coef_ols).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
+  lvol_init_record.row(0) = (y - x * coef_mat).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
   lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // SSVS--------------
@@ -138,7 +136,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
   // Some variables----------------------------------------
-  Eigen::MatrixXd coef_mat = unvectorize(coef_record.row(0), dim_design, dim); // A = (A1, ..., Ap, c)^T
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
