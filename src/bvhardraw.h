@@ -25,7 +25,7 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, 
 
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 
-Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec);
+Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec);
 
 Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv, double sv_sig, Eigen::VectorXd latent_vec, int nthreads);
 

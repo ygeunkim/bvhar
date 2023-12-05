@@ -1242,17 +1242,19 @@ build_inv_lower <- function(dim, lower_vec) {
     .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
-#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+#' Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 #' 
-#' @param x Design matrix in SUR or stacked E_t
-#' @param y Response vector in SUR or stacked e_t
+#' This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
+#'
+#' @param x Design matrix of the system
+#' @param y Response vector of the system
 #' @param prior_mean Prior mean vector
 #' @param prior_prec Prior precision matrix
 #' @param innov_prec Stacked precision matrix of innovation
 #' 
 #' @noRd
-varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
-    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+varsv_regression <- function(x, y, prior_mean, prior_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec)
 }
 
 #' Generating log-volatilities in MCMC
