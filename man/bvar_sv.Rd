@@ -61,6 +61,8 @@ Cholesky stochastic volatility modeling for VAR based on
 \deqn{\Sigma_t = L^T D_t^{-1} L}
 }
 \references{
+Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors”\link{J. Econometrics 212 (1)(2019) 137–154}}. Journal of Econometrics, 227(2), 506-512.
+
 Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press.
 
 Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302.
