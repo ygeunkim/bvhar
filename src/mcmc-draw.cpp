@@ -234,10 +234,12 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   return res;
 }
 
-//' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+//' Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 //' 
-//' @param x Design matrix in SUR or stacked E_t
-//' @param y Response vector in SUR or stacked e_t
+//' This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
+//'
+//' @param x Design matrix of the system
+//' @param y Response vector of the system
 //' @param prior_mean Prior mean vector
 //' @param prior_prec Prior precision matrix
 //' @param innov_prec Stacked precision matrix of innovation
@@ -245,17 +247,16 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
-                                 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
-                                 Eigen::MatrixXd innov_prec) {
+                                 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
     res[i] = norm_rand();
   }
-  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * innov_prec * x;
+  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
   Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
-  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * innov_prec * y);
+  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
   return post_mean + post_sig_upper.inverse() * res;
 }
 
