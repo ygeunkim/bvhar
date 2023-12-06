@@ -22,7 +22,7 @@
 
 # bvhar 1.0.0
 
-## Bayesian Vector Heterogeneous Autoregressive Modeling, JSCS 
+* "Bayesian Vector Heterogeneous Autoregressive Modeling" has been accepted in JSCS 🎉
 
 * Update to major version before publication.
 

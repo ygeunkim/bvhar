@@ -73,8 +73,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   }
   int num_grp = grp_id.size();
 #ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
   Eigen::initParallel();
-  omp_set_num_threads(nthreads);
 #endif
   // Default setting---------------------------------------
   Eigen::VectorXd prior_alpha_mean(num_coef); // prior mean vector of alpha
