@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' VAR(1) Representation Given VAR Coefficient Matrix
 //' 
 //' Compute the VAR(1) coefficient matrix form

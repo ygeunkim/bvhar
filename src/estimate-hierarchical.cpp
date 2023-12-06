@@ -3,8 +3,6 @@
 #include <progress.hpp>
 #include <progress_bar.hpp>
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
 
 //' Metropolis Algorithm for Normal-IW Hierarchical Model
 //' 

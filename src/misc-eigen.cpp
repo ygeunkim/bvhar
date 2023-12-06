@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharprob.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {

@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Forecasting Vector Autoregression
 //' 
 //' @param object `varlse` object

@@ -3,8 +3,6 @@
 #include "bvharmisc.h"
 #include "bvharprob.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Log of Joint Posterior Density of Hyperparameters
 //' 
 //' This function computes the log of joint posterior density of hyperparameters.
