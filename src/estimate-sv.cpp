@@ -4,9 +4,6 @@
 #include <progress.hpp>
 #include <progress_bar.hpp>
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
-
 //' VAR-SV by Gibbs Sampler
 //' 
 //' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.

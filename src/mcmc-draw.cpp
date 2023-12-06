@@ -2,8 +2,6 @@
 #include "bvharmisc.h"
 #include "bvharprob.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Building Spike-and-slab SD Diagonal Matrix
 //' 
 //' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

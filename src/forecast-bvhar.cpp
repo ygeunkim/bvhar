@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Forecasting Bayesian VHAR
 //' 
 //' @param object `bvharmn` object
