@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Numerically Stable Log Marginal Likelihood Excluding Constant Term
 //' 
 //' This function computes log of ML stable,

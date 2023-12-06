@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharprob.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Generate Multivariate Normal Random Vector
 //' 
 //' This function samples n x muti-dimensional normal random matrix.
