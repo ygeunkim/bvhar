@@ -8,13 +8,19 @@
 
 * Update the shrinkage structure in the spirit of Minnesota. (`minnesota = TRUE`, `minnesota = c("no", "short", "longrun")`).
 
-## 1.0.1.9001
+## 1.0.2.9001
 
 * Stochastic volatility models implement equation-by-equation MCMC algorithm.
 
-## 1.0.1.9002
+## 1.0.2.9002
 
 * Algorithm for stochastic volatility models has changed a little as corrected triangular algorithm of Carriero et al. (2021).
+
+# bvhar 1.0.2
+
+* License has been changed to [GPLv3](https://choosealicense.com/licenses/gpl-3.0/).
+
+* Remove unnecessary Rcpp plugins in source files.
 
 # bvhar 1.0.1
 
