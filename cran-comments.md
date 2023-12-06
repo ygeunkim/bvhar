@@ -1,10 +1,8 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 2 note
+0 errors | 0 warnings | 1 note
 
-* DOI link in DESCRIPTION and inst/CITATION: Corresponding article has not been published, so its DOI has not been activated. It will be available after being published soon.
-
-* HTML validation: It seems inevitable NOTE in local machine (M1 mac) check. I got the same one last time but had no problem in CRAN check.
+* HTML validation: It seems inevitable NOTE in local machine (x86_64-apple-darwin20) check. I got the same one last time but had no problem in CRAN check.
 
 ## revdepcheck results
 

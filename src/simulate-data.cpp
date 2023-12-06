@@ -1,8 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Generate Multivariate Time Series Process Following VAR(p)
 //' 
 //' This function generates multivariate time series dataset that follows VAR(p).

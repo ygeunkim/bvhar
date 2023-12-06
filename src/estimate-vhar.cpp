@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Building a Linear Transformation Matrix for Vector HAR
 //' 
 //' This function produces a linear transformation matrix for VHAR for given dimension.

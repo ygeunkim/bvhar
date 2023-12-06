@@ -3,9 +3,6 @@
 #include <progress.hpp>
 #include <progress_bar.hpp>
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
-
 //' VAR-SV by Gibbs Sampler
 //' 
 //' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
@@ -73,8 +70,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   }
   int num_grp = grp_id.size();
 #ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
   Eigen::initParallel();
-  omp_set_num_threads(nthreads);
 #endif
   // Default setting---------------------------------------
   Eigen::VectorXd prior_alpha_mean(num_coef); // prior mean vector of alpha

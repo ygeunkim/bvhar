@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Compute VAR(p) Coefficient Matrices and Fitted Values
 //' 
 //' This function fits VAR(p) given response and design matrices of multivariate time series.

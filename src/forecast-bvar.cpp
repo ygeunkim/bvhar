@@ -2,8 +2,6 @@
 #include "bvharmisc.h"
 #include "bvhardraw.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Forecasting BVAR(p)
 //' 
 //' @param object `bvarmn` or `bvarflat` object
