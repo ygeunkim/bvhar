@@ -2,8 +2,6 @@
 #include <RcppEigen.h>
 #include "fitvar.h"
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Out-of-Sample Forecasting of VAR based on Rolling Window
 //' 
 //' This function conducts an rolling window forecasting of VAR.

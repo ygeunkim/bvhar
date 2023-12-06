@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' BVAR(p) Point Estimates based on Minnesota Prior
 //' 
 //' Point estimates for posterior distribution

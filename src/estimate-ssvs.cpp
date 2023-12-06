@@ -4,9 +4,6 @@
 #include <progress.hpp>
 #include <progress_bar.hpp>
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
-
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 
 //' This function conducts Gibbs sampling for BVAR SSVS.

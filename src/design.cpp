@@ -1,7 +1,5 @@
 #include <RcppEigen.h>
 
-// [[Rcpp::depends(RcppEigen)]]
-
 //' Build Response Matrix of VAR(p)
 //' 
 //' This function constructs response matrix of multivariate regression model formulation of VAR(p).

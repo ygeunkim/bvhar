@@ -4,9 +4,6 @@
 #include <progress.hpp>
 #include <progress_bar.hpp>
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
-
 //' Log of Joint Posterior Density of Hyperparameters
 //' 
 //' This function computes the log of joint posterior density of hyperparameters.
