@@ -1,3 +1,9 @@
+# bvhar 1.0.2
+
+* License has been changed to [GPLv3](https://choosealicense.com/licenses/gpl-3.0/).
+
+* Remove unnecessary Rcpp plugins in source files.
+
 # bvhar 1.0.1
 
 * Fix `knitr::knit_print()` method export methods [(#2)](https://github.com/ygeunkim/bvhar/issues/2).
