@@ -251,7 +251,6 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
 //' 
 //' @param dim Dimension (dim x dim) of L
 //' @param lower_vec Vector a
-//' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -259,8 +258,6 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
   for (int i = 1; i < dim; i++) {
-    // res.col(i - 1).segment(i, dim - i) = lower_vec.segment(id, dim - i);
-    // id += dim - i;
     res.row(i).segment(0, i) = lower_vec.segment(id, i);
     id += i;
   }
@@ -301,12 +298,11 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
 //' @param init_sv Initial log-volatility
 //' @param sv_sig Variance of log-volatilities
 //' @param latent_vec Auxiliary residual vector
-//' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
-                         double sv_sig, Eigen::VectorXd latent_vec, int nthreads) {
+                         double sv_sig, Eigen::VectorXd latent_vec) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
   // 7-component normal mixutre
   Eigen::VectorXd pj(7); // p_t
@@ -335,20 +331,11 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   }
   binom_latent.array() = 7 - (inv_method.rowwise().replicate(7).array() < mixture_cumsum.array()).cast<int>().rowwise().sum().array(); // 0 to 6 for indexing
   Eigen::MatrixXd diff_mat = Eigen::MatrixXd::Identity(num_design, num_design);
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
   for (int i = 0; i < num_design - 1; i++) {
     ds[i] = muj[binom_latent[i]];
     inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
     diff_mat(i + 1, i) = -1;
   }
-#else
-  for (int i = 0; i < num_design - 1; i++) {
-    ds[i] = muj[binom_latent[i]];
-    inv_sig_s(i, i) = 1 / sigj[binom_latent[i]];
-    diff_mat(i + 1, i) = -1;
-  }
-#endif
   ds[num_design - 1] = muj[binom_latent[num_design - 1]];
   inv_sig_s(num_design - 1, num_design - 1) = 1 / sigj[binom_latent[num_design - 1]];
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
