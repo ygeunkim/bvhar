@@ -1131,8 +1131,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // varsv_ht
-Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv, double sv_sig, Eigen::VectorXd latent_vec, int nthreads);
-RcppExport SEXP _bvhar_varsv_ht(SEXP sv_vecSEXP, SEXP init_svSEXP, SEXP sv_sigSEXP, SEXP latent_vecSEXP, SEXP nthreadsSEXP) {
+Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv, double sv_sig, Eigen::VectorXd latent_vec);
+RcppExport SEXP _bvhar_varsv_ht(SEXP sv_vecSEXP, SEXP init_svSEXP, SEXP sv_sigSEXP, SEXP latent_vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1140,8 +1140,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type init_sv(init_svSEXP);
     Rcpp::traits::input_parameter< double >::type sv_sig(sv_sigSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type latent_vec(latent_vecSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(varsv_ht(sv_vec, init_sv, sv_sig, latent_vec, nthreads));
+    rcpp_result_gen = Rcpp::wrap(varsv_ht(sv_vec, init_sv, sv_sig, latent_vec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1754,7 +1753,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_ssvs_mn_weight", (DL_FUNC) &_bvhar_ssvs_mn_weight, 5},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 4},
-    {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 5},
+    {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 4},
     {"_bvhar_varsv_sigh", (DL_FUNC) &_bvhar_varsv_sigh, 4},
     {"_bvhar_varsv_h0", (DL_FUNC) &_bvhar_varsv_h0, 5},
     {"_bvhar_build_shrink_mat", (DL_FUNC) &_bvhar_build_shrink_mat, 2},

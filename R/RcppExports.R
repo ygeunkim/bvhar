@@ -1245,7 +1245,6 @@ ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
 #' 
 #' @param dim Dimension (dim x dim) of L
 #' @param lower_vec Vector a
-#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
 build_inv_lower <- function(dim, lower_vec) {
@@ -1275,11 +1274,10 @@ varsv_regression <- function(x, y, prior_mean, prior_prec) {
 #' @param init_sv Initial log-volatility
 #' @param sv_sig Variance of log-volatilities
 #' @param latent_vec Auxiliary residual vector
-#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
-    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
+varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec) {
+    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec)
 }
 
 #' Generating sig_h in MCMC
