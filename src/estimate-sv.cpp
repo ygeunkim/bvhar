@@ -302,7 +302,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         lvol_draw.col(t),
         lvol_init_record(i - 1, t),
         lvol_sig_record(i - 1, t),
-        ortho_latent.col(t), nthreads
+        ortho_latent.col(t)
       );
     }
     lvol_record.block(num_design * i, 0, num_design, dim) = lvol_draw;
