@@ -591,22 +591,29 @@ gather_heat <- function(object) {
     mutate(x = factor(x, levels = colnames(object$coefficients)))
   is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
   if (object$type == "const") {
-    heat_coef <- 
-      heat_coef %>% 
+    # heat_coef <-
+    #   heat_coef %>%
+    #   mutate(term = ifelse(
+    #     term == "const",
+    #     ifelse(
+    #       is_vhar,
+    #       concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
+    #       concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
+    #     ),
+    #     term
+    #   ))
+    heat_coef <-
+      heat_coef %>%
       mutate(term = ifelse(
         term == "const",
-        ifelse(
-          is_vhar,
-          concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
-          concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
-        ),
+        paste("const", term, sep = "_"),
         term
       ))
   }
   heat_coef <-
     heat_coef %>%
-    separate_wider_delim(term, delim = "_", names = c("y", "ord")) %>%
-    mutate(y = factor(y, levels = rev(colnames(object$coefficients))))
+    separate_wider_delim(term, delim = "_", names = c("y", "ord")) %>% 
+    mutate(y = factor(y, levels = c(rev(colnames(object$coefficients)), "const")))
   # VHAR model--------------------------------
   if (is_vhar) {
     heat_coef <- 
@@ -615,9 +622,10 @@ gather_heat <- function(object) {
         ord = case_when(
           ord == "day" ~ "Daily",
           ord == "week" ~ "Weekly",
-          ord == "month" ~ "Monthly"
+          ord == "month" ~ "Monthly",
+          .default = ord
         ),
-        ord = factor(ord, levels = c("Daily", "Weekly", "Monthly"))
+        ord = factor(ord, levels = c("Daily", "Weekly", "Monthly", "const"))
       )
   }
   heat_coef
@@ -664,6 +672,6 @@ autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   }
   # plot for VHAR or p > 1-----------
   p +
-    facet_grid(ord ~ ., switch = "x")
+    facet_grid(ord ~ ., switch = "x", scales = "free_y")
 }
 
