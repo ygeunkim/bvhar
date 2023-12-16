@@ -385,7 +385,8 @@ bvhar_sv <- function(y,
         }
       )
       init_local <- bayes_spec$local_sparsity
-      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      # grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      grp_id <- unique(c(glob_idmat))
       init_global <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
