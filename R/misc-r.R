@@ -190,3 +190,51 @@ get_gammaparam <- function(mode, sd) {
     rate = sqrt(shp) / sd
   )
 }
+
+#' Define Minnesota Group Matrix
+#'
+#' This function creates a matrix with group index
+#'
+#' @param p VAR(p) or VHAR order (3 when VHAR)
+#' @param dim_data Data dimension
+#' @param dim_design Number of rows of coefficients matrix (kp + 1 or 3k + 1)
+#' @param num_coef Length of coefficients to be restricted
+#' @param minnesota Shrinkage structure
+#' @param include_mean Constant term
+#' @noRd
+build_grpmat <- function(p, dim_data, dim_design, num_coef, minnesota, include_mean) {
+  if (include_mean) {
+    idx <- c(gl(p, dim_data), p + 1)
+  } else {
+    idx <- gl(p, dim_data)
+  }
+  switch(
+    minnesota,
+    "no" = matrix(1L, nrow = dim_design, ncol = dim_data),
+    "short" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_coef), ncol = dim_data),
+        idx
+      )
+      glob_idmat[[1]] <- diag(dim_data) + 1
+      id <- 1
+      for (i in 2:p) {
+        glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+        id <- id + 2
+      }
+      do.call(rbind, glob_idmat)
+    },
+    "longrun" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_coef), ncol = dim_data),
+        idx
+      )
+      id <- 1
+      for (i in 1:p) {
+        glob_idmat[[i]] <- diag(dim_data) + id
+        id <- id + 2
+      }
+      do.call(rbind, glob_idmat)
+    }
+  )
+}
