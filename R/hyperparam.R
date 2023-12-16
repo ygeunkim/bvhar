@@ -241,26 +241,41 @@ set_weight_bvhar <- function(sigma,
   if (missing(monthly)) {
     monthly <- NULL
   }
-  if (length(sigma) > 0) {
-    if (length(daily) > 0) {
-      if (length(sigma) != length(daily)) {
-        stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+  hiearchical <- is.bvharpriorspec(sigma)
+  if (hiearchical) {
+    if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
+    }
+    prior_type <- "HMN_VHAR"
+  } else {
+    if (lambda <= 0) {
+      stop("'lambda' should be larger than 0.")
+    }
+    if (length(sigma) > 0 & any(sigma <= 0)) {
+      stop("'sigma' should be larger than 0.")
+    }
+    if (length(sigma) > 0) {
+      if (length(daily) > 0) {
+        if (length(sigma) != length(daily)) {
+          stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(weekly) > 0) {
+        if (length(sigma) != length(weekly)) {
+          stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(monthly) > 0) {
+        if (length(sigma) != length(monthly)) {
+          stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
+        }
       }
     }
-    if (length(weekly) > 0) {
-      if (length(sigma) != length(weekly)) {
-        stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
-      }
-    }
-    if (length(monthly) > 0) {
-      if (length(sigma) != length(monthly)) {
-        stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
-      }
-    }
+    prior_type <- "MN_VHAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VHAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     eps = eps,

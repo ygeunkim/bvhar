@@ -2,6 +2,7 @@
 #' @param x `hmnmod` object
 #' @param digits digit option to print
 #' @param ... not used
+#' @importFrom posterior subset_draws
 #' @order 2
 #' @export
 print.hmnmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
@@ -32,7 +33,7 @@ print.hmnmod <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("\n--------------------------------------------------\n")
   cat("Coefficients ~ Matrix Normal Record:\n")
   print(
-    x$alpha_record,
+    subset_draws(x$param, variables = "alpha|phi", regex = TRUE),
     digits = digits,
     print.gap = 2L,
     quote = FALSE

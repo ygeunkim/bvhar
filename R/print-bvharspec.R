@@ -11,10 +11,12 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   fit_func <- switch(
     x$prior,
     "Minnesota" = "?bvar_minnesota",
+    "MN_Hierarchical" = "?bvar_minnesota",
     "Flat" = "?bvar_flat",
     "MN_VAR" = "?bvhar_minnesota",
     "MN_VHAR" = "?bvhar_minnesota",
-    "MN_Hierarchical" = "?bvar_",
+    "HMN_VAR" = "?bvhar_minnesota",
+    "HMN_VHAR" = "?bvhar_minnesota",
     stop("Invalid 'x$prior' element")
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))

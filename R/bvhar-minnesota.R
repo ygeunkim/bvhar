@@ -105,6 +105,7 @@ bvhar_minnesota <- function(y,
     minnesota_type == "MN_VAR"
     || minnesota_type == "HMN_VAR"
     || minnesota_type == "MN_VHAR"
+    || minnesota_type == "HMN_VHAR"
   )) {
     stop("Provide Minnesota prior specification.")
   }
@@ -136,7 +137,9 @@ bvhar_minnesota <- function(y,
   X1 <- X0 %*% t(HARtrans)
   colnames(X1) <- name_har
   # model specification---------------
-  if (bayes_spec$prior == "HMN_VAR") {
+  is_hierarchical <- grepl(pattern = "^HMN", minnesota_type)
+  is_longrun <- grepl(pattern = "VHAR$", minnesota_type) # daily-weekly-monthly
+  if (is_hierarchical) {
     psi <- bayes_spec$sigma$mode
     psi <- rep(psi, dim_data)
     lambda <- bayes_spec$lambda$mode
@@ -146,6 +149,25 @@ bvhar_minnesota <- function(y,
     }
     sigma <- bayes_spec$sigma
     lambda <- bayes_spec$lambda
+  }
+  if (is_longrun) {
+    if (is.null(bayes_spec$daily)) {
+      bayes_spec$daily <- rep(1, dim_data)
+    }
+    if (is.null(bayes_spec$weekly)) {
+      bayes_spec$weekly <- rep(1, dim_data)
+    }
+    if (is.null(bayes_spec$monthly)) {
+      bayes_spec$monthly <- rep(1, dim_data)
+    }
+    daily <- bayes_spec$daily
+    weekly <- bayes_spec$weekly
+    monthly <- bayes_spec$monthly
+  } else {
+    if (is.null(bayes_spec$delta)) {
+      bayes_spec$delta <- rep(1, dim_data)
+    }
+    delta <- bayes_spec$delta
   }
   # if (is.null(bayes_spec$sigma)) {
   #   bayes_spec$sigma <- apply(y, 2, sd)
@@ -194,42 +216,28 @@ bvhar_minnesota <- function(y,
   posterior <- switch(
     minnesota_type,
     "MN_VAR" = {
-      if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, dim_data)
-      }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data), include_mean)
+      Yh <- build_ydummy(3, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
       colnames(Yh) <- name_var
       Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
       colnames(Xh) <- name_har
       estimate_bvar_mn(X1, Y0, Xh, Yh)
     },
     "MN_VHAR" = {
-      if (is.null(bayes_spec$daily)) {
-        bayes_spec$daily <- rep(1, dim_data)
-      }
-      if (is.null(bayes_spec$weekly)) {
-        bayes_spec$weekly <- rep(1, dim_data)
-      }
-      if (is.null(bayes_spec$monthly)) {
-        bayes_spec$monthly <- rep(1, dim_data)
-      }
       Yh <- build_ydummy(
         3,
         sigma,
         lambda,
-        bayes_spec$daily,
-        bayes_spec$weekly,
-        bayes_spec$monthly,
+        daily,
+        weekly,
+        monthly,
         include_mean
       )
       colnames(Yh) <- name_var
+      Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+      colnames(Xh) <- name_har
       estimate_bvar_mn(X1, Y0, Xh, Yh)
     },
-    "HMN_VAR" = { 
-      if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, dim_data)
-      }
-      delta <- bayes_spec$delta
+    "HMN_VAR" = {
       # prior selection-------------------
       lower_vec <- unlist(bayes_spec)
       lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])
@@ -274,6 +282,56 @@ bvhar_minnesota <- function(y,
       Xh <- build_xdummy(1:3, lambda, psi, eps, include_mean)
       colnames(Xh) <- name_har
       estimate_bvar_mn(X1, Y0, Xh, Yh)
+    },
+    "HMN_VHAR" = {
+      # prior selection-------------------
+      lower_vec <- unlist(bayes_spec)
+      lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])
+      upper_vec <- unlist(bayes_spec)
+      upper_vec <- as.numeric(upper_vec[grepl(pattern = "upper$", x = names(unlist(bayes_spec)))])
+      if (length(parallel) > 0) {
+        init_par <-
+          optimParallel(
+            par = c(lambda, psi),
+            fn = logml_bvharlhm,
+            lower = lower_vec,
+            upper = upper_vec,
+            hessian = TRUE,
+            daily = daily,
+            weekly = weekly,
+            monthly = monthly,
+            eps = bayes_spec$eps,
+            y = y,
+            har = har,
+            include_mean = include_mean,
+            parallel = parallel
+          )
+      } else {
+        init_par <-
+          optim(
+            par = c(lambda, psi),
+            fn = logml_bvharlhm,
+            method = "L-BFGS-B",
+            lower = lower_vec,
+            upper = upper_vec,
+            hessian = TRUE,
+            daily = daily,
+            weekly = weekly,
+            monthly = monthly,
+            eps = bayes_spec$eps,
+            y = y,
+            har = har,
+            include_mean = include_mean
+          )
+      }
+      lambda <- init_par$par[1]
+      psi <- init_par$par[2:(1 + dim_data)]
+      hess <- init_par$hessian
+      Yh <- build_ydummy(3, psi, lambda, daily, weekly, monthly, include_mean)
+      colnames(Yh) <- name_var
+      Xh <- build_xdummy(1:3, lambda, psi, eps, include_mean)
+      colnames(Xh) <- name_har
+      estimate_bvar_mn(X1, Y0, Xh, Yh)
     }
   )
   # Prior-----------------------------
@@ -296,7 +354,7 @@ bvhar_minnesota <- function(y,
   rownames(iw_scale) <- name_var
   iw_shape <- prior_shape + nrow(Y0)
   # S3--------------------------------
-  if (minnesota_type == "HMN_VAR") {
+  if (is_hierarchical) {
     res <- estimate_hierachical_niw(
       num_iter = num_iter,
       num_burn = num_burn,
@@ -333,7 +391,7 @@ bvhar_minnesota <- function(y,
     res$psi_record <- as_draws_df(res$psi_record)
     res$lambda_record <- as_draws_df(res$lambda_record)
     # parameters-----------------------
-    colnames(res$phi_record) <- paste0("alpha[", seq_len(ncol(res$phi_record)), "]")
+    colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
     res$coefficients <-
       colMeans(res$phi_record) %>%
       matrix(ncol = dim_data)
@@ -415,6 +473,8 @@ bvhar_minnesota <- function(y,
   # variables-------------------------
   res$df <- nrow(mn_mean)
   res$p <- 3
+  res$week <- week # default: 5
+  res$month <- month # default: 22
   res$m <- dim_data
   res$obs <- nrow(Y0)
   res$totobs <- nrow(y)
@@ -428,7 +488,7 @@ bvhar_minnesota <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  if (minnesota_type == "HMN_VAR") {
+  if (is_hierarchical) {
     class(res) <- c("bvharhm", "hmnmod", "bvharsp")
   } else {
     class(res) <- c("bvharmn", "normaliw", "bvharmod")
