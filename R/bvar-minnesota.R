@@ -4,8 +4,14 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag (Default: 1)
+#' @param num_iter MCMC iteration number
+#' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
+#' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
+#' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @details 
 #' Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
 #' 
@@ -66,16 +72,28 @@
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
-#' @importFrom stats sd
+#' @importFrom stats sd optim
+#' @importFrom optimParallel optimParallel
+#' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
-bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE) {
+bvar_minnesota <- function(y,
+                           p = 1,
+                           num_iter = 1000, 
+                           num_burn = floor(num_iter / 2),
+                           thinning = 1,
+                           bayes_spec = set_bvar(),
+                           scale_variance = .05,
+                           include_mean = TRUE,
+                           parallel = list(),
+                           verbose = FALSE) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  dim_data <- ncol(y)
   # model specification---------------
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -83,26 +101,18 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   if (bayes_spec$process != "BVAR") {
     stop("'bayes_spec' must be the result of 'set_bvar()'.")
   }
-  if (bayes_spec$prior != "Minnesota") {
-    stop("In 'set_bvar()', just input numeric values.")
+  # if (bayes_spec$prior != "Minnesota") {
+  #   stop("In 'set_bvar()', just input numeric values.")
+  # }
+  if (!(bayes_spec$prior == "Minnesota" || bayes_spec$prior == "MN_Hierarchical")) {
+    stop("Provide Minnesota prior specification.")
   }
-  if (is.null(bayes_spec$sigma)) {
-    bayes_spec$sigma <- apply(y, 2, sd)
-  }
-  sigma <- bayes_spec$sigma
-  m <- ncol(y)
-  if (is.null(bayes_spec$delta)) {
-    bayes_spec$delta <- rep(1, m)
-  }
-  delta <- bayes_spec$delta
-  lambda <- bayes_spec$lambda
-  eps <- bayes_spec$eps
   # Y0 = X0 B + Z---------------------
   Y0 <- build_y0(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(dim_data))
   }
   colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
@@ -113,13 +123,89 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   colnames(X0) <- name_lag
   # s <- nrow(Y0)
   # k <- m * p + 1
-  # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(m), numeric(m), include_mean)
-  colnames(Yp) <- name_var
-  Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-  colnames(Xp) <- name_lag
+  # m <- ncol(y)
+  bvar_est <- switch(
+    bayes_spec$prior,
+    "Minnesota" = {
+      # 
+      if (is.null(bayes_spec$sigma)) {
+        bayes_spec$sigma <- apply(y, 2, sd)
+      }
+      sigma <- bayes_spec$sigma
+      # m <- ncol(y)
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(1, dim_data)
+      }
+      delta <- bayes_spec$delta
+      lambda <- bayes_spec$lambda
+      eps <- bayes_spec$eps
+      # dummy-----------------------------
+      Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+      colnames(Yp) <- name_var
+      Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
+      colnames(Xp) <- name_lag
+      estimate_bvar_mn(X0, Y0, Xp, Yp)
+      
+    },
+    "MN_Hierarchical" = {
+      psi <- bayes_spec$sigma$mode
+      psi <- rep(psi, dim_data)
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(1, dim_data)
+      }
+      delta <- bayes_spec$delta
+      lambda <- bayes_spec$lambda$mode
+      eps <- bayes_spec$eps
+      # prior selection-------------------
+      lower_vec <- unlist(bayes_spec)
+      lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])
+      upper_vec <- unlist(bayes_spec)
+      upper_vec <- as.numeric(upper_vec[grepl(pattern = "upper$", x = names(unlist(bayes_spec)))])
+      if (length(parallel) > 0) {
+        init_par <-
+          optimParallel(
+            par = c(lambda, psi),
+            fn = logml_bvarhm,
+            lower = lower_vec,
+            upper = upper_vec,
+            hessian = TRUE,
+            delta = delta,
+            eps = bayes_spec$eps,
+            y = y,
+            p = p,
+            include_mean = include_mean,
+            parallel = parallel
+          )
+      } else {
+        init_par <-
+          optim(
+            par = c(lambda, psi),
+            fn = logml_bvarhm,
+            method = "L-BFGS-B",
+            lower = lower_vec,
+            upper = upper_vec,
+            hessian = TRUE,
+            delta = delta,
+            eps = bayes_spec$eps,
+            y = y,
+            p = p,
+            include_mean = include_mean
+          )
+      }
+      lambda <- init_par$par[1]
+      psi <- init_par$par[2:(1 + dim_data)]
+      hess <- init_par$hessian
+      # dummy-----------------------------
+      Yp <- build_ydummy(p, psi, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+      colnames(Yp) <- name_var
+      Xp <- build_xdummy(1:p, lambda, psi, eps, include_mean)
+      colnames(Xp) <- name_lag
+      # NIW-------------------------------
+      estimate_bvar_mn(X0, Y0, Xp, Yp)
+    }
+  )
   # estimate-bvar.cpp-----------------
-  bvar_est <- estimate_bvar_mn(X0, Y0, Xp, Yp)
+  # bvar_est <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
   prior_mean <- bvar_est$prior_mean # A0
   prior_prec <- bvar_est$prior_prec # U0
@@ -138,36 +224,114 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   iw_scale <- bvar_est$iwscale # IW scale
   colnames(iw_scale) <- name_var
   rownames(iw_scale) <- name_var
-  # S3--------------------------------
-  res <- list(
-    # posterior------------
-    coefficients = mn_mean, # posterior mean of MN
-    fitted.values = yhat,
-    residuals = bvar_est$residuals,
-    mn_prec = mn_prec, # posterior precision of MN
-    iw_scale = iw_scale, # posterior scale of IW
-    iw_shape = prior_shape + nrow(Y0), # posterior shape of IW
-    # variables------------
-    df = nrow(mn_mean), # k = m * p + 1 or m * p
-    p = p, # p
-    m = m, # m = dimension of Y_t
-    obs = nrow(Y0), # n = T - p
-    totobs = nrow(y), # T = total number of sample size
-    # about model----------
-    call = match.call(),
-    process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
-    spec = bayes_spec,
-    type = ifelse(include_mean, "const", "none"),
-    # prior----------------
-    prior_mean = prior_mean, # A0
-    prior_precision = prior_prec, # U0 = (Omega)^{-1}
-    prior_scale = prior_scale, # S0
-    prior_shape = prior_shape, # a0
-    # data-----------------
-    y0 = Y0,
-    design = X0,
-    y = y
+  iw_shape <- prior_shape + nrow(Y0)
+  res <- switch(
+    bayes_spec$prior,
+    "Minnesota" = {
+      res <- list(
+        # posterior------------
+        coefficients = mn_mean, # posterior mean of MN
+        fitted.values = yhat,
+        residuals = bvar_est$residuals,
+        mn_prec = mn_prec, # posterior precision of MN
+        iw_scale = iw_scale, # posterior scale of IW
+        iw_shape = iw_shape, # posterior shape of IW
+        # prior----------------
+        prior_mean = prior_mean, # A0
+        prior_precision = prior_prec, # U0 = (Omega)^{-1}
+        prior_scale = prior_scale, # S0
+        prior_shape = prior_shape # a0
+      )
+    },
+    "MN_Hierarchical" = {
+      res <- estimate_hierachical_niw(
+        num_iter = num_iter,
+        num_burn = num_burn,
+        x = X0,
+        y = Y0,
+        prior_prec = prior_prec,
+        prior_scale = prior_scale,
+        prior_shape = prior_shape,
+        mn_mean = mn_mean,
+        mn_prec = mn_prec,
+        iw_scale = iw_scale,
+        posterior_shape = iw_shape,
+        gamma_shp = bayes_spec$lambda$param[1],
+        gamma_rate = bayes_spec$lambda$param[2],
+        invgam_shp = bayes_spec$sigma$param[1],
+        invgam_scl = bayes_spec$sigma$param[2],
+        acc_scale = scale_variance,
+        obs_information = hess,
+        init_lambda = lambda,
+        init_psi = psi,
+        display_progress = verbose
+      )
+      # preprocess the results------------
+      thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+      # thinparam_id <- seq(from = 1, to = num_iter - 1 - num_burn, by = thinning)
+      thinparam_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+      res$psi_record <- res$psi_record[thin_id, ]
+      res$alpha_record <- res$alpha_record[thinparam_id, ]
+      # hyperparameters------------------
+      colnames(res$psi_record) <- paste0("psi[", seq_len(ncol(res$psi_record)), "]")
+      res$lambda_record <- as.matrix(res$lambda_record[thin_id])
+      colnames(res$lambda_record) <- "lambda"
+      res$psi_record <- as_draws_df(res$psi_record)
+      res$lambda_record <- as_draws_df(res$lambda_record)
+      # parameters-----------------------
+      colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
+      res$coefficients <-
+        colMeans(res$alpha_record) %>%
+        matrix(ncol = dim_data)
+      colnames(res$coefficients) <- name_var
+      rownames(res$coefficients) <- name_lag
+      res$alpha_record <- as_draws_df(res$alpha_record)
+      # posterior mean-------------------
+      res$covmat <- Reduce("+", split_psirecord(res$sigma_record, 1, "sigma")) / length(thinparam_id)
+      colnames(res$covmat) <- name_var
+      rownames(res$covmat) <- name_var
+      res$sigma_record <-
+        t(res$sigma_record) %>%
+        matrix(ncol = 1) %>%
+        split.data.frame(gl(dim_data^2, 1, nrow(res$sigma_record) * dim_data)) %>%
+        lapply(function(x) x[thinparam_id, ])
+      names(res$sigma_record) <- paste0("sigma[", 1:(dim_data^2), "]")
+      res$sigma_record <- as_draws_df(res$sigma_record)
+      # acceptance rate------------------
+      res$acc_rate <- mean(res$acceptance) # change to matrix and define in chain > 1 later
+      res$hyperparam <- bind_draws(
+        res$lambda_record,
+        res$psi_record
+      )
+      res$param <- bind_draws(
+        res$alpha_record,
+        res$sigma_record
+      )
+      res$iter <- num_iter
+      res$burn <- num_burn
+      res$thin <- thinning
+      res
+    }
   )
-  class(res) <- c("bvarmn", "normaliw", "bvharmod")
+  # variables-------------------------
+  res$df <- nrow(mn_mean)
+  res$p <- p
+  res$m <- dim_data
+  res$obs <- nrow(Y0)
+  res$totobs <- nrow(y)
+  res$call <- match.call()
+  # model-----------------------------
+  res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  res$type <- ifelse(include_mean, "const", "none")
+  res$spec <- bayes_spec
+  # data------------------------------
+  res$y0 <- Y0
+  res$design <- X0
+  res$y <- y
+  if (bayes_spec$prior == "Minnesota") {
+    class(res) <- c("bvarmn", "normaliw", "bvharmod")
+  } else {
+    class(res) <- c("bvarhm", "bvharsp")
+  }
   res
 }
