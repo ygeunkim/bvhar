@@ -220,36 +220,15 @@ bvhar_sv <- function(y,
     "SSVS" = {
       init_coef <- 1L
       init_coef_dummy <- 1L
-      glob_idmat <- switch(
-        minnesota,
-        "no" = matrix(1L, nrow = num_phi / dim_data, ncol = dim_data),
-        "short" = {
-          glob_idmat <- split.data.frame(
-            matrix(rep(0, num_phi), ncol = dim_data),
-            gl(3, dim_data)
-          )
-          glob_idmat[[1]] <- diag(dim_data) + 1
-          id <- 1
-          for (i in 2:3) {
-            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
-            id <- id + 2
-          }
-          do.call(rbind, glob_idmat)
-        },
-        "longrun" = {
-          glob_idmat <- split.data.frame(
-            matrix(rep(0, num_phi), ncol = dim_data),
-            gl(3, dim_data)
-          )
-          id <- 1
-          for (i in 1:3) {
-            glob_idmat[[i]] <- diag(dim_data) + id
-            id <- id + 2
-          }
-          do.call(rbind, glob_idmat)
-        }
+      glob_idmat <- build_grpmat(
+        p = 3,
+        dim_data = dim_data,
+        dim_design = num_phi / dim_data,
+        num_coef = num_phi,
+        minnesota = minnesota,
+        include_mean = FALSE
       )
-      grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+      grp_id <- unique(c(glob_idmat))
       num_grp <- length(grp_id)
       if (length(bayes_spec$coef_spike) == 1) {
         bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
@@ -350,42 +329,15 @@ bvhar_sv <- function(y,
           stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
         }
       }
-      if (include_mean) {
-        idx <- c(gl(3, dim_data), 4)
-      } else {
-        idx <- gl(3, dim_data)
-      }
-      glob_idmat <- switch(
-        minnesota,
-        "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
-        "short" = {
-          glob_idmat <- split.data.frame(
-            matrix(rep(0, num_restrict), ncol = dim_data),
-            idx
-          )
-          glob_idmat[[1]] <- diag(dim_data) + 1
-          id <- 1
-          for (i in 2:3) {
-            glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
-            id <- id + 2
-          }
-          do.call(rbind, glob_idmat)
-        },
-        "longrun" = {
-          glob_idmat <- split.data.frame(
-            matrix(rep(0, num_restrict), ncol = dim_data),
-            idx
-          )
-          id <- 1
-          for (i in 1:3) {
-            glob_idmat[[i]] <- diag(dim_data) + id
-            id <- id + 2
-          }
-          do.call(rbind, glob_idmat)
-        }
+      glob_idmat <- build_grpmat(
+        p = 3,
+        dim_data = dim_data,
+        dim_design = dim_har,
+        num_coef = num_restrict,
+        minnesota = minnesota,
+        include_mean = include_mean
       )
       init_local <- bayes_spec$local_sparsity
-      # grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
       grp_id <- unique(c(glob_idmat))
       init_global <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
