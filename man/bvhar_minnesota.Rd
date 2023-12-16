@@ -9,8 +9,14 @@
 bvhar_minnesota(
   y,
   har = c(5, 22),
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
   bayes_spec = set_bvhar(),
-  include_mean = TRUE
+  scale_variance = 0.05,
+  include_mean = TRUE,
+  parallel = list(),
+  verbose = FALSE
 )
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -22,9 +28,21 @@ knit_print.bvharmn(x, ...)
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
+
+\item{thinning}{Thinning every thinning-th iteration}
+
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
 
+\item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
+
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{x}{\code{bvarmn} object}
 

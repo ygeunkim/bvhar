@@ -158,14 +158,32 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(delta)) {
     delta <- NULL
   }
-  if (length(sigma) > 0 & length(delta) > 0) {
-    if (length(sigma) != length(delta)) {
-      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+  hiearchical <- is.bvharpriorspec(sigma)
+  if (hiearchical) {
+    if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
     }
+    prior_type <- "HMN_VAR"
+  } else {
+    if (lambda <= 0) {
+      stop("'lambda' should be larger than 0.")
+    }
+    if (length(delta) > 0 & any(delta < 0)) {
+      stop("'delta' should not be smaller than 0.")
+    }
+    if (length(sigma) > 0 & any(sigma <= 0)) {
+      stop("'sigma' should be larger than 0.")
+    }
+    if (length(sigma) > 0 & length(delta) > 0) {
+      if (length(sigma) != length(delta)) {
+        stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+      }
+    }
+    prior_type <- "MN_VAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     delta = delta,

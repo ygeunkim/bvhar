@@ -127,7 +127,6 @@ bvar_minnesota <- function(y,
   bvar_est <- switch(
     bayes_spec$prior,
     "Minnesota" = {
-      # 
       if (is.null(bayes_spec$sigma)) {
         bayes_spec$sigma <- apply(y, 2, sd)
       }
@@ -204,8 +203,6 @@ bvar_minnesota <- function(y,
       estimate_bvar_mn(X0, Y0, Xp, Yp)
     }
   )
-  # estimate-bvar.cpp-----------------
-  # bvar_est <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   # Prior-----------------------------
   prior_mean <- bvar_est$prior_mean # A0
   prior_prec <- bvar_est$prior_prec # U0
@@ -331,7 +328,7 @@ bvar_minnesota <- function(y,
   if (bayes_spec$prior == "Minnesota") {
     class(res) <- c("bvarmn", "normaliw", "bvharmod")
   } else {
-    class(res) <- c("bvarhm", "bvharsp")
+    class(res) <- c("bvarhm", "hmnmod", "bvharsp")
   }
   res
 }
