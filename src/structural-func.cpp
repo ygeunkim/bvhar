@@ -8,7 +8,7 @@
 //'
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat) {
+Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize) {
     int dim = cov_mat.cols();
     // Eigen::MatrixXd vma_mat = VARcoeftoVMA(var_coef, var_lag, step);
     int step = vma_coef.rows() / dim; // h-step
@@ -20,12 +20,14 @@ Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat) 
     Eigen::MatrixXd cov_diag = Eigen::MatrixXd::Zero(dim, dim);
     cov_diag.diagonal() = 1 / cov_mat.diagonal().cwiseSqrt().array(); // sigma_jj
     for (int i = 0; i < step; i++) {
-        ma_prod = cov_mat * vma_coef.block(i * dim, 0, dim, dim);
-        innov_account += vma_coef.block(i * dim, 0, dim, dim).transpose() * ma_prod;
-        numer.array() += (cov_diag * ma_prod).array().square();
-        denom.diagonal() = 1 / innov_account.diagonal().array();
-        // res.block(i * dim, 0, dim, dim) = (numer * denom).transpose();
-        res.block(i * dim, 0, dim, dim) = numer * denom;
+        ma_prod = vma_coef.block(i * dim, 0, dim, dim).transpose() * cov_mat; // A * Sigma
+        innov_account += ma_prod * vma_coef.block(i * dim, 0, dim, dim); // A * Sigma * A^T
+        numer.array() += (ma_prod * cov_diag).array().square(); // sum(A * Sigma)_ij / sigma_jj^2
+        denom.diagonal() = 1 / innov_account.diagonal().array(); // sigma_jj^(-1) / sum(A * Sigma * A^T)_jj
+        res.block(i * dim, 0, dim, dim) = denom * numer; // sigma_jj^(-1) sum(A * Sigma)_ij / sum(A * Sigma * A^T)_jj
+    }
+    if (normalize) {
+        res.array().colwise() /= res.rowwise().sum().array();
     }
     return res;
 }
@@ -35,15 +37,7 @@ Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat) 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd) {
-    int dim = fevd.cols();
-    int step = fevd.rows() / dim;
-    Eigen::MatrixXd res(dim, dim);
-    Eigen::VectorXd col_sum(dim);
-    res = fevd.bottomRows(dim);
-    col_sum = res.colwise().sum();
-    res.array().colwise() /= col_sum.array();
-    // return res.transpose() * 100; // transpose: j to i
-    return res * 100; // i to j
+    return fevd.bottomRows(fevd.cols()) * 100;
 }
 
 //' To-others Spillovers
@@ -51,10 +45,8 @@ Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
-    int dim = spillover.cols();
-    Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
-    diag_mat.diagonal() = spillover.diagonal();
-    return (spillover - diag_mat).rowwise().sum();
+    Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
+    return (spillover - diag_mat).colwise().sum();
 }
 
 //' From-others Spillovers
@@ -62,10 +54,8 @@ Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
-    int dim = spillover.cols();
-    Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
-    diag_mat.diagonal() = spillover.diagonal();
-    return (spillover - diag_mat).colwise().sum();
+    Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
+    return (spillover - diag_mat).rowwise().sum();
 }
 
 //' Total Spillovers
@@ -73,8 +63,14 @@ Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 double compute_tot_spillover(Eigen::MatrixXd spillover) {
-    int dim = spillover.cols();
-    Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim);
-    diag_mat.diagonal() = spillover.diagonal();
-    return (spillover - diag_mat).sum() / dim;
+    Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
+    return (spillover - diag_mat).sum() / spillover.cols();
+}
+
+//' Net Pairwise Spillovers
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
+    return (spillover.transpose() - spillover) / spillover.cols();
 }

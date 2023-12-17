@@ -49,3 +49,6 @@ knit_print.bvharspillover(x, ...)
 \description{
 This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
 }
+\references{
+Diebold, F. X., & Yilmaz, K. (2012). \emph{Better to give than to receive: Predictive directional measurement of volatility spillovers}. International Journal of forecasting, 28(1), 57-66.
+}

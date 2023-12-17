@@ -1509,14 +1509,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_fevd
-Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat);
-RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP) {
+Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize);
+RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP, SEXP normalizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vma_coef(vma_coefSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat));
+    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat, normalize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1561,6 +1562,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_tot_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_net_spillover
+Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_net_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_net_spillover(spillover));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1781,11 +1793,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
-    {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 2},
+    {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 3},
     {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},
     {"_bvhar_compute_to_spillover", (DL_FUNC) &_bvhar_compute_to_spillover, 1},
     {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
     {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
+    {"_bvhar_compute_net_spillover", (DL_FUNC) &_bvhar_compute_net_spillover, 1},
     {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},

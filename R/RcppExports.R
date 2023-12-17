@@ -1597,8 +1597,8 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 #' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
 #'
 #' @noRd
-compute_fevd <- function(vma_coef, cov_mat) {
-    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat)
+compute_fevd <- function(vma_coef, cov_mat, normalize) {
+    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat, normalize)
 }
 
 #' h-step ahead Normalized Spillover
@@ -1627,6 +1627,13 @@ compute_from_spillover <- function(spillover) {
 #' @noRd
 compute_tot_spillover <- function(spillover) {
     .Call(`_bvhar_compute_tot_spillover`, spillover)
+}
+
+#' Net Pairwise Spillovers
+#' 
+#' @noRd
+compute_net_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_net_spillover`, spillover)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term

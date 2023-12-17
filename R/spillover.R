@@ -8,6 +8,7 @@
 #' @param num_burn Number of burn-in
 #' @param thinning Thinning every thinning-th iteration
 #' @param ... Not used
+#' @references Diebold, F. X., & Yilmaz, K. (2012). *Better to give than to receive: Predictive directional measurement of volatility spillovers*. International Journal of forecasting, 28(1), 57-66.
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
 #' @order 1
@@ -40,7 +41,7 @@ spillover_volatility.bvharmod <- function(object,
       "freq_var" = VARtoVMA(object, n_ahead - 1),
       "freq_vhar" = VHARtoVMA(object, n_ahead - 1)
     )
-    fevd <- compute_fevd(vma_coef, object$covmat)
+    fevd <- compute_fevd(vma_coef, object$covmat, TRUE)
     connect_tab <- compute_spillover(fevd)
     colnames(connect_tab) <- colnames(object$coefficients)
     rownames(connect_tab) <- colnames(object$coefficients)
@@ -48,8 +49,8 @@ spillover_volatility.bvharmod <- function(object,
     sp_long <-
       connect_tab %>%
       as.data.frame() %>%
-      rownames_to_column(var = "shock") %>%
-      pivot_longer(-"shock", names_to = "series", values_to = "spillover")
+      rownames_to_column(var = "series") %>%
+      pivot_longer(-"series", names_to = "shock", values_to = "spillover")
     res <- list(
       connect = connect_tab,
       df_long = sp_long
@@ -80,7 +81,7 @@ spillover_volatility.bvharmod <- function(object,
           "var" = VARcoeftoVMA(coef_record[[x]], object$p, n_ahead - 1),
           "vhar" = VHARcoeftoVMA(coef_record[[x]], object$HARtrans, n_ahead - 1, object$month)
         )
-        fevd <- compute_fevd(coef_record[[x]], cov_record[[x]])
+        fevd <- compute_fevd(coef_record[[x]], cov_record[[x]], TRUE)
         connect_tab <- compute_spillover(fevd)
         colnames(connect_tab) <- colnames(mn_mean)
         rownames(connect_tab) <- colnames(mn_mean)
@@ -92,8 +93,8 @@ spillover_volatility.bvharmod <- function(object,
       function(id) {
         sp_list[[id]] %>%
           as.data.frame() %>%
-          rownames_to_column(var = "shock") %>%
-          pivot_longer(-"shock", names_to = "series", values_to = "spillover") %>%
+          rownames_to_column(var = "series") %>%
+          pivot_longer(-"series", names_to = "shock", values_to = "spillover") %>%
           mutate(draws_id = id)
       }
     )
@@ -127,10 +128,14 @@ summary.bvharspillover <- function(object, ...) {
     mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
   }
   sp_tab <- object$connect
+  net_pairwise <- compute_net_spillover(sp_tab) # Net pairwise spillovers
+  colnames(net_pairwise) <- colnames(sp_tab)
+  rownames(net_pairwise) <- rownames(sp_tab)
   if (grepl(pattern = "^freq_", mod_type)) {
-    to_others <- compute_to_spillover(sp_tab)
-    from_others <- compute_from_spillover(sp_tab)
-    tot_sp <- compute_tot_spillover(sp_tab)
+    to_others <- compute_to_spillover(sp_tab) # To spillovers
+    from_others <- compute_from_spillover(sp_tab) # From spillovers
+    tot_sp <- compute_tot_spillover(sp_tab) # Total spillovers
+    to_including <- colSums(sp_tab)
   } else {
     to_list <- lapply(
       object$record,
@@ -147,16 +152,19 @@ summary.bvharspillover <- function(object, ...) {
     from_others <- colMeans(from_list)
     tot_sp <- mean(tot_list)
   }
-  sp_tab <- rbind(sp_tab, "from others" = from_others)
-  sp_tab <- cbind(sp_tab, "to others" = c(to_others, tot_sp))
-  net_sp <- to_others - from_others
+  net_sp <- to_others - from_others # Net spillovers
+  # sp_tab <- rbind(sp_tab, "from others" = from_others)
+  # sp_tab <- cbind(sp_tab, "to others" = c(to_others, tot_sp))
+  sp_tab <- rbind(sp_tab, "to_spillovers" = to_others)
+  sp_tab <- cbind(sp_tab, "from_spillovers" = c(from_others, tot_sp))
   res <- list(
     connect = sp_tab,
     df_long = object$sp_long,
     to = to_others,
     from = from_others,
     tot = tot_sp,
-    net = net_sp
+    net = net_sp,
+    net_pairwise = net_pairwise
   )
   if (!grepl(pattern = "^freq_", mod_type)) {
     res$to_record <- to_list
