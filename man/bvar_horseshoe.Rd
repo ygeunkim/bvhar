@@ -88,8 +88,6 @@ It is a list with the following components:
 This function fits BVAR(p) with horseshoe prior.
 }
 \references{
-Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
-
 Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465–480.
 
 Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179–182.

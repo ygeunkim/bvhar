@@ -89,7 +89,7 @@ It is a list with the following components:
 This function fits VHAR with horseshoe prior.
 }
 \references{
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }
