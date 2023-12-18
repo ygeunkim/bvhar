@@ -269,6 +269,26 @@ autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
 
 <img src="man/figures/README-predfig-1.png" width="70%" style="display: block; margin: auto;" />
 
+## Citation
+
+Please cite this package with following BibTeX:
+
+    @Manual{,
+      title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
+      author = {Young Geun Kim and Changryong Baek},
+      year = {2023},
+      note = {R package version 1.1.0},
+      url = {https://cran.r-project.org/package=bvhar},
+    }
+
+    @Article{,
+      title = {Bayesian Vector Heterogeneous Autoregressive Modeling},
+      author = {Young Geun Kim and Changryong Baek},
+      journal = {Journal of Statistical Computation and Simulation},
+      year = {2023},
+      doi = {10.1080/00949655.2023.2281644},
+    }
+
 ## Code of Conduct
 
 Please note that the bvhar project is released with a [Contributor Code

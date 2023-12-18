@@ -66,7 +66,7 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @seealso 

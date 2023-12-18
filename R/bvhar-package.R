@@ -8,7 +8,7 @@
 #' * Bayesian VAR (BVAR) model: [bvar_minnesota()], [bvar_flat()]
 #' * Bayesian VHAR (BVHAR) model: [bvhar_minnesota()]
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 "_PACKAGE"
 
 # The following block is used by usethis to automatically manage
