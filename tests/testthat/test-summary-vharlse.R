@@ -1,4 +1,6 @@
 test_that("VHAR Coefficients Summary Table", {
+  skip_on_cran()
+  
   num_col <- 2
   fit_test_vhar <- vhar_lm(etf_vix[, seq_len(num_col)])
   fit_vhar_summary <- summary(fit_test_vhar)

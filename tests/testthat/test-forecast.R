@@ -1,5 +1,7 @@
 # VAR----------------------------------
 test_that("Test for varlse forecast", {
+  skip_on_cran()
+  
   num_col <- 3
   fit_var <- var_lm(etf_vix[, 1:3], 2)
   fit_vhar <- vhar_lm(etf_vix[, 1:3])

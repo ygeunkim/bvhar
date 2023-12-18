@@ -188,6 +188,13 @@ autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
   autolayer(forecast_bvhar_v2, ci_alpha = .1)
 ```
 
+## Citation
+
+Please cite this package with following BibTeX:
+
+```{r cite-pkg, echo=FALSE, comment=NULL}
+toBibtex(citation("bvhar", auto = FALSE))
+```
 
 ## Code of Conduct
   

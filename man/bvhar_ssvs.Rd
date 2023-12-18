@@ -111,7 +111,7 @@ Gibbs sampler is used for the estimation.
 See \link{ssvs_bvar_algo} how it works.
 }
 \references{
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }

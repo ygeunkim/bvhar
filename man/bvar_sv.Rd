@@ -4,7 +4,7 @@
 \alias{bvar_sv}
 \alias{print.bvarsv}
 \alias{knit_print.bvarsv}
-\title{Fitting Bayesian VAR-SV of Minnesota Belief}
+\title{Fitting Bayesian VAR-SV}
 \usage{
 bvar_sv(
   y,
@@ -54,7 +54,8 @@ knit_print.bvarsv(x, ...)
 \code{bvar_sv()} returns an object named \code{bvarsv} \link{class}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV with Minnesota belief.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV.
+It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{
 Cholesky stochastic volatility modeling for VAR based on
