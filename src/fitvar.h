@@ -13,4 +13,8 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
 
 Eigen::MatrixXd forecast_bvharsv(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans);
 
+Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max);
+
+Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max);
+
 #endif

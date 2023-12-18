@@ -3,7 +3,7 @@
 #' This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
 #'
 #' @param object Model object
-#' @param n_ahead step to forecast
+#' @param n_ahead step to forecast. By default, 10.
 #' @param num_iter Number to sample MNIW distribution
 #' @param num_burn Number of burn-in
 #' @param thinning Thinning every thinning-th iteration
@@ -14,7 +14,7 @@
 #' @order 1
 #' @export
 spillover_volatility <- function(object,
-                                 n_ahead,
+                                 n_ahead = 10L,
                                  num_iter = 10000L,
                                  num_burn = floor(num_iter / 2),
                                  thinning = 1L, ...) {
@@ -173,4 +173,153 @@ summary.bvharspillover <- function(object, ...) {
   }
   class(res) <- "summary.bvharspillover"
   res
+}
+
+#' Rolling-sample Total Spillover Index
+#'
+#' @param object Model object
+#' @param window Rolling window size
+#' @param n_ahead step to forecast
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thinning Thinning every thinning-th iteration
+#' @param method `r lifecycle::badge("experimental")` Compuation method for OLS
+#'
+#' @export
+roll_spillover <- function(object, window = 100, n_ahead = 10,
+                           num_iter = 10000L, num_burn = floor(num_iter / 2), thinning = 1L,
+                           method = c("nor", "chol", "qr")) {
+  method <- match.arg(method)
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  num_horizon <- nrow(y) - window + 1
+  # model_type <- class(object)[1]
+  if (object$process == "VAR") {
+    mod_type <- "freq_var"
+  } else if (object$process == "VHAR") {
+    mod_type <- "freq_vhar"
+  } else {
+    mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
+  }
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  if (grepl(pattern = "^freq_", mod_type)) {
+    # to_others <- compute_to_spillover(sp_tab) # To spillovers
+    # from_others <- compute_from_spillover(sp_tab) # From spillovers
+    # tot_sp <- compute_tot_spillover(sp_tab) # Total spillovers
+    # to_including <- colSums(sp_tab)
+    res <- lapply(
+      seq_len(num_horizon),
+      function(id) {
+        roll_y <- y[id:(id + window - 1)]
+        if (object$process == "VAR") {
+          fit <- var_lm(roll_y, p = object$p, include_mean = include_mean, method = method)
+          vma_coef <- VARtoVMA(fit, n_ahead - 1)
+        } else {
+          fit <- vhar_lm(roll_y, har = c(object$week, object$month), include_mean = include_mean, method = method)
+          vma_coef <- VHARtoVMA(fit, n_ahead - 1)
+        }
+        fevd <- compute_fevd(vma_coef, fit$covmat, TRUE)
+        connect_tab <- compute_spillover(fevd)
+        colnames(connect_tab) <- colnames(object$coefficients)
+        rownames(connect_tab) <- colnames(object$coefficients)
+        to_others <- compute_to_spillover(sp_tab) # To spillovers
+        from_others <- compute_from_spillover(sp_tab) # From spillovers
+        tot_sp <- compute_tot_spillover(sp_tab) # Total spillovers
+        list(
+          to = to_others,
+          from = from_others,
+          tot = tot_sp,
+          net = to_others - from_others,
+          net_pairwise = compute_net_spillover(sp_tab)
+        )
+      }
+    )
+  } else {
+    res <- lapply(
+      seq_len(num_horizon),
+      function(id) {
+        roll_y <- y[id:(id + window - 1)]
+        if (object$process == "VAR") {
+          fit <- bvar_minnesota(
+            roll_y,
+            p = object$p,
+            bayes_spec = object$spec,
+            include_mean = include_mean
+          )
+        } else {
+          fit <- bvhar_minnesota(
+            roll_y,
+            har = c(object$week, object$month),
+            bayes_spec = object$spec,
+            include_mean = include_mean
+          )
+        }
+        mn_mean <- object$coefficients
+        coef_and_sig <- sim_mniw(
+          num_iter,
+          mn_mean,
+          solve(object$mn_prec),
+          object$iw_scale,
+          object$iw_shape
+        )
+        thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
+        coef_record <-
+          coef_and_sig$mn %>%
+          t() %>%
+          split.data.frame(gl(num_iter, object$m)) %>%
+          lapply(function(x) t(x))
+        coef_record <- coef_record[thin_id]
+        cov_record <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
+        cov_record <- cov_record[thin_id]
+        mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
+        sp_list <- lapply(
+          seq_along(thin_id),
+          function(x) {
+            vma_coef <- switch(mod_type,
+              "var" = VARcoeftoVMA(coef_record[[x]], object$p, n_ahead - 1),
+              "vhar" = VHARcoeftoVMA(coef_record[[x]], object$HARtrans, n_ahead - 1, object$month)
+            )
+            fevd <- compute_fevd(coef_record[[x]], cov_record[[x]], TRUE)
+            connect_tab <- compute_spillover(fevd)
+            colnames(connect_tab) <- colnames(mn_mean)
+            rownames(connect_tab) <- colnames(mn_mean)
+            connect_tab
+          }
+        )
+        to_list <- lapply(
+          object$record,
+          compute_to_spillover
+        ) %>%
+          do.call(rbind, .)
+        from_list <- lapply(
+          object$record,
+          compute_from_spillover
+        ) %>%
+          do.call(rbind, .)
+        sp_tab <- Reduce("+", sp_list) / length(sp_list)
+        tot_list <- sapply(object$record, compute_tot_spillover)
+        to_others <- colMeans(to_list)
+        from_others <- colMeans(from_list)
+        tot_sp <- mean(tot_list)
+        list(
+          to = to_others,
+          from = from_others,
+          tot = tot_sp,
+          net = to_others - from_others,
+          net_pairwise = compute_net_spillover(sp_tab)
+        )
+      }
+    )
+  }
+  res # should fix this function: not yet completed
 }

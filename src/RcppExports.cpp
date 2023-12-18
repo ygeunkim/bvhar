@@ -1576,6 +1576,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// roll_var_tot_spillover
+Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int lag, bool include_mean, int step);
+RcppExport SEXP _bvhar_roll_var_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP lagSEXP, SEXP include_meanSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_var_tot_spillover(y, window, lag, include_mean, step));
+    return rcpp_result_gen;
+END_RCPP
+}
+// roll_vhar_tot_spillover
+Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, Eigen::VectorXd har, bool include_mean, int step);
+RcppExport SEXP _bvhar_roll_vhar_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP harSEXP, SEXP include_meanSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type har(harSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    rcpp_result_gen = Rcpp::wrap(roll_vhar_tot_spillover(y, window, har, include_mean, step));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_logml
 double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
 RcppExport SEXP _bvhar_compute_logml(SEXP dimSEXP, SEXP num_designSEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP) {
@@ -1799,6 +1829,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
     {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
     {"_bvhar_compute_net_spillover", (DL_FUNC) &_bvhar_compute_net_spillover, 1},
+    {"_bvhar_roll_var_tot_spillover", (DL_FUNC) &_bvhar_roll_var_tot_spillover, 5},
+    {"_bvhar_roll_vhar_tot_spillover", (DL_FUNC) &_bvhar_roll_vhar_tot_spillover, 5},
     {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},

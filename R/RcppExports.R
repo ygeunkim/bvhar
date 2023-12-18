@@ -1636,6 +1636,32 @@ compute_net_spillover <- function(spillover) {
     .Call(`_bvhar_compute_net_spillover`, spillover)
 }
 
+#' Rolling-sample Total Spillover Index of VAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param window Rolling window size
+#' @param include_mean Add constant term
+#' @param step forecast horizon for FEVD
+#' 
+#' @noRd
+roll_var_tot_spillover <- function(y, window, lag, include_mean, step) {
+    .Call(`_bvhar_roll_var_tot_spillover`, y, window, lag, include_mean, step)
+}
+
+#' Rolling-sample Total Spillover Index of VHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har VHAR order
+#' @param window Rolling window size
+#' @param include_mean Add constant term
+#' @param step forecast horizon for FEVD
+#' 
+#' @noRd
+roll_vhar_tot_spillover <- function(y, window, har, include_mean, step) {
+    .Call(`_bvhar_roll_vhar_tot_spillover`, y, window, har, include_mean, step)
+}
+
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
 #' 
 #' This function computes log of ML stable,
