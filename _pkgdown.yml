@@ -50,8 +50,10 @@ reference:
   contents:
   - bvar_minnesota
   - bvar_flat
+  - bvar_niwhm
   - bvar_sv
   - bvar_ssvs
+  - bvar_horseshoe
 
 - title: BVHAR
   desc: >
@@ -100,6 +102,7 @@ reference:
   - fromse
   - spne
   - relspne
+  - lpl
 
 - title: Tuning
   desc: ~
@@ -150,6 +153,7 @@ reference:
   - sim_mniw
   - sim_mvt
   - sim_ssvs_var
+  - sim_horseshoe_var
 
 - title: Data
   desc: ~
@@ -201,3 +205,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.1
   - text: "Version 1.0.2"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.2
+  - text: "Version 1.1.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.1.0

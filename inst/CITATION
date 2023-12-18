@@ -26,7 +26,7 @@ bibentry(
     person(given = "Changryong", family = "Baek")
   ),
   journal = "Journal of Statistical Computation and Simulation",
-  year     = "2023+",
+  year     = "2023",
   #volume   = {},
   #number   = {},
   #pages    = {},
