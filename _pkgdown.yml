@@ -42,6 +42,7 @@ reference:
   - init_ssvs
   - set_ssvs
   - set_lambda
+  - set_horseshoe
 
 - title: BVAR
   desc: >
@@ -49,7 +50,6 @@ reference:
   contents:
   - bvar_minnesota
   - bvar_flat
-  - bvar_niwhm
   - bvar_sv
   - bvar_ssvs
 
@@ -60,6 +60,7 @@ reference:
   - bvhar_minnesota
   - bvhar_sv
   - bvhar_ssvs
+  - bvhar_horseshoe
 
 - title: Summary method
   desc: ~
