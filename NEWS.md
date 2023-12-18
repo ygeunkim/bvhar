@@ -1,3 +1,15 @@
+# bvhar 1.1.0
+
+* For new research, add new features for shrinkage priors.
+
+* Add Shrinkage priors SSVS and Horseshoe (`bvar_ssvs()`, `bvhar_ssvs()`, `bvar_horseshoe()`, and `bvhar_horseshoe()`).
+
+* `bvar_sv()`, `bvhar_sv()` works with SSVS (`set_ssvs()`) and Horseshoe (`set_horseshoe()`).
+
+* Update the shrinkage structure in the spirit of Minnesota. (`minnesota = TRUE`, `minnesota = c("no", "short", "longrun")`).
+
+* Stochastic volatility models implement corrected triangular algorithm of Carriero et al. (2021).
+
 # bvhar 1.0.2
 
 * License has been changed to [GPLv3](https://choosealicense.com/licenses/gpl-3.0/).
@@ -10,7 +22,7 @@
 
 # bvhar 1.0.0
 
-## Bayesian Vector Heterogeneous Autoregressive Modeling, JSCS 
+* "Bayesian Vector Heterogeneous Autoregressive Modeling" has been accepted in JSCS 🎉
 
 * Update to major version before publication.
 

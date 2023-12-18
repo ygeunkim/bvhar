@@ -229,9 +229,10 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 #' @param p VAR lag
 #' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param relax Only use off-diagonal terms of each coefficient matrices for restriction.
+#' @param minnesota Only use off-diagonal terms of each coefficient matrices for restriction.
 #' In `sim_ssvs_var()` function, use `TRUE` or `FALSE` (default).
-#' In `sim_ssvs_vhar()` function, `"no"` (default), `"minnesota"` type, or `"longrun"` type.
+#' In `sim_ssvs_vhar()` function, `"no"` (default), `"short"` type, or `"longrun"` type.
+#' @param mn_prob Probability for own-lags.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' @section VAR(p) with SSVS prior:
 #' Let \eqn{\alpha} be the vectorized coefficient of VAR(p).
@@ -255,7 +256,8 @@ sim_ssvs_var <- function(bayes_spec,
                          p,
                          dim_data = NULL,
                          include_mean = TRUE,
-                         relax = FALSE,
+                         minnesota = FALSE,
+                         mn_prob = 1,
                          method = c("eigen", "chol")) {
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
@@ -288,9 +290,9 @@ sim_ssvs_var <- function(bayes_spec,
   if (length(bayes_spec$chol_mixture) == 1) {
     bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
   }
-  if (relax) {
+  if (minnesota) {
     coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(p, dim_data))
-    diag(coef_prob[[1]]) <- 1
+    diag(coef_prob[[1]]) <- mn_prob
     bayes_spec$coef_mixture <- c(do.call(rbind, coef_prob))
   }
   # dummy for coefficients-------------------------
@@ -373,12 +375,13 @@ sim_ssvs_vhar <- function(bayes_spec,
                           har = c(5, 22),
                           dim_data = NULL,
                           include_mean = TRUE,
-                          relax = c("no", "minnesota", "longrun"),
+                          minnesota = c("no", "short", "longrun"),
+                          mn_prob = 1,
                           method = c("eigen", "chol")) {
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
-  relax <- match.arg(relax)
+  minnesota <- match.arg(minnesota)
   num_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
   num_coef <- dim_data * num_har
   num_restrict <- 3 * dim_data^2
@@ -409,11 +412,11 @@ sim_ssvs_vhar <- function(bayes_spec,
   }
   bayes_spec$coef_mixture <- 
     switch(
-      relax,
+      minnesota,
       "no" = bayes_spec$coef_mixture,
-      "minnesota" = {
+      "short" = {
         coef_prob <- split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data))
-        diag(coef_prob[[1]]) <- 1
+        diag(coef_prob[[1]]) <- mn_prob
         c(do.call(rbind, coef_prob))
         
       },
@@ -421,7 +424,7 @@ sim_ssvs_vhar <- function(bayes_spec,
         split.data.frame(matrix(bayes_spec$coef_mixture, ncol = dim_data), gl(3, dim_data)) %>% 
           lapply(
             function(pij) {
-              diag(pij) <- 1
+              diag(pij) <- mn_prob
               pij
             }
           ) %>% 
@@ -485,4 +488,174 @@ sim_ssvs_vhar <- function(bayes_spec,
     covmat = sig_mat
   )
   res
+}
+
+#' Generate Horseshoe Parameters
+#'
+#' This function generates parameters of VAR with Horseshoe prior.
+#' 
+#' @param p VAR lag
+#' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
+#' @param minnesota Only use off-diagonal terms of each coefficient matrices for restriction.
+#' In `sim_horseshoe_var()` function, use `TRUE` or `FALSE` (default).
+#' In `sim_horseshoe_vhar()` function, `"no"` (default), `"short"` type, or `"longrun"` type.
+#' @param method Method to compute \eqn{\Sigma^{1/2}}.
+#' @importFrom stats rbinom rnorm rgamma
+#' @export
+sim_horseshoe_var <- function(p,
+                              dim_data = NULL,
+                              include_mean = TRUE,
+                              minnesota = FALSE,
+                              method = c("eigen", "chol")) {
+  dim_design <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
+  num_coef <- dim_data * dim_design
+  num_alpha <- dim_data^2 * p
+  num_restrict <- ifelse(
+    include_mean,
+    num_alpha + dim_data,
+    num_alpha
+  )
+  # Minnesota specification-------------
+  glob_idmat <- matrix(1L, nrow = dim_design, ncol = dim_data)
+  if (minnesota) {
+    if (include_mean) {
+      idx <- c(gl(p, dim_data), p + 1)
+    } else {
+      idx <- gl(p, dim_data)
+    }
+    glob_idmat <- split.data.frame(
+      matrix(rep(0, num_restrict), ncol = dim_data),
+      idx
+    )
+    glob_idmat[[1]] <- diag(dim_data) + 1
+    id <- 1
+    for (i in 2:p) {
+      glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+      id <- id + 2
+    }
+    glob_idmat <- do.call(rbind, glob_idmat)
+  }
+  grp_id <- unique(c(glob_idmat[1:(dim_data * p), ]))
+  latent_local <- numeric(num_restrict)
+  latent_global <- numeric(length(grp_id))
+  latent_inv_local <- rgamma(num_restrict, shape = 1 / 2, rate = 1)
+  latent_inv_global <- rgamma(length(grp_id), shape = 1 / 2, rate = 1)
+  local_sparsity <- 1 / rgamma(num_restrict, shape = 1 / 2, scale = latent_inv_local)
+  global_sparsity <- 1 / rgamma(length(grp_id), shape = 1 / 2, scale = latent_inv_global)
+  shrinkage_vec <- global_sparsity[c(glob_idmat)] * local_sparsity
+  coef_mat <-
+    sim_mnormal(1, rep(0, num_restrict), diag(shrinkage_vec)) %>%
+    matrix(nrow = dim_design, ncol = dim_data)
+  eigen_root <-
+    compute_stablemat(coef_mat) %>%
+    eigen() %>%
+    .$values %>%
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  if (!is_stable) {
+    message("The process is unstable")
+  }
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable
+  )
+  res
+}
+
+#' @rdname sim_horseshoe_var
+#' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#'
+#' @export
+sim_horseshoe_vhar <- function(har = c(5, 22),
+                               dim_data = NULL,
+                               include_mean = TRUE,
+                               minnesota = c("no", "short", "longrun"),
+                               method = c("eigen", "chol")) {
+  dim_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
+  num_coef <- dim_data * dim_har
+  num_phi <- 3 * dim_data^2
+  num_restrict <- ifelse(
+    include_mean,
+    num_phi + dim_data,
+    num_phi
+  )
+  # num_contem <- dim_data * (dim_data - 1) / 2
+  # Minnesota specification------------
+  if (include_mean) {
+    idx <- c(gl(3, dim_data), 4)
+  } else {
+    idx <- gl(3, dim_data)
+  }
+  glob_idmat <- switch(minnesota,
+    "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
+    "short" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_restrict), ncol = dim_data),
+        idx
+      )
+      glob_idmat[[1]] <- diag(dim_data) + 1
+      id <- 1
+      for (i in 2:3) {
+        glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
+        id <- id + 2
+      }
+      do.call(rbind, glob_idmat)
+    },
+    "longrun" = {
+      glob_idmat <- split.data.frame(
+        matrix(rep(0, num_restrict), ncol = dim_data),
+        idx
+      )
+      id <- 1
+      for (i in 1:3) {
+        glob_idmat[[i]] <- diag(dim_data) + id
+        id <- id + 2
+      }
+      do.call(rbind, glob_idmat)
+    }
+  )
+  grp_id <- unique(c(glob_idmat[1:(dim_data * 3), ]))
+  latent_local <- numeric(num_restrict)
+  latent_global <- numeric(length(grp_id))
+  latent_inv_local <- rgamma(num_restrict, shape = 1 / 2, rate = 1)
+  latent_inv_global <- rgamma(length(grp_id), shape = 1 / 2, rate = 1)
+  local_sparsity <- 1 / rgamma(num_restrict, shape = 1 / 2, scale = latent_inv_local)
+  global_sparsity <- 1 / rgamma(length(grp_id), shape = 1 / 2, scale = latent_inv_global)
+  shrinkage_vec <- global_sparsity[c(glob_idmat)] * local_sparsity
+  coef_mat <-
+    sim_mnormal(1, rep(0, num_restrict), diag(shrinkage_vec)) %>%
+    matrix(nrow = dim_har, ncol = dim_data)
+  har_trans <- scale_har(dim_data, har[1], har[2], FALSE)
+  eigen_root <-
+    compute_stablemat(t(har_trans) %*% coef_mat) %>%
+    eigen() %>%
+    .$values %>%
+    Mod()
+  is_stable <- all(eigen_root < 1)
+  if (!is_stable) {
+    message("Innovations generated by this coefficients matrix might be unstable")
+  }
+  res <- list(
+    coef = coef_mat,
+    root = eigen_root,
+    stability = is_stable
+  )
+  res
+  # contem_local_sparsity <- 1 / rgamma(
+  #   num_contem,
+  #   shape = 1 / 2,
+  #   scale = rgamma(num_contem, shape = 1 / 2, rate = 1)
+  # )
+  # contem_global_sparsity <- 1 / rgamma(
+  #   1,
+  #   shape = 1 / 2,
+  #   scale = rgamma(1, shape = 1 / 2, rate = 1)
+  # )
+  # contem_shrink_vec <- contem_global_sparsity * contem_local_sparsity
+  # contem_coef <-
+  #   sim_mnormal(1, rep(0, num_contem), diag(contem_shrink_vec))
+  # lower_mat <- diag(dim_data)
+  # lower_mat[lower.tri(lower_mat, diag = FALSE)] <- contem_coef
 }

@@ -552,17 +552,21 @@ autoplot.bvharirf <- function(object, ...) {
 #' Draw BVAR and BVHAR MCMC plots.
 #' 
 #' @param object `bvharsp` object
-#' @param type The type of the plot. Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
+#' @param type The type of the plot. Posterior coefficient (`"coef"`), Trace plot (`"trace"`), kernel density plot (`"dens"`), and interval estimates plot (`"area"`).
 #' @param pars Parameter names to draw.
 #' @param regex_pars Regular expression parameter names to draw.
 #' @param ... Other options for each [bayesplot::mcmc_trace()], [bayesplot::mcmc_dens()], and [bayesplot::mcmc_areas()].
 #' @return A ggplot object
 #' @importFrom bayesplot mcmc_trace mcmc_dens mcmc_areas
 #' @export
-autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = character(), regex_pars = character(), ...) {
+autoplot.bvharsp <- function(object,
+                             type = c("coef", "trace", "dens", "area"),
+                             pars = character(),
+                             regex_pars = character(), ...) {
   type <- match.arg(type)
   bayes_plt <- switch(
     type,
+    "coef" = autoplot.summary.bvharsp(object, point = TRUE, ...),
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
@@ -579,28 +583,37 @@ autoplot.bvharsp <- function(object, type = c("trace", "dens", "area"), pars = c
 #' @importFrom dplyr mutate case_when
 #' @noRd
 gather_heat <- function(object) {
-  heat_coef <- 
-    object$coefficients %>% 
-    as.data.frame() %>% 
-    rownames_to_column("term") %>% 
-    pivot_longer(-term, names_to = "x", values_to = "value")
+  heat_coef <-
+    object$coefficients %>%
+    as.data.frame() %>%
+    rownames_to_column("term") %>%
+    pivot_longer(-term, names_to = "x", values_to = "value") %>%
+    mutate(x = factor(x, levels = colnames(object$coefficients)))
   is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
   if (object$type == "const") {
-    heat_coef <- 
-      heat_coef %>% 
+    # heat_coef <-
+    #   heat_coef %>%
+    #   mutate(term = ifelse(
+    #     term == "const",
+    #     ifelse(
+    #       is_vhar,
+    #       concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
+    #       concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
+    #     ),
+    #     term
+    #   ))
+    heat_coef <-
+      heat_coef %>%
       mutate(term = ifelse(
         term == "const",
-        ifelse(
-          is_vhar,
-          concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
-          concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
-        ),
+        paste("const", term, sep = "_"),
         term
       ))
   }
-  heat_coef <- 
-    heat_coef %>% 
-    separate_wider_delim(term, delim = "_", names = c("y", "ord"))
+  heat_coef <-
+    heat_coef %>%
+    separate_wider_delim(term, delim = "_", names = c("y", "ord")) %>% 
+    mutate(y = factor(y, levels = c(rev(colnames(object$coefficients)), "const")))
   # VHAR model--------------------------------
   if (is_vhar) {
     heat_coef <- 
@@ -609,9 +622,10 @@ gather_heat <- function(object) {
         ord = case_when(
           ord == "day" ~ "Daily",
           ord == "week" ~ "Weekly",
-          ord == "month" ~ "Monthly"
+          ord == "month" ~ "Monthly",
+          .default = ord
         ),
-        ord = factor(ord, levels = c("Daily", "Weekly", "Monthly"))
+        ord = factor(ord, levels = c("Daily", "Weekly", "Monthly", "const"))
       )
   }
   heat_coef
@@ -622,17 +636,32 @@ gather_heat <- function(object) {
 #' Draw heatmap for SSVS prior coefficients.
 #' 
 #' @param object `summary.bvharsp` object
+#' @param point Use point for sparsity representation
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' @return A ggplot object
-#' @importFrom ggplot2 ggplot aes geom_tile scale_x_discrete labs element_blank facet_grid
-#' @importFrom forcats fct_rev
+#' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid
 #' @export
-autoplot.summary.bvharsp <- function(object, ...) {
+autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
   p <- 
     heat_coef %>% 
-    ggplot(aes(x = x, y = fct_rev(y))) +
-    geom_tile(aes(fill = value), ...) +
+    ggplot(aes(x = x, y = y))
+  if (point) {
+    p <- 
+      p +
+      geom_tile(fill = NA, colour = "#403d3d") +
+      geom_point(aes(colour = value, size = abs(value))) +
+      guides(
+        colour = guide_colourbar(title = element_blank()),
+        size = "none"
+      )
+  } else {
+    p <- 
+      p +
+      geom_tile(aes(fill = value), ...)
+  }
+  p <-
+    p +
     scale_x_discrete(position = "top") +
     labs(
       x = element_blank(),
@@ -643,6 +672,6 @@ autoplot.summary.bvharsp <- function(object, ...) {
   }
   # plot for VHAR or p > 1-----------
   p +
-    facet_grid(ord ~ ., switch = "x")
+    facet_grid(ord ~ ., switch = "x", scales = "free_y")
 }
 

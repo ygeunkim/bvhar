@@ -649,3 +649,38 @@ rmafe.predbvhar <- function(x, pred_bench, y, ...) {
 rmafe.bvharcv <- function(x, pred_bench, y, ...) {
   sum(mae(x, y)) / sum(mae(pred_bench, y))
 }
+
+#' Evaluate the Model Based on Log Predictive Likelihood
+#' 
+#' This function computes LPL given prediction result versus evaluation set.
+#' 
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @export
+lpl <- function(x, y, ...) {
+  UseMethod("lpl", x)
+}
+
+#' @rdname lpl
+#' @param x Forecasting object
+#' @param y Test data to be compared. should be the same format with the train data.
+#' @param ... not used
+#' @references
+#' Cross, J. L., Hou, C., & Poon, A. (2020). *Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity*. International Journal of Forecasting, 36(3), 899–915.
+#' 
+#' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
+#' @importFrom posterior as_draws_matrix
+#' @export
+lpl.predsv <- function(x, y, ...) {
+  object <- x$object
+  dim_data <- object$m
+  h_record <- as_draws_matrix(object$h_record)
+  compute_lpl(
+    as.matrix(y),
+    x$forecast,
+    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
+    as_draws_matrix(object$a_record),
+    as_draws_matrix(object$sigh_record)
+  )
+}

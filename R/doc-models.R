@@ -531,3 +531,17 @@ NULL
 #' @keywords internal
 #' @name ssvs_bvhar_algo
 NULL
+
+#' Horseshoe Prior in BVAR
+#' 
+#' @description 
+#' This page describes Horseshoe prior and its Gibbs sampler
+#' in a VAR model.
+#' 
+#' @references 
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480.
+#' 
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
+#' @keywords internal
+#' @name horseshoe_bvar_algo
+NULL

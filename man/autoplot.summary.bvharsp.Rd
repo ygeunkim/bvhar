@@ -4,10 +4,12 @@
 \alias{autoplot.summary.bvharsp}
 \title{Plot the Heatmap of SSVS Coefficients}
 \usage{
-\method{autoplot}{summary.bvharsp}(object, ...)
+\method{autoplot}{summary.bvharsp}(object, point = FALSE, ...)
 }
 \arguments{
 \item{object}{\code{summary.bvharsp} object}
+
+\item{point}{Use point for sparsity representation}
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile()}}.}
 }

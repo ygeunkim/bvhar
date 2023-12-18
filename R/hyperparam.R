@@ -510,3 +510,50 @@ init_ssvs <- function(init_coef,
   class(res) <- "ssvsinit"
   res
 }
+
+#' Horseshoe Prior Specification
+#' 
+#' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
+#' 
+#' @param local_sparsity Initial local shrinkage hyperparameters
+#' @param global_sparsity Initial global shrinkage hyperparameter
+#' @details 
+#' Set horseshoe prior initialization for VAR family.
+#' 
+#' * `local_sparsity`: Local shrinkage for each row of coefficients matrix.
+#' * `global_sparsity`: (Initial) global shrinkage.
+#' * `init_cov`: Initial covariance matrix.
+#' 
+#' In this package, horseshoe prior model is estimated by Gibbs sampling,
+#' initial means initial values for that gibbs sampler.
+#' @references 
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480.
+#' 
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
+#' @order 1
+#' @export
+set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+  if (!is.vector(local_sparsity)) {
+    stop("'local_sparsity' should be a vector.")
+  }
+  # if (length(local_sparsity) > 1) {
+  #   warning("Scalar 'local_sparsity' works.")
+  # }
+  # if (!is.matrix(init_cov)) {
+  #   stop("'init_cov' should be a matrix.")
+  # }
+  # if (ncol(init_cov) != nrow(init_cov)) {
+  #   stop("'init_cov' should be a square matrix.")
+  # }
+  if (length(global_sparsity) > 1) {
+    stop("'global_sparsity' should be a scalar.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "Horseshoe",
+    local_sparsity = local_sparsity,
+    global_sparsity = global_sparsity#,init_cov = init_cov
+  )
+  class(res) <- "horseshoespec"
+  res
+}

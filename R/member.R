@@ -208,3 +208,9 @@ is.ssvsinit <- function(x) {
 is.bvharpriorspec <- function(x) {
   inherits(x, "bvharpriorspec")
 }
+
+#' @rdname is.varlse
+#' @export
+is.horseshoespec <- function(x) {
+  inherits(x, "horseshoespec")
+}

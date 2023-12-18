@@ -51,7 +51,7 @@
 #'   \item{y}{Raw input (`matrix`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of BVHAR-S
 #' * [set_weight_bvhar()] to specify the hyperparameters of BVHAR-L

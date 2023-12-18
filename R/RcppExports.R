@@ -215,6 +215,27 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
+#' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
+#' 
+#' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
+#' 
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param init_priorvar Initial variance constant
+#' @param init_local Initial local shrinkage hyperparameters
+#' @param init_global Initial global shrinkage hyperparameter
+#' @param init_sigma Initial sigma
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param fast Fast sampling?
+#' @param display_progress Progress bar
+#' @noRd
+estimate_sur_horseshoe <- function(num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_iter, num_burn, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, display_progress)
+}
+
 #' BVAR(p) SSVS by Gibbs Sampler
 #' 
 #' This function conducts Gibbs sampling for BVAR SSVS.
@@ -233,17 +254,23 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param coef_slab_weight Coefficients vector sparsity proportion
 #' @param shape Gamma shape parameters for precision matrix
 #' @param rate Gamma rate parameters for precision matrix
+#' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
+#' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
 #' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
 #' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param intercept_mean Prior mean of unrestricted coefficients
-#' @param intercept_sd Standard deviance for unrestricted coefficients
+#' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
+#' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param mean_non Prior mean of unrestricted coefficients
+#' @param sd_non Standard deviance for unrestricted coefficients
 #' @param include_mean Add constant term
 #' @param init_gibbs Set custom initial values for Gibbs sampler
 #' @param display_progress Progress bar
 #' @noRd
-estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, chol_spike, chol_slab, chol_slab_weight, intercept_mean, intercept_sd, include_mean, init_gibbs, display_progress)
+estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, init_gibbs, display_progress) {
+    .Call(`_bvhar_estimate_bvar_ssvs`, num_iter, num_burn, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, init_gibbs, display_progress)
 }
 
 #' VAR-SV by Gibbs Sampler
@@ -257,12 +284,28 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
 #' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
 #' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
+#' @param init_local Initial local shrinkage of Horseshoe
+#' @param init_global Initial global shrinkage of Horseshoe
+#' @param init_contem_local Initial local shrinkage for Cholesky factor in Horseshoe
+#' @param init_contem_global Initial global shrinkage for Cholesky factor in Horseshoe
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param coef_spike SD of spike normal
+#' @param coef_slab_weight SD of slab normal
+#' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
+#' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
+#' @param chol_slab_weight Cholesky factor sparsity proportion
+#' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
+#' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
+#' @param mean_non Prior mean of unrestricted coefficients
+#' @param sd_non SD for unrestricted coefficients
+#' @param include_mean Constant term
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -551,6 +594,20 @@ forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_recor
     .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
 }
 
+#' Forecasting VAR(p) with Horseshoe Prior
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvarhs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record) {
+    .Call(`_bvhar_forecast_bvarhs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record)
+}
+
 #' Forecasting VAR-SV
 #' 
 #' @param var_lag VAR order.
@@ -561,6 +618,22 @@ forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_recor
 #' @noRd
 forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
     .Call(`_bvhar_forecast_bvarsv`, var_lag, step, response_mat, coef_mat)
+}
+
+#' Forecasting predictive density of VAR-SV
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param alpha_record MCMC record of coefficients
+#' @param h_last_record MCMC record of log-volatilities in last time
+#' @param a_record MCMC record of contemporaneous coefficients
+#' @param sigh_record MCMC record of variance of log-volatilities
+#' 
+#' @noRd
+forecast_bvarsv_density <- function(var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record) {
+    .Call(`_bvhar_forecast_bvarsv_density`, var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record)
 }
 
 #' Forecasting Bayesian VHAR
@@ -600,6 +673,21 @@ forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, ph
     .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
 }
 
+#' Forecasting VHAR with Horseshoe Prior
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of phi.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvharhs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record) {
+    .Call(`_bvhar_forecast_bvharhs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record)
+}
+
 #' Forecasting VHAR-SV
 #' 
 #' @param month VHAR month order.
@@ -611,6 +699,19 @@ forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, ph
 #' @noRd
 forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
     .Call(`_bvhar_forecast_bvharsv`, month, step, response_mat, coef_mat, HARtrans)
+}
+
+#' Forecasting Predictive Density of VHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param HARtrans VHAR linear transformation matrix
+#' 
+#' @noRd
+forecast_bvharsv_density <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record) {
+    .Call(`_bvhar_forecast_bvharsv_density`, month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -1102,30 +1203,57 @@ ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
     .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
 }
 
+#' Generating Slab Weight Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_weight <- function(param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_weight`, param_obs, prior_s1, prior_s2)
+}
+
+#' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+#' @noRd
+ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
+    .Call(`_bvhar_ssvs_mn_weight`, grp_vec, grp_id, param_obs, prior_s1, prior_s2)
+}
+
 #' Building Lower Triangular Matrix
 #' 
 #' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
 #' 
 #' @param dim Dimension (dim x dim) of L
 #' @param lower_vec Vector a
-#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
 build_inv_lower <- function(dim, lower_vec) {
     .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
-#' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+#' Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 #' 
-#' @param x Design matrix in SUR or stacked E_t
-#' @param y Response vector in SUR or stacked e_t
+#' This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
+#'
+#' @param x Design matrix of the system
+#' @param y Response vector of the system
 #' @param prior_mean Prior mean vector
 #' @param prior_prec Prior precision matrix
 #' @param innov_prec Stacked precision matrix of innovation
 #' 
 #' @noRd
-varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
-    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec, innov_prec)
+varsv_regression <- function(x, y, prior_mean, prior_prec) {
+    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec)
 }
 
 #' Generating log-volatilities in MCMC
@@ -1136,11 +1264,10 @@ varsv_regression <- function(x, y, prior_mean, prior_prec, innov_prec) {
 #' @param init_sv Initial log-volatility
 #' @param sv_sig Variance of log-volatilities
 #' @param latent_vec Auxiliary residual vector
-#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-varsv_ht <- function(pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads) {
-    .Call(`_bvhar_varsv_ht`, pj, muj, sigj, sv_vec, init_sv, sv_sig, latent_vec, nthreads)
+varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec) {
+    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec)
 }
 
 #' Generating sig_h in MCMC
@@ -1170,6 +1297,118 @@ varsv_sigh <- function(shp, scl, init_sv, h1) {
 #' @noRd
 varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
     .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
+}
+
+#' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
+#' 
+#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
+#' global and local sparsity levels.
+#' 
+#' @param global_hyperparam Global sparsity hyperparameters
+#' @param local_hyperparam Local sparsity hyperparameters
+#' @noRd
+build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
+    .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
+}
+
+#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_coef <- function(response_vec, design_mat, var, shrink_mat) {
+    .Call(`_bvhar_horseshoe_coef`, response_vec, design_mat, var, shrink_mat)
+}
+
+#' Generating the Coefficient Vector using Fast Sampling
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_fast_coef <- function(response_vec, design_mat, shrink_mat) {
+    .Call(`_bvhar_horseshoe_fast_coef`, response_vec, design_mat, shrink_mat)
+}
+
+#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_coef_var <- function(response_vec, design_mat, shrink_mat) {
+    .Call(`_bvhar_horseshoe_coef_var`, response_vec, design_mat, shrink_mat)
+}
+
+#' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the prior variance.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param coef_vec Coefficients vector
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+#' @noRd
+horseshoe_var <- function(response_vec, design_mat, shrink_mat) {
+    .Call(`_bvhar_horseshoe_var`, response_vec, design_mat, shrink_mat)
+}
+
+#' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
+#' 
+#' @param local_latent Latent vectors defined for local sparsity vector
+#' @param global_hyperparam Global sparsity hyperparameter vector
+#' @param coef_vec Coefficients vector
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+#' @noRd
+horseshoe_mn_global_sparsity <- function(grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var) {
+    .Call(`_bvhar_horseshoe_mn_global_sparsity`, grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var)
+}
+
+#' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
+#' 
+#' @param hyperparam sparsity hyperparameters vector
+#' @noRd
+horseshoe_latent <- function(hyperparam) {
+    .Call(`_bvhar_horseshoe_latent`, hyperparam)
 }
 
 #' @noRd
@@ -1428,5 +1667,34 @@ compute_fpe <- function(object) {
 #' @noRd
 tune_var <- function(y, lag_max, include_mean) {
     .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
+}
+
+#' log Density of Multivariate Normal with LDLT Precision Matrix
+#' 
+#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
+#' 
+#' @param x Point
+#' @param mean_vec Mean
+#' @param lower_vec row of a_record
+#' @param diag_vec row of h_record
+#' 
+#' @noRd
+compute_log_dmgaussian <- function(x, mean_vec, lower_vec, diag_vec) {
+    .Call(`_bvhar_compute_log_dmgaussian`, x, mean_vec, lower_vec, diag_vec)
+}
+
+#' Compute Log Predictive Likelihood
+#' 
+#' This function computes log-predictive likelihood (LPL).
+#' 
+#' @param True value
+#' @param Predicted value
+#' @param h_last_record MCMC record of log-volatilities in last time
+#' @param a_record MCMC record of contemporaneous coefficients
+#' @param sigh_record MCMC record of variance of log-volatilities
+#' 
+#' @noRd
+compute_lpl <- function(y, posterior_mean, h_last_record, a_record, sigh_record) {
+    .Call(`_bvhar_compute_lpl`, y, posterior_mean, h_last_record, a_record, sigh_record)
 }
 

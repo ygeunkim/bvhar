@@ -8,6 +8,8 @@
 \alias{predict.bvarflat}
 \alias{predict.bvarssvs}
 \alias{predict.bvharssvs}
+\alias{predict.bvarhs}
+\alias{predict.bvharhs}
 \alias{predict.bvarsv}
 \alias{predict.bvharsv}
 \alias{print.predbvhar}
@@ -28,9 +30,13 @@
 
 \method{predict}{bvharssvs}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarsv}(object, n_ahead, ...)
+\method{predict}{bvarhs}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvharsv}(object, n_ahead, ...)
+\method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvarsv}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvharsv}(object, n_ahead, level = 0.05, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

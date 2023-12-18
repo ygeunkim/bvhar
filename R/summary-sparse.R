@@ -1,14 +1,33 @@
-#' Summarizing VAR and VHAR with SSVS Prior Model
+#' Computing Credible Interval from MCMC Draws
+#' 
+#' @importFrom posterior summarise_draws
+#' @importFrom stats quantile
+#' @importFrom dplyr rename
+#' @noRd 
+compute_ci <- function(draws, level = .05) {
+  # low_lev <- ifelse(correction, level / (2 * object$df * object$m), level / 2)
+  low_lev <- level / 2
+  cred_int <-
+    draws %>% 
+    summarise_draws(
+      ~quantile(
+        .,
+        prob = c(low_lev, 1 - low_lev)
+      )
+    )
+  colnames(cred_int) <- c("term", "conf.low", "conf.high")
+  cred_int
+}
+
+#' Summarizing BVAR and BVHAR with Shrinkage Priors
 #' 
 #' Conduct variable selection.
 #' 
 #' @param object `ssvsmod` object
+#' @param method Use PIP (`"pip"`) or credible interval (`"ci"`).
+#' @param threshold Threshold for posterior inclusion probability
+#' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
 #' @param ... not used
-#' @details 
-#' In each cell, variable selection can be done by giving threshold for each cell of coefficient:
-#' \deqn{\lvert \phi_{i} \rvert \le 3 \tau_{0i}}
-#' and
-#' \deqn{\lvert \eta_{ij} \rvert \le 3 \kappa_{0ij}}
 #' @return `summary.ssvsmod` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
@@ -18,43 +37,32 @@
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
 #' 
 #' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85–117.
+#' @importFrom posterior subset_draws
 #' @export
-summary.ssvsmod <- function(object, ...) {
+summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
+  method <- match.arg(method)
+  if (method == "ci"){
+    cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
+    selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
+  } else {
+    selection <- object$pip > threshold
+  }
+  rownames(selection) <- rownames(object$coefficients)
+  colnames(selection) <- colnames(object$coefficients)
   # coefficients-------------------------------
-  # coef_mean <- object$coefficients
   coef_mean <- switch(
     object$type,
     "none" = object$coefficients,
     "const" = object$coefficients[-object$df,]
   )
-  # coef_spike <- matrix(object$spec$coef_spike, ncol = object$m)
-  coef_dummy <- object$pip
-  # var_selection <- abs(coef_mean) <= 3 * coef_spike
-  var_selection <- object$pip <= .5
-  # coef_res <- ifelse(var_selection, 0L, coef_mean)
-  # coef_res <- switch(
-  #   object$type,
-  #   "none" = ifelse(var_selection, 0L, coef_mean),
-  #   "const" = rbind(ifelse(var_selection, 0L, coef_mean), object$coefficients[object$df,])
-  # )
   coef_res <- switch(
     object$type,
-    "none" = ifelse(var_selection, 0L, coef_mean),
-    "const" = rbind(ifelse(var_selection, 0L, coef_mean), object$coefficients[object$df,])
+    "none" = ifelse(selection, coef_mean, 0L),
+    "const" = rbind(ifelse(selection, coef_mean, 0L), object$coefficients[object$df, ])
   )
   if (object$type == "const") {
     rownames(coef_res)[object$df] <- "const"
   }
-  # cholesky factor----------------------------
-  chol_mean <- object$chol_posterior
-  # chol_spike <- diag(object$m)
-  # chol_spike[upper.tri(chol_spike, diag = FALSE)] <- object$spec$chol_spike
-  # chol_selection <- abs(chol_mean) <= 3 * chol_spike
-  # diag(chol_selection) <- FALSE
-  # chol_res <- ifelse(chol_selection, 0L, chol_mean)
-  chol_dummy <- object$omega_posterior
-  chol_selection <- chol_dummy <= .5
-  chol_res <- ifelse(chol_selection, 0L, chol_mean)
   # return S3 object---------------------------
   res <- list(
     call = object$call,
@@ -64,11 +72,54 @@ summary.ssvsmod <- function(object, ...) {
     type = object$type,
     coefficients = coef_res,
     posterior_mean = coef_mean,
-    cholesky = chol_res,
-    choose_coef = !var_selection,
-    choose_chol = !chol_selection
+    choose_coef = selection,
+    method = method
   )
+  if (method == "ci") {
+    res$interval <- cred_int
+    res$level <- level
+  } else {
+    res$threshold <- threshold
+  }
   class(res) <- c("summary.ssvsmod", "summary.bvharsp")
+  res
+}
+
+#' @rdname summary.ssvsmod
+#' @return `summary.hsmod` object
+#' @export
+summary.hsmod <- function(object, method = c("ci", "pip"), threshold = .5, level = .05, ...) {
+  method <- match.arg(method)
+  if (method == "ci") {
+    cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
+    selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
+  } else {
+    selection <- object$pip > threshold
+  }
+  rownames(selection) <- rownames(object$coefficients)
+  colnames(selection) <- colnames(object$coefficients)
+  coef_res <- ifelse(selection, object$coefficients, 0L)
+  rownames(coef_res) <- rownames(object$coefficients)
+  colnames(coef_res) <- colnames(object$coefficients)
+  # return S3 object---------------------------
+  res <- list(
+    call = object$call,
+    process = object$process,
+    p = object$p,
+    m = object$m,
+    type = object$type,
+    coefficients = coef_res,
+    posterior_mean = object$coefficients,
+    choose_coef = selection,
+    method = method
+  )
+  if (method == "ci") {
+    res$interval <- cred_int
+    res$level <- level
+  } else {
+    res$threshold <- threshold
+  }
+  class(res) <- c("summary.hsmod", "summary.bvharsp")
   res
 }
 
