@@ -4,7 +4,7 @@
 \alias{bvhar_sv}
 \alias{print.bvharsv}
 \alias{knit_print.bvharsv}
-\title{Fitting Bayesian VHAR-SV of Minnesota Belief}
+\title{Fitting Bayesian VHAR-SV}
 \usage{
 bvhar_sv(
   y,
@@ -95,7 +95,8 @@ Horseshoe:
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR-SV with Minnesota belief.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR-SV.
+It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{
 Cholesky stochastic volatility modeling for VHAR based on

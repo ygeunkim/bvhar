@@ -1,6 +1,7 @@
-#' Fitting Bayesian VAR-SV of Minnesota Belief
+#' Fitting Bayesian VAR-SV
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VAR-SV with Minnesota belief.
+#' `r lifecycle::badge("experimental")` This function fits VAR-SV.
+#'  It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag

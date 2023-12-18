@@ -1,6 +1,7 @@
-#' Fitting Bayesian VHAR-SV of Minnesota Belief
+#' Fitting Bayesian VHAR-SV
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VHAR-SV with Minnesota belief.
+#' `r lifecycle::badge("experimental")` This function fits VHAR-SV.
+#' It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
