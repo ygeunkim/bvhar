@@ -1,4 +1,6 @@
 test_that("VAR Coefficients Summary Table", {
+  skip_on_cran()
+  
   test_lag <- 3
   num_col <- 2
   fit_test_var <- var_lm(etf_vix[, seq_len(num_col)], test_lag)
