@@ -78,17 +78,20 @@ Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
 //' Rolling-sample Total Spillover Index of VAR
 //' 
 //' @param y Time series data of which columns indicate the variables
-//' @param lag VAR order
 //' @param window Rolling window size
-//' @param include_mean Add constant term
 //' @param step forecast horizon for FEVD
+//' @param lag VAR order
+//' @param include_mean Add constant term
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window,
-																			 int lag, bool include_mean, int step) {
+Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int step,
+																			 int lag, bool include_mean) {
 	Rcpp::Function fit("var_lm");
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
+	if (num_horizon <= 0) {
+		Rcpp::stop("Window size is too large.");
+	}
 	Eigen::MatrixXd roll_mat = y.topRows(window);
 	Rcpp::List var_mod = fit(roll_mat, lag, include_mean);
 	Eigen::MatrixXd vma_mat = VARtoVMA(var_mod, step - 1);
@@ -101,6 +104,41 @@ Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window,
 		var_mod = fit(roll_mat, lag, include_mean);
 		vma_mat = VARtoVMA(var_mod, step - 1);
 		fevd = compute_fevd(vma_mat, var_mod["covmat"], true);
+		spillover = compute_spillover(fevd);
+		res[i] = compute_tot_spillover(spillover);
+	}
+	return res;
+}
+
+//' Rolling-sample Total Spillover Index of VHAR
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param window Rolling window size
+//' @param step forecast horizon for FEVD
+//' @param har VHAR order
+//' @param include_mean Add constant term
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, int step,
+																			  Eigen::VectorXd har, bool include_mean) {
+	Rcpp::Function fit("vhar_lm");
+  int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
+	if (num_horizon <= 0) {
+		Rcpp::stop("Window size is too large.");
+	}
+	Eigen::MatrixXd roll_mat = y.topRows(window);
+	Rcpp::List vhar_mod = fit(roll_mat, har, include_mean);
+	Eigen::MatrixXd vma_mat = VHARtoVMA(vhar_mod, step - 1);
+	Eigen::MatrixXd fevd = compute_fevd(vma_mat, vhar_mod["covmat"], true); // KPPS FEVD
+	Eigen::MatrixXd spillover = compute_spillover(fevd); // Normalized spillover
+  Eigen::VectorXd res(num_horizon);
+	res[0] = compute_tot_spillover(spillover); // Total spillovers
+	for (int i = 1; i < num_horizon; i++) {
+		roll_mat = y.middleRows(i, window);
+		vhar_mod = fit(roll_mat, har, include_mean);
+		vma_mat = VHARtoVMA(vhar_mod, step - 1);
+		fevd = compute_fevd(vma_mat, vhar_mod["covmat"], true);
 		spillover = compute_spillover(fevd);
 		res[i] = compute_tot_spillover(spillover);
 	}

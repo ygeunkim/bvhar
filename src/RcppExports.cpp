@@ -1577,32 +1577,32 @@ BEGIN_RCPP
 END_RCPP
 }
 // roll_var_tot_spillover
-Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int lag, bool include_mean, int step);
-RcppExport SEXP _bvhar_roll_var_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP lagSEXP, SEXP include_meanSEXP, SEXP stepSEXP) {
+Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int step, int lag, bool include_mean);
+RcppExport SEXP _bvhar_roll_var_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP lagSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_var_tot_spillover(y, window, lag, include_mean, step));
+    rcpp_result_gen = Rcpp::wrap(roll_var_tot_spillover(y, window, step, lag, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
 // roll_vhar_tot_spillover
-Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, Eigen::VectorXd har, bool include_mean, int step);
-RcppExport SEXP _bvhar_roll_vhar_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP harSEXP, SEXP include_meanSEXP, SEXP stepSEXP) {
+Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, int step, Eigen::VectorXd har, bool include_mean);
+RcppExport SEXP _bvhar_roll_vhar_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP harSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type har(harSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_vhar_tot_spillover(y, window, har, include_mean, step));
+    rcpp_result_gen = Rcpp::wrap(roll_vhar_tot_spillover(y, window, step, har, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }

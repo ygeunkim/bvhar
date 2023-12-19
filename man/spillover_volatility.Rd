@@ -9,7 +9,7 @@
 \usage{
 spillover_volatility(
   object,
-  n_ahead,
+  n_ahead = 10L,
   num_iter = 10000L,
   num_burn = floor(num_iter/2),
   thinning = 1L,
@@ -22,7 +22,7 @@ knit_print.bvharspillover(x, ...)
 
 \method{spillover_volatility}{bvharmod}(
   object,
-  n_ahead,
+  n_ahead = 10L,
   num_iter = 10000L,
   num_burn = floor(num_iter/2),
   thinning = 1L,
@@ -32,7 +32,7 @@ knit_print.bvharspillover(x, ...)
 \arguments{
 \item{object}{Model object}
 
-\item{n_ahead}{step to forecast}
+\item{n_ahead}{step to forecast. By default, 10.}
 
 \item{num_iter}{Number to sample MNIW distribution}
 
