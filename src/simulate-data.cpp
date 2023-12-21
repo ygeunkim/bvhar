@@ -1,5 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
+#include "randsim.h"
 
 //' Generate Multivariate Time Series Process Following VAR(p)
 //' 
