@@ -17,4 +17,6 @@ Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_s
 
 Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape);
 
+Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi);
+
 #endif // RANDSIM_H
