@@ -932,6 +932,72 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dgig_quasi
+double dgig_quasi(double x, double lambda, double beta);
+RcppExport SEXP _bvhar_dgig_quasi(SEXP xSEXP, SEXP lambdaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(dgig_quasi(x, lambda, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rgig_nonconcave
+Eigen::VectorXd rgig_nonconcave(int num_sim, double lambda, double beta);
+RcppExport SEXP _bvhar_rgig_nonconcave(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rgig_nonconcave(num_sim, lambda, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rgig_without_mode
+Eigen::VectorXd rgig_without_mode(int num_sim, double lambda, double beta);
+RcppExport SEXP _bvhar_rgig_without_mode(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rgig_without_mode(num_sim, lambda, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rgig_with_mode
+Eigen::VectorXd rgig_with_mode(int num_sim, double lambda, double beta);
+RcppExport SEXP _bvhar_rgig_with_mode(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rgig_with_mode(num_sim, lambda, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sim_gig
+Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi);
+RcppExport SEXP _bvhar_sim_gig(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP psiSEXP, SEXP chiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< double >::type chi(chiSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_gig(num_sim, lambda, psi, chi));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_stablemat
 Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x);
 RcppExport SEXP _bvhar_compute_stablemat(SEXP xSEXP) {
@@ -1653,6 +1719,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
     {"_bvhar_sim_wishart", (DL_FUNC) &_bvhar_sim_wishart, 2},
+    {"_bvhar_dgig_quasi", (DL_FUNC) &_bvhar_dgig_quasi, 3},
+    {"_bvhar_rgig_nonconcave", (DL_FUNC) &_bvhar_rgig_nonconcave, 3},
+    {"_bvhar_rgig_without_mode", (DL_FUNC) &_bvhar_rgig_without_mode, 3},
+    {"_bvhar_rgig_with_mode", (DL_FUNC) &_bvhar_rgig_with_mode, 3},
+    {"_bvhar_sim_gig", (DL_FUNC) &_bvhar_sim_gig, 4},
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
