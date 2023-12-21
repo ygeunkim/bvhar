@@ -2,8 +2,8 @@
 #define BVHARDRAW_H
 
 #include "bvharomp.h"
+#include "randsim.h"
 #include "bvharmisc.h"
-#include "bvharprob.h"
 
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 

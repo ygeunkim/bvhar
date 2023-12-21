@@ -1,5 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
+#include "randsim.h"
 #include "bvhardraw.h"
 
 //' Forecasting BVAR(p)
