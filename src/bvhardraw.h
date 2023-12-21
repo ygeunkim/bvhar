@@ -2,8 +2,8 @@
 #define BVHARDRAW_H
 
 #include "bvharomp.h"
+#include "randsim.h"
 #include "bvharmisc.h"
-#include "bvharprob.h"
 
 double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl);
 

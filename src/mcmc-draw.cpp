@@ -1,7 +1,7 @@
 #include "bvharomp.h"
 #include <RcppEigen.h>
 #include "bvharmisc.h"
-#include "bvharprob.h"
+#include "randsim.h"
 
 //' Log of Joint Posterior Density of Hyperparameters
 //' 
