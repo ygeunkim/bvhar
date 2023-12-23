@@ -13,21 +13,21 @@
 #' @importFrom tidyr pivot_longer
 #' @order 1
 #' @export
-spillover_volatility <- function(object,
-                                 n_ahead = 10L,
-                                 num_iter = 10000L,
-                                 num_burn = floor(num_iter / 2),
-                                 thinning = 1L, ...) {
-  UseMethod("spillover_volatility", object)
+spillover <- function(object,
+                      n_ahead = 10L,
+                      num_iter = 10000L,
+                      num_burn = floor(num_iter / 2),
+                      thinning = 1L, ...) {
+  UseMethod("spillover", object)
 }
 
-#' @rdname spillover_volatility
+#' @rdname spillover
 #' @export 
-spillover_volatility.bvharmod <- function(object,
-                                          n_ahead = 10L,
-                                          num_iter = 10000L,
-                                          num_burn = floor(num_iter / 2),
-                                          thinning = 1L, ...) {
+spillover.bvharmod <- function(object,
+                               n_ahead = 10L,
+                               num_iter = 10000L,
+                               num_burn = floor(num_iter / 2),
+                               thinning = 1L, ...) {
   if (object$process == "VAR") {
     mod_type <- "freq_var"
   } else if (object$process == "VHAR") {

@@ -1,4 +1,4 @@
-#' @rdname analyze_ir
+#' @rdname irf
 #' @param x `bvharirf` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -23,7 +23,7 @@ print.bvharirf <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   invisible(x)
 }
 
-#' @rdname analyze_ir
+#' @rdname irf
 #' @exportS3Method knitr::knit_print
 knit_print.bvharirf <- function(x, ...) {
   print(x)

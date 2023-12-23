@@ -1,4 +1,4 @@
-#' @rdname spillover_volatility
+#' @rdname spillover
 #' @param x `bvharspillover` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -24,7 +24,7 @@ print.bvharspillover <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("*Cross variance shares = Spillovers (ij-th element): error caused by j-th shocks when forecasting i-th variable")
 }
 
-#' @rdname spillover_volatility
+#' @rdname spillover
 #' @param x `bvharspillover` object
 #' @param ... not used
 #' @order 3
