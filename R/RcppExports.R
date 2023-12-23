@@ -1721,6 +1721,36 @@ roll_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
     .Call(`_bvhar_roll_vhar_tot_spillover`, y, window, step, har, include_mean)
 }
 
+#' Rolling-sample Total Spillover Index of BVAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param lag BVAR order
+#' @param bayes_spec BVAR specification
+#' @param include_mean Add constant term
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+roll_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads) {
+    .Call(`_bvhar_roll_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of BVHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param har BVHAR order
+#' @param bayes_spec BVHAR specification
+#' @param include_mean Add constant term
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+roll_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
+    .Call(`_bvhar_roll_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
+}
+
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
 #' 
 #' This function computes log of ML stable,
