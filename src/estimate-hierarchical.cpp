@@ -1,6 +1,6 @@
 #include <RcppEigen.h>
 #include "bvharmisc.h"
-#include "bvharprob.h"
+#include "randsim.h"
 #include <progress.hpp>
 #include <progress_bar.hpp>
 

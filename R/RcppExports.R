@@ -1066,6 +1066,65 @@ sim_wishart <- function(mat_scale, shape) {
     .Call(`_bvhar_sim_wishart`, mat_scale, shape)
 }
 
+#' Quasi-density of GIG
+#' 
+#' @param x postivie support
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param beta Square of the multiplication of the other two parameters.
+#' 
+#' @noRd
+dgig_quasi <- function(x, lambda, beta) {
+    .Call(`_bvhar_dgig_quasi`, x, lambda, beta)
+}
+
+#' AR-Mehod for non-concave part
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param beta Square of the multiplication of the other two parameters.
+#' 
+#' @noRd
+rgig_nonconcave <- function(num_sim, lambda, beta) {
+    .Call(`_bvhar_rgig_nonconcave`, num_sim, lambda, beta)
+}
+
+#' Ratio-of-Uniforms without Mode Shift
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param beta Square of the multiplication of the other two parameters.
+#' 
+#' @noRd
+rgig_without_mode <- function(num_sim, lambda, beta) {
+    .Call(`_bvhar_rgig_without_mode`, num_sim, lambda, beta)
+}
+
+#' Ratio-of-Uniforms with Mode Shift
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param beta Square of the multiplication of the other two parameters.
+#' 
+#' @noRd
+rgig_with_mode <- function(num_sim, lambda, beta) {
+    .Call(`_bvhar_rgig_with_mode`, num_sim, lambda, beta)
+}
+
+#' Generate Generalized Inverse Gaussian Distribution
+#' 
+#' This function samples GIG(lambda, psi, chi) random variates.
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param psi Second parameter of GIG
+#' @param chi Third parameter of GIG
+#' 
+#' @references Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
+#' @noRd
+sim_gig <- function(num_sim, lambda, psi, chi) {
+    .Call(`_bvhar_sim_gig`, num_sim, lambda, psi, chi)
+}
+
 #' VAR(1) Representation Given VAR Coefficient Matrix
 #' 
 #' Compute the VAR(1) coefficient matrix form
