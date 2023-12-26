@@ -1,7 +1,7 @@
 #include "bvharomp.h"
 #include <RcppEigen.h>
 #include "structural.h"
-#include "randsim.h"
+#include "bvhardraw.h"
 
 //' Rolling-sample Total Spillover Index of VAR
 //' 
@@ -13,8 +13,7 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int step,
-																			 int lag, bool include_mean) {
+Eigen::VectorXd dynamic_var_tot_spillover(Eigen::MatrixXd y, int window, int step, int lag, bool include_mean) {
 	Rcpp::Function fit("var_lm");
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -50,8 +49,7 @@ Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int step,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, int step,
-																			  Eigen::VectorXd har, bool include_mean) {
+Eigen::VectorXd dynamic_vhar_tot_spillover(Eigen::MatrixXd y, int window, int step, Eigen::VectorXd har, bool include_mean) {
 	Rcpp::Function fit("vhar_lm");
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -87,9 +85,8 @@ Eigen::VectorXd roll_vhar_tot_spillover(Eigen::MatrixXd y, int window, int step,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd roll_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step,
-																				int num_iter, int num_burn,
-																			  int lag, Rcpp::List bayes_spec, bool include_mean, int nthreads) {
+Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn,
+																			     int lag, Rcpp::List bayes_spec, bool include_mean, int nthreads) {
 	Rcpp::Function fit("bvar_minnesota");
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -191,9 +188,8 @@ Eigen::VectorXd roll_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd roll_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int step,
-																				 int num_iter, int num_burn,
-																			   Eigen::VectorXd har, Rcpp::List bayes_spec, bool include_mean, int nthreads) {
+Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn,
+																			      Eigen::VectorXd har, Rcpp::List bayes_spec, bool include_mean, int nthreads) {
 	Rcpp::Function fit("bvhar_minnesota");
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {

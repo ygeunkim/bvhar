@@ -1660,8 +1660,8 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-roll_var_tot_spillover <- function(y, window, step, lag, include_mean) {
-    .Call(`_bvhar_roll_var_tot_spillover`, y, window, step, lag, include_mean)
+dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean) {
+    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean)
 }
 
 #' Rolling-sample Total Spillover Index of VHAR
@@ -1673,8 +1673,8 @@ roll_var_tot_spillover <- function(y, window, step, lag, include_mean) {
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-roll_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
-    .Call(`_bvhar_roll_vhar_tot_spillover`, y, window, step, har, include_mean)
+dynamic_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
+    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, har, include_mean)
 }
 
 #' Rolling-sample Total Spillover Index of BVAR
@@ -1688,8 +1688,8 @@ roll_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-roll_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads) {
-    .Call(`_bvhar_roll_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads)
+dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of BVHAR
@@ -1703,8 +1703,8 @@ roll_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, ba
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-roll_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
-    .Call(`_bvhar_roll_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
+dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
 }
 
 #' h-step ahead Forecast Error Variance Decomposition
