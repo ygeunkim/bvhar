@@ -1642,21 +1642,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dynamic_bvarsv_tot_spillover
+Eigen::VectorXd dynamic_bvarsv_tot_spillover(int lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvarsv_tot_spillover(SEXP lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP alpha_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type alpha_record(alpha_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_record(h_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvarsv_tot_spillover(lag, step, response_mat, alpha_record, h_record, a_record, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dynamic_bvharsv_tot_spillover
-Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans, Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record);
-RcppExport SEXP _bvhar_dynamic_bvharsv_tot_spillover(SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP coef_matSEXP, SEXP HARtransSEXP, SEXP phi_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP) {
+Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvharsv_tot_spillover(SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP phi_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type phi_record(phi_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_record(h_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamic_bvharsv_tot_spillover(month, step, response_mat, coef_mat, HARtrans, phi_record, h_record, a_record));
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvharsv_tot_spillover(month, step, response_mat, HARtrans, phi_record, h_record, a_record, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1954,6 +1971,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_dynamic_vhar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_vhar_tot_spillover, 5},
     {"_bvhar_dynamic_bvar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvar_tot_spillover, 9},
     {"_bvhar_dynamic_bvhar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvhar_tot_spillover, 9},
+    {"_bvhar_dynamic_bvarsv_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvarsv_tot_spillover, 7},
     {"_bvhar_dynamic_bvharsv_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvharsv_tot_spillover, 8},
     {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 3},
     {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},

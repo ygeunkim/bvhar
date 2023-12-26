@@ -284,13 +284,67 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 	return res;
 }
 
+//' Dynamic Total Spillover Index of BVAR-SV
+//' 
+//' @param lag VAR lag.
+//' @param window Rolling window size
+//' @param step forecast horizon for FEVD
+//' @param response_mat Response matrix.
+//' @param phi_record Coefficients MCMC record
+//' @param h_record log volatility MCMC record
+//' @param a_record Contemporaneous coefficients MCMC record
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd dynamic_bvarsv_tot_spillover(int lag, int step, Eigen::MatrixXd response_mat,
+																						 Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
+	int num_sim = alpha_record.rows();
+  int dim = response_mat.cols();
+  int num_design = response_mat.rows();
+	int dim_design = alpha_record.cols() / dim;
+	Eigen::MatrixXd vma_mat(dim * step, dim);
+	Eigen::MatrixXd fevd = Eigen::MatrixXd::Zero(dim * step, dim);
+	Eigen::MatrixXd spillover(dim, dim);
+	Eigen::VectorXd res(num_design); // length = T - p
+	Eigen::MatrixXd h_time(num_sim, dim); // h_t = (h_t1, ..., h_tk)
+	// Eigen::MatrixXd contem_inv = Eigen::MatrixXd::Zero(dim, dim); // L^(-1)
+  Eigen::MatrixXd lvol_sqrt = Eigen::MatrixXd::Zero(dim, dim); // D_t with h_t = (h_t1, ..., h_tk)
+  Eigen::MatrixXd tvp_sig(dim, dim); // Sigma_t
+	Eigen::MatrixXd sqrt_sig(dim, dim);
+	for (int i = 0; i < num_design; i++) {
+		fevd = Eigen::MatrixXd::Zero(dim * step, dim);
+	#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads) private(vma_mat, tvp_sig, sqrt_sig, lvol_sqrt)
+		for (int j = 0; j < num_sim; j++) {
+			lvol_sqrt = (h_time.row(j) / 2).array().exp().matrix().asDiagonal();
+			sqrt_sig = build_inv_lower(dim, a_record.row(j)).triangularView<Eigen::Lower>().solve(lvol_sqrt);
+			tvp_sig = sqrt_sig * sqrt_sig.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
+			vma_mat = VARcoeftoVMA(unvectorize(alpha_record.row(j), dim_design, dim), lag, step - 1);
+			#pragma omp critical
+			fevd += compute_fevd(vma_mat, tvp_sig, true);
+		}
+	#else
+		for (int j = 0; j < num_sim; j++) {
+			lvol_sqrt = (h_time.row(j) / 2).array().exp().matrix().asDiagonal(); // D_t^(1 / 2) = diag(exp(h_t / 2))
+			sqrt_sig = build_inv_lower(dim, a_record.row(j)).triangularView<Eigen::Lower>().solve(lvol_sqrt);
+			tvp_sig = sqrt_sig * sqrt_sig.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
+			vma_mat = VARcoeftoVMA(unvectorize(alpha_record.row(j), dim_design, dim), lag, step - 1);
+			fevd += compute_fevd(vma_mat, tvp_sig, true);
+		}
+	#endif
+		fevd /= num_sim;
+		spillover = compute_spillover(fevd);
+		res[i] = compute_tot_spillover(spillover);
+	}
+	return res;
+}
+
 //' Dynamic Total Spillover Index of BVHAR-SV
 //' 
 //' @param month VHAR month order.
 //' @param window Rolling window size
 //' @param step forecast horizon for FEVD
 //' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
 //' @param HARtrans VHAR linear transformation matrix
 //' @param phi_record Coefficients MCMC record
 //' @param h_record log volatility MCMC record
@@ -298,8 +352,8 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans,
-																							Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record) {
+Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+																							Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
 	int num_sim = phi_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
@@ -308,18 +362,32 @@ Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::Matrix
 	Eigen::MatrixXd fevd = Eigen::MatrixXd::Zero(dim * step, dim);
 	Eigen::MatrixXd spillover(dim, dim);
 	Eigen::VectorXd res(num_design); // length = T - month
-	Eigen::MatrixXd contem_inv = Eigen::MatrixXd::Zero(dim, dim); // L^(-1)
-  Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim); // D_t with h_t = (h_t1, ..., h_tk)
+	Eigen::MatrixXd h_time(num_sim, dim); // h_t = (h_t1, ..., h_tk)
+  Eigen::MatrixXd lvol_sqrt = Eigen::MatrixXd::Zero(dim, dim); // D_t^(1 / 2)
   Eigen::MatrixXd tvp_sig(dim, dim); // Sigma_t
+	Eigen::MatrixXd sqrt_sig(dim, dim);
 	for (int i = 0; i < num_design; i++) {
+		h_time = h_record.middleCols(i * dim, dim);
 		fevd = Eigen::MatrixXd::Zero(dim * step, dim);
+	#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads) private(vma_mat, tvp_sig, sqrt_sig, lvol_sqrt)
 		for (int j = 0; j < num_sim; j++) {
-			tvp_lvol.diagonal() = h_record.row(j).segment(i * dim, dim).array().exp(); // D_t = diag(exp(h_t))
-			contem_inv = build_inv_lower(dim, a_record.row(j)).inverse();
-			tvp_sig = contem_inv * tvp_lvol * contem_inv.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
+			lvol_sqrt = (h_time.row(j) / 2).array().exp().matrix().asDiagonal();
+			sqrt_sig = build_inv_lower(dim, a_record.row(j)).triangularView<Eigen::Lower>().solve(lvol_sqrt);
+			tvp_sig = sqrt_sig * sqrt_sig.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
+			vma_mat = VHARcoeftoVMA(unvectorize(phi_record.row(j), dim_har, dim), HARtrans, step - 1, month);
+			#pragma omp critical
+			fevd += compute_fevd(vma_mat, tvp_sig, true);
+		}
+	#else
+		for (int j = 0; j < num_sim; j++) {
+			lvol_sqrt = (h_time.row(j) / 2).array().exp().matrix().asDiagonal();
+			sqrt_sig = build_inv_lower(dim, a_record.row(j)).triangularView<Eigen::Lower>().solve(lvol_sqrt);
+			tvp_sig = sqrt_sig * sqrt_sig.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
 			vma_mat = VHARcoeftoVMA(unvectorize(phi_record.row(j), dim_har, dim), HARtrans, step - 1, month);
 			fevd += compute_fevd(vma_mat, tvp_sig, true);
 		}
+	#endif
 		fevd /= num_sim;
 		spillover = compute_spillover(fevd);
 		res[i] = compute_tot_spillover(spillover);
