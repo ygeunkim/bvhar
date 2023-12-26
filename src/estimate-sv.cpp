@@ -107,7 +107,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
   Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
-  Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
+  // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
+	Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
   // SSVS--------------
   Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
   Eigen::MatrixXd coef_weight_record(num_iter + 1, num_grp);
@@ -122,7 +123,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   coef_record.row(0) = coefvec_ols;
   contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
   lvol_init_record.row(0) = (y - x * coef_mat).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
-  lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
+  // lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
+	Eigen::MatrixXd lvol_draw = lvol_init_record.row(0).replicate(num_design, 1); // h_j = (h_j1, ..., h_jn) for MCMC update
   lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // SSVS--------------
   coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
@@ -136,7 +138,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
   Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
-  Eigen::MatrixXd lvol_draw = lvol_record.block(0, 0, num_design, dim);
+  // Eigen::MatrixXd lvol_draw = lvol_record.block(0, 0, num_design, dim);
   // Corrected triangular factorization-------
   Eigen::VectorXd prior_mean_j = Eigen::VectorXd::Zero(dim_design); // Prior mean vector of j-th column of A
   Eigen::MatrixXd prior_prec_j = Eigen::MatrixXd::Identity(dim_design, dim_design); // Prior precision of j-th column of A
@@ -305,7 +307,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         ortho_latent.col(t)
       );
     }
-    lvol_record.block(num_design * i, 0, num_design, dim) = lvol_draw;
+    // lvol_record.block(num_design * i, 0, num_design, dim) = lvol_draw;
+		lvol_record.row(i) = vectorize_eigen(lvol_draw.transpose());
     // 3. a---------------------------------
     switch (prior_type) {
     case 2:
@@ -372,7 +375,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   if (prior_type == 2) {
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = lvol_record,
+      Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
@@ -382,7 +385,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = lvol_record,
+      Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
@@ -393,7 +396,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   }
   return Rcpp::List::create(
     Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = lvol_record,
+    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn)
