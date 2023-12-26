@@ -283,3 +283,46 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 	}
 	return res;
 }
+
+//' Dynamic Total Spillover Index of BVHAR-SV
+//' 
+//' @param month VHAR month order.
+//' @param window Rolling window size
+//' @param step forecast horizon for FEVD
+//' @param response_mat Response matrix.
+//' @param coef_mat Posterior mean.
+//' @param HARtrans VHAR linear transformation matrix
+//' @param phi_record Coefficients MCMC record
+//' @param h_record log volatility MCMC record
+//' @param a_record Contemporaneous coefficients MCMC record
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd dynamic_bvharsv_tot_spillover(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans,
+																							Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record) {
+	int num_sim = phi_record.rows();
+  int dim = response_mat.cols();
+  int num_design = response_mat.rows();
+  int dim_har = HARtrans.rows();
+	Eigen::MatrixXd vma_mat(dim * step, dim);
+	Eigen::MatrixXd fevd = Eigen::MatrixXd::Zero(dim * step, dim);
+	Eigen::MatrixXd spillover(dim, dim);
+	Eigen::VectorXd res(num_design); // length = T - month
+	Eigen::MatrixXd contem_inv = Eigen::MatrixXd::Zero(dim, dim); // L^(-1)
+  Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim); // D_t with h_t = (h_t1, ..., h_tk)
+  Eigen::MatrixXd tvp_sig(dim, dim); // Sigma_t
+	for (int i = 0; i < num_design; i++) {
+		fevd = Eigen::MatrixXd::Zero(dim * step, dim);
+		for (int j = 0; j < num_sim; j++) {
+			tvp_lvol.diagonal() = h_record.row(j).segment(i * dim, dim).array().exp(); // D_t = diag(exp(h_t))
+			contem_inv = build_inv_lower(dim, a_record.row(j)).inverse();
+			tvp_sig = contem_inv * tvp_lvol * contem_inv.transpose(); // Sigma_t = L^(-1) D_t (L^T)^(-1)
+			vma_mat = VHARcoeftoVMA(unvectorize(phi_record.row(j), dim_har, dim), HARtrans, step - 1, month);
+			fevd += compute_fevd(vma_mat, tvp_sig, true);
+		}
+		fevd /= num_sim;
+		spillover = compute_spillover(fevd);
+		res[i] = compute_tot_spillover(spillover);
+	}
+	return res;
+}

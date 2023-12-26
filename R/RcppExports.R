@@ -1707,6 +1707,23 @@ dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har
     .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
 }
 
+#' Dynamic Total Spillover Index of BVHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Coefficients MCMC record
+#' @param h_record log volatility MCMC record
+#' @param a_record Contemporaneous coefficients MCMC record
+#' 
+#' @noRd
+dynamic_bvharsv_tot_spillover <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, h_record, a_record) {
+    .Call(`_bvhar_dynamic_bvharsv_tot_spillover`, month, step, response_mat, coef_mat, HARtrans, phi_record, h_record, a_record)
+}
+
 #' h-step ahead Forecast Error Variance Decomposition
 #' 
 #' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
