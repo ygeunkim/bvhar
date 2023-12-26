@@ -1574,74 +1574,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_fevd
-Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize);
-RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP, SEXP normalizeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vma_coef(vma_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat, normalize));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_spillover
-Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd);
-RcppExport SEXP _bvhar_compute_spillover(SEXP fevdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type fevd(fevdSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_spillover(fevd));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_to_spillover
-Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_to_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_to_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_from_spillover
-Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_from_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_from_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_tot_spillover
-double compute_tot_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_tot_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_tot_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_net_spillover
-Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_net_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_net_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
 // roll_var_tot_spillover
 Eigen::VectorXd roll_var_tot_spillover(Eigen::MatrixXd y, int window, int step, int lag, bool include_mean);
 RcppExport SEXP _bvhar_roll_var_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP lagSEXP, SEXP include_meanSEXP) {
@@ -1707,6 +1639,74 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(roll_bvhar_tot_spillover(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_fevd
+Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize);
+RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP, SEXP normalizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vma_coef(vma_coefSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat, normalize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_spillover
+Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd);
+RcppExport SEXP _bvhar_compute_spillover(SEXP fevdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type fevd(fevdSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_spillover(fevd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_to_spillover
+Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_to_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_to_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_from_spillover
+Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_from_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_from_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_tot_spillover
+double compute_tot_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_tot_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_tot_spillover(spillover));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_net_spillover
+Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover);
+RcppExport SEXP _bvhar_compute_net_spillover(SEXP spilloverSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_net_spillover(spillover));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1932,16 +1932,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
+    {"_bvhar_roll_var_tot_spillover", (DL_FUNC) &_bvhar_roll_var_tot_spillover, 5},
+    {"_bvhar_roll_vhar_tot_spillover", (DL_FUNC) &_bvhar_roll_vhar_tot_spillover, 5},
+    {"_bvhar_roll_bvar_tot_spillover", (DL_FUNC) &_bvhar_roll_bvar_tot_spillover, 9},
+    {"_bvhar_roll_bvhar_tot_spillover", (DL_FUNC) &_bvhar_roll_bvhar_tot_spillover, 9},
     {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 3},
     {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},
     {"_bvhar_compute_to_spillover", (DL_FUNC) &_bvhar_compute_to_spillover, 1},
     {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
     {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
     {"_bvhar_compute_net_spillover", (DL_FUNC) &_bvhar_compute_net_spillover, 1},
-    {"_bvhar_roll_var_tot_spillover", (DL_FUNC) &_bvhar_roll_var_tot_spillover, 5},
-    {"_bvhar_roll_vhar_tot_spillover", (DL_FUNC) &_bvhar_roll_vhar_tot_spillover, 5},
-    {"_bvhar_roll_bvar_tot_spillover", (DL_FUNC) &_bvhar_roll_bvar_tot_spillover, 9},
-    {"_bvhar_roll_bvhar_tot_spillover", (DL_FUNC) &_bvhar_roll_bvhar_tot_spillover, 9},
     {"_bvhar_compute_logml", (DL_FUNC) &_bvhar_compute_logml, 7},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},

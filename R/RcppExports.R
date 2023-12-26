@@ -1651,50 +1651,6 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
-#' h-step ahead Forecast Error Variance Decomposition
-#' 
-#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
-#'
-#' @noRd
-compute_fevd <- function(vma_coef, cov_mat, normalize) {
-    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat, normalize)
-}
-
-#' h-step ahead Normalized Spillover
-#'
-#' @noRd
-compute_spillover <- function(fevd) {
-    .Call(`_bvhar_compute_spillover`, fevd)
-}
-
-#' To-others Spillovers
-#' 
-#' @noRd
-compute_to_spillover <- function(spillover) {
-    .Call(`_bvhar_compute_to_spillover`, spillover)
-}
-
-#' From-others Spillovers
-#' 
-#' @noRd
-compute_from_spillover <- function(spillover) {
-    .Call(`_bvhar_compute_from_spillover`, spillover)
-}
-
-#' Total Spillovers
-#' 
-#' @noRd
-compute_tot_spillover <- function(spillover) {
-    .Call(`_bvhar_compute_tot_spillover`, spillover)
-}
-
-#' Net Pairwise Spillovers
-#' 
-#' @noRd
-compute_net_spillover <- function(spillover) {
-    .Call(`_bvhar_compute_net_spillover`, spillover)
-}
-
 #' Rolling-sample Total Spillover Index of VAR
 #' 
 #' @param y Time series data of which columns indicate the variables
@@ -1749,6 +1705,50 @@ roll_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, ba
 #' @noRd
 roll_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
     .Call(`_bvhar_roll_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
+}
+
+#' h-step ahead Forecast Error Variance Decomposition
+#' 
+#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+#'
+#' @noRd
+compute_fevd <- function(vma_coef, cov_mat, normalize) {
+    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat, normalize)
+}
+
+#' h-step ahead Normalized Spillover
+#'
+#' @noRd
+compute_spillover <- function(fevd) {
+    .Call(`_bvhar_compute_spillover`, fevd)
+}
+
+#' To-others Spillovers
+#' 
+#' @noRd
+compute_to_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_to_spillover`, spillover)
+}
+
+#' From-others Spillovers
+#' 
+#' @noRd
+compute_from_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_from_spillover`, spillover)
+}
+
+#' Total Spillovers
+#' 
+#' @noRd
+compute_tot_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_tot_spillover`, spillover)
+}
+
+#' Net Pairwise Spillovers
+#' 
+#' @noRd
+compute_net_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_net_spillover`, spillover)
 }
 
 #' Numerically Stable Log Marginal Likelihood Excluding Constant Term
