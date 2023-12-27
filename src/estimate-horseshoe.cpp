@@ -1,10 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
-
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppProgress)]]
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
 //' 
@@ -62,9 +59,10 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
   Eigen::VectorXd response_vec = vectorize_eigen(y);
   Eigen::MatrixXd lambda_mat = Eigen::MatrixXd::Zero(num_coef, num_coef);
   // Start Gibbs sampling-----------------------------------
-  Progress p(num_iter - 1, display_progress);
+  bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   for (int i = 1; i < num_iter + 1; i++) {
-    if (Progress::check_abort()) {
+    if (bvharinterrupt::is_interrupted()) {
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record,
         Rcpp::Named("lambda_record") = local_record,
@@ -73,7 +71,10 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
         Rcpp::Named("kappa_record") = shrink_record
       );
     }
-    p.increment();
+    bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // 1. alpha (coefficient)
     for (int j = 0; j < num_grp; j++) {
       global_shrinkage_mat = (

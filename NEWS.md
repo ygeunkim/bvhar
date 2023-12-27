@@ -1,3 +1,9 @@
+# bvhar 1.2.0
+
+* Replace progress bar of `RcppProgress` package with custom header (`bvharprogress.h`).
+
+* Replace checking user interruption in the same package with custom header (`bvharinterrupt.h`).
+
 # bvhar 1.1.0
 
 * For new research, add new features for shrinkage priors.
