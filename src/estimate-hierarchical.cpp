@@ -1,7 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 
 //' Metropolis Algorithm for Normal-IW Hierarchical Model
@@ -62,13 +62,14 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
   );
   double numerator = 0;
   double denom = 0;
-  Progress p(num_iter, display_progress);
+  bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   // Start Metropolis---------------------------------------------
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
   is_accept[0] = true;
   for (int i = 1; i < num_iter + 1; i ++) {
-    if (Progress::check_abort()) {
+    if (bvharinterrupt::is_interrupted()) {
       return Rcpp::List::create(
         Rcpp::Named("lambda_record") = lam_record,
         Rcpp::Named("psi_record") = psi_record,
@@ -77,7 +78,10 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
         Rcpp::Named("acceptance") = is_accept
       );
     }
-    p.increment();
+    bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // Candidate ~ N(previous, scaled hessian)
     candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
     // log of acceptance rate = numerator - denom
