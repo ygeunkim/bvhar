@@ -1,7 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' VAR-SV by Gibbs Sampler
 //' 
@@ -163,9 +163,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
   // Start Gibbs sampling-----------------------------------
-  Progress p(num_iter, display_progress);
+	bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   for (int i = 1; i < num_iter + 1; i ++) {
-    if (Progress::check_abort()) {
+		if (bvharinterrupt::is_interrupted()) {
       if (prior_type == 2) {
         return Rcpp::List::create(
           Rcpp::Named("alpha_record") = coef_record,
@@ -195,7 +196,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         Rcpp::Named("sigh_record") = lvol_sig_record
       );
     }
-    p.increment();
+		bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
     switch(prior_type) {
