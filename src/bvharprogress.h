@@ -1,8 +1,8 @@
 #ifndef BVHARPROGRESS_H
 #define BVHARPROGRESS_H
 
+#include <Rcpp.h>
 #include <atomic>
-#include <iostream>
 
 class bvharprogress {
 private:

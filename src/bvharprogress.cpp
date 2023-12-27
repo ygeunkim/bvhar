@@ -11,17 +11,17 @@ void bvharprogress::update() {
 		return; // not display when verbose is false
 	}
 	int percent = _current * 100 / _total;
-	std::cout << "\r";
+	Rcpp::Rcout << "\r";
 	for (int i = 0; i < _width; i++) {
 		if (i < (percent * _width / 100)) {
-			std::cout << "#";
+			Rcpp::Rcout << "#";
 		} else {
-			std::cout << " ";
+			Rcpp::Rcout << " ";
 		}
 	}
-	std::cout << " " << percent << "%";
-	std::flush(std::cout);
+	Rcpp::Rcout << " " << percent << "%";
+	Rcpp::Rcout.flush();
 	if (_current >= _total) {
-		std::cout << "\n";
+		Rcpp::Rcout << "\n";
 	}
 }
