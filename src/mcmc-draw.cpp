@@ -595,3 +595,18 @@ Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam) {
   }
   return res;
 }
+
+//' Generating TVP-VAR Coefficients Vector in MCMC
+//' 
+//' @param x Design matrix X0
+//' @param y Response matrix Y0
+//' @param prior_mean Prior mean vector
+//' @param prior_prec Prior precision matrix
+//' @param innov_prec Stacked precision matrix of innovation
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd tvp_initcoef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd ar_coef, Eigen::MatrixXd coef_prec) {
+  Eigen::MatrixXd post_prec = (prior_prec + coef_prec).llt().solve(Eigen::MatrixXd::Identity(coef_prec.cols(), coef_prec.cols()));
+  return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + coef_prec * ar_coef), post_prec));
+}

@@ -49,4 +49,6 @@ Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec, Eigen::Vec
 
 Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam);
 
+Eigen::VectorXd tvp_initcoef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd ar_coef, Eigen::MatrixXd coef_prec);
+
 #endif
