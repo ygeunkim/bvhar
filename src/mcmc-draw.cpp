@@ -596,6 +596,31 @@ Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam) {
   return res;
 }
 
+//' Generating the Lower diagonal of LDLT Factor or Coefficients Vector
+//' 
+//' @param x Design matrix in SUR or stacked E_t
+//' @param y Response vector in SUR or stacked e_t
+//' @param prior_mean Prior mean vector
+//' @param prior_prec Prior precision matrix
+//' @param innov_prec Stacked precision matrix of innovation
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd tvp_coef(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec) {
+  int dim = prior_mean.size();
+  Eigen::VectorXd res(dim);
+  for (int i = 0; i < dim; i++) {
+    res[i] = norm_rand();
+  }
+	Eigen::MatrixXd post_sig = prior_prec + x.transpose() * innov_prec * x;
+	// Eigen::MatrixXd post_prec = (prior_prec + x.transpose() * innov_prec * x).llt().solve(Eigen::MatrixXd::Identity(x.cols(), x.cols()));
+	Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
+	Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * innov_prec * y);
+  // return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + x.transpose() * innov_prec * y), post_prec));
+	return post_mean + post_sig_upper.inverse() * res;
+}
+
 //' Generating TVP-VAR Coefficients Vector in MCMC
 //' 
 //' @param x Design matrix X0

@@ -1,7 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' TVP-VAR by Gibbs Sampler
 //' 
@@ -65,9 +65,10 @@ Rcpp::List estimate_var_tvp(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen
   Eigen::VectorXd yt_xalpha = Eigen::VectorXd::Zero(dim); // yt - Xt alpha_t
   Eigen::MatrixXd iw_scl = Eigen::MatrixXd::Zero(dim, dim);
   // Start Gibbs sampling-----------------------------------
-  Progress p(num_iter, display_progress);
+  bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   for (int i = 1; i < num_iter + 1; i ++) {
-    if (Progress::check_abort()) {
+    if (bvharinterrupt::is_interrupted()) {
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record,
         Rcpp::Named("alpha0_record") = coef_init_record,
@@ -75,11 +76,15 @@ Rcpp::List estimate_var_tvp(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen
         Rcpp::Named("q_record") = coef_sig_record
       );
     }
-    p.increment();
+    bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // 1. alpha
     for (int t = 0; t < num_design; t++) {
       // coef_record.block(num_design * i, 0, num_design, num_coef).row(t) = varsv_regression(sur_tvp.block(t * dim, t * num_coef, dim, num_coef), y.row(t), coef_init_record.row(i - 1), coef_prec, prec_mat);
-      coef_record.row(i).segment(num_coef * t, num_coef) = varsv_regression(sur_tvp.block(t * dim, t * num_coef, dim, num_coef), y.row(t), coef_init_record.row(i - 1), coef_prec, prec_mat);
+      // coef_record.row(i).segment(num_coef * t, num_coef) = varsv_regression(sur_tvp.block(t * dim, t * num_coef, dim, num_coef), y.row(t), coef_init_record.row(i - 1), coef_prec, prec_mat);
+			coef_record.row(i).segment(num_coef * t, num_coef) = tvp_coef(sur_tvp.block(t * dim, t * num_coef, dim, num_coef), y.row(t), coef_init_record.row(i - 1), coef_prec, prec_mat);
     }
     // 2. sigma
     iw_scl = Eigen::MatrixXd::Zero(dim, dim);
