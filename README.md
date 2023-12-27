@@ -39,8 +39,8 @@ install.packages("bvhar")
 You can install the development version from this repository.
 
 ``` r
-# install.packages("pak")
-pak::pak("ygeunkim/bvhar")
+# install.packages("remotes")
+remotes::install_github("ygeunkim/bvhar")
 ```
 
 ## Models
@@ -277,7 +277,7 @@ Please cite this package with following BibTeX:
       title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
-      note = {R package version 1.1.0},
+      note = {R package version 1.2.0},
       url = {https://cran.r-project.org/package=bvhar},
     }
 

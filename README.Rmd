@@ -50,8 +50,8 @@ install.packages("bvhar")
 You can install the development version from this repository.
 
 ```{r devinst, eval=FALSE}
-# install.packages("pak")
-pak::pak("ygeunkim/bvhar")
+# install.packages("remotes")
+remotes::install_github("ygeunkim/bvhar")
 ```
 
 ## Models
