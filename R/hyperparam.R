@@ -592,7 +592,8 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
     }
   }
   res <- list(
-    prior = "SV",
+    process = "SV",
+    prior = "Cholesky",
     shape = ig_shape,
     scale = ig_scl,
     initial_mean = initial_mean,
