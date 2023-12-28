@@ -15,6 +15,7 @@
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
 \alias{is.horseshoespec}
+\alias{is.svspec}
 \title{See if the Object a class in this package}
 \usage{
 is.varlse(x)
@@ -46,6 +47,8 @@ is.ssvsinit(x)
 is.bvharpriorspec(x)
 
 is.horseshoespec(x)
+
+is.svspec(x)
 }
 \arguments{
 \item{x}{Object}
