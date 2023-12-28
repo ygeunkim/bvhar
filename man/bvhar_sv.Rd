@@ -13,6 +13,7 @@ bvhar_sv(
   num_burn = floor(num_iter/2),
   thinning = 1,
   bayes_spec = set_bvhar(),
+  sv_spec = set_sv(),
   include_mean = TRUE,
   minnesota = c("no", "short", "longrun"),
   verbose = FALSE,
@@ -35,6 +36,8 @@ knit_print.bvharsv(x, ...)
 \item{thinning}{Thinning every thinning-th iteration}
 
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
+
+\item{sv_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} SV specification by \code{\link[=set_sv]{set_sv()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
