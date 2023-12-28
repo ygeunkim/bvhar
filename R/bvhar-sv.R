@@ -9,6 +9,7 @@
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
+#' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
@@ -72,6 +73,7 @@ bvhar_sv <- function(y,
                      num_burn = floor(num_iter / 2),
                      thinning = 1,
                      bayes_spec = set_bvhar(),
+                     sv_spec = set_sv(),
                      include_mean = TRUE,
                      minnesota = c("no", "short", "longrun"),
                      verbose = FALSE,
@@ -113,6 +115,17 @@ bvhar_sv <- function(y,
     is.horseshoespec(bayes_spec)
   )) {
     stop("Provide 'bvharspec' or 'horseshoespec' for 'bayes_spec'.")
+  }
+  if (!is.svspec(sv_spec)) {
+    stop("Provide 'svspec' for 'sv_spec'.")
+  }
+  if (length(sv_spec$shape) == 1) {
+    sv_spec$shape <- rep(sv_spec$shape, dim_data)
+    sv_spec$scale <- rep(sv_spec$scale, dim_data)
+    sv_spec$initial_mean <- rep(sv_spec$initial_mean, dim_data)
+  }
+  if (length(sv_spec$initial_prec) == 1) {
+    sv_spec$initial_prec <- sv_spec$initial_prec * diag(dim_data)
   }
   prior_nm <- ifelse(
     bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR",
@@ -201,6 +214,10 @@ bvhar_sv <- function(y,
         init_contem_global = .1,
         grp_id = 1,
         grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
+        prior_sig_shp = sv_spec$shape,
+        prior_sig_scl = sv_spec$scale,
+				prior_init_mean = sv_spec$initial_mean,
+				prior_init_prec = sv_spec$initial_prec,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, 1),
@@ -300,6 +317,10 @@ bvhar_sv <- function(y,
         init_contem_global = .1,
         grp_id = grp_id,
         grp_mat = glob_idmat,
+        prior_sig_shp = sv_spec$shape,
+        prior_sig_scl = sv_spec$scale,
+				prior_init_mean = sv_spec$initial_mean,
+				prior_init_prec = sv_spec$initial_prec,
         coef_spike = bayes_spec$coef_spike,
         coef_slab = bayes_spec$coef_slab,
         coef_slab_weight = bayes_spec$coef_mixture,
@@ -357,6 +378,10 @@ bvhar_sv <- function(y,
         init_contem_global = .1,
         grp_id = grp_id,
         grp_mat = glob_idmat,
+        prior_sig_shp = sv_spec$shape,
+        prior_sig_scl = sv_spec$scale,
+				prior_init_mean = sv_spec$initial_mean,
+				prior_init_prec = sv_spec$initial_prec,
         coef_spike = rep(0.1, num_phi),
         coef_slab = rep(5, num_phi),
         coef_slab_weight = rep(.5, length(grp_id)),
@@ -475,9 +500,10 @@ bvhar_sv <- function(y,
   res$totobs <- nrow(y)
   # model-----------------
   res$call <- match.call()
-  res$process <- paste("VHAR", bayes_spec$prior, "SV", sep = "_")
+  res$process <- paste("VHAR", bayes_spec$prior, sv_spec$process, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- bayes_spec
+  res$sv <- sv_spec
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
