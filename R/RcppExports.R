@@ -290,6 +290,10 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param init_contem_global Initial global shrinkage for Cholesky factor in Horseshoe
 #' @param grp_id Unique group id
 #' @param grp_mat Group matrix
+#' @param prior_sig_shp Inverse-Gamma prior shape of state variance
+#' @param prior_sig_scl Inverse-Gamma prior scale of state variance
+#' @param prior_init_mean Noraml prior mean of initial state
+#' @param prior_init_prec Normal prior precision of initial state
 #' @param coef_spike SD of spike normal
 #' @param coef_slab_weight SD of slab normal
 #' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
@@ -304,8 +308,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, prior_coef_mean, prior_coef_prec, prec_diag, prior_type, init_local, init_global, init_contem_local, init_contem_global, grp_id, grp_mat, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight, coef_s1, coef_s2, chol_s1, chol_s2, mean_non, sd_non, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values

@@ -394,3 +394,59 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
 knit_print.horseshoespec <- function(x, ...) {
   print(x)
 }
+
+#' @rdname set_sv
+#' @param x `svspec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    if (is.matrix(param[[i]])) {
+      type <- "a"
+    } else if (length(param[[i]]) == 1) {
+      type <- "b"
+    } else {
+      type <- "c"
+    }
+    switch(type,
+      "a" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      },
+      "b" = {
+        if (names(param)[i] == "initial_prec") {
+          pseudo_param <- paste0(param[[i]], " * diag(dim)")
+        } else {
+          pseudo_param <- paste0("rep(", param[[i]], ", dim)")
+        }
+        print.default(
+          pseudo_param,
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      },
+      "c" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      }
+    )
+    cat("\n")
+  }
+}
