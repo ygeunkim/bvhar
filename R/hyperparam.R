@@ -557,3 +557,48 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
   class(res) <- "horseshoespec"
   res
 }
+
+#' Stochastic Volatility Specification
+#' 
+#' `r lifecycle::badge("experimental")` Set SV hyperparameters.
+#' 
+#' @param ig_shape Inverse-Gamma shape of state variance.
+#' @param ig_scl Inverse-Gamma scale of state variance.
+#' @param initial_mean Prior mean of initial state.
+#' @param initial_prec Prior precision of initial state.
+#' @references
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#'
+#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+#' @order 1
+#' @export
+set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = .1) {
+  if (!is.vector(ig_shape) ||
+    !is.vector(ig_scl) ||
+    !is.vector(initial_mean)) {
+    stop("'ig_shape', 'ig_scl', and 'initial_mean' should be a vector.")
+  }
+  if ((length(ig_shape) != length(ig_scl)) ||
+    (length(ig_scl) != length(initial_mean))) {
+    stop("'ig_shape', 'ig_scl', and 'initial_mean' should have same length.")
+  }
+  if (is.vector(initial_prec) && length(initial_prec) > 1) {
+    initial_prec <- diag(initial_prec)
+  }
+  if (is.matrix(initial_prec)) {
+    if ((length(ig_shape) != nrow(initial_prec))
+        || (length(ig_shape) != ncol(initial_prec))) {
+      stop("'initial_prec' should be symmetric matrix of same size with the other vectors.")
+    }
+  }
+  res <- list(
+    process = "SV",
+    prior = "Cholesky",
+    shape = ig_shape,
+    scale = ig_scl,
+    initial_mean = initial_mean,
+    initial_prec = initial_prec
+  )
+  class(res) <- "svspec"
+  res
+}
