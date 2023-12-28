@@ -280,27 +280,14 @@ bvar_sv <- function(y,
   # Preprocess the results--------------------------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   res$alpha_record <- res$alpha_record[thin_id,]
+  res$h_record <- res$h_record[thin_id,]
   res$a_record <- res$a_record[thin_id,]
   res$h0_record <- res$h0_record[thin_id,]
   res$sigh_record <- res$sigh_record[thin_id,]
-  res$h_record <- split.data.frame(
-    res$h_record,
-    gl(num_design, num_iter + 1)
-  ) %>%
-    lapply(
-      function(x) {
-        colnames(x) <- paste0("h[", seq_len(ncol(x)), "]")
-        x[thin_id + 1,] # since num_iter + 1 rows
-      }
-    )
-  res$h_record <- lapply(
-    seq_along(num_design),
-    function(i) {
-      colnames(res$h_record[[i]]) <- paste0(colnames(res$h_record[[i]]), i)
-      res$h_record[[i]]
-    }
+  colnames(res$h_record) <- paste0(
+    paste0("h[", seq_len(dim_data), "]"),
+    gl(num_design, dim_data)
   )
-  res$h_record <- do.call(cbind, res$h_record)
   res$h_record <- as_draws_df(res$h_record)
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
