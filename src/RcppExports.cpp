@@ -831,6 +831,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// set_seedr
+void set_seedr(int seed);
+RcppExport SEXP _bvhar_set_seedr(SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    set_seedr(seed);
+    return R_NilValue;
+END_RCPP
+}
 // sim_mgaussian
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
@@ -1715,6 +1725,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_roll_bvharsv", (DL_FUNC) &_bvhar_roll_bvharsv, 11},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
+    {"_bvhar_set_seedr", (DL_FUNC) &_bvhar_set_seedr, 1},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
     {"_bvhar_sim_mgaussian_chol", (DL_FUNC) &_bvhar_sim_mgaussian_chol, 3},
     {"_bvhar_sim_mstudent", (DL_FUNC) &_bvhar_sim_mstudent, 5},

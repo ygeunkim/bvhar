@@ -3,6 +3,8 @@
 
 #include "bvharprob.h"
 
+void set_seedr(int seed);
+
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
 Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);

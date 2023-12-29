@@ -1,6 +1,18 @@
 #include <RcppEigen.h>
 #include "bvharprob.h"
 
+//' Set seed in Rcpp using `set.seed()` of R
+//' 
+//' @param seed Seed
+//' @noRd
+// [[Rcpp::export]]
+void set_seedr(int seed) {
+	unsigned int seed_unsigned = static_cast<unsigned int>(seed);
+	Rcpp::Environment base_env("package:base");
+	Rcpp::Function set_seed = base_env["set.seed"];
+	set_seed(seed_unsigned);
+}
+
 //' Generate Multivariate Normal Random Vector
 //' 
 //' This function samples n x muti-dimensional normal random matrix.
