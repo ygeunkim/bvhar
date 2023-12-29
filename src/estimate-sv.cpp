@@ -235,7 +235,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       global_shrinkage = vectorize_eigen(global_shrinkage_mat);
       prior_alpha_prec = build_shrink_mat(global_shrinkage, init_local);
-      shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
+			shrink_record.row(i - 1) = 1 / (1 + prior_alpha_prec.diagonal().array());
       break;
     }
     sqrt_sv = (-lvol_draw / 2).array().exp(); // n x k
@@ -390,7 +390,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
     );
   } else if (prior_type == 3) {
-    shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
+		shrink_record.row(num_iter) = 1 / (1 + prior_alpha_prec.diagonal().array());
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
