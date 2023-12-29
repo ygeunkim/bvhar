@@ -250,9 +250,8 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
   }
   Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
-  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
-  return post_mean + post_sig_upper.inverse() * res;
+	return post_mean + lltOfscale.matrixU().solve(res);
 }
 
 //' Generating log-volatilities in MCMC
@@ -310,11 +309,10 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   }
   Eigen::MatrixXd post_sig = HtH / sv_sig + inv_sig_s;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
-  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
   Eigen::VectorXd post_mean = lltOfscale.solve(
     HtH * init_sv * Eigen::VectorXd::Ones(num_design) / sv_sig + inv_sig_s * (latent_vec - ds)
   );
-  return post_mean + post_sig_upper.inverse() * res;
+	return post_mean + lltOfscale.matrixU().solve(res);
 }
 
 //' Generating sig_h in MCMC
@@ -370,9 +368,8 @@ Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
   h_diagprec.diagonal() = 1 / sv_sig.array();
   Eigen::MatrixXd post_h0_sig = prior_prec + h_diagprec;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_h0_sig);
-  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + h_diagprec * h1);
-  return post_mean + post_sig_upper.inverse() * res;
+	return post_mean + lltOfscale.matrixU().solve(res);
 }
 
 //' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
