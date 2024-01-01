@@ -1200,17 +1200,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // varsv_h0
-Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd init_sv, Eigen::VectorXd h1, Eigen::VectorXd sv_sig);
-RcppExport SEXP _bvhar_varsv_h0(SEXP prior_meanSEXP, SEXP prior_precSEXP, SEXP init_svSEXP, SEXP h1SEXP, SEXP sv_sigSEXP) {
+Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd h1, Eigen::VectorXd sv_sig);
+RcppExport SEXP _bvhar_varsv_h0(SEXP prior_meanSEXP, SEXP prior_precSEXP, SEXP h1SEXP, SEXP sv_sigSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type prior_mean(prior_meanSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_sv(init_svSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type h1(h1SEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type sv_sig(sv_sigSEXP);
-    rcpp_result_gen = Rcpp::wrap(varsv_h0(prior_mean, prior_prec, init_sv, h1, sv_sig));
+    rcpp_result_gen = Rcpp::wrap(varsv_h0(prior_mean, prior_prec, h1, sv_sig));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1743,7 +1742,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_varsv_regression", (DL_FUNC) &_bvhar_varsv_regression, 4},
     {"_bvhar_varsv_ht", (DL_FUNC) &_bvhar_varsv_ht, 4},
     {"_bvhar_varsv_sigh", (DL_FUNC) &_bvhar_varsv_sigh, 4},
-    {"_bvhar_varsv_h0", (DL_FUNC) &_bvhar_varsv_h0, 5},
+    {"_bvhar_varsv_h0", (DL_FUNC) &_bvhar_varsv_h0, 4},
     {"_bvhar_build_shrink_mat", (DL_FUNC) &_bvhar_build_shrink_mat, 2},
     {"_bvhar_horseshoe_coef", (DL_FUNC) &_bvhar_horseshoe_coef, 4},
     {"_bvhar_horseshoe_fast_coef", (DL_FUNC) &_bvhar_horseshoe_fast_coef, 3},
