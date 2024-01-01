@@ -356,9 +356,8 @@ Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::Vect
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
-                         Eigen::VectorXd init_sv, Eigen::VectorXd h1,
-                         Eigen::VectorXd sv_sig) {
-  int dim = init_sv.size();
+                         Eigen::VectorXd h1, Eigen::VectorXd sv_sig) {
+  int dim = h1.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
     res[i] = norm_rand();
