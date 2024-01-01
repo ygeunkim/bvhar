@@ -404,6 +404,37 @@ set_ssvs <- function(coef_spike = .1,
   res
 }
 
+#' Initialize Parameters Randomly using Uniform Distribution
+#'
+#' @param min Lower limit of uniform distribution
+#' @param max Upper limit of uniform distribution
+#'
+#' @order 1
+#' @export
+init_unif <- function(min = -1, max = 1) {
+  res <- list(
+    type = "unif",
+    param = c(min, max)
+  )
+  class(res) <- c("unifinit", "paraminit")
+  res
+}
+
+#' Initialize Parameters as Constant Values
+#' 
+#' @param scl Initialize by `scl * 1`.
+#' 
+#' @order 1
+#' @export
+init_const <- function(scl = 1) {
+  res <- list(
+    type = "const",
+    param = scl
+  )
+  class(res) <- c("sclinit", "paraminit")
+  res
+}
+
 #' Initial Parameters of Stochastic Search Variable Selection (SSVS) Model
 #' 
 #' Set initial parameters before starting Gibbs sampler for SSVS.
@@ -446,55 +477,32 @@ init_ssvs <- function(init_coef,
     init_chol_dummy <- NULL
     num_chain <- 1
   } else {
-    if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
-        (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
-        (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
-        (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
-      # 3d array to list--------------------------------
-      init_coef <- change_to_list(init_coef)
-      init_coef_dummy <- change_to_list(init_coef_dummy)
-      init_chol <- change_to_list(init_chol)
-      init_chol_dummy <- change_to_list(init_chol_dummy)
-      # Errors in multiple chain------------------------
-      if (length(
-        unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
-      ) > 1) {
-        stop("Different chain(>1) number has been defined.")
-      }
-      isnot_identical(init_coef, case = "dim")
-      isnot_identical(init_coef_dummy, case = "dim")
-      isnot_identical(init_chol, case = "dim")
-      isnot_identical(init_chol_dummy, case = "dim")
-      isnot_identical(init_coef, case = "values")
-      isnot_identical(init_chol, case = "values")
-      num_chain <- length(init_coef)
-      coef_mat <- init_coef[[1]]
-      coef_dummy <- init_coef_dummy[[1]]
-      chol_mat <- init_chol[[1]]
-      chol_dummy <- init_chol_dummy[[1]]
-    } else {
-      num_chain <- 1
-      coef_mat <- init_coef
-      coef_dummy <- init_coef_dummy
-      chol_mat <- init_chol
-      chol_dummy <- init_chol_dummy
-    }
+    num_chain <- 1
+    coef_mat <- init_coef
+    coef_dummy <- init_coef_dummy
+    chol_mat <- init_chol
+    chol_dummy <- init_chol_dummy
     # Check dimension validity-----------------------------
-    dim_design <- nrow(coef_mat) # kp(+1)
-    dim_data <- ncol(coef_mat) # k = dim
-    if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
-      if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
-        stop("Invalid dimension of 'init_coef_dummy'.")
+    if (!(is.paraminit(coef_mat)
+          && is.paraminit(coef_dummy)
+          && is.paraminit(chol_mat)
+          && is.paraminit(chol_dummy))) { 
+      dim_design <- nrow(coef_mat) # kp(+1)
+      dim_data <- ncol(coef_mat) # k = dim
+      if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
+        if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
+          stop("Invalid dimension of 'init_coef_dummy'.")
+        }
       }
-    }
-    if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
-      stop("Invalid dimension of 'init_chol'.")
-    }
-    if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
-      stop("'init_chol' should be upper triangular matrix.")
-    }
-    if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
-      stop("Invalid dimension of 'init_chol_dummy'.")
+      if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
+        stop("Invalid dimension of 'init_chol'.")
+      }
+      if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
+        stop("'init_chol' should be upper triangular matrix.")
+      }
+      if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
+        stop("Invalid dimension of 'init_chol_dummy'.")
+      }
     }
   }
   res <- list(

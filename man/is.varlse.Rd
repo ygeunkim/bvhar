@@ -14,6 +14,9 @@
 \alias{is.boundbvharemp}
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
+\alias{is.paraminit}
+\alias{is.unifinit}
+\alias{is.sclinit}
 \alias{is.horseshoespec}
 \alias{is.svspec}
 \title{See if the Object a class in this package}
@@ -43,6 +46,12 @@ is.boundbvharemp(x)
 is.ssvsinput(x)
 
 is.ssvsinit(x)
+
+is.paraminit(x)
+
+is.unifinit(x)
+
+is.sclinit(x)
 
 is.bvharpriorspec(x)
 

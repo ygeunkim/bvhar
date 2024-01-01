@@ -183,6 +183,38 @@ knit_print.ssvsinput <- function(x, ...) {
   print(x)
 }
 
+#' @rdname init_unif
+#' @param x `unifinit`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.unifinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  print(sprintf("Uniformly random (%d, %d)", x$param[1], x$param[2]))
+}
+
+#' @rdname init_unif
+#' @exportS3Method knitr::knit_print
+knit_print.unifinit <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname init_const
+#' @param x `sclinit`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.sclinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  print(sprintf("Set to %d", x$param))
+}
+
+#' @rdname init_const
+#' @exportS3Method knitr::knit_print
+knit_print.sclinit <- function(x, ...) {
+  print(x)
+}
+
 #' @rdname init_ssvs
 #' @param x `ssvsinit`
 #' @param digits digit option to print
@@ -206,15 +238,15 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
     type <- "a"
-    if (is.list(param[[i]])) {
-      # type <- "a"
-      if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) > 6) {
-        type <- "a_large" # both large
-      } else if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) <= 6) {
-        type <- "a_row" # large row
-      } else if (nrow(param[[i]][[1]]) <= 7 & ncol(param[[i]][[1]]) > 6) {
-        type <- "a_column" # large column
-      }
+    if (is.paraminit(param[[i]])) {
+      type <- "rand"
+      # if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) > 6) {
+      #   type <- "a_large" # both large
+      # } else if (nrow(param[[i]][[1]]) > 7 & ncol(param[[i]][[1]]) <= 6) {
+      #   type <- "a_row" # large row
+      # } else if (nrow(param[[i]][[1]]) <= 7 & ncol(param[[i]][[1]]) > 6) {
+      #   type <- "a_column" # large column
+      # }
     } else if (is.matrix(param[[i]])) {
       type <- "b" # not large one matrix
       if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
@@ -229,7 +261,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       type,
       "a" = {
         for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
+          # cat(gettextf("# In chain %d:\n", j))
           print.default(
             param[[i]][[j]],
             digits = digits,
@@ -239,58 +271,66 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         }
         cat("\n")
       },
-      "a_large" = {
-        for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
-          cat(paste0(
-            "# A matrix: ",
-            nrow(param[[i]][[j]]),
-            " x ",
-            ncol(param[[i]][[j]]),
-            "\n"
-          ))
-          print.default(
-            param[[i]][[j]][1:7, 1:6],
-            digits = digits,
-            print.gap = 2L,
-            quote = FALSE
-          )
-          cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
-        }
+      "rand" = {
+        print(
+          param[[i]],
+          digits = digits,
+          ...
+        )
         cat("\n")
       },
-      "a_row" = {
-        for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
-          print.default(
-            param[[i]][[j]][1:7,],
-            digits = digits,
-            print.gap = 2L,
-            quote = FALSE
-          )
-          cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
-        }
-        cat("\n")
-      },
-      "a_column" = {
-        for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
-          cat(paste0(
-            "# A matrix: ",
-            nrow(param[[i]][[j]]),
-            " x ",
-            ncol(param[[i]][[j]]),
-            "\n"
-          ))
-          print.default(
-            param[[i]][[j]][1:7, 1:6],
-            digits = digits,
-            print.gap = 2L,
-            quote = FALSE
-          )
-        }
-        cat("\n")
-      },
+      # "a_large" = {
+      #   for (j in seq_along(param[[i]])) {
+      #     cat(gettextf("# In chain %d:\n", j))
+      #     cat(paste0(
+      #       "# A matrix: ",
+      #       nrow(param[[i]][[j]]),
+      #       " x ",
+      #       ncol(param[[i]][[j]]),
+      #       "\n"
+      #     ))
+      #     print.default(
+      #       param[[i]][[j]][1:7, 1:6],
+      #       digits = digits,
+      #       print.gap = 2L,
+      #       quote = FALSE
+      #     )
+      #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+      #   }
+      #   cat("\n")
+      # },
+      # "a_row" = {
+      #   for (j in seq_along(param[[i]])) {
+      #     cat(gettextf("# In chain %d:\n", j))
+      #     print.default(
+      #       param[[i]][[j]][1:7,],
+      #       digits = digits,
+      #       print.gap = 2L,
+      #       quote = FALSE
+      #     )
+      #     cat(paste0("# ... with ", nrow(param[[i]][[j]]) - 7, " more rows", "\n"))
+      #   }
+      #   cat("\n")
+      # },
+      # "a_column" = {
+      #   for (j in seq_along(param[[i]])) {
+      #     cat(gettextf("# In chain %d:\n", j))
+      #     cat(paste0(
+      #       "# A matrix: ",
+      #       nrow(param[[i]][[j]]),
+      #       " x ",
+      #       ncol(param[[i]][[j]]),
+      #       "\n"
+      #     ))
+      #     print.default(
+      #       param[[i]][[j]][1:7, 1:6],
+      #       digits = digits,
+      #       print.gap = 2L,
+      #       quote = FALSE
+      #     )
+      #   }
+      #   cat("\n")
+      # },
       "b" = {
         print.default(
           param[[i]],
