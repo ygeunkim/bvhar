@@ -20,6 +20,10 @@
 //' @param init_contem_global Initial global shrinkage for Cholesky factor in Horseshoe
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
+//' @param prior_sig_shp Inverse-Gamma prior shape of state variance
+//' @param prior_sig_scl Inverse-Gamma prior scale of state variance
+//' @param prior_init_mean Noraml prior mean of initial state
+//' @param prior_init_prec Normal prior precision of initial state
 //' @param coef_spike SD of spike normal
 //' @param coef_slab_weight SD of slab normal
 //' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
@@ -47,6 +51,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::VectorXd init_contem_global,
                            Eigen::VectorXi grp_id,
                            Eigen::MatrixXd grp_mat,
+													 Eigen::VectorXd prior_sig_shp,
+													 Eigen::VectorXd prior_sig_scl,
+													 Eigen::VectorXd prior_init_mean,
+													 Eigen::MatrixXd prior_init_prec,
                            Eigen::VectorXd coef_spike,
                            Eigen::VectorXd coef_slab,
                            Eigen::VectorXd coef_slab_weight,
@@ -97,46 +105,39 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
       break;
   }
-  Eigen::VectorXd prior_sig_shp = 3 * Eigen::VectorXd::Ones(dim); // nu_h = 3 * 1_k
-  Eigen::VectorXd prior_sig_scl = .01 * Eigen::VectorXd::Ones(dim); // S_h = .1^2 * 1_k
-  Eigen::VectorXd prior_init_mean = Eigen::VectorXd::Ones(dim); // b0 = 1
-  Eigen::MatrixXd prior_init_prec = Eigen::MatrixXd::Identity(dim, dim) / 10; // Inverse of B0 = .1 * I
   Eigen::MatrixXd coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y); // LSE
   // record------------------------------------------------
   Eigen::MatrixXd coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // alpha in VAR
   Eigen::MatrixXd contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol); // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
-  Eigen::MatrixXd lvol_sig_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
+  Eigen::MatrixXd lvol_sig_record = .1 * Eigen::MatrixXd::Ones(num_iter + 1, dim); // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
   Eigen::MatrixXd lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim); // h0 = h10, ..., hk0
-  // Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_design * (num_iter + 1), dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn): h_ij in each dim-block
 	Eigen::MatrixXd lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim); // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
   // SSVS--------------
-  Eigen::MatrixXd coef_dummy_record(num_iter + 1, num_alpha);
-  Eigen::MatrixXd coef_weight_record(num_iter + 1, num_grp);
-  Eigen::MatrixXd contem_dummy_record(num_iter + 1, num_lowerchol);
-  Eigen::MatrixXd contem_weight_record(num_iter + 1, num_lowerchol);
+  Eigen::MatrixXd coef_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_alpha);
+  Eigen::MatrixXd coef_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_grp);
+  Eigen::MatrixXd contem_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol);
+  Eigen::MatrixXd contem_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
   // HS----------------
-  Eigen::MatrixXd local_record(num_iter + 1, num_coef);
-  Eigen::MatrixXd global_record(num_iter + 1, num_grp);
-  Eigen::MatrixXd shrink_record(num_iter + 1, num_coef);
+  Eigen::MatrixXd local_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
+  Eigen::MatrixXd global_record = Eigen::MatrixXd::Zero(num_iter + 1, num_grp);
+  Eigen::MatrixXd shrink_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
   // Initialize--------------------------------------------
   Eigen::VectorXd coefvec_ols = vectorize_eigen(coef_mat);
   coef_record.row(0) = coefvec_ols;
-  contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
-  lvol_init_record.row(0) = (y - x * coef_mat).transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
-  // lvol_record.block(0, 0, num_design, dim) = lvol_init_record.row(0).replicate(num_design, 1);
+  // contem_coef_record.row(0) = Eigen::VectorXd::Zero(num_lowerchol); // initialize a as 0
+	Eigen::MatrixXd latent_innov = y - x * coef_mat; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+  lvol_init_record.row(0) = latent_innov.transpose().array().square().rowwise().mean().log(); // initialize h0 as mean of log((y - x alpha)^T (y - x alpha))
 	Eigen::MatrixXd lvol_draw = lvol_init_record.row(0).replicate(num_design, 1); // h_j = (h_j1, ..., h_jn) for MCMC update
-  lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
+  // lvol_sig_record.row(0) = .1 * Eigen::VectorXd::Ones(dim);
   // SSVS--------------
-  coef_dummy_record.row(0) = Eigen::VectorXd::Ones(num_alpha);
   coef_weight_record.row(0) = coef_slab_weight;
-  contem_dummy_record.row(0) = Eigen::VectorXd::Ones(num_lowerchol);
   contem_weight_record.row(0) = chol_slab_weight;
   // HS----------------
   local_record.row(0) = init_local;
   global_record.row(0) = init_global;
   // Some variables----------------------------------------
   Eigen::MatrixXd chol_lower = Eigen::MatrixXd::Zero(dim, dim); // L in Sig_t^(-1) = L D_t^(-1) LT
-  Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+  // Eigen::MatrixXd latent_innov(num_design, dim); // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent(num_design, dim); // orthogonalized Z0
   // Eigen::MatrixXd lvol_draw = lvol_record.block(0, 0, num_design, dim);
   // Corrected triangular factorization-------
@@ -231,7 +232,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       }
       global_shrinkage = vectorize_eigen(global_shrinkage_mat);
       prior_alpha_prec = build_shrink_mat(global_shrinkage, init_local);
-      shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
+			shrink_record.row(i - 1) = 1 / (1 + prior_alpha_prec.diagonal().array());
       break;
     }
     sqrt_sv = (-lvol_draw / 2).array().exp(); // n x k
@@ -371,7 +372,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     lvol_init_record.row(i) = varsv_h0(
       prior_init_mean,
       prior_init_prec,
-      lvol_init_record.row(i - 1),
       lvol_draw.row(0),
       lvol_sig_record.row(i)
     );
@@ -386,7 +386,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
     );
   } else if (prior_type == 3) {
-    shrink_record.row(num_iter) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
+		shrink_record.row(num_iter) = 1 / (1 + prior_alpha_prec.diagonal().array());
     return Rcpp::List::create(
       Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
       Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
