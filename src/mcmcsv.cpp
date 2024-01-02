@@ -84,6 +84,49 @@ void McmcSv::UpdateInitState() {
 	lvol_init = varsv_h0(prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
 }
 
+SsvsSv::SsvsSv(
+	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab,
+    const Eigen::VectorXd& coef_slab_weight, const Eigen::VectorXd& chol_spike,
+    const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
+    const double& coef_s1, const double& coef_s2,
+    const double& chol_s1, const double& chol_s2,
+    const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
+)
+: McmcSv(x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+	include_mean(include_mean),
+	coef_weight(coef_slab_weight),
+	contem_weight(chol_slab_weight),
+	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
+	num_grp(grp_id.size()),
+	grp_id(grp_id),
+	grp_mat(grp_mat),
+	grp_vec(vectorize_eigen(grp_mat)),
+	coef_s1(coef_s1),
+	coef_s2(coef_s2),
+	contem_s1(contem_s1),
+	contem_s2(contem_s2),
+	prior_sd_non(sd_non),
+	prior_sd(Eigen::VectorXd(num_coef)) {
+	num_alpha = num_coef - dim;
+	if (!include_mean) {
+		num_alpha += dim; // always dim^2 p
+	}
+	if (include_mean) {
+    for (int j = 0; j < dim; j++) {
+      prior_alpha_mean.segment(j * dim_design, num_alpha / dim) = Eigen::VectorXd::Zero(num_alpha / dim);
+      prior_alpha_mean[j * dim_design + num_alpha / dim] = mean_non[j];
+    }
+  }
+	coef_dummy = Eigen::VectorXd::Ones(num_alpha);
+	slab_weight = Eigen::VectorXd::Zero(num_alpha);
+	slab_weight_mat = Eigen::MatrixXd::Zero(num_alpha / dim, dim);
+	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
+}
+
 HorseshoeSv::HorseshoeSv(
 	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,

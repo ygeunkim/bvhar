@@ -53,6 +53,45 @@ private:
 	Eigen::MatrixXd coef_mat;
 };
 
+class SsvsSv : McmcSv {
+public:
+	SsvsSv(
+		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab,
+    const Eigen::VectorXd& coef_slab_weight, const Eigen::VectorXd& chol_spike,
+    const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
+    const double& coef_s1, const double& coef_s2,
+    const double& chol_s1, const double& chol_s2,
+    const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
+	);
+	virtual ~SsvsSv() = default;
+	Eigen::VectorXd coef_dummy;
+	Eigen::VectorXd coef_weight;
+	Eigen::VectorXd contem_dummy;
+	Eigen::VectorXd contem_weight;
+private:
+	bool include_mean;
+	int num_alpha;
+	int num_grp;
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXd grp_mat;
+	Eigen::VectorXd grp_vec;
+	Eigen::VectorXd coef_spike;
+	Eigen::VectorXd coef_slab;
+	Eigen::VectorXd contem_spike;
+	Eigen::VectorXd contem_slab;
+	double coef_s1, coef_s2;
+	double contem_s1, contem_s2;
+	double prior_sd_non;
+	Eigen::VectorXd prior_sd;
+	Eigen::VectorXd slab_weight; // pij vector
+	Eigen::MatrixXd slab_weight_mat; // pij matrix: (dim*p) x dim
+	Eigen::VectorXd coef_mixture_mat;
+}
+
 class HorseshoeSv : McmcSv {
 public:
 	HorseshoeSv(
