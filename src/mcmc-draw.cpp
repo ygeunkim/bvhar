@@ -611,10 +611,9 @@ Eigen::VectorXd tvp_coef(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd p
 	Eigen::MatrixXd post_sig = prior_prec + x.transpose() * innov_prec * x;
 	// Eigen::MatrixXd post_prec = (prior_prec + x.transpose() * innov_prec * x).llt().solve(Eigen::MatrixXd::Identity(x.cols(), x.cols()));
 	Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
-  Eigen::MatrixXd post_sig_upper = lltOfscale.matrixU();
 	Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * innov_prec * y);
   // return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + x.transpose() * innov_prec * y), post_prec));
-	return post_mean + post_sig_upper.inverse() * res;
+	return post_mean + lltOfscale.matrixU().solve(res);
 }
 
 //' Generating TVP-VAR Coefficients Vector in MCMC
