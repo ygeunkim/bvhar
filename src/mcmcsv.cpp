@@ -1,11 +1,19 @@
 #include "mcmcsv.h"
 
-McmcSv::McmcSv(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl, Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec)
+McmcSv::McmcSv(
+	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+)
 : x(x), y(y),
 	prior_sig_shp(prior_sig_shp), prior_sig_scl(prior_sig_scl),
 	prior_init_mean(prior_init_mean), prior_init_prec(prior_init_prec),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	chol_lower(Eigen::MatrixXd::Zero(dim, dim)),
+	prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
+	prior_alpha_prec(Eigen::MatrixXd::Zero(num_coef, num_coef)),
+	prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
+	prior_chol_prec(Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol)),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
 	prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
@@ -15,6 +23,7 @@ McmcSv::McmcSv(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd prior_sig_s
   num_lowerchol = dim * (dim - 1) / 2;
   num_coef = dim * dim_design;
 	coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
+	coef_vec = vectorize_eigen(coef_vec);
 	contem_coef = Eigen::VectorXd(num_lowerchol);
 	latent_innov = y - x * coef_mat;
 	lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
@@ -24,7 +33,7 @@ McmcSv::McmcSv(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd prior_sig_s
   coef_j.col(0) = Eigen::VectorXd::Zero(dim_design);
 }
 
-void McmcSv::UpdateCoef(Eigen::MatrixXd prior_alpha_mean, Eigen::MatrixXd prior_alpha_prec) {
+void McmcSv::UpdateCoef() {
 	chol_lower = build_inv_lower(dim, contem_coef);
 	sqrt_sv = (-lvol_draw / 2).array().exp();
 	for (int j = 0; j < dim; j++) {
@@ -42,6 +51,7 @@ void McmcSv::UpdateCoef(Eigen::MatrixXd prior_alpha_mean, Eigen::MatrixXd prior_
       prior_mean_j, prior_prec_j
     );
 	}
+	coef_vec = vectorize_eigen(coef_mat);
 }
 
 void McmcSv::UpdateState() {
@@ -53,7 +63,7 @@ void McmcSv::UpdateState() {
 	}
 }
 
-void McmcSv::UpdateImpact(Eigen::MatrixXd prior_chol_mean, Eigen::MatrixXd prior_chol_prec) {
+void McmcSv::UpdateImpact() {
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
@@ -72,4 +82,57 @@ void McmcSv::UpdateStateVar() {
 
 void McmcSv::UpdateInitState() {
 	lvol_init = varsv_h0(prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
+}
+
+HorseshoeSv::HorseshoeSv(
+	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
+	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+)
+: McmcSv(x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+	local_lev(init_local),
+	global_lev(init_global),
+	shrink_fac(Eigen::VectorXd::Zero(num_coef)),
+	num_grp(grp_id.size()),
+	grp_id(grp_id),
+	grp_mat(grp_mat),
+	grp_vec(vectorize_eigen(grp_mat)),
+	latent_local(Eigen::VectorXd::Zero(num_coef)),
+	latent_global(Eigen::VectorXd::Zero(1)),
+	coef_var(Eigen::VectorXd::Zero(num_coef)),
+	coef_var_loc(Eigen::MatrixXd::Zero(num_design, dim)),
+	contem_local_lev(init_contem_local),
+	contem_global_lev(init_contem_global),
+	contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
+	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
+	latent_contem_global(Eigen::VectorXd::Zero(1)) {}
+
+void HorseshoeSv::UpdateCoefPrec() {
+	for (int j = 0; j < num_grp; j++) {
+		coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+			global_lev.segment(j, 1).replicate(dim_design, dim),
+			coef_var_loc
+		);
+	}
+	coef_var = vectorize_eigen(coef_var_loc);
+	prior_alpha_prec = build_shrink_mat(coef_var, local_lev);
+	shrink_fac = 1 / (1 + prior_alpha_prec.diagonal().array());
+}
+
+void HorseshoeSv::UpdateCoefShrink() {
+	latent_local = horseshoe_latent(local_lev);
+	latent_global = horseshoe_latent(global_lev);
+	local_lev = horseshoe_local_sparsity(latent_local, coef_var, coef_vec, 1);
+	global_lev = horseshoe_mn_global_sparsity(grp_vec, grp_id, latent_global, local_lev, coef_vec, 1);
+}
+
+void HorseshoeSv::UpdateImpactPrec() {
+	latent_contem_local = horseshoe_latent(contem_local_lev);
+	latent_contem_global = horseshoe_latent(contem_global_lev);
+	contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol));
+	contem_global_lev = horseshoe_local_sparsity(latent_contem_local, contem_var, contem_coef, 1);
+	prior_chol_prec = build_shrink_mat(contem_var, contem_global_lev);
 }

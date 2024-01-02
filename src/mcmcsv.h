@@ -6,20 +6,24 @@
 
 class McmcSv {
 public:
-	McmcSv(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl, Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec);
+	McmcSv(
+		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+	);
 	virtual ~McmcSv() = default;
-	void UpdateCoef(Eigen::MatrixXd prior_alpha_mean, Eigen::MatrixXd prior_alpha_prec);
+	void UpdateCoef();
 	void UpdateState();
-	void UpdateImpact(Eigen::MatrixXd prior_chol_mean, Eigen::MatrixXd prior_chol_prec);
+	void UpdateImpact();
 	void UpdateStateVar();
 	void UpdateInitState();
+	Eigen::VectorXd coef_vec; // alpha in VAR
 	Eigen::VectorXd contem_coef; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
-	Eigen::MatrixXd coef_mat; // alpha in VAR
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
 	Eigen::VectorXd lvol_init; // h0 = h10, ..., hk0
 	Eigen::VectorXd lvol_sig; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
 
-private:
+protected:
 	int dim; // k
   int dim_design; // kp(+1)
   int num_design; // n = T - p
@@ -27,11 +31,11 @@ private:
   int num_coef;
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
-	Eigen::VectorXd prior_sig_shp;
-	Eigen::VectorXd prior_sig_scl;
-	Eigen::VectorXd prior_init_mean;
-	Eigen::MatrixXd prior_init_prec;
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
+	Eigen::MatrixXd prior_alpha_prec; // prior precision of alpha
+	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
+	Eigen::MatrixXd prior_chol_prec; // prior precision of a = I
   Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent; // orthogonalized Z0
 	Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
@@ -40,6 +44,47 @@ private:
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	int contem_id;
+
+private:
+	Eigen::VectorXd prior_sig_shp;
+	Eigen::VectorXd prior_sig_scl;
+	Eigen::VectorXd prior_init_mean;
+	Eigen::MatrixXd prior_init_prec;
+	Eigen::MatrixXd coef_mat;
+};
+
+class HorseshoeSv : McmcSv {
+public:
+	HorseshoeSv(
+		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
+		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+	);
+	virtual ~HorseshoeSv() = default;
+	void UpdateCoefPrec();
+	void UpdateCoefShrink();
+	void UpdateImpactPrec();
+	Eigen::VectorXd local_lev;
+	Eigen::VectorXd global_lev;
+	Eigen::VectorXd shrink_fac;
+
+private:
+	int num_grp;
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXd grp_mat;
+	Eigen::VectorXd grp_vec;
+	Eigen::VectorXd latent_local;
+	Eigen::VectorXd latent_global;
+	Eigen::VectorXd coef_var;
+	Eigen::MatrixXd coef_var_loc;
+	Eigen::VectorXd contem_local_lev;
+	Eigen::VectorXd contem_global_lev;
+	Eigen::VectorXd contem_var;
+	Eigen::VectorXd latent_contem_local;
+	Eigen::VectorXd latent_contem_global;
 };
 
 #endif
