@@ -84,6 +84,17 @@ void McmcSv::UpdateInitState() {
 	lvol_init = varsv_h0(prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
 }
 
+MinnSv::MinnSv(
+	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+)
+: McmcSv(x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec) {
+	prior_alpha_mean = vectorize_eigen(prior_coef_mean);
+	prior_alpha_prec = kronecker_eigen(prec_diag, prior_coef_prec);
+}
+
 SsvsSv::SsvsSv(
 	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,

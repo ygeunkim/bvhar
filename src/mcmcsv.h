@@ -53,6 +53,17 @@ private:
 	Eigen::MatrixXd prior_init_prec;
 };
 
+class MinnSv : McmcSv {
+	public:
+		MinnSv(
+			const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+			const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+			const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+			const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+		);
+		virtual ~MinnSv() = default;
+};
+
 class SsvsSv : McmcSv {
 public:
 	SsvsSv(
