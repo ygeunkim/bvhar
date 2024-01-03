@@ -1,5 +1,6 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
+// #include "mcmcsv.h"
 #include "bvharprogress.h"
 #include "bvharinterrupt.h"
 
@@ -67,7 +68,31 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            double sd_non,
                            bool include_mean,
                            bool display_progress, int nthreads) {
-  int dim = y.cols(); // k
+  // McmcSv* sv_obj = nullptr;
+	// switch (prior_type) {
+	// 	case 1:
+	// 		sv_obj = new MinnSv(
+	// 			x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+	// 			prior_coef_mean, prior_coef_prec, prec_diag
+	// 		);
+	// 		break;
+	// 	case 2:
+	// 		sv_obj = new SsvsSv(
+	// 			x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+	// 			grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight,
+	// 			chol_spike, chol_slab, chol_slab_weight,
+	// 			coef_s1, coef_s2, chol_s1, chol_s2,
+	// 			mean_non, sd_non, include_mean
+	// 		);
+	// 		break;
+	// 	case 3:
+	// 		sv_obj = new HorseshoeSv(
+	// 			x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+	// 			grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
+	// 		);
+	// 		break;
+	// }
+	int dim = y.cols(); // k
   int dim_design = x.cols(); // kp(+1)
   int num_design = y.rows(); // n = T - p
   int num_lowerchol = dim * (dim - 1) / 2;

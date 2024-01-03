@@ -7,6 +7,7 @@
 class McmcSv {
 public:
 	McmcSv(
+		const int& num_iter,
 		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
 		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
@@ -17,20 +18,27 @@ public:
 	void UpdateImpact();
 	void UpdateStateVar();
 	void UpdateInitState();
-	Eigen::VectorXd coef_vec; // alpha in VAR
-	Eigen::VectorXd contem_coef; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
-	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
-	Eigen::VectorXd lvol_init; // h0 = h10, ..., hk0
-	Eigen::VectorXd lvol_sig; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
-
-protected:
+	void AddStep();
+	Eigen::MatrixXd coef_record; // alpha in VAR
+	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
+	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
+	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	int dim; // k
   int dim_design; // kp(+1)
   int num_design; // n = T - p
   int num_lowerchol;
   int num_coef;
+	int i; // MCMC step
+
+protected:
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
+	Eigen::VectorXd coef_vec;
+	Eigen::VectorXd contem_coef;
+	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
+	Eigen::VectorXd lvol_init;
+	Eigen::VectorXd lvol_sig;
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
 	Eigen::MatrixXd prior_alpha_prec; // prior precision of alpha
@@ -53,9 +61,10 @@ private:
 	Eigen::MatrixXd prior_init_prec;
 };
 
-class MinnSv : McmcSv {
+class MinnSv : public McmcSv {
 	public:
 		MinnSv(
+			const int& num_iter,
 			const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 			const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
 			const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
@@ -64,9 +73,10 @@ class MinnSv : McmcSv {
 		virtual ~MinnSv() = default;
 };
 
-class SsvsSv : McmcSv {
+class SsvsSv : public McmcSv {
 public:
 	SsvsSv(
+		const int& num_iter,
 		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
 		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
@@ -82,10 +92,10 @@ public:
 	void UpdateCoefPrec();
 	void UpdateCoefShrink();
 	void UpdateImpactPrec();
-	Eigen::VectorXd coef_dummy;
-	Eigen::VectorXd coef_weight;
-	Eigen::VectorXd contem_dummy;
-	Eigen::VectorXd contem_weight;
+	Eigen::MatrixXd coef_dummy_record;
+	Eigen::MatrixXd coef_weight_record;
+	Eigen::MatrixXd contem_dummy_record;
+	Eigen::MatrixXd contem_weight_record;
 private:
 	bool include_mean;
 	int num_alpha;
@@ -93,6 +103,10 @@ private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXd grp_mat;
 	Eigen::VectorXd grp_vec;
+	Eigen::VectorXd coef_dummy;
+	Eigen::VectorXd coef_weight;
+	Eigen::VectorXd contem_dummy;
+	Eigen::VectorXd contem_weight;
 	Eigen::VectorXd coef_spike;
 	Eigen::VectorXd coef_slab;
 	Eigen::VectorXd contem_spike;
@@ -106,9 +120,10 @@ private:
 	Eigen::VectorXd coef_mixture_mat;
 };
 
-class HorseshoeSv : McmcSv {
+class HorseshoeSv : public McmcSv {
 public:
 	HorseshoeSv(
+		const int& num_iter,
 		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
 		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
@@ -120,15 +135,18 @@ public:
 	void UpdateCoefPrec();
 	void UpdateCoefShrink();
 	void UpdateImpactPrec();
-	Eigen::VectorXd local_lev;
-	Eigen::VectorXd global_lev;
-	Eigen::VectorXd shrink_fac;
+	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd global_record;
+	Eigen::MatrixXd shrink_record;
 
 private:
 	int num_grp;
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXd grp_mat;
 	Eigen::VectorXd grp_vec;
+	Eigen::VectorXd local_lev;
+	Eigen::VectorXd global_lev;
+	Eigen::VectorXd shrink_fac;
 	Eigen::VectorXd latent_local;
 	Eigen::VectorXd latent_global;
 	Eigen::VectorXd coef_var;
