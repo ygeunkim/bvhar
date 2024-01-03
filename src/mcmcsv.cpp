@@ -9,6 +9,7 @@ McmcSv::McmcSv(
 : x(x), y(y),
 	prior_sig_shp(prior_sig_shp), prior_sig_scl(prior_sig_scl),
 	prior_init_mean(prior_init_mean), prior_init_prec(prior_init_prec),
+	num_iter(num_iter),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	chol_lower(Eigen::MatrixXd::Zero(dim, dim)),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
@@ -116,6 +117,16 @@ MinnSv::MinnSv(
 	prior_alpha_prec = kronecker_eigen(prec_diag, prior_coef_prec);
 }
 
+Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
+	return Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn)
+  );
+}
+
 SsvsSv::SsvsSv(
 	const int& num_iter,
 	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -210,6 +221,17 @@ void SsvsSv::updateImpactPrec() {
 	contem_weight_record.row(mcmc_step) = contem_weight;
 }
 
+Rcpp::List SsvsSv::returnRecords(const int& num_burn) const {
+	return Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
+  );
+}
+
 HorseshoeSv::HorseshoeSv(
 	const int& num_iter,
 	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -272,4 +294,75 @@ void HorseshoeSv::updateImpactPrec() {
 	contem_local_lev = horseshoe_local_sparsity(latent_contem_local, contem_var, contem_coef, 1);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1);
 	prior_chol_prec = build_shrink_mat(contem_var, contem_local_lev);
+}
+
+Rcpp::List HorseshoeSv::returnRecords(const int& num_burn) const {
+	return Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
+    Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
+  );
+}
+
+// template<typename... Args>
+// std::unique_ptr<McmcSv> initSv(int prior_type, Args&&... args) {
+// 	switch (prior_type) {
+// 		case 1:
+// 			return std::unique_ptr<McmcSv>(new MinnSv(std::forward<Args>(args)...));
+// 		case 2:
+// 			return std::unique_ptr<McmcSv>(new SsvsSv(std::forward<Args>(args)...));
+// 		case 3:
+// 			return std::unique_ptr<McmcSv>(new HorseshoeSv(std::forward<Args>(args)...));
+// 		default:
+// 			return nullptr;
+// 	}
+// }
+
+std::unique_ptr<McmcSv> initMinn(
+	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+) {
+	return std::unique_ptr<McmcSv>(new MinnSv(
+		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+		prior_coef_mean, prior_coef_prec, prec_diag
+	));
+}
+
+std::unique_ptr<McmcSv> initSsvs(
+	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
+	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
+  const double& coef_s1, const double& coef_s2, const double& chol_s1, const double& chol_s2,
+  const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
+) {
+	return std::unique_ptr<McmcSv>(new SsvsSv(
+		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+		grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight,
+  	coef_s1, coef_s2, chol_s1, chol_s2,
+  	mean_non, sd_non, include_mean
+	));
+}
+
+std::unique_ptr<McmcSv> initHorseshoe(
+	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
+	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+) {
+	return std::unique_ptr<McmcSv>(new HorseshoeSv(
+		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+		grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
+	));
 }

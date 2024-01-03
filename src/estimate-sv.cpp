@@ -68,29 +68,25 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            double sd_non,
                            bool include_mean,
                            bool display_progress, int nthreads) {
-  McmcSv* sv_obj = nullptr;
+  std::unique_ptr<McmcSv> sv_obj;
 	switch (prior_type) {
 		case 1:
-			sv_obj = new MinnSv(
-				num_iter,
-				x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+			sv_obj = initMinn(
+				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				prior_coef_mean, prior_coef_prec, prec_diag
 			);
 			break;
 		case 2:
-			sv_obj = new SsvsSv(
-				num_iter,
-				x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-				grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight,
-				chol_spike, chol_slab, chol_slab_weight,
+			sv_obj = initSsvs(
+				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+				grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight,
 				coef_s1, coef_s2, chol_s1, chol_s2,
 				mean_non, sd_non, include_mean
 			);
 			break;
 		case 3:
-			sv_obj = new HorseshoeSv(
-				num_iter,
-				x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
+			sv_obj = initHorseshoe(
+				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
 			);
 			break;
@@ -104,34 +100,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 	bvharinterrupt();
   for (int i = 1; i < num_iter + 1; i ++) {
 		if (bvharinterrupt::is_interrupted()) {
-      if (prior_type == 2) {
-				return Rcpp::List::create(
-          Rcpp::Named("alpha_record") = sv_obj->coef_record,
-          Rcpp::Named("h_record") = sv_obj->lvol_record,
-          Rcpp::Named("a_record") = sv_obj->contem_coef_record,
-          Rcpp::Named("h0_record") = sv_obj->lvol_init_record,
-          Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record,
-          Rcpp::Named("gamma_record") = dynamic_cast<SsvsSv*>(sv_obj)->coef_dummy_record
-        );
-      } else if (prior_type == 3) {
-				return Rcpp::List::create(
-          Rcpp::Named("alpha_record") = sv_obj->coef_record,
-          Rcpp::Named("h_record") = sv_obj->lvol_record,
-          Rcpp::Named("a_record") = sv_obj->contem_coef_record,
-          Rcpp::Named("h0_record") = sv_obj->lvol_init_record,
-          Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record,
-          Rcpp::Named("lambda_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->local_record,
-          Rcpp::Named("tau_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->global_record,
-          Rcpp::Named("kappa_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->shrink_record
-        );
-      }
-      return Rcpp::List::create(
-        Rcpp::Named("alpha_record") = sv_obj->coef_record,
-        Rcpp::Named("h_record") = sv_obj->lvol_record,
-        Rcpp::Named("a_record") = sv_obj->contem_coef_record,
-        Rcpp::Named("h0_record") = sv_obj->lvol_init_record,
-        Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record
-      );
+			return sv_obj->returnRecords(num_burn);
     }
 		bar.increment();
 		if (display_progress) {
@@ -139,77 +108,18 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 		}
     // 1. alpha----------------------------
 		sv_obj->addStep();
-    switch(prior_type) {
-    case 2:
-      // SSVS
-			dynamic_cast<SsvsSv*>(sv_obj)->updateCoefPrec();
-      break;
-    case 3:
-			// HS
-			dynamic_cast<HorseshoeSv*>(sv_obj)->updateCoefPrec();
-      break;
-    }
+		sv_obj->updateCoefPrec();
 		sv_obj->updateCoef();
-    switch (prior_type) {
-    case 2:
-      // SSVS
-			dynamic_cast<SsvsSv*>(sv_obj)->updateCoefShrink();
-      break;
-    case 3:
-      // HS
-			dynamic_cast<HorseshoeSv*>(sv_obj)->updateCoefShrink();
-      break;
-    default:
-      break;
-    }
+		sv_obj->updateCoefShrink();
     // 2. h---------------------------------
 		sv_obj->updateState();
     // 3. a---------------------------------
-    switch (prior_type) {
-    case 2:
-      // SSVS
-			dynamic_cast<SsvsSv*>(sv_obj)->updateImpactPrec();
-      break;
-    case 3:
-      // HS
-			dynamic_cast<HorseshoeSv*>(sv_obj)->updateImpactPrec();
-      break;
-    default:
-      break;
-    }
+		sv_obj->updateImpactPrec();
 		sv_obj->updateImpact();
     // 4. sigma_h---------------------------
 		sv_obj->updateStateVar();
     // 5. h0--------------------------------
 		sv_obj->updateInitState();
   }
-	// delete sv_obj;
-  if (prior_type == 2) {
-		return Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_obj->coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = sv_obj->lvol_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("a_record") = sv_obj->contem_coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h0_record") = sv_obj->lvol_init_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("gamma_record") = dynamic_cast<SsvsSv*>(sv_obj)->coef_dummy_record.bottomRows(num_iter - num_burn)
-    );
-  } else if (prior_type == 3) {
-		return Rcpp::List::create(
-      Rcpp::Named("alpha_record") = sv_obj->coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h_record") = sv_obj->lvol_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("a_record") = sv_obj->contem_coef_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("h0_record") = sv_obj->lvol_init_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("lambda_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->local_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("tau_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->global_record.bottomRows(num_iter - num_burn),
-      Rcpp::Named("kappa_record") = dynamic_cast<HorseshoeSv*>(sv_obj)->shrink_record.bottomRows(num_iter - num_burn)
-    );
-  }
-	return Rcpp::List::create(
-    Rcpp::Named("alpha_record") = sv_obj->coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = sv_obj->lvol_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("a_record") = sv_obj->contem_coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h0_record") = sv_obj->lvol_init_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("sigh_record") = sv_obj->lvol_sig_record.bottomRows(num_iter - num_burn)
-  );
+	return sv_obj->returnRecords(num_burn);
 }
