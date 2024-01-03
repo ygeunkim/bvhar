@@ -13,12 +13,12 @@ public:
 		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
 	);
 	virtual ~McmcSv() = default;
-	void UpdateCoef();
-	void UpdateState();
-	void UpdateImpact();
-	void UpdateStateVar();
-	void UpdateInitState();
-	void AddStep();
+	void updateCoef();
+	void updateState();
+	void updateImpact();
+	void updateStateVar();
+	void updateInitState();
+	void addStep();
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
@@ -29,7 +29,7 @@ public:
   int num_design; // n = T - p
   int num_lowerchol;
   int num_coef;
-	int i; // MCMC step
+	int mcmc_step; // MCMC step
 
 protected:
 	Eigen::MatrixXd x;
@@ -39,18 +39,10 @@ protected:
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
 	Eigen::VectorXd lvol_init;
 	Eigen::VectorXd lvol_sig;
-	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
 	Eigen::MatrixXd prior_alpha_prec; // prior precision of alpha
 	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
 	Eigen::MatrixXd prior_chol_prec; // prior precision of a = I
-  Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
-  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
-  Eigen::MatrixXd prior_prec_j; // Prior precision of j-th column of A
-  Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
-	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
-	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd coef_mat;
 	int contem_id;
 
@@ -59,6 +51,14 @@ private:
 	Eigen::VectorXd prior_sig_scl;
 	Eigen::VectorXd prior_init_mean;
 	Eigen::MatrixXd prior_init_prec;
+	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
+	Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
+  Eigen::MatrixXd prior_prec_j; // Prior precision of j-th column of A
+  Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
+	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 };
 
 class MinnSv : public McmcSv {
@@ -89,9 +89,9 @@ public:
     const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
 	);
 	virtual ~SsvsSv() = default;
-	void UpdateCoefPrec();
-	void UpdateCoefShrink();
-	void UpdateImpactPrec();
+	void updateCoefPrec();
+	void updateCoefShrink();
+	void updateImpactPrec();
 	Eigen::MatrixXd coef_dummy_record;
 	Eigen::MatrixXd coef_weight_record;
 	Eigen::MatrixXd contem_dummy_record;
@@ -132,9 +132,9 @@ public:
 		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
 	);
 	virtual ~HorseshoeSv() = default;
-	void UpdateCoefPrec();
-	void UpdateCoefShrink();
-	void UpdateImpactPrec();
+	void updateCoefPrec();
+	void updateCoefShrink();
+	void updateImpactPrec();
 	Eigen::MatrixXd local_record;
 	Eigen::MatrixXd global_record;
 	Eigen::MatrixXd shrink_record;
