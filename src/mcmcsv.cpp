@@ -1,15 +1,10 @@
 #include "mcmcsv.h"
 
-McmcSv::McmcSv(
-	const int& num_iter,
-	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
-)
-: x(x), y(y),
-	prior_sig_shp(prior_sig_shp), prior_sig_scl(prior_sig_scl),
-	prior_init_mean(prior_init_mean), prior_init_prec(prior_init_prec),
-	num_iter(num_iter),
+McmcSv::McmcSv(const SvParams& params)
+: x(params._x), y(params._y),
+	prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
+	prior_init_mean(params._init_mean), prior_init_prec(params._init_prec),
+	num_iter(params._iter),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	chol_lower(Eigen::MatrixXd::Zero(dim, dim)),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
@@ -105,16 +100,10 @@ void McmcSv::addStep() {
 	mcmc_step++;
 }
 
-MinnSv::MinnSv(
-	const int& num_iter,
-	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
-)
-: McmcSv(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec) {
-	prior_alpha_mean = vectorize_eigen(prior_coef_mean);
-	prior_alpha_prec = kronecker_eigen(prec_diag, prior_coef_prec);
+MinnSv::MinnSv(const MinnParams& params)
+: McmcSv(params) {
+	prior_alpha_mean = vectorize_eigen(params._prior_mean);
+	prior_alpha_prec = kronecker_eigen(params._prec_diag, params._prior_prec);
 }
 
 Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
@@ -127,37 +116,25 @@ Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
   );
 }
 
-SsvsSv::SsvsSv(
-	const int& num_iter,
-	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab,
-  const Eigen::VectorXd& coef_slab_weight, const Eigen::VectorXd& chol_spike,
-  const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-  const double& coef_s1, const double& coef_s2,
-  const double& chol_s1, const double& chol_s2,
-  const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
-)
-: McmcSv(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-	include_mean(include_mean),
-	coef_weight(coef_slab_weight),
-	contem_weight(chol_slab_weight),
+SsvsSv::SsvsSv(const SsvsParams& params)
+: McmcSv(params),
+	include_mean(params._mean),
+	coef_weight(params._coef_weight),
+	contem_weight(params._contem_weight),
 	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
+	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
-	grp_id(grp_id),
-	grp_mat(grp_mat),
+	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
-	coef_spike(coef_spike),
-	coef_slab(coef_slab),
-	contem_spike(chol_spike),
-	contem_slab(chol_slab),
-	coef_s1(coef_s1),
-	coef_s2(coef_s2),
-	contem_s1(chol_s1),
-	contem_s2(chol_s2),
-	prior_sd_non(sd_non),
+	coef_spike(params._coef_spike),
+	coef_slab(params._coef_slab),
+	contem_spike(params._contem_spike),
+	contem_slab(params._contem_slab),
+	coef_s1(params._coef_s1),
+	coef_s2(params._coef_s2),
+	contem_s1(params._contem_s1),
+	contem_s2(params._contem_s2),
+	prior_sd_non(params._sd_non),
 	prior_sd(Eigen::VectorXd(num_coef)) {
 	num_alpha = num_coef - dim;
 	if (!include_mean) {
@@ -166,7 +143,7 @@ SsvsSv::SsvsSv(
 	if (include_mean) {
     for (int j = 0; j < dim; j++) {
       prior_alpha_mean.segment(j * dim_design, num_alpha / dim) = Eigen::VectorXd::Zero(num_alpha / dim);
-      prior_alpha_mean[j * dim_design + num_alpha / dim] = mean_non[j];
+      prior_alpha_mean[j * dim_design + num_alpha / dim] = params._mean_non[j];
     }
   }
 	coef_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_alpha);
@@ -232,29 +209,21 @@ Rcpp::List SsvsSv::returnRecords(const int& num_burn) const {
   );
 }
 
-HorseshoeSv::HorseshoeSv(
-	const int& num_iter,
-	const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
-)
-: McmcSv(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-	local_lev(init_local),
-	global_lev(init_global),
+HorseshoeSv::HorseshoeSv(const HorseshoeParams& params)
+: McmcSv(params),
+	local_lev(params._init_local),
+	global_lev(params._init_global),
+	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
-	grp_id(grp_id),
-	grp_mat(grp_mat),
+	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
 	shrink_fac(Eigen::VectorXd::Zero(num_coef)),
 	latent_local(Eigen::VectorXd::Zero(num_coef)),
 	latent_global(Eigen::VectorXd::Zero(1)),
 	coef_var(Eigen::VectorXd::Zero(num_coef)),
 	coef_var_loc(Eigen::MatrixXd::Zero(dim_design, dim)),
-	contem_local_lev(init_contem_local),
-	contem_global_lev(init_contem_global),
+	contem_local_lev(params._init_contem_local),
+	contem_global_lev(params._init_conetm_global),
 	contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_global(Eigen::VectorXd::Zero(1)) {
@@ -309,60 +278,14 @@ Rcpp::List HorseshoeSv::returnRecords(const int& num_burn) const {
   );
 }
 
-// template<typename... Args>
-// std::unique_ptr<McmcSv> initSv(int prior_type, Args&&... args) {
-// 	switch (prior_type) {
-// 		case 1:
-// 			return std::unique_ptr<McmcSv>(new MinnSv(std::forward<Args>(args)...));
-// 		case 2:
-// 			return std::unique_ptr<McmcSv>(new SsvsSv(std::forward<Args>(args)...));
-// 		case 3:
-// 			return std::unique_ptr<McmcSv>(new HorseshoeSv(std::forward<Args>(args)...));
-// 		default:
-// 			return nullptr;
-// 	}
-// }
-
-std::unique_ptr<McmcSv> initMinn(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
-) {
-	return std::unique_ptr<McmcSv>(new MinnSv(
-		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-		prior_coef_mean, prior_coef_prec, prec_diag
-	));
+std::unique_ptr<McmcSv> initMinn(const MinnParams& params) {
+	return std::unique_ptr<McmcSv>(new MinnSv(params));
 }
 
-std::unique_ptr<McmcSv> initSsvs(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
-	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-  const double& coef_s1, const double& coef_s2, const double& chol_s1, const double& chol_s2,
-  const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
-) {
-	return std::unique_ptr<McmcSv>(new SsvsSv(
-		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-		grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight,
-  	coef_s1, coef_s2, chol_s1, chol_s2,
-  	mean_non, sd_non, include_mean
-	));
+std::unique_ptr<McmcSv> initSsvs(const SsvsParams& params) {
+	return std::unique_ptr<McmcSv>(new SsvsSv(params));
 }
 
-std::unique_ptr<McmcSv> initHorseshoe(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
-) {
-	return std::unique_ptr<McmcSv>(new HorseshoeSv(
-		num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-		grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
-	));
+std::unique_ptr<McmcSv> initHorseshoe(const HorseshoeParams& params) {
+	return std::unique_ptr<McmcSv>(new HorseshoeSv(params));
 }

@@ -4,14 +4,100 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
 
+struct SvParams {
+	int _iter;
+	Eigen::MatrixXd _x;
+	Eigen::MatrixXd _y;
+	Eigen::VectorXd _sig_shp;
+	Eigen::VectorXd _sig_scl;
+	Eigen::VectorXd _init_mean;
+	Eigen::MatrixXd _init_prec;
+
+	SvParams(
+		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
+		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
+		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec
+	)
+	: _iter(num_iter), _x(x), _y(y),
+		_sig_shp(prior_sig_shp), _sig_scl(prior_sig_scl),
+		_init_mean(prior_init_mean), _init_prec(prior_init_prec) {}
+};
+
+struct MinnParams : public SvParams {
+	Eigen::MatrixXd _prior_mean;
+	Eigen::MatrixXd _prior_prec;
+	Eigen::MatrixXd _prec_diag;
+
+	MinnParams(
+		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
+		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
+		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
+		Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec, Eigen::MatrixXd prec_diag
+	)
+	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+		_prior_mean(prior_coef_mean), _prior_prec(prior_coef_prec), _prec_diag(_prec_diag) {}
+};
+
+struct SsvsParams : public SvParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXd _grp_mat;
+	Eigen::VectorXd _coef_spike;
+	Eigen::VectorXd _coef_slab;
+	Eigen::VectorXd _coef_weight;
+	Eigen::VectorXd _contem_spike;
+	Eigen::VectorXd _contem_slab;
+	Eigen::VectorXd _contem_weight;
+	double _coef_s1;
+	double _coef_s2;
+	double _contem_s1;
+	double _contem_s2;
+	Eigen::VectorXd _mean_non;
+	double _sd_non;
+	bool _mean;
+
+	SsvsParams(
+		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
+		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
+		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
+		Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat,
+		Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight,
+		Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
+    double coef_s1, double coef_s2, double chol_s1, double chol_s2,
+    Eigen::VectorXd mean_non, double sd_non, bool include_mean
+	)
+	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+		_grp_id(grp_id), _grp_mat(grp_mat),
+		_coef_spike(coef_spike), _coef_slab(coef_slab), _coef_weight(coef_slab_weight),
+		_contem_spike(chol_spike), _contem_slab(chol_slab), _contem_weight(chol_slab_weight),
+		_coef_s1(coef_s1), _coef_s2(coef_s2), _contem_s1(chol_s1), _contem_s2(chol_s2),
+		_mean_non(mean_non), _sd_non(sd_non), _mean(include_mean) {}
+};
+
+struct HorseshoeParams : public SvParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXd _grp_mat;
+	Eigen::VectorXd _init_local;
+	Eigen::VectorXd _init_global;
+	Eigen::VectorXd _init_contem_local;
+	Eigen::VectorXd _init_conetm_global;
+
+	HorseshoeParams(
+		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
+		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
+		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
+		Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat,
+		Eigen::VectorXd init_local, Eigen::VectorXd init_global,
+		Eigen::VectorXd init_contem_local, Eigen::VectorXd init_contem_global
+	)
+	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+		_grp_id(grp_id), _grp_mat(grp_mat),
+		_init_local(init_local), _init_global(init_global),
+		_init_contem_local(init_contem_local), _init_conetm_global(init_contem_global) {}
+};
+
 class McmcSv {
 public:
-	McmcSv(
-		const int& num_iter,
-		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
-	);
+	McmcSv(const SvParams& params);
 	virtual ~McmcSv() = default;
 	virtual void updateCoefPrec() = 0;
 	virtual void updateCoefShrink() = 0;
@@ -68,13 +154,7 @@ private:
 
 class MinnSv : public McmcSv {
 	public:
-		MinnSv(
-			const int& num_iter,
-			const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-			const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-			const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-			const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
-		);
+		MinnSv(const MinnParams& params);
 		virtual ~MinnSv() = default;
 		void updateCoefPrec() override {};
 		void updateCoefShrink() override {};
@@ -84,19 +164,7 @@ class MinnSv : public McmcSv {
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(
-		const int& num_iter,
-		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab,
-    const Eigen::VectorXd& coef_slab_weight, const Eigen::VectorXd& chol_spike,
-    const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-    const double& coef_s1, const double& coef_s2,
-    const double& chol_s1, const double& chol_s2,
-    const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
-	);
+	SsvsSv(const SsvsParams& params);
 	virtual ~SsvsSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
@@ -132,15 +200,7 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(
-		const int& num_iter,
-		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
-	);
+	HorseshoeSv(const HorseshoeParams& params);
 	virtual ~HorseshoeSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
@@ -169,34 +229,10 @@ private:
 	Eigen::VectorXd latent_contem_global;
 };
 
-// template<typename... Args>
-// std::unique_ptr<McmcSv> initSv(int prior_type, Args&&... args);
+std::unique_ptr<McmcSv> initMinn(const MinnParams& params);
 
-std::unique_ptr<McmcSv> initMinn(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
-);
+std::unique_ptr<McmcSv> initSsvs(const SsvsParams& params);
 
-std::unique_ptr<McmcSv> initSsvs(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
-	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-  const double& coef_s1, const double& coef_s2, const double& chol_s1, const double& chol_s2,
-  const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
-);
-
-std::unique_ptr<McmcSv> initHorseshoe(
-	const int& num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
-);
+std::unique_ptr<McmcSv> initHorseshoe(const HorseshoeParams& params);
 
 #endif

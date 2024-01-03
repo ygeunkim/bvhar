@@ -1,5 +1,3 @@
-// #include <RcppEigen.h>
-// #include "bvhardraw.h"
 #include "mcmcsv.h"
 #include "bvharprogress.h"
 #include "bvharinterrupt.h"
@@ -70,26 +68,32 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            bool display_progress, int nthreads) {
   std::unique_ptr<McmcSv> sv_obj;
 	switch (prior_type) {
-		case 1:
-			sv_obj = initMinn(
+		case 1: {
+			MinnParams minn_params(
 				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				prior_coef_mean, prior_coef_prec, prec_diag
 			);
+			sv_obj = initMinn(minn_params);
 			break;
-		case 2:
-			sv_obj = initSsvs(
+		}
+		case 2: {
+			SsvsParams ssvs_params(
 				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight,
 				coef_s1, coef_s2, chol_s1, chol_s2,
 				mean_non, sd_non, include_mean
 			);
+			sv_obj = initSsvs(ssvs_params);
 			break;
-		case 3:
-			sv_obj = initHorseshoe(
+		}
+		case 3: {
+			HorseshoeParams horseshoe_params(
 				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
 			);
+			sv_obj = initHorseshoe(horseshoe_params);
 			break;
+		}
 	}
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
