@@ -105,10 +105,14 @@ SsvsSv::SsvsSv(
 	grp_id(grp_id),
 	grp_mat(grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
+	coef_spike(coef_spike),
+	coef_slab(coef_slab),
+	contem_spike(chol_spike),
+	contem_slab(chol_slab),
 	coef_s1(coef_s1),
 	coef_s2(coef_s2),
-	contem_s1(contem_s1),
-	contem_s2(contem_s2),
+	contem_s1(chol_s1),
+	contem_s2(chol_s2),
 	prior_sd_non(sd_non),
 	prior_sd(Eigen::VectorXd(num_coef)) {
 	num_alpha = num_coef - dim;
@@ -125,6 +129,43 @@ SsvsSv::SsvsSv(
 	slab_weight = Eigen::VectorXd::Zero(num_alpha);
 	slab_weight_mat = Eigen::MatrixXd::Zero(num_alpha / dim, dim);
 	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
+}
+
+void SsvsSv::UpdateCoefPrec() {
+	coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+	if (include_mean) {
+		for (int j = 0; j < dim; j++) {
+			prior_sd.segment(j * dim_design, num_alpha / dim) = coef_mixture_mat.segment(
+				j * num_alpha / dim,
+				num_alpha / dim
+			);
+			prior_sd[j * dim_design + num_alpha / dim] = prior_sd_non;
+		}
+	} else {
+		prior_sd = coef_mixture_mat;
+	}
+	prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
+}
+
+void SsvsSv::UpdateCoefShrink() {
+	for (int j = 0; j < num_grp; j++) {
+		slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
+			coef_weight.segment(j, 1).replicate(num_alpha / dim, dim),
+			slab_weight_mat
+		);
+	}
+	slab_weight = vectorize_eigen(slab_weight_mat);
+	coef_dummy = ssvs_dummy(
+		vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
+		coef_slab, coef_spike, slab_weight
+	);
+	coef_weight = ssvs_mn_weight(grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
+}
+
+void SsvsSv::UpdateImpactPrec() {
+	contem_dummy = ssvs_dummy(contem_coef, contem_slab, contem_spike, contem_weight);
+	contem_weight = ssvs_weight(contem_dummy, contem_s1, contem_s2);
+	prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
 }
 
 HorseshoeSv::HorseshoeSv(

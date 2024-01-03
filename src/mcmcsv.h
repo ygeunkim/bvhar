@@ -43,6 +43,7 @@ protected:
   Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+	Eigen::MatrixXd coef_mat;
 	int contem_id;
 
 private:
@@ -50,7 +51,6 @@ private:
 	Eigen::VectorXd prior_sig_scl;
 	Eigen::VectorXd prior_init_mean;
 	Eigen::MatrixXd prior_init_prec;
-	Eigen::MatrixXd coef_mat;
 };
 
 class SsvsSv : McmcSv {
@@ -68,6 +68,9 @@ public:
     const Eigen::VectorXd& mean_non, const double& sd_non, const bool& include_mean
 	);
 	virtual ~SsvsSv() = default;
+	void UpdateCoefPrec();
+	void UpdateCoefShrink();
+	void UpdateImpactPrec();
 	Eigen::VectorXd coef_dummy;
 	Eigen::VectorXd coef_weight;
 	Eigen::VectorXd contem_dummy;
@@ -90,7 +93,7 @@ private:
 	Eigen::VectorXd slab_weight; // pij vector
 	Eigen::MatrixXd slab_weight_mat; // pij matrix: (dim*p) x dim
 	Eigen::VectorXd coef_mixture_mat;
-}
+};
 
 class HorseshoeSv : McmcSv {
 public:
