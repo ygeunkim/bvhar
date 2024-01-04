@@ -5,11 +5,19 @@
 \alias{print.svinit}
 \title{Initialize Stochastic Volatility Parameters}
 \usage{
-init_sv(lvol = 0, lvol_init = 0.1, lvol_sig = 0.1, type = c("user", "auto"))
+init_sv(
+  init_coef = init_horseshoe(),
+  lvol = 0,
+  lvol_init = 0.1,
+  lvol_sig = 0.1,
+  type = c("user", "auto")
+)
 
 \method{print}{svinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
+\item{init_coef}{Initialization for Coefficients specified by \code{coefinit}. By default, \code{\link[=init_horseshoe]{init_horseshoe()}}.}
+
 \item{lvol}{Time-varying log-volatility.
 The length is same with data dimension times sample size (\eqn{n = T - p}).}
 

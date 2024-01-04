@@ -5,11 +5,19 @@
 \alias{print.svspec}
 \title{Stochastic Volatility Specification}
 \usage{
-set_sv(ig_shape = 3, ig_scl = 0.01, initial_mean = 1, initial_prec = 0.1)
+set_sv(
+  prior_spec = set_horseshoe(),
+  ig_shape = 3,
+  ig_scl = 0.01,
+  initial_mean = 1,
+  initial_prec = 0.1
+)
 
 \method{print}{svspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
+\item{prior_spec}{Prior specification (\code{bvharspec}).}
+
 \item{ig_shape}{Inverse-Gamma shape of state variance.}
 
 \item{ig_scl}{Inverse-Gamma scale of state variance.}

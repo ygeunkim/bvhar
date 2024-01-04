@@ -8,6 +8,7 @@
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
+#' @param init_spec Horseshoe initialization specification by [init_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Minnesota type
 #' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
@@ -58,7 +59,8 @@ bvhar_horseshoe <- function(y,
                             num_iter = 1000, 
                             num_burn = floor(num_iter / 2),
                             thinning = 1,
-                            bayes_spec = set_horseshoe(),
+                            bayes_spec = set_horseshoe(process = "VHAR"),
+                            init_spec = init_horseshoe(),
                             include_mean = TRUE,
                             minnesota = c("no", "short", "longrun"),
                             algo = c("block", "gibbs"),
@@ -77,6 +79,9 @@ bvhar_horseshoe <- function(y,
     stop("Provide 'horseshoespec' for 'bayes_spec'.")
   }
   bayes_spec$process <- "VHAR"
+  if (!is.hsinit(init_spec)) {
+    stop("Provide 'hsinit' for 'init_spec'.")
+  }
   # MCMC iterations-------------------
   if (num_iter < 1) {
     stop("Iterate more than 1 times for MCMC.")
@@ -109,9 +114,9 @@ bvhar_horseshoe <- function(y,
     dim_data^2 * 3 + dim_data,
     dim_data^2 * 3
   )
-  if (length(bayes_spec$local_sparsity) != dim_har) {
-    if (length(bayes_spec$local_sparsity) == 1) {
-      bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+  if (length(init_spec$local_sparsity) != dim_har) {
+    if (length(init_spec$local_sparsity) == 1) {
+      init_spec$local_sparsity <- rep(init_spec$local_sparsity, num_restrict)
     } else {
       stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
     }
@@ -151,7 +156,7 @@ bvhar_horseshoe <- function(y,
     }
   )
   grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
-  global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+  global_sparsity <- rep(init_spec$global_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -163,7 +168,7 @@ bvhar_horseshoe <- function(y,
     num_burn = num_burn,
     x = X1,
     y = Y0,
-    init_local = bayes_spec$local_sparsity,
+    init_local = init_spec$local_sparsity,
     init_global = global_sparsity,
     init_sigma = 1,
     grp_id = grp_id,
@@ -242,6 +247,7 @@ bvhar_horseshoe <- function(y,
   res$type <- ifelse(include_mean, "const", "none")
   res$algo <- ifelse(algo == 1, "gibbs", "blocked")
   res$spec <- bayes_spec
+  res$init <- init_spec
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning

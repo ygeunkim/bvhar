@@ -404,10 +404,28 @@ set_ssvs <- function(coef_spike = .1,
   res
 }
 
+#' Horseshoe Prior Specification
+#'
+#' Set Horseshoe prior.
+#'
+#' @param process Time series process. `"VAR"` (default) or `"VHAR"`.
+#' @order 1
+#' @export
+set_horseshoe <- function(process = c("VAR", "VHAR")) {
+  process <- match.arg(process)
+  res <- list(
+    process = process,
+    prior = "Horseshoe"
+  )
+  class(res) <- c("horseshoespec", "bvharspec")
+  res
+}
+
 #' Stochastic Volatility Specification
 #' 
 #' `r lifecycle::badge("experimental")` Set SV hyperparameters.
 #' 
+#' @param prior_spec Prior specification (`bvharspec`).
 #' @param ig_shape Inverse-Gamma shape of state variance.
 #' @param ig_scl Inverse-Gamma scale of state variance.
 #' @param initial_mean Prior mean of initial state.
@@ -418,7 +436,10 @@ set_ssvs <- function(coef_spike = .1,
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' @order 1
 #' @export
-set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = .1) {
+set_sv <- function(prior_spec = set_horseshoe(), ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = .1) {
+  if (!is.bvharspec(prior_spec)) {
+    stop("Provide 'bvharspec' for 'prior_spec'.")
+  }
   if (!is.vector(ig_shape) ||
     !is.vector(ig_scl) ||
     !is.vector(initial_mean)) {
@@ -439,7 +460,7 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
   }
   res <- list(
     process = "SV",
-    prior = "Cholesky",
+    prior = prior_spec,
     shape = ig_shape,
     scale = ig_scl,
     initial_mean = initial_mean,

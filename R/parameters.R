@@ -113,7 +113,7 @@ init_ssvs <- function(init_coef,
     init_chol_dummy = init_chol_dummy,
     type = type
   )
-  class(res) <- "ssvsinit"
+  class(res) <- c("ssvsinit", "coefinit")
   res
 }
 
@@ -138,19 +138,10 @@ init_ssvs <- function(init_coef,
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+init_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
   if (!is.vector(local_sparsity)) {
     stop("'local_sparsity' should be a vector.")
   }
-  # if (length(local_sparsity) > 1) {
-  #   warning("Scalar 'local_sparsity' works.")
-  # }
-  # if (!is.matrix(init_cov)) {
-  #   stop("'init_cov' should be a matrix.")
-  # }
-  # if (ncol(init_cov) != nrow(init_cov)) {
-  #   stop("'init_cov' should be a square matrix.")
-  # }
   if (length(global_sparsity) > 1) {
     stop("'global_sparsity' should be a scalar.")
   }
@@ -160,7 +151,7 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     local_sparsity = local_sparsity,
     global_sparsity = global_sparsity # ,init_cov = init_cov
   )
-  class(res) <- c("horseshoespec", "bvharspec")
+  class(res) <- c("hsinit", "coefinit")
   res
 }
 
@@ -168,6 +159,7 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
 #' 
 #' `r lifecycle::badge("experimental")` This function initializes stochastic volatility parameters in Gibbs sampler.
 #' 
+#' @param init_coef Initialization for Coefficients specified by `coefinit`. By default, [init_horseshoe()].
 #' @param lvol Time-varying log-volatility.
 #' The length is same with data dimension times sample size (\eqn{n = T - p}).
 #' @param lvol_init Initial state of log-volatility.
@@ -181,8 +173,11 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' @order 1
 #' @export 
-init_sv <- function(lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "auto")) {
+init_sv <- function(init_coef = init_horseshoe(), lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "auto")) {
   type <- match.arg(type)
+  if (!is.coefinit(init_coef)) {
+    stop("Provide 'coefinit' for init_coef.")
+  }
   if (type == "auto") {
     lvol <- NULL
     lvol_init <- NULL
@@ -222,8 +217,9 @@ init_sv <- function(lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "a
     }
   }
   res <- list(
+    coef = init_coef,
     process = "SV",
-    prior = "Cholesky",
+    # prior = "Cholesky",
     lvol = lvol,
     lvol_init = lvol_init,
     lvol_sig = lvol_sig,

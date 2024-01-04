@@ -183,6 +183,30 @@ knit_print.ssvsspec <- function(x, ...) {
   print(x)
 }
 
+#' @rdname set_horseshoe
+#' @param x `ssvsspec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix, Covariance (precision) matrix\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  fit_func <- switch(x$process,
+    "VAR" = "?bvar_horseshoe",
+    "VHAR" = "?bvhar_horseshoe",
+    stop("Invalid 'x$process' element")
+  )
+  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+}
+
+#' @rdname set_horseshoe
+#' @exportS3Method knitr::knit_print
+knit_print.horseshoespec <- function(x, ...) {
+  print(x)
+}
+
 #' @rdname init_unif
 #' @param x `unifinit`
 #' @param digits digit option to print
@@ -392,13 +416,13 @@ knit_print.ssvsinit <- function(x, ...) {
 }
 
 
-#' @rdname set_horseshoe
-#' @param x `horseshoespec`
+#' @rdname init_horseshoe
+#' @param x `hsinit`
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.hsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
   cat("Parameters: Coefficent matrix, Covariance (precision) matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
@@ -429,9 +453,9 @@ print.horseshoespec <- function(x, digits = max(3L, getOption("digits") - 3L), .
   # cat("'init_local': local shrinkage for each row of coefficients matrix")
 }
 
-#' @rdname set_horseshoe
+#' @rdname init_horseshoe
 #' @exportS3Method knitr::knit_print
-knit_print.horseshoespec <- function(x, ...) {
+knit_print.hsinit <- function(x, ...) {
   print(x)
 }
 
@@ -498,10 +522,10 @@ print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #' @order 2
 #' @export
 print.svinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste0("Gibbs Sampler Initialization for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat(paste0("Gibbs Sampler Initialization for ", x$process, " with ", x$coef$prior, " Prior", "\n\n"))
   cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
   cat("========================================================\n")
-  param <- x[!(names(x) %in% c("process", "prior", "type", "chain"))]
+  param <- x[!(names(x) %in% c("coef", "process", "prior", "type", "chain"))]
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
     type <- "a"

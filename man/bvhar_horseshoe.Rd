@@ -12,7 +12,8 @@ bvhar_horseshoe(
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
-  bayes_spec = set_horseshoe(),
+  bayes_spec = set_horseshoe(process = "VHAR"),
+  init_spec = init_horseshoe(),
   include_mean = TRUE,
   minnesota = c("no", "short", "longrun"),
   algo = c("block", "gibbs"),
@@ -35,6 +36,8 @@ knit_print.bvharhs(x, ...)
 \item{thinning}{Thinning every thinning-th iteration}
 
 \item{bayes_spec}{Horseshoe initialization specification by \code{\link[=set_horseshoe]{set_horseshoe()}}.}
+
+\item{init_spec}{Horseshoe initialization specification by \code{\link[=init_horseshoe]{init_horseshoe()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
