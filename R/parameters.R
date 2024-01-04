@@ -160,7 +160,7 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     local_sparsity = local_sparsity,
     global_sparsity = global_sparsity # ,init_cov = init_cov
   )
-  class(res) <- "horseshoespec"
+  class(res) <- c("horseshoespec", "bvharspec")
   res
 }
 

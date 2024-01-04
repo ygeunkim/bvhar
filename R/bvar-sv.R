@@ -66,12 +66,8 @@ bvar_sv <- function(y,
   num_alpha <- dim_data^2 * p
   num_eta <- dim_data * (dim_data - 1) / 2
   # model specification---------------
-  if (!(
-    is.bvharspec(bayes_spec) ||
-      is.ssvsinput(bayes_spec) ||
-      is.horseshoespec(bayes_spec)
-  )) {
-    stop("Provide 'bvharspec', 'ssvsinput', or 'horseshoespec' for 'bayes_spec'.")
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
   }
   if (!is.svspec(sv_spec)) {
     stop("Provide 'svspec' for 'sv_spec'.")

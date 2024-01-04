@@ -259,8 +259,8 @@ sim_ssvs_var <- function(bayes_spec,
                          minnesota = FALSE,
                          mn_prob = 1,
                          method = c("eigen", "chol")) {
-  if (!is.ssvsinput(bayes_spec)) {
-    stop("Provide 'ssvsinput' for 'bayes_spec'.")
+  if (!is.ssvsspec(bayes_spec)) {
+    stop("Provide 'ssvsspec' for 'bayes_spec'.")
   }
   dim_design <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
   num_coef <- dim_data * dim_design
@@ -378,8 +378,8 @@ sim_ssvs_vhar <- function(bayes_spec,
                           minnesota = c("no", "short", "longrun"),
                           mn_prob = 1,
                           method = c("eigen", "chol")) {
-  if (!is.ssvsinput(bayes_spec)) {
-    stop("Provide 'ssvsinput' for 'bayes_spec'.")
+  if (!is.ssvsspec(bayes_spec)) {
+    stop("Provide 'ssvsspec' for 'bayes_spec'.")
   }
   minnesota <- match.arg(minnesota)
   num_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)

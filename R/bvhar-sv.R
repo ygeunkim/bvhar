@@ -109,12 +109,8 @@ bvhar_sv <- function(y,
   num_design <- nrow(Y0)
   dim_har <- ncol(X1) # 3 * dim_data + 1
   # model specification---------------
-  if (!(
-    is.bvharspec(bayes_spec) ||
-    is.ssvsinput(bayes_spec) ||
-    is.horseshoespec(bayes_spec)
-  )) {
-    stop("Provide 'bvharspec' or 'horseshoespec' for 'bayes_spec'.")
+  if (!is.bvharspec(bayes_spec)) {
+    stop("Provide 'bvharspec' for 'bayes_spec'.")
   }
   if (!is.svspec(sv_spec)) {
     stop("Provide 'svspec' for 'sv_spec'.")

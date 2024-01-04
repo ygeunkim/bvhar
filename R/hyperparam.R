@@ -303,7 +303,7 @@ set_weight_bvhar <- function(sigma,
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
 #' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
-#' @return `ssvsinput` object
+#' @return `ssvsspec` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 
@@ -400,7 +400,7 @@ set_ssvs <- function(coef_spike = .1,
     stop("The size of 'chol_spike', 'chol_slab', and 'chol_mixture' should be the same.")
   }
   res <- append(res, chol_param)
-  class(res) <- "ssvsinput"
+  class(res) <- c("ssvsspec", "bvharspec")
   res
 }
 

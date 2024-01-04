@@ -2,8 +2,8 @@
 % Please edit documentation in R/hyperparam.R, R/print-bvharspec.R
 \name{set_ssvs}
 \alias{set_ssvs}
-\alias{print.ssvsinput}
-\alias{knit_print.ssvsinput}
+\alias{print.ssvsspec}
+\alias{knit_print.ssvsspec}
 \title{Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor}
 \usage{
 set_ssvs(
@@ -19,9 +19,9 @@ set_ssvs(
   chol_mixture = 0.5
 )
 
-\method{print}{ssvsinput}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{ssvsspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.ssvsinput(x, ...)
+knit_print.ssvsspec(x, ...)
 }
 \arguments{
 \item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}
@@ -44,14 +44,14 @@ knit_print.ssvsinput(x, ...)
 
 \item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
 
-\item{x}{\code{ssvsinput}}
+\item{x}{\code{ssvsspec}}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 }
 \value{
-\code{ssvsinput} object
+\code{ssvsspec} object
 }
 \description{
 Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.

@@ -12,7 +12,7 @@
 \alias{is.bvharpriorspec}
 \alias{is.bvharemp}
 \alias{is.boundbvharemp}
-\alias{is.ssvsinput}
+\alias{is.ssvsspec}
 \alias{is.ssvsinit}
 \alias{is.svinit}
 \alias{is.paraminit}
@@ -44,7 +44,7 @@ is.bvharemp(x)
 
 is.boundbvharemp(x)
 
-is.ssvsinput(x)
+is.ssvsspec(x)
 
 is.ssvsinit(x)
 

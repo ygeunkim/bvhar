@@ -598,7 +598,7 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
 #' In case of \eqn{(\omega_{0ij}, \omega_{1ij})},
 #' \deqn{\omega_{kij} = c_k = \hat{VAR(OLS)}}
 #' similarly.
-#' @return `ssvsinput` object
+#' @return `ssvsspec` object
 #' @references 
 #' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
 #' 
@@ -681,7 +681,7 @@ choose_ssvs <- function(y,
       )
     }
   )
-  class(res) <- "ssvsinput"
+  class(res) <- "ssvsspec"
   res
 }
 

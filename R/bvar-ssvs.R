@@ -92,8 +92,8 @@ bvar_ssvs <- function(y,
     y <- as.matrix(y)
   }
   # model specification---------------
-  if (!is.ssvsinput(bayes_spec)) {
-    stop("Provide 'ssvsinput' for 'bayes_spec'.")
+  if (!is.ssvsspec(bayes_spec)) {
+    stop("Provide 'ssvsspec' for 'bayes_spec'.")
   }
   if (!is.ssvsinit(init_spec)) {
     stop("Provide 'ssvsinit' for 'init_spec'.")

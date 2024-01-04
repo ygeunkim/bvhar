@@ -33,7 +33,7 @@ choose_ssvs(
 \item{sd_non}{Standard deviance of unrestricted coefficients. This is for the output.}
 }
 \value{
-\code{ssvsinput} object
+\code{ssvsspec} object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
