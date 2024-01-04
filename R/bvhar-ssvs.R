@@ -171,9 +171,6 @@ bvhar_ssvs <- function(y,
   if (length(bayes_spec$coef_slab) == 1) {
     bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_restrict)
   }
-  # if (length(bayes_spec$coef_mixture) == 1) {
-  #   bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
-  # }
   if (length(init_spec$init_coef_weight) == 1) {
     init_spec$init_coef_weight <- rep(init_spec$init_coef_weight, num_grp)
   }
@@ -196,9 +193,6 @@ bvhar_ssvs <- function(y,
   if (length(bayes_spec$chol_slab) == 1) {
     bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
   }
-  # if (length(bayes_spec$chol_mixture) == 1) {
-  #   bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
-  # }
   if (length(init_spec$init_chol_weight) == 1) {
     init_spec$init_chol_weight <- rep(init_spec$init_chol_weight, num_eta)
   }
@@ -213,11 +207,10 @@ bvhar_ssvs <- function(y,
   # Error----------------------------
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
-      # length(bayes_spec$coef_mixture) == num_grp &&
       length(bayes_spec$coef_slab) == num_restrict
     # && length(bayes_spec$mean_coef) == num_restrict
   )) {
-    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+    stop("Invalid 'coef_spike' and 'coef_slab' size. The vector size should be the same as 3 * dim^2.")
   }
   if (length(init_spec$init_coef_weight) != num_grp) {
     stop("Invalid 'init_coef_weight' size.")
@@ -227,10 +220,9 @@ bvhar_ssvs <- function(y,
   }
   if (!(
     length(bayes_spec$chol_spike) == num_eta &&
-      # length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike) &&
       length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike)
   )) {
-    stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
+    stop("Invalid 'chol_spike' and 'chol_slab' size. The vector size should be the same as dim * (dim - 1) / 2.")
   }
   if (length(init_spec$init_chol_weight) != length(bayes_spec$chol_spike)) {
     stop("Invalid 'init_chol_weight' size.")

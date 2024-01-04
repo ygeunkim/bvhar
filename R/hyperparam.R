@@ -260,12 +260,16 @@ set_weight_bvhar <- function(sigma,
 #' 
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
+#' @param coef_s1 First shape of coefficients prior beta distribution
+#' @param coef_s2 Second shape of coefficients prior beta distribution
 #' @param mean_non Prior mean of unrestricted coefficients
 #' @param sd_non Standard deviance for unrestricted coefficients
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
 #' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor (See Details).
+#' @param chol_s1 First shape of cholesky factor prior beta distribution
+#' @param chol_s2 Second shape of cholesky factor prior beta distribution
 #' @details 
 #' Let \eqn{\alpha} be the vectorized coefficient, \eqn{\alpha = vec(A)}.
 #' Spike-slab prior is given using two normal distributions.
@@ -278,7 +282,6 @@ set_weight_bvhar <- function(sigma,
 #' 
 #' * `coef_spike`: \eqn{\tau_{0j}}
 #' * `coef_slab`: \eqn{\tau_{1j}}
-#' * `coef_mixture`: \eqn{p_j}
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * If one value is provided, model function will read it by replicated value.
 #' * `coef_non`: vectorized constant term is given prior Normal distribution with variance \eqn{cI}. Here, `coef_non` is \eqn{\sqrt{c}}.
@@ -297,7 +300,6 @@ set_weight_bvhar <- function(sigma,
 #' * `rate`: \eqn{b_j}
 #' * `chol_spike`: \eqn{\kappa_{0,ij}}
 #' * `chol_slab`: \eqn{\kappa_{1,ij}}
-#' * `chol_mixture`: \eqn{q_{ij}}
 #' * \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 #' * \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
 #' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
@@ -312,7 +314,6 @@ set_weight_bvhar <- function(sigma,
 #' @export
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
-                    #  coef_mixture = .5,
                      coef_s1 = 1,
                      coef_s2 = 1,
                      mean_non = 0,
@@ -321,16 +322,14 @@ set_ssvs <- function(coef_spike = .1,
                      rate = .01,
                      chol_spike = .1,
                      chol_slab = 5,
-                    #  chol_mixture = .5,
                      chol_s1 = 1,
                      chol_s2 = 1) {
   if (!(is.vector(coef_spike) &&
     is.vector(coef_slab) &&
-    # is.vector(coef_mixture) &&
     is.vector(shape) &&
     is.vector(rate) &&
     is.vector(mean_non))) {
-    stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
+    stop("'coef_spike', 'coef_slab', 'shape', 'rate', and 'mean_non' be a vector.")
   }
   if (!(length(coef_s1) == 1 &&
         length(coef_s2) == 1 &&
@@ -349,17 +348,13 @@ set_ssvs <- function(coef_spike = .1,
         is.matrix(chol_spike) ||
         is.numeric(chol_slab) ||
         is.vector(chol_slab) ||
-        is.matrix(chol_slab) ||
-        is.numeric(chol_mixture) ||
-        # is.vector(chol_mixture) ||
-        is.matrix(chol_mixture))) {
-    stop("'chol_spike', 'chol_slab', and 'chol_mixture' should be a vector or upper triangular matrix.")
+        is.matrix(chol_slab))) {
+    stop("'chol_spike' and 'chol_slab' should be a vector or upper triangular matrix.")
   }
   # coefficients---------------------
   coef_param <- list(
     coef_spike = coef_spike,
     coef_slab = coef_slab,
-    # coef_mixture = coef_mixture
     coef_s1 = coef_s1,
     coef_s2 = coef_s2
   )
@@ -369,7 +364,7 @@ set_ssvs <- function(coef_spike = .1,
   )
   len_param <- sapply(coef_param, length)
   if (length(unique(len_param[len_param != 1])) > 1) {
-    stop("The length of 'coef_spike', 'coef_slab', and 'coef_mixture' should be the same.")
+    stop("The length of 'coef_spike' and 'coef_slab' should be the same.")
   }
   res <- append(coef_param, non_param)
   # cholesky factor-------------------
@@ -385,18 +380,11 @@ set_ssvs <- function(coef_spike = .1,
     }
     chol_slab <- chol_slab[upper.tri(chol_slab, diag = FALSE)]
   }
-  # if (is.matrix(chol_mixture)) {
-  #   if (any(chol_mixture[lower.tri(chol_mixture, diag = TRUE)] != 0)) {
-  #     stop("If 'chol_mixture' is a matrix, it should be an upper triangular form.")
-  #   }
-  #   chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
-  # }
   chol_param <- list(
     shape = shape,
     rate = rate,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
-    # chol_mixture = chol_mixture,
     chol_s1 = chol_s1,
     chol_s2 = chol_s2,
     process = "VAR",
@@ -409,7 +397,7 @@ set_ssvs <- function(coef_spike = .1,
     stop("The length of 'shape' and 'rate' should be the same.")
   }
   if (length(unique(len_eta[len_eta != 1])) > 1) {
-    stop("The size of 'chol_spike', 'chol_slab', and 'chol_mixture' should be the same.")
+    stop("The size of 'chol_spike' and 'chol_slab' should be the same.")
   }
   res <- append(res, chol_param)
   class(res) <- c("ssvsspec", "bvharspec")

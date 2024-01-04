@@ -30,6 +30,10 @@ knit_print.ssvsspec(x, ...)
 
 \item{coef_slab}{Standard deviance for Slab normal distribution (See Details).}
 
+\item{coef_s1}{First shape of coefficients prior beta distribution}
+
+\item{coef_s2}{Second shape of coefficients prior beta distribution}
+
 \item{mean_non}{Prior mean of unrestricted coefficients}
 
 \item{sd_non}{Standard deviance for unrestricted coefficients}
@@ -41,6 +45,10 @@ knit_print.ssvsspec(x, ...)
 \item{chol_spike}{Standard deviance for Spike normal distribution, in the cholesky factor (See Details).}
 
 \item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor (See Details).}
+
+\item{chol_s1}{First shape of cholesky factor prior beta distribution}
+
+\item{chol_s2}{Second shape of cholesky factor prior beta distribution}
 
 \item{x}{\code{ssvsspec}}
 
@@ -66,7 +74,6 @@ and set \eqn{\tau_{1j}} large (symmetric by zero: slab distribution).
 \itemize{
 \item \code{coef_spike}: \eqn{\tau_{0j}}
 \item \code{coef_slab}: \eqn{\tau_{1j}}
-\item \code{coef_mixture}: \eqn{p_j}
 \item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 \item If one value is provided, model function will read it by replicated value.
 \item \code{coef_non}: vectorized constant term is given prior Normal distribution with variance \eqn{cI}. Here, \code{coef_non} is \eqn{\sqrt{c}}.
@@ -86,7 +93,6 @@ For each row of off-diagonal (upper-triangular) components, we apply spike-slab 
 \item \code{rate}: \eqn{b_j}
 \item \code{chol_spike}: \eqn{\kappa_{0,ij}}
 \item \code{chol_slab}: \eqn{\kappa_{1,ij}}
-\item \code{chol_mixture}: \eqn{q_{ij}}
 \item \eqn{j = 1, \ldots, mk}: vectorized format corresponding to coefficient matrix
 \item \eqn{i = 1, \ldots, j - 1} and \eqn{j = 2, \ldots, m}: \eqn{\eta = (\psi_{12}, \psi_{13}, \psi_{23}, \psi_{14}, \ldots, \psi_{34}, \ldots, \psi_{1m}, \ldots, \psi_{m - 1, m})^T}
 \item \code{chol_} arguments can be one value for replication, vector, or upper triangular matrix.

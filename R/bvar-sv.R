@@ -36,8 +36,6 @@ bvar_sv <- function(y,
                     thinning = 1,
                     bayes_spec = set_sv(),
                     init_spec = init_sv(),
-                    # bayes_spec = set_bvar(),
-                    # sv_spec = set_sv(),
                     include_mean = TRUE,
                     minnesota = FALSE,
                     verbose = FALSE,
@@ -178,8 +176,8 @@ bvar_sv <- function(y,
       if (length(prior_spec$coef_slab) == 1) {
         prior_spec$coef_slab <- rep(prior_spec$coef_slab, num_alpha)
       }
-      if (length(prior_spec$coef_mixture) == 1) {
-        prior_spec$coef_mixture <- rep(prior_spec$coef_mixture, num_grp)
+      if (length(coef_init$init_coef_weight) == 1) {
+        coef_init$init_coef_weight <- rep(coef_init$init_coef_weight, num_grp)
       }
       if (length(prior_spec$mean_non) == 1) {
         prior_spec$mean_non <- rep(prior_spec$mean_non, dim_data)
@@ -190,8 +188,8 @@ bvar_sv <- function(y,
       if (length(prior_spec$chol_slab) == 1) {
         prior_spec$chol_slab <- rep(prior_spec$chol_slab, num_eta)
       }
-      if (length(prior_spec$chol_mixture) == 1) {
-        prior_spec$chol_mixture <- rep(prior_spec$chol_mixture, num_eta)
+      if (length(coef_init$init_chol_weight) == 1) {
+        coef_init$init_chol_weight <- rep(coef_init$init_chol_weight, num_eta)
       }
       if (all(is.na(prior_spec$coef_spike)) || all(is.na(prior_spec$coef_slab))) {
         # Conduct semiautomatic function using var_lm()
@@ -199,10 +197,9 @@ bvar_sv <- function(y,
       }
       if (!(
         length(prior_spec$coef_spike) == num_alpha &&
-        length(prior_spec$coef_slab) == num_alpha &&
-        length(prior_spec$coef_mixture) == num_grp
+        length(prior_spec$coef_slab) == num_alpha
       )) {
-        stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
+        stop("Invalid 'coef_spike' and 'coef_slab' size.")
       }
       # MCMC---------------------------------------------------
       estimate_var_sv(

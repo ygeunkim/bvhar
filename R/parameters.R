@@ -39,8 +39,10 @@ init_const <- function(scl = 1) {
 #'
 #' @param init_coef Initial coefficient matrix. Initialize with an array or list for multiple chains.
 #' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
+#' @param init_coef_weight Initial inclusion probability for each coefficients. By default, 0.5.
 #' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
 #' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
+#' @param init_chol_weight Initial inclusion probability for each cholesky factor element. By default, 0.5.
 #' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `"user"` (User-given) and `"auto"` (OLS for coefficients and 1 for dummy).
 #' @details
 #' Set SSVS initialization for the VAR model.

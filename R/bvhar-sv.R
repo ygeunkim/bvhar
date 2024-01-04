@@ -74,8 +74,6 @@ bvhar_sv <- function(y,
                      thinning = 1,
                      bayes_spec = set_sv(),
                      init_spec = init_sv(),
-                    #  bayes_spec = set_bvhar(),
-                    #  sv_spec = set_sv(),
                      include_mean = TRUE,
                      minnesota = c("no", "short", "longrun"),
                      verbose = FALSE,
@@ -255,9 +253,6 @@ bvhar_sv <- function(y,
       if (length(prior_spec$coef_slab) == 1) {
         prior_spec$coef_slab <- rep(prior_spec$coef_slab, num_phi)
       }
-      # if (length(prior_spec$coef_mixture) == 1) {
-      #   prior_spec$coef_mixture <- rep(prior_spec$coef_mixture, num_grp)
-      # }
       if (length(coef_init$init_coef_weight) == 1) {
         coef_init$init_coef_weight <- rep(coef_init$init_coef_weight, num_grp)
       }
@@ -276,9 +271,6 @@ bvhar_sv <- function(y,
       if (length(prior_spec$chol_slab) == 1) {
         prior_spec$chol_slab <- rep(prior_spec$chol_slab, num_eta)
       }
-      # if (length(prior_spec$chol_mixture) == 1) {
-      #   prior_spec$chol_mixture <- rep(prior_spec$chol_mixture, num_eta)
-      # }
       if (length(coef_init$init_chol_weight) == 1) {
         coef_init$init_chol_weight <- rep(coef_init$init_chol_weight, num_eta)
       }
@@ -292,11 +284,10 @@ bvhar_sv <- function(y,
       }
       if (!(
         length(prior_spec$coef_spike) == num_phi &&
-          # length(prior_spec$coef_mixture) == num_grp &&
           length(prior_spec$coef_slab) == num_phi
         # && length(prior_spec$mean_coef) == num_restrict
       )) {
-        stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+        stop("Invalid 'coef_spike' and 'coef_slab' size. The vector size should be the same as 3 * dim^2.")
       }
       if (length(coef_init$init_coef_weight) != num_grp) {
         stop("Invalid 'init_coef_weight' size.")
@@ -306,10 +297,9 @@ bvhar_sv <- function(y,
       }
       if (!(
         length(prior_spec$chol_spike) == num_eta &&
-        # length(prior_spec$chol_mixture) == length(prior_spec$chol_spike) &&
         length(prior_spec$chol_slab) == length(prior_spec$chol_spike)
       )) {
-        stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
+        stop("Invalid 'chol_spike' and 'chol_slab' size. The vector size should be the same as dim * (dim - 1) / 2.")
       }
       if (length(coef_init$init_chol_weight) != length(prior_spec$chol_spike)) {
         stop("Invalid 'init_chol_weight' size.")
