@@ -16,7 +16,7 @@ MinnParams::MinnParams(
 	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
 )
 : SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-	_prior_mean(prior_coef_mean), _prior_prec(prior_coef_prec), _prec_diag(_prec_diag) {}
+	_prior_mean(prior_coef_mean), _prior_prec(prior_coef_prec), _prec_diag(prec_diag) {}
 
 SsvsParams::SsvsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -324,16 +324,4 @@ Rcpp::List HorseshoeSv::returnRecords(const int& num_burn) const {
     Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
   );
-}
-
-std::unique_ptr<McmcSv> initMinn(const MinnParams& params) {
-	return std::unique_ptr<McmcSv>(new MinnSv(params));
-}
-
-std::unique_ptr<McmcSv> initSsvs(const SsvsParams& params) {
-	return std::unique_ptr<McmcSv>(new SsvsSv(params));
-}
-
-std::unique_ptr<McmcSv> initHorseshoe(const HorseshoeParams& params) {
-	return std::unique_ptr<McmcSv>(new HorseshoeSv(params));
 }
