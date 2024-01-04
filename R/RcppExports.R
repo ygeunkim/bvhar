@@ -1358,8 +1358,8 @@ varsv_sigh <- function(shp, scl, init_sv, h1) {
 #' @param sv_sig Variance of log volatility
 #' 
 #' @noRd
-varsv_h0 <- function(prior_mean, prior_prec, init_sv, h1, sv_sig) {
-    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, init_sv, h1, sv_sig)
+varsv_h0 <- function(prior_mean, prior_prec, h1, sv_sig) {
+    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, h1, sv_sig)
 }
 
 #' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
