@@ -1,5 +1,53 @@
 #include "mcmcsv.h"
 
+SvParams::SvParams(
+	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+)
+: _iter(num_iter), _x(x), _y(y),
+	_sig_shp(prior_sig_shp), _sig_scl(prior_sig_scl),
+	_init_mean(prior_init_mean), _init_prec(prior_init_prec) {}
+
+MinnParams::MinnParams(
+	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+)
+: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+	_prior_mean(prior_coef_mean), _prior_prec(prior_coef_prec), _prec_diag(_prec_diag) {}
+
+SsvsParams::SsvsParams(
+	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
+	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
+  double coef_s1, double coef_s2, double chol_s1, double chol_s2,
+  const Eigen::VectorXd& mean_non, double sd_non, bool include_mean
+)
+: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+	_grp_id(grp_id), _grp_mat(grp_mat),
+	_coef_spike(coef_spike), _coef_slab(coef_slab), _coef_weight(coef_slab_weight),
+	_contem_spike(chol_spike), _contem_slab(chol_slab), _contem_weight(chol_slab_weight),
+	_coef_s1(coef_s1), _coef_s2(coef_s2), _contem_s1(chol_s1), _contem_s2(chol_s2),
+	_mean_non(mean_non), _sd_non(sd_non), _mean(include_mean) {}
+
+HorseshoeParams::HorseshoeParams(
+	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+	const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
+	const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+)
+: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
+	_grp_id(grp_id), _grp_mat(grp_mat),
+	_init_local(init_local), _init_global(init_global),
+	_init_contem_local(init_contem_local), _init_conetm_global(init_contem_global) {}
+
 McmcSv::McmcSv(const SvParams& params)
 : x(params._x), y(params._y),
 	prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
@@ -119,13 +167,13 @@ Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
 SsvsSv::SsvsSv(const SsvsParams& params)
 : McmcSv(params),
 	include_mean(params._mean),
-	coef_weight(params._coef_weight),
-	contem_weight(params._contem_weight),
-	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
 	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
+	coef_weight(params._coef_weight),
+	contem_weight(params._contem_weight),
+	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
 	coef_spike(params._coef_spike),
 	coef_slab(params._coef_slab),
 	contem_spike(params._contem_spike),
@@ -211,12 +259,12 @@ Rcpp::List SsvsSv::returnRecords(const int& num_burn) const {
 
 HorseshoeSv::HorseshoeSv(const HorseshoeParams& params)
 : McmcSv(params),
-	local_lev(params._init_local),
-	global_lev(params._init_global),
 	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
+	local_lev(params._init_local),
+	global_lev(params._init_global),
 	shrink_fac(Eigen::VectorXd::Zero(num_coef)),
 	latent_local(Eigen::VectorXd::Zero(num_coef)),
 	latent_global(Eigen::VectorXd::Zero(1)),

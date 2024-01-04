@@ -14,13 +14,10 @@ struct SvParams {
 	Eigen::MatrixXd _init_prec;
 
 	SvParams(
-		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
-		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
-		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec
-	)
-	: _iter(num_iter), _x(x), _y(y),
-		_sig_shp(prior_sig_shp), _sig_scl(prior_sig_scl),
-		_init_mean(prior_init_mean), _init_prec(prior_init_prec) {}
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+	);
 };
 
 struct MinnParams : public SvParams {
@@ -29,13 +26,11 @@ struct MinnParams : public SvParams {
 	Eigen::MatrixXd _prec_diag;
 
 	MinnParams(
-		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
-		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
-		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
-		Eigen::MatrixXd prior_coef_mean, Eigen::MatrixXd prior_coef_prec, Eigen::MatrixXd prec_diag
-	)
-	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-		_prior_mean(prior_coef_mean), _prior_prec(prior_coef_prec), _prec_diag(_prec_diag) {}
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+	);
 };
 
 struct SsvsParams : public SvParams {
@@ -56,21 +51,15 @@ struct SsvsParams : public SvParams {
 	bool _mean;
 
 	SsvsParams(
-		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
-		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
-		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
-		Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat,
-		Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight,
-		Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
+		const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
     double coef_s1, double coef_s2, double chol_s1, double chol_s2,
-    Eigen::VectorXd mean_non, double sd_non, bool include_mean
-	)
-	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-		_grp_id(grp_id), _grp_mat(grp_mat),
-		_coef_spike(coef_spike), _coef_slab(coef_slab), _coef_weight(coef_slab_weight),
-		_contem_spike(chol_spike), _contem_slab(chol_slab), _contem_weight(chol_slab_weight),
-		_coef_s1(coef_s1), _coef_s2(coef_s2), _contem_s1(chol_s1), _contem_s2(chol_s2),
-		_mean_non(mean_non), _sd_non(sd_non), _mean(include_mean) {}
+    const Eigen::VectorXd& mean_non, double sd_non, bool include_mean
+	);
 };
 
 struct HorseshoeParams : public SvParams {
@@ -82,17 +71,13 @@ struct HorseshoeParams : public SvParams {
 	Eigen::VectorXd _init_conetm_global;
 
 	HorseshoeParams(
-		int num_iter, Eigen::MatrixXd x, Eigen::MatrixXd y,
-		Eigen::VectorXd prior_sig_shp, Eigen::VectorXd prior_sig_scl,
-		Eigen::VectorXd prior_init_mean, Eigen::MatrixXd prior_init_prec,
-		Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat,
-		Eigen::VectorXd init_local, Eigen::VectorXd init_global,
-		Eigen::VectorXd init_contem_local, Eigen::VectorXd init_contem_global
-	)
-	: SvParams(num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec),
-		_grp_id(grp_id), _grp_mat(grp_mat),
-		_init_local(init_local), _init_global(init_global),
-		_init_contem_local(init_contem_local), _init_conetm_global(init_contem_global) {}
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
+		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
+		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+	);
 };
 
 class McmcSv {
@@ -111,6 +96,8 @@ public:
 	virtual Rcpp::List returnRecords(const int& num_burn) const = 0;
 
 protected:
+	Eigen::MatrixXd x;
+	Eigen::MatrixXd y;
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
@@ -123,8 +110,6 @@ protected:
   int num_lowerchol;
   int num_coef;
 	int mcmc_step; // MCMC step
-	Eigen::MatrixXd x;
-	Eigen::MatrixXd y;
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
@@ -173,14 +158,14 @@ public:
 private:
 	bool include_mean;
 	int num_alpha;
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXd grp_mat;
+	Eigen::VectorXd grp_vec;
 	int num_grp;
 	Eigen::MatrixXd coef_dummy_record;
 	Eigen::MatrixXd coef_weight_record;
 	Eigen::MatrixXd contem_dummy_record;
 	Eigen::MatrixXd contem_weight_record;
-	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
 	Eigen::VectorXd coef_dummy;
 	Eigen::VectorXd coef_weight;
 	Eigen::VectorXd contem_dummy;
@@ -208,13 +193,13 @@ public:
 	Rcpp::List returnRecords(const int& num_burn) const override;
 
 private:
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXd grp_mat;
+	Eigen::VectorXd grp_vec;
 	int num_grp;
 	Eigen::MatrixXd local_record;
 	Eigen::MatrixXd global_record;
 	Eigen::MatrixXd shrink_record;
-	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd global_lev;
 	Eigen::VectorXd shrink_fac;
