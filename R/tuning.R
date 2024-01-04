@@ -684,3 +684,44 @@ choose_ssvs <- function(y,
   class(res) <- "ssvsinput"
   res
 }
+
+#' Choose the Parameters Set of VAR-SV or VHAR-SV
+#'
+#' `r lifecycle::badge("experimental")` This function chooses parameters of Stochastic volatility using OLS.
+#'
+#' @param y Time series data of which columns indicate the variables.
+#' @param ord Order for VAR or VHAR.
+#' @param type Model type (Default: `"VAR"` or `"VHAR"`).
+#' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`).
+#' @return `svinit` object
+#' @references
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#'
+#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+#' @export
+choose_sv <- function(y, ord, type = c("VAR", "VHAR"), include_mean = TRUE) {
+  type <- match.arg(type)
+  fit <- switch(type,
+    "VAR" = {
+      var_lm(y, p = ord, include_mean = include_mean)
+    },
+    "VHAR" = {
+      if (missing(ord)) {
+        ord <- c(5, 22)
+      }
+      vhar_lm(y, har = ord, include_mean = include_mean)
+    }
+  )
+  resid <- fit$residuals
+  lvol_init <- log(colMeans(resid^2))
+  res <- list(
+    process = "SV",
+    prior = "Cholesky",
+    lvol = matrix(rep(lvol_init, fit$obs), nrow = fit$obs, byrow = TRUE),
+    lvol_init = lvol_init,
+    lvol_sig = rep(.1, fit$m),
+    type = "user"
+  )
+  class(res) <- "svinit"
+  res
+}

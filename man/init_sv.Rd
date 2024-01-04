@@ -30,3 +30,8 @@ The length is same with data dimension.}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function initializes stochastic volatility parameters in Gibbs sampler.
 }
+\references{
+Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137–154]}. Journal of Econometrics, 227(2), 506-512.
+
+Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press.
+}
