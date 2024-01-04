@@ -205,6 +205,12 @@ is.ssvsinit <- function(x) {
 
 #' @rdname is.varlse
 #' @export
+is.svinit <- function(x) {
+  inherits(x, "svinit")
+}
+
+#' @rdname is.varlse
+#' @export
 is.paraminit <- function(x) {
   inherits(x, "paraminit")
 }

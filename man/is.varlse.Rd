@@ -14,6 +14,7 @@
 \alias{is.boundbvharemp}
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
+\alias{is.svinit}
 \alias{is.paraminit}
 \alias{is.unifinit}
 \alias{is.sclinit}
@@ -46,6 +47,8 @@ is.boundbvharemp(x)
 is.ssvsinput(x)
 
 is.ssvsinit(x)
+
+is.svinit(x)
 
 is.paraminit(x)
 

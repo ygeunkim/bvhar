@@ -233,7 +233,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n")
-  param <- x[!(names(x) %in% c("process", "prior", "chain"))]
+  param <- x[!(names(x) %in% c("process", "prior", "type", "chain"))]
   num_chain <- x$chain
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
@@ -488,5 +488,114 @@ print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       }
     )
     cat("\n")
+  }
+}
+
+#' @rdname init_sv
+#' @param x `svinit`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.svinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Gibbs Sampler Initialization for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior", "type", "chain"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Initialization for '", names(param)[i], "':\n"))
+    type <- "a"
+    if (is.paraminit(param[[i]])) {
+      type <- "rand"
+    } else if (is.matrix(param[[i]])) {
+      type <- "b" # not large one matrix
+      if (nrow(param[[i]]) > 7 & ncol(param[[i]]) > 6) {
+        type <- "c" # both large
+      } else if (nrow(param[[i]]) > 7 & ncol(param[[i]]) <= 6) {
+        type <- "d" # large row
+      } else if (nrow(param[[i]]) <= 7 & ncol(param[[i]]) > 6) {
+        type <- "e" # large column
+      }
+    } else if (is.vector(param[[i]])) {
+      if (length(param[[i]]) > 7) {
+        type <- "f" # large vector
+      }
+    }
+    switch(type,
+      "a" = {
+        for (j in seq_along(param[[i]])) {
+          print.default(
+            param[[i]][[j]],
+            digits = digits,
+            print.gap = 2L,
+            quote = FALSE
+          )
+        }
+        cat("\n")
+      },
+      "rand" = {
+        print(
+          param[[i]],
+          digits = digits,
+          ...
+        )
+        cat("\n")
+      },
+      "b" = {
+        print.default(
+          param[[i]],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat("\n")
+      },
+      "c" = {
+        cat(
+          paste0("# A matrix: "),
+          paste(nrow(param[[i]]), "x", ncol(param[[i]])),
+          "\n"
+        )
+        print.default(
+          param[[i]][1:7, 1:6],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
+      },
+      "d" = {
+        print.default(
+          param[[i]][1:7, ],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat(paste0("# ... with ", nrow(param[[i]]) - 7, " more rows", "\n"))
+      },
+      "e" = {
+        cat(
+          paste0("# A matrix: "),
+          paste(nrow(param[[i]]), "x", ncol(param[[i]])),
+          "\n"
+        )
+        print.default(
+          param[[i]][1:7, 1:6],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+        cat("\n")
+      },
+      "f" = {
+        cat(sprintf("# A vector: size %d\n", length(param[[i]])))
+        print.default(
+          param[[i]][1:7],
+          digits = digits,
+          print.gap = 2L,
+          quote = FALSE
+        )
+      }
+    )
   }
 }

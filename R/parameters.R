@@ -163,3 +163,72 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
   class(res) <- "horseshoespec"
   res
 }
+
+#' Initialize Stochastic Volatility Parameters
+#' 
+#' `r lifecycle::badge("experimental")` This function initializes stochastic volatility parameters in Gibbs sampler.
+#' 
+#' @param lvol Time-varying log-volatility.
+#' The length is same with data dimension times sample size (\eqn{n = T - p}).
+#' @param lvol_init Initial state of log-volatility.
+#' The length is same with data dimension.
+#' @param lvol_sig Variance of log-volatility.
+#' The length is same with data dimension.
+#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `"user"` (User-given) and `"auto"` (OLS for coefficients and 1 for dummy).
+#' @references
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#'
+#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+#' @order 1
+#' @export 
+init_sv <- function(lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "auto")) {
+  type <- match.arg(type)
+  if (type == "auto") {
+    lvol <- NULL
+    lvol_init <- NULL
+    lvol_sig <- NULL
+  } else {
+    if (!(is.paraminit(lvol) &&
+      is.paraminit(lvol_init) &&
+      is.paraminit(lvol_sig))) {
+      if (!(is.vector(lvol_init) && is.vector(lvol_sig))) {
+        stop("'lvol_init' and 'lvol_sig' should be a vector.")
+      }
+      if (is.matrix(lvol) && length(lvol_init) > 1) {
+        if (ncol(lvol) != length(lvol_init)) {
+          stop("Invalid size of 'lvol' or 'lvol_init'. 'lvol' should be n x dim.")
+        }
+      }
+      if (is.matrix(lvol) && length(lvol_sig) > 1) {
+        if (ncol(lvol) != length(lvol_sig)) {
+          stop("Invalid size of 'lvol' or 'lvol_sig'. 'lvol' should be n x dim.")
+        }
+      }
+      if (length(lvol) > 1 && length(lvol_init) > 1) {
+        if (length(lvol) == length(lvol_init)) {
+          stop("Invalid length of 'lvol' or 'lvol_init'.")
+        }
+      }
+      if (length(lvol) > 1 && length(lvol_sig) > 1) {
+        if (length(lvol) == length(lvol_sig)) {
+          stop("Invalid length of 'lvol' or 'lvol_sig'.")
+        }
+      }
+      if (length(lvol_init) > 1 && length(lvol_sig) > 1) {
+        if (length(lvol_init) != length(lvol_sig)) {
+          stop("Invalid length of 'lvol_init' or 'lvol_sig'. They should be the same as data dimension when length > 1.")
+        }
+      }
+    }
+  }
+  res <- list(
+    process = "SV",
+    prior = "Cholesky",
+    lvol = lvol,
+    lvol_init = lvol_init,
+    lvol_sig = lvol_sig,
+    type = type
+  )
+  class(res) <- "svinit"
+  res
+}
