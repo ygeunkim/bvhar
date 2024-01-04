@@ -636,7 +636,9 @@ choose_ssvs <- function(y,
       list(
         coef_spike = param[1] * sd_coef,
         coef_slab = param[2] * sd_coef,
-        coef_mixture = .5,
+        # coef_mixture = .5,
+        coef_s1 = 1,
+        coef_s2 = 1,
         # mean_coef = mean_coef,
         mean_non = mean_non,
         sd_non = sd_non,
@@ -646,7 +648,9 @@ choose_ssvs <- function(y,
         rate = gamma_param[2],
         chol_spike = param[1] * sd_chol,
         chol_slab = param[2] * sd_chol,
-        chol_mixture = .5
+        # chol_mixture = .5
+        chol_s1 = 1,
+        chol_s2 = 1
       )
     },
     "VHAR" = {
@@ -667,7 +671,9 @@ choose_ssvs <- function(y,
       list(
         coef_spike = param[1] * sd_coef,
         coef_slab = param[2] * sd_coef,
-        coef_mixture = .5,
+        # coef_mixture = .5,
+        coef_s1 = 1,
+        coef_s2 = 1,
         # mean_coef = mean_coef,
         mean_non = mean_non,
         sd_non = sd_non,
@@ -677,7 +683,9 @@ choose_ssvs <- function(y,
         rate = gamma_param[2],
         chol_spike = param[1] * sd_chol,
         chol_slab = param[2] * sd_chol,
-        chol_mixture = .5
+        # chol_mixture = .5
+        chol_s1 = 1,
+        chol_s2 = 1
       )
     }
   )

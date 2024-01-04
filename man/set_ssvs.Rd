@@ -9,14 +9,16 @@
 set_ssvs(
   coef_spike = 0.1,
   coef_slab = 5,
-  coef_mixture = 0.5,
+  coef_s1 = 1,
+  coef_s2 = 1,
   mean_non = 0,
   sd_non = 0.1,
   shape = 0.01,
   rate = 0.01,
   chol_spike = 0.1,
   chol_slab = 5,
-  chol_mixture = 0.5
+  chol_s1 = 1,
+  chol_s2 = 1
 )
 
 \method{print}{ssvsspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -27,8 +29,6 @@ knit_print.ssvsspec(x, ...)
 \item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}
 
 \item{coef_slab}{Standard deviance for Slab normal distribution (See Details).}
-
-\item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
 
 \item{mean_non}{Prior mean of unrestricted coefficients}
 
@@ -41,8 +41,6 @@ knit_print.ssvsspec(x, ...)
 \item{chol_spike}{Standard deviance for Spike normal distribution, in the cholesky factor (See Details).}
 
 \item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor (See Details).}
-
-\item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
 
 \item{x}{\code{ssvsspec}}
 

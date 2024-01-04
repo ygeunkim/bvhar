@@ -9,9 +9,11 @@
 init_ssvs(
   init_coef,
   init_coef_dummy,
+  init_coef_weight = 0.5,
   init_chol,
   init_chol_dummy,
-  type = c("user", "auto")
+  init_chol_weight = 0.5,
+  type = c("auto", "user")
 )
 
 \method{print}{ssvsinit}(x, digits = max(3L, getOption("digits") - 3L), ...)

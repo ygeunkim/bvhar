@@ -466,10 +466,14 @@ knit_print.hsinit <- function(x, ...) {
 #' @order 2
 #' @export
 print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
-  cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
-  cat(paste0("Prior: ", x$prior, "\n"))
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficients, Contemporaneous coefficients, State variance, Initial state\n")
+  cat(paste0("Prior: ", x$prior$prior, "\n"))
   cat("========================================================\n")
+  cat("Settings for coefficients:\n")
+  print(x$prior)
+  cat("----------------------------\n")
+  cat("Stochastic volatilities:\n")
   param <- x[!(names(x) %in% c("process", "prior"))]
   for (i in seq_along(param)) {
     cat(paste0("Setting for '", names(param)[i], "':\n"))

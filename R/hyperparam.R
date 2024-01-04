@@ -260,14 +260,12 @@ set_weight_bvhar <- function(sigma,
 #' 
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
-#' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
 #' @param mean_non Prior mean of unrestricted coefficients
 #' @param sd_non Standard deviance for unrestricted coefficients
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
 #' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor (See Details).
-#' @param chol_mixture Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
 #' @details 
 #' Let \eqn{\alpha} be the vectorized coefficient, \eqn{\alpha = vec(A)}.
 #' Spike-slab prior is given using two normal distributions.
@@ -314,21 +312,31 @@ set_weight_bvhar <- function(sigma,
 #' @export
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
-                     coef_mixture = .5,
+                    #  coef_mixture = .5,
+                     coef_s1 = 1,
+                     coef_s2 = 1,
                      mean_non = 0,
                      sd_non = .1,
                      shape = .01,
                      rate = .01,
                      chol_spike = .1,
                      chol_slab = 5,
-                     chol_mixture = .5) {
-  if (!(is.vector(coef_spike) && 
-        is.vector(coef_slab) && 
-        is.vector(coef_mixture) &&
-        is.vector(shape) &&
-        is.vector(rate) &&
-        is.vector(mean_non))) {
+                    #  chol_mixture = .5,
+                     chol_s1 = 1,
+                     chol_s2 = 1) {
+  if (!(is.vector(coef_spike) &&
+    is.vector(coef_slab) &&
+    # is.vector(coef_mixture) &&
+    is.vector(shape) &&
+    is.vector(rate) &&
+    is.vector(mean_non))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
+  }
+  if (!(length(coef_s1) == 1 &&
+        length(coef_s2) == 1 &&
+        length(chol_s1) == 1 &&
+        length(chol_s2 == 1))) {
+    stop("'coef_s1', 'coef_s2', 'chol_s1', and 'chol_s2' should be length 1 numeric.")
   }
   if (length(sd_non) != 1) {
     stop("'sd_non' should be length 1 numeric.")
@@ -343,7 +351,7 @@ set_ssvs <- function(coef_spike = .1,
         is.vector(chol_slab) ||
         is.matrix(chol_slab) ||
         is.numeric(chol_mixture) ||
-        is.vector(chol_mixture) ||
+        # is.vector(chol_mixture) ||
         is.matrix(chol_mixture))) {
     stop("'chol_spike', 'chol_slab', and 'chol_mixture' should be a vector or upper triangular matrix.")
   }
@@ -351,7 +359,9 @@ set_ssvs <- function(coef_spike = .1,
   coef_param <- list(
     coef_spike = coef_spike,
     coef_slab = coef_slab,
-    coef_mixture = coef_mixture
+    # coef_mixture = coef_mixture
+    coef_s1 = coef_s1,
+    coef_s2 = coef_s2
   )
   non_param <- list(
     mean_non = mean_non,
@@ -375,18 +385,20 @@ set_ssvs <- function(coef_spike = .1,
     }
     chol_slab <- chol_slab[upper.tri(chol_slab, diag = FALSE)]
   }
-  if (is.matrix(chol_mixture)) {
-    if (any(chol_mixture[lower.tri(chol_mixture, diag = TRUE)] != 0)) {
-      stop("If 'chol_mixture' is a matrix, it should be an upper triangular form.")
-    }
-    chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
-  }
+  # if (is.matrix(chol_mixture)) {
+  #   if (any(chol_mixture[lower.tri(chol_mixture, diag = TRUE)] != 0)) {
+  #     stop("If 'chol_mixture' is a matrix, it should be an upper triangular form.")
+  #   }
+  #   chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
+  # }
   chol_param <- list(
     shape = shape,
     rate = rate,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
-    chol_mixture = chol_mixture,
+    # chol_mixture = chol_mixture,
+    chol_s1 = chol_s1,
+    chol_s2 = chol_s2,
     process = "VAR",
     prior = "SSVS"
   )

@@ -64,9 +64,11 @@ init_const <- function(scl = 1) {
 #' @export
 init_ssvs <- function(init_coef,
                       init_coef_dummy,
+                      init_coef_weight = .5,
                       init_chol,
                       init_chol_dummy,
-                      type = c("user", "auto")) {
+                      init_chol_weight = .5,
+                      type = c("auto", "user")) {
   type <- match.arg(type)
   if (type == "auto") {
     init_coef <- NULL
@@ -78,13 +80,17 @@ init_ssvs <- function(init_coef,
     num_chain <- 1
     coef_mat <- init_coef
     coef_dummy <- init_coef_dummy
+    coef_weight <- init_coef_weight
     chol_mat <- init_chol
     chol_dummy <- init_chol_dummy
+    chol_weight <- init_chol_weight
     # Check dimension validity-----------------------------
     if (!(is.paraminit(coef_mat) &&
-      is.paraminit(coef_dummy) &&
-      is.paraminit(chol_mat) &&
-      is.paraminit(chol_dummy))) {
+          is.paraminit(coef_dummy) &&
+          is.paraminit(coef_weight) &&
+          is.paraminit(chol_mat) &&
+          is.paraminit(chol_dummy) &&
+          is.paraminit(chol_weight))) {
       dim_design <- nrow(coef_mat) # kp(+1)
       dim_data <- ncol(coef_mat) # k = dim
       if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
@@ -101,6 +107,12 @@ init_ssvs <- function(init_coef,
       if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
         stop("Invalid dimension of 'init_chol_dummy'.")
       }
+      if (is.matrix(init_chol_weight)) {
+        if (any(init_chol_weight[lower.tri(init_chol_weight, diag = TRUE)] != 0)) {
+          stop("If 'init_chol_weight' is a matrix, it should be an upper triangular form.")
+        }
+        init_chol_weight <- init_chol_weight[upper.tri(init_chol_weight, diag = FALSE)]
+      }
     }
   }
   res <- list(
@@ -109,8 +121,10 @@ init_ssvs <- function(init_coef,
     chain = num_chain,
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
+    init_coef_weight = init_coef_weight,
     init_chol = init_chol,
     init_chol_dummy = init_chol_dummy,
+    init_chol_weight = init_chol_weight,
     type = type
   )
   class(res) <- c("ssvsinit", "coefinit")

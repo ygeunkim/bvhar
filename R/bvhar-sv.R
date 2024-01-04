@@ -255,8 +255,11 @@ bvhar_sv <- function(y,
       if (length(prior_spec$coef_slab) == 1) {
         prior_spec$coef_slab <- rep(prior_spec$coef_slab, num_phi)
       }
-      if (length(prior_spec$coef_mixture) == 1) {
-        prior_spec$coef_mixture <- rep(prior_spec$coef_mixture, num_grp)
+      # if (length(prior_spec$coef_mixture) == 1) {
+      #   prior_spec$coef_mixture <- rep(prior_spec$coef_mixture, num_grp)
+      # }
+      if (length(coef_init$init_coef_weight) == 1) {
+        coef_init$init_coef_weight <- rep(coef_init$init_coef_weight, num_grp)
       }
       if (length(prior_spec$mean_non) == 1) {
         prior_spec$mean_non <- rep(prior_spec$mean_non, dim_data)
@@ -273,8 +276,11 @@ bvhar_sv <- function(y,
       if (length(prior_spec$chol_slab) == 1) {
         prior_spec$chol_slab <- rep(prior_spec$chol_slab, num_eta)
       }
-      if (length(prior_spec$chol_mixture) == 1) {
-        prior_spec$chol_mixture <- rep(prior_spec$chol_mixture, num_eta)
+      # if (length(prior_spec$chol_mixture) == 1) {
+      #   prior_spec$chol_mixture <- rep(prior_spec$chol_mixture, num_eta)
+      # }
+      if (length(coef_init$init_chol_weight) == 1) {
+        coef_init$init_chol_weight <- rep(coef_init$init_chol_weight, num_eta)
       }
       if (all(is.na(prior_spec$coef_spike)) || all(is.na(prior_spec$coef_slab))) {
         # Conduct semiautomatic function using var_lm()
@@ -286,21 +292,27 @@ bvhar_sv <- function(y,
       }
       if (!(
         length(prior_spec$coef_spike) == num_phi &&
-        length(prior_spec$coef_slab) == num_phi &&
-        length(prior_spec$coef_mixture) == num_grp
+          # length(prior_spec$coef_mixture) == num_grp &&
+          length(prior_spec$coef_slab) == num_phi
         # && length(prior_spec$mean_coef) == num_restrict
       )) {
         stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+      }
+      if (length(coef_init$init_coef_weight) != num_grp) {
+        stop("Invalid 'init_coef_weight' size.")
       }
       if (!(length(prior_spec$shape) == dim_data && length(prior_spec$rate) == dim_data)) {
         stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
       }
       if (!(
         length(prior_spec$chol_spike) == num_eta &&
-        length(prior_spec$chol_slab) == length(prior_spec$chol_spike) &&
-        length(prior_spec$chol_mixture) == length(prior_spec$chol_spike)
+        # length(prior_spec$chol_mixture) == length(prior_spec$chol_spike) &&
+        length(prior_spec$chol_slab) == length(prior_spec$chol_spike)
       )) {
         stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
+      }
+      if (length(coef_init$init_chol_weight) != length(prior_spec$chol_spike)) {
+        stop("Invalid 'init_chol_weight' size.")
       }
       # MCMC---------------------------------------------------
       estimate_var_sv(
@@ -324,14 +336,14 @@ bvhar_sv <- function(y,
 				prior_init_prec = bayes_spec$initial_prec,
         coef_spike = prior_spec$coef_spike,
         coef_slab = prior_spec$coef_slab,
-        coef_slab_weight = prior_spec$coef_mixture,
+        coef_slab_weight = coef_init$init_coef_weight,
         chol_spike = prior_spec$chol_spike,
         chol_slab = prior_spec$chol_slab,
-        chol_slab_weight = prior_spec$chol_mixture,
-        coef_s1 = 1,
-        coef_s2 = 1,
-        chol_s1 = 1,
-        chol_s2 = 1,
+        chol_slab_weight = coef_init$init_chol_weight,
+        coef_s1 = prior_spec$coef_s1,
+        coef_s2 = prior_spec$coef_s2,
+        chol_s1 = prior_spec$chol_s1,
+        chol_s2 = prior_spec$chol_s2,
         mean_non = rep(0, dim_data),
         sd_non = .1,
         include_mean = include_mean,

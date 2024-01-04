@@ -171,8 +171,11 @@ bvhar_ssvs <- function(y,
   if (length(bayes_spec$coef_slab) == 1) {
     bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_restrict)
   }
-  if (length(bayes_spec$coef_mixture) == 1) {
-    bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
+  # if (length(bayes_spec$coef_mixture) == 1) {
+  #   bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
+  # }
+  if (length(init_spec$init_coef_weight) == 1) {
+    init_spec$init_coef_weight <- rep(init_spec$init_coef_weight, num_grp)
   }
   # if (length(bayes_spec$mean_coef) == 1) {
   #   bayes_spec$mean_coef <- rep(bayes_spec$mean_coef, num_restrict)
@@ -193,8 +196,11 @@ bvhar_ssvs <- function(y,
   if (length(bayes_spec$chol_slab) == 1) {
     bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
   }
-  if (length(bayes_spec$chol_mixture) == 1) {
-    bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+  # if (length(bayes_spec$chol_mixture) == 1) {
+  #   bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+  # }
+  if (length(init_spec$init_chol_weight) == 1) {
+    init_spec$init_chol_weight <- rep(init_spec$init_chol_weight, num_eta)
   }
   if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
     # Conduct semiautomatic function using var_lm()
@@ -207,28 +213,36 @@ bvhar_ssvs <- function(y,
   # Error----------------------------
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
-    length(bayes_spec$coef_slab) == num_restrict &&
-    length(bayes_spec$coef_mixture) == num_grp
+      # length(bayes_spec$coef_mixture) == num_grp &&
+      length(bayes_spec$coef_slab) == num_restrict
     # && length(bayes_spec$mean_coef) == num_restrict
   )) {
     stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+  }
+  if (length(init_spec$init_coef_weight) != num_grp) {
+    stop("Invalid 'init_coef_weight' size.")
   }
   if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
     stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
   }
   if (!(
     length(bayes_spec$chol_spike) == num_eta &&
-    length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
-    length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
+      # length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike) &&
+      length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike)
   )) {
     stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
+  }
+  if (length(init_spec$init_chol_weight) != length(bayes_spec$chol_spike)) {
+    stop("Invalid 'init_chol_weight' size.")
   }
   # Initial vectors-------------------
   if (init_spec$type == "user") {
     if (is.paraminit(init_spec$init_coef)
         && is.paraminit(init_spec$init_coef_dummy)
         && is.paraminit(init_spec$init_chol)
-        && is.paraminit(init_spec$init_chol_dummy)) {
+        && is.paraminit(init_spec$init_chol_dummy)
+        && is.paraminit(init_spec$init_coef_weight)
+        && is.paraminit(init_spec$init_chol_weight)) {
       if (is.unifinit(init_spec$init_coef)) {
         init_spec$init_coef <- matrix(
           runif(dim_har * dim_data, min = init_spec$init_coef$param[1], max = init_spec$init_coef$param[2]),
@@ -240,7 +254,8 @@ bvhar_ssvs <- function(y,
       }
       if (is.unifinit(init_spec$init_coef_dummy)) {
         init_spec$init_coef_dummy <- matrix(
-          rbinom(dim_har * dim_data,
+          rbinom(
+            dim_har * dim_data,
             1,
             runif(1, 1 / (1 + exp(init_spec$init_coef_dummy$param[2])), 1 / (1 + exp(init_spec$init_coef_dummy$param[1])))
           ),
@@ -249,6 +264,11 @@ bvhar_ssvs <- function(y,
         )
       } else {
         init_spec$init_coef_dummy <- matrix(init_spec$init_coef_dummy$param, nrow = dim_har, ncol = dim_data)
+      }
+      if (is.unifinit(init_spec$init_coef_weight)) {
+        init_spec$init_coef_weight <- runif(num_grp, min = init_spec$init_coef_weight$param[1], max = init_spec$init_coef_weight$param[2])
+      } else {
+        init_spec$init_coef_weight <- rep(init_spec$init_coef_weight$param, num_grp)
       }
       if (is.unifinit(init_spec$init_chol)) {
         init_chol <- diag(dim_data)
@@ -275,6 +295,15 @@ bvhar_ssvs <- function(y,
         init_chol_dummy <- diag(dim_data)
         init_chol_dummy[upper.tri(init_chol_dummy)] <- init_spec$init_chol_dummy$param
         init_spec$init_chol_dummy <- init_chol_dummy
+      }
+      if (is.unifinit(init_spec$init_chol_weight)) {
+        init_spec$init_chol_weight <- runif(
+          dim_data * (dim_data - 1) / 2,
+          min = init_spec$init_chol_weight$param[1],
+          max = init_spec$init_chol_weight$param[2]
+        )
+      } else {
+        init_spec$init_chol_weight <- rep(init_spec$init_chol_weight$param, dim_data * (dim_data - 1) / 2)
       }
     }
     if (!(nrow(init_spec$init_coef) == dim_har || ncol(init_spec$init_coef) == dim_data)) {
@@ -310,16 +339,16 @@ bvhar_ssvs <- function(y,
     init_chol_dummy = init_chol_dummy, # initial omega
     coef_spike = bayes_spec$coef_spike, # phi spike
     coef_slab = bayes_spec$coef_slab, # phi slab
-    coef_slab_weight = bayes_spec$coef_mixture, # pj
+    coef_slab_weight = init_spec$init_coef_weight, # pj
     shape = bayes_spec$shape, # shape of gamma distn
     rate = bayes_spec$rate, # rate of gamma distn
-    coef_s1 = 1,
-    coef_s2 = 1,
+    coef_s1 = bayes_spec$coef_s1,
+    coef_s2 = bayes_spec$coef_s2,
     chol_spike = bayes_spec$chol_spike, # eta spike
     chol_slab = bayes_spec$chol_slab, # eta slab
-    chol_slab_weight = bayes_spec$chol_mixture, # qij
-    chol_s1 = 1,
-    chol_s2 = 1,
+    chol_slab_weight = init_spec$init_chol_weight, # qij
+    chol_s1 = bayes_spec$chol_s1,
+    chol_s2 = bayes_spec$chol_s2,
     grp_id = grp_id,
     grp_mat = glob_idmat,
     mean_non = bayes_spec$mean_non,
