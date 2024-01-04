@@ -73,7 +73,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				prior_coef_mean, prior_coef_prec, prec_diag
 			);
-			sv_obj = initMinn(minn_params);
+			sv_obj = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
 			break;
 		}
 		case 2: {
@@ -83,7 +83,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 				coef_s1, coef_s2, chol_s1, chol_s2,
 				mean_non, sd_non, include_mean
 			);
-			sv_obj = initSsvs(ssvs_params);
+			sv_obj = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
 			break;
 		}
 		case 3: {
@@ -91,7 +91,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
 				grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
 			);
-			sv_obj = initHorseshoe(horseshoe_params);
+			sv_obj = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
 			break;
 		}
 	}

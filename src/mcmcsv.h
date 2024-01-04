@@ -214,10 +214,4 @@ private:
 	Eigen::VectorXd latent_contem_global;
 };
 
-std::unique_ptr<McmcSv> initMinn(const MinnParams& params);
-
-std::unique_ptr<McmcSv> initSsvs(const SsvsParams& params);
-
-std::unique_ptr<McmcSv> initHorseshoe(const HorseshoeParams& params);
-
 #endif
