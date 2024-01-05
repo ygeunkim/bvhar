@@ -90,7 +90,6 @@ McmcSv::McmcSv(const SvParams& params)
 
 void McmcSv::updateCoef() {
 	chol_lower = build_inv_lower(dim, contem_coef);
-	sqrt_sv = (-lvol_draw / 2).array().exp();	
 	for (int j = 0; j < dim; j++) {
 		prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 		prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
@@ -121,6 +120,7 @@ void McmcSv::updateState() {
 }
 
 void McmcSv::updateImpact() {
+	sqrt_sv = (-lvol_draw / 2).array().exp();
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
@@ -152,6 +152,14 @@ MinnSv::MinnSv(const MinnParams& params)
 : McmcSv(params) {
 	prior_alpha_mean = vectorize_eigen(params._prior_mean);
 	prior_alpha_prec = kronecker_eigen(params._prec_diag, params._prior_prec);
+}
+
+void MinnSv::doPosteriorDraws() {
+	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
+	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateState();
+	updateStateVar();
+	updateInitState();
 }
 
 Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
@@ -246,6 +254,17 @@ void SsvsSv::updateImpactPrec() {
 	contem_weight_record.row(mcmc_step) = contem_weight;
 }
 
+void SsvsSv::doPosteriorDraws() {
+	updateImpactPrec();
+	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
+	updateCoefPrec();
+	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoefShrink();
+	updateState();
+	updateStateVar();
+	updateInitState();
+}
+
 Rcpp::List SsvsSv::returnRecords(const int& num_burn) const {
 	return Rcpp::List::create(
 		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
@@ -311,6 +330,17 @@ void HorseshoeSv::updateImpactPrec() {
 	contem_local_lev = horseshoe_local_sparsity(latent_contem_local, contem_var, contem_coef, 1);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1);
 	prior_chol_prec = build_shrink_mat(contem_var, contem_local_lev);
+}
+
+void HorseshoeSv::doPosteriorDraws() {
+	updateImpactPrec();
+	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
+	updateCoefPrec();
+	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoefShrink();
+	updateState();
+	updateStateVar();
+	updateInitState();
 }
 
 Rcpp::List HorseshoeSv::returnRecords(const int& num_burn) const {
