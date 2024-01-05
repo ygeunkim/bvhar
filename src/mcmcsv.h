@@ -93,6 +93,7 @@ public:
 	void updateStateVar();
 	void updateInitState();
 	void addStep();
+	virtual void doPosteriorDraws() = 0;
 	virtual Rcpp::List returnRecords(const int& num_burn) const = 0;
 
 protected:
@@ -144,6 +145,7 @@ class MinnSv : public McmcSv {
 		void updateCoefPrec() override {};
 		void updateCoefShrink() override {};
 		void updateImpactPrec() override {};
+		void doPosteriorDraws() override;
 		Rcpp::List returnRecords(const int& num_burn) const override;
 };
 
@@ -154,6 +156,7 @@ public:
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(const int& num_burn) const override;
 private:
 	bool include_mean;
@@ -190,6 +193,7 @@ public:
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(const int& num_burn) const override;
 
 private:
