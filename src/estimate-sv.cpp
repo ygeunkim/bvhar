@@ -110,20 +110,8 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 		if (display_progress) {
 			bar.update();
 		}
-    // 1. alpha----------------------------
 		sv_obj->addStep();
-		sv_obj->updateCoefPrec();
-		sv_obj->updateCoef();
-		sv_obj->updateCoefShrink();
-    // 2. h---------------------------------
-		sv_obj->updateState();
-    // 3. a---------------------------------
-		sv_obj->updateImpactPrec();
-		sv_obj->updateImpact();
-    // 4. sigma_h---------------------------
-		sv_obj->updateStateVar();
-    // 5. h0--------------------------------
-		sv_obj->updateInitState();
+		sv_obj->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
   }
 	return sv_obj->returnRecords(num_burn);
 }
