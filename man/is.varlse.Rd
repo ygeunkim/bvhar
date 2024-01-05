@@ -14,7 +14,7 @@
 \alias{is.boundbvharemp}
 \alias{is.ssvsspec}
 \alias{is.ssvsinit}
-\alias{is.hsinit}
+\alias{is.horseshoeinit}
 \alias{is.svinit}
 \alias{is.coefinit}
 \alias{is.paraminit}
@@ -50,7 +50,7 @@ is.ssvsspec(x)
 
 is.ssvsinit(x)
 
-is.hsinit(x)
+is.horseshoeinit(x)
 
 is.svinit(x)
 

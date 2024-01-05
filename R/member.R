@@ -205,8 +205,8 @@ is.ssvsinit <- function(x) {
 
 #' @rdname is.varlse
 #' @export
-is.hsinit <- function(x) {
-  inherits(x, "hsinit")
+is.horseshoeinit <- function(x) {
+  inherits(x, "horseshoeinit")
 }
 
 #' @rdname is.varlse

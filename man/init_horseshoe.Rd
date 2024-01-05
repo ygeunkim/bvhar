@@ -2,22 +2,22 @@
 % Please edit documentation in R/parameters.R, R/print-bvharspec.R
 \name{init_horseshoe}
 \alias{init_horseshoe}
-\alias{print.hsinit}
-\alias{knit_print.hsinit}
+\alias{print.horseshoeinit}
+\alias{knit_print.horseshoeinit}
 \title{Horseshoe Prior Specification}
 \usage{
 init_horseshoe(local_sparsity = 1, global_sparsity = 1)
 
-\method{print}{hsinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{horseshoeinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.hsinit(x, ...)
+knit_print.horseshoeinit(x, ...)
 }
 \arguments{
 \item{local_sparsity}{Initial local shrinkage hyperparameters}
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{x}{\code{hsinit}}
+\item{x}{\code{horseshoeinit}}
 
 \item{digits}{digit option to print}
 

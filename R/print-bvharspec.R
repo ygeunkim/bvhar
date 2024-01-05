@@ -417,12 +417,12 @@ knit_print.ssvsinit <- function(x, ...) {
 
 
 #' @rdname init_horseshoe
-#' @param x `hsinit`
+#' @param x `horseshoeinit`
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.hsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.horseshoeinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
   cat("Parameters: Coefficent matrix, Covariance (precision) matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
@@ -455,7 +455,7 @@ print.hsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 
 #' @rdname init_horseshoe
 #' @exportS3Method knitr::knit_print
-knit_print.hsinit <- function(x, ...) {
+knit_print.horseshoeinit <- function(x, ...) {
   print(x)
 }
 

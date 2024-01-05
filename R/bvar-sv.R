@@ -74,6 +74,11 @@ bvar_sv <- function(y,
     stop("Provide 'svinit' for 'init_spec'.")
   }
   coef_init <- init_spec$coef
+  if (length(class(bayes_spec$prior)) > 1) {
+    if (gsub("spec$", "", class(prior_spec)[1]) != gsub("init$", "", class(coef_init)[1])) {
+      stop("Different prior settings between 'prior_spec' in 'bayes_spec' and 'coef' in 'init_spec'.")
+    }
+  }
   if (length(bayes_spec$shape) == 1) {
     bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
     bayes_spec$scale <- rep(bayes_spec$scale, dim_data)

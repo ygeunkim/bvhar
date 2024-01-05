@@ -79,8 +79,8 @@ bvhar_horseshoe <- function(y,
     stop("Provide 'horseshoespec' for 'bayes_spec'.")
   }
   bayes_spec$process <- "VHAR"
-  if (!is.hsinit(init_spec)) {
-    stop("Provide 'hsinit' for 'init_spec'.")
+  if (!is.horseshoeinit(init_spec)) {
+    stop("Provide 'horseshoeinit' for 'init_spec'.")
   }
   # MCMC iterations-------------------
   if (num_iter < 1) {
