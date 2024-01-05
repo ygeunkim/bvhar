@@ -15,8 +15,7 @@ struct SvParams {
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+		const Rcpp::List& params
 	);
 };
 
@@ -27,9 +26,7 @@ struct MinnParams : public SvParams {
 
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-		const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+		const Rcpp::List& sv_params, const Rcpp::List& params
 	);
 };
 
@@ -52,13 +49,10 @@ struct SsvsParams : public SvParams {
 
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Rcpp::List& sv_params,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
-		const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-    double coef_s1, double coef_s2, double chol_s1, double chol_s2,
-    const Eigen::VectorXd& mean_non, double sd_non, bool include_mean
+		const Rcpp::List& params, const Rcpp::List& inits,
+		bool include_mean
 	);
 };
 
@@ -72,11 +66,9 @@ struct HorseshoeParams : public SvParams {
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		const Rcpp::List& sv_params,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+		const Rcpp::List& inits
 	);
 };
 
