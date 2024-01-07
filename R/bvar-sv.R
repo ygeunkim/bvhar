@@ -73,10 +73,10 @@ bvar_sv <- function(y,
   if (!is.svinit(init_spec)) {
     stop("Provide 'svinit' for 'init_spec'.")
   }
-  coef_init <- init_spec$coef
+  sig_init <- init_spec$sig
   if (length(class(bayes_spec$prior)) > 1) {
-    if (gsub("spec$", "", class(prior_spec)[1]) != gsub("init$", "", class(coef_init)[1])) {
-      stop("Different prior settings between 'prior_spec' in 'bayes_spec' and 'coef' in 'init_spec'.")
+    if (gsub("spec$", "", class(prior_spec)[1]) != gsub("init$", "", class(sig_init)[1])) {
+      stop("Different prior settings between 'prior_spec' in 'bayes_spec' and 'sig' in 'init_spec'.")
     }
   }
   if (length(bayes_spec$shape) == 1) {
@@ -137,32 +137,9 @@ bvar_sv <- function(y,
           sigma = diag(1 / sigma)
         ),
         init_prior = list(),
-        # prior_coef_mean = prior_mean,
-        # prior_coef_prec = prior_prec,
-        # prec_diag = diag(1 / sigma),
         prior_type = 1,
-        # init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
-        # init_global = .1,
-        # init_contem_local = rep(.1, num_eta),
-        # init_contem_global = .1,
         grp_id = 1,
         grp_mat = matrix(0L, nrow = dim_design, ncol = dim_data),
-        # prior_sig_shp = bayes_spec$shape,
-        # prior_sig_scl = bayes_spec$scale,
-				# prior_init_mean = bayes_spec$initial_mean,
-				# prior_init_prec = bayes_spec$initial_prec,
-        # coef_spike = rep(0.1, num_alpha),
-        # coef_slab = rep(5, num_alpha),
-        # coef_slab_weight = rep(.5, 1),
-        # chol_spike = rep(.1, num_eta),
-        # chol_slab = rep(5, num_eta),
-        # chol_slab_weight = rep(.5, num_eta),
-        # coef_s1 = 1,
-        # coef_s2 = 1,
-        # chol_s1 = 1,
-        # chol_s2 = 1,
-        # mean_non = rep(0, dim_data),
-        # sd_non = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -188,8 +165,8 @@ bvar_sv <- function(y,
       if (length(prior_spec$coef_slab) == 1) {
         prior_spec$coef_slab <- rep(prior_spec$coef_slab, num_alpha)
       }
-      if (length(coef_init$init_coef_weight) == 1) {
-        coef_init$init_coef_weight <- rep(coef_init$init_coef_weight, num_grp)
+      if (length(sig_init$init_coef_weight) == 1) {
+        sig_init$init_coef_weight <- rep(sig_init$init_coef_weight, num_grp)
       }
       if (length(prior_spec$mean_non) == 1) {
         prior_spec$mean_non <- rep(prior_spec$mean_non, dim_data)
@@ -200,8 +177,8 @@ bvar_sv <- function(y,
       if (length(prior_spec$chol_slab) == 1) {
         prior_spec$chol_slab <- rep(prior_spec$chol_slab, num_eta)
       }
-      if (length(coef_init$init_chol_weight) == 1) {
-        coef_init$init_chol_weight <- rep(coef_init$init_chol_weight, num_eta)
+      if (length(sig_init$init_chol_weight) == 1) {
+        sig_init$init_chol_weight <- rep(sig_init$init_chol_weight, num_eta)
       }
       if (all(is.na(prior_spec$coef_spike)) || all(is.na(prior_spec$coef_slab))) {
         # Conduct semiautomatic function using var_lm()
@@ -221,33 +198,10 @@ bvar_sv <- function(y,
         y = Y0,
         param_sv = bayes_spec[3:6],
         param_prior = prior_spec,
-        init_prior = coef_init,
-        # prior_coef_mean = matrix(0L, nrow = dim_design, ncol = dim_data),
-        # prior_coef_prec = diag(dim_design),
-        # prec_diag = diag(dim_data),
+        init_prior = sig_init,
         prior_type = 2,
-        # init_local = rep(.1, ifelse(include_mean, num_alpha + dim_data, num_alpha)),
-        # init_global = rep(.1, num_grp),
-        # init_contem_local = rep(.1, num_eta),
-        # init_contem_global = .1,
         grp_id = grp_id,
         grp_mat = glob_idmat,
-        # prior_sig_shp = bayes_spec$shape,
-        # prior_sig_scl = bayes_spec$scale,
-				# prior_init_mean = bayes_spec$initial_mean,
-				# prior_init_prec = bayes_spec$initial_prec,
-        # coef_spike = prior_spec$coef_spike,
-        # coef_slab = prior_spec$coef_slab,
-        # coef_slab_weight = coef_init$init_coef_weight,
-        # chol_spike = prior_spec$chol_spike,
-        # chol_slab = prior_spec$chol_slab,
-        # chol_slab_weight = coef_init$init_chol_weight,
-        # coef_s1 = prior_spec$coef_s1,
-        # coef_s2 = prior_spec$coef_s2,
-        # chol_s1 = prior_spec$chol_s1,
-        # chol_s2 = prior_spec$chol_s2,
-        # mean_non = prior_spec$mean_non,
-        # sd_non = prior_spec$sd_non,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread
@@ -260,9 +214,9 @@ bvar_sv <- function(y,
         num_alpha + dim_data,
         num_alpha
       )
-      if (length(coef_init$local_sparsity) != dim_design) {
-        if (length(coef_init$local_sparsity) == 1) {
-          coef_init$local_sparsity <- rep(coef_init$local_sparsity, num_restrict)
+      if (length(sig_init$local_sparsity) != dim_design) {
+        if (length(sig_init$local_sparsity) == 1) {
+          sig_init$local_sparsity <- rep(sig_init$local_sparsity, num_restrict)
         } else {
           stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
         }
@@ -275,10 +229,10 @@ bvar_sv <- function(y,
         minnesota = ifelse(minnesota, "short", "no"),
         include_mean = include_mean
       )
-      # init_local <- coef_init$local_sparsity
+      # init_local <- sig_init$local_sparsity
       grp_id <- unique(c(glob_idmat))
-      # init_global <- rep(coef_init$global_sparsity, length(grp_id))
-      coef_init$global_sparsity <- rep(coef_init$global_sparsity, length(grp_id))
+      # init_global <- rep(sig_init$global_sparsity, length(grp_id))
+      sig_init$global_sparsity <- rep(sig_init$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
         num_iter = num_iter,
@@ -288,38 +242,15 @@ bvar_sv <- function(y,
         param_sv = bayes_spec[3:6],
         param_prior = list(),
         init_prior = append(
-          coef_init,
+          sig_init,
           list(
             contem_local_sparsity = rep(.1, num_eta),
             contem_global_sparsity = .1
           )
         ),
-        # prior_coef_mean = matrix(0L, nrow = dim_design, ncol = dim_data),
-        # prior_coef_prec = diag(dim_design),
-        # prec_diag = diag(dim_data),
         prior_type = 3,
-        # init_local = init_local,
-        # init_global = init_global,
-        # init_contem_local = rep(.1, num_eta),
-        # init_contem_global = .1,
         grp_id = grp_id,
         grp_mat = glob_idmat,
-        # prior_sig_shp = bayes_spec$shape,
-        # prior_sig_scl = bayes_spec$scale,
-				# prior_init_mean = bayes_spec$initial_mean,
-				# prior_init_prec = bayes_spec$initial_prec,
-        # coef_spike = rep(0.1, num_alpha),
-        # coef_slab = rep(5, num_alpha),
-        # coef_slab_weight = rep(.5, length(grp_id)),
-        # chol_spike = rep(.1, num_eta),
-        # chol_slab = rep(5, num_eta),
-        # chol_slab_weight = rep(.5, num_eta),
-        # coef_s1 = 1,
-        # coef_s2 = 1,
-        # chol_s1 = 1,
-        # chol_s2 = 1,
-        # mean_non = rep(0, dim_data),
-        # sd_non = .1,
         include_mean = include_mean,
         display_progress = verbose,
         nthreads = num_thread

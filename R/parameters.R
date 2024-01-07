@@ -189,10 +189,10 @@ init_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' @order 1
 #' @export 
-init_sv <- function(init_coef = init_horseshoe(), lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "auto")) {
+init_sv <- function(init_sig = init_horseshoe(), lvol = 0, lvol_init = .1, lvol_sig = .1, type = c("user", "auto")) {
   type <- match.arg(type)
-  if (!is.coefinit(init_coef)) {
-    stop("Provide 'coefinit' for init_coef.")
+  if (!is.coefinit(init_sig)) {
+    stop("Provide 'coefinit' for init_sig.")
   }
   if (type == "auto") {
     lvol <- NULL
@@ -233,7 +233,7 @@ init_sv <- function(init_coef = init_horseshoe(), lvol = 0, lvol_init = .1, lvol
     }
   }
   res <- list(
-    coef = init_coef,
+    sig = init_sig,
     process = "SV",
     # prior = "Cholesky",
     lvol = lvol,
