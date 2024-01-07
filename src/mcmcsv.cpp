@@ -54,7 +54,6 @@ McmcSv::McmcSv(const SvParams& params)
 	prior_init_mean(params._init_mean), prior_init_prec(params._init_prec),
 	num_iter(params._iter),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
-	chol_lower(Eigen::MatrixXd::Zero(dim, dim)),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
 	prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
@@ -77,6 +76,7 @@ McmcSv::McmcSv(const SvParams& params)
 	coef_vec = vectorize_eigen(coef_vec);
 	contem_coef = Eigen::VectorXd::Zero(num_lowerchol);
 	latent_innov = y - x * coef_mat;
+	chol_lower = build_inv_lower(dim, contem_coef);
 	lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
 	lvol_init_record.row(0) = lvol_init;
 	lvol_draw = lvol_init.transpose().replicate(num_design, 1);
@@ -89,7 +89,7 @@ McmcSv::McmcSv(const SvParams& params)
 }
 
 void McmcSv::updateCoef() {
-	chol_lower = build_inv_lower(dim, contem_coef);
+	sqrt_sv = (-lvol_draw / 2).array().exp();
 	for (int j = 0; j < dim; j++) {
 		prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 		prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
@@ -110,7 +110,7 @@ void McmcSv::updateCoef() {
 }
 
 void McmcSv::updateState() {
-	latent_innov = y - x * coef_mat;
+	chol_lower = build_inv_lower(dim, contem_coef);
   ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
 	ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
 	for (int t = 0; t < dim; t++) {
@@ -120,7 +120,7 @@ void McmcSv::updateState() {
 }
 
 void McmcSv::updateImpact() {
-	sqrt_sv = (-lvol_draw / 2).array().exp();
+	latent_innov = y - x * coef_mat;
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
@@ -155,9 +155,9 @@ MinnSv::MinnSv(const MinnParams& params)
 }
 
 void MinnSv::doPosteriorDraws() {
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
-	updateState();
+	updateCoef(); // D_t (depending on h_t) changed here
+	updateImpact(); // E_t (depending on alpha) changed here (also used when updateState())
+	updateState(); // L (depending on a) changed here (also used when updateCoef())
 	updateStateVar();
 	updateInitState();
 }
@@ -255,12 +255,12 @@ void SsvsSv::updateImpactPrec() {
 }
 
 void SsvsSv::doPosteriorDraws() {
-	updateImpactPrec();
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
 	updateCoefPrec();
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoef(); // D_t (depending on h_t) changed here
 	updateCoefShrink();
-	updateState();
+	updateImpactPrec();
+	updateImpact(); // E_t (depending on alpha) changed here (also used when updateState())
+	updateState(); // L (depending on a) changed here (also used when updateCoef())
 	updateStateVar();
 	updateInitState();
 }
@@ -333,12 +333,12 @@ void HorseshoeSv::updateImpactPrec() {
 }
 
 void HorseshoeSv::doPosteriorDraws() {
-	updateImpactPrec();
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
 	updateCoefPrec();
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoef(); // D_t (depending on h_t) changed here
 	updateCoefShrink();
-	updateState();
+	updateImpactPrec();
+	updateImpact(); // E_t (depending on alpha) changed here (also used when updateState())
+	updateState(); // L (depending on a) changed here (also used when updateCoef())
 	updateStateVar();
 	updateInitState();
 }
