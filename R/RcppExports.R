@@ -1190,6 +1190,193 @@ compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
+#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
+#' 
+#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
+#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
+#' @param shape Gamma shape parameters for precision matrix
+#' @param rate Gamma rate parameters for precision matrix
+#' @param num_design The number of sample used, \eqn{n = T - p}
+NULL
+
+#' Filling Cholesky Factor Upper Triangular Matrix
+#' 
+#' This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.
+#' 
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+NULL
+
+#' Generating Coefficient Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
+#' 
+#' @param prior_mean The prior mean vector of the VAR coefficient vector
+#' @param prior_sd Diagonal prior sd matrix of the VAR coefficient vector
+#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
+#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
+#' @param chol_factor Cholesky factor of variance matrix
+NULL
+
+#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
+#' 
+#' @param param_obs Realized parameters vector
+#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
+#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
+#' @param slab_weight Proportion of nonzero coefficients
+NULL
+
+#' Generating Slab Weight Vector in SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+NULL
+
+#' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
+#' 
+#' In MCMC process of SSVS, this function generates \eqn{p_j}.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param param_obs Indicator variables
+#' @param prior_s1 First prior shape of Beta distribution
+#' @param prior_s2 Second prior shape of Beta distribution
+NULL
+
+#' Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
+#' 
+#' This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
+#'
+#' @param x Design matrix of the system
+#' @param y Response vector of the system
+#' @param prior_mean Prior mean vector
+#' @param prior_prec Prior precision matrix
+#' @param innov_prec Stacked precision matrix of innovation
+NULL
+
+#' Generating log-volatilities in MCMC
+#' 
+#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
+#' 
+#' @param sv_vec log-volatilities vector
+#' @param init_sv Initial log-volatility
+#' @param sv_sig Variance of log-volatilities
+#' @param latent_vec Auxiliary residual vector
+NULL
+
+#' Generating sig_h in MCMC
+#' 
+#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
+#' 
+#' @param shp Prior shape of sigma
+#' @param scl Prior scale of sigma
+#' @param init_sv Initial log volatility
+#' @param h1 Time-varying h1 matrix
+NULL
+
+#' Generating h0 in MCMC
+#' 
+#' In MCMC, this function samples h0 in VAR-SV.
+#' 
+#' @param prior_mean Prior mean vector of h0.
+#' @param prior_prec Prior precision matrix of h0.
+#' @param init_sv Initial log volatility
+#' @param h1 h1
+#' @param sv_sig Variance of log volatility
+NULL
+
+#' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
+#' 
+#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
+#' global and local sparsity levels.
+#' 
+#' @param global_hyperparam Global sparsity hyperparameters
+#' @param local_hyperparam Local sparsity hyperparameters
+NULL
+
+#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+NULL
+
+#' Generating the Coefficient Vector using Fast Sampling
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+NULL
+
+#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+NULL
+
+#' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the prior variance.
+#' 
+#' @param response_vec Response vector for vectorized formulation
+#' @param design_mat Design matrix for vectorized formulation
+#' @param coef_vec Coefficients vector
+#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
+NULL
+
+#' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
+#' 
+#' @param local_latent Latent vectors defined for local sparsity vector
+#' @param global_hyperparam Global sparsity hyperparameter vector
+#' @param coef_vec Coefficients vector
+#' @param prior_var Variance constant of the likelihood
+NULL
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+NULL
+
+#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
+#' 
+#' @param grp_vec Group vector
+#' @param grp_id Unique group id
+#' @param global_latent Latent global vector
+#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
+#' @param coef_mn Coefficients vector in the i = j lag or cross lag
+#' @param prior_var Variance constant of the likelihood
+NULL
+
+#' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
+#' 
+#' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
+#' 
+#' @param hyperparam sparsity hyperparameters vector
+NULL
+
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
@@ -1200,20 +1387,6 @@ compute_vhar_stablemat <- function(object) {
 #' @noRd
 build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
     .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
-}
-
-#' Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
-#' 
-#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
-#' @param shape Gamma shape parameters for precision matrix
-#' @param rate Gamma rate parameters for precision matrix
-#' @param num_design The number of sample used, \eqn{n = T - p}
-#' @noRd
-ssvs_chol_diag <- function(sse_mat, DRD, shape, rate, num_design) {
-    .Call(`_bvhar_ssvs_chol_diag`, sse_mat, DRD, shape, rate, num_design)
 }
 
 #' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -1228,70 +1401,6 @@ ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
     .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
 }
 
-#' Filling Cholesky Factor Upper Triangular Matrix
-#' 
-#' This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.
-#' 
-#' @param diag_vec Diagonal components
-#' @param off_diagvec Off-diagonal components
-#' @noRd
-build_chol <- function(diag_vec, off_diagvec) {
-    .Call(`_bvhar_build_chol`, diag_vec, off_diagvec)
-}
-
-#' Generating Coefficient Vector in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates \eqn{\alpha_j} conditional posterior.
-#' 
-#' @param prior_mean The prior mean vector of the VAR coefficient vector
-#' @param prior_sd Diagonal prior sd matrix of the VAR coefficient vector
-#' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
-#' @param coef_ols OLS (MLE) estimator of the VAR coefficient
-#' @param chol_factor Cholesky factor of variance matrix
-#' @noRd
-ssvs_coef <- function(prior_mean, prior_sd, XtX, coef_ols, chol_factor) {
-    .Call(`_bvhar_ssvs_coef`, prior_mean, prior_sd, XtX, coef_ols, chol_factor)
-}
-
-#' Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates latent \eqn{\gamma_j} or \eqn{\omega_{ij}} conditional posterior.
-#' 
-#' @param param_obs Realized parameters vector
-#' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
-#' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
-#' @param slab_weight Proportion of nonzero coefficients
-#' @noRd
-ssvs_dummy <- function(param_obs, sd_numer, sd_denom, slab_weight) {
-    .Call(`_bvhar_ssvs_dummy`, param_obs, sd_numer, sd_denom, slab_weight)
-}
-
-#' Generating Slab Weight Vector in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates \eqn{p_j}.
-#' 
-#' @param param_obs Indicator variables
-#' @param prior_s1 First prior shape of Beta distribution
-#' @param prior_s2 Second prior shape of Beta distribution
-#' @noRd
-ssvs_weight <- function(param_obs, prior_s1, prior_s2) {
-    .Call(`_bvhar_ssvs_weight`, param_obs, prior_s1, prior_s2)
-}
-
-#' Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates \eqn{p_j}.
-#' 
-#' @param grp_vec Group vector
-#' @param grp_id Unique group id
-#' @param param_obs Indicator variables
-#' @param prior_s1 First prior shape of Beta distribution
-#' @param prior_s2 Second prior shape of Beta distribution
-#' @noRd
-ssvs_mn_weight <- function(grp_vec, grp_id, param_obs, prior_s1, prior_s2) {
-    .Call(`_bvhar_ssvs_mn_weight`, grp_vec, grp_id, param_obs, prior_s1, prior_s2)
-}
-
 #' Building Lower Triangular Matrix
 #' 
 #' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
@@ -1304,215 +1413,13 @@ build_inv_lower <- function(dim, lower_vec) {
     .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
-#' Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
+#' Filling Covariance Matrix
 #' 
-#' This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
-#'
-#' @param x Design matrix of the system
-#' @param y Response vector of the system
-#' @param prior_mean Prior mean vector
-#' @param prior_prec Prior precision matrix
-#' @param innov_prec Stacked precision matrix of innovation
+#' This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
 #' 
-#' @noRd
-varsv_regression <- function(x, y, prior_mean, prior_prec) {
-    .Call(`_bvhar_varsv_regression`, x, y, prior_mean, prior_prec)
-}
-
-#' Generating log-volatilities in MCMC
-#' 
-#' In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
-#' 
-#' @param sv_vec log-volatilities vector
-#' @param init_sv Initial log-volatility
-#' @param sv_sig Variance of log-volatilities
-#' @param latent_vec Auxiliary residual vector
-#' 
-#' @noRd
-varsv_ht <- function(sv_vec, init_sv, sv_sig, latent_vec) {
-    .Call(`_bvhar_varsv_ht`, sv_vec, init_sv, sv_sig, latent_vec)
-}
-
-#' Generating sig_h in MCMC
-#' 
-#' In MCMC, this function samples \eqn{\sigma_h^2} in VAR-SV.
-#' 
-#' @param shp Prior shape of sigma
-#' @param scl Prior scale of sigma
-#' @param init_sv Initial log volatility
-#' @param h1 Time-varying h1 matrix
-#' 
-#' @noRd
-varsv_sigh <- function(shp, scl, init_sv, h1) {
-    .Call(`_bvhar_varsv_sigh`, shp, scl, init_sv, h1)
-}
-
-#' Generating h0 in MCMC
-#' 
-#' In MCMC, this function samples h0 in VAR-SV.
-#' 
-#' @param prior_mean Prior mean vector of h0.
-#' @param prior_prec Prior precision matrix of h0.
-#' @param init_sv Initial log volatility
-#' @param h1 h1
-#' @param sv_sig Variance of log volatility
-#' 
-#' @noRd
-varsv_h0 <- function(prior_mean, prior_prec, h1, sv_sig) {
-    .Call(`_bvhar_varsv_h0`, prior_mean, prior_prec, h1, sv_sig)
-}
-
-#' Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
-#' 
-#' In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
-#' global and local sparsity levels.
-#' 
-#' @param global_hyperparam Global sparsity hyperparameters
-#' @param local_hyperparam Local sparsity hyperparameters
-#' @noRd
-build_shrink_mat <- function(global_hyperparam, local_hyperparam) {
-    .Call(`_bvhar_build_shrink_mat`, global_hyperparam, local_hyperparam)
-}
-
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef <- function(response_vec, design_mat, var, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef`, response_vec, design_mat, var, shrink_mat)
-}
-
-#' Generating the Coefficient Vector using Fast Sampling
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_fast_coef <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_fast_coef`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Coefficient Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the coefficients vector.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_coef_var <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_coef_var`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the prior variance.
-#' 
-#' @param response_vec Response vector for vectorized formulation
-#' @param design_mat Design matrix for vectorized formulation
-#' @param coef_vec Coefficients vector
-#' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-#' @noRd
-horseshoe_var <- function(response_vec, design_mat, shrink_mat) {
-    .Call(`_bvhar_horseshoe_var`, response_vec, design_mat, shrink_mat)
-}
-
-#' Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the local sparsity hyperparameters vector.
-#' 
-#' @param local_latent Latent vectors defined for local sparsity vector
-#' @param global_hyperparam Global sparsity hyperparameter vector
-#' @param coef_vec Coefficients vector
-#' @param prior_var Variance constant of the likelihood
-#' @noRd
-horseshoe_local_sparsity <- function(local_latent, global_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_local_sparsity`, local_latent, global_hyperparam, coef_vec, prior_var)
-}
-
-#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
-#' 
-#' @param global_latent Latent global vector
-#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
-#' @param coef_mn Coefficients vector in the i = j lag or cross lag
-#' @param prior_var Variance constant of the likelihood
-#' @noRd
-horseshoe_global_sparsity <- function(global_latent, local_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_global_sparsity`, global_latent, local_hyperparam, coef_vec, prior_var)
-}
-
-#' Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the grouped global sparsity hyperparameter.
-#' 
-#' @param grp_vec Group vector
-#' @param grp_id Unique group id
-#' @param global_latent Latent global vector
-#' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
-#' @param coef_mn Coefficients vector in the i = j lag or cross lag
-#' @param prior_var Variance constant of the likelihood
-#' @noRd
-horseshoe_mn_global_sparsity <- function(grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var) {
-    .Call(`_bvhar_horseshoe_mn_global_sparsity`, grp_vec, grp_id, global_latent, local_hyperparam, coef_vec, prior_var)
-}
-
-#' Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
-#' 
-#' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
-#' 
-#' @param hyperparam sparsity hyperparameters vector
-#' @noRd
-horseshoe_latent <- function(hyperparam) {
-    .Call(`_bvhar_horseshoe_latent`, hyperparam)
-}
-
-#' @noRd
-kronecker_eigen <- function(x, y) {
-    .Call(`_bvhar_kronecker_eigen`, x, y)
-}
-
-#' @noRd
-vectorize_eigen <- function(x) {
-    .Call(`_bvhar_vectorize_eigen`, x)
-}
-
-#' @noRd
-unvectorize <- function(x, num_rows, num_cols) {
-    .Call(`_bvhar_unvectorize`, x, num_rows, num_cols)
-}
-
-#' @noRd
-compute_eigenvalues <- function(x) {
-    .Call(`_bvhar_compute_eigenvalues`, x)
-}
-
-#' @noRd
-compute_inverse <- function(x) {
-    .Call(`_bvhar_compute_inverse`, x)
-}
-
-#' @noRd
-compute_choleksy_lower <- function(x) {
-    .Call(`_bvhar_compute_choleksy_lower`, x)
-}
-
-#' @noRd
-compute_choleksy_upper <- function(x) {
-    .Call(`_bvhar_compute_choleksy_upper`, x)
-}
-
-#' @noRd
-qr_eigen <- function(x) {
-    .Call(`_bvhar_qr_eigen`, x)
-}
+#' @param diag_vec Diagonal components
+#' @param off_diagvec Off-diagonal components
+NULL
 
 #' Multivariate Gamma Function
 #' 
@@ -1550,17 +1457,6 @@ log_mgammafn <- function(x, p) {
 #' @noRd
 invgamma_dens <- function(x, shp, scl, lg) {
     .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
-}
-
-#' Filling Covariance Matrix
-#' 
-#' This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
-#' 
-#' @param diag_vec Diagonal components
-#' @param off_diagvec Off-diagonal components
-#' @noRd
-build_cov <- function(diag_vec, off_diagvec) {
-    .Call(`_bvhar_build_cov`, diag_vec, off_diagvec)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
