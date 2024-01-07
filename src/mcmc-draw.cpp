@@ -27,8 +27,6 @@ Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd,
 //' @param shape Gamma shape parameters for precision matrix
 //' @param rate Gamma rate parameters for precision matrix
 //' @param num_design The number of sample used, \eqn{n = T - p}
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design) {
   int dim = sse_mat.cols();
   int num_param = DRD.size();
@@ -89,8 +87,6 @@ Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag
 //' 
 //' @param diag_vec Diagonal components
 //' @param off_diagvec Off-diagonal components
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
   int dim = diag_vec.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
@@ -115,8 +111,6 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 //' @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
 //' @param coef_ols OLS (MLE) estimator of the VAR coefficient
 //' @param chol_factor Cholesky factor of variance matrix
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor) {
   int num_coef = prior_sd.size();
   Eigen::MatrixXd scaled_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
@@ -136,8 +130,6 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, 
 //' @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
 //' @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 //' @param slab_weight Proportion of nonzero coefficients
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, Eigen::VectorXd sd_denom, Eigen::VectorXd slab_weight) {
   int num_latent = slab_weight.size();
   Eigen::VectorXd bernoulli_param_u1 = slab_weight.array() * (-param_obs.array().square() / (2 * sd_numer.array().square())).exp() / sd_numer.array();
@@ -156,8 +148,6 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
 //' @param param_obs Indicator variables
 //' @param prior_s1 First prior shape of Beta distribution
 //' @param prior_s2 Second prior shape of Beta distribution
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2) {
   int num_latent = param_obs.size();
   Eigen::VectorXd res(num_latent);
@@ -178,8 +168,6 @@ Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double p
 //' @param param_obs Indicator variables
 //' @param prior_s1 First prior shape of Beta distribution
 //' @param prior_s2 Second prior shape of Beta distribution
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
                                Eigen::VectorXi grp_id,
                                Eigen::VectorXd param_obs,
@@ -238,9 +226,6 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 //' @param prior_mean Prior mean vector
 //' @param prior_prec Prior precision matrix
 //' @param innov_prec Stacked precision matrix of innovation
-//' 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
                                  Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec) {
   int dim = prior_mean.size();
@@ -262,9 +247,6 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
 //' @param init_sv Initial log-volatility
 //' @param sv_sig Variance of log-volatilities
 //' @param latent_vec Auxiliary residual vector
-//' 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
                          double sv_sig, Eigen::VectorXd latent_vec) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
@@ -323,9 +305,6 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
 //' @param scl Prior scale of sigma
 //' @param init_sv Initial log volatility
 //' @param h1 Time-varying h1 matrix
-//' 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::VectorXd init_sv, Eigen::MatrixXd h1) {
   int dim = init_sv.size();
   int num_design = h1.rows();
@@ -352,9 +331,6 @@ Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::Vect
 //' @param init_sv Initial log volatility
 //' @param h1 h1
 //' @param sv_sig Variance of log volatility
-//' 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
                          Eigen::VectorXd h1, Eigen::VectorXd sv_sig) {
   int dim = h1.size();
@@ -378,8 +354,6 @@ Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
 //' 
 //' @param global_hyperparam Global sparsity hyperparameters
 //' @param local_hyperparam Local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::VectorXd local_hyperparam) {
   int num_param = local_hyperparam.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
@@ -394,8 +368,6 @@ Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::Vecto
 //' @param response_vec Response vector for vectorized formulation
 //' @param design_mat Design matrix for vectorized formulation
 //' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
                                double var, Eigen::MatrixXd shrink_mat) {
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
@@ -411,8 +383,6 @@ Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd des
 //' @param response_vec Response vector for vectorized formulation
 //' @param design_mat Design matrix for vectorized formulation
 //' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_fast_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
   int num_coef = design_mat.cols(); // k^2 kp(+1)
   int num_sur = response_vec.size(); // nk-dim
@@ -437,8 +407,6 @@ Eigen::VectorXd horseshoe_fast_coef(Eigen::VectorXd response_vec, Eigen::MatrixX
 //' @param response_vec Response vector for vectorized formulation
 //' @param design_mat Design matrix for vectorized formulation
 //' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_coef_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
   int dim = design_mat.cols();
   Eigen::VectorXd res(dim + 1);
@@ -462,8 +430,6 @@ Eigen::VectorXd horseshoe_coef_var(Eigen::VectorXd response_vec, Eigen::MatrixXd
 //' @param design_mat Design matrix for vectorized formulation
 //' @param coef_vec Coefficients vector
 //' @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-//' @noRd
-// [[Rcpp::export]]
 double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
   int sample_size = response_vec.size();
   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
@@ -479,8 +445,6 @@ double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, E
 //' @param global_hyperparam Global sparsity hyperparameter vector
 //' @param coef_vec Coefficients vector
 //' @param prior_var Variance constant of the likelihood
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
                                          Eigen::VectorXd global_hyperparam,
                                          Eigen::VectorXd coef_vec,
@@ -502,8 +466,6 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
 //' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
 //' @param coef_mn Coefficients vector in the i = j lag or cross lag
 //' @param prior_var Variance constant of the likelihood
-//' @noRd
-// [[Rcpp::export]]
 double horseshoe_global_sparsity(double global_latent,
                                  Eigen::VectorXd local_hyperparam,
                                  Eigen::VectorXd coef_vec,
@@ -539,8 +501,6 @@ double horseshoe_global_sparsity(double global_latent,
 //' @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
 //' @param coef_mn Coefficients vector in the i = j lag or cross lag
 //' @param prior_var Variance constant of the likelihood
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
                                              Eigen::VectorXi grp_id,
                                              Eigen::VectorXd global_latent,
@@ -581,8 +541,6 @@ Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
 //' In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
 //' 
 //' @param hyperparam sparsity hyperparameters vector
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam) {
   int dim = hyperparam.size();
   Eigen::VectorXd res(dim);
