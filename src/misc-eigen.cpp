@@ -1,57 +1,41 @@
 #include <RcppEigen.h>
 #include "bvharprob.h"
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
   return res;
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
   Eigen::VectorXd res = Eigen::Map<Eigen::VectorXd>(x.transpose().data(), x.rows() * x.cols());
   return res;
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols) {
   // igen::Map<Eigen::MatrixXd>(coef_record.block(num_iter, b * num_coef, 1, num_coef).data(), dim_design, dim);
   Eigen::MatrixXd res = Eigen::Map<Eigen::MatrixXd>(x.data(), num_rows, num_cols);
   return res;
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
   return es.eigenvalues();
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd compute_inverse(Eigen::MatrixXd x) {
   return x.inverse();
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd compute_choleksy_lower(Eigen::MatrixXd x) {
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
   return lltOfscale.matrixL(); // lower triangular matrix
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd compute_choleksy_upper(Eigen::MatrixXd x) {
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
   return lltOfscale.matrixU(); // upper triangular matrix
 }
 
-//' @noRd
-// [[Rcpp::export]]
 Rcpp::List qr_eigen(Eigen::Map<Eigen::MatrixXd> x) {
   Eigen::HouseholderQR<Eigen::MatrixXd> qr(x); // x = QR
   Eigen::MatrixXd q = qr.householderQ(); // Q orthogonal
@@ -154,8 +138,6 @@ double invgamma_dens(double x, double shp, double scl, bool lg) {
 //' 
 //' @param diag_vec Diagonal components
 //' @param off_diagvec Off-diagonal components
-//' @noRd
-// [[Rcpp::export]]
 Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
   int dim = diag_vec.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
