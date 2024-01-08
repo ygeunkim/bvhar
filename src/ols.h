@@ -7,8 +7,8 @@ class OlsVar {
 public:
 	OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean);
 	virtual ~OlsVar() = default;
-	void estimateCoef();
-	void fitObs();
+	virtual void estimateCoef();
+	virtual void fitObs();
 	void estimateCov();
 	Rcpp::List returnOlsRes();
 protected:
@@ -30,18 +30,19 @@ class LltVar : public OlsVar {
 public:
 	LltVar(const Eigen::MatrixXd& y, int lag, const bool include_mean);
 	virtual ~LltVar() = default;
-	void estimateCoef();
+	void estimateCoef() override;
+private:
+	Eigen::LLT<Eigen::MatrixXd> llt_selfadjoint;
 };
 
 class QrVar : public OlsVar {
 public:
 	QrVar(const Eigen::MatrixXd& y, int lag, const bool include_mean);
 	virtual ~QrVar() = default;
-	void estimateCoef();
-	void fitObs();
+	void estimateCoef() override;
+	void fitObs() override;
 private:
 	Eigen::HouseholderQR<Eigen::MatrixXd> qr_design;
-	Eigen::MatrixXd q_mat;
 };
 
 #endif

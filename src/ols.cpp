@@ -76,6 +76,7 @@ OlsVar::OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean)
 }
 
 void OlsVar::estimateCoef() {
+	std::cout << "Normal equation" << std::endl;
 	coef = (design.transpose() * design).inverse() * design.transpose() * response;
 }
 
@@ -106,22 +107,18 @@ Rcpp::List OlsVar::returnOlsRes() {
 	);
 }
 
-LltVar::LltVar(const Eigen::MatrixXd& y, int lag, const bool include_mean) : OlsVar(y, lag, include_mean) {}
+LltVar::LltVar(const Eigen::MatrixXd& y, int lag, const bool include_mean) : OlsVar(y, lag, include_mean) {
+	llt_selfadjoint.compute(design.transpose() * design);
+}
 
 void LltVar::estimateCoef() {
-	coef = (design.transpose() * design).llt().solve(design.transpose() * response);
+	coef = llt_selfadjoint.solve(design.transpose() * response);
 }
 
 QrVar::QrVar(const Eigen::MatrixXd& y, int lag, const bool include_mean) : OlsVar(y, lag, include_mean) {
-	Eigen::HouseholderQR<Eigen::MatrixXd> qr_design(design);
-	Eigen::MatrixXd q_mat = qr_design.householderQ();
+	qr_design.compute(design);
 }
 
 void QrVar::estimateCoef() {
 	coef = qr_design.solve(response);
-}
-
-void QrVar::fitObs() {
-	yhat = q_mat * q_mat.transpose() * response;
-	resid = response - yhat;
 }
