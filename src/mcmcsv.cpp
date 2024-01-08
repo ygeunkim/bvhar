@@ -100,7 +100,8 @@ void McmcSv::updateCoef() {
 		Eigen::VectorXd response_j = vectorize_eigen(
 			((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
     ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
-		coef_mat.col(j) = varsv_regression(
+		varsv_regression(
+			coef_mat.col(j),
 			design_coef, response_j,
       prior_mean_j, prior_prec_j
     );
@@ -114,7 +115,7 @@ void McmcSv::updateState() {
   ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
 	ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
 	for (int t = 0; t < dim; t++) {
-		lvol_draw.col(t) = varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t));
+		varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t));
 	}
 	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
 }
@@ -125,7 +126,8 @@ void McmcSv::updateImpact() {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
 		contem_id = (j - 1) * (j - 2) / 2;
-		contem_coef.segment(contem_id, j - 1) = varsv_regression(
+		varsv_regression(
+			contem_coef.segment(contem_id, j - 1),
 			design_contem, response_contem,
 			prior_chol_mean.segment(contem_id, j - 1),
 			prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1)
@@ -135,12 +137,12 @@ void McmcSv::updateImpact() {
 }
 
 void McmcSv::updateStateVar() {
-	lvol_sig = varsv_sigh(prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw);
+	varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw);
 	lvol_sig_record.row(mcmc_step) = lvol_sig;
 }
 
 void McmcSv::updateInitState() {
-	lvol_init = varsv_h0(prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
+	varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
 	lvol_init_record.row(mcmc_step) = lvol_init;
 }
 
@@ -162,7 +164,7 @@ void MinnSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List MinnSv::returnRecords(const int& num_burn) const {
+Rcpp::List MinnSv::returnRecords(int num_burn) const {
 	return Rcpp::List::create(
 		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
@@ -265,7 +267,7 @@ void SsvsSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List SsvsSv::returnRecords(const int& num_burn) const {
+Rcpp::List SsvsSv::returnRecords(int num_burn) const {
 	return Rcpp::List::create(
 		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
@@ -343,7 +345,7 @@ void HorseshoeSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List HorseshoeSv::returnRecords(const int& num_burn) const {
+Rcpp::List HorseshoeSv::returnRecords(int num_burn) const {
 	return Rcpp::List::create(
 		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
     Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
