@@ -23,13 +23,13 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, 
 
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 
-Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec);
+void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec);
 
-Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv, double sv_sig, Eigen::VectorXd latent_vec);
+void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv, double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec);
 
-Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::VectorXd init_sv, Eigen::MatrixXd h1);
+void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::VectorXd& scl, Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1);
 
-Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd h1, Eigen::VectorXd sv_sig);
+void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::MatrixXd& prior_prec, Eigen::VectorXd h1, Eigen::VectorXd& sv_sig);
 
 Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::VectorXd local_hyperparam);
 
