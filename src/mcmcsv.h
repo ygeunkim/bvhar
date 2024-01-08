@@ -86,7 +86,7 @@ public:
 	void updateInitState();
 	void addStep();
 	virtual void doPosteriorDraws() = 0;
-	virtual Rcpp::List returnRecords(const int& num_burn) const = 0;
+	virtual Rcpp::List returnRecords(int num_burn) const = 0;
 
 protected:
 	Eigen::MatrixXd x;
@@ -138,7 +138,7 @@ class MinnSv : public McmcSv {
 		void updateCoefShrink() override {};
 		void updateImpactPrec() override {};
 		void doPosteriorDraws() override;
-		Rcpp::List returnRecords(const int& num_burn) const override;
+		Rcpp::List returnRecords(int num_burn) const override;
 };
 
 class SsvsSv : public McmcSv {
@@ -149,7 +149,7 @@ public:
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
 	void doPosteriorDraws() override;
-	Rcpp::List returnRecords(const int& num_burn) const override;
+	Rcpp::List returnRecords(int num_burn) const override;
 private:
 	bool include_mean;
 	int num_alpha;
@@ -186,7 +186,7 @@ public:
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
 	void doPosteriorDraws() override;
-	Rcpp::List returnRecords(const int& num_burn) const override;
+	Rcpp::List returnRecords(int num_burn) const override;
 
 private:
 	Eigen::VectorXi grp_id;

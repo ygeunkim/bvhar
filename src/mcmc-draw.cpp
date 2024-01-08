@@ -226,7 +226,7 @@ Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 // @param prior_mean Prior mean vector
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
-Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
+void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
                                  Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
@@ -236,7 +236,8 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
   Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
-	return post_mean + lltOfscale.matrixU().solve(res);
+	// return post_mean + lltOfscale.matrixU().solve(res);
+	coef = post_mean + lltOfscale.matrixU().solve(res);
 }
 
 // Generating log-volatilities in MCMC
@@ -247,9 +248,10 @@ Eigen::VectorXd varsv_regression(Eigen::MatrixXd x, Eigen::VectorXd y,
 // @param init_sv Initial log-volatility
 // @param sv_sig Variance of log-volatilities
 // @param latent_vec Auxiliary residual vector
-Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
-                         double sv_sig, Eigen::VectorXd latent_vec) {
+void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
+							double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
+	// int num_design = sv_draw.rows();
   // 7-component normal mixutre
   Eigen::VectorXd pj(7); // p_t
   pj << 0.0073, 0.10556, 0.00002, 0.04395, 0.34001, 0.24566, 0.2575;
@@ -294,7 +296,8 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
   Eigen::VectorXd post_mean = lltOfscale.solve(
     HtH * init_sv * Eigen::VectorXd::Ones(num_design) / sv_sig + inv_sig_s * (latent_vec - ds)
   );
-	return post_mean + lltOfscale.matrixU().solve(res);
+	// return post_mean + lltOfscale.matrixU().solve(res);
+	sv_vec = post_mean + lltOfscale.matrixU().solve(res);
 }
 
 // Generating sig_h in MCMC
@@ -305,21 +308,21 @@ Eigen::VectorXd varsv_ht(Eigen::VectorXd sv_vec, double init_sv,
 // @param scl Prior scale of sigma
 // @param init_sv Initial log volatility
 // @param h1 Time-varying h1 matrix
-Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::VectorXd init_sv, Eigen::MatrixXd h1) {
+void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::VectorXd& scl, Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1) {
   int dim = init_sv.size();
   int num_design = h1.rows();
-  Eigen::VectorXd res(dim);
+  // Eigen::VectorXd res(dim);
   Eigen::MatrixXd h_slide(num_design, dim); // h_ij, j = 0, ..., n - 1
   h_slide.row(0) = init_sv;
   // h_slide.bottomRows(num_design - 1) = lvol_record.block(num_design * i, 0, num_design - 1, dim);
   h_slide.bottomRows(num_design - 1) = h1.topRows(num_design - 1);
   for (int i = 0; i < dim; i++) {
-    res[i] = 1 / gamma_rand(
+    sv_sig[i] = 1 / gamma_rand(
       shp[i] + num_design / 2,
       1 / (scl[i] + (h1.array() - h_slide.array()).square().sum() / 2)
     );
   }
-  return res;
+  // return res;
 }
 
 // Generating h0 in MCMC
@@ -331,8 +334,8 @@ Eigen::VectorXd varsv_sigh(Eigen::VectorXd shp, Eigen::VectorXd scl, Eigen::Vect
 // @param init_sv Initial log volatility
 // @param h1 h1
 // @param sv_sig Variance of log volatility
-Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
-                         Eigen::VectorXd h1, Eigen::VectorXd sv_sig) {
+void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::MatrixXd& prior_prec,
+              Eigen::VectorXd h1, Eigen::VectorXd& sv_sig) {
   int dim = h1.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -344,7 +347,8 @@ Eigen::VectorXd varsv_h0(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec,
   Eigen::MatrixXd post_h0_sig = prior_prec + h_diagprec;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_h0_sig);
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + h_diagprec * h1);
-	return post_mean + lltOfscale.matrixU().solve(res);
+	// return post_mean + lltOfscale.matrixU().solve(res);
+	h0 = post_mean + lltOfscale.matrixU().solve(res);
 }
 
 // Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
