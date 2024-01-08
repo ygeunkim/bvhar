@@ -85,7 +85,6 @@ McmcSv::McmcSv(const SvParams& params)
 	lvol_init_record.row(0) = lvol_init;
 	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose());
   coef_j = coef_mat;
-  coef_j.col(0) = Eigen::VectorXd::Zero(dim_design);
 }
 
 void McmcSv::updateCoef() {
@@ -94,6 +93,7 @@ void McmcSv::updateCoef() {
 		prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 		prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
 		coef_j = coef_mat;
+		coef_j.col(j).setZero();
 		Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 		Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 		Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp

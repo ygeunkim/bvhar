@@ -132,12 +132,12 @@ double invgamma_dens(double x, double shp, double scl, bool lg) {
   return res;
 }
 
-//' Filling Covariance Matrix
-//' 
-//' This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
-//' 
-//' @param diag_vec Diagonal components
-//' @param off_diagvec Off-diagonal components
+// Filling Covariance Matrix
+// 
+// This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
+// 
+// @param diag_vec Diagonal components
+// @param off_diagvec Off-diagonal components
 Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
   int dim = diag_vec.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
