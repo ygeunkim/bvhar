@@ -53,12 +53,14 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |      function       |   class   |
-|:-----:|:-------------------:|:---------:|
-|  VAR  |     `var_lm()`      | `varlse`  |
-| VHAR  |     `vhar_lm()`     | `vharlse` |
-| BVAR  | `bvar_minnesota()`  | `bvarmn`  |
-| BVHAR | `bvhar_minnesota()` | `bvharmn` |
+|  Model   |      function       |      prior      |
+|:--------:|:-------------------:|:---------------:|
+|   VAR    |     `var_lm()`      |                 |
+|   VHAR   |     `vhar_lm()`     |                 |
+|   BVAR   | `bvar_minnesota()`  |    Minnesota    |
+|  BVHAR   | `bvhar_minnesota()` |    Minnesota    |
+| BVAR-SV  |     `bvar_sv()`     | SSVS, Horseshoe |
+| BVHAR-SV |    `bvhar_sv()`     | SSVS, Horseshoe |
 
 This readme document shows forecasting procedure briefly. Details about
 each function are in vignettes and help documents.
