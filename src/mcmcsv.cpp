@@ -88,7 +88,7 @@ McmcSv::McmcSv(const SvParams& params)
 }
 
 void McmcSv::updateCoef() {
-	chol_lower = build_inv_lower(dim, contem_coef);
+	sqrt_sv = (-lvol_draw / 2).array().exp();
 	for (int j = 0; j < dim; j++) {
 		prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 		prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
@@ -111,7 +111,7 @@ void McmcSv::updateCoef() {
 }
 
 void McmcSv::updateState() {
-	latent_innov = y - x * coef_mat;
+	chol_lower = build_inv_lower(dim, contem_coef);
   ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
 	ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
 	for (int t = 0; t < dim; t++) {
@@ -121,7 +121,7 @@ void McmcSv::updateState() {
 }
 
 void McmcSv::updateImpact() {
-	sqrt_sv = (-lvol_draw / 2).array().exp();
+	latent_innov = y - x * coef_mat;
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
@@ -157,9 +157,9 @@ MinnSv::MinnSv(const MinnParams& params)
 }
 
 void MinnSv::doPosteriorDraws() {
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
-	updateState(); // E_t (depending on alpha) changed here (also used when updateImpact())
+	updateCoef(); // D_t (depending on h_t) changed here
+	updateImpact(); // E_t (depending on alpha) changed here
+	updateState(); // L (depending on a) changed here
 	updateStateVar();
 	updateInitState();
 }
@@ -257,12 +257,12 @@ void SsvsSv::updateImpactPrec() {
 }
 
 void SsvsSv::doPosteriorDraws() {
-	updateImpactPrec();
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
 	updateCoefPrec();
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoef(); // D_t (depending on h_t) changed here
 	updateCoefShrink();
-	updateState(); // E_t (depending on alpha) changed here (also used when updateImpact())
+	updateImpactPrec();
+	updateImpact(); // E_t (depending on alpha) changed here
+	updateState(); // L (depending on a) changed here
 	updateStateVar();
 	updateInitState();
 }
@@ -335,12 +335,12 @@ void HorseshoeSv::updateImpactPrec() {
 }
 
 void HorseshoeSv::doPosteriorDraws() {
-	updateImpactPrec();
-	updateImpact(); // D_t (depending on h_t) changed here (also used when updateCoef())
 	updateCoefPrec();
-	updateCoef(); // L (depending on a) changed here (also used when updateState())
+	updateCoef(); // D_t (depending on h_t) changed here
 	updateCoefShrink();
-	updateState(); // E_t (depending on alpha) changed here (also used when updateImpact())
+	updateImpactPrec();
+	updateImpact(); // E_t (depending on alpha) changed here
+	updateState(); // L (depending on a) changed here
 	updateStateVar();
 	updateInitState();
 }

@@ -122,12 +122,6 @@ protected:
 	Eigen::MatrixXd prior_chol_prec; // prior precision of a = I
 	Eigen::MatrixXd coef_mat;
 	int contem_id;
-
-private:
-	Eigen::VectorXd prior_sig_shp;
-	Eigen::VectorXd prior_sig_scl;
-	Eigen::VectorXd prior_init_mean;
-	Eigen::MatrixXd prior_init_prec;
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent; // orthogonalized Z0
@@ -136,6 +130,12 @@ private:
   Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+
+private:
+	Eigen::VectorXd prior_sig_shp;
+	Eigen::VectorXd prior_sig_scl;
+	Eigen::VectorXd prior_init_mean;
+	Eigen::MatrixXd prior_init_prec;
 };
 
 class MinnSv : public McmcSv {
