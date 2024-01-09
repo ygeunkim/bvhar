@@ -12,6 +12,7 @@ public:
 	bvharinterrupt();
 	virtual ~bvharinterrupt() = default;
 	static bool is_interrupted();
+	static void reset();
 };
 
 #endif

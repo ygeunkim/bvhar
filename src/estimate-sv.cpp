@@ -111,7 +111,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 			bar.update();
 		}
 		sv_obj->addStep();
-		sv_obj->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
+		sv_obj->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
   }
 	return sv_obj->returnRecords(num_burn);
 }
