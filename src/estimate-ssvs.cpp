@@ -1,7 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 
@@ -118,10 +118,11 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
   Eigen::VectorXd slab_weight(num_restrict); // pij vector
   Eigen::MatrixXd slab_weight_mat(num_restrict / dim, dim); // pij matrix: (dim*p) x dim
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
-  Progress p(num_iter, display_progress);
+  bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   // Start Gibbs sampling-----------------------------------------
   for (int i = 1; i < num_iter + 1; i++) {
-    if (Progress::check_abort()) {
+    if (bvharinterrupt::is_interrupted()) {
       return Rcpp::List::create(
         Rcpp::Named("alpha_record") = coef_record,
         Rcpp::Named("eta_record") = chol_upper_record,
@@ -135,7 +136,10 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
         Rcpp::Named("ols_cholesky") = chol_ols
       );
     }
-    p.increment();
+    bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // 1. Psi--------------------------
     chol_mixture_mat = build_ssvs_sd(chol_spike, chol_slab, chol_dummy_record.row(i - 1));
     chol_diag_record.row(i) = ssvs_chol_diag(sse_mat, chol_mixture_mat, shape, rate, num_design);

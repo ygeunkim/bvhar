@@ -1,7 +1,7 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <progress.hpp>
-#include <progress_bar.hpp>
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' VAR-SV by Gibbs Sampler
 //' 
@@ -145,7 +145,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd coef_j = coef_mat; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
   coef_j.col(0) = Eigen::VectorXd::Zero(dim_design);
   Eigen::VectorXd response_contem(num_design); // j-th column of Z0 = Y0 - X0 * A: n-dim
-  Eigen::MatrixXd sqrt_sv(num_design, dim); // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+  Eigen::MatrixXd sqrt_sv = (-lvol_draw / 2).array().exp(); // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
   int contem_id = 0;
   // SSVS--------------
   Eigen::VectorXd prior_sd(num_coef);
@@ -163,9 +163,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   Eigen::MatrixXd global_shrinkage_mat = Eigen::MatrixXd::Zero(dim_design, dim);
   Eigen::VectorXd grp_vec = vectorize_eigen(grp_mat);
   // Start Gibbs sampling-----------------------------------
-  Progress p(num_iter, display_progress);
+	bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
   for (int i = 1; i < num_iter + 1; i ++) {
-    if (Progress::check_abort()) {
+		if (bvharinterrupt::is_interrupted()) {
       if (prior_type == 2) {
         return Rcpp::List::create(
           Rcpp::Named("alpha_record") = coef_record,
@@ -195,7 +196,10 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
         Rcpp::Named("sigh_record") = lvol_sig_record
       );
     }
-    p.increment();
+		bar.increment();
+		if (display_progress) {
+			bar.update();
+		}
     // 1. alpha----------------------------
     chol_lower = build_inv_lower(dim, contem_coef_record.row(i - 1));
     switch(prior_type) {
@@ -230,7 +234,6 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
       shrink_record.row(i - 1) = (Eigen::MatrixXd::Identity(num_coef, num_coef) + prior_alpha_prec).inverse().diagonal();
       break;
     }
-    sqrt_sv = (-lvol_draw / 2).array().exp(); // n x k
     for (int j = 0; j < dim; j++) {
       prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
       prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
@@ -310,6 +313,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
     // lvol_record.block(num_design * i, 0, num_design, dim) = lvol_draw;
 		lvol_record.row(i) = vectorize_eigen(lvol_draw.transpose());
     // 3. a---------------------------------
+    sqrt_sv = (-lvol_draw / 2).array().exp(); // n x k
     switch (prior_type) {
     case 2:
       // SSVS
