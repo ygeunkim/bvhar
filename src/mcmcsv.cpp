@@ -69,12 +69,12 @@ McmcSv::McmcSv(const SvParams& params)
 	prior_chol_prec = Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol);
 	coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
 	contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
-	lvol_sig_record = .1 * Eigen::MatrixXd::Ones(num_iter + 1, dim);
+	lvol_sig_record = Eigen::MatrixXd::Ones(num_iter + 1, dim);
 	lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim);
 	lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim);
 	coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
 	coef_vec = vectorize_eigen(coef_vec);
-	contem_coef = Eigen::VectorXd::Zero(num_lowerchol);
+	contem_coef = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	latent_innov = y - x * coef_mat;
 	chol_lower = build_inv_lower(dim, contem_coef);
 	lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
