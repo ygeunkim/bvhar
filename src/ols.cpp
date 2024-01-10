@@ -72,11 +72,11 @@ OlsVar::OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean)
 	dim_design = design.cols();
 	coef = Eigen::MatrixXd::Zero(dim_design, dim);
 	yhat = Eigen::MatrixXd::Zero(num_design, dim);
+	resid = Eigen::MatrixXd::Zero(num_design, dim);
 	cov = Eigen::MatrixXd::Zero(dim, dim);
 }
 
 void OlsVar::estimateCoef() {
-	std::cout << "Normal equation" << std::endl;
 	coef = (design.transpose() * design).inverse() * design.transpose() * response;
 }
 

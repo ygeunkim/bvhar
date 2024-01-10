@@ -40,7 +40,6 @@ public:
 	QrVar(const Eigen::MatrixXd& y, int lag, const bool include_mean);
 	virtual ~QrVar() = default;
 	void estimateCoef() override;
-	void fitObs() override;
 private:
 	Eigen::HouseholderQR<Eigen::MatrixXd> qr_design;
 };
