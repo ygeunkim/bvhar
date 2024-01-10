@@ -133,36 +133,15 @@ bvhar_ssvs <- function(y,
   dim_har <- ncol(X1)
   # no regularization for diagonal term---------------------
   num_restrict <- 3 * dim_data^2 # restrict only coefficients
-  glob_idmat <- switch(
-    minnesota,
-    "no" = matrix(1L, nrow = num_restrict / dim_data, ncol = dim_data),
-    "short" = {
-      glob_idmat <- split.data.frame(
-        matrix(rep(0, num_restrict), ncol = dim_data),
-        gl(3, dim_data)
-      )
-      glob_idmat[[1]] <- diag(dim_data) + 1
-      id <- 1
-      for (i in 2:3) {
-        glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
-        id <- id + 2
-      }
-      do.call(rbind, glob_idmat)
-    },
-    "longrun" = {
-      glob_idmat <- split.data.frame(
-        matrix(rep(0, num_restrict), ncol = dim_data),
-        gl(3, dim_data)
-      )
-      id <- 1
-      for (i in 1:3) {
-        glob_idmat[[i]] <- diag(dim_data) + id
-        id <- id + 2
-      }
-      do.call(rbind, glob_idmat)
-    }
+  glob_idmat <- build_grpmat(
+    p = 3,
+    dim_data = dim_data,
+    dim_design = num_restrict / dim_data,
+    num_coef = num_restrict,
+    minnesota = minnesota,
+    include_mean = FALSE
   )
-  grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+  grp_id <- unique(c(glob_idmat))
   num_grp <- length(grp_id)
   # length 1 of bayes_spec--------------
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
@@ -210,7 +189,6 @@ bvhar_ssvs <- function(y,
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
     length(bayes_spec$coef_mixture) == num_grp
-    # && length(bayes_spec$mean_coef) == num_restrict
   )) {
     stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
   }
