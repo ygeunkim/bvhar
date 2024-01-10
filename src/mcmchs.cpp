@@ -42,23 +42,23 @@ void McmcHs::updateCoefCov() {
 		);
 	}
 	coef_var = vectorize_eigen(coef_var_loc);
-	lambda_mat = build_shrink_mat(coef_var, local_lev);
+	build_shrink_mat(lambda_mat, coef_var, local_lev);
 	shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	shrink_record.row(mcmc_step) = shrink_fac;
 }
 
 void McmcHs::updateCoef() {
-	coef_draw = horseshoe_coef(response_vec, design_mat, sig_draw, lambda_mat);
+	horseshoe_coef(coef_draw, response_vec, design_mat, sig_draw, lambda_mat);
 	sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat);
 	coef_record.row(mcmc_step) = coef_draw;
 	sig_record[mcmc_step] = sig_draw;
 }
 
 void McmcHs::updateCov() {
-	latent_local = horseshoe_latent(local_lev);
-	latent_global = horseshoe_latent(global_lev);
-	local_lev = horseshoe_local_sparsity(latent_local, coef_var, coef_draw, sig_draw);
-	global_lev = horseshoe_mn_global_sparsity(grp_vec, grp_id, latent_global, local_lev, coef_draw, sig_draw);
+	horseshoe_latent(latent_local, local_lev);
+	horseshoe_latent(latent_global, global_lev);
+	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_draw, sig_draw);
+	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_draw, sig_draw);
 	local_record.row(mcmc_step) = local_lev;
 	global_record.row(mcmc_step) = global_lev;
 }
@@ -84,7 +84,7 @@ BlockHs::BlockHs(const HsParams& params)
 	block_coef(Eigen::VectorXd::Zero(num_coef + 1)) {}
 
 void BlockHs::updateCoef() {
-	block_coef = horseshoe_coef_var(response_vec, design_mat, lambda_mat);
+	horseshoe_coef_var(block_coef, response_vec, design_mat, lambda_mat);
 	coef_record.row(mcmc_step) = block_coef.tail(num_coef);
 	sig_record[mcmc_step] = block_coef[0];
 }
@@ -92,7 +92,8 @@ void BlockHs::updateCoef() {
 FastHs::FastHs(const HsParams& params) : McmcHs(params) {}
 
 void FastHs::updateCoef() {
-	coef_draw = horseshoe_fast_coef(
+	horseshoe_fast_coef(
+		coef_draw,
 		response_vec / sqrt(sig_draw),
 		design_mat / sqrt(sig_draw),
 		sig_draw * lambda_mat
