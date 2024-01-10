@@ -240,17 +240,18 @@ void SsvsSv::updateCoefShrink() {
 		);
 	}
 	slab_weight = vectorize_eigen(slab_weight_mat);
-	coef_dummy = ssvs_dummy(
+	ssvs_dummy(
+		coef_dummy,
 		vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
 		coef_slab, coef_spike, slab_weight
 	);
-	coef_weight = ssvs_mn_weight(grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
+	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
 	coef_weight_record.row(mcmc_step) = coef_weight;
 }
 
 void SsvsSv::updateImpactPrec() {
-	contem_dummy = ssvs_dummy(contem_coef, contem_slab, contem_spike, contem_weight);
-	contem_weight = ssvs_weight(contem_dummy, contem_s1, contem_s2);
+	ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight);
+	ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2);
 	prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
 	contem_dummy_record.row(mcmc_step) = contem_dummy;
 	contem_weight_record.row(mcmc_step) = contem_weight;
@@ -288,7 +289,7 @@ HorseshoeSv::HorseshoeSv(const HorseshoeParams& params)
 	global_lev(params._init_global),
 	shrink_fac(Eigen::VectorXd::Zero(num_coef)),
 	latent_local(Eigen::VectorXd::Zero(num_coef)),
-	latent_global(Eigen::VectorXd::Zero(1)),
+	latent_global(Eigen::VectorXd::Zero(num_grp)),
 	coef_var(Eigen::VectorXd::Zero(num_coef)),
 	coef_var_loc(Eigen::MatrixXd::Zero(dim_design, dim)),
 	contem_local_lev(params._init_contem_local),
@@ -311,27 +312,27 @@ void HorseshoeSv::updateCoefPrec() {
 		);
 	}
 	coef_var = vectorize_eigen(coef_var_loc);
-	prior_alpha_prec = build_shrink_mat(coef_var, local_lev);
+	build_shrink_mat(prior_alpha_prec, coef_var, local_lev);
 	shrink_fac = 1 / (1 + prior_alpha_prec.diagonal().array());
 	shrink_record.row(mcmc_step) = shrink_fac;
 }
 
 void HorseshoeSv::updateCoefShrink() {
-	latent_local = horseshoe_latent(local_lev);
-	latent_global = horseshoe_latent(global_lev);
-	local_lev = horseshoe_local_sparsity(latent_local, coef_var, coef_vec, 1);
-	global_lev = horseshoe_mn_global_sparsity(grp_vec, grp_id, latent_global, local_lev, coef_vec, 1);
+	horseshoe_latent(latent_local, local_lev);
+	horseshoe_latent(latent_global, global_lev);
+	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, 1);
+	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec, 1);
 	local_record.row(mcmc_step) = local_lev;
 	global_record.row(mcmc_step) = global_lev;
 }
 
 void HorseshoeSv::updateImpactPrec() {
-	latent_contem_local = horseshoe_latent(contem_local_lev);
-	latent_contem_global = horseshoe_latent(contem_global_lev);
+	horseshoe_latent(latent_contem_local, contem_local_lev);
+	horseshoe_latent(latent_contem_global, contem_global_lev);
 	contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol));
-	contem_local_lev = horseshoe_local_sparsity(latent_contem_local, contem_var, contem_coef, 1);
+	horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1);
-	prior_chol_prec = build_shrink_mat(contem_var, contem_local_lev);
+	build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
 }
 
 void HorseshoeSv::doPosteriorDraws() {
