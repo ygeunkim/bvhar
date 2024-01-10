@@ -27,16 +27,15 @@ Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd,
 // @param shape Gamma shape parameters for precision matrix
 // @param rate Gamma rate parameters for precision matrix
 // @param num_design The number of sample used, \eqn{n = T - p}
-Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design) {
+void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& DRD, Eigen::VectorXd& shape, Eigen::VectorXd& rate, int num_design) {
   int dim = sse_mat.cols();
   int num_param = DRD.size();
-  Eigen::VectorXd res(dim);
   Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
   inv_DRD.diagonal() = 1 / DRD.array().square();
   Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
   shape.array() += (double)num_design / 2;
   rate[0] += sse_mat(0, 0) / 2;
-  res[0] = sqrt(gamma_rand(shape[0], 1 / rate[0])); // psi[11]^2 ~ Gamma(shape, rate)
+  chol_diag[0] = sqrt(gamma_rand(shape[0], 1 / rate[0])); // psi[11]^2 ~ Gamma(shape, rate)
   int block_id = 0;
   for (int j = 1; j < dim; j++) {
     sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1); // (s1j, ..., sj-1,j)
@@ -46,10 +45,9 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eig
         (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).llt().solve(Eigen::MatrixXd::Identity(j, j)) * 
         sse_colvec.segment(0, j)
     ) / 2;
-    res[j] = sqrt(gamma_rand(shape[j], 1 / rate[j])); // psi[jj]^2 ~ Gamma(shape, rate)
+    chol_diag[j] = sqrt(gamma_rand(shape[j], 1 / rate[j])); // psi[jj]^2 ~ Gamma(shape, rate)
     block_id += j;
   }
-  return res;
 }
 
 //' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
@@ -61,13 +59,13 @@ Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eig
 //' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::VectorXd DRD) {
+void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD) {
   int dim = sse_mat.cols();
   int num_param = DRD.size();
   Eigen::MatrixXd normal_variance(dim - 1, dim - 1);
   Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
   Eigen::VectorXd normal_mean(dim - 1);
-  Eigen::VectorXd res(num_param);
+  // Eigen::VectorXd res(num_param);
   Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
   inv_DRD.diagonal() = 1 / DRD.array().square();
   int block_id = 0;
@@ -75,10 +73,10 @@ Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag
     sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1);
     normal_variance.topLeftCorner(j, j) = (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).llt().solve(Eigen::MatrixXd::Identity(j, j));
     normal_mean.segment(0, j) = -chol_diag[j] * normal_variance.topLeftCorner(j, j) * sse_colvec.segment(0, j);
-    res.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean.segment(0, j), normal_variance.topLeftCorner(j, j)));
+    chol_off.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean.segment(0, j), normal_variance.topLeftCorner(j, j)));
     block_id += j;
   }
-  return res;
+  // return res;
 }
 
 // Filling Cholesky Factor Upper Triangular Matrix
@@ -111,15 +109,14 @@ Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec
 // @param XtX The result of design matrix arithmetic \eqn{X_0^T X_0}
 // @param coef_ols OLS (MLE) estimator of the VAR coefficient
 // @param chol_factor Cholesky factor of variance matrix
-Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor) {
+void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd, Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols, Eigen::MatrixXd& chol_factor) {
   int num_coef = prior_sd.size();
   Eigen::MatrixXd scaled_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
-  // Eigen::MatrixXd scaled_xtx = Eigen::kroneckerProduct(chol_factor * chol_factor.transpose(), XtX).eval(); // Sigma^(-1) = chol * chol^T
   Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
   prior_prec.diagonal() = 1 / prior_sd.array().square();
   Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).llt().solve(Eigen::MatrixXd::Identity(num_coef, num_coef)); // Delta
   Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
-  return vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+  coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
 }
 
 // Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
@@ -130,15 +127,13 @@ Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, 
 // @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
 // @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 // @param slab_weight Proportion of nonzero coefficients
-Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, Eigen::VectorXd sd_denom, Eigen::VectorXd slab_weight) {
+void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs, Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight) {
   int num_latent = slab_weight.size();
   Eigen::VectorXd bernoulli_param_u1 = slab_weight.array() * (-param_obs.array().square() / (2 * sd_numer.array().square())).exp() / sd_numer.array();
   Eigen::VectorXd bernoulli_param_u2 = (1 - slab_weight.array()) * (-param_obs.array().square() / (2 * sd_denom.array().square())).exp() / sd_denom.array();
-  Eigen::VectorXd res(num_latent); // latentj | Y0, -latentj ~ Bernoulli(u1 / (u1 + u2))
   for (int i = 0; i < num_latent; i++) {
-    res[i] = binom_rand(1, bernoulli_param_u1[i] / (bernoulli_param_u1[i] + bernoulli_param_u2[i]));
+    dummy[i] = binom_rand(1, bernoulli_param_u1[i] / (bernoulli_param_u1[i] + bernoulli_param_u2[i]));
   }
-  return res;
 }
 
 // Generating Slab Weight Vector in SSVS Gibbs Sampler
@@ -148,15 +143,13 @@ Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, 
 // @param param_obs Indicator variables
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
-Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2) {
+void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2) {
   int num_latent = param_obs.size();
-  Eigen::VectorXd res(num_latent);
   double post_s1 = prior_s1 + param_obs.sum(); // s1 + number of ones
   double post_s2 = prior_s2 + num_latent - param_obs.sum(); // s2 + number of zeros
   for (int i = 0; i < num_latent; i++) {
-    res[i] = beta_rand(post_s1, post_s2);
+    weight[i] = beta_rand(post_s1, post_s2);
   }
-  return res;
 }
 
 // Generating Slab Weight Vector in MN-SSVS Gibbs Sampler
@@ -168,15 +161,15 @@ Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double p
 // @param param_obs Indicator variables
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
-Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
-                               Eigen::VectorXi grp_id,
-                               Eigen::VectorXd param_obs,
-                               double prior_s1,
-                               double prior_s2) {
+void ssvs_mn_weight(Eigen::VectorXd& weight,
+										Eigen::VectorXd& grp_vec,
+                    Eigen::VectorXi& grp_id,
+                    Eigen::VectorXd& param_obs,
+                    double prior_s1,
+                    double prior_s2) {
   int num_grp = grp_id.size();
   int num_latent = param_obs.size();
   Eigen::VectorXi global_id(num_latent);
-  Eigen::VectorXd res(num_grp);
   int mn_size = 0;
   int mn_id = 0;
   for (int i = 0; i < num_grp; i++) {
@@ -190,12 +183,11 @@ Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec,
       }
     }
     mn_id = 0;
-    res[i] = beta_rand(
+    weight[i] = beta_rand(
       prior_s1 + mn_param.sum(),
       prior_s2 + mn_size - mn_param.sum()
     );
   }
-  return res;
 }
 
 //' Building Lower Triangular Matrix
@@ -351,11 +343,12 @@ void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::MatrixXd&
 // 
 // @param global_hyperparam Global sparsity hyperparameters
 // @param local_hyperparam Local sparsity hyperparameters
-Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::VectorXd local_hyperparam) {
-  int num_param = local_hyperparam.size();
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
-  res.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array()).square();
-  return res;
+void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd& local_hyperparam) {
+  // int num_param = local_hyperparam.size();
+  // Eigen::MatrixXd res = Eigen::MatrixXd::Zero(num_param, num_param);
+	cov.setZero();
+  cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array()).square();
+  // return res;
 }
 
 // Generating the Coefficient Vector in Horseshoe Gibbs Sampler
@@ -365,12 +358,12 @@ Eigen::MatrixXd build_shrink_mat(Eigen::VectorXd global_hyperparam, Eigen::Vecto
 // @param response_vec Response vector for vectorized formulation
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
-                               double var, Eigen::MatrixXd shrink_mat) {
+void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
+                    double var, Eigen::MatrixXd& shrink_mat) {
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
     Eigen::MatrixXd::Identity(design_mat.cols(), design_mat.cols())
   );
-  return sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, var * prec_mat);
+  coef = sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, var * prec_mat);
 }
 
 // Generating the Coefficient Vector using Fast Sampling
@@ -380,12 +373,9 @@ Eigen::VectorXd horseshoe_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd des
 // @param response_vec Response vector for vectorized formulation
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-Eigen::VectorXd horseshoe_fast_coef(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
+void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
   int num_coef = design_mat.cols(); // k^2 kp(+1)
   int num_sur = response_vec.size(); // nk-dim
-  // Eigen::VectorXd scaled_y = response_vec / sqrt(var);
-  // Eigen::MatrixXd scaled_x = design_mat / sqrt(var); // num_sur x num_coef
-  // Eigen::MatrixXd scaled_lambda = var * shrink_mat; // num_coef x num_coef
   Eigen::MatrixXd sur_identity = Eigen::MatrixXd::Identity(num_sur, num_sur);
   Eigen::VectorXd u_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_coef), shrink_mat));
   Eigen::VectorXd delta_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_sur), sur_identity));
@@ -393,8 +383,7 @@ Eigen::VectorXd horseshoe_fast_coef(Eigen::VectorXd response_vec, Eigen::MatrixX
   Eigen::VectorXd lin_solve = (design_mat * shrink_mat * design_mat.transpose() + sur_identity).llt().solve(
     response_vec - nu
   );
-  return u_vec + shrink_mat * design_mat.transpose() * lin_solve;
-  // return u_vec + var * shrink_mat * design_mat.transpose() * lin_solve;
+  coef = u_vec + shrink_mat * design_mat.transpose() * lin_solve;
 }
 
 // Generating the Coefficient Vector in Horseshoe Gibbs Sampler
@@ -404,19 +393,17 @@ Eigen::VectorXd horseshoe_fast_coef(Eigen::VectorXd response_vec, Eigen::MatrixX
 // @param response_vec Response vector for vectorized formulation
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-Eigen::VectorXd horseshoe_coef_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
+void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat) {
   int dim = design_mat.cols();
-  Eigen::VectorXd res(dim + 1);
   int sample_size = response_vec.size();
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
     Eigen::MatrixXd::Identity(dim, dim)
   );
   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * prec_mat * design_mat.transpose()) * response_vec;
-  res[0] = 1 / gamma_rand(sample_size / 2, scl / 2);
-  res.tail(dim) = vectorize_eigen(
-    sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, res[0] * prec_mat)
+  coef_var[0] = 1 / gamma_rand(sample_size / 2, scl / 2);
+  coef_var.tail(dim) = vectorize_eigen(
+    sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, coef_var[0] * prec_mat)
   );
-  return res;
 }
 
 // Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
@@ -427,7 +414,7 @@ Eigen::VectorXd horseshoe_coef_var(Eigen::VectorXd response_vec, Eigen::MatrixXd
 // @param design_mat Design matrix for vectorized formulation
 // @param coef_vec Coefficients vector
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, Eigen::MatrixXd shrink_mat) {
+double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat) {
   int sample_size = response_vec.size();
   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
   scl *= .5;
@@ -442,17 +429,16 @@ double horseshoe_var(Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat, E
 // @param global_hyperparam Global sparsity hyperparameter vector
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
-Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
-                                         Eigen::VectorXd global_hyperparam,
-                                         Eigen::VectorXd coef_vec,
-                                         double prior_var) {
+void horseshoe_local_sparsity(Eigen::VectorXd& local_lev,
+															Eigen::VectorXd& local_latent,
+                            	Eigen::VectorXd& global_hyperparam,
+                            	Eigen::VectorXd& coef_vec,
+                            	double prior_var) {
   int dim = coef_vec.size();
-  Eigen::VectorXd res(dim);
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
   for (int i = 0; i < dim; i++) {
-    res[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl[i]));
+    local_lev[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl[i]));
   }
-  return res;
 }
 
 // Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -464,27 +450,14 @@ Eigen::VectorXd horseshoe_local_sparsity(Eigen::VectorXd local_latent,
 // @param coef_mn Coefficients vector in the i = j lag or cross lag
 // @param prior_var Variance constant of the likelihood
 double horseshoe_global_sparsity(double global_latent,
-                                 Eigen::VectorXd local_hyperparam,
-                                 Eigen::VectorXd coef_vec,
+                                 Eigen::VectorXd& local_hyperparam,
+                                 Eigen::VectorXd& coef_vec,
                                  double prior_var) {
-  // int num_grp = global_latent.size();
   int dim = coef_vec.size();
-  // Eigen::VectorXd res(num_grp);
-  // Eigen::VectorXd invgam_scl(num_grp);
-  // invgam_scl = 1 / global_latent.array() + (
-  //   coef_mn.array().square() / (2 * prior_var * local_mn.array().square())
-  // ).sum();
   double invgam_scl = 1 / global_latent;
   for (int i = 0; i < dim; i++) {
     invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
   }
-  // for (int i = 0; i < num_grp; i++) {
-  //   res[i] = sqrt(1 / gamma_rand(
-  //     (num_grp + 1) / 2,
-  //     1 / invgam_scl[i]
-  //   ));
-  // }
-  // return res;
   return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl));
 }
 
@@ -498,18 +471,18 @@ double horseshoe_global_sparsity(double global_latent,
 // @param local_mn Local sparsity hyperparameters vector corresponding to i = j lag or cross lag
 // @param coef_mn Coefficients vector in the i = j lag or cross lag
 // @param prior_var Variance constant of the likelihood
-Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
-                                             Eigen::VectorXi grp_id,
-                                             Eigen::VectorXd global_latent,
-                                             Eigen::VectorXd local_hyperparam,
-                                             Eigen::VectorXd coef_vec,
-                                             double prior_var) {
+void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
+																	Eigen::VectorXd& grp_vec,
+                                  Eigen::VectorXi& grp_id,
+                                  Eigen::VectorXd& global_latent,
+                                  Eigen::VectorXd& local_hyperparam,
+                                  Eigen::VectorXd& coef_vec,
+                                  double prior_var) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
   Eigen::VectorXi global_id(num_coef);
   int mn_size = 0;
   int mn_id = 0;
-  Eigen::VectorXd res(num_grp);
   for (int i = 0; i < num_grp; i++) {
     global_id = (grp_vec.array() == grp_id[i]).cast<int>();
     mn_size = global_id.sum();
@@ -523,14 +496,13 @@ Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
       }
     }
     mn_id = 0;
-    res[i] = horseshoe_global_sparsity(
+    global_lev[i] = horseshoe_global_sparsity(
       global_latent[i],
       mn_local,
       mn_coef,
       prior_var
     ); 
   }
-  return res;
 }
 
 // Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
@@ -538,11 +510,9 @@ Eigen::VectorXd horseshoe_mn_global_sparsity(Eigen::VectorXd grp_vec,
 // In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
 // 
 // @param hyperparam sparsity hyperparameters vector
-Eigen::VectorXd horseshoe_latent(Eigen::VectorXd hyperparam) {
+void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam) {
   int dim = hyperparam.size();
-  Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
-    res[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)));
+    latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)));
   }
-  return res;
 }
