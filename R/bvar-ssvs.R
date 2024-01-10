@@ -128,26 +128,15 @@ bvar_ssvs <- function(y,
   dim_design <- ncol(X0)
   # no regularization for diagonal term---------------------
   num_restrict <- dim_data^2 * p # restrict only coefficients
-  glob_idmat <- matrix(1L, nrow = num_restrict / dim_data, ncol = dim_data)
-  if (minnesota) {
-    # if (include_mean) {
-    #   idx <- c(gl(p, dim_data), p + 1)
-    # } else {
-    #   idx <- gl(p, dim_data)
-    # }
-    glob_idmat <- split.data.frame(
-      matrix(rep(0, num_restrict), ncol = dim_data),
-      gl(p, dim_data)
-    )
-    glob_idmat[[1]] <- diag(dim_data) + 1
-    id <- 1
-    for (i in 2:p) {
-      glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
-      id <- id + 2
-    }
-    glob_idmat <- do.call(rbind, glob_idmat)
-  }
-  grp_id <- unique(c(glob_idmat[1:(dim_data * p),]))
+  glob_idmat <- build_grpmat(
+    p = p,
+    dim_data = dim_data,
+    dim_design = num_restrict / dim_data,
+    num_coef = num_restrict,
+    minnesota = ifelse(minnesota, "short", "no"),
+    include_mean = FALSE
+  )
+  grp_id <- unique(c(glob_idmat))
   num_grp <- length(grp_id)
   # length 1 of bayes_spec--------------
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
@@ -197,7 +186,6 @@ bvar_ssvs <- function(y,
     length(bayes_spec$coef_spike) == num_restrict &&
     length(bayes_spec$coef_slab) == num_restrict &&
     length(bayes_spec$coef_mixture) == num_grp
-    # && length(bayes_spec$mean_coef) == num_restrict
   )) {
     stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as dim^2 * p.")
   }
