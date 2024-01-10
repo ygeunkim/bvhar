@@ -5,7 +5,7 @@ Version: 1.2.0
 Authors@R: 
     c(person(given = "Young Geun",
              family = "Kim",
-             email = "dudrms33@g.skku.edu",
+             email = "ygeunkimstat@gmail.com",
              role = c("aut", "cre", "cph"),
              comment = c(ORCID = "0000-0001-8651-1167")),
       person(given = "Changryong",
