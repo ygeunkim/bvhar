@@ -1049,16 +1049,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssvs_chol_off
-Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::VectorXd DRD);
-RcppExport SEXP _bvhar_ssvs_chol_off(SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP DRDSEXP) {
+void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD);
+RcppExport SEXP _bvhar_ssvs_chol_off(SEXP chol_offSEXP, SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP DRDSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sse_mat(sse_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type chol_diag(chol_diagSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type DRD(DRDSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssvs_chol_off(sse_mat, chol_diag, DRD));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type chol_off(chol_offSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type sse_mat(sse_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type chol_diag(chol_diagSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type DRD(DRDSEXP);
+    ssvs_chol_off(chol_off, sse_mat, chol_diag, DRD);
+    return R_NilValue;
 END_RCPP
 }
 // build_inv_lower
@@ -1368,7 +1368,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
-    {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 3},
+    {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 4},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},

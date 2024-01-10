@@ -87,8 +87,8 @@ void McmcSsvs::addStep() {
 
 void McmcSsvs::updateChol() {
 	chol_mixture_mat = build_ssvs_sd(chol_spike, chol_slab, chol_dummy);
-	chol_diag = ssvs_chol_diag(sse_mat, chol_mixture_mat, shape, rate, num_design);
-	chol_coef = ssvs_chol_off(sse_mat, chol_diag, chol_mixture_mat);
+	ssvs_chol_diag(chol_diag, sse_mat, chol_mixture_mat, shape, rate, num_design);
+	ssvs_chol_off(chol_coef, sse_mat, chol_diag, chol_mixture_mat);
 	chol_factor = build_chol(chol_diag, chol_coef);
 	chol_upper_record.row(mcmc_step) = chol_coef;
 	chol_diag_record.row(mcmc_step) = chol_diag;
@@ -96,8 +96,8 @@ void McmcSsvs::updateChol() {
 }
 
 void McmcSsvs::updateCholDummy() {
-	chol_dummy = ssvs_dummy(chol_coef, chol_slab, chol_spike, chol_weight);
-	chol_weight = ssvs_weight(chol_dummy, chol_s1, chol_s2);
+	ssvs_dummy(chol_dummy, chol_coef, chol_slab, chol_spike, chol_weight);
+	ssvs_weight(chol_weight, chol_dummy, chol_s1, chol_s2);
 	chol_dummy_record.row(mcmc_step) = chol_dummy;
 	chol_weight_record.row(mcmc_step) = chol_weight;
 }
@@ -112,7 +112,7 @@ void McmcSsvs::updateCoef() {
 	} else {
 		prior_sd = coef_mixture_mat;
 	}
-	coef_draw = ssvs_coef(prior_mean, prior_sd, gram, coef_vec, chol_factor);
+	ssvs_coef(coef_draw, prior_mean, prior_sd, gram, coef_vec, chol_factor);
 	coef_mat = unvectorize(coef_draw, dim_design, dim);
 	sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
 	coef_record.row(mcmc_step) = coef_draw;
@@ -126,13 +126,14 @@ void McmcSsvs::updateCoefDummy() {
     );
 	}
 	slab_weight = vectorize_eigen(slab_weight_mat);
-	coef_dummy = ssvs_dummy(
+	ssvs_dummy(
+		coef_dummy,
 		vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
 		coef_slab,
 		coef_spike,
 		slab_weight
 	);
-	coef_weight = ssvs_mn_weight(grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
+	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
 	coef_dummy_record.row(mcmc_step) = coef_dummy;
 	coef_weight_record.row(mcmc_step) = coef_weight;
 }

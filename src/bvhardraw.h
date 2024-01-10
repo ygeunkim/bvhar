@@ -7,19 +7,19 @@
 
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 
-Eigen::VectorXd ssvs_chol_diag(Eigen::MatrixXd sse_mat, Eigen::VectorXd DRD, Eigen::VectorXd shape, Eigen::VectorXd rate, int num_design);
+void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& DRD, Eigen::VectorXd& shape, Eigen::VectorXd& rate, int num_design);
 
-Eigen::VectorXd ssvs_chol_off(Eigen::MatrixXd sse_mat, Eigen::VectorXd chol_diag, Eigen::VectorXd DRD);
+void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD);
 
 Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
 
-Eigen::VectorXd ssvs_coef(Eigen::VectorXd prior_mean, Eigen::VectorXd prior_sd, Eigen::MatrixXd XtX, Eigen::VectorXd coef_ols, Eigen::MatrixXd chol_factor);
+void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd, Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols, Eigen::MatrixXd& chol_factor);
 
-Eigen::VectorXd ssvs_dummy(Eigen::VectorXd param_obs, Eigen::VectorXd sd_numer, Eigen::VectorXd sd_denom, Eigen::VectorXd slab_weight);
+void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs, Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight);
 
-Eigen::VectorXd ssvs_weight(Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
 
-Eigen::VectorXd ssvs_mn_weight(Eigen::VectorXd grp_vec, Eigen::VectorXi grp_id, Eigen::VectorXd param_obs, double prior_s1, double prior_s2);
+void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXd& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& param_obs, double prior_s1, double prior_s2);
 
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 

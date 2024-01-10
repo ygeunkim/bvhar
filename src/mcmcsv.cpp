@@ -240,17 +240,18 @@ void SsvsSv::updateCoefShrink() {
 		);
 	}
 	slab_weight = vectorize_eigen(slab_weight_mat);
-	coef_dummy = ssvs_dummy(
+	ssvs_dummy(
+		coef_dummy,
 		vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
 		coef_slab, coef_spike, slab_weight
 	);
-	coef_weight = ssvs_mn_weight(grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
+	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
 	coef_weight_record.row(mcmc_step) = coef_weight;
 }
 
 void SsvsSv::updateImpactPrec() {
-	contem_dummy = ssvs_dummy(contem_coef, contem_slab, contem_spike, contem_weight);
-	contem_weight = ssvs_weight(contem_dummy, contem_s1, contem_s2);
+	ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight);
+	ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2);
 	prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
 	contem_dummy_record.row(mcmc_step) = contem_dummy;
 	contem_weight_record.row(mcmc_step) = contem_weight;
