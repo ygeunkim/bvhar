@@ -1210,8 +1210,8 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
 #' @param chol_diag Diagonal element of the cholesky factor
 #' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 #' @noRd
-ssvs_chol_off <- function(sse_mat, chol_diag, DRD) {
-    .Call(`_bvhar_ssvs_chol_off`, sse_mat, chol_diag, DRD)
+ssvs_chol_off <- function(chol_off, sse_mat, chol_diag, DRD) {
+    invisible(.Call(`_bvhar_ssvs_chol_off`, chol_off, sse_mat, chol_diag, DRD))
 }
 
 #' Building Lower Triangular Matrix
