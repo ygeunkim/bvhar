@@ -33,7 +33,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Young Geun Kim \email{dudrms33@g.skku.edu} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
+\strong{Maintainer}: Young Geun Kim \email{ygeunkimstat@gmail.com} (\href{https://orcid.org/0000-0001-8651-1167}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{
