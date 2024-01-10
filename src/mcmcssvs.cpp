@@ -35,7 +35,6 @@ McmcSsvs::McmcSsvs(
   } else {
     prior_mean = coef_mean;
   }
-	Rcpp::stop("stop");
 	coef_mixture_mat = Eigen::VectorXd(num_restrict);
 	chol_mixture_mat = Eigen::VectorXd(num_restrict);
 	slab_weight = Eigen::VectorXd(num_restrict);
@@ -43,7 +42,6 @@ McmcSsvs::McmcSsvs(
 	gram = x.transpose() * x;
 	coef_ols = gram.llt().solve(x.transpose() * y);
 	coef_vec = vectorize_eigen(coef_ols);
-	// cov_ols = (y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design);
 	chol_ols = ((y - x * coef_ols).transpose() * (y - x * coef_ols) / (num_design - dim_design)).llt().matrixU();
 	coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
 	coef_dummy_record = Eigen::MatrixXd::Zero(num_iter + 1, num_restrict);
@@ -66,8 +64,9 @@ McmcSsvs::McmcSsvs(
 		coef_draw = coef_vec;
 		coef_dummy = Eigen::VectorXd::Ones(num_restrict);
 		chol_diag = chol_ols.diagonal();
+		chol_coef = Eigen::VectorXd::Zero(num_upperchol);
 		for (int i = 1; i < dim; i++) {
-			chol_coef.segment(i * (i - 1) / 2, i) = chol_ols.block(0, i, i, 1).transpose();
+			chol_coef.segment(i * (i - 1) / 2, i) = chol_ols.block(0, i, i, 1);
 		}
 		chol_dummy = Eigen::VectorXd::Ones(num_upperchol);
 		chol_factor = chol_ols;
