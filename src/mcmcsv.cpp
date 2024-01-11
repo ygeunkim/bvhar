@@ -73,7 +73,7 @@ McmcSv::McmcSv(const SvParams& params)
 	lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim);
 	lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim);
 	coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
-	coef_vec = vectorize_eigen(coef_vec);
+	coef_vec = vectorize_eigen(coef_mat);
 	contem_coef = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	latent_innov = y - x * coef_mat;
 	chol_lower = build_inv_lower(dim, contem_coef);
@@ -88,7 +88,6 @@ McmcSv::McmcSv(const SvParams& params)
 }
 
 void McmcSv::updateCoef() {
-	sqrt_sv = (-lvol_draw / 2).array().exp();
 	for (int j = 0; j < dim; j++) {
 		prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 		prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
@@ -111,7 +110,6 @@ void McmcSv::updateCoef() {
 }
 
 void McmcSv::updateState() {
-	chol_lower = build_inv_lower(dim, contem_coef);
   ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
 	ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
 	for (int t = 0; t < dim; t++) {
@@ -121,7 +119,6 @@ void McmcSv::updateState() {
 }
 
 void McmcSv::updateImpact() {
-	latent_innov = y - x * coef_mat;
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
 		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
@@ -157,9 +154,12 @@ MinnSv::MinnSv(const MinnParams& params)
 }
 
 void MinnSv::doPosteriorDraws() {
-	updateCoef(); // D_t (depending on h_t) changed here
-	updateImpact(); // E_t (depending on alpha) changed here
-	updateState(); // L (depending on a) changed here
+	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+	updateCoef();
+	latent_innov = y - x * coef_mat; // E_t before a
+	updateImpact();
+	chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+	updateState();
 	updateStateVar();
 	updateInitState();
 }
@@ -210,9 +210,9 @@ SsvsSv::SsvsSv(const SsvsParams& params)
 	contem_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
 	coef_weight_record.row(0) = coef_weight;
 	contem_weight_record.row(0) = contem_weight;
-	coef_dummy = coef_dummy_record.row(0);
-	slab_weight = Eigen::VectorXd::Zero(num_alpha);
-	slab_weight_mat = Eigen::MatrixXd::Zero(num_alpha / dim, dim);
+	coef_dummy = Eigen::VectorXd::Ones(num_alpha);
+	slab_weight = Eigen::VectorXd::Ones(num_alpha);
+	slab_weight_mat = Eigen::MatrixXd::Ones(num_alpha / dim, dim);
 	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
 }
 
@@ -229,6 +229,7 @@ void SsvsSv::updateCoefPrec() {
 	} else {
 		prior_sd = coef_mixture_mat;
 	}
+	prior_alpha_prec.setZero();
 	prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
 }
 
@@ -259,11 +260,14 @@ void SsvsSv::updateImpactPrec() {
 
 void SsvsSv::doPosteriorDraws() {
 	updateCoefPrec();
-	updateCoef(); // D_t (depending on h_t) changed here
+	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+	updateCoef();
 	updateCoefShrink();
 	updateImpactPrec();
-	updateImpact(); // E_t (depending on alpha) changed here
-	updateState(); // L (depending on a) changed here
+	latent_innov = y - x * coef_mat; // E_t before a
+	updateImpact();
+	chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+	updateState();
 	updateStateVar();
 	updateInitState();
 }
@@ -337,11 +341,14 @@ void HorseshoeSv::updateImpactPrec() {
 
 void HorseshoeSv::doPosteriorDraws() {
 	updateCoefPrec();
-	updateCoef(); // D_t (depending on h_t) changed here
+	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+	updateCoef();
 	updateCoefShrink();
 	updateImpactPrec();
-	updateImpact(); // E_t (depending on alpha) changed here
-	updateState(); // L (depending on a) changed here
+	latent_innov = y - x * coef_mat; // E_t before a
+	updateImpact();
+	chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+	updateState();
 	updateStateVar();
 	updateInitState();
 }
