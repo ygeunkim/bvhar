@@ -1,5 +1,44 @@
 #include "ols.h"
 
+MultiOls::MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
+: design(x), response(y),
+	dim(response.cols()), num_design(response.rows()), dim_design(design.cols()) {
+	coef = Eigen::MatrixXd::Zero(dim_design, dim);
+	yhat = Eigen::MatrixXd::Zero(num_design, dim);
+	resid = Eigen::MatrixXd::Zero(num_design, dim);
+	cov = Eigen::MatrixXd::Zero(dim, dim);
+}
+
+void MultiOls::estimateCoef() {
+	coef = (design.transpose() * design).inverse() * design.transpose() * response; // return coef -> use in OlsVar
+}
+
+void MultiOls::fitObs() {
+	yhat = design * coef;
+	resid = response - yhat;
+}
+
+
+void MultiOls::estimateCov() {
+	cov = resid.transpose() * resid / (num_design - dim_design);
+}
+
+LltOls::LltOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y) : MultiOls(x, y) {
+	llt_selfadjoint.compute(design.transpose() * design);
+}
+
+void LltOls::estimateCoef() {
+	coef = llt_selfadjoint.solve(design.transpose() * response);
+}
+
+QrOls::QrOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y) : MultiOls(x, y) {
+	qr_design.compute(design);
+}
+
+void QrOls::estimateCoef() {
+	coef = qr_design.solve(response);
+}
+
 //' Build Response Matrix of VAR(p)
 //' 
 //' This function constructs response matrix of multivariate regression model formulation of VAR(p).
@@ -64,10 +103,21 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean) 
   return res;
 }
 
-OlsVar::OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean)
+OlsVar::OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean, int method)
 : lag(lag), const_term(include_mean), dim(y.cols()), data(y) {
 	response = build_y0(data, lag, lag + 1);
 	design = build_design(data, lag, const_term);
+	switch (method) {
+  case 1:
+		_ols = std::unique_ptr<MultiOls>(new MultiOls(design, response));
+		break;
+  case 2:
+    _ols = std::unique_ptr<MultiOls>(new LltOls(design, response));
+    break;
+  case 3:
+    _ols = std::unique_ptr<MultiOls>(new QrOls(design, response));
+    break;
+  }
 	num_design = response.rows();
 	dim_design = design.cols();
 	coef = Eigen::MatrixXd::Zero(dim_design, dim);
