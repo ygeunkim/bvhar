@@ -129,10 +129,13 @@ void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::Vector
 // @param slab_weight Proportion of nonzero coefficients
 void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs, Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight) {
   int num_latent = slab_weight.size();
-  Eigen::VectorXd bernoulli_param_u1 = slab_weight.array() * (-param_obs.array().square() / (2 * sd_numer.array().square())).exp() / sd_numer.array();
-  Eigen::VectorXd bernoulli_param_u2 = (1 - slab_weight.array()) * (-param_obs.array().square() / (2 * sd_denom.array().square())).exp() / sd_denom.array();
+	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
+	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());
+	Eigen::VectorXd max_exp = exp_u1.cwiseMax(exp_u2); // use log-sum-exp against overflow
+	exp_u1 = slab_weight.array() * (exp_u1 - max_exp).array().exp() / sd_numer.array();
+	exp_u2 = (1 - slab_weight.array()) * (exp_u2 - max_exp).array().exp() / sd_denom.array();
   for (int i = 0; i < num_latent; i++) {
-    dummy[i] = binom_rand(1, bernoulli_param_u1[i] / (bernoulli_param_u1[i] + bernoulli_param_u2[i]));
+		dummy[i] = binom_rand(1, exp_u1[i] / (exp_u1[i] + exp_u2[i]));
   }
 }
 
