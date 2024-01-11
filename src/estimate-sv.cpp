@@ -102,7 +102,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
   // Start Gibbs sampling-----------------------------------
 	bvharprogress bar(num_iter, display_progress);
 	bvharinterrupt();
-  for (int i = 1; i < num_iter + 1; i ++) {
+  for (int i = 0; i < num_iter; i++) {
 		if (bvharinterrupt::is_interrupted()) {
 			return sv_obj->returnRecords(num_burn);
     }
