@@ -1,47 +1,5 @@
-#include <RcppEigen.h>
-
-//' Building a Linear Transformation Matrix for Vector HAR
-//' 
-//' This function produces a linear transformation matrix for VHAR for given dimension.
-//' 
-//' @param dim Integer, dimension
-//' @param week Integer, order for weekly term
-//' @param month Integer, order for monthly term
-//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
-//' @details
-//' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
-//' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
-//' This function computes above \eqn{C_{HAR}}.
-//' 
-//' Default VHAR model sets `week` and `month` as `5` and `22`.
-//' This function can change these numbers to get linear transformation matrix.
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
-  if (week > month) {
-    Rcpp::stop("'month' should be larger than 'week'.");
-  }
-  Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
-  Eigen::MatrixXd HARtrans(3 * dim + 1, month * dim + 1); // 3m x (month * m)
-  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim);
-  HAR(0, 0) = 1.0;
-  for (int i = 0; i < week; i++) {
-    HAR(1, i) = 1.0 / week;
-  }
-  for (int i = 0; i < month; i++) {
-    HAR(2, i) = 1.0 / month;
-  }
-  // T otimes Im
-  HARtrans.block(0, 0, 3 * dim, month * dim) = Eigen::kroneckerProduct(HAR, Im).eval();
-  HARtrans.block(0, month * dim, 3 * dim, 1) = Eigen::MatrixXd::Zero(3 * dim, 1);
-  HARtrans.block(3 * dim, 0, 1, month * dim) = Eigen::MatrixXd::Zero(1, month * dim);
-  HARtrans(3 * dim, month * dim) = 1.0;
-  if (include_mean) {
-    return HARtrans;
-  }
-  return HARtrans.block(0, 0, 3 * dim, month * dim);
-}
+// #include <RcppEigen.h>
+#include "ols.h"
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
 //' 
@@ -63,30 +21,9 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_har(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
-  int dim = y.cols();
-  Eigen::MatrixXd HARtrans = scale_har(dim, week, month, include_mean);
-  Eigen::MatrixXd x1 = x * HARtrans.transpose();
-  Eigen::MatrixXd coef_mat(HARtrans.rows(), dim);
-  switch (method) {
-  case 1:
-    coef_mat = (x1.transpose() * x1).inverse() * x1.transpose() * y;
-    break;
-  case 2:
-    coef_mat = (x1.transpose() * x1).llt().solve(x1.transpose() * y);
-    break;
-  case 3:
-    coef_mat = x1.householderQr().solve(y);
-    break;
-  default:
-    break;
-  }
-  Eigen::MatrixXd yhat = x1 * coef_mat;
-  return Rcpp::List::create(
-    Rcpp::Named("HARtrans") = HARtrans,
-    Rcpp::Named("phihat") = coef_mat,
-    Rcpp::Named("fitted") = yhat
-  );
+Rcpp::List estimate_har(Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
+	std::unique_ptr<OlsVhar> ols_obj(new OlsVhar(y, week, month, include_mean, method));
+	return ols_obj->returnOlsRes();
 }
 
 //' Statistic for VHAR

@@ -44,6 +44,27 @@ build_design <- function(y, var_lag, include_mean) {
     .Call(`_bvhar_build_design`, y, var_lag, include_mean)
 }
 
+#' Building a Linear Transformation Matrix for Vector HAR
+#' 
+#' This function produces a linear transformation matrix for VHAR for given dimension.
+#' 
+#' @param dim Integer, dimension
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
+#' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+#' @details
+#' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
+#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
+#' This function computes above \eqn{C_{HAR}}.
+#' 
+#' Default VHAR model sets `week` and `month` as `5` and `22`.
+#' This function can change these numbers to get linear transformation matrix.
+#' 
+#' @noRd
+scale_har <- function(dim, week, month, include_mean) {
+    .Call(`_bvhar_scale_har`, dim, week, month, include_mean)
+}
+
 #' Construct Dummy response for Minnesota Prior
 #' 
 #' Define dummy Y observations to add for Minnesota moments.
@@ -325,8 +346,8 @@ estimate_var_sv <- function(num_iter, num_burn, x, y, prior_coef_mean, prior_coe
 #' 
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-estimate_var <- function(x, y, method) {
-    .Call(`_bvhar_estimate_var`, x, y, method)
+estimate_var <- function(y, lag, include_mean, method) {
+    .Call(`_bvhar_estimate_var`, y, lag, include_mean, method)
 }
 
 #' Covariance Estimate for Residual Covariance Matrix
@@ -430,27 +451,6 @@ VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
     .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
 }
 
-#' Building a Linear Transformation Matrix for Vector HAR
-#' 
-#' This function produces a linear transformation matrix for VHAR for given dimension.
-#' 
-#' @param dim Integer, dimension
-#' @param week Integer, order for weekly term
-#' @param month Integer, order for monthly term
-#' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
-#' @details
-#' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
-#' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
-#' This function computes above \eqn{C_{HAR}}.
-#' 
-#' Default VHAR model sets `week` and `month` as `5` and `22`.
-#' This function can change these numbers to get linear transformation matrix.
-#' 
-#' @noRd
-scale_har <- function(dim, week, month, include_mean) {
-    .Call(`_bvhar_scale_har`, dim, week, month, include_mean)
-}
-
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VHAR given response and design matrices of multivariate time series.
@@ -470,8 +470,8 @@ scale_har <- function(dim, week, month, include_mean) {
 #' 
 #' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @noRd
-estimate_har <- function(x, y, week, month, include_mean, method) {
-    .Call(`_bvhar_estimate_har`, x, y, week, month, include_mean, method)
+estimate_har <- function(y, week, month, include_mean, method) {
+    .Call(`_bvhar_estimate_har`, y, week, month, include_mean, method)
 }
 
 #' Statistic for VHAR

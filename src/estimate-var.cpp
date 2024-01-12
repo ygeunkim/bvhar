@@ -1,4 +1,4 @@
-#include <RcppEigen.h>
+#include "ols.h"
 
 //' Compute VAR(p) Coefficient Matrices and Fitted Values
 //' 
@@ -14,27 +14,9 @@
 //' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var(Eigen::MatrixXd x, Eigen::MatrixXd y, int method) {
-  Eigen::MatrixXd coef_mat(x.cols(), y.cols()); // Ahat
-  switch (method) {
-  case 1:
-    coef_mat = (x.transpose() * x).inverse() * x.transpose() * y;
-    break;
-  case 2:
-    coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
-    break;
-  case 3:
-    coef_mat = x.householderQr().solve(y);
-    break;
-  default:
-    break;
-  }
-  // Eigen::MatrixXd coef_mat = (x.transpose() * x).inverse() * x.transpose() * y; // Ahat
-  Eigen::MatrixXd yhat = x * coef_mat;
-  return Rcpp::List::create(
-    Rcpp::Named("coef") = coef_mat,
-    Rcpp::Named("fitted") = yhat
-  );
+Rcpp::List estimate_var(Eigen::MatrixXd y, int lag, bool include_mean, int method) {
+	std::unique_ptr<OlsVar> ols_obj(new OlsVar(y, lag, include_mean, method));
+	return ols_obj->returnOlsRes();
 }
 
 //' Covariance Estimate for Residual Covariance Matrix
