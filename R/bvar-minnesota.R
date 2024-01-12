@@ -89,45 +89,23 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   if (is.null(bayes_spec$sigma)) {
     bayes_spec$sigma <- apply(y, 2, sd)
   }
-  # sigma <- bayes_spec$sigma
   dim_data <- ncol(y)
   if (is.null(bayes_spec$delta)) {
     bayes_spec$delta <- rep(1, dim_data)
   }
-  # delta <- bayes_spec$delta
-  # lambda <- bayes_spec$lambda
-  # eps <- bayes_spec$eps
-  # Y0 = X0 B + Z---------------------
-  # Y0 <- build_y0(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
     name_var <- paste0("y", seq_len(dim_data))
   }
-  # colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  # X0 <- build_design(y, p, include_mean)
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
-  # colnames(X0) <- name_lag
-  # s <- nrow(Y0)
-  # k <- m * p + 1
-  # dummy-----------------------------
-  # Yp <- build_ydummy(p, sigma, lambda, delta, numeric(m), numeric(m), include_mean)
-  # colnames(Yp) <- name_var
-  # Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-  # colnames(Xp) <- name_lag
-  # estimate-bvar.cpp-----------------
-  # bvar_est <- estimate_bvar_mn(X0, Y0, Xp, Yp)
   res <- estimate_bvar_mn(y, p, bayes_spec, include_mean)
   colnames(res$y0) <- name_var
   colnames(res$design) <- name_lag
   # Prior-----------------------------
-  # prior_mean <- bvar_est$prior_mean # A0
-  # prior_prec <- bvar_est$prior_prec # U0
-  # prior_scale <- bvar_est$prior_scale # S0
-  # prior_shape <- bvar_est$prior_shape # a0
   colnames(res$prior_mean) <- name_var
   rownames(res$prior_mean) <- name_lag
   colnames(res$prior_prec) <- name_lag
@@ -135,48 +113,15 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   colnames(res$prior_scale) <- name_var
   rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------
-  # mn_mean <- bvar_est$mnmean # matrix normal mean
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
-  # mn_prec <- bvar_est$mnprec # matrix normal precision
   colnames(res$mn_prec) <- name_lag
   rownames(res$mn_prec) <- name_lag
-  # yhat <- bvar_est$fitted
   colnames(res$fitted.values) <- name_var
   # Inverse-wishart-------------------
-  # iw_scale <- bvar_est$iwscale # IW scale
   colnames(res$iw_scale) <- name_var
   rownames(res$iw_scale) <- name_var
   # S3--------------------------------
-  # res <- list(
-  #   # posterior------------
-  #   coefficients = mn_mean, # posterior mean of MN
-  #   fitted.values = yhat,
-  #   residuals = bvar_est$residuals,
-  #   mn_prec = mn_prec, # posterior precision of MN
-  #   iw_scale = iw_scale, # posterior scale of IW
-  #   iw_shape = prior_shape + nrow(Y0), # posterior shape of IW
-  #   # variables------------
-  #   df = nrow(mn_mean), # k = m * p + 1 or m * p
-  #   p = p, # p
-  #   m = m, # m = dimension of Y_t
-  #   obs = nrow(Y0), # n = T - p
-  #   totobs = nrow(y), # T = total number of sample size
-  #   # about model----------
-  #   call = match.call(),
-  #   process = paste(bayes_spec$process, bayes_spec$prior, sep = "_"),
-  #   spec = bayes_spec,
-  #   type = ifelse(include_mean, "const", "none"),
-  #   # prior----------------
-  #   prior_mean = prior_mean, # A0
-  #   prior_precision = prior_prec, # U0 = (Omega)^{-1}
-  #   prior_scale = prior_scale, # S0
-  #   prior_shape = prior_shape, # a0
-  #   # data-----------------
-  #   y0 = Y0,
-  #   design = X0,
-  #   y = y
-  # )
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
   res$spec <- bayes_spec
