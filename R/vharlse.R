@@ -74,59 +74,23 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   }
   week <- har[1] # 5
   month <- har[2] # 22
-  # Y0 = X0 B + Z---------------------
-  Y0 <- build_y0(y, month, month + 1) # 22, 23
-  m <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(ncol(y)))
   }
-  colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  X0 <- build_design(y, month, include_mean) # 22
-  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
-  # estimate Phi---------------------
-  type <- ifelse(include_mean, "const", "none")
-  vhar_est <- estimate_har(X0, Y0, week, month, include_mean, method)
-  Phihat <- vhar_est$phihat
-  colnames(Phihat) <- name_var
-  rownames(Phihat) <- name_har
-  # fitted values and residuals-----
-  yhat <- vhar_est$fitted
-  colnames(yhat) <- colnames(Y0)
-  zhat <- Y0 - yhat
-  # residual Covariance matrix------
-  covmat <- compute_cov(zhat, nrow(Y0), nrow(Phihat)) # Sighat = z^T %*% z / (s - (3m + 1))
-  colnames(covmat) <- name_var
-  rownames(covmat) <- name_var
+  name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
+  res <- estimate_har(y, week, month, include_mean, method)
+  colnames(res$y0) <- name_var
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_har
+  colnames(res$covmat) <- name_var
+  rownames(res$covmat) <- name_var
   # return as new S3 class-----------
-  res <- list(
-    # estimation---------------
-    coefficients = Phihat,
-    fitted.values = yhat, # X1 %*% Phihat
-    residuals = zhat, # Y0 - X1 %*% Phihat
-    covmat = covmat,
-    # variables---------------
-    df = nrow(Phihat), # nrow(Phihat) = 3 * m + 1 or 3 * m
-    p = 3, # add for other function (df = 3m + 1 = mp + 1)
-    week = week, # default: 5
-    month = month, # default: 22
-    m = ncol(y), # m
-    obs = nrow(Y0), # s = n - 22
-    totobs = nrow(y), # n
-    # about model------------
-    call = match.call(),
-    process = "VHAR",
-    type = type,
-    # data-------------------
-    HARtrans = vhar_est$HARtrans,
-    y0 = Y0,
-    design = X0,
-    y = y
-  )
+  res$call <- match.call()
   class(res) <- c("vharlse", "bvharmod")
   res
 }
