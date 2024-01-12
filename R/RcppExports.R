@@ -142,23 +142,29 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' 
 #' Point estimates for posterior distribution
 #' 
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param x_dummy Dummy observations Xp for design matrix X0
-#' @param y_dummy Dummy observations Yp for design matrix Y0
-#' 
-#' @details
-#' Augment originally processed data and dummy observation.
-#' OLS from this set gives the result.
-#' 
-#' @references
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25. [https://doi:10.2307/1391384](https://doi:10.2307/1391384)
-#' 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
+#' @param y Time series data
+#' @param lag VAR order
+#' @param bayes_spec BVAR Minnesota specification
+#' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvar_mn <- function(x, y, x_dummy, y_dummy) {
-    .Call(`_bvhar_estimate_bvar_mn`, x, y, x_dummy, y_dummy)
+estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
+    .Call(`_bvhar_estimate_bvar_mn`, y, lag, bayes_spec, include_mean)
+}
+
+#' BVHAR Point Estimates based on Minnesota Prior
+#' 
+#' Point estimates for posterior distribution
+#' 
+#' @param y Time series data
+#' @param week VHAR week order
+#' @param month VHAR month order
+#' @param bayes_spec BVHAR Minnesota specification
+#' @param include_mean Constant term
+#' 
+#' @noRd
+estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_short) {
+    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean, minn_short)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
