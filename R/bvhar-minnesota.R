@@ -91,121 +91,149 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
   week <- har[1] # 5
   month <- har[2] # 22
   minnesota_type <- bayes_spec$prior
-  m <- ncol(y)
-  N <- nrow(y)
-  num_coef <- 3 * m + 1
+  dim_data <- ncol(y)
+  # m <- ncol(y)
+  # N <- nrow(y)
+  # num_coef <- 3 * m + 1
   # model specification---------------
   if (is.null(bayes_spec$sigma)) {
     bayes_spec$sigma <- apply(y, 2, sd)
   }
-  sigma <- bayes_spec$sigma
-  lambda <- bayes_spec$lambda
-  eps <- bayes_spec$eps
+  # sigma <- bayes_spec$sigma
+  # lambda <- bayes_spec$lambda
+  # eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, month, month + 1)
+  # Y0 <- build_y0(y, month, month + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(dim_data))
   }
-  colnames(Y0) <- name_var
+  # colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  X0 <- build_design(y, month, include_mean)
-  HARtrans <- scale_har(m, week, month, include_mean)
+  # X0 <- build_design(y, month, include_mean)
+  # HARtrans <- scale_har(m, week, month, include_mean)
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
   # dummy-----------------------------
-  Yh <- switch(
-    minnesota_type,
-    "MN_VAR" = {
-      if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, m)
-      }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(m), numeric(m), include_mean)
-      colnames(Yh) <- name_var
-      Yh
-    },
-    "MN_VHAR" = {
-      if (is.null(bayes_spec$daily)) {
-        bayes_spec$daily <- rep(1, m)
-      }
-      if (is.null(bayes_spec$weekly)) {
-        bayes_spec$weekly <- rep(1, m)
-      }
-      if (is.null(bayes_spec$monthly)) {
-        bayes_spec$monthly <- rep(1, m)
-      }
-      Yh <- build_ydummy(
-        3,
-        sigma, 
-        lambda, 
-        bayes_spec$daily, 
-        bayes_spec$weekly, 
-        bayes_spec$monthly,
-        include_mean
-      )
-      colnames(Yh) <- name_var
-      Yh
-    }
-  )
-  Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
-  colnames(Xh) <- name_har
-  X1 <- X0 %*% t(HARtrans)
-  colnames(X1) <- name_har
+  # Yh <- switch(
+  #   minnesota_type,
+  #   "MN_VAR" = {
+  #     if (is.null(bayes_spec$delta)) {
+  #       bayes_spec$delta <- rep(1, m)
+  #     }
+  #     Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(m), numeric(m), include_mean)
+  #     colnames(Yh) <- name_var
+  #     Yh
+  #   },
+  #   "MN_VHAR" = {
+  #     if (is.null(bayes_spec$daily)) {
+  #       bayes_spec$daily <- rep(1, m)
+  #     }
+  #     if (is.null(bayes_spec$weekly)) {
+  #       bayes_spec$weekly <- rep(1, m)
+  #     }
+  #     if (is.null(bayes_spec$monthly)) {
+  #       bayes_spec$monthly <- rep(1, m)
+  #     }
+  #     Yh <- build_ydummy(
+  #       3,
+  #       sigma,
+  #       lambda,
+  #       bayes_spec$daily,
+  #       bayes_spec$weekly,
+  #       bayes_spec$monthly,
+  #       include_mean
+  #     )
+  #     colnames(Yh) <- name_var
+  #     Yh
+  #   }
+  # )
+  # Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+  # colnames(Xh) <- name_har
+  # X1 <- X0 %*% t(HARtrans)
+  # colnames(X1) <- name_har
   # estimate-bvar.cpp-----------------
-  posterior <- estimate_bvar_mn(X1, Y0, Xh, Yh)
+  # posterior <- estimate_bvar_mn(X1, Y0, Xh, Yh)
+  if (minnesota_type == "MN_VAR") {
+    if (is.null(bayes_spec$delta)) {
+      bayes_spec$delta <- rep(1, dim_data)
+    }
+  } else {
+    if (is.null(bayes_spec$daily)) {
+      bayes_spec$daily <- rep(1, dim_data)
+    }
+    if (is.null(bayes_spec$weekly)) {
+      bayes_spec$weekly <- rep(1, dim_data)
+    }
+    if (is.null(bayes_spec$monthly)) {
+      bayes_spec$monthly <- rep(1, dim_data)
+    }
+  }
+  is_short <- minnesota_type == "MN_VAR"
+  res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean, is_short)
+  colnames(res$y0) <- name_var
   # Prior-----------------------------
-  prior_mean <- posterior$prior_mean
-  prior_prec <- posterior$prior_prec
-  prior_scale <- posterior$prior_scale
-  prior_shape <- posterior$prior_shape
+  # prior_mean <- posterior$prior_mean
+  # prior_prec <- posterior$prior_prec
+  # prior_scale <- posterior$prior_scale
+  # prior_shape <- posterior$prior_shape
+  colnames(res$prior_mean) <- name_var
+  rownames(res$prior_mean) <- name_har
+  colnames(res$prior_prec) <- name_har
+  rownames(res$prior_prec) <- name_har
+  colnames(res$prior_scale) <- name_var
+  rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------
-  mn_mean <- posterior$mnmean # posterior mean
-  colnames(mn_mean) <- name_var
-  rownames(mn_mean) <- name_har
-  mn_prec <- posterior$mnprec
-  colnames(mn_prec) <- name_har
-  rownames(mn_prec) <- name_har
-  yhat <- posterior$fitted
-  colnames(yhat) <- name_var
+  # mn_mean <- posterior$mnmean # posterior mean
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_har
+  # mn_prec <- posterior$mnprec
+  colnames(res$mn_prec) <- name_har
+  rownames(res$mn_prec) <- name_har
+  # yhat <- posterior$fitted
+  colnames(res$fitted.values) <- name_var
   # Inverse-wishart-------------------
-  iw_scale <- posterior$iwscale
-  colnames(iw_scale) <- name_var
-  rownames(iw_scale) <- name_var
+  # iw_scale <- posterior$iwscale
+  colnames(res$iw_scale) <- name_var
+  rownames(res$iw_scale) <- name_var
   # S3--------------------------------
-  res <- list(
-    # posterior-----------
-    coefficients = mn_mean,
-    fitted.values = yhat,
-    residuals = posterior$residuals,
-    mn_prec = mn_prec,
-    iw_scale = iw_scale,
-    iw_shape = prior_shape + nrow(Y0), # if adding improper prior, d0 + s + 2
-    # variables-----------
-    df = nrow(mn_mean), # 3 * m + 1 or 3 * m
-    p = 3, # add for other function (df = 3m + 1 = mp + 1)
-    week = week, # default: 5
-    month = month, # default: 22
-    m = m, # m
-    obs = nrow(Y0), # n = T - 22
-    totobs = N, # n
-    # about model---------
-    call = match.call(),
-    process = paste(bayes_spec$process, minnesota_type, sep = "_"),
-    spec = bayes_spec,
-    type = ifelse(include_mean, "const", "none"),
-    # prior----------------
-    prior_mean = prior_mean,
-    prior_precision = prior_prec,
-    prior_scale = prior_scale,
-    prior_shape = prior_shape, 
-    # data----------------
-    HARtrans = HARtrans,
-    y0 = Y0,
-    design = X0,
-    y = y
-  )
+  # res <- list(
+  #   # posterior-----------
+  #   coefficients = mn_mean,
+  #   fitted.values = yhat,
+  #   residuals = posterior$residuals,
+  #   mn_prec = mn_prec,
+  #   iw_scale = iw_scale,
+  #   iw_shape = prior_shape + nrow(Y0), # if adding improper prior, d0 + s + 2
+  #   # variables-----------
+  #   df = nrow(mn_mean), # 3 * m + 1 or 3 * m
+  #   p = 3, # add for other function (df = 3m + 1 = mp + 1)
+  #   week = week, # default: 5
+  #   month = month, # default: 22
+  #   m = m, # m
+  #   obs = nrow(Y0), # n = T - 22
+  #   totobs = N, # n
+  #   # about model---------
+  #   call = match.call(),
+  #   process = paste(bayes_spec$process, minnesota_type, sep = "_"),
+  #   spec = bayes_spec,
+  #   type = ifelse(include_mean, "const", "none"),
+  #   # prior----------------
+  #   prior_mean = prior_mean,
+  #   prior_precision = prior_prec,
+  #   prior_scale = prior_scale,
+  #   prior_shape = prior_shape,
+  #   # data----------------
+  #   HARtrans = HARtrans,
+  #   y0 = Y0,
+  #   design = X0,
+  #   y = y
+  # )
+  res$call <- match.call()
+  res$process <- paste(bayes_spec$process, minnesota_type, sep = "_")
+  res$spec <- bayes_spec
   class(res) <- c("bvharmn", "normaliw", "bvharmod")
   res
 }
