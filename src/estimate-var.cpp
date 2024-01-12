@@ -15,21 +15,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_var(Eigen::MatrixXd y, int lag, bool include_mean, int method) {
-	std::unique_ptr<OlsVar> ols_obj;
-	switch (method) {
-  case 1:
-		ols_obj = std::unique_ptr<OlsVar>(new OlsVar(y, lag, include_mean));
-		break;
-  case 2:
-    ols_obj = std::unique_ptr<OlsVar>(new LltVar(y, lag, include_mean));
-    break;
-  case 3:
-    ols_obj = std::unique_ptr<OlsVar>(new QrVar(y, lag, include_mean));
-    break;
-  }
-	ols_obj->estimateCoef();
-	ols_obj->fitObs();
-	ols_obj->estimateCov();
+	std::unique_ptr<OlsVar> ols_obj(new OlsVar(y, lag, include_mean, method));
 	return ols_obj->returnOlsRes();
 }
 
