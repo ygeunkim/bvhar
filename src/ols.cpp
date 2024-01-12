@@ -35,8 +35,9 @@ Rcpp::List MultiOls::returnOlsRes() {
 		Rcpp::Named("df") = dim_design,
 		Rcpp::Named("m") = dim,
 		Rcpp::Named("obs") = num_design,
-		Rcpp::Named("y0") = response,
-		Rcpp::Named("design") = design
+		Rcpp::Named("y0") = response
+		// ,
+		// Rcpp::Named("design") = design
 	);
 }
 
@@ -79,6 +80,7 @@ Rcpp::List OlsVar::returnOlsRes() {
 	ols_res["totobs"] = data.rows();
 	ols_res["process"] = "VAR";
 	ols_res["type"] = const_term ? "const" : "none";
+	ols_res["design"] = design;
 	ols_res["y"] = data;
 	return ols_res;
 }
@@ -111,6 +113,7 @@ Rcpp::List OlsVhar::returnOlsRes() {
 	ols_res["process"] = "VHAR";
 	ols_res["type"] = const_term ? "const" : "none";
 	ols_res["HARtrans"] = har_trans;
+	ols_res["design"] = var_design;
 	ols_res["y"] = data;
 	return ols_res;
 }
