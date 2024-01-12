@@ -1,3 +1,11 @@
+# bvhar (development version)
+
+* Start to implement OOP in C++ source for each model, ready for major update.
+
+* Add SV specification (`sv_spec` argument) in `bvhar_sv()` and `bvar_sv()` (`set_sv()`).
+
+* Prevent SSVS overflow issues by using log-sum-exp trick when computing Bernoulli posterior probability.
+
 # bvhar 1.2.0
 
 * Replace progress bar of `RcppProgress` package with custom header (`bvharprogress.h`).
