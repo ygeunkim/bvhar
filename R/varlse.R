@@ -73,57 +73,24 @@ var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"
   }
   method <- match.arg(method)
   method <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
-  # Y0 = X0 B + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
-  m <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
-    name_var <- paste0("y", seq_len(m))
+    name_var <- paste0("y", seq_len(ncol(y)))
   }
-  colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
-  X0 <- build_design(y, p, include_mean)
-  name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
-  colnames(X0) <- name_lag
-  # estimate B-----------------------
-  var_est <- estimate_var(X0, Y0, method)
-  # var_est <- estimate_var(X0, Y0)
-  coef_est <- var_est$coef # Ahat
-  colnames(coef_est) <- colnames(Y0)
-  rownames(coef_est) <- colnames(X0)
-  # fitted values and residuals-----
-  yhat <- var_est$fitted
-  colnames(yhat) <- colnames(Y0)
-  zhat <- Y0 - yhat
-  # residual Covariance matrix------
-  covmat <- compute_cov(zhat, nrow(Y0), ncol(X0)) # Sighat = z^T %*% z / (s - k)
-  colnames(covmat) <- name_var
-  rownames(covmat) <- name_var
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
+  res <- estimate_var(y, p, include_mean, method)
+  colnames(res$y0) <- name_var
+  colnames(res$design) <- name_lag
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_lag
+  colnames(res$covmat) <- name_var
+  rownames(res$covmat) <- name_var
   # return as new S3 class-----------
-  res <- list(
-    # estimation-----------
-    coefficients = coef_est,
-    fitted.values = yhat, # X0 %*% Ahat
-    residuals = zhat, # Y0 - X0 %*% Ahat
-    covmat = covmat,
-    # variables------------
-    df = ncol(X0), # k = m * p + 1 or m * p
-    p = p, # p
-    m = m, # m
-    obs = nrow(Y0), # s = n - p
-    totobs = nrow(y), # n
-    # about model---------
-    call = match.call(),
-    process = "VAR",
-    type = ifelse(include_mean, "const", "none"),
-    # data----------------
-    y0 = Y0,
-    design = X0,
-    y = y
-  )
+  res$call <- match.call()
   class(res) <- c("varlse", "bvharmod")
   res
 }

@@ -64,6 +64,49 @@ Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean) 
   return res;
 }
 
+//' Building a Linear Transformation Matrix for Vector HAR
+//' 
+//' This function produces a linear transformation matrix for VHAR for given dimension.
+//' 
+//' @param dim Integer, dimension
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
+//' @param include_mean bool, Add constant term (Default: `true`) or not (`false`)
+//' @details
+//' VHAR is linearly restricted VAR(month = 22) in \eqn{Y_0 = X_0 A + Z}.
+//' \deqn{Y_0 = X_1 \Phi + Z = (X_0 C_{HAR}^T) \Phi + Z}
+//' This function computes above \eqn{C_{HAR}}.
+//' 
+//' Default VHAR model sets `week` and `month` as `5` and `22`.
+//' This function can change these numbers to get linear transformation matrix.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
+  if (week > month) {
+    Rcpp::stop("'month' should be larger than 'week'.");
+  }
+  Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
+  Eigen::MatrixXd HARtrans(3 * dim + 1, month * dim + 1); // 3m x (month * m)
+  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim);
+  HAR(0, 0) = 1.0;
+  for (int i = 0; i < week; i++) {
+    HAR(1, i) = 1.0 / week;
+  }
+  for (int i = 0; i < month; i++) {
+    HAR(2, i) = 1.0 / month;
+  }
+  // T otimes Im
+  HARtrans.block(0, 0, 3 * dim, month * dim) = Eigen::kroneckerProduct(HAR, Im).eval();
+  HARtrans.block(0, month * dim, 3 * dim, 1) = Eigen::MatrixXd::Zero(3 * dim, 1);
+  HARtrans.block(3 * dim, 0, 1, month * dim) = Eigen::MatrixXd::Zero(1, month * dim);
+  HARtrans(3 * dim, month * dim) = 1.0;
+  if (include_mean) {
+    return HARtrans;
+  }
+  return HARtrans.block(0, 0, 3 * dim, month * dim);
+}
+
 //' Construct Dummy response for Minnesota Prior
 //' 
 //' Define dummy Y observations to add for Minnesota moments.
