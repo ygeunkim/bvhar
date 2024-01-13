@@ -3,6 +3,7 @@
 
 #include <RcppEigen.h>
 #include "bvhardesign.h"
+#include "bvhardraw.h"
 
 struct MinnSpec {
 	Eigen::VectorXd _sigma;
@@ -26,15 +27,26 @@ struct BvharSpec : public MinnSpec {
 	BvharSpec(Rcpp::List& bayes_spec);
 };
 
+struct HierMinnSpec {
+	double acc_scale;
+	Eigen::MatrixXd obs_information;
+	double gamma_shp;
+	double gamma_rate;
+	double invgam_shp;
+	double invgam_scl;
+
+	HierMinnSpec(Rcpp::List& bayes_spec, double scale_variance, const Eigen::MatrixXd& hess);
+};
+
 class Minnesota {
 public:
 	Minnesota(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy);
 	virtual ~Minnesota() = default;
 	void estimateCoef();
-	virtual void fitObs();
+	void fitObs();
 	void estimateCov(); // Posterior IW scale
 	Rcpp::List returnMinnRes();
-private:
+protected:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
@@ -56,6 +68,48 @@ private:
 	Eigen::MatrixXd resid;
 	Eigen::MatrixXd yhat_star;
 	Eigen::MatrixXd scale; // IW scale
+	int shape;
+};
+
+class HierMinn : public Minnesota {
+public:
+	HierMinn(
+		int num_iter,
+		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy,
+		const HierMinnSpec& spec, const MinnSpec& init
+	);
+	virtual ~HierMinn() = default;
+	void updateHyper(); // hyperparams using MH
+	void updateMniw(); // coef and sigma
+	// void estimateCoef() override;
+	// virtual void fitObs();
+	// void estimateCov(); // Posterior IW scale
+	void addStep();
+	void doPosteriorDraws();
+	Rcpp::List returnRecords(int num_burn) const;
+	// Rcpp::List returnMinnRes(int num_burn);
+private:
+	int num_iter;
+	int mcmc_step;
+	bool is_accept;
+	typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
+	VectorXb accept_record;
+	double numerator;
+	double denom;
+	double gamma_shp;
+	double gamma_rate;
+	double invgam_shp;
+	double invgam_scl;
+	Eigen::MatrixXd gaussian_variance;
+	double lambda;
+	Eigen::VectorXd psi;
+	Eigen::VectorXd candprior;
+	Eigen::VectorXd prevprior;
+	Rcpp::List coef_and_sig;
+	Eigen::VectorXd lam_record;
+	Eigen::MatrixXd psi_record;
+	Eigen::MatrixXd coef_record;
+	Eigen::MatrixXd sig_record;
 };
 
 class MinnBvar {

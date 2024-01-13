@@ -163,8 +163,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_hierachical_niw
-Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl, double acc_scale, Eigen::MatrixXd obs_information, double init_lambda, Eigen::VectorXd init_psi, bool display_progress);
-RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP prior_precSEXP, SEXP prior_scaleSEXP, SEXP prior_shapeSEXP, SEXP mn_meanSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP posterior_shapeSEXP, SEXP gamma_shpSEXP, SEXP gamma_rateSEXP, SEXP invgam_shpSEXP, SEXP invgam_sclSEXP, SEXP acc_scaleSEXP, SEXP obs_informationSEXP, SEXP init_lambdaSEXP, SEXP init_psiSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy, Rcpp::List init_spec, Rcpp::List hyper_spec, double acc_scale, Eigen::MatrixXd obs_information, bool display_progress);
+RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP, SEXP init_specSEXP, SEXP hyper_specSEXP, SEXP acc_scaleSEXP, SEXP obs_informationSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -172,23 +172,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_prec(prior_precSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type prior_scale(prior_scaleSEXP);
-    Rcpp::traits::input_parameter< int >::type prior_shape(prior_shapeSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_mean(mn_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mn_prec(mn_precSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type iw_scale(iw_scaleSEXP);
-    Rcpp::traits::input_parameter< int >::type posterior_shape(posterior_shapeSEXP);
-    Rcpp::traits::input_parameter< double >::type gamma_shp(gamma_shpSEXP);
-    Rcpp::traits::input_parameter< double >::type gamma_rate(gamma_rateSEXP);
-    Rcpp::traits::input_parameter< double >::type invgam_shp(invgam_shpSEXP);
-    Rcpp::traits::input_parameter< double >::type invgam_scl(invgam_sclSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x_dummy(x_dummySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type init_spec(init_specSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type hyper_spec(hyper_specSEXP);
     Rcpp::traits::input_parameter< double >::type acc_scale(acc_scaleSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type obs_information(obs_informationSEXP);
-    Rcpp::traits::input_parameter< double >::type init_lambda(init_lambdaSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_psi(init_psiSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_hierachical_niw(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_hierachical_niw(num_iter, num_burn, x, y, x_dummy, y_dummy, init_spec, hyper_spec, acc_scale, obs_information, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1306,7 +1297,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 6},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
-    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
+    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 11},
     {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 12},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 28},
     {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 12},

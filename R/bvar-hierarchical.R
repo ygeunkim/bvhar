@@ -240,48 +240,52 @@ bvar_niwhm <- function(y,
   colnames(Yp) <- name_var
   Xp <- build_xdummy(1:p, lambda, psi, eps, include_mean)
   colnames(Xp) <- name_lag
-  # NIW-------------------------------
-  posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
-  # Prior-----------------------------
-  prior_mean <- posterior$prior_mean
-  prior_prec <- posterior$prior_prec
-  prior_scale <- posterior$prior_scale
-  prior_shape <- posterior$prior_shape
-  # Matrix normal---------------------
-  mn_mean <- posterior$mnmean # matrix normal mean
-  colnames(mn_mean) <- name_var
-  rownames(mn_mean) <- name_lag
-  mn_prec <- posterior$mnprec # matrix normal precision
-  colnames(mn_prec) <- name_lag
-  rownames(mn_prec) <- name_lag
-  yhat <- posterior$fitted
-  colnames(yhat) <- name_var
-  # Inverse-wishart-------------------
-  iw_scale <- posterior$iwscale # IW scale
-  colnames(iw_scale) <- name_var
-  rownames(iw_scale) <- name_var
-  iw_shape <- prior_shape + nrow(Y0)
+  # # NIW-------------------------------
+  # posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
+  # # Prior-----------------------------
+  # prior_mean <- posterior$prior_mean
+  # prior_prec <- posterior$prior_prec
+  # prior_scale <- posterior$prior_scale
+  # prior_shape <- posterior$prior_shape
+  # # Matrix normal---------------------
+  # mn_mean <- posterior$mnmean # matrix normal mean
+  # colnames(mn_mean) <- name_var
+  # rownames(mn_mean) <- name_lag
+  # mn_prec <- posterior$mnprec # matrix normal precision
+  # colnames(mn_prec) <- name_lag
+  # rownames(mn_prec) <- name_lag
+  # yhat <- posterior$fitted
+  # colnames(yhat) <- name_var
+  # # Inverse-wishart-------------------
+  # iw_scale <- posterior$iwscale # IW scale
+  # colnames(iw_scale) <- name_var
+  # rownames(iw_scale) <- name_var
+  # iw_shape <- prior_shape + nrow(Y0)
   # Metropolis algorithm--------------
   metropolis_res <- estimate_hierachical_niw(
     num_iter = num_iter,
     num_burn = num_burn,
     x = X0,
     y = Y0,
-    prior_prec = prior_prec,
-    prior_scale = prior_scale,
-    prior_shape = prior_shape,
-    mn_mean = mn_mean,
-    mn_prec = mn_prec,
-    iw_scale = iw_scale,
-    posterior_shape = iw_shape,
-    gamma_shp = bayes_spec$lambda$param[1],
-    gamma_rate = bayes_spec$lambda$param[2],
-    invgam_shp = bayes_spec$sigma$param[1],
-    invgam_scl = bayes_spec$sigma$param[2],
+    x_dummy = Xp,
+    y_dummy = Yp,
+    init_spec = list(lambda = lambda, sigma = psi, eps = bayes_spec$eps),
+    hyper_spec = bayes_spec[c("sigma", "lambda", "eps")],
+    # prior_prec = prior_prec,
+    # prior_scale = prior_scale,
+    # prior_shape = prior_shape,
+    # mn_mean = mn_mean,
+    # mn_prec = mn_prec,
+    # iw_scale = iw_scale,
+    # posterior_shape = iw_shape,
+    # gamma_shp = bayes_spec$lambda$param[1],
+    # gamma_rate = bayes_spec$lambda$param[2],
+    # invgam_shp = bayes_spec$sigma$param[1],
+    # invgam_scl = bayes_spec$sigma$param[2],
     acc_scale = scale_variance,
     obs_information = hess,
-    init_lambda = lambda,
-    init_psi = psi,
+    # init_lambda = lambda,
+    # init_psi = psi,
     display_progress = verbose
   )
   

@@ -238,8 +238,8 @@ jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior
 #' @param display_progress Progress bar
 #' 
 #' @noRd
-estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress) {
-    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
+estimate_hierachical_niw <- function(num_iter, num_burn, x, y, x_dummy, y_dummy, init_spec, hyper_spec, acc_scale, obs_information, display_progress) {
+    .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, x_dummy, y_dummy, init_spec, hyper_spec, acc_scale, obs_information, display_progress)
 }
 
 #' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
