@@ -146,7 +146,9 @@ print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
         )
       },
       "b" = {
-        if (grepl(pattern = "^coef", names(param)[i]) && names(param)[i] != "sd_non") {
+        if (grepl(pattern = "s1$|s2$", names(param)[i])) {
+          pseudo_param <- param[[i]] # s1, s2
+        } else if (grepl(pattern = "^coef", names(param)[i]) && names(param)[i] != "sd_non") {
           pseudo_param <- paste0("rep(", param[[i]], ", dim^2 * p)") # coef_
         } else if (grepl(pattern = "^chol", names(param)[i])) {
           pseudo_param <- paste0("rep(", param[[i]], ", dim * (dim - 1) / 2)") # chol_

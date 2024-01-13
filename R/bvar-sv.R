@@ -189,10 +189,7 @@ bvar_sv <- function(y,
         x = X0,
         y = Y0,
         param_sv = sv_spec[3:6],
-        param_prior = append(
-          bayes_spec,
-          list(coef_s1 = 1, coef_s2 = 1, chol_s1 = 1, chol_s2 = 1)
-        ),
+        param_prior = bayes_spec,
         prior_type = 2,
         grp_id = grp_id,
         grp_mat = glob_idmat,

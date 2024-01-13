@@ -10,13 +10,17 @@ set_ssvs(
   coef_spike = 0.1,
   coef_slab = 5,
   coef_mixture = 0.5,
+  coef_s1 = 1,
+  coef_s2 = 1,
   mean_non = 0,
   sd_non = 0.1,
   shape = 0.01,
   rate = 0.01,
   chol_spike = 0.1,
   chol_slab = 5,
-  chol_mixture = 0.5
+  chol_mixture = 0.5,
+  chol_s1 = 1,
+  chol_s2 = 1
 )
 
 \method{print}{ssvsinput}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -29,6 +33,10 @@ knit_print.ssvsinput(x, ...)
 \item{coef_slab}{Standard deviance for Slab normal distribution (See Details).}
 
 \item{coef_mixture}{Bernoulli parameter for sparsity proportion (See Details).}
+
+\item{coef_s1}{First shape of coefficients prior beta distribution}
+
+\item{coef_s2}{Second shape of coefficients prior beta distribution}
 
 \item{mean_non}{Prior mean of unrestricted coefficients}
 
@@ -43,6 +51,10 @@ knit_print.ssvsinput(x, ...)
 \item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor (See Details).}
 
 \item{chol_mixture}{Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).}
+
+\item{chol_s1}{First shape of cholesky factor prior beta distribution}
+
+\item{chol_s2}{Second shape of cholesky factor prior beta distribution}
 
 \item{x}{\code{ssvsinput}}
 
