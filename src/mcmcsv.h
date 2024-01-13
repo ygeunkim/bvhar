@@ -131,14 +131,14 @@ private:
 };
 
 class MinnSv : public McmcSv {
-	public:
-		MinnSv(const MinnParams& params);
-		virtual ~MinnSv() = default;
-		void updateCoefPrec() override {};
-		void updateCoefShrink() override {};
-		void updateImpactPrec() override {};
-		void doPosteriorDraws() override;
-		Rcpp::List returnRecords(int num_burn) const override;
+public:
+	MinnSv(const MinnParams& params);
+	virtual ~MinnSv() = default;
+	void updateCoefPrec() override {};
+	void updateCoefShrink() override {};
+	void updateImpactPrec() override {};
+	void doPosteriorDraws() override;
+	Rcpp::List returnRecords(int num_burn) const override;
 };
 
 class SsvsSv : public McmcSv {

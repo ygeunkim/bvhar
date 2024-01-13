@@ -222,9 +222,7 @@ bvar_sv <- function(y,
         minnesota = ifelse(minnesota, "short", "no"),
         include_mean = include_mean
       )
-      # init_local <- bayes_spec$local_sparsity
       grp_id <- unique(c(glob_idmat))
-      # init_global <- rep(bayes_spec$global_sparsity, length(grp_id))
       bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
