@@ -146,7 +146,9 @@ print.ssvsinput <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
         )
       },
       "b" = {
-        if (grepl(pattern = "^coef", names(param)[i]) && names(param)[i] != "sd_non") {
+        if (grepl(pattern = "s1$|s2$", names(param)[i])) {
+          pseudo_param <- param[[i]] # s1, s2
+        } else if (grepl(pattern = "^coef", names(param)[i]) && names(param)[i] != "sd_non") {
           pseudo_param <- paste0("rep(", param[[i]], ", dim^2 * p)") # coef_
         } else if (grepl(pattern = "^chol", names(param)[i])) {
           pseudo_param <- paste0("rep(", param[[i]], ", dim * (dim - 1) / 2)") # chol_
@@ -202,7 +204,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n")
   param <- x[!(names(x) %in% c("process", "prior", "chain"))]
-  num_chain <- x$chain
+  # num_chain <- x$chain
   for (i in seq_along(param)) {
     cat(paste0("Initialization for '", names(param)[i], "':\n"))
     type <- "a"
@@ -229,7 +231,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       type,
       "a" = {
         for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
+          # cat(gettextf("# In chain %d:\n", j))
           print.default(
             param[[i]][[j]],
             digits = digits,
@@ -241,7 +243,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_large" = {
         for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
+          # cat(gettextf("# In chain %d:\n", j))
           cat(paste0(
             "# A matrix: ",
             nrow(param[[i]][[j]]),
@@ -261,7 +263,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_row" = {
         for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
+          # cat(gettextf("# In chain %d:\n", j))
           print.default(
             param[[i]][[j]][1:7,],
             digits = digits,
@@ -274,7 +276,7 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
       },
       "a_column" = {
         for (j in seq_along(param[[i]])) {
-          cat(gettextf("# In chain %d:\n", j))
+          # cat(gettextf("# In chain %d:\n", j))
           cat(paste0(
             "# A matrix: ",
             nrow(param[[i]][[j]]),
@@ -338,10 +340,6 @@ print.ssvsinit <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
         cat("\n")
       }
     )
-  }
-  if (num_chain > 1) {
-    cat("--------------------------------------------------------------\n")
-    cat("Initialized for multiple chain MCMC.")
   }
 }
 
