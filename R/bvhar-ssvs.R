@@ -241,13 +241,13 @@ bvhar_ssvs <- function(y,
       coef_slab_weight = bayes_spec$coef_mixture, # pj
       shape = bayes_spec$shape, # shape of gamma distn
       rate = bayes_spec$rate, # rate of gamma distn
-      coef_s1 = 1,
-      coef_s2 = 1,
+      coef_s1 = bayes_spec$coef_s1,
+      coef_s2 = bayes_spec$coef_s2,
       chol_spike = bayes_spec$chol_spike, # eta spike
       chol_slab = bayes_spec$chol_slab, # eta slab
       chol_slab_weight = bayes_spec$chol_mixture, # qij
-      chol_s1 = 1,
-      chol_s2 = 1,
+      chol_s1 = bayes_spec$chol_s1,
+      chol_s2 = bayes_spec$chol_s2,
       grp_id = grp_id,
       grp_mat = glob_idmat,
       mean_non = bayes_spec$mean_non,
