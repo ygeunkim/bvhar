@@ -40,56 +40,40 @@
 // [[Rcpp::export]]
 Rcpp::List estimate_var_sv(int num_iter, int num_burn,
                            Eigen::MatrixXd x, Eigen::MatrixXd y,
-                           Eigen::MatrixXd prior_coef_mean,
-                           Eigen::MatrixXd prior_coef_prec,
-                           Eigen::MatrixXd prec_diag,
+													 Rcpp::List param_sv,
+													 Rcpp::List param_prior,
                            int prior_type,
-                           Eigen::VectorXd init_local,
-                           Eigen::VectorXd init_global,
-                           Eigen::VectorXd init_contem_local,
-                           Eigen::VectorXd init_contem_global,
                            Eigen::VectorXi grp_id,
                            Eigen::MatrixXd grp_mat,
-													 Eigen::VectorXd prior_sig_shp,
-													 Eigen::VectorXd prior_sig_scl,
-													 Eigen::VectorXd prior_init_mean,
-													 Eigen::MatrixXd prior_init_prec,
-                           Eigen::VectorXd coef_spike,
-                           Eigen::VectorXd coef_slab,
-                           Eigen::VectorXd coef_slab_weight,
-                           Eigen::VectorXd chol_spike,
-                           Eigen::VectorXd chol_slab,
-                           Eigen::VectorXd chol_slab_weight,
-                           double coef_s1, double coef_s2,
-                           double chol_s1, double chol_s2,
-                           Eigen::VectorXd mean_non,
-                           double sd_non,
                            bool include_mean,
                            bool display_progress, int nthreads) {
   std::unique_ptr<McmcSv> sv_obj;
 	switch (prior_type) {
 		case 1: {
 			MinnParams minn_params(
-				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-				prior_coef_mean, prior_coef_prec, prec_diag
+				num_iter, x, y,
+				param_sv, param_prior
 			);
 			sv_obj = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
 			break;
 		}
 		case 2: {
 			SsvsParams ssvs_params(
-				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-				grp_id, grp_mat, coef_spike, coef_slab, coef_slab_weight, chol_spike, chol_slab, chol_slab_weight,
-				coef_s1, coef_s2, chol_s1, chol_s2,
-				mean_non, sd_non, include_mean
+				num_iter, x, y,
+				param_sv,
+				grp_id, grp_mat,
+				param_prior,
+				include_mean
 			);
 			sv_obj = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
 			break;
 		}
 		case 3: {
 			HorseshoeParams horseshoe_params(
-				num_iter, x, y, prior_sig_shp, prior_sig_scl, prior_init_mean, prior_init_prec,
-				grp_id, grp_mat, init_local, init_global, init_contem_local, init_contem_global
+				num_iter, x, y,
+				param_sv,
+				grp_id, grp_mat,
+				param_prior
 			);
 			sv_obj = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
 			break;
