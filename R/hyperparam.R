@@ -464,39 +464,11 @@ init_ssvs <- function(init_coef,
     init_chol_dummy <- NULL
     num_chain <- 1
   } else {
-    if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
-        (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
-        (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
-        (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
-      # 3d array to list--------------------------------
-      init_coef <- change_to_list(init_coef)
-      init_coef_dummy <- change_to_list(init_coef_dummy)
-      init_chol <- change_to_list(init_chol)
-      init_chol_dummy <- change_to_list(init_chol_dummy)
-      # Errors in multiple chain------------------------
-      if (length(
-        unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
-      ) > 1) {
-        stop("Different chain(>1) number has been defined.")
-      }
-      isnot_identical(init_coef, case = "dim")
-      isnot_identical(init_coef_dummy, case = "dim")
-      isnot_identical(init_chol, case = "dim")
-      isnot_identical(init_chol_dummy, case = "dim")
-      isnot_identical(init_coef, case = "values")
-      isnot_identical(init_chol, case = "values")
-      num_chain <- length(init_coef)
-      coef_mat <- init_coef[[1]]
-      coef_dummy <- init_coef_dummy[[1]]
-      chol_mat <- init_chol[[1]]
-      chol_dummy <- init_chol_dummy[[1]]
-    } else {
-      num_chain <- 1
-      coef_mat <- init_coef
-      coef_dummy <- init_coef_dummy
-      chol_mat <- init_chol
-      chol_dummy <- init_chol_dummy
-    }
+    num_chain <- 1
+    coef_mat <- init_coef
+    coef_dummy <- init_coef_dummy
+    chol_mat <- init_chol
+    chol_dummy <- init_chol_dummy
     # Check dimension validity-----------------------------
     dim_design <- nrow(coef_mat) # kp(+1)
     dim_data <- ncol(coef_mat) # k = dim
@@ -518,7 +490,7 @@ init_ssvs <- function(init_coef,
   res <- list(
     process = "VAR",
     prior = "SSVS",
-    chain = num_chain,
+    # chain = num_chain,
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
     init_chol = init_chol,
