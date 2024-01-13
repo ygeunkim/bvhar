@@ -15,8 +15,7 @@ struct SvParams {
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec
+		Rcpp::List& spec
 	);
 };
 
@@ -27,9 +26,7 @@ struct MinnParams : public SvParams {
 
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
-		const Eigen::MatrixXd& prior_coef_mean, const Eigen::MatrixXd& prior_coef_prec, const Eigen::MatrixXd& prec_diag
+		Rcpp::List& sv_spec, Rcpp::List& priors
 	);
 };
 
@@ -52,13 +49,10 @@ struct SsvsParams : public SvParams {
 
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
-		const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
-    double coef_s1, double coef_s2, double chol_s1, double chol_s2,
-    const Eigen::VectorXd& mean_non, double sd_non, bool include_mean
+		Rcpp::List& ssvs_spec,
+		bool include_mean
 	);
 };
 
@@ -72,11 +66,9 @@ struct HorseshoeParams : public SvParams {
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		const Eigen::VectorXd& prior_sig_shp, const Eigen::VectorXd& prior_sig_scl,
-		const Eigen::VectorXd& prior_init_mean, const Eigen::MatrixXd& prior_init_prec,
+		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global,
-		const Eigen::VectorXd& init_contem_local, const Eigen::VectorXd& init_contem_global
+		Rcpp::List& hs_spec
 	);
 };
 
@@ -139,14 +131,14 @@ private:
 };
 
 class MinnSv : public McmcSv {
-	public:
-		MinnSv(const MinnParams& params);
-		virtual ~MinnSv() = default;
-		void updateCoefPrec() override {};
-		void updateCoefShrink() override {};
-		void updateImpactPrec() override {};
-		void doPosteriorDraws() override;
-		Rcpp::List returnRecords(int num_burn) const override;
+public:
+	MinnSv(const MinnParams& params);
+	virtual ~MinnSv() = default;
+	void updateCoefPrec() override {};
+	void updateCoefShrink() override {};
+	void updateImpactPrec() override {};
+	void doPosteriorDraws() override;
+	Rcpp::List returnRecords(int num_burn) const override;
 };
 
 class SsvsSv : public McmcSv {
