@@ -253,13 +253,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_var_sv
-Rcpp::List estimate_var_sv(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Rcpp::List param_sv, Rcpp::List param_prior, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, bool include_mean, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_var_sv(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Rcpp::List param_sv, Rcpp::List param_prior, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, bool include_mean, bool display_progress, int nthreads);
+RcppExport SEXP _bvhar_estimate_var_sv(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
+    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_sv(param_svSEXP);
@@ -270,7 +271,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_var_sv(num_iter, num_burn, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_var_sv(num_iter, num_burn, thin, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1309,7 +1310,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
     {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 12},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 28},
-    {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 12},
+    {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 13},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 4},
     {"_bvhar_compute_cov", (DL_FUNC) &_bvhar_compute_cov, 3},
     {"_bvhar_infer_var", (DL_FUNC) &_bvhar_infer_var, 1},
