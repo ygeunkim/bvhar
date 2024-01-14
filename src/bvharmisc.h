@@ -1,6 +1,8 @@
 #ifndef BVHARMISC_H
 #define BVHARMISC_H
 
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor> ColMajorMatrixXd;
+
 Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean);
 
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max);
