@@ -38,7 +38,7 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var_sv(int num_iter, int num_burn,
+Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
                            Eigen::MatrixXd x, Eigen::MatrixXd y,
 													 Rcpp::List param_sv,
 													 Rcpp::List param_prior,
@@ -88,7 +88,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 	bvharinterrupt();
   for (int i = 0; i < num_iter; i++) {
 		if (bvharinterrupt::is_interrupted()) {
-			return sv_obj->returnRecords(num_burn);
+			return sv_obj->returnRecords(0, 1);
     }
 		bar.increment();
 		if (display_progress) {
@@ -97,5 +97,5 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn,
 		sv_obj->addStep();
 		sv_obj->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
   }
-	return sv_obj->returnRecords(num_burn);
+	return sv_obj->returnRecords(num_burn, thin);
 }
