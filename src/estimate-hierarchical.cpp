@@ -76,101 +76,24 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
 																		double acc_scale,
                                     Eigen::MatrixXd obs_information, 
                                     bool display_progress) {
-	// Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape,
-  //                                   Eigen::MatrixXd mn_mean, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,
-  //                                   int posterior_shape,
-	// 																	double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl,
-
-// double init_lambda, Eigen::VectorXd init_psi,
-
-  // int dim = y.cols();
-  // int dim_design = x.cols(); // dim*p(+1)
-  // int num_design = y.rows(); // n = T - p
-  // Eigen::MatrixXd gaussian_variance = acc_scale * obs_information.inverse();
 	MinnSpec bayes_spec(init_spec);
 	HierMinnSpec hmn_spec(hyper_spec, acc_scale, obs_information);
 	std::unique_ptr<HierMinn> hmn_obj(new HierMinn(
 		num_iter, x, y, x_dummy, y_dummy, hmn_spec, bayes_spec
 	));
-  // // record-------------------------------------------------------
-  // Eigen::VectorXd lam_record(num_iter + 1);
-  // lam_record[0] = init_lambda;
-  // Eigen::MatrixXd psi_record(num_iter + 1, dim);
-  // psi_record.row(0) = init_psi;
-  // Eigen::MatrixXd coef_record(num_iter, dim * dim_design);
-  // Eigen::MatrixXd sig_record(dim * num_iter, dim);
-  // // Some variables-----------------------------------------------
-  // Eigen::VectorXd prevprior = Eigen::VectorXd::Zero(1 + dim);
-  // // prevprior.segment(0, chain) = init_lambda;
-  // prevprior[0] = init_lambda;
-  // prevprior.segment(1, dim) = init_psi;
-  // Eigen::VectorXd candprior = Eigen::VectorXd::Zero(1 + dim);
-  // Rcpp::List posterior_draw = Rcpp::List::create(
-  //   Rcpp::Named("mn") = Eigen::MatrixXd::Zero(dim_design, dim),
-  //   Rcpp::Named("iw") = Eigen::MatrixXd::Zero(dim, dim)
-  // );
-  // double numerator = 0;
-  // double denom = 0;
-  bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
   // Start Metropolis---------------------------------------------
-  // typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
-  // VectorXb is_accept(num_iter + 1);
-  // is_accept[0] = true;
-  // for (int i = 1; i < num_iter + 1; i ++) {
+	bvharprogress bar(num_iter, display_progress);
+	bvharinterrupt();
 	for (int i = 0; i < num_iter; i++) {
     if (bvharinterrupt::is_interrupted()) {
-      // return Rcpp::List::create(
-      //   Rcpp::Named("lambda_record") = lam_record,
-      //   Rcpp::Named("psi_record") = psi_record,
-      //   Rcpp::Named("alpha_record") = coef_record,
-      //   Rcpp::Named("sigma_record") = sig_record,
-      //   Rcpp::Named("acceptance") = is_accept
-      // );
-			hmn_obj->returnRecords(0);
+			return hmn_obj->returnRecords(0);
     }
     bar.increment();
 		if (display_progress) {
 			bar.update();
 		}
-    // // Candidate ~ N(previous, scaled hessian)
-    // candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
-    // // log of acceptance rate = numerator - denom
-    // numerator = jointdens_hyperparam(candprior[0], candprior.segment(1, dim), dim, num_design, prior_prec, prior_scale, prior_shape,
-    //                                  mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-    // denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design,
-    //                              prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-    // is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
-    // // Update
-    // if (is_accept[i]) {
-    //   lam_record[i] = candprior[0];
-    //   psi_record.row(i) = candprior.segment(1, dim);
-    // } else {
-    //   lam_record[i] = lam_record[i - 1];
-    //   psi_record.row(i) = psi_record.row(i - 1);
-    // }
-    // // Draw coef and Sigma
-    // posterior_draw = sim_mniw(1, mn_mean, mn_prec.inverse(), iw_scale, posterior_shape);
-    // coef_record.row(i - 1) = vectorize_eigen(posterior_draw["mn"]);
-    // sig_record.block((i - 1) * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
 		hmn_obj->addStep();
 		hmn_obj->doPosteriorDraws();
   }
-  // return Rcpp::List::create(
-  //   Rcpp::Named("lambda_record") = lam_record.tail(num_iter - num_burn),
-  //   Rcpp::Named("psi_record") = psi_record.bottomRows(num_iter - num_burn),
-  //   Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-  //   Rcpp::Named("sigma_record") = sig_record.bottomRows(dim * (num_iter - num_burn)),
-  //   Rcpp::Named("acceptance") = is_accept.tail(num_iter - num_burn)
-  // );
-
-	return Rcpp::List::create(
-		Rcpp::Named("lambda_record") = 1,
-    Rcpp::Named("psi_record") = 1,
-    Rcpp::Named("alpha_record") = 1,
-    Rcpp::Named("sigma_record") = 1,
-    Rcpp::Named("acceptance") = 1
-	);
-
-	hmn_obj->returnRecords(num_burn);
+	return hmn_obj->returnRecords(num_burn);
 }

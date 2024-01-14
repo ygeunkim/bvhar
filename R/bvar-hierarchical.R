@@ -240,27 +240,6 @@ bvar_niwhm <- function(y,
   colnames(Yp) <- name_var
   Xp <- build_xdummy(1:p, lambda, psi, eps, include_mean)
   colnames(Xp) <- name_lag
-  # # NIW-------------------------------
-  # posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
-  # # Prior-----------------------------
-  # prior_mean <- posterior$prior_mean
-  # prior_prec <- posterior$prior_prec
-  # prior_scale <- posterior$prior_scale
-  # prior_shape <- posterior$prior_shape
-  # # Matrix normal---------------------
-  # mn_mean <- posterior$mnmean # matrix normal mean
-  # colnames(mn_mean) <- name_var
-  # rownames(mn_mean) <- name_lag
-  # mn_prec <- posterior$mnprec # matrix normal precision
-  # colnames(mn_prec) <- name_lag
-  # rownames(mn_prec) <- name_lag
-  # yhat <- posterior$fitted
-  # colnames(yhat) <- name_var
-  # # Inverse-wishart-------------------
-  # iw_scale <- posterior$iwscale # IW scale
-  # colnames(iw_scale) <- name_var
-  # rownames(iw_scale) <- name_var
-  # iw_shape <- prior_shape + nrow(Y0)
   # Metropolis algorithm--------------
   metropolis_res <- estimate_hierachical_niw(
     num_iter = num_iter,
@@ -271,25 +250,10 @@ bvar_niwhm <- function(y,
     y_dummy = Yp,
     init_spec = list(lambda = lambda, sigma = psi, eps = bayes_spec$eps),
     hyper_spec = bayes_spec[c("sigma", "lambda", "eps")],
-    # prior_prec = prior_prec,
-    # prior_scale = prior_scale,
-    # prior_shape = prior_shape,
-    # mn_mean = mn_mean,
-    # mn_prec = mn_prec,
-    # iw_scale = iw_scale,
-    # posterior_shape = iw_shape,
-    # gamma_shp = bayes_spec$lambda$param[1],
-    # gamma_rate = bayes_spec$lambda$param[2],
-    # invgam_shp = bayes_spec$sigma$param[1],
-    # invgam_scl = bayes_spec$sigma$param[2],
     acc_scale = scale_variance,
     obs_information = hess,
-    # init_lambda = lambda,
-    # init_psi = psi,
     display_progress = verbose
   )
-  
-  
   # preprocess the results------------
   thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
   # thinparam_id <- seq(from = 1, to = num_iter - 1 - num_burn, by = thinning)
@@ -337,7 +301,8 @@ bvar_niwhm <- function(y,
     metropolis_res$sigma_record
   )
   # variables-------------------------
-  metropolis_res$df <- nrow(mn_mean)
+  # metropolis_res$df <- nrow(mn_mean)
+  metropolis_res$df <- nrow(metropolis_res$coefficients)
   metropolis_res$p <- p
   metropolis_res$m <- dim_data
   metropolis_res$obs <- nrow(Y0)
