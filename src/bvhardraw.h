@@ -49,4 +49,6 @@ void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXd& 
 
 void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam);
 
+ColMajorMatrixXd thin_record(const ColMajorMatrixXd& record, int num_iter, int num_burn, int thin);
+
 #endif

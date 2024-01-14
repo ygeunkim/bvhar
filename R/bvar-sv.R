@@ -125,6 +125,7 @@ bvar_sv <- function(y,
       estimate_var_sv(
         num_iter = num_iter,
         num_burn = num_burn,
+        thin = thinning,
         x = X0,
         y = Y0,
         param_sv = sv_spec[3:6],
@@ -186,6 +187,7 @@ bvar_sv <- function(y,
       estimate_var_sv(
         num_iter = num_iter,
         num_burn = num_burn,
+        thin = thinning,
         x = X0,
         y = Y0,
         param_sv = sv_spec[3:6],
@@ -225,6 +227,7 @@ bvar_sv <- function(y,
       estimate_var_sv(
         num_iter = num_iter,
         num_burn = num_burn,
+        thin = thinning,
         x = X0,
         y = Y0,
         param_sv = sv_spec[3:6],
@@ -245,12 +248,6 @@ bvar_sv <- function(y,
     }
   )
   # Preprocess the results--------------------------------
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  res$alpha_record <- res$alpha_record[thin_id,]
-  res$h_record <- res$h_record[thin_id,]
-  res$a_record <- res$a_record[thin_id,]
-  res$h0_record <- res$h0_record[thin_id,]
-  res$sigh_record <- res$sigh_record[thin_id,]
   colnames(res$h_record) <- paste0(
     paste0("h[", seq_len(dim_data), "]"),
     gl(num_design, dim_data)
@@ -274,7 +271,6 @@ bvar_sv <- function(y,
   res$h0_record <- as_draws_df(res$h0_record)
   res$sigh_record <- as_draws_df(res$sigh_record)
   if (bayes_spec$prior == "SSVS") {
-    res$gamma_record <- res$gamma_record[thin_id,]
     res$pip <- colMeans(res$gamma_record)
     res$pip <- matrix(res$pip, ncol = dim_data)
     if (include_mean) {
@@ -286,21 +282,17 @@ bvar_sv <- function(y,
     rownames(res$pip) <- name_lag
   } else if (bayes_spec$prior == "Horseshoe") {
     if (minnesota) {
-      res$tau_record <- res$tau_record[thin_id,]
       colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
     } else {
-      res$tau_record <- as.matrix(res$tau_record[thin_id])
       colnames(res$tau_record) <- "tau"
     }
     res$tau_record <- as_draws_df(res$tau_record)
-    res$lambda_record <- res$lambda_record[thin_id,]
     colnames(res$lambda_record) <- paste0(
       "lambda[",
       seq_len(ncol(res$lambda_record)),
       "]"
     )
     res$lambda_record <- as_draws_df(res$lambda_record)
-    res$kappa_record <- res$kappa_record[thin_id,]
     colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
     res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var

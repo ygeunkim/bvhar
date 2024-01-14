@@ -335,8 +335,8 @@ estimate_bvar_ssvs <- function(num_iter, num_burn, x, y, init_coef, init_chol_di
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_iter, num_burn, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads)
+estimate_var_sv <- function(num_iter, num_burn, thin, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_iter, num_burn, thin, x, y, param_sv, param_prior, prior_type, grp_id, grp_mat, include_mean, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
