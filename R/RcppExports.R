@@ -1204,6 +1204,10 @@ compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
+check_omp <- function() {
+    invisible(.Call(`_bvhar_check_omp`))
+}
+
 #' Building Spike-and-slab SD Diagonal Matrix
 #' 
 #' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

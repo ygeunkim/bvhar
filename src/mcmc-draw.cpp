@@ -3,6 +3,15 @@
 #include "bvharmisc.h"
 #include "randsim.h"
 
+// [[Rcpp::export]]
+void check_omp() {
+#ifdef _OPENMP
+  Rcpp::Rcout << "OpenMP threads: " << omp_get_max_threads() << "\n";
+#else
+	Rcpp::Rcout << "OpenMP not available in this machine." << "\n";
+#endif
+}
+
 //' Building Spike-and-slab SD Diagonal Matrix
 //' 
 //' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

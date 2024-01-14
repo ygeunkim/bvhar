@@ -1041,6 +1041,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// check_omp
+void check_omp();
+RcppExport SEXP _bvhar_check_omp() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    check_omp();
+    return R_NilValue;
+END_RCPP
+}
 // build_ssvs_sd
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
@@ -1375,6 +1384,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
+    {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 4},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
