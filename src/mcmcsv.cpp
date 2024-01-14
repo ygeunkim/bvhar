@@ -168,13 +168,13 @@ void MinnSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List MinnSv::returnRecords(int num_burn) const {
+Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
 	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn)
+		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
+    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
+    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin)
   );
 }
 
@@ -276,14 +276,14 @@ void SsvsSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List SsvsSv::returnRecords(int num_burn) const {
+Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
 	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("gamma_record") = coef_dummy_record.bottomRows(num_iter - num_burn)
+		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
+    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
+    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin),
+    Rcpp::Named("gamma_record") = thin_record(coef_dummy_record, num_iter, num_burn, thin)
   );
 }
 
@@ -357,15 +357,15 @@ void HorseshoeSv::doPosteriorDraws() {
 	updateInitState();
 }
 
-Rcpp::List HorseshoeSv::returnRecords(int num_burn) const {
+Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {
 	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h_record") = lvol_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("a_record") = contem_coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("h0_record") = lvol_init_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("sigh_record") = lvol_sig_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
+		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
+    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
+    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin),
+    Rcpp::Named("lambda_record") = thin_record(local_record, num_iter, num_burn, thin),
+    Rcpp::Named("tau_record") = thin_record(global_record, num_iter, num_burn, thin),
+    Rcpp::Named("kappa_record") = thin_record(shrink_record, num_iter, num_burn, thin)
   );
 }

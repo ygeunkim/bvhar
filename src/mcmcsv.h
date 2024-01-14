@@ -86,16 +86,16 @@ public:
 	void updateInitState();
 	void addStep();
 	virtual void doPosteriorDraws() = 0;
-	virtual Rcpp::List returnRecords(int num_burn) const = 0;
+	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
 
 protected:
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
-	Eigen::MatrixXd coef_record; // alpha in VAR
-	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
-	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
-	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
-	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
+	ColMajorMatrixXd coef_record; // alpha in VAR
+	ColMajorMatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+	ColMajorMatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
+	ColMajorMatrixXd lvol_init_record; // h0 = h10, ..., hk0
+	ColMajorMatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	int num_iter;
 	int dim; // k
   int dim_design; // kp(+1)
@@ -138,7 +138,7 @@ public:
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
 	void doPosteriorDraws() override;
-	Rcpp::List returnRecords(int num_burn) const override;
+	Rcpp::List returnRecords(int num_burn, int thin) const override;
 };
 
 class SsvsSv : public McmcSv {
@@ -149,7 +149,7 @@ public:
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
 	void doPosteriorDraws() override;
-	Rcpp::List returnRecords(int num_burn) const override;
+	Rcpp::List returnRecords(int num_burn, int thin) const override;
 private:
 	bool include_mean;
 	int num_alpha;
@@ -186,7 +186,7 @@ public:
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
 	void doPosteriorDraws() override;
-	Rcpp::List returnRecords(int num_burn) const override;
+	Rcpp::List returnRecords(int num_burn, int thin) const override;
 
 private:
 	Eigen::VectorXi grp_id;
