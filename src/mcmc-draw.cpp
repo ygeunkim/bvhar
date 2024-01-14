@@ -519,3 +519,17 @@ void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam) {
     latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)));
   }
 }
+
+ColMajorMatrixXd thin_record(const ColMajorMatrixXd& record, int num_iter, int num_burn, int thin) {
+	if (thin == 1) {
+		return record.bottomRows(num_iter - num_burn);
+	}
+	// int num_res = (num_iter - num_burn) / thin + 1;
+	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
+	Eigen::Map<const ColMajorMatrixXd, 0, Eigen::OuterStride<>> res(
+		record.data() + num_burn + 1,
+		num_res, record.cols(),
+		Eigen::OuterStride<>(record.outerStride() * thin)
+	);
+	return ColMajorMatrixXd(res);
+}
