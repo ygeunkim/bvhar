@@ -524,7 +524,6 @@ ColMajorMatrixXd thin_record(const ColMajorMatrixXd& record, int num_iter, int n
 	if (thin == 1) {
 		return record.bottomRows(num_iter - num_burn);
 	}
-	int num_available = num_iter + 1 - num_burn; // nrow after burn-in (nrow of record = num_iter + 1)
 	// int num_res = (num_iter - num_burn) / thin + 1;
 	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
 	Eigen::Map<const ColMajorMatrixXd, 0, Eigen::OuterStride<>> res(
