@@ -73,11 +73,9 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
 																		Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy,
 																		Rcpp::List init_spec,
 																		Rcpp::List hyper_spec,
-																		double acc_scale,
-                                    Eigen::MatrixXd obs_information, 
                                     bool display_progress) {
 	MinnSpec bayes_spec(init_spec);
-	HierMinnSpec hmn_spec(hyper_spec, acc_scale, obs_information);
+	HierMinnSpec hmn_spec(hyper_spec);
 	std::unique_ptr<HierMinn> hmn_obj(new HierMinn(
 		num_iter, x, y, x_dummy, y_dummy, hmn_spec, bayes_spec
 	));

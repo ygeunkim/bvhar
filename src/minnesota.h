@@ -35,7 +35,7 @@ struct HierMinnSpec {
 	double invgam_shp;
 	double invgam_scl;
 
-	HierMinnSpec(Rcpp::List& bayes_spec, double scale_variance, const Eigen::MatrixXd& hess);
+	HierMinnSpec(Rcpp::List& bayes_spec);
 };
 
 class Minnesota {
@@ -81,13 +81,11 @@ public:
 	virtual ~HierMinn() = default;
 	void updateHyper(); // hyperparams using MH
 	void updateMniw(); // coef and sigma
-	// void estimateCoef() override;
-	// virtual void fitObs();
-	// void estimateCov(); // Posterior IW scale
 	void addStep();
 	void doPosteriorDraws();
+	void estimatePosterior();
 	Rcpp::List returnRecords(int num_burn) const;
-	// Rcpp::List returnMinnRes(int num_burn);
+	Rcpp::List returnMinnRes(int num_burn);
 private:
 	int num_iter;
 	int mcmc_step;
@@ -117,16 +115,26 @@ public:
 	MinnBvar(const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean);
 	virtual ~MinnBvar() = default;
 	Rcpp::List returnMinnRes();
-private:
+protected:
 	int lag;
 	bool const_term;
 	Eigen::MatrixXd data;
 	int dim;
-	std::unique_ptr<Minnesota> _mn;
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
 	Eigen::MatrixXd dummy_response;
+private:
+	std::unique_ptr<Minnesota> _mn;
+};
+
+class HierBvar : public MinnBvar {
+public:
+	HierBvar(int num_iter, const Eigen::MatrixXd& y, int lag, const HierMinnSpec& spec, const BvarSpec& init, const bool include_mean);
+	virtual ~HierBvar() = default;
+	Rcpp::List returnMinnRes(int num_burn);
+private:
+	std::unique_ptr<HierMinn> _mn;
 };
 
 class MinnBvhar {

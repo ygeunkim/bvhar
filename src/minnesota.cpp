@@ -15,8 +15,9 @@ BvharSpec::BvharSpec(Rcpp::List& bayes_spec)
 	_weekly(Rcpp::as<Eigen::VectorXd>(bayes_spec["weekly"])),
 	_monthly(Rcpp::as<Eigen::VectorXd>(bayes_spec["monthly"])) {}
 
-HierMinnSpec::HierMinnSpec(Rcpp::List& bayes_spec, double scale_variance, const Eigen::MatrixXd& hess)
-: acc_scale(scale_variance), obs_information(hess) {
+HierMinnSpec::HierMinnSpec(Rcpp::List& bayes_spec)
+: acc_scale(bayes_spec["acc_scale"]),
+	obs_information(Rcpp::as<Eigen::MatrixXd>(bayes_spec["obs_information"])) {
 	Rcpp::List spec = bayes_spec["lambda"];
 	Rcpp::NumericVector param = spec["param"];
 	gamma_shp = param[0];
@@ -160,6 +161,10 @@ void HierMinn::doPosteriorDraws() {
 	updateMniw();
 }
 
+void HierMinn::estimatePosterior() {
+	coef = coef_record.colwise().mean();
+}
+
 Rcpp::List HierMinn::returnRecords(int num_burn) const {
 	return Rcpp::List::create(
 		Rcpp::Named("lambda_record") = lam_record.tail(num_iter - num_burn),
@@ -168,6 +173,17 @@ Rcpp::List HierMinn::returnRecords(int num_burn) const {
     Rcpp::Named("sigma_record") = sig_record.bottomRows(dim * (num_iter - num_burn)),
     Rcpp::Named("acceptance") = accept_record.tail(num_iter - num_burn)
 	);
+}
+
+Rcpp::List HierMinn::returnMinnRes(int num_burn) {
+	estimatePosterior();
+	Rcpp::List record_res = returnRecords(num_burn);
+	record_res["coefficients"] = coef;
+	record_res["df"] = dim_design;
+	record_res["m"] = dim;
+	record_res["obs"] = num_design;
+	record_res["y0"] = response;
+	record_res["design"] = design;
 }
 
 MinnBvar::MinnBvar(const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean)
@@ -195,6 +211,23 @@ Rcpp::List MinnBvar::returnMinnRes() {
 	mn_res["y"] = data;
 	return mn_res;
 }
+
+HierBvar::HierBvar(int num_iter, const Eigen::MatrixXd& y, int lag, const HierMinnSpec& spec, const BvarSpec& init, const bool include_mean)
+: MinnBvar(y, lag, init, include_mean) {
+	_mn = std::unique_ptr<HierMinn>(new HierMinn(num_iter, design, response, dummy_design, dummy_response, spec, init));
+}
+
+Rcpp::List HierBvar::returnMinnRes(int num_burn) {
+	_mn->doPosteriorDraws();
+	Rcpp::List mn_res = _mn->returnMinnRes(num_burn);
+	mn_res["p"] = lag;
+	mn_res["totobs"] = data.rows();
+	mn_res["type"] = const_term ? "const" : "none";
+	mn_res["y"] = data;
+	return mn_res;
+}
+
+
 
 MinnBvhar::MinnBvhar(const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
 : week(week), month(month), const_term(include_mean),

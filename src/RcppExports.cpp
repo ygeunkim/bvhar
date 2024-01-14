@@ -163,8 +163,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_hierachical_niw
-Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy, Rcpp::List init_spec, Rcpp::List hyper_spec, double acc_scale, Eigen::MatrixXd obs_information, bool display_progress);
-RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP, SEXP init_specSEXP, SEXP hyper_specSEXP, SEXP acc_scaleSEXP, SEXP obs_informationSEXP, SEXP display_progressSEXP) {
+Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy, Rcpp::List init_spec, Rcpp::List hyper_spec, bool display_progress);
+RcppExport SEXP _bvhar_estimate_hierachical_niw(SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP, SEXP init_specSEXP, SEXP hyper_specSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -176,10 +176,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type init_spec(init_specSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type hyper_spec(hyper_specSEXP);
-    Rcpp::traits::input_parameter< double >::type acc_scale(acc_scaleSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type obs_information(obs_informationSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_hierachical_niw(num_iter, num_burn, x, y, x_dummy, y_dummy, init_spec, hyper_spec, acc_scale, obs_information, display_progress));
+    rcpp_result_gen = Rcpp::wrap(estimate_hierachical_niw(num_iter, num_burn, x, y, x_dummy, y_dummy, init_spec, hyper_spec, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1297,7 +1295,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 6},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_jointdens_hyperparam", (DL_FUNC) &_bvhar_jointdens_hyperparam, 14},
-    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 11},
+    {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 9},
     {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 12},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 28},
     {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 12},

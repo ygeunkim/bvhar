@@ -248,10 +248,13 @@ bvar_niwhm <- function(y,
     y = Y0,
     x_dummy = Xp,
     y_dummy = Yp,
-    init_spec = list(lambda = lambda, sigma = psi, eps = bayes_spec$eps),
-    hyper_spec = bayes_spec[c("sigma", "lambda", "eps")],
-    acc_scale = scale_variance,
-    obs_information = hess,
+    init_spec = list(lambda = lambda, sigma = psi, eps = bayes_spec$eps), # add delta later
+    hyper_spec = append(
+      bayes_spec[c("sigma", "lambda", "eps")],
+      list(acc_scale = scale_variance, obs_information = hess)
+    ),
+    # acc_scale = scale_variance,
+    # obs_information = hess,
     display_progress = verbose
   )
   # preprocess the results------------
