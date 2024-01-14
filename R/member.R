@@ -193,6 +193,12 @@ is.boundbvharemp <- function(x) {
 
 #' @rdname is.varlse
 #' @export
+is.interceptspec <- function(x) {
+  inherits(x, "interceptspec")
+}
+
+#' @rdname is.varlse
+#' @export
 is.ssvsinput <- function(x) {
   inherits(x, "ssvsinput")
 }
