@@ -47,14 +47,53 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
                            Eigen::MatrixXd grp_mat,
                            bool include_mean,
                            bool display_progress, int nthreads) {
-  std::unique_ptr<McmcSv> sv_obj;
+  // std::unique_ptr<McmcSv> sv_obj;
+// 	switch (prior_type) {
+// 		case 1: {
+// 			MinnParams minn_params(
+// 				num_iter, x, y,
+// 				param_sv, param_prior
+// 			);
+// 			sv_obj = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
+// 			break;
+// 		}
+// 		case 2: {
+// 			SsvsParams ssvs_params(
+// 				num_iter, x, y,
+// 				param_sv,
+// 				grp_id, grp_mat,
+// 				param_prior,
+// 				include_mean
+// 			);
+// 			sv_obj = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
+// 			break;
+// 		}
+// 		case 3: {
+// 			HorseshoeParams horseshoe_params(
+// 				num_iter, x, y,
+// 				param_sv,
+// 				grp_id, grp_mat,
+// 				param_prior
+// 			);
+// 			sv_obj = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
+// 			break;
+// 		}
+// 	}
+// #ifdef _OPENMP
+//   Eigen::setNbThreads(nthreads);
+//   Eigen::initParallel();
+// #endif
+	std::vector<std::unique_ptr<McmcSv>> sv_objs(2);
+	std::vector<Rcpp::List> res(2);
 	switch (prior_type) {
 		case 1: {
 			MinnParams minn_params(
 				num_iter, x, y,
 				param_sv, param_prior
 			);
-			sv_obj = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
+			for (int i = 0; i < 2; i++ ) {
+				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
+			}
 			break;
 		}
 		case 2: {
@@ -65,7 +104,9 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
 				param_prior,
 				include_mean
 			);
-			sv_obj = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
+			for (int i = 0; i < 2; i++ ) {
+				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
+			}
 			break;
 		}
 		case 3: {
@@ -75,27 +116,48 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
 				grp_id, grp_mat,
 				param_prior
 			);
-			sv_obj = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
+			for (int i = 0; i < 2; i++ ) {
+				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
+			}
 			break;
 		}
 	}
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-  Eigen::initParallel();
-#endif
   // Start Gibbs sampling-----------------------------------
-	bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
-  for (int i = 0; i < num_iter; i++) {
-		if (bvharinterrupt::is_interrupted()) {
-			return sv_obj->returnRecords(0, 1);
-    }
-		bar.increment();
-		if (display_progress) {
-			bar.update();
+	// bvharprogress bar(num_iter, display_progress);
+	// bvharinterrupt();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (int chain = 0; chain < 2; chain++) {
+		// bvharprogress bar(num_iter, display_progress);
+		// bvharinterrupt();
+		for (int i = 0; i < num_iter; i++) {
+			// if (bvharinterrupt::is_interrupted()) {
+			// 	res[chain] = sv_objs[chain]->returnRecords(0, 1);
+			// 	continue;
+			// }
+			bar.increment();
+			// if (display_progress) {
+			// 	bar.update();
+			// }
+
+			sv_objs[chain]->addStep();
+			sv_objs[chain]->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
 		}
-		sv_obj->addStep();
-		sv_obj->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
-  }
-	return sv_obj->returnRecords(num_burn, thin);
+		res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
+	}
+// #endif
+	return Rcpp::wrap(res);
+  // for (int i = 0; i < num_iter; i++) {
+	// 	if (bvharinterrupt::is_interrupted()) {
+	// 		return sv_obj->returnRecords(0, 1);
+  //   }
+	// 	bar.increment();
+	// 	if (display_progress) {
+	// 		bar.update();
+	// 	}
+	// 	sv_obj->addStep();
+	// 	sv_obj->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
+  // }
+	// return sv_obj->returnRecords(num_burn, thin);
 }

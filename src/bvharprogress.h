@@ -5,18 +5,19 @@
 #include <atomic>
 
 class bvharprogress {
+public:
+	bvharprogress(int total, bool verbose);
+	virtual ~bvharprogress() = default;
+	void increment();
+	std::string progress();
+	void update();
 private:
 	std::atomic<int> _current;
 	int _total;
 	int _width;
 	bool _verbose;
-public:
-	bvharprogress(int total, bool verbose);
-	virtual ~bvharprogress() = default;
-	void update();
-	void increment();
-	bool is_interrupted() const;
-	void set_interrupt(bool flag);
+	std::mutex mtx;
+	std::ostringstream oss;
 };
 
 #endif
