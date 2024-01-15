@@ -110,7 +110,7 @@ void McmcSv::updateCoef() {
     );
 	}
 	coef_vec = vectorize_eigen(coef_mat);
-	coef_record.row(mcmc_step) = coef_vec;
+	// coef_record.row(mcmc_step) = coef_vec;
 }
 
 void McmcSv::updateState() {
@@ -119,7 +119,7 @@ void McmcSv::updateState() {
 	for (int t = 0; t < dim; t++) {
 		varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t));
 	}
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	// lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
 }
 
 void McmcSv::updateImpact() {
@@ -134,17 +134,17 @@ void McmcSv::updateImpact() {
 			prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1)
 		);
 	}
-	contem_coef_record.row(mcmc_step) = contem_coef;
+	// contem_coef_record.row(mcmc_step) = contem_coef;
 }
 
 void McmcSv::updateStateVar() {
 	varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw);
-	lvol_sig_record.row(mcmc_step) = lvol_sig;
+	// lvol_sig_record.row(mcmc_step) = lvol_sig;
 }
 
 void McmcSv::updateInitState() {
 	varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig);
-	lvol_init_record.row(mcmc_step) = lvol_init;
+	// lvol_init_record.row(mcmc_step) = lvol_init;
 }
 
 void McmcSv::addStep() {
@@ -157,6 +157,15 @@ MinnSv::MinnSv(const MinnParams& params)
 	prior_alpha_prec = kronecker_eigen(params._prec_diag, params._prior_prec);
 }
 
+void MinnSv::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	coef_record.row(mcmc_step) = coef_vec;
+	contem_coef_record.row(mcmc_step) = contem_coef;
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	// lvol_sig_record.row(mcmc_step) = lvol_sig;
+	// lvol_init_record.row(mcmc_step) = lvol_init;
+}
+
 void MinnSv::doPosteriorDraws() {
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
@@ -166,6 +175,7 @@ void MinnSv::doPosteriorDraws() {
 	updateState();
 	updateStateVar();
 	updateInitState();
+	updateRecords();
 }
 
 Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
@@ -255,13 +265,25 @@ void SsvsSv::updateCoefShrink() {
 		coef_slab, coef_spike, slab_weight
 	);
 	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
-	coef_weight_record.row(mcmc_step) = coef_weight;
+	// coef_weight_record.row(mcmc_step) = coef_weight;
 }
 
 void SsvsSv::updateImpactPrec() {
 	ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight);
 	ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2);
 	prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
+	// contem_dummy_record.row(mcmc_step) = contem_dummy;
+	// contem_weight_record.row(mcmc_step) = contem_weight;
+}
+
+void SsvsSv::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	coef_record.row(mcmc_step) = coef_vec;
+	contem_coef_record.row(mcmc_step) = contem_coef;
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	lvol_sig_record.row(mcmc_step) = lvol_sig;
+	lvol_init_record.row(mcmc_step) = lvol_init;
+	coef_weight_record.row(mcmc_step) = coef_weight;
 	contem_dummy_record.row(mcmc_step) = contem_dummy;
 	contem_weight_record.row(mcmc_step) = contem_weight;
 }
@@ -278,6 +300,7 @@ void SsvsSv::doPosteriorDraws() {
 	updateState();
 	updateStateVar();
 	updateInitState();
+	updateRecords();
 }
 
 Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
@@ -330,7 +353,7 @@ void HorseshoeSv::updateCoefPrec() {
 	coef_var = vectorize_eigen(coef_var_loc);
 	build_shrink_mat(prior_alpha_prec, coef_var, local_lev);
 	shrink_fac = 1 / (1 + prior_alpha_prec.diagonal().array());
-	shrink_record.row(mcmc_step) = shrink_fac;
+	// shrink_record.row(mcmc_step) = shrink_fac;
 }
 
 void HorseshoeSv::updateCoefShrink() {
@@ -338,8 +361,8 @@ void HorseshoeSv::updateCoefShrink() {
 	horseshoe_latent(latent_global, global_lev);
 	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, 1);
 	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec, 1);
-	local_record.row(mcmc_step) = local_lev;
-	global_record.row(mcmc_step) = global_lev;
+	// local_record.row(mcmc_step) = local_lev;
+	// global_record.row(mcmc_step) = global_lev;
 }
 
 void HorseshoeSv::updateImpactPrec() {
@@ -349,6 +372,18 @@ void HorseshoeSv::updateImpactPrec() {
 	horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1);
 	build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
+}
+
+void HorseshoeSv::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	coef_record.row(mcmc_step) = coef_vec;
+	contem_coef_record.row(mcmc_step) = contem_coef;
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	lvol_sig_record.row(mcmc_step) = lvol_sig;
+	lvol_init_record.row(mcmc_step) = lvol_init;
+	shrink_record.row(mcmc_step) = shrink_fac;
+	local_record.row(mcmc_step) = local_lev;
+	global_record.row(mcmc_step) = global_lev;
 }
 
 void HorseshoeSv::doPosteriorDraws() {
@@ -363,6 +398,7 @@ void HorseshoeSv::doPosteriorDraws() {
 	updateState();
 	updateStateVar();
 	updateInitState();
+	updateRecords();
 }
 
 Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {

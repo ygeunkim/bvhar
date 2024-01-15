@@ -3,6 +3,7 @@
 
 #include <RcppEigen.h>
 #include "bvhardraw.h"
+#include <atomic>
 
 struct SvParams {
 	int _iter;
@@ -84,6 +85,7 @@ public:
 	void updateImpact();
 	void updateStateVar();
 	void updateInitState();
+	virtual void updateRecords() = 0;
 	void addStep();
 	virtual void doPosteriorDraws() = 0;
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
@@ -91,6 +93,7 @@ public:
 protected:
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
+	std::mutex mtx;
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
@@ -102,7 +105,7 @@ protected:
   int num_design; // n = T - p
   int num_lowerchol;
   int num_coef;
-	int mcmc_step; // MCMC step
+	std::atomic<int> mcmc_step; // MCMC step
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
@@ -137,6 +140,7 @@ public:
 	void updateCoefPrec() override {};
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 };
@@ -148,6 +152,7 @@ public:
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 private:
@@ -185,6 +190,7 @@ public:
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 
