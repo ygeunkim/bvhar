@@ -169,13 +169,17 @@ void MinnSv::doPosteriorDraws() {
 }
 
 Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
-	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
-    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
-    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin)
+	Rcpp::List res = Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record,
+    Rcpp::Named("h_record") = lvol_record,
+    Rcpp::Named("a_record") = contem_coef_record,
+    Rcpp::Named("h0_record") = lvol_init_record,
+    Rcpp::Named("sigh_record") = lvol_sig_record
   );
+	for (auto& record : res) {
+		record = thin_record(record, num_iter, num_burn, thin);
+	}
+	return res;
 }
 
 SsvsSv::SsvsSv(const SsvsParams& params)
@@ -277,14 +281,18 @@ void SsvsSv::doPosteriorDraws() {
 }
 
 Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
-	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
-    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
-    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin),
-    Rcpp::Named("gamma_record") = thin_record(coef_dummy_record, num_iter, num_burn, thin)
+	Rcpp::List res = Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record,
+    Rcpp::Named("h_record") = lvol_record,
+    Rcpp::Named("a_record") = contem_coef_record,
+    Rcpp::Named("h0_record") = lvol_init_record,
+    Rcpp::Named("sigh_record") = lvol_sig_record,
+    Rcpp::Named("gamma_record") = coef_dummy_record
   );
+	for (auto& record : res) {
+		record = thin_record(record, num_iter, num_burn, thin);
+	}
+	return res;
 }
 
 HorseshoeSv::HorseshoeSv(const HorseshoeParams& params)
@@ -358,14 +366,18 @@ void HorseshoeSv::doPosteriorDraws() {
 }
 
 Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {
-	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h_record") = thin_record(lvol_record, num_iter, num_burn, thin),
-    Rcpp::Named("a_record") = thin_record(contem_coef_record, num_iter, num_burn, thin),
-    Rcpp::Named("h0_record") = thin_record(lvol_init_record, num_iter, num_burn, thin),
-    Rcpp::Named("sigh_record") = thin_record(lvol_sig_record, num_iter, num_burn, thin),
-    Rcpp::Named("lambda_record") = thin_record(local_record, num_iter, num_burn, thin),
-    Rcpp::Named("tau_record") = thin_record(global_record, num_iter, num_burn, thin),
-    Rcpp::Named("kappa_record") = thin_record(shrink_record, num_iter, num_burn, thin)
+	Rcpp::List res = Rcpp::List::create(
+		Rcpp::Named("alpha_record") = coef_record,
+    Rcpp::Named("h_record") = lvol_record,
+    Rcpp::Named("a_record") = contem_coef_record,
+    Rcpp::Named("h0_record") = lvol_init_record,
+    Rcpp::Named("sigh_record") = lvol_sig_record,
+    Rcpp::Named("lambda_record") = local_record,
+    Rcpp::Named("tau_record") = global_record,
+    Rcpp::Named("kappa_record") = shrink_record
   );
+	for (auto& record : res) {
+		record = thin_record(record, num_iter, num_burn, thin);
+	}
+	return res;
 }
