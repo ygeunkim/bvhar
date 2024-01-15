@@ -53,6 +53,6 @@ Eigen::VectorXd tvp_coef(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd p
 
 Eigen::VectorXd tvp_initcoef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::VectorXd ar_coef, Eigen::MatrixXd coef_prec);
 
-ColMajorMatrixXd thin_record(const ColMajorMatrixXd& record, int num_iter, int num_burn, int thin);
+Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num_burn, int thin);
 
 #endif

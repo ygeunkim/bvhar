@@ -559,16 +559,16 @@ Eigen::VectorXd tvp_initcoef(Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_p
   return vectorize_eigen(sim_mgaussian_chol(1, post_prec * (prior_prec * prior_mean + coef_prec * ar_coef), post_prec));
 }
 
-ColMajorMatrixXd thin_record(const ColMajorMatrixXd& record, int num_iter, int num_burn, int thin) {
+Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num_burn, int thin) {
 	if (thin == 1) {
 		return record.bottomRows(num_iter - num_burn);
 	}
-	// int num_res = (num_iter - num_burn) / thin + 1;
+	ColMajorMatrixXd col_record(record.bottomRows(num_iter - num_burn));
 	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
-	Eigen::Map<const ColMajorMatrixXd, 0, Eigen::OuterStride<>> res(
-		record.data() + num_burn + 1,
-		num_res, record.cols(),
-		Eigen::OuterStride<>(record.outerStride() * thin)
-	);
-	return ColMajorMatrixXd(res);
+	Eigen::Map<const ColMajorMatrixXd, 0, Eigen::InnerStride<>> res(
+    col_record.data(),
+    num_res, record.cols(),
+    Eigen::InnerStride<>(thin * col_record.innerStride())
+  );
+	return res;
 }
