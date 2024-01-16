@@ -1,6 +1,7 @@
 #ifndef BVHARPROGRESS_H
 #define BVHARPROGRESS_H
 
+#include "bvharomp.h"
 #include <Rcpp.h>
 #include <atomic>
 
@@ -9,15 +10,13 @@ public:
 	bvharprogress(int total, bool verbose);
 	virtual ~bvharprogress() = default;
 	void increment();
-	std::string progress();
 	void update();
 private:
 	std::atomic<int> _current;
 	int _total;
 	int _width;
 	bool _verbose;
-	std::mutex mtx;
-	std::ostringstream oss;
+	// std::mutex mtx;
 };
 
 #endif

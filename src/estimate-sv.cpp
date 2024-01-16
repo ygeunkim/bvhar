@@ -129,17 +129,18 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
 #pragma omp parallel for
 #endif
 	for (int chain = 0; chain < 2; chain++) {
-		// bvharprogress bar(num_iter, display_progress);
+		bvharprogress bar(num_iter, display_progress);
 		// bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
 			// if (bvharinterrupt::is_interrupted()) {
 			// 	res[chain] = sv_objs[chain]->returnRecords(0, 1);
 			// 	continue;
 			// }
+
 			bar.increment();
-			// if (display_progress) {
-			// 	bar.update();
-			// }
+			if (display_progress) {
+				bar.update();
+			}
 
 			sv_objs[chain]->addStep();
 			sv_objs[chain]->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
