@@ -129,6 +129,7 @@ Rcpp::List estimate_var_sv(int num_iter, int num_burn, int thin,
 #pragma omp parallel for
 #endif
 	for (int chain = 0; chain < 2; chain++) {
+		set_seedr(chain); // change this line after add seed vector argument
 		bvharprogress bar(num_iter, display_progress);
 		// bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
