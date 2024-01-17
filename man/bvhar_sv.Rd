@@ -9,6 +9,7 @@
 bvhar_sv(
   y,
   har = c(5, 22),
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -28,6 +29,8 @@ knit_print.bvharsv(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 

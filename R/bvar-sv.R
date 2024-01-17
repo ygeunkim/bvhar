@@ -5,6 +5,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
+#' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
@@ -31,6 +32,7 @@
 #' @export
 bvar_sv <- function(y,
                     p,
+                    num_chains = 1,
                     num_iter = 1000,
                     num_burn = floor(num_iter / 2),
                     thinning = 1,
@@ -123,6 +125,7 @@ bvar_sv <- function(y,
       prior_prec <- mn_prior$prior_prec
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -185,6 +188,7 @@ bvar_sv <- function(y,
       }
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -225,6 +229,7 @@ bvar_sv <- function(y,
       bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -247,6 +252,22 @@ bvar_sv <- function(y,
       )
     }
   )
+
+  rec <- do.call(rbind, res)
+  rec_names <- colnames(rec)
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  rec <- apply(rec, 2, function(x) do.call(cbind, x))
+  rec <- lapply(
+    seq_along(rec),
+    function(id) {
+      split_chain(rec[[id]], chain = num_chains, varname = param_names[id])
+    }
+  )
+  rec <- lapply(rec, as_draws_df)
+  # names(rec) <- rec_names
+  rec$param <- bind_draws(rec)
+  names(rec)[-length(rec)] <- rec_names
+  return(rec)
   # Preprocess the results--------------------------------
   colnames(res$h_record) <- paste0(
     paste0("h[", seq_len(dim_data), "]"),

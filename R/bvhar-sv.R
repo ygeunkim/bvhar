@@ -5,6 +5,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
@@ -69,6 +70,7 @@
 #' @export
 bvhar_sv <- function(y,
                      har = c(5, 22),
+                     num_chains = 1,
                      num_iter = 1000,
                      num_burn = floor(num_iter / 2),
                      thinning = 1,
@@ -132,8 +134,7 @@ bvhar_sv <- function(y,
     "Minnesota",
     bayes_spec$prior
   )
-  res <- switch(
-    prior_nm,
+  res <- switch(prior_nm,
     "Minnesota" = {
       if (bayes_spec$process != "BVHAR") {
         stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
@@ -152,8 +153,7 @@ bvhar_sv <- function(y,
       lambda <- bayes_spec$lambda
       eps <- bayes_spec$eps
       # Minnesota-moment--------------------------------------
-      Yh <- switch(
-        minnesota_type,
+      Yh <- switch(minnesota_type,
         "MN_VAR" = {
           if (is.null(bayes_spec$delta)) {
             bayes_spec$delta <- rep(1, dim_data)
@@ -200,6 +200,7 @@ bvhar_sv <- function(y,
       prior_prec <- mn_prior$prior_prec
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -265,8 +266,8 @@ bvhar_sv <- function(y,
       }
       if (!(
         length(bayes_spec$coef_spike) == num_phi &&
-        length(bayes_spec$coef_slab) == num_phi &&
-        length(bayes_spec$coef_mixture) == num_grp
+          length(bayes_spec$coef_slab) == num_phi &&
+          length(bayes_spec$coef_mixture) == num_grp
         # && length(bayes_spec$mean_coef) == num_restrict
       )) {
         stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
@@ -276,13 +277,14 @@ bvhar_sv <- function(y,
       }
       if (!(
         length(bayes_spec$chol_spike) == num_eta &&
-        length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
-        length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
+          length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
+          length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
       )) {
         stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
       }
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -323,6 +325,7 @@ bvhar_sv <- function(y,
       bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
       # MCMC---------------------------------------------------
       estimate_var_sv(
+        num_chains = num_chains,
         num_iter = num_iter,
         num_burn = num_burn,
         thin = thinning,
@@ -345,6 +348,24 @@ bvhar_sv <- function(y,
       )
     }
   )
+  rec <- do.call(rbind, res)
+  rec_names <- colnames(rec)
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  rec <- apply(rec, 2, function(x) do.call(cbind, x))
+  rec <- lapply(
+    seq_along(rec),
+    function(id) {
+      split_chain(rec[[id]], chain = num_chains, varname = param_names[id])
+    }
+  )
+  rec <- lapply(rec, as_draws_df)
+  # names(rec) <- rec_names
+  rec$param <- bind_draws(rec)
+  names(rec)[-length(rec)] <- rec_names
+  return(rec)
+  # return(lapply(rec, as_draws_df) %>% bind_draws())
+  # return(rec[[1]] %>% as_draws_df())
+  # return(res)
   # Preprocess the results--------------------------------
   names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res)) # alpha to phi
   colnames(res$h_record) <- paste0(

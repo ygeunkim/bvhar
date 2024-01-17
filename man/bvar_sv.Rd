@@ -9,6 +9,7 @@
 bvar_sv(
   y,
   p,
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -28,6 +29,8 @@ knit_print.bvarsv(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 
