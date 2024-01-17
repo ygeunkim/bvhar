@@ -356,17 +356,17 @@ void HorseshoeSv::updateCoefPrec() {
 }
 
 void HorseshoeSv::updateCoefShrink() {
-	horseshoe_latent(latent_local, local_lev, rng);
-	horseshoe_latent(latent_global, global_lev, rng);
+	horseshoe_latent(latent_local, local_lev, rng); // assertion failures in boost (due to IG scale)
+	horseshoe_latent(latent_global, global_lev, rng); // assertion failures in boost (due to IG scale)
 	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, 1, rng);
-	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec, 1, rng);
+	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec, 1, rng); // assertion failures in boost (due to IG scale)
 	// local_record.row(mcmc_step) = local_lev;
 	// global_record.row(mcmc_step) = global_lev;
 }
 
 void HorseshoeSv::updateImpactPrec() {
-	horseshoe_latent(latent_contem_local, contem_local_lev, rng);
-	horseshoe_latent(latent_contem_global, contem_global_lev, rng);
+	horseshoe_latent(latent_contem_local, contem_local_lev, rng); // assertion failures in boost (due to IG scale)
+	horseshoe_latent(latent_contem_global, contem_global_lev, rng); // assertion failures in boost (due to IG scale)
 	contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol));
 	horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
