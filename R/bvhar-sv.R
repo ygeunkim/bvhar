@@ -134,219 +134,187 @@ bvhar_sv <- function(y,
     "Minnesota",
     bayes_spec$prior
   )
-  res <- switch(prior_nm,
-    "Minnesota" = {
-      if (bayes_spec$process != "BVHAR") {
-        stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
-      }
-      if (length(har) != 2 || !is.numeric(har)) {
-        stop("'har' should be numeric vector of length 2.")
-      }
-      if (har[1] > har[2]) {
-        stop("'har[1]' should be smaller than 'har[2]'.")
-      }
-      minnesota_type <- bayes_spec$prior
-      if (is.null(bayes_spec$sigma)) {
-        bayes_spec$sigma <- apply(y, 2, sd)
-      }
-      sigma <- bayes_spec$sigma
-      lambda <- bayes_spec$lambda
-      eps <- bayes_spec$eps
-      # Minnesota-moment--------------------------------------
-      Yh <- switch(minnesota_type,
-        "MN_VAR" = {
-          if (is.null(bayes_spec$delta)) {
-            bayes_spec$delta <- rep(1, dim_data)
-          }
-          Yh <- build_ydummy(
-            3,
-            sigma,
-            lambda,
-            bayes_spec$delta,
-            numeric(dim_data),
-            numeric(dim_data),
-            include_mean
-          )
-          colnames(Yh) <- name_var
-          Yh
-        },
-        "MN_VHAR" = {
-          if (is.null(bayes_spec$daily)) {
-            bayes_spec$daily <- rep(1, dim_data)
-          }
-          if (is.null(bayes_spec$weekly)) {
-            bayes_spec$weekly <- rep(1, dim_data)
-          }
-          if (is.null(bayes_spec$monthly)) {
-            bayes_spec$monthly <- rep(1, dim_data)
-          }
-          Yh <- build_ydummy(
-            3,
-            sigma,
-            lambda,
-            bayes_spec$daily,
-            bayes_spec$weekly,
-            bayes_spec$monthly,
-            include_mean
-          )
-          colnames(Yh) <- name_var
-          Yh
-        }
-      )
-      Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
-      colnames(Xh) <- name_har
-      mn_prior <- minnesota_prior(Xh, Yh)
-      prior_mean <- mn_prior$prior_mean
-      prior_prec <- mn_prior$prior_prec
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X1,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = append(mn_prior, list(sigma = diag(1 / sigma))),
-        prior_type = 1,
-        grp_id = 1,
-        grp_mat = matrix(0L, nrow = dim_har, ncol = dim_data),
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
-    },
-    "SSVS" = {
-      init_coef <- 1L
-      init_coef_dummy <- 1L
-      glob_idmat <- build_grpmat(
-        p = 3,
-        dim_data = dim_data,
-        dim_design = num_phi / dim_data,
-        num_coef = num_phi,
-        minnesota = minnesota,
-        include_mean = FALSE
-      )
-      grp_id <- unique(c(glob_idmat))
-      num_grp <- length(grp_id)
-      if (length(bayes_spec$coef_spike) == 1) {
-        bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
-      }
-      if (length(bayes_spec$coef_slab) == 1) {
-        bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_phi)
-      }
-      if (length(bayes_spec$coef_mixture) == 1) {
-        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
-      }
-      if (length(bayes_spec$mean_non) == 1) {
-        bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
-      }
-      if (length(bayes_spec$shape) == 1) {
-        bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
-      }
-      if (length(bayes_spec$rate) == 1) {
-        bayes_spec$rate <- rep(bayes_spec$rate, dim_data)
-      }
-      if (length(bayes_spec$chol_spike) == 1) {
-        bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
-      }
-      if (length(bayes_spec$chol_slab) == 1) {
-        bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
-      }
-      if (length(bayes_spec$chol_mixture) == 1) {
-        bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
-      }
-      if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-        # Conduct semiautomatic function using var_lm()
-        stop("Specify spike-and-slab of coefficients.")
-      }
-      if (all(is.na(bayes_spec$chol_spike)) || all(is.na(bayes_spec$chol_slab))) {
-        # Conduct semiautomatic function using var_lm()
-        stop("Specify spike-and-slab of cholesky factor.")
-      }
-      if (!(
-        length(bayes_spec$coef_spike) == num_phi &&
-          length(bayes_spec$coef_slab) == num_phi &&
-          length(bayes_spec$coef_mixture) == num_grp
-        # && length(bayes_spec$mean_coef) == num_restrict
-      )) {
-        stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
-      }
-      if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
-        stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
-      }
-      if (!(
-        length(bayes_spec$chol_spike) == num_eta &&
-          length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
-          length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
-      )) {
-        stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
-      }
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X1,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = bayes_spec,
-        prior_type = 2,
-        grp_id = grp_id,
-        grp_mat = glob_idmat,
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
-    },
-    "Horseshoe" = {
-      num_restrict <- ifelse(
-        include_mean,
-        num_phi + dim_data,
-        num_phi
-      )
-      if (length(bayes_spec$local_sparsity) != dim_har) {
-        if (length(bayes_spec$local_sparsity) == 1) {
-          bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
-        } else {
-          stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
-        }
-      }
-      glob_idmat <- build_grpmat(
-        p = 3,
-        dim_data = dim_data,
-        dim_design = dim_har,
-        num_coef = num_restrict,
-        minnesota = minnesota,
-        include_mean = include_mean
-      )
-      grp_id <- unique(c(glob_idmat))
-      bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X1,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = append(
-          bayes_spec,
-          list(
-            contem_local_sparsity = rep(.1, num_eta),
-            contem_global_sparsity = .1
-          )
-        ),
-        prior_type = 3,
-        grp_id = grp_id,
-        grp_mat = glob_idmat,
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
+  if (prior_nm == "Minnesota") {
+    # 
+    if (bayes_spec$process != "BVHAR") {
+      stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
     }
+    if (length(har) != 2 || !is.numeric(har)) {
+      stop("'har' should be numeric vector of length 2.")
+    }
+    if (har[1] > har[2]) {
+      stop("'har[1]' should be smaller than 'har[2]'.")
+    }
+    minnesota_type <- bayes_spec$prior
+    if (is.null(bayes_spec$sigma)) {
+      bayes_spec$sigma <- apply(y, 2, sd)
+    }
+    sigma <- bayes_spec$sigma
+    lambda <- bayes_spec$lambda
+    eps <- bayes_spec$eps
+    # Minnesota-moment--------------------------------------
+    Yh <- switch(minnesota_type,
+      "MN_VAR" = {
+        if (is.null(bayes_spec$delta)) {
+          bayes_spec$delta <- rep(1, dim_data)
+        }
+        Yh <- build_ydummy(
+          3,
+          sigma,
+          lambda,
+          bayes_spec$delta,
+          numeric(dim_data),
+          numeric(dim_data),
+          include_mean
+        )
+        colnames(Yh) <- name_var
+        Yh
+      },
+      "MN_VHAR" = {
+        if (is.null(bayes_spec$daily)) {
+          bayes_spec$daily <- rep(1, dim_data)
+        }
+        if (is.null(bayes_spec$weekly)) {
+          bayes_spec$weekly <- rep(1, dim_data)
+        }
+        if (is.null(bayes_spec$monthly)) {
+          bayes_spec$monthly <- rep(1, dim_data)
+        }
+        Yh <- build_ydummy(
+          3,
+          sigma,
+          lambda,
+          bayes_spec$daily,
+          bayes_spec$weekly,
+          bayes_spec$monthly,
+          include_mean
+        )
+        colnames(Yh) <- name_var
+        Yh
+      }
+    )
+    Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+    colnames(Xh) <- name_har
+    mn_prior <- minnesota_prior(Xh, Yh)
+    prior_mean <- mn_prior$prior_mean
+    prior_prec <- mn_prior$prior_prec
+    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma)))
+    glob_idmat <- matrix(0L, nrow = dim_har, ncol = dim_data)
+    grp_id <- 1
+  } else if (prior_nm == "SSVS") {
+    init_coef <- 1L
+    init_coef_dummy <- 1L
+    glob_idmat <- build_grpmat(
+      p = 3,
+      dim_data = dim_data,
+      dim_design = num_phi / dim_data,
+      num_coef = num_phi,
+      minnesota = minnesota,
+      include_mean = FALSE
+    )
+    grp_id <- unique(c(glob_idmat))
+    num_grp <- length(grp_id)
+    if (length(bayes_spec$coef_spike) == 1) {
+      bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
+    }
+    if (length(bayes_spec$coef_slab) == 1) {
+      bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_phi)
+    }
+    if (length(bayes_spec$coef_mixture) == 1) {
+      bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
+    }
+    if (length(bayes_spec$mean_non) == 1) {
+      bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+    }
+    if (length(bayes_spec$shape) == 1) {
+      bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
+    }
+    if (length(bayes_spec$rate) == 1) {
+      bayes_spec$rate <- rep(bayes_spec$rate, dim_data)
+    }
+    if (length(bayes_spec$chol_spike) == 1) {
+      bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+    }
+    if (length(bayes_spec$chol_slab) == 1) {
+      bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+    }
+    if (length(bayes_spec$chol_mixture) == 1) {
+      bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+    }
+    if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+      # Conduct semiautomatic function using var_lm()
+      stop("Specify spike-and-slab of coefficients.")
+    }
+    if (all(is.na(bayes_spec$chol_spike)) || all(is.na(bayes_spec$chol_slab))) {
+      # Conduct semiautomatic function using var_lm()
+      stop("Specify spike-and-slab of cholesky factor.")
+    }
+    if (!(
+      length(bayes_spec$coef_spike) == num_phi &&
+        length(bayes_spec$coef_slab) == num_phi &&
+        length(bayes_spec$coef_mixture) == num_grp
+      # && length(bayes_spec$mean_coef) == num_restrict
+    )) {
+      stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+    }
+    if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
+      stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
+    }
+    if (!(
+      length(bayes_spec$chol_spike) == num_eta &&
+        length(bayes_spec$chol_slab) == length(bayes_spec$chol_spike) &&
+        length(bayes_spec$chol_mixture) == length(bayes_spec$chol_spike)
+    )) {
+      stop("Invalid 'chol_spike', 'chol_slab', and 'chol_mixture' size. The vector size should be the same as dim * (dim - 1) / 2.")
+    }
+    param_prior <- bayes_spec
+  } else {
+    num_restrict <- ifelse(
+      include_mean,
+      num_phi + dim_data,
+      num_phi
+    )
+    if (length(bayes_spec$local_sparsity) != dim_har) {
+      if (length(bayes_spec$local_sparsity) == 1) {
+        bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+      } else {
+        stop("Length of the vector 'local_sparsity' should be dim * 3 or dim * 3 + 1.")
+      }
+    }
+    glob_idmat <- build_grpmat(
+      p = 3,
+      dim_data = dim_data,
+      dim_design = dim_har,
+      num_coef = num_restrict,
+      minnesota = minnesota,
+      include_mean = include_mean
+    )
+    grp_id <- unique(c(glob_idmat))
+    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+    param_prior <- append(
+      bayes_spec,
+      list(
+        contem_local_sparsity = rep(.1, num_eta),
+        contem_global_sparsity = .1
+      )
+    )
+  }
+  prior_type <- switch(prior_nm, "Minnesota" = 1, "SSVS" = 2, "Horseshoe" = 3)
+  res <- estimate_var_sv(
+    num_chains = num_chains,
+    num_iter = num_iter,
+    num_burn = num_burn,
+    thin = thinning,
+    x = X1,
+    y = Y0,
+    param_sv = sv_spec[3:6],
+    param_prior = param_prior,
+    prior_type = prior_type,
+    grp_id = grp_id,
+    grp_mat = glob_idmat,
+    include_mean = include_mean,
+    display_progress = verbose,
+    nthreads = num_thread
   )
   res <- do.call(rbind, res)
   colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi

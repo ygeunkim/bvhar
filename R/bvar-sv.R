@@ -96,161 +96,132 @@ bvar_sv <- function(y,
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
   }
-  res <- switch(
-    bayes_spec$prior,
-    "Minnesota" = {
-      if (bayes_spec$process != "BVAR") {
-        stop("'bayes_spec' must be the result of 'set_bvar()'.")
-      }
-      if (bayes_spec$prior != "Minnesota") {
-        stop("In 'set_bvar()', just input numeric values.")
-      }
-      if (is.null(bayes_spec$sigma)) {
-        bayes_spec$sigma <- apply(y, 2, sd)
-      }
-      sigma <- bayes_spec$sigma
-      if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, dim_data)
-      }
-      delta <- bayes_spec$delta
-      lambda <- bayes_spec$lambda
-      eps <- bayes_spec$eps
-      # Minnesota-moment--------------------------------------
-      Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
-      colnames(Yp) <- name_var
-      Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-      colnames(Xp) <- name_lag
-      mn_prior <- minnesota_prior(Xp, Yp)
-      prior_mean <- mn_prior$prior_mean
-      prior_prec <- mn_prior$prior_prec
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X0,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = append(mn_prior, list(sigma = diag(1 / sigma))),
-        prior_type = 1,
-        grp_id = 1,
-        grp_mat = matrix(0L, nrow = dim_design, ncol = dim_data),
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
-    },
-    "SSVS" = {
-      init_coef <- 1L
-      init_coef_dummy <- 1L
-      glob_idmat <- build_grpmat(
-        p = p,
-        dim_data = dim_data,
-        dim_design = num_alpha / dim_data,
-        num_coef = num_alpha,
-        minnesota = ifelse(minnesota, "short", "no"),
-        include_mean = FALSE
-      )
-      grp_id <- unique(c(glob_idmat))
-      num_grp <- length(grp_id)
-      if (length(bayes_spec$coef_spike) == 1) {
-        bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
-      }
-      if (length(bayes_spec$coef_slab) == 1) {
-        bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_alpha)
-      }
-      if (length(bayes_spec$coef_mixture) == 1) {
-        bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
-      }
-      if (length(bayes_spec$mean_non) == 1) {
-        bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
-      }
-      if (length(bayes_spec$chol_spike) == 1) {
-        bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
-      }
-      if (length(bayes_spec$chol_slab) == 1) {
-        bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
-      }
-      if (length(bayes_spec$chol_mixture) == 1) {
-        bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
-      }
-      if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-        # Conduct semiautomatic function using var_lm()
-        stop("Specify spike-and-slab of coefficients.")
-      }
-      if (!(
-        length(bayes_spec$coef_spike) == num_alpha &&
+  prior_nm <- bayes_spec$prior
+  if (prior_nm == "Minnesota") {
+    if (bayes_spec$process != "BVAR") {
+      stop("'bayes_spec' must be the result of 'set_bvar()'.")
+    }
+    if (bayes_spec$prior != "Minnesota") {
+      stop("In 'set_bvar()', just input numeric values.")
+    }
+    if (is.null(bayes_spec$sigma)) {
+      bayes_spec$sigma <- apply(y, 2, sd)
+    }
+    sigma <- bayes_spec$sigma
+    if (is.null(bayes_spec$delta)) {
+      bayes_spec$delta <- rep(1, dim_data)
+    }
+    delta <- bayes_spec$delta
+    lambda <- bayes_spec$lambda
+    eps <- bayes_spec$eps
+    # Minnesota-moment--------------------------------------
+    Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+    colnames(Yp) <- name_var
+    Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
+    colnames(Xp) <- name_lag
+    mn_prior <- minnesota_prior(Xp, Yp)
+    prior_mean <- mn_prior$prior_mean
+    prior_prec <- mn_prior$prior_prec
+    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma)))
+    glob_idmat <- matrix(0L, nrow = dim_design, ncol = dim_data)
+    grp_id <- 1
+  } else if (prior_nm == "SSVS") {
+    init_coef <- 1L
+    init_coef_dummy <- 1L
+    glob_idmat <- build_grpmat(
+      p = p,
+      dim_data = dim_data,
+      dim_design = num_alpha / dim_data,
+      num_coef = num_alpha,
+      minnesota = ifelse(minnesota, "short", "no"),
+      include_mean = FALSE
+    )
+    grp_id <- unique(c(glob_idmat))
+    num_grp <- length(grp_id)
+    if (length(bayes_spec$coef_spike) == 1) {
+      bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
+    }
+    if (length(bayes_spec$coef_slab) == 1) {
+      bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_alpha)
+    }
+    if (length(bayes_spec$coef_mixture) == 1) {
+      bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
+    }
+    if (length(bayes_spec$mean_non) == 1) {
+      bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+    }
+    if (length(bayes_spec$chol_spike) == 1) {
+      bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+    }
+    if (length(bayes_spec$chol_slab) == 1) {
+      bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+    }
+    if (length(bayes_spec$chol_mixture) == 1) {
+      bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+    }
+    if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+      # Conduct semiautomatic function using var_lm()
+      stop("Specify spike-and-slab of coefficients.")
+    }
+    if (!(
+      length(bayes_spec$coef_spike) == num_alpha &&
         length(bayes_spec$coef_slab) == num_alpha &&
         length(bayes_spec$coef_mixture) == num_grp
-      )) {
-        stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
-      }
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X0,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = bayes_spec,
-        prior_type = 2,
-        grp_id = grp_id,
-        grp_mat = glob_idmat,
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
-    },
-    "Horseshoe" = {
-      num_restrict <- ifelse(
-        include_mean,
-        num_alpha + dim_data,
-        num_alpha
-      )
-      if (length(bayes_spec$local_sparsity) != dim_design) {
-        if (length(bayes_spec$local_sparsity) == 1) {
-          bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
-        } else {
-          stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
-        }
-      }
-      glob_idmat <- build_grpmat(
-        p = p,
-        dim_data = dim_data,
-        dim_design = dim_design,
-        num_coef = num_restrict,
-        minnesota = ifelse(minnesota, "short", "no"),
-        include_mean = include_mean
-      )
-      grp_id <- unique(c(glob_idmat))
-      bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
-      # MCMC---------------------------------------------------
-      estimate_var_sv(
-        num_chains = num_chains,
-        num_iter = num_iter,
-        num_burn = num_burn,
-        thin = thinning,
-        x = X0,
-        y = Y0,
-        param_sv = sv_spec[3:6],
-        param_prior = append(
-          bayes_spec,
-          list(
-            contem_local_sparsity = rep(.1, num_eta),
-            contem_global_sparsity = .1
-          )
-        ),
-        prior_type = 3,
-        grp_id = grp_id,
-        grp_mat = glob_idmat,
-        include_mean = include_mean,
-        display_progress = verbose,
-        nthreads = num_thread
-      )
+    )) {
+      stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
     }
+    param_prior <- bayes_spec
+  } else {
+    num_restrict <- ifelse(
+      include_mean,
+      num_alpha + dim_data,
+      num_alpha
+    )
+    if (length(bayes_spec$local_sparsity) != dim_design) {
+      if (length(bayes_spec$local_sparsity) == 1) {
+        bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+      } else {
+        stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
+      }
+    }
+    glob_idmat <- build_grpmat(
+      p = p,
+      dim_data = dim_data,
+      dim_design = dim_design,
+      num_coef = num_restrict,
+      minnesota = ifelse(minnesota, "short", "no"),
+      include_mean = include_mean
+    )
+    grp_id <- unique(c(glob_idmat))
+    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+    param_prior <- append(
+      bayes_spec,
+      list(
+        contem_local_sparsity = rep(.1, num_eta),
+        contem_global_sparsity = .1
+      )
+    )
+  }
+  prior_type <- switch(prior_nm,
+    "Minnesota" = 1,
+    "SSVS" = 2,
+    "Horseshoe" = 3
+  )
+  res <- estimate_var_sv(
+    num_chains = num_chains,
+    num_iter = num_iter,
+    num_burn = num_burn,
+    thin = thinning,
+    x = X0,
+    y = Y0,
+    param_sv = sv_spec[3:6],
+    param_prior = param_prior,
+    prior_type = prior_type,
+    grp_id = grp_id,
+    grp_mat = glob_idmat,
+    include_mean = include_mean,
+    display_progress = verbose,
+    nthreads = num_thread
   )
   res <- do.call(rbind, res)
   rec_names <- colnames(res)
