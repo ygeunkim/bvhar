@@ -46,6 +46,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            Eigen::VectorXi grp_id,
                            Eigen::MatrixXd grp_mat,
                            bool include_mean,
+													 Eigen::VectorXd seed_chain,
                            bool display_progress, int nthreads) {
 // #ifdef _OPENMP
 //   Eigen::setNbThreads(nthreads);
@@ -60,7 +61,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				param_sv, param_prior
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params));
+				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -73,7 +74,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params));
+				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -85,7 +86,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				param_prior
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params));
+				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -95,7 +96,6 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 #pragma omp parallel for
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		// set_seedr(chain); // change this line after add seed vector argument
 		bvharprogress bar(num_iter, display_progress);
 		bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {

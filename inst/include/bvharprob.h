@@ -13,13 +13,13 @@
 #define gammafn Rf_gammafn
 #define lgammafn Rf_lgammafn
 // #define gamma_rand Rf_rgamma
-// #define binom_rand Rf_rbinom
+#define binom_rand Rf_rbinom
 // #define unif_rand Rf_runif
 #define gamma_dens Rf_dgamma
 // #define beta_rand Rf_rbeta
 
-inline double normal_rand(double mean, double sd, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
+inline double normal_rand(double mean, double sd, boost::random::mt19937& rng) {
+	// boost::random::mt19937 rng(seed);
 	boost::random::normal_distribution<> rdist(mean, sd);
 	return rdist(rng);
 }
@@ -38,18 +38,18 @@ inline double gamma_rand(double shp, double scl) {
 	return Rf_rgamma(shp, scl); // 2nd: scale
 }
 
-inline double gamma_rand(double shp, double scl, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
-	boost::random::gamma_distribution<> rdist(shp, 1 / scl); // 2nd: rate -> change both gamma_rand to gamma_rand(shp, rate) later
+inline double gamma_rand(double shp, double rate, boost::random::mt19937& rng) {
+	// boost::random::mt19937 rng(seed);
+	boost::random::gamma_distribution<> rdist(shp, rate); // 2nd: rate -> change original gamma_rand to gamma_rand(shp, rate) later
 	return rdist(rng);
 }
 
-inline double binom_rand(int n, double prob) {
-	return Rf_rbinom(n, prob);
-}
+// inline double binom_rand(int n, double prob) {
+// 	return Rf_rbinom(n, prob);
+// }
 
-inline double binom_rand(double prob, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
+inline double ber_rand(double prob, boost::random::mt19937& rng) {
+	// boost::random::mt19937 rng(seed);
 	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> change function name to ber_rand() later
 	return rdist(rng);
 }
@@ -58,8 +58,8 @@ inline double unif_rand(double min, double max) {
 	return Rf_runif(min, max);
 }
 
-inline double unif_rand(double min, double max, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
+inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
+	// boost::random::mt19937 rng(seed);
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
@@ -68,8 +68,8 @@ inline double beta_rand(double s1, double s2) {
 	return Rf_rbeta(s1, s2);
 }
 
-inline double beta_rand(double s1, double s2, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
+inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
+	// boost::random::mt19937 rng(seed);
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
 }

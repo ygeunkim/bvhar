@@ -313,6 +313,7 @@ bvhar_sv <- function(y,
     grp_id = grp_id,
     grp_mat = glob_idmat,
     include_mean = include_mean,
+    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
     display_progress = verbose,
     nthreads = num_thread
   )

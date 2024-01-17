@@ -94,7 +94,7 @@ struct HorseshoeParams : public SvParams {
 
 class McmcSv {
 public:
-	McmcSv(const SvParams& params);
+	McmcSv(const SvParams& params, unsigned int seed);
 	virtual ~McmcSv() = default;
 	virtual void updateCoefPrec() = 0;
 	virtual void updateCoefShrink() = 0;
@@ -125,6 +125,7 @@ protected:
   int num_lowerchol;
   int num_coef;
 	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
@@ -154,7 +155,7 @@ private:
 
 class MinnSv : public McmcSv {
 public:
-	MinnSv(const MinnParams& params);
+	MinnSv(const MinnParams& params, unsigned int seed);
 	virtual ~MinnSv() = default;
 	void updateCoefPrec() override {};
 	void updateCoefShrink() override {};
@@ -166,7 +167,7 @@ public:
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(const SsvsParams& params);
+	SsvsSv(const SsvsParams& params, unsigned int seed);
 	virtual ~SsvsSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
@@ -204,7 +205,7 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(const HorseshoeParams& params);
+	HorseshoeSv(const HorseshoeParams& params, unsigned int seed);
 	virtual ~HorseshoeSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
