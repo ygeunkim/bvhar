@@ -91,26 +91,22 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 		}
 	}
   // Start Gibbs sampling-----------------------------------
-	// bvharprogress bar(num_iter, display_progress);
-	// bvharinterrupt();
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		// set_seedr(chain); // change this line after add seed vector argument
 		bvharprogress bar(num_iter, display_progress);
-		// bvharinterrupt();
+		bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
-			// if (bvharinterrupt::is_interrupted()) {
-			// 	res[chain] = sv_objs[chain]->returnRecords(0, 1);
-			// 	continue;
-			// }
-
+			if (bvharinterrupt::is_interrupted()) {
+				res[chain] = sv_objs[chain]->returnRecords(0, 1);
+				break;
+			}
 			bar.increment();
 			if (display_progress) {
 				bar.update();
 			}
-
 			sv_objs[chain]->addStep();
 			sv_objs[chain]->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
 		}
