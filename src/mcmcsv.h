@@ -73,6 +73,25 @@ struct HorseshoeParams : public SvParams {
 	);
 };
 
+// struct SvInits {
+// 	Eigen::MatrixXd coef;
+// 	Eigen::VectorXd contem;
+// 	Eigen::VectorXd lvol;
+// 	Eigen::VectorXd lvol_init;
+// 	Eigen::VectorXd lvol_sig;
+
+// 	SvInits(const SvParams& params);
+// 	SvInits(Rcpp::List& init);
+// };
+
+// struct SsvsInits : public SvInits {
+// 	Eigen::VectorXd coef_dummy;
+// 	Eigen::VectorXd coef_weight;
+// 	Eigen::VectorXd contem_weight;
+	
+// 	SsvsInits(Rcpp::List& init);
+// };
+
 class McmcSv {
 public:
 	McmcSv(const SvParams& params);
