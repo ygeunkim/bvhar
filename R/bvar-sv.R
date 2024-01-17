@@ -285,7 +285,7 @@ bvar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
-  if (bayes_spec$prior == "Horseshoe") {
+  if (bayes_spec$prior == "SSVS") {
     res$param <- bind_draws(
       res$param,
       res$gamma_record
