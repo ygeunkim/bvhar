@@ -348,31 +348,14 @@ bvhar_sv <- function(y,
       )
     }
   )
-  rec <- do.call(rbind, res)
-  rec_names <- colnames(rec)
-  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-  rec <- apply(rec, 2, function(x) do.call(cbind, x))
-  rec <- lapply(
-    seq_along(rec),
-    function(id) {
-      split_chain(rec[[id]], chain = num_chains, varname = param_names[id])
-    }
-  )
-  rec <- lapply(rec, as_draws_df)
-  # names(rec) <- rec_names
-  rec$param <- bind_draws(rec)
-  names(rec)[-length(rec)] <- rec_names
-  return(rec)
-  # return(lapply(rec, as_draws_df) %>% bind_draws())
-  # return(rec[[1]] %>% as_draws_df())
-  # return(res)
-  # Preprocess the results--------------------------------
-  names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res)) # alpha to phi
-  colnames(res$h_record) <- paste0(
-    paste0("h[", seq_len(dim_data), "]"),
-    gl(num_design, dim_data)
-  )
-  res$h_record <- as_draws_df(res$h_record)
+  res <- do.call(rbind, res)
+  colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+  rec_names <- colnames(res) # *_record
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names) # phi, h, ...
+  # res <- apply(res, 2, function(x) do.call(cbind, x))
+  res <- apply(res, 2, function(x) do.call(rbind, x))
+  names(res) <- rec_names # *_record
+  # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -382,43 +365,38 @@ bvhar_sv <- function(y,
   rownames(res$coefficients) <- name_har
   colnames(res$chol_posterior) <- name_var
   rownames(res$chol_posterior) <- name_var
-  colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-  colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
-  colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
-  colnames(res$sigh_record) <- paste0("sigh[", seq_len(ncol(res$sigh_record)), "]")
-  res$phi_record <- as_draws_df(res$phi_record)
-  res$a_record <- as_draws_df(res$a_record)
-  res$h0_record <- as_draws_df(res$h0_record)
-  res$sigh_record <- as_draws_df(res$sigh_record)
   if (bayes_spec$prior == "SSVS") {
     res$pip <- colMeans(res$gamma_record)
     res$pip <- matrix(res$pip, ncol = dim_data)
     if (include_mean) {
       res$pip <- rbind(res$pip, rep(1L, dim_data))
     }
-    colnames(res$gamma_record) <- paste0("gamma[", 1:num_phi, "]")
-    res$gamma_record <- as_draws_df(res$gamma_record)
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
   } else if (bayes_spec$prior == "Horseshoe") {
-    if (minnesota == "no") {
-      colnames(res$tau_record) <- "tau"
-    } else {
-      colnames(res$tau_record) <- paste0("tau[", seq_len(ncol(res$tau_record)), "]")
-    }
-    res$tau_record <- as_draws_df(res$tau_record)
-    colnames(res$lambda_record) <- paste0(
-      "lambda[",
-      seq_len(ncol(res$lambda_record)),
-      "]"
-    )
-    res$lambda_record <- as_draws_df(res$lambda_record)
-    colnames(res$kappa_record) <- paste0("kappa[", seq_len(ncol(res$kappa_record)), "]")
     res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
-    res$kappa_record <- as_draws_df(res$kappa_record)
   }
+  # Preprocess the results--------------------------------
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  # res$param <- bind_draws(res[rec_names])
   res$param <- bind_draws(
     res$phi_record,
     res$a_record,
@@ -426,14 +404,7 @@ bvhar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
-  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
-    res$group <- glob_idmat
-    res$num_group <- length(grp_id)
-  }
-  if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
-    res$prior_mean <- prior_mean
-    res$prior_prec <- prior_prec
-  } else if (bayes_spec$prior == "Horseshoe") {
+  if (bayes_spec$prior == "Horseshoe") {
     res$param <- bind_draws(
       res$param,
       res$gamma_record
@@ -444,6 +415,14 @@ bvhar_sv <- function(y,
       res$lambda_record,
       res$tau_record
     )
+  }
+  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
+    res$group <- glob_idmat
+    res$num_group <- length(grp_id)
+  }
+  if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
+    res$prior_mean <- prior_mean
+    res$prior_prec <- prior_prec
   }
   # variables------------
   res$df <- dim_har
