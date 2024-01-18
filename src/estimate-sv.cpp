@@ -48,10 +48,6 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            bool include_mean,
 													 Eigen::VectorXd seed_chain,
                            bool display_progress, int nthreads) {
-// #ifdef _OPENMP
-//   Eigen::setNbThreads(nthreads);
-//   Eigen::initParallel();
-// #endif
 	std::vector<std::unique_ptr<McmcSv>> sv_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
@@ -93,7 +89,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 	}
   // Start Gibbs sampling-----------------------------------
 #ifdef _OPENMP
-#pragma omp parallel for
+#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		bvharprogress bar(num_iter, display_progress);

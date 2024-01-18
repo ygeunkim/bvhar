@@ -207,6 +207,9 @@ bvar_sv <- function(y,
     "SSVS" = 2,
     "Horseshoe" = 3
   )
+  if (num_thread > num_chains) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
   res <- estimate_var_sv(
     num_chains = num_chains,
     num_iter = num_iter,
