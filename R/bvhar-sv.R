@@ -13,6 +13,9 @@
 #' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
+#' @param save_init Save every record starting from the initial values (`TRUE`).
+#' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
+#' If `num_burn > 0` or `thinning != 1`, this option is ignored.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details
@@ -79,6 +82,7 @@ bvhar_sv <- function(y,
                      sv_spec = set_sv(),
                      include_mean = TRUE,
                      minnesota = c("no", "short", "longrun"),
+                     save_init = FALSE,
                      verbose = FALSE,
                      num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -354,6 +358,9 @@ bvhar_sv <- function(y,
   }
   if (num_thread > num_chains) {
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
+  if (num_burn == 0 && thinning == 1 && save_init) {
+    num_burn <- -1
   }
   res <- estimate_var_sv(
     num_chains = num_chains,
