@@ -49,6 +49,9 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            bool include_mean,
 													 Eigen::VectorXd seed_chain,
                            bool display_progress, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	std::vector<std::unique_ptr<McmcSv>> sv_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
@@ -94,10 +97,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 		}
 	}
   // Start Gibbs sampling-----------------------------------
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
+	auto run_gibbs = [&](int chain) {
 		bvharprogress bar(num_iter, display_progress);
 		bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
@@ -110,9 +110,19 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				bar.update();
 			}
 			sv_objs[chain]->addStep();
-			sv_objs[chain]->doPosteriorDraws(); // a -> alpha -> h -> sigma_h -> h0
+			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
 		}
 		res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
+	};
+	if (num_chains == 1) {
+		run_gibbs(0);
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; chain++) {
+			run_gibbs(chain);
+		}
 	}
 	return Rcpp::wrap(res);
 }

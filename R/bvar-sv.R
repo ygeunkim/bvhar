@@ -259,7 +259,7 @@ bvar_sv <- function(y,
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
-  if (num_thread > num_chains) {
+  if (num_thread > num_chains && num_chains != 1) {
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   if (num_burn == 0 && thinning == 1 && save_init) {
