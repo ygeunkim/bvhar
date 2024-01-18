@@ -529,6 +529,19 @@ void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen:
   );
   coef = sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, var * prec_mat);
 }
+// overloading: add rng instance
+void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
+                    double var, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+	int dim = coef.size();
+	Eigen::VectorXd res(dim);
+  for (int i = 0; i < dim; i++) {
+		res[i] = normal_rand(0, 1, rng);
+  }
+	Eigen::MatrixXd post_sig = shrink_mat / var + design_mat.transpose() * design_mat;
+	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
+	Eigen::VectorXd post_mean = llt_sig.solve(design_mat.transpose() * response_vec);
+	coef = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+}
 
 // Generating the Coefficient Vector using Fast Sampling
 // 
@@ -543,6 +556,20 @@ void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_vec, Ei
   Eigen::MatrixXd sur_identity = Eigen::MatrixXd::Identity(num_sur, num_sur);
   Eigen::VectorXd u_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_coef), shrink_mat));
   Eigen::VectorXd delta_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_sur), sur_identity));
+  Eigen::VectorXd nu = design_mat * u_vec + delta_vec;
+  Eigen::VectorXd lin_solve = (design_mat * shrink_mat * design_mat.transpose() + sur_identity).llt().solve(
+    response_vec - nu
+  );
+  coef = u_vec + shrink_mat * design_mat.transpose() * lin_solve;
+}
+// overloading: add rng instance
+void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
+												 Eigen::MatrixXd shrink_mat, boost::random::mt19937& rng) {
+  int num_coef = design_mat.cols(); // k^2 kp(+1)
+  int num_sur = response_vec.size(); // nk-dim
+  Eigen::MatrixXd sur_identity = Eigen::MatrixXd::Identity(num_sur, num_sur);
+  Eigen::VectorXd u_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_coef), shrink_mat, rng));
+  Eigen::VectorXd delta_vec = vectorize_eigen(sim_mgaussian_chol(1, Eigen::VectorXd::Zero(num_sur), sur_identity, rng));
   Eigen::VectorXd nu = design_mat * u_vec + delta_vec;
   Eigen::VectorXd lin_solve = (design_mat * shrink_mat * design_mat.transpose() + sur_identity).llt().solve(
     response_vec - nu
@@ -569,6 +596,22 @@ void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec
     sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, coef_var[0] * prec_mat)
   );
 }
+// overloading: add rng instance
+// void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
+// 												Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+//   int dim = design_mat.cols();
+//   int sample_size = response_vec.size();
+// 	Eigen::MatrixXd post_sig = shrink_mat / coef_var[0] + design_mat.transpose() + design_mat;
+// 	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
+// 	Eigen::VectorXd post_mean = llt_sig.solve(design_mat.transpose() * response_vec);
+//   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * prec_mat * design_mat.transpose()) * response_vec;
+//   coef_var[0] = 1 / gamma_rand(sample_size / 2, scl / 2, rng);
+// 	Eigen::VectorXd res(dim);
+//   for (int i = 0; i < dim; i++) {
+// 		res[i] = normal_rand(0, 1, rng);
+//   }
+// 	coef_var.tail(dim) = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+// }
 
 // Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
 // 
@@ -583,6 +626,13 @@ double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
   scl *= .5;
   return 1 / gamma_rand(sample_size / 2, scl);
+}
+// overloading: add rng instance
+double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+  int sample_size = response_vec.size();
+  double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
+  scl *= .5;
+  return 1 / gamma_rand(sample_size / 2, scl, rng);
 }
 
 // Generating the Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
