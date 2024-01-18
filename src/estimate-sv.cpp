@@ -42,6 +42,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            Eigen::MatrixXd x, Eigen::MatrixXd y,
 													 Rcpp::List param_sv,
 													 Rcpp::List param_prior,
+													 Rcpp::List param_init,
                            int prior_type,
                            Eigen::VectorXi grp_id,
                            Eigen::MatrixXd grp_mat,
@@ -57,7 +58,9 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				param_sv, param_prior
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params, static_cast<unsigned int>(seed_chain[i])));
+				Rcpp::List init_spec = param_init[i];
+				SvInits sv_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -70,7 +73,9 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params, static_cast<unsigned int>(seed_chain[i])));
+				Rcpp::List init_spec = param_init[i];
+				SsvsInits ssvs_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -78,11 +83,12 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			HorseshoeParams horseshoe_params(
 				num_iter, x, y,
 				param_sv,
-				grp_id, grp_mat,
-				param_prior
+				grp_id, grp_mat
 			);
 			for (int i = 0; i < num_chains; i++ ) {
-				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params, static_cast<unsigned int>(seed_chain[i])));
+				Rcpp::List init_spec = param_init[i];
+				HorseshoeInits hs_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}

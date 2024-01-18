@@ -42,21 +42,53 @@ SsvsParams::SsvsParams(
 HorseshoeParams::HorseshoeParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& sv_spec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-	Rcpp::List& hs_spec
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
 )
 : SvParams(num_iter, x, y, sv_spec),
-	_grp_id(grp_id), _grp_mat(grp_mat),
-	_init_local(Rcpp::as<Eigen::VectorXd>(hs_spec["local_sparsity"])),
-	_init_global(Rcpp::as<Eigen::VectorXd>(hs_spec["global_sparsity"])),
-	_init_contem_local(Rcpp::as<Eigen::VectorXd>(hs_spec["contem_local_sparsity"])),
-	_init_conetm_global(Rcpp::as<Eigen::VectorXd>(hs_spec["contem_global_sparsity"])) {}
+	_grp_id(grp_id), _grp_mat(grp_mat) {}
+	// _init_local(Rcpp::as<Eigen::VectorXd>(hs_spec["local_sparsity"])),
+	// _init_global(Rcpp::as<Eigen::VectorXd>(hs_spec["global_sparsity"])),
+	// _init_contem_local(Rcpp::as<Eigen::VectorXd>(hs_spec["contem_local_sparsity"])),
+	// _init_conetm_global(Rcpp::as<Eigen::VectorXd>(hs_spec["contem_global_sparsity"])) {}
 
-McmcSv::McmcSv(const SvParams& params, unsigned int seed)
+SvInits::SvInits(const SvParams& params) {
+	_coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
+	int dim = params._y.cols();
+	int num_lowerchol = dim * (dim - 1) / 2;
+	int num_design = params._y.rows();
+	_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
+	_lvol_init = (params._y - params._x * _coef).transpose().array().square().rowwise().mean().log();
+	_lvol = _lvol_init.transpose().replicate(num_design, 1);
+	_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
+}
+
+SvInits::SvInits(Rcpp::List& init)
+: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
+	_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
+	_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
+	_lvol(Rcpp::as<Eigen::MatrixXd>(init["lvol"])),
+	_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
+
+SsvsInits::SsvsInits(Rcpp::List& init)
+: SvInits(init),
+	_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
+	_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
+	_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
+
+HorseshoeInits::HorseshoeInits(Rcpp::List& init)
+: SvInits(init),
+	_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
+	_init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+	_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
+	_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+
+McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 : x(params._x), y(params._y),
 	prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
 	prior_init_mean(params._init_mean), prior_init_prec(params._init_prec),
 	num_iter(params._iter),
+	coef_mat(inits._coef), contem_coef(inits._contem),
+	lvol_init(inits._lvol_init), lvol_draw(inits._lvol), lvol_sig(inits._lvol_sig),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
@@ -77,15 +109,15 @@ McmcSv::McmcSv(const SvParams& params, unsigned int seed)
 	lvol_sig_record = Eigen::MatrixXd::Ones(num_iter + 1, dim);
 	lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim);
 	lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim);
-	coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
+	// coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
 	coef_vec = vectorize_eigen(coef_mat);
-	contem_coef = .001 * Eigen::VectorXd::Zero(num_lowerchol);
+	// contem_coef = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	latent_innov = y - x * coef_mat;
 	chol_lower = build_inv_lower(dim, contem_coef);
-	lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
+	// lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
 	lvol_init_record.row(0) = lvol_init;
-	lvol_draw = lvol_init.transpose().replicate(num_design, 1);
-	lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
+	// lvol_draw = lvol_init.transpose().replicate(num_design, 1);
+	// lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	coef_record.row(0) = vectorize_eigen(coef_mat);
 	lvol_init_record.row(0) = lvol_init;
 	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose());
@@ -149,8 +181,8 @@ void McmcSv::addStep() {
 	mcmc_step++;
 }
 
-MinnSv::MinnSv(const MinnParams& params, unsigned int seed)
-: McmcSv(params, seed) {
+MinnSv::MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed)
+: McmcSv(params, inits, seed) {
 	prior_alpha_mean = vectorize_eigen(params._prior_mean);
 	prior_alpha_prec = kronecker_eigen(params._prec_diag, params._prior_prec);
 }
@@ -190,15 +222,18 @@ Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
 	return res;
 }
 
-SsvsSv::SsvsSv(const SsvsParams& params, unsigned int seed)
-: McmcSv(params, seed),
+SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed)
+: McmcSv(params, inits, seed),
 	include_mean(params._mean),
 	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
-	coef_weight(params._coef_weight),
-	contem_weight(params._contem_weight),
+	// coef_weight(params._coef_weight),
+	// contem_weight(params._contem_weight),
+	coef_weight(inits._coef_weight),
+	contem_weight(inits._contem_weight),
+	coef_dummy(inits._coef_dummy),
 	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
 	coef_spike(params._coef_spike),
 	coef_slab(params._coef_slab),
@@ -226,7 +261,7 @@ SsvsSv::SsvsSv(const SsvsParams& params, unsigned int seed)
 	contem_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
 	coef_weight_record.row(0) = coef_weight;
 	contem_weight_record.row(0) = contem_weight;
-	coef_dummy = Eigen::VectorXd::Ones(num_alpha);
+	// coef_dummy = Eigen::VectorXd::Ones(num_alpha);
 	slab_weight = Eigen::VectorXd::Ones(num_alpha);
 	slab_weight_mat = Eigen::MatrixXd::Ones(num_alpha / dim, dim);
 	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
@@ -317,21 +352,25 @@ Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
 	return res;
 }
 
-HorseshoeSv::HorseshoeSv(const HorseshoeParams& params, unsigned int seed)
-: McmcSv(params, seed),
+HorseshoeSv::HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed)
+: McmcSv(params, inits, seed),
 	grp_id(params._grp_id),
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
-	local_lev(params._init_local),
-	global_lev(params._init_global),
+	// local_lev(params._init_local),
+	// global_lev(params._init_global),
+	local_lev(inits._init_local),
+	global_lev(inits._init_global),
 	shrink_fac(Eigen::VectorXd::Zero(num_coef)),
 	latent_local(Eigen::VectorXd::Zero(num_coef)),
 	latent_global(Eigen::VectorXd::Zero(num_grp)),
 	coef_var(Eigen::VectorXd::Zero(num_coef)),
 	coef_var_loc(Eigen::MatrixXd::Zero(dim_design, dim)),
-	contem_local_lev(params._init_contem_local),
-	contem_global_lev(params._init_conetm_global),
+	// contem_local_lev(params._init_contem_local),
+	// contem_global_lev(params._init_conetm_global),
+	contem_local_lev(inits._init_contem_local),
+	contem_global_lev(inits._init_conetm_global),
 	contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_global(Eigen::VectorXd::Zero(1)) {

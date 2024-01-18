@@ -60,41 +60,50 @@ struct SsvsParams : public SvParams {
 struct HorseshoeParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXd _grp_mat;
-	Eigen::VectorXd _init_local;
-	Eigen::VectorXd _init_global;
-	Eigen::VectorXd _init_contem_local;
-	Eigen::VectorXd _init_conetm_global;
+	// Eigen::VectorXd _init_local;
+	// Eigen::VectorXd _init_global;
+	// Eigen::VectorXd _init_contem_local;
+	// Eigen::VectorXd _init_conetm_global;
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		Rcpp::List& hs_spec
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
 	);
+	// ,Rcpp::List& hs_spec
 };
 
-// struct SvInits {
-// 	Eigen::MatrixXd coef;
-// 	Eigen::VectorXd contem;
-// 	Eigen::VectorXd lvol;
-// 	Eigen::VectorXd lvol_init;
-// 	Eigen::VectorXd lvol_sig;
+struct SvInits {
+	Eigen::MatrixXd _coef;
+	Eigen::VectorXd _contem;
+	Eigen::VectorXd _lvol_init;
+	Eigen::MatrixXd _lvol;
+	Eigen::VectorXd _lvol_sig;
 
-// 	SvInits(const SvParams& params);
-// 	SvInits(Rcpp::List& init);
-// };
+	SvInits(const SvParams& params);
+	SvInits(Rcpp::List& init);
+};
 
-// struct SsvsInits : public SvInits {
-// 	Eigen::VectorXd coef_dummy;
-// 	Eigen::VectorXd coef_weight;
-// 	Eigen::VectorXd contem_weight;
+struct SsvsInits : public SvInits {
+	Eigen::VectorXd _coef_dummy;
+	Eigen::VectorXd _coef_weight; // in SsvsParams: move coef_mixture and chol_mixture in set_ssvs()?
+	Eigen::VectorXd _contem_weight; // in SsvsParams
 	
-// 	SsvsInits(Rcpp::List& init);
-// };
+	SsvsInits(Rcpp::List& init);
+};
+
+struct HorseshoeInits : public SvInits {
+	Eigen::VectorXd _init_local;
+	Eigen::VectorXd _init_global;
+	Eigen::VectorXd _init_contem_local;
+	Eigen::VectorXd _init_conetm_global;
+	
+	HorseshoeInits(Rcpp::List& init);
+};
 
 class McmcSv {
 public:
-	McmcSv(const SvParams& params, unsigned int seed);
+	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed);
 	virtual ~McmcSv() = default;
 	virtual void updateCoefPrec() = 0;
 	virtual void updateCoefShrink() = 0;
@@ -155,7 +164,7 @@ private:
 
 class MinnSv : public McmcSv {
 public:
-	MinnSv(const MinnParams& params, unsigned int seed);
+	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed);
 	virtual ~MinnSv() = default;
 	void updateCoefPrec() override {};
 	void updateCoefShrink() override {};
@@ -167,7 +176,7 @@ public:
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(const SsvsParams& params, unsigned int seed);
+	SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed);
 	virtual ~SsvsSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
@@ -205,7 +214,7 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(const HorseshoeParams& params, unsigned int seed);
+	HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed);
 	virtual ~HorseshoeSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;

@@ -97,6 +97,19 @@ bvar_sv <- function(y,
     stop("'thinning' should be non-negative.")
   }
   prior_nm <- bayes_spec$prior
+  # Initialization--------------------
+  param_init <- lapply(
+    seq_len(num_chains),
+    function(x) {
+      list(
+        init_coef = matrix(runif(dim_data * dim_design, -1, 1), ncol = dim_data),
+        init_contem = exp(runif(num_eta, -1, 0)), # Cholesky factor
+        lvol_init = runif(dim_data, -1, 1),
+        lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
+        lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
+      )
+    }
+  )
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVAR") {
       stop("'bayes_spec' must be the result of 'set_bvar()'.")
@@ -171,6 +184,25 @@ bvar_sv <- function(y,
       stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
     }
     param_prior <- bayes_spec
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        coef_mixture <- runif(num_grp, -1, 1)
+        coef_mixture <- exp(coef_mixture) / (1 + exp(coef_mixture)) # minnesota structure?
+        init_coef_dummy <- rbinom(num_alpha, 1, .5) # minnesota structure?
+        chol_mixture <- runif(num_eta, -1, 1)
+        chol_mixture <- exp(chol_mixture) / (1 + exp(chol_mixture))
+        init_chol_dummy <- rbinom(num_eta, 1, .5)
+        append(
+          init,
+          list(
+            init_coef_dummy = init_coef_dummy,
+            coef_mixture = coef_mixture,
+            chol_mixture = chol_mixture
+          )
+        )
+      }
+    )
   } else {
     num_restrict <- ifelse(
       include_mean,
@@ -193,13 +225,26 @@ bvar_sv <- function(y,
       include_mean = include_mean
     )
     grp_id <- unique(c(glob_idmat))
-    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
-    param_prior <- append(
-      bayes_spec,
-      list(
-        contem_local_sparsity = rep(.1, num_eta),
-        contem_global_sparsity = .1
-      )
+    num_grp <- length(grp_id)
+    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
+    param_prior <- list()
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        local_sparsity <- exp(runif(num_restrict, -1, 1))
+        global_sparsity <- exp(runif(num_grp, -1, 1))
+        contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+        contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+        append(
+          init,
+          list(
+            local_sparsity = local_sparsity,
+            global_sparsity = global_sparsity,
+            contem_local_sparsity = contem_local_sparsity,
+            contem_global_sparsity = contem_global_sparsity
+          )
+        )
+      }
     )
   }
   prior_type <- switch(prior_nm,
@@ -222,6 +267,7 @@ bvar_sv <- function(y,
     y = Y0,
     param_sv = sv_spec[3:6],
     param_prior = param_prior,
+    param_init = param_init,
     prior_type = prior_type,
     grp_id = grp_id,
     grp_mat = glob_idmat,
