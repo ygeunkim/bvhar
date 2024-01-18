@@ -38,9 +38,9 @@ inline double gamma_rand(double shp, double scl) {
 	return Rf_rgamma(shp, scl); // 2nd: scale
 }
 
-inline double gamma_rand(double shp, double rate, boost::random::mt19937& rng) {
+inline double gamma_rand(double shp, double scl, boost::random::mt19937& rng) {
 	// boost::random::mt19937 rng(seed);
-	boost::random::gamma_distribution<> rdist(shp, rate); // 2nd: rate -> change original gamma_rand to gamma_rand(shp, rate) later
+	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
 

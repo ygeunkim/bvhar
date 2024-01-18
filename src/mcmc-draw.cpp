@@ -448,7 +448,7 @@ void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::VectorXd& 
   for (int i = 0; i < dim; i++) {
     sv_sig[i] = 1 / gamma_rand(
       shp[i] + num_design / 2,
-      scl[i] + (h1.array() - h_slide.array()).square().sum() / 2,
+			1 / (scl[i] + (h1.array() - h_slide.array()).square().sum() / 2),
 			rng
     );
   }
@@ -608,7 +608,7 @@ void horseshoe_local_sparsity(Eigen::VectorXd& local_lev,
   int dim = coef_vec.size();
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
   for (int i = 0; i < dim; i++) {
-		local_lev[i] = sqrt(1 / gamma_rand(1.0, invgam_scl[i], rng));
+		local_lev[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl[i], rng));
   }
 }
 
@@ -641,7 +641,7 @@ double horseshoe_global_sparsity(double global_latent,
   for (int i = 0; i < dim; i++) {
     invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
   }
-  return sqrt(1 / gamma_rand((dim + 1) / 2, invgam_scl, rng));
+	return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl, rng));
 }
 
 // Generating the Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -738,7 +738,7 @@ void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam) {
 void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, boost::random::mt19937& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
-		latent[i] = 1 / gamma_rand(1.0, 1 + 1 / pow(hyperparam[i], 2.0), rng);
+		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)), rng);
   }
 }
 
