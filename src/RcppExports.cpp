@@ -1043,6 +1043,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_maxomp
+int get_maxomp();
+RcppExport SEXP _bvhar_get_maxomp() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(get_maxomp());
+    return rcpp_result_gen;
+END_RCPP
+}
 // check_omp
 void check_omp();
 RcppExport SEXP _bvhar_check_omp() {
@@ -1386,6 +1396,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
+    {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
     {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 4},

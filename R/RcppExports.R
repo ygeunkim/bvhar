@@ -1204,6 +1204,10 @@ compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
+get_maxomp <- function() {
+    .Call(`_bvhar_get_maxomp`)
+}
+
 check_omp <- function() {
     invisible(.Call(`_bvhar_check_omp`))
 }
