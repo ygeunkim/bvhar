@@ -9,6 +9,7 @@
 bvhar_sv(
   y,
   har = c(5, 22),
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -16,6 +17,7 @@ bvhar_sv(
   sv_spec = set_sv(),
   include_mean = TRUE,
   minnesota = c("no", "short", "longrun"),
+  save_init = FALSE,
   verbose = FALSE,
   num_thread = 1
 )
@@ -28,6 +30,8 @@ knit_print.bvharsv(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 
@@ -42,6 +46,10 @@ knit_print.bvharsv(x, ...)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} type. By default, \code{"no"}.}
+
+\item{save_init}{Save every record starting from the initial values (\code{TRUE}).
+By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
+If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

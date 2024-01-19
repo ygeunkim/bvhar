@@ -1,6 +1,18 @@
 #include <RcppEigen.h>
 #include "bvharprob.h"
 
+//' Set seed in Rcpp using `set.seed()` of R
+//' 
+//' @param seed Seed
+//' @noRd
+// [[Rcpp::export]]
+void set_seedr(int seed) {
+	unsigned int seed_unsigned = static_cast<unsigned int>(seed);
+	Rcpp::Environment base_env("package:base");
+	Rcpp::Function set_seed = base_env["set.seed"];
+	set_seed(seed_unsigned);
+}
+
 //' Generate Multivariate Normal Random Vector
 //' 
 //' This function samples n x muti-dimensional normal random matrix.
@@ -59,6 +71,20 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
   }
   // Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
   // Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
+  res.rowwise() += mu.transpose();
+  return res;
+}
+// overloading: add rng instance
+Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig, boost::random::mt19937& rng) {
+  int dim = sig.cols();
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim);
+  for (int i = 0; i < num_sim; i++) {
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = normal_rand(0, 1, rng);
+    }
+  }
   res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
   res.rowwise() += mu.transpose();
   return res;
