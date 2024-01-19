@@ -9,6 +9,7 @@
 bvhar_ssvs(
   y,
   har = c(5, 22),
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -17,7 +18,8 @@ bvhar_ssvs(
   init_spec = init_ssvs(type = "auto"),
   include_mean = TRUE,
   minnesota = c("no", "short", "longrun"),
-  verbose = FALSE
+  verbose = FALSE,
+  num_thread = 1
 )
 
 \method{print}{bvharssvs}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -28,6 +30,8 @@ knit_print.bvharssvs(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 
@@ -44,6 +48,8 @@ knit_print.bvharssvs(x, ...)
 \item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} type. By default, \code{"no"}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 
 \item{x}{\code{bvharssvs} object}
 

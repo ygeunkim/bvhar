@@ -9,6 +9,7 @@
 bvar_horseshoe(
   y,
   p,
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -16,7 +17,8 @@ bvar_horseshoe(
   include_mean = TRUE,
   minnesota = FALSE,
   algo = c("block", "gibbs"),
-  verbose = FALSE
+  verbose = FALSE,
+  num_thread = 1
 )
 
 \method{print}{bvarhs}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -27,6 +29,8 @@ knit_print.bvarhs(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 
@@ -43,6 +47,8 @@ knit_print.bvarhs(x, ...)
 \item{algo}{Ordinary gibbs sampling (\code{"gibbs"}) or blocked gibbs (Default: \code{"block"}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 
 \item{x}{\code{bvarhs} object}
 
