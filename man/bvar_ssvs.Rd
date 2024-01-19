@@ -9,6 +9,7 @@
 bvar_ssvs(
   y,
   p,
+  num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
   thinning = 1,
@@ -17,7 +18,8 @@ bvar_ssvs(
   init_spec = init_ssvs(type = "auto"),
   include_mean = TRUE,
   minnesota = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  num_thread = 1
 )
 
 \method{print}{bvarssvs}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -28,6 +30,8 @@ knit_print.bvarssvs(x, ...)
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag}
+
+\item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
 
@@ -44,6 +48,8 @@ knit_print.bvarssvs(x, ...)
 \item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{FALSE}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 
 \item{x}{\code{bvarssvs} object}
 
