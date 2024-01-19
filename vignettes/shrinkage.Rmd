@@ -25,92 +25,97 @@ set.seed(1)
 library(bvhar)
 ```
 
-<!-- ```{r etfdat} -->
-<!-- var_idx <- c("GVZCLS", "OVXCLS", "EVZCLS", "VXFXICLS") -->
-<!-- etf <- -->
-<!--   etf_vix[1:100, ] %>% -->
-<!--   dplyr::select(dplyr::all_of(var_idx)) -->
-<!-- # Split------------------------------- -->
-<!-- h <- 5 -->
-<!-- etf_eval <- divide_ts(etf, h) -->
-<!-- etf_train <- etf_eval$train -->
-<!-- etf_test <- etf_eval$test -->
-<!-- ``` -->
+```{r etfdat}
+etf <- etf_vix[1:100, 1:3]
+# Split-------------------------------
+h <- 5
+etf_eval <- divide_ts(etf, h)
+etf_train <- etf_eval$train
+etf_test <- etf_eval$test
+```
 
 
-<!-- # Stochastic Search Variable Selection (SSVS) Prior -->
+# Stochastic Search Variable Selection (SSVS) Prior
 
-<!-- - `y`: Multivariate time series data. It should be data frame or matrix, which means that every column is numeric. Each column indicates variable, i.e. it sould be wide format. -->
-<!-- - `har`: Order of VHAR -->
-<!-- - `num_iter`: Total number of iterations -->
-<!-- - `num_burn`: Number of burn-in -->
-<!-- - `thinning`: Thinning -->
-<!-- - `bayes_spec`: Output of `set_ssvs()` -->
-<!--   - By default, use a default semi-automatic approach using `choose_ssvs()`. -->
-<!-- - `init_spec`: Gibbs sampler initialization by `init_ssvs()`. -->
-<!--   - By default, `init_ssvs(type = "auto")` uses OLS. -->
-<!-- - `include_mean = TRUE`: By default, you include the constant term in the model. -->
-<!-- - `minnesota = c("no", "short", "longrun")`: Minnesota-type shrinkage. -->
-<!-- - `verbose = FALSE`: Progress bar -->
+- `y`: Multivariate time series data. It should be data frame or matrix, which means that every column is numeric. Each column indicates variable, i.e. it sould be wide format.
+- `har`: Order of VHAR
+- `num_chains`: Number of chains
+    - If OpenMP is enabled, parallel loop will be run.
+- `num_iter`: Total number of iterations
+- `num_burn`: Number of burn-in
+- `thinning`: Thinning
+- `bayes_spec`: Output of `set_ssvs()`
+    - By default, use a default semi-automatic approach using `choose_ssvs()`.
+- `init_spec`: Gibbs sampler initialization by `init_ssvs()`.
+  - By default, `init_ssvs(type = "auto")` uses OLS.
+- `include_mean = TRUE`: By default, you include the constant term in the model.
+- `minnesota = c("no", "short", "longrun")`: Minnesota-type shrinkage.
+- `verbose = FALSE`: Progress bar
+- `num_thread`: Number of thread for OpenMP
+    - Used in both Eigen computation and parallel multi-chain loop
+    - This option is valid only when OpenMP in user's machine.
 
-<!-- ```{r fitssvs} -->
-<!-- (fit_ssvs <- bvhar_ssvs(etf_train, num_iter = 50, include_mean = FALSE, minnesota = "longrun")) -->
-<!-- ``` -->
+```{r fitssvs}
+(fit_ssvs <- bvhar_ssvs(etf_train, num_chains = 1, num_iter = 50, include_mean = FALSE, minnesota = "longrun"))
+```
 
-<!-- `autoplot()` for the fit (`bvharsp` object) provides coefficients heatmap. -->
-<!-- There is `type` argument, and the default `type = "coef"` draws the heatmap. -->
+`autoplot()` for the fit (`bvharsp` object) provides coefficients heatmap.
+There is `type` argument, and the default `type = "coef"` draws the heatmap.
 
-<!-- ```{r heatssvs} -->
-<!-- autoplot(fit_ssvs) -->
-<!-- ``` -->
-
-<!-- `type = "trace"` gives MCMC trace plot. -->
-
-<!-- ```{r} -->
-<!-- autoplot(fit_ssvs, type = "trace", regex_pars = "psi") -->
-<!-- ``` -->
-
-
-<!-- # Horseshoe Prior -->
-
-<!-- ```{r fiths} -->
-<!-- (fit_hs <- bvhar_horseshoe(etf_train, num_iter = 50, include_mean = FALSE, minnesota = "longrun", verbose = TRUE)) -->
-<!-- ``` -->
-
-<!-- ```{r heaths} -->
-<!-- autoplot(fit_hs) -->
-<!-- ``` -->
+```{r heatssvs}
+autoplot(fit_ssvs)
+```
 
 
-<!-- `type = "dens"` draws MCMC density plot. -->
+# Horseshoe Prior
 
-<!-- ```{r denshs} -->
-<!-- autoplot(fit_hs, type = "dens", regex_pars = "tau") -->
-<!-- ``` -->
+`bayes_spec` is the initial specification by `set_horseshoe()`. Others are the same.
+
+```{r fiths}
+(fit_hs <- bvhar_horseshoe(etf_train, num_chains = 2, num_iter = 50, include_mean = FALSE, minnesota = "longrun"))
+```
+
+```{r heaths}
+autoplot(fit_hs)
+```
 
 
-<!-- # Models with Stochastic Volatilities -->
+# Models with Stochastic Volatilities
 
-<!-- ## SSVS -->
+`bvhar_sv()` fits VHAR-SV with shrinkage priors.
 
-<!-- ```{r svssvs} -->
-<!-- (fit_ssvs_sv <- bvhar_sv(etf_train, num_iter = 50, bayes_spec = set_ssvs(), include_mean = FALSE, minnesota = "longrun")) -->
-<!-- ``` -->
+- Three different prior for covariance, and specify through `bayes_spec`
+- `sv_spec`: prior settings for SV, `set_sv()`
 
-<!-- ```{r heatssvssv} -->
-<!-- autoplot(fit_ssvs_sv) -->
-<!-- ``` -->
+## SSVS
 
-<!-- ## Horseshoe -->
+```{r svssvs}
+(fit_ssvs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_ssvs(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+```
 
-<!-- ```{r} -->
-<!-- (fit_hs_sv <- bvhar_sv(etf_train, num_iter = 50, bayes_spec = set_horseshoe(), include_mean = FALSE, minnesota = "longrun")) -->
-<!-- ``` -->
+```{r heatssvssv}
+autoplot(fit_ssvs_sv)
+```
 
-<!-- ```{r heathssv} -->
-<!-- autoplot(fit_hs_sv) -->
-<!-- ``` -->
+## Horseshoe
 
+```{r}
+(fit_hs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_horseshoe(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+```
+
+## Bayesian visualization
+
+`autoplot()` also provides Bayesian visualization. `type = "trace"` gives MCMC trace plot.
+
+```{r}
+autoplot(fit_hs_sv, type = "trace", regex_pars = "tau")
+```
+
+`type = "dens"` draws MCMC density plot.
+
+```{r denshs}
+autoplot(fit_hs, type = "dens", regex_pars = "tau")
+```
 
 
 ```{r resetopts, include=FALSE}
