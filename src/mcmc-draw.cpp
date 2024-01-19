@@ -63,6 +63,30 @@ void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen:
     block_id += j;
   }
 }
+// overloading: add rng instance
+void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& DRD, Eigen::VectorXd& shape, Eigen::VectorXd& rate,
+										int num_design, boost::mt19937& rng) {
+  int dim = sse_mat.cols();
+  int num_param = DRD.size();
+  Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
+  inv_DRD.diagonal() = 1 / DRD.array().square();
+  Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
+  shape.array() += (double)num_design / 2;
+  rate[0] += sse_mat(0, 0) / 2;
+  chol_diag[0] = sqrt(gamma_rand(shape[0], 1 / rate[0], rng)); // psi[11]^2 ~ Gamma(shape, rate)
+  int block_id = 0;
+  for (int j = 1; j < dim; j++) {
+    sse_colvec.segment(0, j) = sse_mat.block(0, j, j, 1); // (s1j, ..., sj-1,j)
+    rate[j] += (
+      sse_mat(j, j) - 
+        sse_colvec.segment(0, j).transpose() * 
+        (sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j)).llt().solve(Eigen::MatrixXd::Identity(j, j)) * 
+        sse_colvec.segment(0, j)
+    ) / 2;
+    chol_diag[j] = sqrt(gamma_rand(shape[j], 1 / rate[j], rng)); // psi[jj]^2 ~ Gamma(shape, rate)
+    block_id += j;
+  }
+}
 
 //' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 //' 
@@ -90,7 +114,29 @@ void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::V
     chol_off.segment(block_id, j) = vectorize_eigen(sim_mgaussian_chol(1, normal_mean.segment(0, j), normal_variance.topLeftCorner(j, j)));
     block_id += j;
   }
-  // return res;
+}
+// overloading: add rng instance
+void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, boost::random::mt19937& rng) {
+  int dim = sse_mat.cols();
+  int num_param = DRD.size();
+  Eigen::MatrixXd normal_variance(dim - 1, dim - 1);
+  Eigen::VectorXd sse_colvec(dim - 1); // sj = (s1j, ..., s(j-1, j)) from SSE
+  Eigen::VectorXd normal_mean(dim - 1);
+  Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
+  inv_DRD.diagonal() = 1 / DRD.array().square();
+  int block_id = 0;
+  for (int j = 1; j < dim; j++) {
+		Eigen::VectorXd standard_normal(j);
+		for (int i = 0; i < j; i++) {
+			standard_normal[i] = normal_rand(0, 1, rng);
+		}
+		sse_colvec.head(j) = sse_mat.block(0, j, j, 1);
+		normal_variance.topLeftCorner(j, j) = sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j);
+		Eigen::LLT<Eigen::MatrixXd> llt_var(normal_variance);
+		normal_mean.head(j) = -chol_diag[j] * llt_var.solve(sse_colvec.segment(0, j));
+		chol_off.segment(block_id, j) = normal_mean + llt_var.matrixU().solve(standard_normal);
+    block_id += j;
+  }
 }
 
 // Filling Cholesky Factor Upper Triangular Matrix
@@ -131,6 +177,25 @@ void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::Vector
   Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).llt().solve(Eigen::MatrixXd::Identity(num_coef, num_coef)); // Delta
   Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
   coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+}
+// overloading: add rng instance
+void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd, Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols,
+							 Eigen::MatrixXd& chol_factor, boost::random::mt19937& rng) {
+  int num_coef = prior_sd.size();
+  Eigen::MatrixXd scaled_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
+  Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
+  prior_prec.diagonal() = 1 / prior_sd.array().square();
+  // Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).llt().solve(Eigen::MatrixXd::Identity(num_coef, num_coef)); // Delta
+	// Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
+	// coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+	Eigen::VectorXd standard_normal(num_coef);
+	for (int i = 0; i < j; i++) {
+		standard_normal[i] = normal_rand(0, 1, rng);
+	}
+	Eigen::MatrixXd normal_variance = scaled_xtx + prior_prec; // Delta^(-1)
+	Eigen::LLT<Eigen::MatrixXd> llt_sig(normal_variance);
+	Eigen::MatrixXd normal_mean = llt_sig.solve(scaled_xtx * coef_ols + prior_prec * prior_mean);
+	coef = normal_mean + llt_sig.matrixU().solve(standard_normal);
 }
 
 // Generating Dummy Vector for Parameters in SSVS Gibbs Sampler

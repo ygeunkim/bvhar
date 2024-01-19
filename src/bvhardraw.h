@@ -54,6 +54,12 @@ Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num
 Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int num_burn, int thin);
 
 // overloading by adding rng instance
+void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& DRD, Eigen::VectorXd& shape, Eigen::VectorXd& rate, int num_design, boost::mt19937& rng);
+
+void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, boost::random::mt19937& rng);
+
+void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd, Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols, Eigen::MatrixXd& chol_factor, boost::random::mt19937& rng);
+
 void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs, Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight, boost::random::mt19937& rng);
 
 void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng);
