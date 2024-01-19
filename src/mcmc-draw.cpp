@@ -189,7 +189,7 @@ void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::Vector
 	// Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
 	// coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
 	Eigen::VectorXd standard_normal(num_coef);
-	for (int i = 0; i < j; i++) {
+	for (int i = 0; i < num_coef; i++) {
 		standard_normal[i] = normal_rand(0, 1, rng);
 	}
 	Eigen::MatrixXd normal_variance = scaled_xtx + prior_prec; // Delta^(-1)
