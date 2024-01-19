@@ -298,14 +298,6 @@ bvar_sv <- function(y,
   rownames(res$coefficients) <- name_lag
   colnames(res$chol_posterior) <- name_var
   rownames(res$chol_posterior) <- name_var
-  colnames(res$alpha_record) <- paste0("alpha[", seq_len(ncol(res$alpha_record)), "]")
-  colnames(res$a_record) <- paste0("a[", seq_len(ncol(res$a_record)), "]")
-  colnames(res$h0_record) <- paste0("h0[", seq_len(ncol(res$h0_record)), "]")
-  colnames(res$sigh_record) <- paste0("sigh[", seq_len(ncol(res$sigh_record)), "]")
-  res$alpha_record <- as_draws_df(res$alpha_record)
-  res$a_record <- as_draws_df(res$a_record)
-  res$h0_record <- as_draws_df(res$h0_record)
-  res$sigh_record <- as_draws_df(res$sigh_record)
   if (bayes_spec$prior == "SSVS") {
     res$pip <- colMeans(res$gamma_record)
     res$pip <- matrix(res$pip, ncol = dim_data)
