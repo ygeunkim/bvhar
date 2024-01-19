@@ -4,6 +4,9 @@
 #include <RcppEigen.h>
 #include "bvhardraw.h"
 #include <atomic>
+#include <mutex>
+#include <vector> // std::vector in source file
+#include <memory> // std::unique_ptr in source file
 
 struct HsParams {
 	int _iter;

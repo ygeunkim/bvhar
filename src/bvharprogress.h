@@ -16,7 +16,6 @@ private:
 	int _total;
 	int _width;
 	bool _verbose;
-	// std::mutex mtx;
 };
 
 #endif
