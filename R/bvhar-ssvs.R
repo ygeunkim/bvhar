@@ -190,10 +190,14 @@ bvhar_ssvs <- function(y,
   # Error----------------------------
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
-    length(bayes_spec$coef_slab) == num_restrict &&
-    length(bayes_spec$coef_mixture) == num_grp
+      length(bayes_spec$coef_slab) == num_restrict
+      #  &&
+      # length(bayes_spec$coef_mixture) == num_grp
   )) {
-    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+    stop("Invalid 'coef_spike' and 'coef_slab' size. The vector size should be the same as 3 * dim^2.")
+  }
+  if (length(bayes_spec$coef_mixture) != num_grp) {
+    stop("Invalid 'coef_mixture' size. The vector size should be the same as group number.")
   }
   if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
     stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
