@@ -3,6 +3,7 @@
 
 #include <RcppEigen.h>
 #include "bvhardraw.h"
+#include <atomic>
 
 struct SvParams {
 	int _iter;
@@ -59,22 +60,50 @@ struct SsvsParams : public SvParams {
 struct HorseshoeParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXd _grp_mat;
-	Eigen::VectorXd _init_local;
-	Eigen::VectorXd _init_global;
-	Eigen::VectorXd _init_contem_local;
-	Eigen::VectorXd _init_conetm_global;
+	// Eigen::VectorXd _init_local;
+	// Eigen::VectorXd _init_global;
+	// Eigen::VectorXd _init_contem_local;
+	// Eigen::VectorXd _init_conetm_global;
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		Rcpp::List& hs_spec
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
 	);
+	// ,Rcpp::List& hs_spec
+};
+
+struct SvInits {
+	Eigen::MatrixXd _coef;
+	Eigen::VectorXd _contem;
+	Eigen::VectorXd _lvol_init;
+	Eigen::MatrixXd _lvol;
+	Eigen::VectorXd _lvol_sig;
+
+	SvInits(const SvParams& params);
+	SvInits(Rcpp::List& init);
+};
+
+struct SsvsInits : public SvInits {
+	Eigen::VectorXd _coef_dummy;
+	Eigen::VectorXd _coef_weight; // in SsvsParams: move coef_mixture and chol_mixture in set_ssvs()?
+	Eigen::VectorXd _contem_weight; // in SsvsParams
+	
+	SsvsInits(Rcpp::List& init);
+};
+
+struct HorseshoeInits : public SvInits {
+	Eigen::VectorXd _init_local;
+	Eigen::VectorXd _init_global;
+	Eigen::VectorXd _init_contem_local;
+	Eigen::VectorXd _init_conetm_global;
+	
+	HorseshoeInits(Rcpp::List& init);
 };
 
 class McmcSv {
 public:
-	McmcSv(const SvParams& params);
+	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed);
 	virtual ~McmcSv() = default;
 	virtual void updateCoefPrec() = 0;
 	virtual void updateCoefShrink() = 0;
@@ -84,6 +113,7 @@ public:
 	void updateImpact();
 	void updateStateVar();
 	void updateInitState();
+	virtual void updateRecords() = 0;
 	void addStep();
 	virtual void doPosteriorDraws() = 0;
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
@@ -91,6 +121,7 @@ public:
 protected:
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
+	std::mutex mtx;
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
@@ -102,7 +133,8 @@ protected:
   int num_design; // n = T - p
   int num_lowerchol;
   int num_coef;
-	int mcmc_step; // MCMC step
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
@@ -132,22 +164,24 @@ private:
 
 class MinnSv : public McmcSv {
 public:
-	MinnSv(const MinnParams& params);
+	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed);
 	virtual ~MinnSv() = default;
 	void updateCoefPrec() override {};
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 };
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(const SsvsParams& params);
+	SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed);
 	virtual ~SsvsSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 private:
@@ -180,11 +214,12 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(const HorseshoeParams& params);
+	HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed);
 	virtual ~HorseshoeSv() = default;
 	void updateCoefPrec() override;
 	void updateCoefShrink() override;
 	void updateImpactPrec() override;
+	void updateRecords() override;
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 

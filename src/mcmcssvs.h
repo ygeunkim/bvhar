@@ -16,7 +16,8 @@ public:
   	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
   	const double& chol_s1, const double& chol_s2,
   	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-  	const Eigen::VectorXd& mean_non, const double& sd_non, bool include_mean, bool init_gibbs
+  	const Eigen::VectorXd& mean_non, const double& sd_non, bool include_mean, bool init_gibbs,
+		unsigned int seed
 	);
 	virtual ~McmcSsvs() = default;
 	void addStep();
@@ -24,19 +25,22 @@ public:
 	void updateCholDummy();
 	void updateCoef();
 	void updateCoefDummy();
+	void updateRecords();
 	void doPosteriorDraws();
-	Rcpp::List returnRecords(int num_burn) const;
+	Rcpp::List returnRecords(int num_burn, int thin) const;
 
 private:
 	int num_iter;
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
+	std::mutex mtx;
 	int dim; // k
 	int dim_design; // kp(+1)
 	int num_design; // n = T - p
 	int num_coef;
 	int num_upperchol;
-	int mcmc_step; // MCMC step
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd coef_spike;
 	Eigen::VectorXd coef_slab;
 	Eigen::VectorXd chol_spike;

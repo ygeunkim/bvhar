@@ -20,7 +20,7 @@
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
+Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin,
                                   Eigen::MatrixXd x, Eigen::MatrixXd y,
                                   Eigen::VectorXd init_local,
                                   Eigen::VectorXd init_global,
@@ -29,37 +29,62 @@ Rcpp::List estimate_sur_horseshoe(int num_iter, int num_burn,
                                   Eigen::MatrixXd grp_mat,
                                   int blocked_gibbs,
                                   bool fast,
-                                  bool display_progress) {
-  HsParams hs_params(
+																	Eigen::VectorXd seed_chain,
+                                  bool display_progress, int nthreads) {
+  #ifdef _OPENMP
+		Eigen::setNbThreads(nthreads);
+	#endif
+	std::vector<std::unique_ptr<McmcHs>> hs_objs(num_chains);
+	std::vector<Rcpp::List> res(num_chains);
+	HsParams hs_params(
 		num_iter, x, y, init_local, init_global, init_sigma,
 		grp_id, grp_mat
 	);
-	std::unique_ptr<McmcHs> hs_obj;
 	switch (blocked_gibbs) {
 	case 1: {
 		if (fast) {
-			hs_obj = std::unique_ptr<McmcHs>(new FastHs(hs_params));
+			for (int i = 0; i < num_chains; i++) {
+				hs_objs[i] = std::unique_ptr<McmcHs>(new FastHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+			}
 		} else {
-			hs_obj = std::unique_ptr<McmcHs>(new McmcHs(hs_params));
+			for (int i = 0; i < num_chains; i++) {
+				hs_objs[i] = std::unique_ptr<McmcHs>(new McmcHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+			}
 		}
 		break;
 	}
 	case 2:
-		hs_obj = std::unique_ptr<McmcHs>(new BlockHs(hs_params));
+		for (int i = 0; i < num_chains; i++) {
+			hs_objs[i] = std::unique_ptr<McmcHs>(new BlockHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+		}
 	}
   // Start Gibbs sampling-----------------------------------
-  bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
-  for (int i = 1; i < num_iter + 1; i++) {
-    if (bvharinterrupt::is_interrupted()) {
-			return hs_obj->returnRecords(0);
-    }
-    bar.increment();
-		if (display_progress) {
-			bar.update();
+	auto run_gibbs = [&](int chain) {
+		bvharprogress bar(num_iter, display_progress);
+		bvharinterrupt();
+		for (int i = 1; i < num_iter + 1; i++) {
+			if (bvharinterrupt::is_interrupted()) {
+				res[chain] = hs_objs[chain]->returnRecords(0, 1);
+				break;
+			}
+			bar.increment();
+			if (display_progress) {
+				bar.update();
+			}
+			hs_objs[chain]->addStep();
+			hs_objs[chain]->doPosteriorDraws(); // alpha -> sigma -> nuj -> xi -> lambdaj -> tau
 		}
-		hs_obj->addStep();
-		hs_obj->doPosteriorDraws(); // alpha -> sigma -> nuj -> xi -> lambdaj -> tau
-  }
-	return hs_obj->returnRecords(num_burn);
+		res[chain] = hs_objs[chain]->returnRecords(num_burn, thin);
+	};
+	if (num_chains == 1) {
+		run_gibbs(0);
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; chain++) {
+			run_gibbs(chain);
+		}
+	}
+	return Rcpp::wrap(res);
 }

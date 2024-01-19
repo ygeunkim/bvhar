@@ -621,15 +621,13 @@ choose_ssvs <- function(y,
   res <- switch(
     type,
     "VAR" = {
-      fit <- var_lm(y, p = ord, include_mean = include_mean)
-      fit_infer <- infer_var(var_lm(y, p = ord, include_mean = include_mean))$summary_stat
-      # mean_coef <- fit_infer[,1]
+      fit <- var_lm(y, p = ord, include_mean = FALSE)
+      fit_infer <- infer_var(fit)$summary_stat
+      mean_coef <- fit_infer[,1]
       sd_coef <- fit_infer[,2]
-      
       if (include_mean) {
-        id_const <- seq(from = fit$df, to = fit$df * fit$m, by = fit$df)
-        mean_non <- fit_infer[id_const, 1]
-        sd_coef <- fit_infer[-id_const]
+        fit <- var_lm(y, p = ord, include_mean = TRUE)
+        mean_non <- fit$coef[fit$df,]
       }
       sd_chol <- chol(fit$covmat)
       sd_chol <- sd_chol[upper.tri(sd_chol, diag = FALSE)]

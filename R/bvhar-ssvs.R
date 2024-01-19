@@ -4,6 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of warm-up (burn-in). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
@@ -12,6 +13,7 @@
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details 
 #' SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
 #' 
@@ -77,7 +79,8 @@
 #' @order 1
 #' @export
 bvhar_ssvs <- function(y, 
-                       har = c(5, 22), 
+                       har = c(5, 22),
+                       num_chains = 1,
                        num_iter = 1000, 
                        num_burn = floor(num_iter / 2), 
                        thinning = 1,
@@ -85,7 +88,8 @@ bvhar_ssvs <- function(y,
                        init_spec = init_ssvs(type = "auto"),
                        include_mean = TRUE,
                        minnesota = c("no", "short", "longrun"),
-                       verbose = FALSE) {
+                       verbose = FALSE,
+                       num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -186,10 +190,14 @@ bvhar_ssvs <- function(y,
   # Error----------------------------
   if (!(
     length(bayes_spec$coef_spike) == num_restrict &&
-    length(bayes_spec$coef_slab) == num_restrict &&
-    length(bayes_spec$coef_mixture) == num_grp
+      length(bayes_spec$coef_slab) == num_restrict
+      #  &&
+      # length(bayes_spec$coef_mixture) == num_grp
   )) {
-    stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size. The vector size should be the same as 3 * dim^2.")
+    stop("Invalid 'coef_spike' and 'coef_slab' size. The vector size should be the same as 3 * dim^2.")
+  }
+  if (length(bayes_spec$coef_mixture) != num_grp) {
+    stop("Invalid 'coef_mixture' size. The vector size should be the same as group number.")
   }
   if (!(length(bayes_spec$shape) == dim_data && length(bayes_spec$rate) == dim_data)) {
     stop("Size of SSVS 'shape' and 'rate' vector should be the same as the time series dimension.")
@@ -224,9 +232,17 @@ bvhar_ssvs <- function(y,
     init_gibbs <- FALSE
   }
   # MCMC-----------------------------
-  ssvs_res <- estimate_bvar_ssvs(
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
+  res <- estimate_bvar_ssvs(
+    num_chains = num_chains,
     num_iter = num_iter,
     num_burn = num_burn,
+    thin = thinning,
     x = X1,
     y = Y0,
     init_coef = init_coef, # initial phi
@@ -251,94 +267,142 @@ bvhar_ssvs <- function(y,
     mean_non = bayes_spec$mean_non,
     sd_non = bayes_spec$sd_non, # c for constant c I,
     include_mean = include_mean,
+    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
     init_gibbs = init_gibbs,
-    display_progress = verbose
+    display_progress = verbose,
+    nthreads = num_thread
   )
-  # preprocess the results------------
-  names(ssvs_res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(ssvs_res))
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  ssvs_res$phi_record <- ssvs_res$phi_record[thin_id,]
-  ssvs_res$eta_record <- ssvs_res$eta_record[thin_id,]
-  ssvs_res$psi_record <- ssvs_res$psi_record[thin_id,]
-  ssvs_res$omega_record <- ssvs_res$omega_record[thin_id,]
-  ssvs_res$gamma_record <- ssvs_res$gamma_record[thin_id,]
-  ssvs_res$coefficients <- colMeans(ssvs_res$phi_record)
-  ssvs_res$omega_posterior <- colMeans(ssvs_res$omega_record)
-  ssvs_res$pip <- colMeans(ssvs_res$gamma_record)
-  colnames(ssvs_res$phi_record) <- paste0("phi[", seq_len(ncol(ssvs_res$phi_record)), "]")
-  colnames(ssvs_res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
-  colnames(ssvs_res$psi_record) <- paste0("psi[", 1:dim_data, "]")
-  colnames(ssvs_res$eta_record) <- paste0("eta[", 1:num_eta, "]")
-  colnames(ssvs_res$omega_record) <- paste0("omega[", 1:num_eta, "]")
-  ssvs_res$phi_record <- as_draws_df(ssvs_res$phi_record)
-  ssvs_res$gamma_record <- as_draws_df(ssvs_res$gamma_record)
-  ssvs_res$psi_record <- as_draws_df(ssvs_res$psi_record)
-  ssvs_res$eta_record <- as_draws_df(ssvs_res$eta_record)
-  ssvs_res$omega_record <- as_draws_df(ssvs_res$omega_record)
-  ssvs_res$param <- bind_draws(
-    ssvs_res$phi_record,
-    ssvs_res$gamma_record,
-    ssvs_res$psi_record,
-    ssvs_res$eta_record,
-    ssvs_res$omega_record
-  )
-  # Cholesky factor 3d array---------------
-  ssvs_res$chol_record <- split_psirecord(ssvs_res$chol_record, 1, "cholesky")
-  ssvs_res$chol_record <- ssvs_res$chol_record[thin_id] # burn in
-  # Posterior mean-------------------------
-  ssvs_res$coefficients <- matrix(ssvs_res$coefficients, ncol = dim_data)
+  res <- do.call(rbind, res)
+  colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+  rec_names <- colnames(res) # *_record
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names) # phi, h, ...
+  # res <- apply(res, 2, function(x) do.call(cbind, x))
+  res <- apply(res, 2, function(x) do.call(rbind, x))
+  names(res) <- rec_names # *_record
+  # summary across chains--------------------------------
+  res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_har
+  res$chol_posterior <- matrix(colMeans(res$chol_record), ncol = dim_data)
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
+  res$covmat <- solve(res$chol_posterior %*% t(res$chol_posterior))
   mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_upper) <- rep(1L, dim_data)
-  mat_upper[upper.tri(mat_upper, diag = FALSE)] <- ssvs_res$omega_posterior
-  ssvs_res$omega_posterior <- mat_upper
-  ssvs_res$pip <- matrix(ssvs_res$pip, ncol = dim_data)
+  mat_upper[upper.tri(mat_upper, diag = FALSE)] <- colMeans(res$omega_record)
+  res$omega_posterior <- mat_upper
+  colnames(res$omega_posterior) <- name_var
+  rownames(res$omega_posterior) <- name_var
+  res$pip <- colMeans(res$gamma_record)
+  res$pip <- matrix(res$pip, ncol = dim_data)
   if (include_mean) {
-    ssvs_res$pip <- rbind(ssvs_res$pip, rep(1L, dim_data))
+    res$pip <- rbind(res$pip, rep(1L, dim_data))
   }
-  ssvs_res$chol_posterior <- Reduce("+", ssvs_res$chol_record) / length(ssvs_res$chol_record)
-  # names of posterior mean-----------------
-  colnames(ssvs_res$coefficients) <- name_var
-  rownames(ssvs_res$coefficients) <- name_har
-  colnames(ssvs_res$omega_posterior) <- name_var
-  rownames(ssvs_res$omega_posterior) <- name_var
-  colnames(ssvs_res$pip) <- name_var
-  rownames(ssvs_res$pip) <- name_har
-  colnames(ssvs_res$chol_posterior) <- name_var
-  rownames(ssvs_res$chol_posterior) <- name_var
-  ssvs_res$covmat <- solve(ssvs_res$chol_posterior %*% t(ssvs_res$chol_posterior))
+  colnames(res$pip) <- name_var
+  rownames(res$pip) <- name_har
+  # preprocess the results------------
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  # names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
+  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  # res$phi_record <- res$phi_record[thin_id,]
+  # res$eta_record <- res$eta_record[thin_id,]
+  # res$psi_record <- res$psi_record[thin_id,]
+  # res$omega_record <- res$omega_record[thin_id,]
+  # res$gamma_record <- res$gamma_record[thin_id,]
+  # res$coefficients <- colMeans(res$phi_record)
+  # res$omega_posterior <- colMeans(res$omega_record)
+  # res$pip <- colMeans(res$gamma_record)
+  # colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
+  # colnames(res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
+  # colnames(res$psi_record) <- paste0("psi[", 1:dim_data, "]")
+  # colnames(res$eta_record) <- paste0("eta[", 1:num_eta, "]")
+  # colnames(res$omega_record) <- paste0("omega[", 1:num_eta, "]")
+  # res$phi_record <- as_draws_df(res$phi_record)
+  # res$gamma_record <- as_draws_df(res$gamma_record)
+  # res$psi_record <- as_draws_df(res$psi_record)
+  # res$eta_record <- as_draws_df(res$eta_record)
+  # res$omega_record <- as_draws_df(res$omega_record)
+  res$param <- bind_draws(
+    res$phi_record,
+    res$gamma_record,
+    res$psi_record,
+    res$eta_record,
+    res$omega_record
+  )
+  # # Cholesky factor 3d array---------------
+  # res$chol_record <- split_psirecord(res$chol_record, 1, "cholesky")
+  # res$chol_record <- res$chol_record[thin_id] # burn in
+  # # Posterior mean-------------------------
+  # res$coefficients <- matrix(res$coefficients, ncol = dim_data)
+  # mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  # diag(mat_upper) <- rep(1L, dim_data)
+  # mat_upper[upper.tri(mat_upper, diag = FALSE)] <- res$omega_posterior
+  # res$omega_posterior <- mat_upper
+  # res$pip <- matrix(res$pip, ncol = dim_data)
+  # if (include_mean) {
+  #   res$pip <- rbind(res$pip, rep(1L, dim_data))
+  # }
+  # res$chol_posterior <- Reduce("+", res$chol_record) / length(res$chol_record)
+  # # names of posterior mean-----------------
+  # colnames(res$coefficients) <- name_var
+  # rownames(res$coefficients) <- name_har
+  # colnames(res$omega_posterior) <- name_var
+  # rownames(res$omega_posterior) <- name_var
+  # colnames(res$pip) <- name_var
+  # rownames(res$pip) <- name_har
+  # colnames(res$chol_posterior) <- name_var
+  # rownames(res$chol_posterior) <- name_var
+  # res$covmat <- solve(res$chol_posterior %*% t(res$chol_posterior))
   # variables------------
-  ssvs_res$df <- dim_har
-  ssvs_res$p <- 3
-  ssvs_res$week <- har[1]
-  ssvs_res$month <- har[2]
-  ssvs_res$m <- dim_data
-  ssvs_res$obs <- nrow(Y0)
-  ssvs_res$totobs <- nrow(y)
+  res$df <- dim_har
+  res$p <- 3
+  res$week <- har[1]
+  res$month <- har[2]
+  res$m <- dim_data
+  res$obs <- nrow(Y0)
+  res$totobs <- nrow(y)
   # model-----------------
-  ssvs_res$call <- match.call()
-  ssvs_res$process <- paste("VHAR", bayes_spec$prior, sep = "_")
-  ssvs_res$type <- ifelse(include_mean, "const", "none")
-  ssvs_res$spec <- bayes_spec
-  ssvs_res$init <- init_spec
+  res$call <- match.call()
+  res$process <- paste("VHAR", bayes_spec$prior, sep = "_")
+  res$type <- ifelse(include_mean, "const", "none")
+  res$spec <- bayes_spec
+  res$init <- init_spec
   if (!init_gibbs) {
-    ssvs_res$init$init_coef <- ssvs_res$ols_coef
-    ssvs_res$init$init_coef_dummy <- matrix(1L, nrow = dim_har, ncol = dim_data)
-    ssvs_res$init$init_chol <- ssvs_res$ols_cholesky
-    ssvs_res$init$init_chol_dummy <- matrix(0L, nrow = dim_data, ncol = dim_data)
-    ssvs_res$init$init_chol_dummy[upper.tri(ssvs_res$init$init_chol_dummy, diag = FALSE)] <- rep(1L, num_eta)
+    res$init$init_coef <- res$ols_coef
+    res$init$init_coef_dummy <- matrix(1L, nrow = dim_har, ncol = dim_data)
+    res$init$init_chol <- res$ols_cholesky
+    res$init$init_chol_dummy <- matrix(0L, nrow = dim_data, ncol = dim_data)
+    res$init$init_chol_dummy[upper.tri(res$init$init_chol_dummy, diag = FALSE)] <- rep(1L, num_eta)
   }
-  ssvs_res$iter <- num_iter
-  ssvs_res$burn <- num_burn
-  ssvs_res$thin <- thinning
-  ssvs_res$chain <- init_spec$chain
-  ssvs_res$group <- glob_idmat
-  ssvs_res$num_group <- length(grp_id)
+  res$iter <- num_iter
+  res$burn <- num_burn
+  res$thin <- thinning
+  # res$chain <- init_spec$chain
+  res$chain <- num_chains
+  res$group <- glob_idmat
+  res$num_group <- length(grp_id)
   # data------------------
-  ssvs_res$HARtrans <- hartrans_mat
-  ssvs_res$y0 <- Y0
-  ssvs_res$design <- X0
-  ssvs_res$y <- y
+  res$HARtrans <- hartrans_mat
+  res$y0 <- Y0
+  res$design <- X0
+  res$y <- y
   # return S3 object------
-  class(ssvs_res) <- c("bvharssvs", "ssvsmod", "bvharsp")
-  ssvs_res
+  class(res) <- c("bvharssvs", "ssvsmod", "bvharsp")
+  res
 }
