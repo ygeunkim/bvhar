@@ -36,7 +36,7 @@
 //' @param display_progress Progress bar
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
+Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int thin,
                               Eigen::MatrixXd x, Eigen::MatrixXd y, 
                               Eigen::VectorXd init_coef,
                               Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper,
@@ -50,33 +50,83 @@ Rcpp::List estimate_bvar_ssvs(int num_iter, int num_burn,
                               Eigen::MatrixXd grp_mat,
                               Eigen::VectorXd mean_non, double sd_non,
                               bool include_mean,
+															Eigen::VectorXd seed_chain,
                               bool init_gibbs,
-                              bool display_progress) {
-	std::unique_ptr<McmcSsvs> mcmc_obj(new McmcSsvs(
-		num_iter, x, y,
-		init_coef, init_chol_diag, init_chol_upper,
-		init_coef_dummy, init_chol_dummy,
-		coef_spike, coef_slab, coef_slab_weight,
-		shape, rate,
-		coef_s1, coef_s2,
-		chol_spike, chol_slab, chol_slab_weight,
-		chol_s1, chol_s2,
-		grp_id, grp_mat,
-		mean_non, sd_non, include_mean, init_gibbs
-	));
-  bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
-  // Start Gibbs sampling-----------------------------------------
-  for (int i = 1; i < num_iter + 1; i++) {
-    if (bvharinterrupt::is_interrupted()) {
-			return mcmc_obj->returnRecords(0);
-    }
-    bar.increment();
-		if (display_progress) {
-			bar.update();
+                              bool display_progress, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
+	std::vector<std::unique_ptr<McmcSsvs>> mcmc_objs(num_chains);
+	std::vector<Rcpp::List> res(num_chains);
+	for (int i = 0; i < num_chains; i++) {
+		mcmc_objs[i] = std::unique_ptr<McmcSsvs>(new McmcSsvs(
+			num_iter, x, y,
+			init_coef, init_chol_diag, init_chol_upper,
+			init_coef_dummy, init_chol_dummy,
+			coef_spike, coef_slab, coef_slab_weight,
+			shape, rate,
+			coef_s1, coef_s2,
+			chol_spike, chol_slab, chol_slab_weight,
+			chol_s1, chol_s2,
+			grp_id, grp_mat,
+			mean_non, sd_non, include_mean, init_gibbs,
+			static_cast<unsigned int>(seed_chain[i])
+		));
+	}
+	// Start Gibbs sampling-----------------------------------------
+	auto run_gibbs = [&](int chain) {
+		bvharprogress bar(num_iter, display_progress);
+		bvharinterrupt();
+		for (int i = 0; i < num_iter; i++) {
+			if (bvharinterrupt::is_interrupted()) {
+				res[chain] = mcmc_objs[chain]->returnRecords(0, 1);
+				break;
+			}
+			bar.increment();
+			if (display_progress) {
+				bar.update();
+			}
+			mcmc_objs[chain]->addStep();
+			mcmc_objs[chain]->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
 		}
-		mcmc_obj->addStep();
-		mcmc_obj->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
-  }
-	return mcmc_obj->returnRecords(num_burn);
+		res[chain] = mcmc_objs[chain]->returnRecords(num_burn, thin);
+	};
+	if (num_chains == 1) {
+		run_gibbs(0);
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; chain++) {
+			run_gibbs(chain);
+		}
+	}
+	return Rcpp::wrap(res);
+	// std::unique_ptr<McmcSsvs> mcmc_obj(new McmcSsvs(
+	// 	num_iter, x, y,
+	// 	init_coef, init_chol_diag, init_chol_upper,
+	// 	init_coef_dummy, init_chol_dummy,
+	// 	coef_spike, coef_slab, coef_slab_weight,
+	// 	shape, rate,
+	// 	coef_s1, coef_s2,
+	// 	chol_spike, chol_slab, chol_slab_weight,
+	// 	chol_s1, chol_s2,
+	// 	grp_id, grp_mat,
+	// 	mean_non, sd_non, include_mean, init_gibbs
+	// ));
+  // bvharprogress bar(num_iter, display_progress);
+	// bvharinterrupt();
+  // Start Gibbs sampling-----------------------------------------
+  // for (int i = 1; i < num_iter + 1; i++) {
+  //   if (bvharinterrupt::is_interrupted()) {
+	// 		return mcmc_obj->returnRecords(0);
+  //   }
+  //   bar.increment();
+	// 	if (display_progress) {
+	// 		bar.update();
+	// 	}
+	// 	mcmc_obj->addStep();
+	// 	mcmc_obj->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
+  // }
+	// return mcmc_obj->returnRecords(num_burn);
 }

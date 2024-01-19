@@ -4,6 +4,7 @@
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
+#' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
@@ -12,6 +13,7 @@
 #' @param minnesota Minnesota type
 #' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
 #' 
@@ -55,6 +57,7 @@
 #' @export
 bvhar_horseshoe <- function(y,
                             har = c(5, 22),
+                            num_chains = 1,
                             num_iter = 1000, 
                             num_burn = floor(num_iter / 2),
                             thinning = 1,
@@ -62,7 +65,8 @@ bvhar_horseshoe <- function(y,
                             include_mean = TRUE,
                             minnesota = c("no", "short", "longrun"),
                             algo = c("block", "gibbs"),
-                            verbose = FALSE) {
+                            verbose = FALSE,
+                            num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -109,7 +113,7 @@ bvhar_horseshoe <- function(y,
     dim_data^2 * 3 + dim_data,
     dim_data^2 * 3
   )
-  if (length(bayes_spec$local_sparsity) != dim_har) {
+  if (length(bayes_spec$local_sparsity) != num_restrict) {
     if (length(bayes_spec$local_sparsity) == 1) {
       bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
     } else {
@@ -121,36 +125,15 @@ bvhar_horseshoe <- function(y,
   } else {
     idx <- gl(3, dim_data)
   }
-  glob_idmat <- switch(
-    minnesota,
-    "no" = matrix(1L, nrow = dim_har, ncol = dim_data),
-    "short" = {
-      glob_idmat <- split.data.frame(
-        matrix(rep(0, num_restrict), ncol = dim_data),
-        idx
-      )
-      glob_idmat[[1]] <- diag(dim_data) + 1
-      id <- 1
-      for (i in 2:3) {
-        glob_idmat[[i]] <- matrix(i + 1, nrow = dim_data, ncol = dim_data)
-        id <- id + 2
-      }
-      do.call(rbind, glob_idmat)
-    },
-    "longrun" = {
-      glob_idmat <- split.data.frame(
-        matrix(rep(0, num_restrict), ncol = dim_data),
-        idx
-      )
-      id <- 1
-      for (i in 1:3) {
-        glob_idmat[[i]] <- diag(dim_data) + id
-        id <- id + 2
-      }
-      do.call(rbind, glob_idmat)
-    }
+  glob_idmat <- build_grpmat(
+    p = 3,
+    dim_data = dim_data,
+    dim_design = dim_har,
+    num_coef = num_restrict,
+    minnesota = minnesota,
+    include_mean = include_mean
   )
-  grp_id <- unique(c(glob_idmat[1:(dim_data * 3),]))
+  grp_id <- unique(c(glob_idmat))
   global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
@@ -158,9 +141,17 @@ bvhar_horseshoe <- function(y,
   if (num_design <= num_restrict) {
     fast <- TRUE
   }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
   res <- estimate_sur_horseshoe(
+    num_chains = num_chains,
     num_iter = num_iter,
     num_burn = num_burn,
+    thin = thinning,
     x = X1,
     y = Y0,
     init_local = bayes_spec$local_sparsity,
@@ -170,57 +161,103 @@ bvhar_horseshoe <- function(y,
     grp_mat = glob_idmat,
     blocked_gibbs = algo,
     fast = fast,
-    display_progress = verbose
+    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+    display_progress = verbose,
+    nthreads = num_thread
   )
-  # preprocess the results-----------
-  names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  res$phi_record <- res$phi_record[thin_id,]
-  colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-  res$coefficients <- 
-    colMeans(res$phi_record) %>% 
-    matrix(ncol = dim_data)
+  res <- do.call(rbind, res)
+  colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+  rec_names <- colnames(res) # *_record
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
+  names(res) <- rec_names # *_record
+  res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_har
-  res$phi_record <- as_draws_df(res$phi_record)
-  if (minnesota == "no") {
-    res$tau_record <- as.matrix(res$tau_record[thin_id])
-    colnames(res$tau_record) <- "tau"
-  } else {
-    res$tau_record <- res$tau_record[thin_id,]
-    colnames(res$tau_record) <- paste0(
-      "tau[",
-      seq_len(ncol(res$tau_record)),
-      "]"
-    )
-  }
-  res$tau_record <- as_draws_df(res$tau_record)
-  res$lambda_record <- res$lambda_record[thin_id,]
-  colnames(res$lambda_record) <- paste0(
-    "lambda[",
-    seq_len(ncol(res$lambda_record)),
-    "]"
-  )
-  res$lambda_record <- as_draws_df(res$lambda_record)
   res$covmat <- mean(res$sigma) * diag(dim_data)
   res$psi_posterior <- diag(dim_data) / mean(res$sigma)
   colnames(res$covmat) <- name_var
   rownames(res$covmat) <- name_var
   colnames(res$psi_posterior) <- name_var
   rownames(res$psi_posterior) <- name_var
-  res$sigma_record <- as.matrix(res$sigma_record[thin_id])
-  colnames(res$sigma_record) <- "sigma"
-  res$sigma_record <- as_draws_df(res$sigma_record)
-  res$kappa_record <- res$kappa_record[thin_id,]
-  colnames(res$kappa_record) <- paste0(
-    "kappa[",
-    seq_len(ncol(res$kappa_record)),
-    "]"
-  )
   res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
   colnames(res$pip) <- name_var
   rownames(res$pip) <- name_har
-  res$kappa_record <- as_draws_df(res$kappa_record)
+  # preprocess the results-----------
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  # names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
+  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  # res$phi_record <- res$phi_record[thin_id,]
+  # colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
+  # res$coefficients <- 
+  #   colMeans(res$phi_record) %>% 
+  #   matrix(ncol = dim_data)
+  # colnames(res$coefficients) <- name_var
+  # rownames(res$coefficients) <- name_har
+  # res$phi_record <- as_draws_df(res$phi_record)
+  # if (minnesota == "no") {
+  #   res$tau_record <- as.matrix(res$tau_record[thin_id])
+  #   colnames(res$tau_record) <- "tau"
+  # } else {
+  #   res$tau_record <- res$tau_record[thin_id,]
+  #   colnames(res$tau_record) <- paste0(
+  #     "tau[",
+  #     seq_len(ncol(res$tau_record)),
+  #     "]"
+  #   )
+  # }
+  # res$tau_record <- as_draws_df(res$tau_record)
+  # res$lambda_record <- res$lambda_record[thin_id,]
+  # colnames(res$lambda_record) <- paste0(
+  #   "lambda[",
+  #   seq_len(ncol(res$lambda_record)),
+  #   "]"
+  # )
+  # res$lambda_record <- as_draws_df(res$lambda_record)
+  # res$covmat <- mean(res$sigma) * diag(dim_data)
+  # res$psi_posterior <- diag(dim_data) / mean(res$sigma)
+  # colnames(res$covmat) <- name_var
+  # rownames(res$covmat) <- name_var
+  # colnames(res$psi_posterior) <- name_var
+  # rownames(res$psi_posterior) <- name_var
+  # res$sigma_record <- as.matrix(res$sigma_record[thin_id])
+  # colnames(res$sigma_record) <- "sigma"
+  # res$sigma_record <- as_draws_df(res$sigma_record)
+  # res$kappa_record <- res$kappa_record[thin_id,]
+  # colnames(res$kappa_record) <- paste0(
+  #   "kappa[",
+  #   seq_len(ncol(res$kappa_record)),
+  #   "]"
+  # )
+  # res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
+  # colnames(res$pip) <- name_var
+  # rownames(res$pip) <- name_har
+  # res$kappa_record <- as_draws_df(res$kappa_record)
   # Parameters-----------------
   res$param <- bind_draws(
     res$phi_record,
