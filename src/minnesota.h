@@ -4,6 +4,7 @@
 #include <RcppEigen.h>
 #include "bvhardesign.h"
 #include "bvhardraw.h"
+#include <memory> // std::unique_ptr
 
 struct MinnSpec {
 	Eigen::VectorXd _sigma;

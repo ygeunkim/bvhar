@@ -2,6 +2,7 @@
 #define OLS_H
 
 #include <RcppEigen.h>
+#include <memory> // std::unique_ptr in source file
 
 class MultiOls {
 public:
