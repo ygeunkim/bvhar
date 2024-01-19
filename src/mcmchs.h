@@ -3,6 +3,7 @@
 
 #include <RcppEigen.h>
 #include "bvhardraw.h"
+#include <atomic>
 
 struct HsParams {
 	int _iter;
