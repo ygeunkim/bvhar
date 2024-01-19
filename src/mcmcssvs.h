@@ -3,6 +3,7 @@
 
 #include <RcppEigen.h>
 #include "bvhardraw.h"
+#include <atomic>
 
 class McmcSsvs {
 public:
