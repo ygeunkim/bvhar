@@ -9,10 +9,11 @@ HsParams::HsParams(
 	_init_local(init_local), _init_global(init_global), _init_sigma(init_sigma),
 	_grp_id(grp_id), _grp_mat(grp_mat) {}
 
-McmcHs::McmcHs(const HsParams& params)
+McmcHs::McmcHs(const HsParams& params, unsigned int seed)
 : num_iter(params._iter),
 	dim(params._y.cols()), dim_design(params._x.cols()), num_design(params._y.rows()),
-	num_coef(dim * dim_design), mcmc_step(0),
+	num_coef(dim * dim_design),
+	mcmc_step(0), rng(seed),
 	design_mat(kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), params._x)),
 	response_vec(vectorize_eigen(params._y)),
 	lambda_mat(Eigen::MatrixXd::Zero(num_coef, num_coef)),
@@ -44,21 +45,30 @@ void McmcHs::updateCoefCov() {
 	coef_var = vectorize_eigen(coef_var_loc);
 	build_shrink_mat(lambda_mat, coef_var, local_lev);
 	shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
-	shrink_record.row(mcmc_step) = shrink_fac;
+	// shrink_record.row(mcmc_step) = shrink_fac;
 }
 
 void McmcHs::updateCoef() {
-	horseshoe_coef(coef_draw, response_vec, design_mat, sig_draw, lambda_mat);
-	sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat);
-	coef_record.row(mcmc_step) = coef_draw;
-	sig_record[mcmc_step] = sig_draw;
+	horseshoe_coef(coef_draw, response_vec, design_mat, sig_draw, lambda_mat, rng);
+	sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+	// coef_record.row(mcmc_step) = coef_draw;
+	// sig_record[mcmc_step] = sig_draw;
 }
 
 void McmcHs::updateCov() {
-	horseshoe_latent(latent_local, local_lev);
-	horseshoe_latent(latent_global, global_lev);
-	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_draw, sig_draw);
-	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_draw, sig_draw);
+	horseshoe_latent(latent_local, local_lev, rng);
+	horseshoe_latent(latent_global, global_lev, rng);
+	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_draw, sig_draw, rng);
+	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_draw, sig_draw, rng);
+	// local_record.row(mcmc_step) = local_lev;
+	// global_record.row(mcmc_step) = global_lev;
+}
+
+void McmcHs::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	shrink_record.row(mcmc_step) = shrink_fac;
+	coef_record.row(mcmc_step) = coef_draw;
+	sig_record[mcmc_step] = sig_draw;
 	local_record.row(mcmc_step) = local_lev;
 	global_record.row(mcmc_step) = global_lev;
 }
@@ -67,38 +77,76 @@ void McmcHs::doPosteriorDraws() {
 	updateCoefCov();
 	updateCoef();
 	updateCov();
+	updateRecords();
 }
 
-Rcpp::List McmcHs::returnRecords(int num_burn) const {
+Rcpp::List McmcHs::returnRecords(int num_burn, int thin) const {
+	// return Rcpp::List::create(
+	// 	Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
+  //   Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
+  //   Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
+  //   Rcpp::Named("sigma_record") = sig_record.tail(num_iter - num_burn),
+  //   Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
+	// );
 	return Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("lambda_record") = local_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("tau_record") = global_record.bottomRows(num_iter - num_burn),
-    Rcpp::Named("sigma_record") = sig_record.tail(num_iter - num_burn),
-    Rcpp::Named("kappa_record") = shrink_record.bottomRows(num_iter - num_burn)
+		Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
+    Rcpp::Named("lambda_record") = thin_record(local_record, num_iter, num_burn, thin),
+    Rcpp::Named("tau_record") = thin_record(global_record, num_iter, num_burn, thin),
+    Rcpp::Named("sigma_record") = thin_vec_record(sig_record, num_iter, num_burn, thin),
+    Rcpp::Named("kappa_record") = thin_record(shrink_record, num_iter, num_burn, thin)
 	);
+	// Rcpp::List res = Rcpp::List::create(
+	// 	Rcpp::Named("alpha_record") = coef_record,
+  //   Rcpp::Named("lambda_record") = local_record,
+  //   Rcpp::Named("tau_record") = global_record,
+  //   Rcpp::Named("sigma_record") = sig_record,
+  //   Rcpp::Named("kappa_record") = shrink_record
+	// );
+	// for (auto& record : res) {
+	// 	record = thin_record(record, num_iter, num_burn, thin);
+	// }
+	// return res;
 }
 
-BlockHs::BlockHs(const HsParams& params)
-: McmcHs(params),
+BlockHs::BlockHs(const HsParams& params, unsigned int seed)
+: McmcHs(params, seed),
 	block_coef(Eigen::VectorXd::Zero(num_coef + 1)) {}
 
 void BlockHs::updateCoef() {
-	horseshoe_coef_var(block_coef, response_vec, design_mat, lambda_mat);
-	coef_record.row(mcmc_step) = block_coef.tail(num_coef);
-	sig_record[mcmc_step] = block_coef[0];
+	horseshoe_coef_var(block_coef, response_vec, design_mat, lambda_mat, rng);
+	// coef_record.row(mcmc_step) = block_coef.tail(num_coef);
+	// sig_record[mcmc_step] = block_coef[0];
 }
 
-FastHs::FastHs(const HsParams& params) : McmcHs(params) {}
+void BlockHs::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	shrink_record.row(mcmc_step) = shrink_fac;
+	coef_record.row(mcmc_step) = block_coef.tail(num_coef);
+	sig_record[mcmc_step] = block_coef[0];
+	local_record.row(mcmc_step) = local_lev;
+	global_record.row(mcmc_step) = global_lev;
+}
+
+FastHs::FastHs(const HsParams& params, unsigned int seed) : McmcHs(params, seed) {}
 
 void FastHs::updateCoef() {
 	horseshoe_fast_coef(
 		coef_draw,
 		response_vec / sqrt(sig_draw),
 		design_mat / sqrt(sig_draw),
-		sig_draw * lambda_mat
+		sig_draw * lambda_mat,
+		rng
 	);
-	sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat);
+	sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+	// coef_record.row(mcmc_step) = coef_draw;
+	// sig_record[mcmc_step] = sig_draw;
+}
+
+void FastHs::updateRecords() {
+	std::lock_guard<std::mutex> lock(mtx);
+	shrink_record.row(mcmc_step) = shrink_fac;
 	coef_record.row(mcmc_step) = coef_draw;
 	sig_record[mcmc_step] = sig_draw;
+	local_record.row(mcmc_step) = local_lev;
+	global_record.row(mcmc_step) = global_lev;
 }

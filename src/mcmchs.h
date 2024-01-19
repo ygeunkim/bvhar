@@ -23,21 +23,24 @@ struct HsParams {
 
 class McmcHs {
 public:
-	McmcHs(const HsParams& params);
+	McmcHs(const HsParams& params, unsigned int seed);
 	virtual ~McmcHs() = default;
 	void addStep();
 	void updateCoefCov();
 	virtual void updateCoef();
 	void updateCov();
 	void doPosteriorDraws();
-	Rcpp::List returnRecords(int num_burn) const;
+	virtual void updateRecords();
+	Rcpp::List returnRecords(int num_burn, int thin) const;
 protected:
 	int num_iter;
 	int dim; // k
 	int dim_design; // kp(+1)
 	int num_design; // n = T - p
 	int num_coef;
-	int mcmc_step; // MCMC step
+	std::mutex mtx;
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::MatrixXd design_mat;
 	Eigen::VectorXd response_vec;
 	Eigen::MatrixXd lambda_mat; // covariance
@@ -64,18 +67,20 @@ protected:
 
 class BlockHs : public McmcHs {
 public:
-	BlockHs(const HsParams& params);
+	BlockHs(const HsParams& params, unsigned int seed);
 	virtual ~BlockHs() = default;
 	void updateCoef() override;
+	void updateRecords() override;
 private:
 	Eigen::VectorXd block_coef;
 };
 
 class FastHs : public McmcHs {
 public:
-	FastHs(const HsParams& params);
+	FastHs(const HsParams& params, unsigned int seed);
 	virtual ~FastHs() = default;
 	void updateCoef() override;
+	void updateRecords() override;
 };
 
 #endif

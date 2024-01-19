@@ -597,21 +597,19 @@ void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec
   );
 }
 // overloading: add rng instance
-// void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
-// 												Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
-//   int dim = design_mat.cols();
-//   int sample_size = response_vec.size();
-// 	Eigen::MatrixXd post_sig = shrink_mat / coef_var[0] + design_mat.transpose() + design_mat;
-// 	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
-// 	Eigen::VectorXd post_mean = llt_sig.solve(design_mat.transpose() * response_vec);
-//   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * prec_mat * design_mat.transpose()) * response_vec;
-//   coef_var[0] = 1 / gamma_rand(sample_size / 2, scl / 2, rng);
-// 	Eigen::VectorXd res(dim);
-//   for (int i = 0; i < dim; i++) {
-// 		res[i] = normal_rand(0, 1, rng);
-//   }
-// 	coef_var.tail(dim) = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
-// }
+void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
+												Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+  int dim = design_mat.cols();
+  int sample_size = response_vec.size();
+  Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
+    Eigen::MatrixXd::Identity(dim, dim)
+  );
+  double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * prec_mat * design_mat.transpose()) * response_vec;
+  coef_var[0] = 1 / gamma_rand(sample_size / 2, scl / 2, rng);
+  coef_var.tail(dim) = vectorize_eigen(
+    sim_mgaussian_chol(1, prec_mat * design_mat.transpose() * response_vec, coef_var[0] * prec_mat, rng)
+  );
+}
 
 // Generating the Prior Variance Constant in Horseshoe Gibbs Sampler
 // 
@@ -807,6 +805,20 @@ Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num
     col_record.data(),
     num_res, record.cols(),
     Eigen::InnerStride<>(thin * col_record.innerStride())
+  );
+	return res;
+}
+
+Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int num_burn, int thin) {
+	if (thin == 1) {
+		return record.tail(num_iter - num_burn);
+	}
+	Eigen::VectorXd col_record(record.tail(num_iter - num_burn));
+	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
+	Eigen::Map<const Eigen::VectorXd, 0, Eigen::InnerStride<>> res(
+    col_record.data(),
+    num_res,
+		Eigen::InnerStride<>(thin * col_record.innerStride())
   );
 	return res;
 }
