@@ -11,6 +11,7 @@
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
 #' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
+#' @param intercept Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
 #' @param save_init Save every record starting from the initial values (`TRUE`).
@@ -80,6 +81,7 @@ bvhar_sv <- function(y,
                      thinning = 1,
                      bayes_spec = set_bvhar(),
                      sv_spec = set_sv(),
+                     intercept = set_intercept(),
                      include_mean = TRUE,
                      minnesota = c("no", "short", "longrun"),
                      save_init = FALSE,
@@ -126,6 +128,9 @@ bvhar_sv <- function(y,
   if (!is.svspec(sv_spec)) {
     stop("Provide 'svspec' for 'sv_spec'.")
   }
+  if (!is.interceptspec(intercept)) {
+    stop("Provide 'interceptspec' for 'intercept'.")
+  }
   if (length(sv_spec$shape) == 1) {
     sv_spec$shape <- rep(sv_spec$shape, dim_data)
     sv_spec$scale <- rep(sv_spec$scale, dim_data)
@@ -133,6 +138,9 @@ bvhar_sv <- function(y,
   }
   if (length(sv_spec$initial_prec) == 1) {
     sv_spec$initial_prec <- sv_spec$initial_prec * diag(dim_data)
+  }
+  if (length(intercept$mean_non) == 1){
+    intercept$mean_non <- rep(intercept$mean_non, dim_data)
   }
   prior_nm <- ifelse(
     bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR",
@@ -152,6 +160,16 @@ bvhar_sv <- function(y,
       )
     }
   )
+  glob_idmat <- build_grpmat(
+    p = 3,
+    dim_data = dim_data,
+    dim_design = num_phi / dim_data,
+    num_coef = num_phi,
+    minnesota = minnesota,
+    include_mean = FALSE
+  )
+  grp_id <- unique(c(glob_idmat))
+  num_grp <- length(grp_id)
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVHAR") {
       stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
@@ -182,7 +200,8 @@ bvhar_sv <- function(y,
           bayes_spec$delta,
           numeric(dim_data),
           numeric(dim_data),
-          include_mean
+          # include_mean
+          FALSE
         )
         colnames(Yh) <- name_var
         Yh
@@ -204,33 +223,36 @@ bvhar_sv <- function(y,
           bayes_spec$daily,
           bayes_spec$weekly,
           bayes_spec$monthly,
-          include_mean
+          # include_mean
+          FALSE
         )
         colnames(Yh) <- name_var
         Yh
       }
-    )
-    Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
-    colnames(Xh) <- name_har
+    ) # d*dim+dim x dim
+    # Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
+    Xh <- build_xdummy(1:3, lambda, sigma, eps, FALSE) # 3*dim+dim x 3*dim
+    # colnames(Xh) <- name_har
+    colnames(Xh) <- concatenate_colnames(name_var, c("day", "week", "month"), FALSE)
     mn_prior <- minnesota_prior(Xh, Yh)
-    prior_mean <- mn_prior$prior_mean
-    prior_prec <- mn_prior$prior_prec
-    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma)))
-    glob_idmat <- matrix(0L, nrow = dim_har, ncol = dim_data)
-    grp_id <- 1
+    prior_mean <- mn_prior$prior_mean # 3*dim x dim
+    prior_prec <- mn_prior$prior_prec # 3*dim x 3*dim
+    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma))) # sigma: num_phi x num_phi
+    # glob_idmat <- matrix(0L, nrow = dim_har, ncol = dim_data)
+    # grp_id <- 1
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L
-    glob_idmat <- build_grpmat(
-      p = 3,
-      dim_data = dim_data,
-      dim_design = num_phi / dim_data,
-      num_coef = num_phi,
-      minnesota = minnesota,
-      include_mean = FALSE
-    )
-    grp_id <- unique(c(glob_idmat))
-    num_grp <- length(grp_id)
+    # glob_idmat <- build_grpmat(
+    #   p = 3,
+    #   dim_data = dim_data,
+    #   dim_design = num_phi / dim_data,
+    #   num_coef = num_phi,
+    #   minnesota = minnesota,
+    #   include_mean = FALSE
+    # )
+    # grp_id <- unique(c(glob_idmat))
+    # num_grp <- length(grp_id)
     if (length(bayes_spec$coef_spike) == 1) {
       bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
     }
@@ -240,9 +262,9 @@ bvhar_sv <- function(y,
     if (length(bayes_spec$coef_mixture) == 1) {
       bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
     }
-    if (length(bayes_spec$mean_non) == 1) {
-      bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
-    }
+    # if (length(bayes_spec$mean_non) == 1) {
+    #   bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+    # }
     if (length(bayes_spec$shape) == 1) {
       bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
     }
@@ -305,34 +327,43 @@ bvhar_sv <- function(y,
       }
     )
   } else {
-    num_restrict <- ifelse(
-      include_mean,
-      num_phi + dim_data,
-      num_phi
-    )
-    if (length(bayes_spec$local_sparsity) != num_restrict) { # -> change other files too: dim_har (dim_design) to num_restrict
+    # num_restrict <- ifelse(
+    #   include_mean,
+    #   num_phi + dim_data,
+    #   num_phi
+    # )
+    # num_restrict <- num_phi
+    if (length(bayes_spec$local_sparsity) != num_phi) { # -> change other files too: dim_har (dim_design) to num_restrict
       if (length(bayes_spec$local_sparsity) == 1) {
-        bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_restrict)
+        bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_phi)
       } else {
         stop("Length of the vector 'local_sparsity' should be dim^2 * 3 or dim^2 * 3 + 1.")
       }
     }
-    glob_idmat <- build_grpmat(
-      p = 3,
-      dim_data = dim_data,
-      dim_design = dim_har,
-      num_coef = num_restrict,
-      minnesota = minnesota,
-      include_mean = include_mean
-    )
-    grp_id <- unique(c(glob_idmat))
-    num_grp <- length(grp_id)
+    # glob_idmat <- build_grpmat(
+    #   p = 3,
+    #   dim_data = dim_data,
+    #   dim_design = dim_har,
+    #   num_coef = num_restrict,
+    #   minnesota = minnesota,
+    #   include_mean = include_mean
+    # )
+    # glob_idmat <- build_grpmat(
+    #   p = 3,
+    #   dim_data = dim_data,
+    #   dim_design = num_phi / dim_data,
+    #   num_coef = num_phi,
+    #   minnesota = minnesota,
+    #   include_mean = FALSE
+    # )
+    # grp_id <- unique(c(glob_idmat))
+    # num_grp <- length(grp_id)
     bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
     param_prior <- list()
     param_init <- lapply(
       param_init,
       function(init) {
-        local_sparsity <- exp(runif(num_restrict, -1, 1))
+        local_sparsity <- exp(runif(num_phi, -1, 1))
         global_sparsity <- exp(runif(num_grp, -1, 1))
         contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
         contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
@@ -371,6 +402,7 @@ bvhar_sv <- function(y,
     y = Y0,
     param_sv = sv_spec[3:6],
     param_prior = param_prior,
+    param_intercept = intercept[c("mean_non", "sd_non")],
     param_init = param_init,
     prior_type = prior_type,
     grp_id = grp_id,
@@ -389,6 +421,9 @@ bvhar_sv <- function(y,
   names(res) <- rec_names # *_record
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+  if (include_mean) {
+    res$coefficients <- rbind(res$coefficients, colMeans(res$phi0_record))
+  }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
   mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
@@ -407,6 +442,9 @@ bvhar_sv <- function(y,
     rownames(res$pip) <- name_har
   } else if (bayes_spec$prior == "Horseshoe") {
     res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
+    if (include_mean) {
+      res$pip <- rbind(res$pip, rep(1L, dim_data))
+    }
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_har
   }
