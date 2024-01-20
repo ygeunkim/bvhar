@@ -262,9 +262,9 @@ bvhar_sv <- function(y,
     if (length(bayes_spec$coef_mixture) == 1) {
       bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
     }
-    if (length(bayes_spec$mean_non) == 1) {
-      bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
-    }
+    # if (length(bayes_spec$mean_non) == 1) {
+    #   bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
+    # }
     if (length(bayes_spec$shape) == 1) {
       bayes_spec$shape <- rep(bayes_spec$shape, dim_data)
     }

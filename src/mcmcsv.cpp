@@ -206,7 +206,7 @@ MinnSv::MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed
 	prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
 	if (include_mean) {
 		prior_alpha_mean.tail(dim) = params._mean_non;
-		prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
+		// prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
   }
 }
 
@@ -269,6 +269,9 @@ SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int se
 	contem_s1(params._contem_s1),
 	contem_s2(params._contem_s2),
 	prior_sd(Eigen::VectorXd::Zero(num_coef)) {
+	if (include_mean) {
+		prior_sd.tail(dim) = prior_sd_non;
+	}
 	coef_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_alpha);
 	coef_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_grp);
 	contem_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol);
@@ -284,9 +287,9 @@ SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int se
 void SsvsSv::updateCoefPrec() {
 	coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
 	prior_sd.head(num_alpha) = coef_mixture_mat;
-	if (include_mean) {
-		prior_sd.tail(dim) = prior_sd_non;
-	}
+	// if (include_mean) {
+	// 	prior_sd.tail(dim) = prior_sd_non;
+	// }
 	prior_alpha_prec.setZero();
 	prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
 }
@@ -409,9 +412,9 @@ void HorseshoeSv::updateCoefPrec() {
 	coef_var = vectorize_eigen(coef_var_loc);
 	build_shrink_mat(lambda_mat, coef_var, local_lev);
 	prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
-	if (include_mean) {
-		prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
-	}
+	// if (include_mean) {
+	// 	prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
+	// }
 	shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	// shrink_record.row(mcmc_step) = shrink_fac;
 }
