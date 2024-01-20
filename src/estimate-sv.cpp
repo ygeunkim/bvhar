@@ -42,6 +42,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            Eigen::MatrixXd x, Eigen::MatrixXd y,
 													 Rcpp::List param_sv,
 													 Rcpp::List param_prior,
+													 Rcpp::List param_intercept,
 													 Rcpp::List param_init,
                            int prior_type,
                            Eigen::VectorXi grp_id,
@@ -58,7 +59,8 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 		case 1: {
 			MinnParams minn_params(
 				num_iter, x, y,
-				param_sv, param_prior
+				param_sv, param_prior,
+				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
@@ -73,6 +75,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				param_sv,
 				grp_id, grp_mat,
 				param_prior,
+				param_intercept,
 				include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
@@ -86,7 +89,8 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			HorseshoeParams horseshoe_params(
 				num_iter, x, y,
 				param_sv,
-				grp_id, grp_mat
+				grp_id, grp_mat,
+				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];

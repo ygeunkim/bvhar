@@ -15,6 +15,7 @@ bvar_sv(
   thinning = 1,
   bayes_spec = set_bvar(),
   sv_spec = set_sv(),
+  intercept = set_intercept(),
   include_mean = TRUE,
   minnesota = FALSE,
   save_init = FALSE,
@@ -42,6 +43,8 @@ knit_print.bvarsv(x, ...)
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
 
 \item{sv_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} SV specification by \code{\link[=set_sv]{set_sv()}}.}
+
+\item{intercept}{Prior for the constant term by \code{\link[=set_intercept]{set_intercept()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
