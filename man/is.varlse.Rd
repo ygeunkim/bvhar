@@ -12,6 +12,7 @@
 \alias{is.bvharpriorspec}
 \alias{is.bvharemp}
 \alias{is.boundbvharemp}
+\alias{is.interceptspec}
 \alias{is.ssvsinput}
 \alias{is.ssvsinit}
 \alias{is.horseshoespec}
@@ -39,6 +40,8 @@ is.bvharpriorspec(x)
 is.bvharemp(x)
 
 is.boundbvharemp(x)
+
+is.interceptspec(x)
 
 is.ssvsinput(x)
 
