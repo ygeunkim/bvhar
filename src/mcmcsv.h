@@ -16,10 +16,14 @@ struct SvParams {
 	Eigen::VectorXd _sig_scl;
 	Eigen::VectorXd _init_mean;
 	Eigen::MatrixXd _init_prec;
+	Eigen::VectorXd _mean_non;
+	double _sd_non;
+	bool _mean;
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& spec
+		Rcpp::List& spec, Rcpp::List& intercept,
+		bool include_mean
 	);
 };
 
@@ -30,7 +34,8 @@ struct MinnParams : public SvParams {
 
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec, Rcpp::List& priors
+		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
+		bool include_mean
 	);
 };
 
@@ -47,15 +52,12 @@ struct SsvsParams : public SvParams {
 	double _coef_s2;
 	double _contem_s1;
 	double _contem_s2;
-	Eigen::VectorXd _mean_non;
-	double _sd_non;
-	bool _mean;
 
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
-		Rcpp::List& ssvs_spec,
+		Rcpp::List& ssvs_spec, Rcpp::List& intercept,
 		bool include_mean
 	);
 };
@@ -63,17 +65,13 @@ struct SsvsParams : public SvParams {
 struct HorseshoeParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXd _grp_mat;
-	// Eigen::VectorXd _init_local;
-	// Eigen::VectorXd _init_global;
-	// Eigen::VectorXd _init_contem_local;
-	// Eigen::VectorXd _init_conetm_global;
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		Rcpp::List& intercept, bool include_mean
 	);
-	// ,Rcpp::List& hs_spec
 };
 
 struct SvInits {
@@ -122,6 +120,7 @@ public:
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
 
 protected:
+	bool include_mean;
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
 	std::mutex mtx;
@@ -136,8 +135,11 @@ protected:
   int num_design; // n = T - p
   int num_lowerchol;
   int num_coef;
+	int num_alpha;
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
+	Eigen::VectorXd prior_mean_non; // prior mean of intercept term
+	Eigen::VectorXd prior_sd_non; // prior sd of intercept term: c^2 I
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::MatrixXd lvol_draw; // h_j = (h_j1, ..., h_jn)
@@ -188,8 +190,8 @@ public:
 	void doPosteriorDraws() override;
 	Rcpp::List returnRecords(int num_burn, int thin) const override;
 private:
-	bool include_mean;
-	int num_alpha;
+	// bool include_mean;
+	// int num_alpha;
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXd grp_mat;
 	Eigen::VectorXd grp_vec;
@@ -208,7 +210,7 @@ private:
 	Eigen::VectorXd contem_slab;
 	double coef_s1, coef_s2;
 	double contem_s1, contem_s2;
-	double prior_sd_non;
+	// double prior_sd_non;
 	Eigen::VectorXd prior_sd;
 	Eigen::VectorXd slab_weight; // pij vector
 	Eigen::MatrixXd slab_weight_mat; // pij matrix: (dim*p) x dim
@@ -239,6 +241,7 @@ private:
 	Eigen::VectorXd shrink_fac;
 	Eigen::VectorXd latent_local;
 	Eigen::VectorXd latent_global;
+	Eigen::MatrixXd lambda_mat;
 	Eigen::VectorXd coef_var;
 	Eigen::MatrixXd coef_var_loc;
 	Eigen::VectorXd contem_local_lev;

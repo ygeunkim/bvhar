@@ -41,11 +41,11 @@ void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec
 
 double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat);
 
-void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd& coef_vec, double prior_var);
+void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
 
 double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd& coef_vec, double prior_var);
 
-void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXd& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd& coef_vec, double prior_var);
+void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXd& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd coef_vec, double prior_var);
 
 void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam);
 
@@ -82,11 +82,11 @@ void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec
 
 double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng);
 
-void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd& coef_vec, double prior_var, boost::random::mt19937& rng);
+void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd coef_vec, double prior_var, boost::random::mt19937& rng);
 
 double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd& coef_vec, double prior_var, boost::random::mt19937& rng);
 
-void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXd& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd& coef_vec, double prior_var, boost::random::mt19937& rng);
+void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXd& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam, Eigen::VectorXd coef_vec, double prior_var, boost::random::mt19937& rng);
 
 void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, boost::random::mt19937& rng);
 

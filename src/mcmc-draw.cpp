@@ -709,7 +709,7 @@ double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
 void horseshoe_local_sparsity(Eigen::VectorXd& local_lev,
 															Eigen::VectorXd& local_latent,
                             	Eigen::VectorXd& global_hyperparam,
-                            	Eigen::VectorXd& coef_vec,
+                            	Eigen::VectorXd coef_vec,
                             	double prior_var) {
   int dim = coef_vec.size();
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
@@ -721,7 +721,7 @@ void horseshoe_local_sparsity(Eigen::VectorXd& local_lev,
 void horseshoe_local_sparsity(Eigen::VectorXd& local_lev,
 															Eigen::VectorXd& local_latent,
                             	Eigen::VectorXd& global_hyperparam,
-                            	Eigen::VectorXd& coef_vec,
+                            	Eigen::VectorXd coef_vec,
                             	double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
@@ -777,7 +777,7 @@ void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,
-                                  Eigen::VectorXd& coef_vec,
+                                  Eigen::VectorXd coef_vec,
                                   double prior_var) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
@@ -811,7 +811,7 @@ void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,
-                                  Eigen::VectorXd& coef_vec,
+                                  Eigen::VectorXd coef_vec,
                                   double prior_var, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
