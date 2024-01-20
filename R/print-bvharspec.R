@@ -107,6 +107,34 @@ knit_print.bvharspec <- function(x, ...) {
   print(x)
 }
 
+#' @rdname set_intercept
+#' @param x `interceptspec` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.interceptspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, ":\n"))
+  cat("----------------------------------------------------\n")
+  prior_var <- paste0(x$sd_non, "^2 I_dim")
+  if (length(x$mean_non) > 1) {
+    prior_mean <- paste0(
+      "c(",
+      paste0(x$mean, collapse = ","),
+      ")"
+    )
+  } else {
+    prior_mean <- paste0("rep(", x$mean_non, ", dim)")
+  }
+  cat(sprintf("%s(%s, %s)", x$prior, prior_mean, prior_var))
+}
+
+#' @rdname set_intercept
+#' @exportS3Method knitr::knit_print
+knit_print.interceptspec <- function(x, ...) {
+  print(x)
+}
+
 #' @rdname set_ssvs
 #' @param x `ssvsinput`
 #' @param digits digit option to print
