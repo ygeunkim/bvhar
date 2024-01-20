@@ -254,6 +254,35 @@ set_weight_bvhar <- function(sigma,
   bvhar_param
 }
 
+#' Prior for Constant Term
+#' 
+#' Set Normal prior hyperparameters for constant term
+#' 
+#' @param mean Normal mean of constant term
+#' @param sd Normal standard deviance for constant term
+#' 
+#' @order 1
+#' @export
+set_intercept <- function(mean = 0, sd = .1) {
+  if (!is.vector(mean)) {
+    stop("'mean' should be a vector.")
+  }
+  if (length(sd) != 1) {
+    stop("'sd' should be length 1 numeric.")
+  }
+  if (sd < 0) {
+    stop("'sd' should be positive.")
+  }
+  non_param <- list(
+    process = "Intercept",
+    prior = "Normal",
+    mean_non = mean,
+    sd_non = sd
+  )
+  class(non_param) <- c("interceptspec", "bvharspec")
+  non_param
+}
+
 #' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
 #' 
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
