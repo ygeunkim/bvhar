@@ -9,7 +9,7 @@ McmcSsvs::McmcSsvs(
   const double& coef_s1, const double& coef_s2,
   const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
   const double& chol_s1, const double& chol_s2,
-  const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+  const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
   const Eigen::VectorXd& mean_non, const double& sd_non, bool include_mean, bool init_gibbs,
 	unsigned int seed
 )
@@ -131,7 +131,7 @@ void McmcSsvs::updateCoefDummy() {
 	slab_weight = vectorize_eigen(slab_weight_mat);
 	ssvs_dummy(
 		coef_dummy,
-		vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
+		vectorize_eigen(coef_mat.topRows(num_restrict / dim).eval()),
 		coef_slab,
 		coef_spike,
 		slab_weight

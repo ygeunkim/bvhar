@@ -9,18 +9,13 @@
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
 
-// #define chisq_rand Rf_rchisq
 #define gammafn Rf_gammafn
 #define lgammafn Rf_lgammafn
-// #define gamma_rand Rf_rgamma
 #define binom_rand Rf_rbinom
-// #define unif_rand Rf_runif
 #define gamma_dens Rf_dgamma
-// #define beta_rand Rf_rbeta
 
-inline double normal_rand(double mean, double sd, boost::random::mt19937& rng) {
-	// boost::random::mt19937 rng(seed);
-	boost::random::normal_distribution<> rdist(mean, sd);
+inline double normal_rand(boost::random::mt19937& rng) {
+	boost::random::normal_distribution<> rdist(0.0, 1.0);
 	return rdist(rng);
 }
 
@@ -39,19 +34,13 @@ inline double gamma_rand(double shp, double scl) {
 }
 
 inline double gamma_rand(double shp, double scl, boost::random::mt19937& rng) {
-	// boost::random::mt19937 rng(seed);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
 
-// inline double binom_rand(int n, double prob) {
-// 	return Rf_rbinom(n, prob);
-// }
-
 inline double ber_rand(double prob, boost::random::mt19937& rng) {
-	// boost::random::mt19937 rng(seed);
-	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> change function name to ber_rand() later
-	return rdist(rng);
+	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> use this instead of binomial
+	return rdist(rng) * 1.0; // change to int later: now just use double to match Rf_rbinom
 }
 
 inline double unif_rand(double min, double max) {
@@ -59,7 +48,6 @@ inline double unif_rand(double min, double max) {
 }
 
 inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
-	// boost::random::mt19937 rng(seed);
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
@@ -69,7 +57,6 @@ inline double beta_rand(double s1, double s2) {
 }
 
 inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
-	// boost::random::mt19937 rng(seed);
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
 }
