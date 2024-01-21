@@ -25,7 +25,7 @@ MinnParams::MinnParams(
 SsvsParams::SsvsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& sv_spec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 	Rcpp::List& ssvs_spec, Rcpp::List& intercept,
 	bool include_mean
 )
@@ -43,7 +43,7 @@ SsvsParams::SsvsParams(
 HorseshoeParams::HorseshoeParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& sv_spec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 	Rcpp::List& intercept, bool include_mean
 )
 : SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
@@ -121,7 +121,7 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	// coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
 	coef_vec = Eigen::VectorXd::Zero(num_coef);
 	// coef_vec = vectorize_eigen(coef_mat);
-	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim));
+	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
 	if (include_mean) {
 		coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 	}
@@ -135,7 +135,7 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	// coef_record.row(0) = vectorize_eigen(coef_mat);
 	coef_record.row(0) = coef_vec;
 	lvol_init_record.row(0) = lvol_init;
-	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose());
+	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose().eval());
   coef_j = coef_mat;
 }
 
@@ -149,7 +149,7 @@ void McmcSv::updateCoef() {
 		Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 		Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
 		Eigen::VectorXd response_j = vectorize_eigen(
-			((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			(((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).matrix().eval() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
     ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
 		varsv_regression(
 			coef_mat.col(j),
@@ -159,7 +159,7 @@ void McmcSv::updateCoef() {
     );
 	}
 	// coef_vec = vectorize_eigen(coef_mat);
-	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim));
+	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
 	if (include_mean) {
 		coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 	}
@@ -176,7 +176,7 @@ void McmcSv::updateState() {
 void McmcSv::updateImpact() {
 	for (int j = 2; j < dim + 1; j++) {
 		response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
-		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2)).array(); // n x (j - 1)
+		Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2).eval()).array(); // n x (j - 1)
 		contem_id = (j - 1) * (j - 2) / 2;
 		varsv_regression(
 			contem_coef.segment(contem_id, j - 1),
@@ -214,7 +214,7 @@ void MinnSv::updateRecords() {
 	std::lock_guard<std::mutex> lock(mtx);
 	coef_record.row(mcmc_step) = coef_vec;
 	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
 	lvol_sig_record.row(mcmc_step) = lvol_sig;
 	lvol_init_record.row(mcmc_step) = lvol_init;
 }
@@ -325,7 +325,7 @@ void SsvsSv::updateRecords() {
 	std::lock_guard<std::mutex> lock(mtx);
 	coef_record.row(mcmc_step) = coef_vec;
 	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
 	lvol_sig_record.row(mcmc_step) = lvol_sig;
 	lvol_init_record.row(mcmc_step) = lvol_init;
 	coef_weight_record.row(mcmc_step) = coef_weight;
@@ -431,7 +431,7 @@ void HorseshoeSv::updateCoefShrink() {
 void HorseshoeSv::updateImpactPrec() {
 	horseshoe_latent(latent_contem_local, contem_local_lev, rng);
 	horseshoe_latent(latent_contem_global, contem_global_lev, rng);
-	contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol));
+	contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol).eval());
 	horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
 	contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
 	build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
@@ -441,7 +441,7 @@ void HorseshoeSv::updateRecords() {
 	std::lock_guard<std::mutex> lock(mtx);
 	coef_record.row(mcmc_step) = coef_vec;
 	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose());
+	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
 	lvol_sig_record.row(mcmc_step) = lvol_sig;
 	lvol_init_record.row(mcmc_step) = lvol_init;
 	shrink_record.row(mcmc_step) = shrink_fac;

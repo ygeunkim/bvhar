@@ -41,7 +41,7 @@ struct MinnParams : public SvParams {
 
 struct SsvsParams : public SvParams {
 	Eigen::VectorXi _grp_id;
-	Eigen::MatrixXd _grp_mat;
+	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _coef_spike;
 	Eigen::VectorXd _coef_slab;
 	Eigen::VectorXd _coef_weight;
@@ -56,7 +56,7 @@ struct SsvsParams : public SvParams {
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		Rcpp::List& ssvs_spec, Rcpp::List& intercept,
 		bool include_mean
 	);
@@ -64,12 +64,12 @@ struct SsvsParams : public SvParams {
 
 struct HorseshoeParams : public SvParams {
 	Eigen::VectorXi _grp_id;
-	Eigen::MatrixXd _grp_mat;
+	Eigen::MatrixXi _grp_mat;
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		Rcpp::List& intercept, bool include_mean
 	);
 };
@@ -193,8 +193,8 @@ private:
 	// bool include_mean;
 	// int num_alpha;
 	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
 	int num_grp;
 	Eigen::MatrixXd coef_dummy_record;
 	Eigen::MatrixXd coef_weight_record;
@@ -230,8 +230,8 @@ public:
 
 private:
 	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
 	int num_grp;
 	Eigen::MatrixXd local_record;
 	Eigen::MatrixXd global_record;

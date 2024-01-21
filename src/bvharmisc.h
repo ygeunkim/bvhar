@@ -11,7 +11,11 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
 
-Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x);
+template <typename Derived>
+inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
+	// should use x.eval() when x is expression such as block or transpose. Use matrix().eval() if array.
+	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>::Map(x.derived().data(), x.size());
+}
 
 Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
 

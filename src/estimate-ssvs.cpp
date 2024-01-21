@@ -47,10 +47,10 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
                               Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
                               double chol_s1, double chol_s2,
                               Eigen::VectorXi grp_id,
-                              Eigen::MatrixXd grp_mat,
+                              Eigen::MatrixXi grp_mat,
                               Eigen::VectorXd mean_non, double sd_non,
                               bool include_mean,
-															Eigen::VectorXd seed_chain,
+															Eigen::VectorXi seed_chain,
                               bool init_gibbs,
                               bool display_progress, int nthreads) {
 #ifdef _OPENMP
