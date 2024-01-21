@@ -56,10 +56,10 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
-	std::vector<std::unique_ptr<McmcSsvs>> mcmc_objs(num_chains);
+	std::vector<std::unique_ptr<bvhar::McmcSsvs>> mcmc_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	for (int i = 0; i < num_chains; i++) {
-		mcmc_objs[i] = std::unique_ptr<McmcSsvs>(new McmcSsvs(
+		mcmc_objs[i] = std::unique_ptr<bvhar::McmcSsvs>(new bvhar::McmcSsvs(
 			num_iter, x, y,
 			init_coef, init_chol_diag, init_chol_upper,
 			init_coef_dummy, init_chol_dummy,
@@ -75,10 +75,10 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 	}
 	// Start Gibbs sampling-----------------------------------------
 	auto run_gibbs = [&](int chain) {
-		bvharprogress bar(num_iter, display_progress);
-		bvharinterrupt();
+		bvhar::bvharprogress bar(num_iter, display_progress);
+		bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
-			if (bvharinterrupt::is_interrupted()) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
 				res[chain] = mcmc_objs[chain]->returnRecords(0, 1);
 				break;
 			}
@@ -102,31 +102,4 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 		}
 	}
 	return Rcpp::wrap(res);
-	// std::unique_ptr<McmcSsvs> mcmc_obj(new McmcSsvs(
-	// 	num_iter, x, y,
-	// 	init_coef, init_chol_diag, init_chol_upper,
-	// 	init_coef_dummy, init_chol_dummy,
-	// 	coef_spike, coef_slab, coef_slab_weight,
-	// 	shape, rate,
-	// 	coef_s1, coef_s2,
-	// 	chol_spike, chol_slab, chol_slab_weight,
-	// 	chol_s1, chol_s2,
-	// 	grp_id, grp_mat,
-	// 	mean_non, sd_non, include_mean, init_gibbs
-	// ));
-  // bvharprogress bar(num_iter, display_progress);
-	// bvharinterrupt();
-  // Start Gibbs sampling-----------------------------------------
-  // for (int i = 1; i < num_iter + 1; i++) {
-  //   if (bvharinterrupt::is_interrupted()) {
-	// 		return mcmc_obj->returnRecords(0);
-  //   }
-  //   bar.increment();
-	// 	if (display_progress) {
-	// 		bar.update();
-	// 	}
-	// 	mcmc_obj->addStep();
-	// 	mcmc_obj->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
-  // }
-	// return mcmc_obj->returnRecords(num_burn);
 }

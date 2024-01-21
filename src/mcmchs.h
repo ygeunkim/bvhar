@@ -1,12 +1,9 @@
 #ifndef MCMCHS_H
 #define MCMCHS_H
 
-// #include <RcppEigen.h>
 #include "bvhardraw.h"
-// #include <atomic>
-// #include <mutex>
-// #include <vector> // std::vector in source file
-// #include <memory> // std::unique_ptr in source file
+
+namespace bvhar {
 
 struct HsParams {
 	int _iter;
@@ -86,5 +83,7 @@ public:
 	void updateCoef() override;
 	void updateRecords() override;
 };
+
+} // bvhar namespace
 
 #endif

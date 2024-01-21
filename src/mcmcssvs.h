@@ -1,12 +1,9 @@
 #ifndef MCMCSSVS_H
 #define MCMCSSVS_H
 
-// #include <RcppEigen.h>
 #include "bvhardraw.h"
-// #include <atomic>
-// #include <mutex>
-// #include <vector> // std::vector in source file
-// #include <memory> // std::unique_ptr in source file
+
+namespace bvhar {
 
 class McmcSsvs {
 public:
@@ -91,5 +88,7 @@ private:
 	Eigen::MatrixXd coef_mat;
 	Eigen::MatrixXd sse_mat;
 };
+
+}
 
 #endif

@@ -1,12 +1,9 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-// #include <RcppEigen.h>
 #include "bvhardraw.h"
-// #include <atomic>
-// #include <mutex>
-// #include <vector> // std::vector
-// #include <memory> // std::unique_ptr
+
+namespace bvhar {
 
 struct SvParams {
 	int _iter;
@@ -250,5 +247,7 @@ private:
 	Eigen::VectorXd latent_contem_local;
 	Eigen::VectorXd latent_contem_global;
 };
+
+} // bvhar namespace
 
 #endif

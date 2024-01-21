@@ -5,6 +5,8 @@
 #include "bvhardesign.h"
 #include <memory> // std::unique_ptr
 
+namespace bvhar {
+
 struct MinnSpec {
 	Eigen::VectorXd _sigma;
 	double _lambda;
@@ -113,5 +115,7 @@ private:
 	std::unique_ptr<Minnesota> _mn;
 	Eigen::MatrixXd dummy_response;
 };
+
+} // bvhar namespace
 
 #endif

@@ -1,6 +1,8 @@
 #include "ols.h"
 #include "bvhardesign.h"
 
+namespace bvhar {
+
 MultiOls::MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
 : design(x), response(y),
 	dim(response.cols()), num_design(response.rows()), dim_design(design.cols()) {
@@ -117,3 +119,5 @@ Rcpp::List OlsVhar::returnOlsRes() {
 	ols_res["y"] = data;
 	return ols_res;
 }
+
+} // bvhar namespace
