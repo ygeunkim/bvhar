@@ -941,14 +941,6 @@ forecast_vhar <- function(object, step) {
     .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
-#' Set seed in Rcpp using `set.seed()` of R
-#' 
-#' @param seed Seed
-#' @noRd
-set_seedr <- function(seed) {
-    invisible(.Call(`_bvhar_set_seedr`, seed))
-}
-
 #' Generate Multivariate Normal Random Vector
 #' 
 #' This function samples n x muti-dimensional normal random matrix.

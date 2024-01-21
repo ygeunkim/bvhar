@@ -1,7 +1,8 @@
-#include "bvharomp.h"
-#include <RcppEigen.h>
-#include "bvharmisc.h"
-#include "randsim.h"
+// #include "bvharomp.h"
+// #include <RcppEigen.h>
+// #include "bvharmisc.h"
+// #include "randsim.h"
+#include "bvhardraw.h"
 
 // [[Rcpp::export]]
 int get_maxomp() {

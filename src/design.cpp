@@ -1,4 +1,5 @@
-#include <RcppEigen.h>
+// #include <RcppEigen.h>
+#include "bvhardesign.h"
 
 //' Build Response Matrix of VAR(p)
 //' 

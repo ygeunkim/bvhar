@@ -1,6 +1,7 @@
 #ifndef RANDSIM_H
 #define RANDSIM_H
 
+#include "bvharcommon.h"
 #include "bvharprob.h"
 
 void set_seedr(int seed);

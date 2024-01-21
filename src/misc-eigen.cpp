@@ -1,5 +1,6 @@
-#include <RcppEigen.h>
-#include "bvharprob.h"
+// #include <RcppEigen.h>
+// #include "bvharprob.h"
+#include "bvharmisc.h"
 
 Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
