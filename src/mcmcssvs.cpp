@@ -131,7 +131,7 @@ void McmcSsvs::updateCoefDummy() {
 	slab_weight = vectorize_eigen(slab_weight_mat);
 	ssvs_dummy(
 		coef_dummy,
-		vectorize_eigen(coef_mat.topRows(num_restrict / dim)),
+		vectorize_eigen(coef_mat.topRows(num_restrict / dim).eval()),
 		coef_slab,
 		coef_spike,
 		slab_weight

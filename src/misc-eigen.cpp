@@ -6,10 +6,10 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
-Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
-  Eigen::VectorXd res = Eigen::Map<Eigen::VectorXd>(x.transpose().data(), x.rows() * x.cols());
-  return res;
-}
+// Eigen::VectorXd vectorize_eigen(Eigen::MatrixXd x) {
+//   Eigen::VectorXd res = Eigen::Map<Eigen::VectorXd>(x.transpose().data(), x.rows() * x.cols());
+//   return res;
+// }
 
 Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols) {
   // igen::Map<Eigen::MatrixXd>(coef_record.block(num_iter, b * num_coef, 1, num_coef).data(), dim_design, dim);
