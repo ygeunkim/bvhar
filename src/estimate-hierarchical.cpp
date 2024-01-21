@@ -135,7 +135,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
     }
     // Draw coef and Sigma
     posterior_draw = sim_mniw(1, mn_mean, mn_prec.inverse(), iw_scale, posterior_shape);
-    coef_record.row(i - 1) = vectorize_eigen(posterior_draw["mn"]);
+		coef_record.row(i - 1) = vectorize_eigen(Rcpp::as<Eigen::MatrixXd>(posterior_draw["mn"]));
     sig_record.block((i - 1) * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
   }
   return Rcpp::List::create(

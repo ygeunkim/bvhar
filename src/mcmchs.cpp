@@ -3,7 +3,7 @@
 HsParams::HsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
   const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global, const double& init_sigma,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat
 )
 : _iter(num_iter), _x(x), _y(y),
 	_init_local(init_local), _init_global(init_global), _init_sigma(init_sigma),

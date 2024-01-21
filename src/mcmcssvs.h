@@ -19,7 +19,7 @@ public:
   	const double& coef_s1, const double& coef_s2,
   	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
   	const double& chol_s1, const double& chol_s2,
-  	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+  	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
   	const Eigen::VectorXd& mean_non, const double& sd_non, bool include_mean, bool init_gibbs,
 		unsigned int seed
 	);
@@ -57,8 +57,8 @@ private:
 	double prior_sd_non;
 	Eigen::VectorXd prior_sd;
 	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
 	int num_grp;
 	bool include_mean;
 	int num_restrict;

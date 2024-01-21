@@ -46,9 +46,9 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 													 Rcpp::List param_init,
                            int prior_type,
                            Eigen::VectorXi grp_id,
-                           Eigen::MatrixXd grp_mat,
+                           Eigen::MatrixXi grp_mat,
                            bool include_mean,
-													 Eigen::VectorXd seed_chain,
+													 Eigen::VectorXi seed_chain,
                            bool display_progress, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);

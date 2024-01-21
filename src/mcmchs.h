@@ -13,7 +13,7 @@ struct HsParams {
 	Eigen::MatrixXd _x;
 	Eigen::MatrixXd _y;
   Eigen::VectorXi _grp_id;
-	Eigen::MatrixXd _grp_mat;
+	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_global;
 	double _init_sigma;
@@ -21,7 +21,7 @@ struct HsParams {
 	HsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
     const Eigen::VectorXd& init_local, const Eigen::VectorXd& init_global, const double& init_sigma,
-		const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat
 	);
 };
 
@@ -49,8 +49,8 @@ protected:
 	Eigen::VectorXd response_vec;
 	Eigen::MatrixXd lambda_mat; // covariance
 	Eigen::VectorXi grp_id;
-	Eigen::MatrixXd grp_mat;
-	Eigen::VectorXd grp_vec;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
 	int num_grp;
 	Eigen::VectorXd coef_draw;
 	double sig_draw;
