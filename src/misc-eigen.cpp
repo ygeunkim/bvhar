@@ -6,35 +6,6 @@ Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y) {
   return res;
 }
 
-Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x) {
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(x);
-  return es.eigenvalues();
-}
-
-Eigen::MatrixXd compute_inverse(Eigen::MatrixXd x) {
-  return x.inverse();
-}
-
-Eigen::MatrixXd compute_choleksy_lower(Eigen::MatrixXd x) {
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
-  return lltOfscale.matrixL(); // lower triangular matrix
-}
-
-Eigen::MatrixXd compute_choleksy_upper(Eigen::MatrixXd x) {
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(x);
-  return lltOfscale.matrixU(); // upper triangular matrix
-}
-
-Rcpp::List qr_eigen(Eigen::Map<Eigen::MatrixXd> x) {
-  Eigen::HouseholderQR<Eigen::MatrixXd> qr(x); // x = QR
-  Eigen::MatrixXd q = qr.householderQ(); // Q orthogonal
-  Eigen::MatrixXd r = qr.matrixQR().triangularView<Eigen::Upper>(); // R upper
-  return Rcpp::List::create(
-    Rcpp::Named("orthogonal") = q,
-    Rcpp::Named("upper") = r
-  );
-}
-
 //' Multivariate Gamma Function
 //' 
 //' Compute multivariate gamma function numerically
@@ -117,27 +88,6 @@ double invgamma_dens(double x, double shp, double scl, bool lg) {
   double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
   if (lg) {
     return log(res);
-  }
-  return res;
-}
-
-// Filling Covariance Matrix
-// 
-// This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
-// 
-// @param diag_vec Diagonal components
-// @param off_diagvec Off-diagonal components
-Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
-  int dim = diag_vec.size();
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
-  res.diagonal() = diag_vec;
-  int id = 0;
-  for (int j = 1; j < dim; j++) {
-    for (int i = 0; i < j; i++) {
-      res(i, j) = off_diagvec[id + i]; // assign i-th row = psi_ij
-      res(j, i) = res(i, j);
-    }
-    id += j;
   }
   return res;
 }
