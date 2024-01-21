@@ -80,7 +80,7 @@ McmcSsvs::McmcSsvs(
 	chol_dummy_record.row(0) = chol_dummy;
 	// chol_factor_record.topLeftCorner(dim, dim) = chol_ols;
 	chol_factor_record.row(0) = vectorize_eigen(chol_ols);
-	coef_mat = unvectorize(coef_draw, dim_design, dim);
+	coef_mat = unvectorize(coef_draw, dim);
 	sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
 }
 
@@ -116,7 +116,7 @@ void McmcSsvs::updateCoef() {
 		prior_sd = coef_mixture_mat;
 	}
 	ssvs_coef(coef_draw, prior_mean, prior_sd, gram, coef_vec, chol_factor);
-	coef_mat = unvectorize(coef_draw, dim_design, dim);
+	coef_mat = unvectorize(coef_draw, dim);
 	sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
 	// coef_record.row(mcmc_step) = coef_draw;
 }

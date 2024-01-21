@@ -17,7 +17,11 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eige
 	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>::Map(x.derived().data(), x.size());
 }
 
-Eigen::MatrixXd unvectorize(Eigen::VectorXd x, int num_rows, int num_cols);
+template <typename Derived>
+inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> unvectorize(const Eigen::MatrixBase<Derived>& x, int num_cols) {
+	int num_rows = x.size() / num_cols;
+	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
+}
 
 Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
 
