@@ -193,7 +193,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_sur_horseshoe
-Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, int blocked_gibbs, bool fast, Eigen::VectorXd seed_chain, bool display_progress, int nthreads);
+Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, int blocked_gibbs, bool fast, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
 RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -208,10 +208,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type grp_mat(grp_matSEXP);
     Rcpp::traits::input_parameter< int >::type blocked_gibbs(blocked_gibbsSEXP);
     Rcpp::traits::input_parameter< bool >::type fast(fastSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads));
@@ -219,7 +219,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_ssvs
-Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, double coef_s1, double coef_s2, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double chol_s1, double chol_s2, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, Eigen::VectorXd mean_non, double sd_non, bool include_mean, Eigen::VectorXd seed_chain, bool init_gibbs, bool display_progress, int nthreads);
+Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_coef, Eigen::VectorXd init_chol_diag, Eigen::VectorXd init_chol_upper, Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy, Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight, Eigen::VectorXd shape, Eigen::VectorXd rate, double coef_s1, double coef_s2, Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight, double chol_s1, double chol_s2, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, Eigen::VectorXd mean_non, double sd_non, bool include_mean, Eigen::VectorXi seed_chain, bool init_gibbs, bool display_progress, int nthreads);
 RcppExport SEXP _bvhar_estimate_bvar_ssvs(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_coefSEXP, SEXP init_chol_diagSEXP, SEXP init_chol_upperSEXP, SEXP init_coef_dummySEXP, SEXP init_chol_dummySEXP, SEXP coef_spikeSEXP, SEXP coef_slabSEXP, SEXP coef_slab_weightSEXP, SEXP shapeSEXP, SEXP rateSEXP, SEXP coef_s1SEXP, SEXP coef_s2SEXP, SEXP chol_spikeSEXP, SEXP chol_slabSEXP, SEXP chol_slab_weightSEXP, SEXP chol_s1SEXP, SEXP chol_s2SEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP mean_nonSEXP, SEXP sd_nonSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP init_gibbsSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -248,11 +248,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type chol_s1(chol_s1SEXP);
     Rcpp::traits::input_parameter< double >::type chol_s2(chol_s2SEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type grp_mat(grp_matSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean_non(mean_nonSEXP);
     Rcpp::traits::input_parameter< double >::type sd_non(sd_nonSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type init_gibbs(init_gibbsSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
@@ -261,7 +261,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_var_sv
-Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXd grp_mat, bool include_mean, Eigen::VectorXd seed_chain, bool display_progress, int nthreads);
+Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
 RcppExport SEXP _bvhar_estimate_var_sv(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP param_interceptSEXP, SEXP param_initSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -278,9 +278,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::List >::type param_init(param_initSEXP);
     Rcpp::traits::input_parameter< int >::type prior_type(prior_typeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type grp_mat(grp_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type grp_mat(grp_matSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(estimate_var_sv(num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, seed_chain, display_progress, nthreads));

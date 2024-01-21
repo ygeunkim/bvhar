@@ -82,7 +82,7 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
   Eigen::MatrixXd res(num_sim, dim);
   for (int i = 0; i < num_sim; i++) {
     for (int j = 0; j < standard_normal.cols(); j++) {
-      standard_normal(i, j) = normal_rand(0, 1, rng);
+      standard_normal(i, j) = normal_rand(rng);
     }
   }
   res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors

@@ -128,7 +128,7 @@ void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::V
   for (int j = 1; j < dim; j++) {
 		Eigen::VectorXd standard_normal(j);
 		for (int i = 0; i < j; i++) {
-			standard_normal[i] = normal_rand(0, 1, rng);
+			standard_normal[i] = normal_rand(rng);
 		}
 		sse_colvec.head(j) = sse_mat.block(0, j, j, 1);
 		normal_variance.topLeftCorner(j, j) = sse_mat.topLeftCorner(j, j) + inv_DRD.block(block_id, block_id, j, j);
@@ -190,7 +190,7 @@ void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::Vector
 	// coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
 	Eigen::VectorXd standard_normal(num_coef);
 	for (int i = 0; i < num_coef; i++) {
-		standard_normal[i] = normal_rand(0, 1, rng);
+		standard_normal[i] = normal_rand(rng);
 	}
 	Eigen::MatrixXd normal_variance = scaled_xtx + prior_prec; // Delta^(-1)
 	Eigen::LLT<Eigen::MatrixXd> llt_sig(normal_variance);
@@ -267,7 +267,7 @@ void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prio
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
 void ssvs_mn_weight(Eigen::VectorXd& weight,
-										Eigen::VectorXd& grp_vec,
+										Eigen::VectorXi& grp_vec,
                     Eigen::VectorXi& grp_id,
                     Eigen::VectorXd& param_obs,
                     double prior_s1,
@@ -296,7 +296,7 @@ void ssvs_mn_weight(Eigen::VectorXd& weight,
 }
 // overloading: add rng instance
 void ssvs_mn_weight(Eigen::VectorXd& weight,
-										Eigen::VectorXd& grp_vec,
+										Eigen::VectorXi& grp_vec,
                     Eigen::VectorXi& grp_id,
                     Eigen::VectorXd& param_obs,
                     double prior_s1,
@@ -371,7 +371,7 @@ void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eige
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
-		res[i] = normal_rand(0, 1, rng);
+		res[i] = normal_rand(rng);
   }
   Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
@@ -477,7 +477,7 @@ void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
   Eigen::MatrixXd HtH = diff_mat.transpose() * diff_mat;
   Eigen::VectorXd res(num_design);
   for (int i = 0; i < num_design; i++) {
-		res[i] = normal_rand(0, 1, rng);
+		res[i] = normal_rand(rng);
   }
   Eigen::MatrixXd post_sig = HtH / sv_sig + inv_sig_s;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
@@ -554,7 +554,7 @@ void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::MatrixXd&
   int dim = h1.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
-		res[i] = normal_rand(0, 1, rng);
+		res[i] = normal_rand(rng);
   }
   Eigen::MatrixXd post_h0_prec(dim, dim); // k_h0
   Eigen::MatrixXd h_diagprec = Eigen::MatrixXd::Zero(dim, dim); // diag(1 / sigma_h^2)
@@ -600,7 +600,7 @@ void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen:
 	int dim = coef.size();
 	Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
-		res[i] = normal_rand(0, 1, rng);
+		res[i] = normal_rand(rng);
   }
 	Eigen::MatrixXd post_sig = shrink_mat / var + design_mat.transpose() * design_mat;
 	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
@@ -773,7 +773,7 @@ double horseshoe_global_sparsity(double global_latent,
 // @param coef_mn Coefficients vector in the i = j lag or cross lag
 // @param prior_var Variance constant of the likelihood
 void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
-																	Eigen::VectorXd& grp_vec,
+																	Eigen::VectorXi& grp_vec,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,
@@ -807,7 +807,7 @@ void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
 }
 // overloading: add rng instance
 void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
-																	Eigen::VectorXd& grp_vec,
+																	Eigen::VectorXi& grp_vec,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,
