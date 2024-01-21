@@ -267,7 +267,7 @@ void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prio
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
 void ssvs_mn_weight(Eigen::VectorXd& weight,
-										Eigen::VectorXd& grp_vec,
+										Eigen::VectorXi& grp_vec,
                     Eigen::VectorXi& grp_id,
                     Eigen::VectorXd& param_obs,
                     double prior_s1,
@@ -296,7 +296,7 @@ void ssvs_mn_weight(Eigen::VectorXd& weight,
 }
 // overloading: add rng instance
 void ssvs_mn_weight(Eigen::VectorXd& weight,
-										Eigen::VectorXd& grp_vec,
+										Eigen::VectorXi& grp_vec,
                     Eigen::VectorXi& grp_id,
                     Eigen::VectorXd& param_obs,
                     double prior_s1,
@@ -773,7 +773,7 @@ double horseshoe_global_sparsity(double global_latent,
 // @param coef_mn Coefficients vector in the i = j lag or cross lag
 // @param prior_var Variance constant of the likelihood
 void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
-																	Eigen::VectorXd& grp_vec,
+																	Eigen::VectorXi& grp_vec,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,
@@ -807,7 +807,7 @@ void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
 }
 // overloading: add rng instance
 void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev,
-																	Eigen::VectorXd& grp_vec,
+																	Eigen::VectorXi& grp_vec,
                                   Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& global_latent,
                                   Eigen::VectorXd& local_hyperparam,

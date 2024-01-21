@@ -25,7 +25,7 @@ MinnParams::MinnParams(
 SsvsParams::SsvsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& sv_spec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 	Rcpp::List& ssvs_spec, Rcpp::List& intercept,
 	bool include_mean
 )
@@ -43,7 +43,7 @@ SsvsParams::SsvsParams(
 HorseshoeParams::HorseshoeParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& sv_spec,
-	const Eigen::VectorXi& grp_id, const Eigen::MatrixXd& grp_mat,
+	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 	Rcpp::List& intercept, bool include_mean
 )
 : SvParams(num_iter, x, y, sv_spec, intercept, include_mean),

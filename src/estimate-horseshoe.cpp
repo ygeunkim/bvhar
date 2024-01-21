@@ -26,10 +26,10 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
                                   Eigen::VectorXd init_global,
                                   double init_sigma,
                                   Eigen::VectorXi grp_id,
-                                  Eigen::MatrixXd grp_mat,
+                                  Eigen::MatrixXi grp_mat,
                                   int blocked_gibbs,
                                   bool fast,
-																	Eigen::VectorXd seed_chain,
+																	Eigen::VectorXi seed_chain,
                                   bool display_progress, int nthreads) {
   #ifdef _OPENMP
 		Eigen::setNbThreads(nthreads);
