@@ -139,6 +139,27 @@ void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::V
   }
 }
 
+// Filling Covariance Matrix
+// 
+// This function builds a covariance matrix using diagonal component vector and off-diagonal component vector.
+// 
+// @param diag_vec Diagonal components
+// @param off_diagvec Off-diagonal components
+Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec) {
+  int dim = diag_vec.size();
+  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim, dim);
+  res.diagonal() = diag_vec;
+  int id = 0;
+  for (int j = 1; j < dim; j++) {
+    for (int i = 0; i < j; i++) {
+      res(i, j) = off_diagvec[id + i]; // assign i-th row = psi_ij
+      res(j, i) = res(i, j);
+    }
+    id += j;
+  }
+  return res;
+}
+
 // Filling Cholesky Factor Upper Triangular Matrix
 // 
 // This function builds a cholesky factor matrix \eqn{\Psi} (upper triangular) using diagonal component vector and off-diagonal component vector.

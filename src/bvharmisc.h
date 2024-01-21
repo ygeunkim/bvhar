@@ -23,8 +23,6 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> u
 	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
 }
 
-Eigen::VectorXd compute_eigenvalues(Eigen::Map<Eigen::MatrixXd> x);
-
 double mgammafn(double x, int p);
 
 double log_mgammafn(double x, int p);
@@ -32,9 +30,5 @@ double log_mgammafn(double x, int p);
 double invgamma_dens(double x, double shp, double scl, bool lg);
 
 double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
-
-Eigen::MatrixXd build_chol(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
-
-Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_diagvec);
 
 #endif
