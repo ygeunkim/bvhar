@@ -2,6 +2,7 @@
 #define MCMCSSVS_H
 
 #include "bvhardraw.h"
+#include "bvharprogress.h"
 
 class McmcSsvs {
 public:

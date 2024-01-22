@@ -2,6 +2,7 @@
 #define MCMCSV_H
 
 #include "bvhardraw.h"
+#include "bvharprogress.h"
 
 struct SvParams {
 	int _iter;
