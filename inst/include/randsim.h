@@ -1,9 +1,8 @@
 #ifndef RANDSIM_H
 #define RANDSIM_H
 
+#include "bvharcommon.h"
 #include "bvharprob.h"
-
-void set_seedr(int seed);
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 

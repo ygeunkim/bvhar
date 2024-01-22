@@ -1,7 +1,7 @@
 #ifndef MINNESOTA_H
 #define MINNESOTA_H
 
-#include <RcppEigen.h>
+// #include <RcppEigen.h>
 #include "bvhardesign.h"
 #include "bvhardraw.h"
 #include <memory> // std::unique_ptr

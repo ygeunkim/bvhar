@@ -1,9 +1,6 @@
-// #include <RcppEigen.h>
-// #include "bvharmisc.h"
-// #include "randsim.h"
 #include "minnesota.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' Log of Joint Posterior Density of Hyperparameters
 //' 

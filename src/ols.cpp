@@ -1,5 +1,4 @@
-#include "ols.h"
-#include "bvhardesign.h"
+#include <ols.h>
 
 MultiOls::MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
 : design(x), response(y),
