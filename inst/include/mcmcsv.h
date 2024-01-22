@@ -1,12 +1,7 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include <RcppEigen.h>
 #include "bvhardraw.h"
-#include <atomic>
-#include <mutex>
-#include <vector> // std::vector
-#include <memory> // std::unique_ptr
 
 struct SvParams {
 	int _iter;

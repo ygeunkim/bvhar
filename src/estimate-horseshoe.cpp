@@ -1,6 +1,6 @@
-#include "mcmchs.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <mcmchs.h>
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
 //' 
