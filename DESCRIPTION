@@ -46,6 +46,6 @@ LinkingTo:
     RcppEigen
 VignetteBuilder: knitr
 Depends: 
-    R (>= 3.6.0)
+    R (>= 3.6.2)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

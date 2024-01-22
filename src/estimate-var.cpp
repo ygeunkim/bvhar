@@ -1,4 +1,4 @@
-#include "ols.h"
+#include <ols.h>
 
 //' Compute VAR(p) Coefficient Matrices and Fitted Values
 //' 

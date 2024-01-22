@@ -1,8 +1,6 @@
-#include <RcppEigen.h>
-#include "bvharmisc.h"
-#include "randsim.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <bvhardraw.h>
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' Log of Joint Posterior Density of Hyperparameters
 //' 

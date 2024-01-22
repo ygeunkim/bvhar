@@ -1,5 +1,5 @@
 #include <RcppEigen.h>
-#include "bvhardraw.h"
+#include <bvhardraw.h>
 
 //' Numerically Stable Log Marginal Likelihood Excluding Constant Term
 //' 

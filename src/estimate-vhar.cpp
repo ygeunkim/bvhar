@@ -1,5 +1,4 @@
-// #include <RcppEigen.h>
-#include "ols.h"
+#include <ols.h>
 
 //' Compute Vector HAR Coefficient Matrices and Fitted Values
 //' 

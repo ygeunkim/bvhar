@@ -1,4 +1,4 @@
-#include "minnesota.h"
+#include <minnesota.h>
 
 MinnSpec::MinnSpec(Rcpp::List& bayes_spec)
 : _sigma(Rcpp::as<Eigen::VectorXd>(bayes_spec["sigma"])),

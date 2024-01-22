@@ -1,6 +1,8 @@
 #ifndef BVHARDESIGN_H
 #define BVHARDESIGN_H
 
+#include <RcppEigen.h>
+
 Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index);
 
 Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean);

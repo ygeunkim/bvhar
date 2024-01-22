@@ -1,4 +1,4 @@
-#include "mcmchs.h"
+#include <mcmchs.h>
 
 HsParams::HsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
