@@ -1204,42 +1204,6 @@ compute_vhar_stablemat <- function(object) {
     .Call(`_bvhar_compute_vhar_stablemat`, object)
 }
 
-#' Building Spike-and-slab SD Diagonal Matrix
-#' 
-#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
-#' 
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
-#' @noRd
-build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
-    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
-}
-
-#' Building Lower Triangular Matrix
-#' 
-#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
-#' 
-#' @param dim Dimension (dim x dim) of L
-#' @param lower_vec Vector a
-#' 
-#' @noRd
-build_inv_lower <- function(dim, lower_vec) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
-}
-
-#' Multivariate Gamma Function
-#' 
-#' Compute multivariate gamma function numerically
-#' 
-#' @param x Double, non-negative argument
-#' @param p Integer, dimension
-#' 
-#' @noRd
-mgammafn <- function(x, p) {
-    .Call(`_bvhar_mgammafn`, x, p)
-}
-
 #' Log of Multivariate Gamma Function
 #' 
 #' Compute log of multivariate gamma function numerically
@@ -1264,6 +1228,30 @@ log_mgammafn <- function(x, p) {
 #' @noRd
 invgamma_dens <- function(x, shp, scl, lg) {
     .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
+}
+
+#' Building Spike-and-slab SD Diagonal Matrix
+#' 
+#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
+#' 
+#' @param spike_sd Standard deviance for Spike normal distribution
+#' @param slab_sd Standard deviance for Slab normal distribution
+#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
+#' @noRd
+build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
+    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
+}
+
+#' Building Lower Triangular Matrix
+#' 
+#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
+#' 
+#' @param dim Dimension (dim x dim) of L
+#' @param lower_vec Vector a
+#' 
+#' @noRd
+build_inv_lower <- function(dim, lower_vec) {
+    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

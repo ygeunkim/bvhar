@@ -3,8 +3,6 @@
 
 #include "bvhardraw.h"
 
-namespace bvhar {
-
 struct SvParams {
 	int _iter;
 	Eigen::MatrixXd _x;
@@ -247,7 +245,5 @@ private:
 	Eigen::VectorXd latent_contem_local;
 	Eigen::VectorXd latent_contem_global;
 };
-
-} // bvhar namespace
 
 #endif

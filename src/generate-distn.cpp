@@ -1,6 +1,4 @@
-// #include <RcppEigen.h>
-// #include "bvharprob.h"
-#include "randsim.h"
+#include <randsim.h>
 
 //' Generate Multivariate Normal Random Vector
 //' 

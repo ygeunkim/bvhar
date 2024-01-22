@@ -17,6 +17,11 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> u
 	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
 }
 
-Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
+// Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
+
+inline Eigen::MatrixXd kronecker_eigen(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y) {
+  Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
+  return res;
+}
 
 #endif

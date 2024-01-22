@@ -1,6 +1,6 @@
-#include "mcmcssvs.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <mcmcssvs.h>
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 
@@ -56,10 +56,10 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
-	std::vector<std::unique_ptr<bvhar::McmcSsvs>> mcmc_objs(num_chains);
+	std::vector<std::unique_ptr<McmcSsvs>> mcmc_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	for (int i = 0; i < num_chains; i++) {
-		mcmc_objs[i] = std::unique_ptr<bvhar::McmcSsvs>(new bvhar::McmcSsvs(
+		mcmc_objs[i] = std::unique_ptr<McmcSsvs>(new McmcSsvs(
 			num_iter, x, y,
 			init_coef, init_chol_diag, init_chol_upper,
 			init_coef_dummy, init_chol_dummy,
@@ -75,10 +75,10 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 	}
 	// Start Gibbs sampling-----------------------------------------
 	auto run_gibbs = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
-		bvhar::bvharinterrupt();
+		bvharprogress bar(num_iter, display_progress);
+		bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
-			if (bvhar::bvharinterrupt::is_interrupted()) {
+			if (bvharinterrupt::is_interrupted()) {
 				res[chain] = mcmc_objs[chain]->returnRecords(0, 1);
 				break;
 			}

@@ -4,8 +4,6 @@
 #include <csignal>
 #include <atomic>
 
-namespace bvhar {
-
 class bvharinterrupt {
 private:
 	static std::atomic<bool> _interrupted;
@@ -16,7 +14,5 @@ public:
 	static bool is_interrupted();
 	static void reset();
 };
-
-} // bvhar namespace
 
 #endif

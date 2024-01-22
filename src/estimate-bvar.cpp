@@ -1,5 +1,4 @@
-// #include <RcppEigen.h>
-#include "minnesota.h"
+#include <minnesota.h>
 
 //' BVAR(p) Point Estimates based on Minnesota Prior
 //' 
@@ -13,8 +12,8 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
-	bvhar::BvarSpec mn_spec(bayes_spec);
-	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, mn_spec, include_mean));
+	BvarSpec mn_spec(bayes_spec);
+	std::unique_ptr<MinnBvar> mn_obj(new MinnBvar(y, lag, mn_spec, include_mean));
 	return mn_obj->returnMinnRes();
 }
 
@@ -31,13 +30,13 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, bool minn_short) {
-	std::unique_ptr<bvhar::MinnBvhar> mn_obj;
+	std::unique_ptr<MinnBvhar> mn_obj;
 	if (minn_short) {
-		bvhar::BvarSpec bvhar_spec(bayes_spec);
-		mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
+		BvarSpec bvhar_spec(bayes_spec);
+		mn_obj = std::unique_ptr<MinnBvhar>(new MinnBvharS(y, week, month, bvhar_spec, include_mean));
 	} else {
-		bvhar::BvharSpec bvhar_spec(bayes_spec);
-		mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
+		BvharSpec bvhar_spec(bayes_spec);
+		mn_obj = std::unique_ptr<MinnBvhar>(new MinnBvharL(y, week, month, bvhar_spec, include_mean));
 	}
 	return mn_obj->returnMinnRes();
 }

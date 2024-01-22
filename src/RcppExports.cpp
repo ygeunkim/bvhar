@@ -1062,43 +1062,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// build_ssvs_sd
-Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
-RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type spike_sd(spike_sdSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type slab_sd(slab_sdSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mixture_dummy(mixture_dummySEXP);
-    rcpp_result_gen = Rcpp::wrap(build_ssvs_sd(spike_sd, slab_sd, mixture_dummy));
-    return rcpp_result_gen;
-END_RCPP
-}
-// build_inv_lower
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
-RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower_vec(lower_vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_inv_lower(dim, lower_vec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mgammafn
-double mgammafn(double x, int p);
-RcppExport SEXP _bvhar_mgammafn(SEXP xSEXP, SEXP pSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(mgammafn(x, p));
-    return rcpp_result_gen;
-END_RCPP
-}
 // log_mgammafn
 double log_mgammafn(double x, int p);
 RcppExport SEXP _bvhar_log_mgammafn(SEXP xSEXP, SEXP pSEXP) {
@@ -1122,6 +1085,31 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type scl(sclSEXP);
     Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
     rcpp_result_gen = Rcpp::wrap(invgamma_dens(x, shp, scl, lg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// build_ssvs_sd
+Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
+RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type spike_sd(spike_sdSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type slab_sd(slab_sdSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mixture_dummy(mixture_dummySEXP);
+    rcpp_result_gen = Rcpp::wrap(build_ssvs_sd(spike_sd, slab_sd, mixture_dummy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// build_inv_lower
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
+RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower_vec(lower_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_inv_lower(dim, lower_vec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1384,11 +1372,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
-    {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
-    {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
-    {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_invgamma_dens", (DL_FUNC) &_bvhar_invgamma_dens, 4},
+    {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
+    {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_sim_var_eigen", (DL_FUNC) &_bvhar_sim_var_eigen, 8},
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},

@@ -1,6 +1,4 @@
-#include "mcmcsv.h"
-
-namespace bvhar {
+#include <mcmcsv.h>
 
 SvParams::SvParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -485,5 +483,3 @@ Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {
 	}
 	return res;
 }
-
-} // bvhar namespace

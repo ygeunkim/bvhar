@@ -1,6 +1,4 @@
-#include "mcmchs.h"
-
-namespace bvhar {
+#include <mcmchs.h>
 
 HsParams::HsParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -152,5 +150,3 @@ void FastHs::updateRecords() {
 	local_record.row(mcmc_step) = local_lev;
 	global_record.row(mcmc_step) = global_lev;
 }
-
-} // bvhar namespace

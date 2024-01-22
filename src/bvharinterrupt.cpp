@@ -1,6 +1,4 @@
-#include "bvharinterrupt.h"
-
-namespace bvhar {
+#include <bvharinterrupt.h>
 
 std::atomic<bool> bvharinterrupt::_interrupted(false);
 
@@ -22,5 +20,3 @@ void bvharinterrupt::handle_signal(int signal) {
 void bvharinterrupt::reset() {
 	_interrupted.store(false);
 }
-
-} // bvhar namespace
