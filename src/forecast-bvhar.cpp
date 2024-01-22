@@ -1,7 +1,4 @@
-#include <RcppEigen.h>
-#include "bvharmisc.h"
-#include "randsim.h"
-#include "bvhardraw.h"
+#include <bvhardraw.h>
 
 //' Forecasting Bayesian VHAR
 //' 
@@ -145,7 +142,7 @@ Rcpp::List forecast_bvharssvs(int month,
   Eigen::MatrixXd chol_factor(dim, dim);
   Eigen::MatrixXd sig_cycle(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
     chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
     sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
     predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -162,7 +159,7 @@ Rcpp::List forecast_bvharssvs(int month,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
       chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
       sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
       predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -211,7 +208,7 @@ Rcpp::List forecast_bvharhs(int month,
   point_forecast.row(0) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
   Eigen::MatrixXd sig_cycle(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
     sig_cycle = build_cov(omega_record.row(b), eta_record.row(b));
     predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
   }
@@ -227,7 +224,7 @@ Rcpp::List forecast_bvharhs(int month,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
       sig_cycle = build_cov(omega_record.row(b), eta_record.row(b));
       predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
     }
@@ -312,7 +309,7 @@ Rcpp::List forecast_bvharsv_density(int month,
   Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_prec(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+    density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
     sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
     sv_update = vectorize_eigen(
       sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
@@ -338,7 +335,7 @@ Rcpp::List forecast_bvharsv_density(int month,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim_har, dim);
+      density_forecast = last_pvec.transpose() * HARtrans.transpose() * unvectorize(phi_record.row(b), dim);
       sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
       sv_update = vectorize_eigen(
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)

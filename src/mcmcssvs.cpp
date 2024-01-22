@@ -1,4 +1,4 @@
-#include "mcmcssvs.h"
+#include <mcmcssvs.h>
 
 McmcSsvs::McmcSsvs(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -80,7 +80,7 @@ McmcSsvs::McmcSsvs(
 	chol_dummy_record.row(0) = chol_dummy;
 	// chol_factor_record.topLeftCorner(dim, dim) = chol_ols;
 	chol_factor_record.row(0) = vectorize_eigen(chol_ols);
-	coef_mat = unvectorize(coef_draw, dim_design, dim);
+	coef_mat = unvectorize(coef_draw, dim);
 	sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
 }
 
@@ -90,8 +90,8 @@ void McmcSsvs::addStep() {
 
 void McmcSsvs::updateChol() {
 	chol_mixture_mat = build_ssvs_sd(chol_spike, chol_slab, chol_dummy);
-	ssvs_chol_diag(chol_diag, sse_mat, chol_mixture_mat, shape, rate, num_design);
-	ssvs_chol_off(chol_coef, sse_mat, chol_diag, chol_mixture_mat);
+	ssvs_chol_diag(chol_diag, sse_mat, chol_mixture_mat, shape, rate, num_design, rng);
+	ssvs_chol_off(chol_coef, sse_mat, chol_diag, chol_mixture_mat, rng);
 	chol_factor = build_chol(chol_diag, chol_coef);
 	// chol_upper_record.row(mcmc_step) = chol_coef;
 	// chol_diag_record.row(mcmc_step) = chol_diag;
@@ -99,8 +99,8 @@ void McmcSsvs::updateChol() {
 }
 
 void McmcSsvs::updateCholDummy() {
-	ssvs_dummy(chol_dummy, chol_coef, chol_slab, chol_spike, chol_weight);
-	ssvs_weight(chol_weight, chol_dummy, chol_s1, chol_s2);
+	ssvs_dummy(chol_dummy, chol_coef, chol_slab, chol_spike, chol_weight, rng);
+	ssvs_weight(chol_weight, chol_dummy, chol_s1, chol_s2, rng);
 	// chol_dummy_record.row(mcmc_step) = chol_dummy;
 	// chol_weight_record.row(mcmc_step) = chol_weight;
 }
@@ -115,8 +115,8 @@ void McmcSsvs::updateCoef() {
 	} else {
 		prior_sd = coef_mixture_mat;
 	}
-	ssvs_coef(coef_draw, prior_mean, prior_sd, gram, coef_vec, chol_factor);
-	coef_mat = unvectorize(coef_draw, dim_design, dim);
+	ssvs_coef(coef_draw, prior_mean, prior_sd, gram, coef_vec, chol_factor, rng);
+	coef_mat = unvectorize(coef_draw, dim);
 	sse_mat = (y - x * coef_mat).transpose() * (y - x * coef_mat);
 	// coef_record.row(mcmc_step) = coef_draw;
 }
@@ -134,9 +134,10 @@ void McmcSsvs::updateCoefDummy() {
 		vectorize_eigen(coef_mat.topRows(num_restrict / dim).eval()),
 		coef_slab,
 		coef_spike,
-		slab_weight
+		slab_weight,
+		rng
 	);
-	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2);
+	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
 	// coef_dummy_record.row(mcmc_step) = coef_dummy;
 	// coef_weight_record.row(mcmc_step) = coef_weight;
 }
