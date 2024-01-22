@@ -11,6 +11,25 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// get_maxomp
+int get_maxomp();
+RcppExport SEXP _bvhar_get_maxomp() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(get_maxomp());
+    return rcpp_result_gen;
+END_RCPP
+}
+// check_omp
+void check_omp();
+RcppExport SEXP _bvhar_check_omp() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    check_omp();
+    return R_NilValue;
+END_RCPP
+}
 // build_y0
 Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index);
 RcppExport SEXP _bvhar_build_y0(SEXP ySEXP, SEXP var_lagSEXP, SEXP indexSEXP) {
@@ -1043,25 +1062,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_maxomp
-int get_maxomp();
-RcppExport SEXP _bvhar_get_maxomp() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(get_maxomp());
-    return rcpp_result_gen;
-END_RCPP
-}
-// check_omp
-void check_omp();
-RcppExport SEXP _bvhar_check_omp() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    check_omp();
-    return R_NilValue;
-END_RCPP
-}
 // build_ssvs_sd
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
 RcppExport SEXP _bvhar_build_ssvs_sd(SEXP spike_sdSEXP, SEXP slab_sdSEXP, SEXP mixture_dummySEXP) {
@@ -1315,6 +1315,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
+    {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
     {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
     {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 3},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
@@ -1382,8 +1384,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_stablemat", (DL_FUNC) &_bvhar_compute_stablemat, 1},
     {"_bvhar_compute_var_stablemat", (DL_FUNC) &_bvhar_compute_var_stablemat, 1},
     {"_bvhar_compute_vhar_stablemat", (DL_FUNC) &_bvhar_compute_vhar_stablemat, 1},
-    {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
-    {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
