@@ -1216,18 +1216,6 @@ build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
     .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
 }
 
-#' Generating the Off-Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
-#' 
-#' In MCMC process of SSVS, this function generates the off-diagonal component \eqn{\Psi} of variance matrix
-#' 
-#' @param sse_mat The result of \eqn{Z_0^T Z_0 = (Y_0 - X_0 \hat{A})^T (Y_0 - X_0 \hat{A})}
-#' @param chol_diag Diagonal element of the cholesky factor
-#' @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
-#' @noRd
-ssvs_chol_off <- function(chol_off, sse_mat, chol_diag, DRD) {
-    invisible(.Call(`_bvhar_ssvs_chol_off`, chol_off, sse_mat, chol_diag, DRD))
-}
-
 #' Building Lower Triangular Matrix
 #' 
 #' In MCMC, this function builds \eqn{L} given \eqn{a} vector.

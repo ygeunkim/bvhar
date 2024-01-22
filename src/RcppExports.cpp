@@ -1075,19 +1075,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ssvs_chol_off
-void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD);
-RcppExport SEXP _bvhar_ssvs_chol_off(SEXP chol_offSEXP, SEXP sse_matSEXP, SEXP chol_diagSEXP, SEXP DRDSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type chol_off(chol_offSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type sse_mat(sse_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type chol_diag(chol_diagSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type DRD(DRDSEXP);
-    ssvs_chol_off(chol_off, sse_mat, chol_diag, DRD);
-    return R_NilValue;
-END_RCPP
-}
 // build_inv_lower
 Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 RcppExport SEXP _bvhar_build_inv_lower(SEXP dimSEXP, SEXP lower_vecSEXP) {
@@ -1398,7 +1385,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
     {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
     {"_bvhar_build_ssvs_sd", (DL_FUNC) &_bvhar_build_ssvs_sd, 3},
-    {"_bvhar_ssvs_chol_off", (DL_FUNC) &_bvhar_ssvs_chol_off, 4},
     {"_bvhar_build_inv_lower", (DL_FUNC) &_bvhar_build_inv_lower, 2},
     {"_bvhar_mgammafn", (DL_FUNC) &_bvhar_mgammafn, 2},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
