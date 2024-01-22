@@ -2,6 +2,7 @@
 #define MCMCHS_H
 
 #include "bvhardraw.h"
+#include "bvharprogress.h"
 
 struct HsParams {
 	int _iter;
