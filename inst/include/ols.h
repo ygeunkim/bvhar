@@ -1,7 +1,7 @@
 #ifndef OLS_H
 #define OLS_H
 
-#include <RcppEigen.h>
+#include "bvhardesign.h"
 #include <memory> // std::unique_ptr in source file
 
 class MultiOls {

@@ -9,10 +9,24 @@
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
 
-#define gammafn Rf_gammafn
-#define lgammafn Rf_lgammafn
-#define binom_rand Rf_rbinom
-#define gamma_dens Rf_dgamma
+// Gamma function
+inline double gammafn(double x) {
+	return Rf_gammafn(x);
+}
+
+// Density functions--------------------------
+inline double lgammafn(double x) {
+	return Rf_lgammafn(x);
+}
+
+inline double gamma_dens(double x, double shp, double scl, bool lg) {
+	return Rf_dgamma(x, shp, scl, lg);
+}
+
+// RNG----------------------------------------
+inline double bindom_rand(int n, double prob) {
+	return Rf_rbinom(n, prob);
+}
 
 inline double normal_rand(boost::random::mt19937& rng) {
 	boost::random::normal_distribution<> rdist(0.0, 1.0);
@@ -21,12 +35,6 @@ inline double normal_rand(boost::random::mt19937& rng) {
 
 inline double chisq_rand(double df) {
 	return Rf_rchisq(df);
-}
-
-inline double chisq_rand(double df, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
-	boost::random::chi_squared_distribution<> rdist(df);
-	return rdist(rng);
 }
 
 inline double gamma_rand(double shp, double scl) {

@@ -3,7 +3,6 @@
 
 #include "bvharomp.h"
 #include <Rcpp.h>
-#include <atomic>
 
 class bvharprogress {
 public:
