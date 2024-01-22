@@ -1,4 +1,4 @@
-#include "bvharinterrupt.h"
+#include <bvharinterrupt.h>
 
 std::atomic<bool> bvharinterrupt::_interrupted(false);
 

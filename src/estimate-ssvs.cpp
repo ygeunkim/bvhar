@@ -1,6 +1,6 @@
-#include "mcmcssvs.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <mcmcssvs.h>
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 
@@ -102,31 +102,4 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 		}
 	}
 	return Rcpp::wrap(res);
-	// std::unique_ptr<McmcSsvs> mcmc_obj(new McmcSsvs(
-	// 	num_iter, x, y,
-	// 	init_coef, init_chol_diag, init_chol_upper,
-	// 	init_coef_dummy, init_chol_dummy,
-	// 	coef_spike, coef_slab, coef_slab_weight,
-	// 	shape, rate,
-	// 	coef_s1, coef_s2,
-	// 	chol_spike, chol_slab, chol_slab_weight,
-	// 	chol_s1, chol_s2,
-	// 	grp_id, grp_mat,
-	// 	mean_non, sd_non, include_mean, init_gibbs
-	// ));
-  // bvharprogress bar(num_iter, display_progress);
-	// bvharinterrupt();
-  // Start Gibbs sampling-----------------------------------------
-  // for (int i = 1; i < num_iter + 1; i++) {
-  //   if (bvharinterrupt::is_interrupted()) {
-	// 		return mcmc_obj->returnRecords(0);
-  //   }
-  //   bar.increment();
-	// 	if (display_progress) {
-	// 		bar.update();
-	// 	}
-	// 	mcmc_obj->addStep();
-	// 	mcmc_obj->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
-  // }
-	// return mcmc_obj->returnRecords(num_burn);
 }

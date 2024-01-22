@@ -1,6 +1,6 @@
-#include "mcmcsv.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include <mcmcsv.h>
+#include <bvharprogress.h>
+#include <bvharinterrupt.h>
 
 //' VAR-SV by Gibbs Sampler
 //' 
