@@ -216,7 +216,7 @@ Eigen::VectorXd compute_lpl(Eigen::MatrixXd y,
   for (int i = 0; i < num_pred; i++) {
     for (int b = 0; b < num_sim; b++) {
       sv_cov.diagonal() = 1 / sigh_record.row(b).array();
-      sv_update = vectorize_eigen(
+      sv_update = bvhar::vectorize_eigen(
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
       );
       lpl_hist[i] += compute_log_dmgaussian(
