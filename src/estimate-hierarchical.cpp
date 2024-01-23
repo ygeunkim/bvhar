@@ -30,7 +30,7 @@ double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int 
   res += -dim * num_design / 2.0 * log(M_PI) +
     log_mgammafn((prior_shape + num_design) / 2.0, dim) -
     log_mgammafn(prior_shape / 2.0, dim); // constant term
-  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
+  res += bvhar::gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
   for (int i = 0; i < cand_invgam.size(); i++) {
     res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
   }
@@ -95,14 +95,14 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
   );
   double numerator = 0;
   double denom = 0;
-  bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
+  bvhar::bvharprogress bar(num_iter, display_progress);
+	bvhar::bvharinterrupt();
   // Start Metropolis---------------------------------------------
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
   VectorXb is_accept(num_iter + 1);
   is_accept[0] = true;
   for (int i = 1; i < num_iter + 1; i ++) {
-    if (bvharinterrupt::is_interrupted()) {
+    if (bvhar::bvharinterrupt::is_interrupted()) {
       return Rcpp::List::create(
         Rcpp::Named("lambda_record") = lam_record,
         Rcpp::Named("psi_record") = psi_record,
@@ -122,7 +122,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
                                      mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
     denom = jointdens_hyperparam(prevprior[0], prevprior.segment(1, dim), dim, num_design,
                                  prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl);
-    is_accept[i] = ( log(unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
+    is_accept[i] = ( log(bvhar::unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
     // Update
     if (is_accept[i]) {
       lam_record[i] = candprior[0];
@@ -133,7 +133,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
     }
     // Draw coef and Sigma
     posterior_draw = sim_mniw(1, mn_mean, mn_prec.inverse(), iw_scale, posterior_shape);
-		coef_record.row(i - 1) = vectorize_eigen(Rcpp::as<Eigen::MatrixXd>(posterior_draw["mn"]));
+		coef_record.row(i - 1) = bvhar::vectorize_eigen(Rcpp::as<Eigen::MatrixXd>(posterior_draw["mn"]));
     sig_record.block((i - 1) * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
   }
   return Rcpp::List::create(

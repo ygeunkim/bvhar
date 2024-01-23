@@ -4,6 +4,8 @@
 #include "bvharomp.h"
 #include <Rcpp.h>
 
+namespace bvhar {
+
 class bvharprogress {
 public:
 	bvharprogress(int total, bool verbose);
@@ -17,4 +19,6 @@ private:
 	bool _verbose;
 };
 
-#endif
+} // namespace bvhar
+
+#endif // BVHARPROGRESS_H

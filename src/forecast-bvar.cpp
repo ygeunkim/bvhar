@@ -144,8 +144,8 @@ Rcpp::List forecast_bvarssvs(int var_lag,
   Eigen::MatrixXd chol_factor(dim, dim);
   Eigen::MatrixXd sig_cycle(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
-    chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+    density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+    chol_factor = bvhar::build_chol(psi_record.row(b), eta_record.row(b));
     sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
     predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
   }
@@ -161,8 +161,8 @@ Rcpp::List forecast_bvarssvs(int var_lag,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
-      chol_factor = build_chol(psi_record.row(b), eta_record.row(b));
+      density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+      chol_factor = bvhar::build_chol(psi_record.row(b), eta_record.row(b));
       sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
       predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
     }
@@ -207,8 +207,8 @@ Rcpp::List forecast_bvarhs(int var_lag,
   point_forecast.row(0) = last_pvec.transpose() * coef_mat;
   Eigen::MatrixXd sig_cycle(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
-    sig_cycle = build_cov(omega_record.row(b), eta_record.row(b));
+    density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+    sig_cycle = bvhar::build_cov(omega_record.row(b), eta_record.row(b));
     predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
   }
   if (step == 1) {
@@ -223,8 +223,8 @@ Rcpp::List forecast_bvarhs(int var_lag,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
-      sig_cycle = build_cov(omega_record.row(b), eta_record.row(b));
+      density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+      sig_cycle = bvhar::build_cov(omega_record.row(b), eta_record.row(b));
       predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
     }
   }
@@ -308,9 +308,9 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
   Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_prec(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
+    density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
     sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
-    sv_update = vectorize_eigen(
+    sv_update = bvhar::vectorize_eigen(
       sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
     ); // h_T+1 = h_T + u_T
     tvp_lvol.diagonal() = 1 / sv_update.array().exp(); // Dt = diag(exp(h_t))
@@ -334,9 +334,9 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * unvectorize(alpha_record.row(b), dim);
+      density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
       sv_cov.diagonal() = 1 / sigh_record.row(b).array();
-      sv_update = vectorize_eigen(
+      sv_update = bvhar::vectorize_eigen(
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
       );
       tvp_lvol.diagonal() = 1 / sv_update.array();

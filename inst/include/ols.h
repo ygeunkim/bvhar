@@ -4,6 +4,8 @@
 #include "bvhardesign.h"
 #include <memory> // std::unique_ptr in source file
 
+namespace bvhar {
+
 class MultiOls {
 public:
 	MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y);
@@ -73,4 +75,6 @@ protected:
 	Eigen::MatrixXd har_trans;
 };
 
-#endif
+} // namespace bvhar
+
+#endif // OLS_H
