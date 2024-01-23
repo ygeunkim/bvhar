@@ -21,7 +21,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_har(Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
-	std::unique_ptr<OlsVhar> ols_obj(new OlsVhar(y, week, month, include_mean, method));
+	std::unique_ptr<bvhar::OlsVhar> ols_obj(new bvhar::OlsVhar(y, week, month, include_mean, method));
 	return ols_obj->returnOlsRes();
 }
 
