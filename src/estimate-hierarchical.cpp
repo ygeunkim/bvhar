@@ -30,7 +30,7 @@ double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int 
   res += -dim * num_design / 2.0 * log(M_PI) +
     log_mgammafn((prior_shape + num_design) / 2.0, dim) -
     log_mgammafn(prior_shape / 2.0, dim); // constant term
-  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
+  res += bvhar::gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
   for (int i = 0; i < cand_invgam.size(); i++) {
     res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
   }
@@ -71,16 +71,16 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
 																		Rcpp::List init_spec,
 																		Rcpp::List hyper_spec,
                                     bool display_progress) {
-	MinnSpec bayes_spec(init_spec);
-	HierMinnSpec hmn_spec(hyper_spec);
-	std::unique_ptr<HierMinn> hmn_obj(new HierMinn(
+	bvhar::MinnSpec bayes_spec(init_spec);
+	bvhar::HierMinnSpec hmn_spec(hyper_spec);
+	std::unique_ptr<bvhar::HierMinn> hmn_obj(new bvhar::HierMinn(
 		num_iter, x, y, x_dummy, y_dummy, hmn_spec, bayes_spec
 	));
   // Start Metropolis---------------------------------------------
-	bvharprogress bar(num_iter, display_progress);
-	bvharinterrupt();
+	bvhar::bvharprogress bar(num_iter, display_progress);
+	bvhar::bvharinterrupt();
 	for (int i = 0; i < num_iter; i++) {
-    if (bvharinterrupt::is_interrupted()) {
+    if (bvhar::bvharinterrupt::is_interrupted()) {
 			return hmn_obj->returnRecords(0);
     }
     bar.increment();

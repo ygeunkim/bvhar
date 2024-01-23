@@ -1,31 +1,5 @@
 #include <bvhardraw.h>
 
-// Multivariate Gamma Function
-// 
-// Compute multivariate gamma function numerically
-// 
-// @param x Double, non-negative argument
-// @param p Integer, dimension
-double mgammafn(double x, int p) {
-  if (p < 1) {
-    Rcpp::stop("'p' should be larger than or same as 1.");
-  }
-  if (x <= 0) {
-    Rcpp::stop("'x' should be larger than 0.");
-  }
-  if (p == 1) {
-    return gammafn(x);
-  }
-  if (2 * x < p) {
-    Rcpp::stop("'x / 2' should be larger than 'p'.");
-  }
-  double res = pow(M_PI, p * (p - 1) / 4.0);
-  for (int i = 0; i < p; i++) {
-    res *= gammafn(x - i / 2.0); // x + (1 - j) / 2
-  }
-  return res;
-}
-
 //' Log of Multivariate Gamma Function
 //' 
 //' Compute log of multivariate gamma function numerically
@@ -43,14 +17,14 @@ double log_mgammafn(double x, int p) {
     Rcpp::stop("'x' should be larger than 0.");
   }
   if (p == 1) {
-    return lgammafn(x);
+    return bvhar::lgammafn(x);
   }
   if (2 * x < p) {
     Rcpp::stop("'x / 2' should be larger than 'p'.");
   }
   double res = p * (p - 1) / 4.0 * log(M_PI);
   for (int i = 0; i < p; i++) {
-    res += lgammafn(x - i / 2.0);
+    res += bvhar::lgammafn(x - i / 2.0);
   }
   return res;
 }
@@ -76,7 +50,7 @@ double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (scl <= 0 ) {
     Rcpp::stop("'scl' should be larger than 0.");
   }
-  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
   if (lg) {
     return log(res);
   }
@@ -97,6 +71,27 @@ Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd,
   res.array() = (1 - mixture_dummy.array()) * spike_sd.array() + mixture_dummy.array() * slab_sd.array(); // diagonal term = spike_sd if mixture_dummy = 0 while slab_sd if mixture_dummy = 1
   return res;
 }
+
+//' Building Lower Triangular Matrix
+//' 
+//' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
+//' 
+//' @param dim Dimension (dim x dim) of L
+//' @param lower_vec Vector a
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
+  Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
+  int id = 0;
+  for (int i = 1; i < dim; i++) {
+    res.row(i).segment(0, i) = lower_vec.segment(id, i);
+    id += i;
+  }
+  return res;
+}
+
+namespace bvhar {
 
 // Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 // 
@@ -302,25 +297,6 @@ void ssvs_mn_weight(Eigen::VectorXd& weight,
 			rng
     );
   }
-}
-
-//' Building Lower Triangular Matrix
-//' 
-//' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
-//' 
-//' @param dim Dimension (dim x dim) of L
-//' @param lower_vec Vector a
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
-  Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
-  int id = 0;
-  for (int i = 1; i < dim; i++) {
-    res.row(i).segment(0, i) = lower_vec.segment(id, i);
-    id += i;
-  }
-  return res;
 }
 
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
@@ -667,3 +643,5 @@ Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int
   );
 	return res;
 }
+
+} // namespace bvhar

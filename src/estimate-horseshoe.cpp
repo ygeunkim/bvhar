@@ -33,9 +33,9 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
   #ifdef _OPENMP
 		Eigen::setNbThreads(nthreads);
 	#endif
-	std::vector<std::unique_ptr<McmcHs>> hs_objs(num_chains);
+	std::vector<std::unique_ptr<bvhar::McmcHs>> hs_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
-	HsParams hs_params(
+	bvhar::HsParams hs_params(
 		num_iter, x, y, init_local, init_global, init_sigma,
 		grp_id, grp_mat
 	);
@@ -43,26 +43,26 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
 	case 1: {
 		if (fast) {
 			for (int i = 0; i < num_chains; i++) {
-				hs_objs[i] = std::unique_ptr<McmcHs>(new FastHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+				hs_objs[i] = std::unique_ptr<bvhar::McmcHs>(new bvhar::FastHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
 			}
 		} else {
 			for (int i = 0; i < num_chains; i++) {
-				hs_objs[i] = std::unique_ptr<McmcHs>(new McmcHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+				hs_objs[i] = std::unique_ptr<bvhar::McmcHs>(new bvhar::McmcHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
 			}
 		}
 		break;
 	}
 	case 2:
 		for (int i = 0; i < num_chains; i++) {
-			hs_objs[i] = std::unique_ptr<McmcHs>(new BlockHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
+			hs_objs[i] = std::unique_ptr<bvhar::McmcHs>(new bvhar::BlockHs(hs_params, static_cast<unsigned int>(seed_chain[i])));
 		}
 	}
   // Start Gibbs sampling-----------------------------------
 	auto run_gibbs = [&](int chain) {
-		bvharprogress bar(num_iter, display_progress);
-		bvharinterrupt();
+		bvhar::bvharprogress bar(num_iter, display_progress);
+		bvhar::bvharinterrupt();
 		for (int i = 1; i < num_iter + 1; i++) {
-			if (bvharinterrupt::is_interrupted()) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
 				res[chain] = hs_objs[chain]->returnRecords(0, 1);
 				break;
 			}

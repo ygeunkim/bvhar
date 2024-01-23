@@ -1,5 +1,7 @@
 #include <mcmcsv.h>
 
+namespace bvhar {
+
 SvParams::SvParams(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	Rcpp::List& spec, Rcpp::List& intercept, bool include_mean
@@ -483,3 +485,5 @@ Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {
 	}
 	return res;
 }
+
+} // namespace bvhar
