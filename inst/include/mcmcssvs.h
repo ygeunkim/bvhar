@@ -4,6 +4,8 @@
 #include "bvhardraw.h"
 #include "bvharprogress.h"
 
+namespace bvhar {
+
 class McmcSsvs {
 public:
 	McmcSsvs(
@@ -87,5 +89,7 @@ private:
 	Eigen::MatrixXd coef_mat;
 	Eigen::MatrixXd sse_mat;
 };
+
+} // namespace bvhar
 
 #endif

@@ -4,6 +4,8 @@
 #include "bvhardraw.h"
 #include "bvharprogress.h"
 
+namespace bvhar {
+
 struct HsParams {
 	int _iter;
 	Eigen::MatrixXd _x;
@@ -82,5 +84,7 @@ public:
 	void updateCoef() override;
 	void updateRecords() override;
 };
+
+} // namespace bvhar
 
 #endif

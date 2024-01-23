@@ -3,6 +3,8 @@
 
 #include <RcppEigen.h>
 
+namespace bvhar {
+
 typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
 
 template <typename Derived>
@@ -23,5 +25,7 @@ inline Eigen::MatrixXd kronecker_eigen(const Eigen::MatrixXd& x, const Eigen::Ma
   Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
   return res;
 }
+
+} // namespace bvhar
 
 #endif

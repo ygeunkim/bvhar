@@ -1,5 +1,7 @@
 #include "bvharprogress.h"
 
+namespace bvhar {
+
 bvharprogress::bvharprogress(int total, bool verbose) : _current(0), _total(total), _width(50), _verbose(verbose) {}
 
 void bvharprogress::increment() {
@@ -29,3 +31,5 @@ void bvharprogress::update() {
 		Rcpp::Rcout << "\n";
 	}
 }
+
+} // namespace bvhar
