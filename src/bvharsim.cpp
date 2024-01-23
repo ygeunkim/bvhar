@@ -1,4 +1,4 @@
-#include <randsim.h>
+#include <bvharsim.h>
 
 //' Generate Multivariate Normal Random Vector
 //' 
@@ -69,7 +69,7 @@ Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::Matri
   Eigen::MatrixXd res(num_sim, dim);
   for (int i = 0; i < num_sim; i++) {
     for (int j = 0; j < standard_normal.cols(); j++) {
-      standard_normal(i, j) = normal_rand(rng);
+      standard_normal(i, j) = bvhar::normal_rand(rng);
     }
   }
   res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
@@ -109,7 +109,7 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
     Rcpp::stop("Invalid 'method' option.");
   }
   for (int i = 0; i < num_sim; i++) {
-    res.row(i) *= sqrt(df / chisq_rand(df));
+    res.row(i) *= sqrt(df / bvhar::chisq_rand(df));
   }
   res.rowwise() += mu.transpose();
   return res;
@@ -195,7 +195,7 @@ Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   // generate in row direction
   for (int i = 0; i < dim; i++) {
     // diagonal
-    mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
+    mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
   }
   // upper triangular (j > i) ~ N(0, 1)
   for (int i = 0; i < dim - 1; i ++) {
@@ -288,17 +288,14 @@ Rcpp::List sim_mniw(int num_sim,
   );
 }
 
-//' Generate Lower Triangular Matrix of Wishart
-//' 
-//' This function generates \eqn{A = L (Q^{-1})^T}.
-//' 
-//' @param mat_scale Scale matrix of Wishart
-//' @param shape Shape of Wishart
-//' @details
-//' This function generates Wishart random matrix.
-//' 
-//' @noRd
-// [[Rcpp::export]]
+// Generate Lower Triangular Matrix of Wishart
+// 
+// This function generates \eqn{A = L (Q^{-1})^T}.
+// 
+// @param mat_scale Scale matrix of Wishart
+// @param shape Shape of Wishart
+// @details
+// This function generates Wishart random matrix.
 Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   int dim = mat_scale.cols();
   if (shape <= dim - 1) {
@@ -312,7 +309,7 @@ Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   }
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
   for (int i = 0; i < dim; i++) {
-    mat_bartlett(i, i) = sqrt(chisq_rand(shape - (double)i));
+    mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i));
   }
   for (int i = 1; i < dim; i++) {
     for (int j = 0; j < i; j++) {
@@ -325,26 +322,22 @@ Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   return chol_res * chol_res.transpose();
 }
 
-//' Quasi-density of GIG
-//' 
-//' @param x postivie support
-//' @param lambda Index of modified Bessel function of third kind.
-//' @param beta Square of the multiplication of the other two parameters.
-//' 
-//' @noRd
-// [[Rcpp::export]]
+namespace bvhar {
+
+// Quasi-density of GIG
+// 
+// @param x postivie support
+// @param lambda Index of modified Bessel function of third kind.
+// @param beta Square of the multiplication of the other two parameters.
 double dgig_quasi(double x, double lambda, double beta) {
 	return pow(x, lambda - 1) * exp(-beta * (x + 1 / x) / 2);
 }
 
-//' AR-Mehod for non-concave part
-//' 
-//' @param num_sim Number to generate process
-//' @param lambda Index of modified Bessel function of third kind.
-//' @param beta Square of the multiplication of the other two parameters.
-//' 
-//' @noRd
-// [[Rcpp::export]]
+// AR-Mehod for non-concave part
+// 
+// @param num_sim Number to generate process
+// @param lambda Index of modified Bessel function of third kind.
+// @param beta Square of the multiplication of the other two parameters.
 Eigen::VectorXd rgig_nonconcave(int num_sim, double lambda, double beta) {
 	Eigen::VectorXd res(num_sim);
 	double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
@@ -394,14 +387,11 @@ Eigen::VectorXd rgig_nonconcave(int num_sim, double lambda, double beta) {
 	return res;
 }
 
-//' Ratio-of-Uniforms without Mode Shift
-//' 
-//' @param num_sim Number to generate process
-//' @param lambda Index of modified Bessel function of third kind.
-//' @param beta Square of the multiplication of the other two parameters.
-//' 
-//' @noRd
-// [[Rcpp::export]]
+// Ratio-of-Uniforms without Mode Shift
+// 
+// @param num_sim Number to generate process
+// @param lambda Index of modified Bessel function of third kind.
+// @param beta Square of the multiplication of the other two parameters.
 Eigen::VectorXd rgig_without_mode(int num_sim, double lambda, double beta) {
 	Eigen::VectorXd res(num_sim);
 	double arg_y = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
@@ -423,14 +413,11 @@ Eigen::VectorXd rgig_without_mode(int num_sim, double lambda, double beta) {
 	return res;
 }
 
-//' Ratio-of-Uniforms with Mode Shift
-//' 
-//' @param num_sim Number to generate process
-//' @param lambda Index of modified Bessel function of third kind.
-//' @param beta Square of the multiplication of the other two parameters.
-//' 
-//' @noRd
-// [[Rcpp::export]]
+// Ratio-of-Uniforms with Mode Shift
+// 
+// @param num_sim Number to generate process
+// @param lambda Index of modified Bessel function of third kind.
+// @param beta Square of the multiplication of the other two parameters.
 Eigen::VectorXd rgig_with_mode(int num_sim, double lambda, double beta) {
 	Eigen::VectorXd res(num_sim);
 	double arg_y = (sqrt((1 - lambda) * (1 - lambda) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
@@ -459,18 +446,16 @@ Eigen::VectorXd rgig_with_mode(int num_sim, double lambda, double beta) {
 	return res;
 }
 
-//' Generate Generalized Inverse Gaussian Distribution
-//' 
-//' This function samples GIG(lambda, psi, chi) random variates.
-//' 
-//' @param num_sim Number to generate process
-//' @param lambda Index of modified Bessel function of third kind.
-//' @param psi Second parameter of GIG
-//' @param chi Third parameter of GIG
-//' 
-//' @references Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
-//' @noRd
-// [[Rcpp::export]]
+// Generate Generalized Inverse Gaussian Distribution
+// 
+// This function samples GIG(lambda, psi, chi) random variates.
+// 
+// @param num_sim Number to generate process
+// @param lambda Index of modified Bessel function of third kind.
+// @param psi Second parameter of GIG
+// @param chi Third parameter of GIG
+// 
+// @references Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
 Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi) {
 	if (psi <= 0 || chi <= 0) {
 		Rcpp::stop("Wrong 'psi' and 'chi' range.");
@@ -494,3 +479,5 @@ Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi) {
 	}
 	return res;
 }
+
+} // namespace bvhar
