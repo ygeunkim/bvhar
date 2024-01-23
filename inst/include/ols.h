@@ -77,4 +77,4 @@ protected:
 
 } // namespace bvhar
 
-#endif
+#endif // OLS_H

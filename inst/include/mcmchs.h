@@ -87,4 +87,4 @@ public:
 
 } // namespace bvhar
 
-#endif
+#endif // MCMCHS_H

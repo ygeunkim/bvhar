@@ -115,4 +115,4 @@ inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 
 } // namespace bvhar
 
-#endif
+#endif // BVHARCOMMON_H

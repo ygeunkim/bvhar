@@ -92,4 +92,4 @@ private:
 
 } // namespace bvhar
 
-#endif
+#endif // MCMCSSVS_H

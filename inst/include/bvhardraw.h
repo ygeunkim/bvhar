@@ -1,7 +1,7 @@
 #ifndef BVHARDRAW_H
 #define BVHARDRAW_H
 
-#include "randsim.h"
+#include "bvharsim.h"
 
 // double mgammafn(double x, int p);
 
@@ -65,4 +65,4 @@ Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int
 
 } // namespace bvhar
 
-#endif
+#endif // BVHARDRAW_H

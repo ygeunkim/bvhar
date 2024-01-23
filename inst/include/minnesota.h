@@ -118,4 +118,4 @@ private:
 
 } // namespace bvhar
 
-#endif
+#endif // MINNESOTA_H

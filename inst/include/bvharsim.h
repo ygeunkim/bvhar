@@ -1,5 +1,5 @@
-#ifndef RANDSIM_H
-#define RANDSIM_H
+#ifndef BVHARSIM_H
+#define BVHARSIM_H
 
 #include "bvharcommon.h"
 
@@ -25,4 +25,4 @@ Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi);
 
 } //namespace bvhar
 
-#endif // RANDSIM_H
+#endif // BVHARSIM_H

@@ -21,4 +21,4 @@ private:
 
 } // namespace bvhar
 
-#endif
+#endif // BVHARPROGRESS_H
