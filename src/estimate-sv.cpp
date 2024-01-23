@@ -52,24 +52,24 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
-	std::vector<std::unique_ptr<McmcSv>> sv_objs(num_chains);
+	std::vector<std::unique_ptr<bvhar::McmcSv>> sv_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
 		case 1: {
-			MinnParams minn_params(
+			bvhar::MinnParams minn_params(
 				num_iter, x, y,
 				param_sv, param_prior,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				SvInits sv_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<McmcSv>(new MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::SvInits sv_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 2: {
-			SsvsParams ssvs_params(
+			bvhar::SsvsParams ssvs_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -79,13 +79,13 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				SsvsInits ssvs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<McmcSv>(new SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::SsvsInits ssvs_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 3: {
-			HorseshoeParams horseshoe_params(
+			bvhar::HorseshoeParams horseshoe_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -93,18 +93,18 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				HorseshoeInits hs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<McmcSv>(new HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::HorseshoeInits hs_inits(init_spec);
+				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 	}
   // Start Gibbs sampling-----------------------------------
 	auto run_gibbs = [&](int chain) {
-		bvharprogress bar(num_iter, display_progress);
-		bvharinterrupt();
+		bvhar::bvharprogress bar(num_iter, display_progress);
+		bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
-			if (bvharinterrupt::is_interrupted()) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
 				res[chain] = sv_objs[chain]->returnRecords(0, 1);
 				break;
 			}

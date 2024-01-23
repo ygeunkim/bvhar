@@ -1,5 +1,7 @@
 #include <mcmcssvs.h>
 
+namespace bvhar {
+
 McmcSsvs::McmcSsvs(
 	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	const Eigen::VectorXd& init_coef, const Eigen::VectorXd& init_chol_diag, const Eigen::VectorXd& init_chol_upper,
@@ -193,3 +195,5 @@ Rcpp::List McmcSsvs::returnRecords(int num_burn, int thin) const {
 	}
 	return res;
 }
+
+} // namespace bvhar

@@ -1,9 +1,9 @@
 #ifndef BVHARDRAW_H
 #define BVHARDRAW_H
 
-#include "randsim.h"
+#include "bvharsim.h"
 
-double mgammafn(double x, int p);
+// double mgammafn(double x, int p);
 
 double log_mgammafn(double x, int p);
 
@@ -12,6 +12,10 @@ double invgamma_dens(double x, double shp, double scl, bool lg);
 double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape);
 
 Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy);
+
+Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
+
+namespace bvhar {
 
 Eigen::VectorXd tvp_coef(Eigen::MatrixXd x, Eigen::VectorXd y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, Eigen::MatrixXd innov_prec);
 
@@ -32,8 +36,6 @@ void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs, Eigen::Vector
 void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng);
 
 void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, Eigen::VectorXd& param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng);
-
-Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec);
 
 void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y, Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, boost::random::mt19937& rng);
 
@@ -65,4 +67,6 @@ Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num
 
 Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int num_burn, int thin);
 
-#endif
+} // namespace bvhar
+
+#endif // BVHARDRAW_H
