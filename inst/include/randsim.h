@@ -2,7 +2,6 @@
 #define RANDSIM_H
 
 #include "bvharcommon.h"
-#include "bvharprob.h"
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
