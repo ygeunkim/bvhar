@@ -100,6 +100,47 @@ struct HorseshoeInits : public SvInits {
 	HorseshoeInits(Rcpp::List& init);
 };
 
+struct SvRecords {
+	Eigen::MatrixXd coef_record; // alpha in VAR
+	// alpha_0 when include_mean = true?
+	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
+	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
+	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
+
+	SvRecords(
+		int num_iter, int dim, int num_design, int num_coef, int num_lowerchol,
+		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init,
+		const Eigen::MatrixXd& lvol_draw,
+		const Eigen::VectorXd& lvol_init
+	);
+};
+
+struct SsvsRecords : public SvRecords {
+	Eigen::MatrixXd coef_dummy_record;
+	Eigen::MatrixXd coef_weight_record;
+	Eigen::MatrixXd contem_dummy_record;
+	Eigen::MatrixXd contem_weight_record;
+
+	SsvsRecords(
+		int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
+		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
+		const Eigen::VectorXd& coef_weight_init, const Eigen::VectorXd& contem_weight_init
+	);
+};
+
+struct HorseshoeRecords : public SvRecords {
+	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd global_record;
+	Eigen::MatrixXd shrink_record;
+
+	HorseshoeRecords(
+		int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
+		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
+		const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev
+	);
+};
+
 class McmcSv {
 public:
 	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed);
