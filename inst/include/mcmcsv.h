@@ -108,11 +108,11 @@ struct SvRecords {
 	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
 	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 
-	SvRecords(
-		int num_iter, int dim, int num_design, int num_coef, int num_lowerchol,
-		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init,
-		const Eigen::MatrixXd& lvol_draw,
-		const Eigen::VectorXd& lvol_init
+	SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol);
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
 	);
 };
 
@@ -122,10 +122,12 @@ struct SsvsRecords : public SvRecords {
 	Eigen::MatrixXd contem_dummy_record;
 	Eigen::MatrixXd contem_weight_record;
 
-	SsvsRecords(
-		int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
-		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
-		const Eigen::VectorXd& coef_weight_init, const Eigen::VectorXd& contem_weight_init
+	SsvsRecords(int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol);
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init,
+		const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight
 	);
 };
 
@@ -134,10 +136,12 @@ struct HorseshoeRecords : public SvRecords {
 	Eigen::MatrixXd global_record;
 	Eigen::MatrixXd shrink_record;
 
-	HorseshoeRecords(
-		int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
-		const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
-		const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev
+	HorseshoeRecords(int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol);
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init,
+		const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev
 	);
 };
 

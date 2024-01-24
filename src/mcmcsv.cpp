@@ -82,46 +82,68 @@ HorseshoeInits::HorseshoeInits(Rcpp::List& init)
 	_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 	_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 
-SvRecords::SvRecords(
-	int num_iter, int dim, int num_design, int num_coef, int num_lowerchol,
-	const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init,
-	const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init
-)
+SvRecords::SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 : coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
 	contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)),
 	lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
 	lvol_init_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
-	lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {
-	coef_record.row(0) = coef_init;
-	lvol_init_record.row(0) = lvol_init;
-	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose().eval());
+	lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {}
+
+void SvRecords::assignRecords(
+	int id,
+	const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+	const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
+) {
+	coef_record.row(id) = coef_vec;
+	contem_coef_record.row(id) = contem_coef;
+	lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+	lvol_sig_record.row(id) = lvol_sig;
+	lvol_init_record.row(id) = lvol_init;
 }
 
-SsvsRecords::SsvsRecords(
-	int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
-	const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
-	const Eigen::VectorXd& coef_weight_init, const Eigen::VectorXd& contem_weight_init
-)
-: SvRecords(num_iter, dim, num_design, num_coef, num_lowerchol, coef_init, contem_init, lvol_draw, lvol_init),
+SsvsRecords::SsvsRecords(int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol)
+: SvRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
 	coef_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_alpha)),
 	coef_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
 	contem_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol)),
-	contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {
-	coef_weight_record.row(0) = coef_weight_init;
-	contem_weight_record.row(0) = contem_weight_init;
+	contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+
+void SsvsRecords::assignRecords(
+	int id,
+	const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+	const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init,
+	const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight
+) {
+	coef_record.row(id) = coef_vec;
+	contem_coef_record.row(id) = contem_coef;
+	lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+	lvol_sig_record.row(id) = lvol_sig;
+	lvol_init_record.row(id) = lvol_init;
+	coef_weight_record.row(id) = coef_weight;
+	contem_dummy_record.row(id) = contem_dummy;
+	contem_weight_record.row(id) = contem_weight;
 }
 
-HorseshoeRecords::HorseshoeRecords(
-	int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol,
-	const Eigen::VectorXd& coef_init, const Eigen::VectorXd& contem_init, const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_init,
-	const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev
-)
-: SvRecords(num_iter, dim, num_design, num_coef, num_lowerchol, coef_init, contem_init, lvol_draw, lvol_init),
+HorseshoeRecords::HorseshoeRecords(int num_iter, int dim, int num_design, int num_coef, int num_alpha, int num_grp, int num_lowerchol)
+: SvRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
 	local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
 	global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-	shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {
-	local_record.row(0) = local_lev;
-	global_record.row(0) = global_lev;
+	shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
+
+void HorseshoeRecords::assignRecords(
+	int id,
+	const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+	const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init,
+	const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev
+) {
+	coef_record.row(id) = coef_vec;
+	contem_coef_record.row(id) = contem_coef;
+	lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+	lvol_sig_record.row(id) = lvol_sig;
+	lvol_init_record.row(id) = lvol_init;
+	shrink_record.row(id) = shrink_fac;
+	local_record.row(id) = local_lev;
+	global_record.row(id) = global_lev;
 }
 
 McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
