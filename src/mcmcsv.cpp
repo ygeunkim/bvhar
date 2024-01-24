@@ -156,6 +156,9 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	lvol_init(inits._lvol_init), lvol_draw(inits._lvol), lvol_sig(inits._lvol_sig),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
+	num_lowerchol(dim * (dim - 1) / 2),
+	num_coef(dim * dim_design),
+	num_alpha(include_mean ? num_coef - dim : num_coef),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
 	prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
 	response_contem(Eigen::VectorXd::Zero(num_design)),
@@ -164,12 +167,6 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	mcmc_step(0),
 	rng(seed),
 	prior_mean_non(params._mean_non) {
-  num_lowerchol = dim * (dim - 1) / 2;
-  num_coef = dim * dim_design;
-	num_alpha = num_coef - dim;
-	if (!include_mean) {
-		num_alpha += dim; // always dim^2 p
-	}
 	prior_sd_non = params._sd_non * Eigen::VectorXd::Ones(dim);
 	prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
 	prior_alpha_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
