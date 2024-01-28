@@ -67,7 +67,6 @@ void McmcHs::updateCov() {
 }
 
 void McmcHs::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	shrink_record.row(mcmc_step) = shrink_fac;
 	coef_record.row(mcmc_step) = coef_draw;
 	sig_record[mcmc_step] = sig_draw;
@@ -76,6 +75,8 @@ void McmcHs::updateRecords() {
 }
 
 void McmcHs::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateCoefCov();
 	updateCoef();
 	updateCov();
@@ -121,7 +122,6 @@ void BlockHs::updateCoef() {
 }
 
 void BlockHs::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	shrink_record.row(mcmc_step) = shrink_fac;
 	coef_record.row(mcmc_step) = block_coef.tail(num_coef);
 	sig_record[mcmc_step] = block_coef[0];
@@ -145,7 +145,6 @@ void FastHs::updateCoef() {
 }
 
 void FastHs::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	shrink_record.row(mcmc_step) = shrink_fac;
 	coef_record.row(mcmc_step) = coef_draw;
 	sig_record[mcmc_step] = sig_draw;
