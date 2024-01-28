@@ -569,16 +569,22 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
 predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
   h_record <- as_draws_matrix(object$h_record)
+  phi_record <- as_draws_matrix(object$phi_record)
+  if (object$type == "const") {
+    phi_record <- cbind(phi_record, as_draws_matrix(object$phi0_record))
+  }
   pred_res <- forecast_bvharsv_density(
     object$p,
     n_ahead,
     object$y0,
     object$coefficients,
     object$HARtrans,
-    as_draws_matrix(object$phi_record),
+    # as_draws_matrix(object$phi_record),
+    phi_record,
     h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
     as_draws_matrix(object$a_record),
-    as_draws_matrix(object$sigh_record)
+    as_draws_matrix(object$sigh_record),
+    object$type == "const"
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------

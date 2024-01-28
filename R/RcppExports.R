@@ -899,8 +899,8 @@ forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
 #' @param HARtrans VHAR linear transformation matrix
 #' 
 #' @noRd
-forecast_bvharsv_density <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record) {
-    .Call(`_bvhar_forecast_bvharsv_density`, month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record)
+forecast_bvharsv_density <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean) {
+    .Call(`_bvhar_forecast_bvharsv_density`, month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
