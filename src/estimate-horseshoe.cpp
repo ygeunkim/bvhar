@@ -73,7 +73,12 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
 			hs_objs[chain]->addStep();
 			hs_objs[chain]->doPosteriorDraws(); // alpha -> sigma -> nuj -> xi -> lambdaj -> tau
 		}
-		res[chain] = hs_objs[chain]->returnRecords(num_burn, thin);
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			res[chain] = hs_objs[chain]->returnRecords(num_burn, thin);
+		}
 	};
 	if (num_chains == 1) {
 		run_gibbs(0);
