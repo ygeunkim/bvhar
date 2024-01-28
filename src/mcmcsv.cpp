@@ -239,11 +239,12 @@ MinnSv::MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed
 }
 
 void MinnSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 }
 
 void MinnSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
 	latent_innov = y - x * coef_mat; // E_t before a
@@ -338,12 +339,13 @@ void SsvsSv::updateImpactPrec() {
 }
 
 void SsvsSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 	ssvs_record.assignRecords(mcmc_step, coef_dummy, coef_weight, contem_dummy, contem_weight);
 }
 
 void SsvsSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateCoefPrec();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
@@ -432,12 +434,13 @@ void HorseshoeSv::updateImpactPrec() {
 }
 
 void HorseshoeSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 	hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, global_lev);
 }
 
 void HorseshoeSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateCoefPrec();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
