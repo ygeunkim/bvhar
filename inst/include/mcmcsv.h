@@ -100,6 +100,40 @@ struct HorseshoeInits : public SvInits {
 	HorseshoeInits(Rcpp::List& init);
 };
 
+struct SvRecords {
+	Eigen::MatrixXd coef_record; // alpha in VAR
+	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
+	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
+	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
+
+	SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol);
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
+	);
+};
+
+struct SsvsRecords {
+	Eigen::MatrixXd coef_dummy_record;
+	Eigen::MatrixXd coef_weight_record;
+	Eigen::MatrixXd contem_dummy_record;
+	Eigen::MatrixXd contem_weight_record;
+
+	SsvsRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol);
+	void assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight);
+};
+
+struct HorseshoeRecords {
+	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd global_record;
+	Eigen::MatrixXd shrink_record;
+
+	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol);
+	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev);
+};
+
 class McmcSv {
 public:
 	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed);
@@ -122,11 +156,6 @@ protected:
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;
 	std::mutex mtx;
-	Eigen::MatrixXd coef_record; // alpha in VAR
-	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
-	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
-	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
-	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	int num_iter;
 	int dim; // k
   int dim_design; // kp(+1)
@@ -134,6 +163,7 @@ protected:
   int num_lowerchol;
   int num_coef;
 	int num_alpha;
+	SvRecords sv_record;
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd prior_mean_non; // prior mean of intercept term
@@ -194,10 +224,7 @@ private:
 	Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
-	Eigen::MatrixXd coef_dummy_record;
-	Eigen::MatrixXd coef_weight_record;
-	Eigen::MatrixXd contem_dummy_record;
-	Eigen::MatrixXd contem_weight_record;
+	SsvsRecords ssvs_record;
 	Eigen::VectorXd coef_dummy;
 	Eigen::VectorXd coef_weight;
 	Eigen::VectorXd contem_dummy;
@@ -231,9 +258,7 @@ private:
 	Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
-	Eigen::MatrixXd local_record;
-	Eigen::MatrixXd global_record;
-	Eigen::MatrixXd shrink_record;
+	HorseshoeRecords hs_record;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd global_lev;
 	Eigen::VectorXd shrink_fac;
