@@ -115,7 +115,12 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			sv_objs[chain]->addStep();
 			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
 		}
-		res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
+		}
 	};
 	if (num_chains == 1) {
 		run_gibbs(0);
