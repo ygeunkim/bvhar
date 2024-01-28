@@ -6,6 +6,8 @@
 
 * Prevent SSVS overflow issues by using log-sum-exp trick when computing Bernoulli posterior probability.
 
+* Make some internal headers public to enable `LinkingTo` this package.
+
 ## Parallel Chain MCMC
 
 * Use OpenMP parallel for loop
