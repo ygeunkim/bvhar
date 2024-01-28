@@ -112,7 +112,6 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			if (display_progress) {
 				bar.update();
 			}
-			sv_objs[chain]->addStep();
 			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
 		}
 	#ifdef _OPENMP

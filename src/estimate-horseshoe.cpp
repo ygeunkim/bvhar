@@ -70,7 +70,6 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
 			if (display_progress) {
 				bar.update();
 			}
-			hs_objs[chain]->addStep();
 			hs_objs[chain]->doPosteriorDraws(); // alpha -> sigma -> nuj -> xi -> lambdaj -> tau
 		}
 	#ifdef _OPENMP
