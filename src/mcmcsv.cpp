@@ -82,6 +82,49 @@ HorseshoeInits::HorseshoeInits(Rcpp::List& init)
 	_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 	_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 
+SvRecords::SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
+: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
+	contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)),
+	lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
+	lvol_init_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
+	lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {}
+
+void SvRecords::assignRecords(
+	int id,
+	const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+	const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
+) {
+	coef_record.row(id) = coef_vec;
+	contem_coef_record.row(id) = contem_coef;
+	lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+	lvol_sig_record.row(id) = lvol_sig;
+	lvol_init_record.row(id) = lvol_init;
+}
+
+SsvsRecords::SsvsRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+: coef_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_alpha)),
+	coef_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+	contem_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol)),
+	contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+
+void SsvsRecords::assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight) {
+	coef_dummy_record.row(id) = coef_dummy;
+	coef_weight_record.row(id) = coef_weight;
+	contem_dummy_record.row(id) = contem_dummy;
+	contem_weight_record.row(id) = contem_weight;
+}
+
+HorseshoeRecords::HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
+	global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+	shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
+
+void HorseshoeRecords::assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
+	shrink_record.row(id) = shrink_fac;
+	local_record.row(id) = local_lev;
+	global_record.row(id) = global_lev;
+}
+
 McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 : include_mean(params._mean),
 	x(params._x), y(params._y),
@@ -92,6 +135,10 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	lvol_init(inits._lvol_init), lvol_draw(inits._lvol), lvol_sig(inits._lvol_sig),
 	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
 	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
+	num_lowerchol(dim * (dim - 1) / 2),
+	num_coef(dim * dim_design),
+	num_alpha(include_mean ? num_coef - dim : num_coef),
+	sv_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
 	prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
 	response_contem(Eigen::VectorXd::Zero(num_design)),
@@ -100,12 +147,6 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 	mcmc_step(0),
 	rng(seed),
 	prior_mean_non(params._mean_non) {
-  num_lowerchol = dim * (dim - 1) / 2;
-  num_coef = dim * dim_design;
-	num_alpha = num_coef - dim;
-	if (!include_mean) {
-		num_alpha += dim; // always dim^2 p
-	}
 	prior_sd_non = params._sd_non * Eigen::VectorXd::Ones(dim);
 	prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
 	prior_alpha_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
@@ -115,29 +156,14 @@ McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
   }
 	prior_chol_mean = Eigen::VectorXd::Zero(num_lowerchol);
 	prior_chol_prec = Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol);
-	coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef); // first num_alpha: coef, last dim: intercept
-	contem_coef_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
-	lvol_sig_record = Eigen::MatrixXd::Ones(num_iter + 1, dim);
-	lvol_init_record = Eigen::MatrixXd::Zero(num_iter + 1, dim);
-	lvol_record = Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim);
-	// coef_mat = (x.transpose() * x).llt().solve(x.transpose() * y);
 	coef_vec = Eigen::VectorXd::Zero(num_coef);
-	// coef_vec = vectorize_eigen(coef_mat);
 	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
 	if (include_mean) {
 		coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 	}
-	// contem_coef = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	latent_innov = y - x * coef_mat;
 	chol_lower = build_inv_lower(dim, contem_coef);
-	// lvol_init = latent_innov.transpose().array().square().rowwise().mean().log();
-	lvol_init_record.row(0) = lvol_init;
-	// lvol_draw = lvol_init.transpose().replicate(num_design, 1);
-	// lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
-	// coef_record.row(0) = vectorize_eigen(coef_mat);
-	coef_record.row(0) = coef_vec;
-	lvol_init_record.row(0) = lvol_init;
-	lvol_record.row(0) = vectorize_eigen(lvol_draw.transpose().eval());
+	sv_record.assignRecords(0, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
   coef_j = coef_mat;
 }
 
@@ -213,15 +239,12 @@ MinnSv::MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed
 }
 
 void MinnSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
-	coef_record.row(mcmc_step) = coef_vec;
-	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
-	lvol_sig_record.row(mcmc_step) = lvol_sig;
-	lvol_init_record.row(mcmc_step) = lvol_init;
+	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 }
 
 void MinnSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
 	latent_innov = y - x * coef_mat; // E_t before a
@@ -235,14 +258,14 @@ void MinnSv::doPosteriorDraws() {
 
 Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
 	Rcpp::List res = Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.leftCols(num_alpha),
-    Rcpp::Named("h_record") = lvol_record,
-    Rcpp::Named("a_record") = contem_coef_record,
-    Rcpp::Named("h0_record") = lvol_init_record,
-    Rcpp::Named("sigh_record") = lvol_sig_record
+		Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+    Rcpp::Named("h_record") = sv_record.lvol_record,
+    Rcpp::Named("a_record") = sv_record.contem_coef_record,
+    Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+    Rcpp::Named("sigh_record") = sv_record.lvol_sig_record
   );
 	if (include_mean) {
-		res["alpha0_record"] = coef_record.rightCols(dim);
+		res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 	}
 	for (auto& record : res) {
 		record = thin_record(record, num_iter, num_burn, thin);
@@ -256,6 +279,7 @@ SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int se
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
+	ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 	// coef_weight(params._coef_weight),
 	// contem_weight(params._contem_weight),
 	coef_weight(inits._coef_weight),
@@ -274,13 +298,7 @@ SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int se
 	if (include_mean) {
 		prior_sd.tail(dim) = prior_sd_non;
 	}
-	coef_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_alpha);
-	coef_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_grp);
-	contem_dummy_record = Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol);
-	contem_weight_record = Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol);
-	coef_weight_record.row(0) = coef_weight;
-	contem_weight_record.row(0) = contem_weight;
-	// coef_dummy = Eigen::VectorXd::Ones(num_alpha);
+	ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	slab_weight = Eigen::VectorXd::Ones(num_alpha);
 	slab_weight_mat = Eigen::MatrixXd::Ones(num_alpha / dim, dim);
 	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
@@ -312,30 +330,22 @@ void SsvsSv::updateCoefShrink() {
 		rng
 	);
 	ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
-	// coef_weight_record.row(mcmc_step) = coef_weight;
 }
 
 void SsvsSv::updateImpactPrec() {
 	ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight, rng);
 	ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
 	prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
-	// contem_dummy_record.row(mcmc_step) = contem_dummy;
-	// contem_weight_record.row(mcmc_step) = contem_weight;
 }
 
 void SsvsSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
-	coef_record.row(mcmc_step) = coef_vec;
-	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
-	lvol_sig_record.row(mcmc_step) = lvol_sig;
-	lvol_init_record.row(mcmc_step) = lvol_init;
-	coef_weight_record.row(mcmc_step) = coef_weight;
-	contem_dummy_record.row(mcmc_step) = contem_dummy;
-	contem_weight_record.row(mcmc_step) = contem_weight;
+	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+	ssvs_record.assignRecords(mcmc_step, coef_dummy, coef_weight, contem_dummy, contem_weight);
 }
 
 void SsvsSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateCoefPrec();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
@@ -352,15 +362,15 @@ void SsvsSv::doPosteriorDraws() {
 
 Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
 	Rcpp::List res = Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.leftCols(num_alpha),
-    Rcpp::Named("h_record") = lvol_record,
-    Rcpp::Named("a_record") = contem_coef_record,
-    Rcpp::Named("h0_record") = lvol_init_record,
-    Rcpp::Named("sigh_record") = lvol_sig_record,
-    Rcpp::Named("gamma_record") = coef_dummy_record
+		Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+    Rcpp::Named("h_record") = sv_record.lvol_record,
+    Rcpp::Named("a_record") = sv_record.contem_coef_record,
+    Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+    Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
+    Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record
   );
 	if (include_mean) {
-		res["alpha0_record"] = coef_record.rightCols(dim);
+		res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 	}
 	for (auto& record : res) {
 		record = thin_record(record, num_iter, num_burn, thin);
@@ -374,34 +384,21 @@ HorseshoeSv::HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& in
 	num_grp(grp_id.size()),
 	grp_mat(params._grp_mat),
 	grp_vec(vectorize_eigen(grp_mat)),
-	// local_lev(params._init_local),
-	// global_lev(params._init_global),
+	hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 	local_lev(inits._init_local),
 	global_lev(inits._init_global),
-	// shrink_fac(Eigen::VectorXd::Zero(num_coef)),
-	// latent_local(Eigen::VectorXd::Zero(num_coef)),
 	shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
 	latent_local(Eigen::VectorXd::Zero(num_alpha)),
 	latent_global(Eigen::VectorXd::Zero(num_grp)),
 	lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
-	// coef_var(Eigen::VectorXd::Zero(num_coef)),
-	// coef_var_loc(Eigen::MatrixXd::Zero(dim_design, dim)),
 	coef_var(Eigen::VectorXd::Zero(num_alpha)),
 	coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
-	// contem_local_lev(params._init_contem_local),
-	// contem_global_lev(params._init_conetm_global),
 	contem_local_lev(inits._init_contem_local),
 	contem_global_lev(inits._init_conetm_global),
 	contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
 	latent_contem_global(Eigen::VectorXd::Zero(1)) {
-	// local_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
-	local_record = Eigen::MatrixXd::Zero(num_iter + 1, num_alpha);
-	global_record = Eigen::MatrixXd::Zero(num_iter + 1, num_grp);
-	// shrink_record = Eigen::MatrixXd::Zero(num_iter + 1, num_coef);
-	shrink_record = Eigen::MatrixXd::Zero(num_iter + 1, num_alpha);
-	local_record.row(0) = local_lev;
-	global_record.row(0) = global_lev;
+	hs_record.assignRecords(0, shrink_fac, local_lev, global_lev);
 }
 
 void HorseshoeSv::updateCoefPrec() {
@@ -418,7 +415,6 @@ void HorseshoeSv::updateCoefPrec() {
 	// 	prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
 	// }
 	shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
-	// shrink_record.row(mcmc_step) = shrink_fac;
 }
 
 void HorseshoeSv::updateCoefShrink() {
@@ -426,8 +422,6 @@ void HorseshoeSv::updateCoefShrink() {
 	horseshoe_latent(latent_global, global_lev, rng);
 	horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), 1, rng);
 	horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
-	// local_record.row(mcmc_step) = local_lev;
-	// global_record.row(mcmc_step) = global_lev;
 }
 
 void HorseshoeSv::updateImpactPrec() {
@@ -440,18 +434,13 @@ void HorseshoeSv::updateImpactPrec() {
 }
 
 void HorseshoeSv::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
-	coef_record.row(mcmc_step) = coef_vec;
-	contem_coef_record.row(mcmc_step) = contem_coef;
-	lvol_record.row(mcmc_step) = vectorize_eigen(lvol_draw.transpose().eval());
-	lvol_sig_record.row(mcmc_step) = lvol_sig;
-	lvol_init_record.row(mcmc_step) = lvol_init;
-	shrink_record.row(mcmc_step) = shrink_fac;
-	local_record.row(mcmc_step) = local_lev;
-	global_record.row(mcmc_step) = global_lev;
+	sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+	hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, global_lev);
 }
 
 void HorseshoeSv::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateCoefPrec();
 	sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 	updateCoef();
@@ -468,17 +457,17 @@ void HorseshoeSv::doPosteriorDraws() {
 
 Rcpp::List HorseshoeSv::returnRecords(int num_burn, int thin) const {
 	Rcpp::List res = Rcpp::List::create(
-		Rcpp::Named("alpha_record") = coef_record.leftCols(num_alpha),
-    Rcpp::Named("h_record") = lvol_record,
-    Rcpp::Named("a_record") = contem_coef_record,
-    Rcpp::Named("h0_record") = lvol_init_record,
-    Rcpp::Named("sigh_record") = lvol_sig_record,
-    Rcpp::Named("lambda_record") = local_record,
-    Rcpp::Named("tau_record") = global_record,
-    Rcpp::Named("kappa_record") = shrink_record
+		Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+    Rcpp::Named("h_record") = sv_record.lvol_record,
+    Rcpp::Named("a_record") = sv_record.contem_coef_record,
+    Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+    Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
+    Rcpp::Named("lambda_record") = hs_record.local_record,
+    Rcpp::Named("tau_record") = hs_record.global_record,
+    Rcpp::Named("kappa_record") = hs_record.shrink_record
   );
 	if (include_mean) {
-		res["alpha0_record"] = coef_record.rightCols(dim);
+		res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 	}
 	for (auto& record : res) {
 		record = thin_record(record, num_iter, num_burn, thin);
