@@ -88,7 +88,12 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 			mcmc_objs[chain]->addStep();
 			mcmc_objs[chain]->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
 		}
-		res[chain] = mcmc_objs[chain]->returnRecords(num_burn, thin);
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			res[chain] = mcmc_objs[chain]->returnRecords(num_burn, thin);
+		}
 	};
 	if (num_chains == 1) {
 		run_gibbs(0);
