@@ -145,7 +145,6 @@ void McmcSsvs::updateCoefDummy() {
 }
 
 void McmcSsvs::updateRecords() {
-	std::lock_guard<std::mutex> lock(mtx);
 	chol_upper_record.row(mcmc_step) = chol_coef;
 	chol_diag_record.row(mcmc_step) = chol_diag;
 	// chol_factor_record.block(mcmc_step * dim, 0, dim, dim) = chol_factor;
@@ -158,6 +157,8 @@ void McmcSsvs::updateRecords() {
 }
 
 void McmcSsvs::doPosteriorDraws() {
+	std::lock_guard<std::mutex> lock(mtx);
+	addStep();
 	updateChol();
 	updateCholDummy();
 	updateCoef();

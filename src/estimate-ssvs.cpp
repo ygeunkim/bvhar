@@ -85,7 +85,6 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
 			if (display_progress) {
 				bar.update();
 			}
-			mcmc_objs[chain]->addStep();
 			mcmc_objs[chain]->doPosteriorDraws(); // Psi -> eta -> omega -> alpha -> gamma -> p
 		}
 	#ifdef _OPENMP
