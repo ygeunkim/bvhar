@@ -821,8 +821,8 @@ forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
 #' @param sigh_record MCMC record of variance of log-volatilities
 #' 
 #' @noRd
-forecast_bvarsv_density <- function(var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record) {
-    .Call(`_bvhar_forecast_bvarsv_density`, var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record)
+forecast_bvarsv_density <- function(var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean) {
+    .Call(`_bvhar_forecast_bvarsv_density`, var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean)
 }
 
 #' Forecasting Bayesian VHAR

@@ -287,7 +287,8 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
                                    Eigen::MatrixXd alpha_record,
                                    Eigen::MatrixXd h_last_record,
                                    Eigen::MatrixXd a_record,
-                                   Eigen::MatrixXd sigh_record) {
+                                   Eigen::MatrixXd sigh_record,
+																	 bool include_mean) {
   int num_sim = alpha_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
@@ -304,11 +305,19 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
     last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
   }
   point_forecast.row(0) = last_pvec.transpose() * coef_mat;
+	Eigen::MatrixXd coef_mat_record(coef_mat.rows(), dim); // include constant term
+	int num_coef = coef_mat.size();
+	int num_alpha = include_mean ? num_coef - dim : num_coef;
   Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_prec(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+    // density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+		coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_record.row(b).head(num_alpha).transpose(), dim);
+		if (include_mean) {
+			coef_mat_record.bottomRows(1) = alpha_record.row(b).tail(dim);
+		}
+		density_forecast = last_pvec.transpose() * coef_mat_record;
     sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
     sv_update = bvhar::vectorize_eigen(
       sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
@@ -334,7 +343,12 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
     last_pvec.segment(0, dim) = point_forecast.row(i - 1);
     point_forecast.row(i) = last_pvec.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+      // density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+			coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_record.row(b).head(num_alpha).transpose(), dim);
+			if (include_mean) {
+				coef_mat_record.bottomRows(1) = alpha_record.row(b).tail(dim);
+			}
+			density_forecast = last_pvec.transpose() * coef_mat_record;
       sv_cov.diagonal() = 1 / sigh_record.row(b).array();
       sv_update = bvhar::vectorize_eigen(
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
