@@ -63,7 +63,12 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
 		bvhar::bvharinterrupt();
 		for (int i = 1; i < num_iter + 1; i++) {
 			if (bvhar::bvharinterrupt::is_interrupted()) {
-				res[chain] = hs_objs[chain]->returnRecords(0, 1);
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					res[chain] = hs_objs[chain]->returnRecords(0, 1);
+				}
 				break;
 			}
 			bar.increment();
