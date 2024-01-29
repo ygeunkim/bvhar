@@ -35,3 +35,81 @@ Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
   }
   return res;
 }
+
+//' Out-of-Sample Forecasting of VAR based on Rolling Window
+//' 
+//' This function conducts an rolling window forecasting of VAR.
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param lag VAR order
+//' @param include_mean Add constant term
+//' @param step Integer, Step to forecast
+//' @param y_test Evaluation time series data period after `y`
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd roll_var(Eigen::MatrixXd y, 
+                         int lag, 
+                         bool include_mean, 
+                         int step,
+                         Eigen::MatrixXd y_test) {
+  Rcpp::Function fit("var_lm");
+  int window = y.rows();
+  int dim = y.cols();
+  int num_test = y_test.rows();
+  int num_horizon = num_test - step + 1; // longest forecast horizon
+  Eigen::MatrixXd roll_mat = y; // same size as y
+  Rcpp::List var_mod = fit(roll_mat, lag, include_mean);
+  Eigen::MatrixXd y_pred = forecast_var(var_mod, step); // step x m
+  Eigen::MatrixXd res(num_horizon, dim);
+  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
+  for (int i = 1; i < num_horizon; i++) {
+    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
+    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows: move one period
+    var_mod = fit(roll_mat, lag, include_mean);
+    y_pred = forecast_var(var_mod, step);
+    res.row(i) = y_pred.row(step - 1);
+  }
+  return res;
+}
+
+//' Out-of-Sample Forecasting of VAR based on Expanding Window
+//' 
+//' This function conducts an expanding window forecasting of VAR.
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param lag VAR order
+//' @param include_mean Add constant term
+//' @param step Integer, Step to forecast
+//' @param y_test Evaluation time series data period after `y`
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd expand_var(Eigen::MatrixXd y, 
+                           int lag, 
+                           bool include_mean, 
+                           int step,
+                           Eigen::MatrixXd y_test) {
+  Rcpp::Function fit("var_lm");
+  int window = y.rows();
+  int dim = y.cols();
+  int num_test = y_test.rows();
+  int num_iter = num_test - step + 1; // longest forecast horizon
+  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
+  expand_mat.block(0, 0, window, dim) = y;
+  Rcpp::List var_mod = fit(y, lag, include_mean);
+  Eigen::MatrixXd y_pred = forecast_var(var_mod, step); // step x m
+  Eigen::MatrixXd res(num_iter, dim);
+  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
+  for (int i = 1; i < num_iter; i++) {
+    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
+    var_mod = fit(
+      expand_mat.block(0, 0, window + i, dim),
+      lag,
+      include_mean
+    );
+    y_pred = forecast_var(var_mod, step);
+    res.row(i) = y_pred.row(step - 1);
+  }
+  return res;
+}
