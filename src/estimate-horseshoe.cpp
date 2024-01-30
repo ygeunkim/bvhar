@@ -5,8 +5,10 @@
 //' 
 //' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 //' 
+//' @param num_chain Number of MCMC chains
 //' @param num_iter Number of iteration for MCMC
 //' @param num_burn Number of burn-in (warm-up) for MCMC
+//' @param thin Thinning
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_priorvar Initial variance constant
@@ -16,7 +18,9 @@
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param fast Fast sampling?
+//' @param seed_chain Seed for each chain
 //' @param display_progress Progress bar
+//' @param nthreads Number of threads for openmp
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin,

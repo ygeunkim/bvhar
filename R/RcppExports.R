@@ -425,8 +425,10 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' 
 #' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
 #' 
+#' @param num_chain Number of MCMC chains
 #' @param num_iter Number of iteration for MCMC
 #' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thin Thinning
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_priorvar Initial variance constant
@@ -436,7 +438,9 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param grp_id Unique group id
 #' @param grp_mat Group matrix
 #' @param fast Fast sampling?
+#' @param seed_chain Seed for each chain
 #' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
 #' @noRd
 estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
     .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
@@ -446,8 +450,10 @@ estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, i
 #' 
 #' This function conducts Gibbs sampling for BVAR SSVS.
 #' 
+#' @param num_chain Number of MCMC chains
 #' @param num_iter Number of iteration for MCMC
 #' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thin Thinning
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
 #' @param init_coef Initial k x m coefficient matrix.
@@ -472,8 +478,10 @@ estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, i
 #' @param mean_non Prior mean of unrestricted coefficients
 #' @param sd_non Standard deviance for unrestricted coefficients
 #' @param include_mean Add constant term
+#' @param seed_chain Seed for each chain
 #' @param init_gibbs Set custom initial values for Gibbs sampler
 #' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
 #' @noRd
 estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads) {
     .Call(`_bvhar_estimate_bvar_ssvs`, num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads)
@@ -483,33 +491,20 @@ estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_
 #' 
 #' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
 #' 
+#' @param num_chain Number of MCMC chains
 #' @param num_iter Number of iteration for MCMC
 #' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thin Thinning
 #' @param x Design matrix X0
 #' @param y Response matrix Y0
-#' @param prior_coef_mean Prior mean matrix of coefficient in Minnesota belief
-#' @param prior_coef_prec Prior precision matrix of coefficient in Minnesota belief
-#' @param prec_diag Diagonal matrix of sigma of innovation to build Minnesota moment
-#' @param init_local Initial local shrinkage of Horseshoe
-#' @param init_global Initial global shrinkage of Horseshoe
-#' @param init_contem_local Initial local shrinkage for Cholesky factor in Horseshoe
-#' @param init_contem_global Initial global shrinkage for Cholesky factor in Horseshoe
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
 #' @param grp_id Unique group id
 #' @param grp_mat Group matrix
-#' @param prior_sig_shp Inverse-Gamma prior shape of state variance
-#' @param prior_sig_scl Inverse-Gamma prior scale of state variance
-#' @param prior_init_mean Noraml prior mean of initial state
-#' @param prior_init_prec Normal prior precision of initial state
-#' @param coef_spike SD of spike normal
-#' @param coef_slab_weight SD of slab normal
-#' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
-#' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
-#' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
-#' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
-#' @param mean_non Prior mean of unrestricted coefficients
-#' @param sd_non SD for unrestricted coefficients
 #' @param include_mean Constant term
+#' @param seed_chain Seed for each chain
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' 
