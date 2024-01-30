@@ -128,43 +128,41 @@ void HorseshoeRecords::assignRecords(int id, const Eigen::VectorXd& shrink_fac, 
 McmcSv::McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
 : include_mean(params._mean),
 	x(params._x), y(params._y),
-	prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
-	prior_init_mean(params._init_mean), prior_init_prec(params._init_prec),
-	num_iter(params._iter),
-	coef_mat(inits._coef), contem_coef(inits._contem),
-	lvol_init(inits._lvol_init), lvol_draw(inits._lvol), lvol_sig(inits._lvol_sig),
-	dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
-	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
-	num_lowerchol(dim * (dim - 1) / 2),
-	num_coef(dim * dim_design),
+	num_iter(params._iter), dim(y.cols()), dim_design(x.cols()), num_design(y.rows()),
+	num_lowerchol(dim * (dim - 1) / 2), num_coef(dim * dim_design),
 	num_alpha(include_mean ? num_coef - dim : num_coef),
 	sv_record(num_iter, dim, num_design, num_coef, num_lowerchol),
+	mcmc_step(0), rng(seed),
+	prior_mean_non(params._mean_non),
+	prior_sd_non(params._sd_non * Eigen::VectorXd::Ones(dim)),
+	coef_vec(Eigen::VectorXd::Zero(num_coef)),
+	contem_coef(inits._contem),
+	lvol_draw(inits._lvol), lvol_init(inits._lvol_init), lvol_sig(inits._lvol_sig),
+	prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
+	prior_alpha_prec(Eigen::MatrixXd::Zero(num_coef, num_coef)),
+	prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
+	prior_chol_prec(Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol)),
+	coef_mat(inits._coef),
+	contem_id(0),
+	chol_lower(build_inv_lower(dim, contem_coef)),
+	latent_innov(y - x * coef_mat),
+	ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 	prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
 	prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
+	coef_j(coef_mat),
 	response_contem(Eigen::VectorXd::Zero(num_design)),
 	sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
-	contem_id(0),
-	mcmc_step(0),
-	rng(seed),
-	prior_mean_non(params._mean_non) {
-	prior_sd_non = params._sd_non * Eigen::VectorXd::Ones(dim);
-	prior_alpha_mean = Eigen::VectorXd::Zero(num_coef);
-	prior_alpha_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
+	prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
+	prior_init_mean(params._init_mean), prior_init_prec(params._init_prec) {
 	if (include_mean) {
 		prior_alpha_mean.tail(dim) = prior_mean_non;
 		prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
   }
-	prior_chol_mean = Eigen::VectorXd::Zero(num_lowerchol);
-	prior_chol_prec = Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol);
-	coef_vec = Eigen::VectorXd::Zero(num_coef);
 	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
 	if (include_mean) {
 		coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 	}
-	latent_innov = y - x * coef_mat;
-	chol_lower = build_inv_lower(dim, contem_coef);
 	sv_record.assignRecords(0, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-  coef_j = coef_mat;
 }
 
 void McmcSv::updateCoef() {
@@ -186,7 +184,6 @@ void McmcSv::updateCoef() {
 			rng
     );
 	}
-	// coef_vec = vectorize_eigen(coef_mat);
 	coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
 	if (include_mean) {
 		coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
@@ -234,7 +231,6 @@ MinnSv::MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed
 	prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
 	if (include_mean) {
 		prior_alpha_mean.tail(dim) = params._mean_non;
-		// prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
   }
 }
 
@@ -275,41 +271,26 @@ Rcpp::List MinnSv::returnRecords(int num_burn, int thin) const {
 
 SsvsSv::SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed)
 : McmcSv(params, inits, seed),
-	grp_id(params._grp_id),
-	num_grp(grp_id.size()),
-	grp_mat(params._grp_mat),
-	grp_vec(vectorize_eigen(grp_mat)),
+	grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(vectorize_eigen(grp_mat)), num_grp(grp_id.size()),
 	ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
-	// coef_weight(params._coef_weight),
-	// contem_weight(params._contem_weight),
-	coef_weight(inits._coef_weight),
-	contem_weight(inits._contem_weight),
-	coef_dummy(inits._coef_dummy),
-	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)),
-	coef_spike(params._coef_spike),
-	coef_slab(params._coef_slab),
-	contem_spike(params._contem_spike),
-	contem_slab(params._contem_slab),
-	coef_s1(params._coef_s1),
-	coef_s2(params._coef_s2),
-	contem_s1(params._contem_s1),
-	contem_s2(params._contem_s2),
-	prior_sd(Eigen::VectorXd::Zero(num_coef)) {
+	coef_dummy(inits._coef_dummy), coef_weight(inits._coef_weight),
+	contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)), contem_weight(inits._contem_weight),
+	coef_spike(params._coef_spike), coef_slab(params._coef_slab),
+	contem_spike(params._contem_spike), contem_slab(params._contem_slab),
+	coef_s1(params._coef_s1), coef_s2(params._coef_s2),
+	contem_s1(params._contem_s1), contem_s2(params._contem_s2),
+	prior_sd(Eigen::VectorXd::Zero(num_coef)),
+	slab_weight(Eigen::VectorXd::Ones(num_alpha)), slab_weight_mat(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
+	coef_mixture_mat(Eigen::VectorXd::Zero(num_alpha)) {
 	if (include_mean) {
 		prior_sd.tail(dim) = prior_sd_non;
 	}
 	ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
-	slab_weight = Eigen::VectorXd::Ones(num_alpha);
-	slab_weight_mat = Eigen::MatrixXd::Ones(num_alpha / dim, dim);
-	coef_mixture_mat = Eigen::VectorXd::Zero(num_alpha);
 }
 
 void SsvsSv::updateCoefPrec() {
 	coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
 	prior_sd.head(num_alpha) = coef_mixture_mat;
-	// if (include_mean) {
-	// 	prior_sd.tail(dim) = prior_sd_non;
-	// }
 	prior_alpha_prec.setZero();
 	prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
 }
@@ -324,7 +305,6 @@ void SsvsSv::updateCoefShrink() {
 	slab_weight = vectorize_eigen(slab_weight_mat);
 	ssvs_dummy(
 		coef_dummy,
-		// vectorize_eigen(coef_mat.topRows(num_alpha / dim)),
 		coef_vec.head(num_alpha),
 		coef_slab, coef_spike, slab_weight,
 		rng
@@ -380,24 +360,17 @@ Rcpp::List SsvsSv::returnRecords(int num_burn, int thin) const {
 
 HorseshoeSv::HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed)
 : McmcSv(params, inits, seed),
-	grp_id(params._grp_id),
-	num_grp(grp_id.size()),
-	grp_mat(params._grp_mat),
-	grp_vec(vectorize_eigen(grp_mat)),
+	grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(vectorize_eigen(grp_mat)), num_grp(grp_id.size()),
 	hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
-	local_lev(inits._init_local),
-	global_lev(inits._init_global),
+	local_lev(inits._init_local), global_lev(inits._init_global),
 	shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
-	latent_local(Eigen::VectorXd::Zero(num_alpha)),
-	latent_global(Eigen::VectorXd::Zero(num_grp)),
+	latent_local(Eigen::VectorXd::Zero(num_alpha)), latent_global(Eigen::VectorXd::Zero(num_grp)),
 	lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 	coef_var(Eigen::VectorXd::Zero(num_alpha)),
 	coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
-	contem_local_lev(inits._init_contem_local),
-	contem_global_lev(inits._init_conetm_global),
+	contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 	contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
-	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
-	latent_contem_global(Eigen::VectorXd::Zero(1)) {
+	latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)), latent_contem_global(Eigen::VectorXd::Zero(1)) {
 	hs_record.assignRecords(0, shrink_fac, local_lev, global_lev);
 }
 
@@ -411,9 +384,6 @@ void HorseshoeSv::updateCoefPrec() {
 	coef_var = vectorize_eigen(coef_var_loc);
 	build_shrink_mat(lambda_mat, coef_var, local_lev);
 	prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
-	// if (include_mean) {
-	// 	prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
-	// }
 	shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 }
 

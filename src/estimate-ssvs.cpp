@@ -5,8 +5,10 @@
 //' 
 //' This function conducts Gibbs sampling for BVAR SSVS.
 //' 
+//' @param num_chain Number of MCMC chains
 //' @param num_iter Number of iteration for MCMC
 //' @param num_burn Number of burn-in (warm-up) for MCMC
+//' @param thin Thinning
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
 //' @param init_coef Initial k x m coefficient matrix.
@@ -31,8 +33,10 @@
 //' @param mean_non Prior mean of unrestricted coefficients
 //' @param sd_non Standard deviance for unrestricted coefficients
 //' @param include_mean Add constant term
+//' @param seed_chain Seed for each chain
 //' @param init_gibbs Set custom initial values for Gibbs sampler
 //' @param display_progress Progress bar
+//' @param nthreads Number of threads for openmp
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int thin,
