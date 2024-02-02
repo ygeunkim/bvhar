@@ -1,44 +1,27 @@
-#include <RcppEigen.h>
-#include <bvhardraw.h>
+#include "bvhardraw.h"
 
-//' Numerically Stable Log Marginal Likelihood Excluding Constant Term
+//' Log of Multivariate Gamma Function
 //' 
-//' This function computes log of ML stable,
-//' excluding the constant term.
+//' Compute log of multivariate gamma function numerically
 //' 
-//' @param dim Dimension of the time series
-//' @param num_design The number of the data matrix, \eqn{n = T - p}
-//' @param prior_prec Prior precision of Matrix Normal distribution
-//' @param prior_scale Prior scale of Inverse-Wishart distribution
-//' @param mn_prec Posterior precision of Matrix Normal distribution
-//' @param iw_scale Posterior scale of Inverse-Wishart distribution
-//' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-//' 
+//' @param x Double, non-negative argument
+//' @param p Integer, dimension
 //' @noRd
 // [[Rcpp::export]]
-double compute_logml(int dim, 
-                     int num_design,
-                     Eigen::MatrixXd prior_prec,
-                     Eigen::MatrixXd prior_scale,
-                     Eigen::MatrixXd mn_prec,
-                     Eigen::MatrixXd iw_scale,
-                     int posterior_shape) {
-  Eigen::LLT<Eigen::MatrixXd> lltOfmn(prior_prec.inverse());
-  Eigen::MatrixXd chol_mn = lltOfmn.matrixL();
-  Eigen::MatrixXd stable_mat_a = chol_mn.transpose() * (mn_prec - prior_prec) * chol_mn;
-  Eigen::LLT<Eigen::MatrixXd> lltOfiw(prior_scale.inverse());
-  Eigen::MatrixXd chol_iw = lltOfiw.matrixL();
-  Eigen::MatrixXd stable_mat_b = chol_iw.transpose() * (iw_scale - prior_scale) * chol_iw;
-  // eigenvalues
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_a(stable_mat_a);
-  Eigen::VectorXd a_eigen = es_a.eigenvalues();
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_b(stable_mat_b);
-  Eigen::VectorXd b_eigen = es_b.eigenvalues();
-  // sum of log(1 + eigenvalues)
-  double a_term = a_eigen.array().log1p().sum();
-  double b_term = b_eigen.array().log1p().sum();
-  // result
-  return - num_design / 2.0 * log(prior_scale.determinant()) - dim / 2.0 * a_term - posterior_shape / 2.0 * b_term;
+double log_mgammafn(double x, int p) {
+  if (p < 1) {
+    Rcpp::stop("'p' should be larger than or same as 1.");
+  }
+  if (x <= 0) {
+    Rcpp::stop("'x' should be larger than 0.");
+  }
+  if (p == 1) {
+    return bvhar::lgammafn(x);
+  }
+  if (2 * x < p) {
+    Rcpp::stop("'x / 2' should be larger than 'p'.");
+  }
+  return bvhar::lmgammafn(x, p);
 }
 
 //' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
@@ -54,7 +37,7 @@ double logml_stable(Rcpp::List object) {
   if (!object.inherits("bvarmn") && !object.inherits("bvharmn")) {
     Rcpp::stop("'object' must be bvarmn or bvharmn object.");
   }
-  return compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["iw_scale"], object["iw_shape"]);
+  return bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["iw_scale"], object["iw_shape"]);
 }
 
 //' AIC of VAR(p) using RSS
@@ -182,7 +165,7 @@ double compute_log_dmgaussian(Eigen::VectorXd x,
   int dim = diag_vec.size();
   Eigen::MatrixXd diag_mat = Eigen::MatrixXd::Zero(dim, dim); // sqrt(D) in LDLT
   diag_mat.diagonal() = 1 / diag_vec.array().exp().sqrt(); // exp since D = exp(h)
-  Eigen::MatrixXd lower_mat = build_inv_lower(dim, lower_vec);
+  Eigen::MatrixXd lower_mat = bvhar::build_inv_lower(dim, lower_vec);
   x.array() -= mean_vec.array(); // x - mu
   Eigen::VectorXd y = diag_mat * lower_mat * x; // sqrt(D) * L * (x - mu)
   double res = -log(lower_vec.squaredNorm()) - log(diag_vec.sum()) / 2 - dim * log(2 * M_PI) / 2; // should fix this line?
