@@ -15,6 +15,6 @@
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
 #' @importFrom lifecycle deprecated is_present deprecate_warn deprecate_soft
-#' @importFrom Rcpp sourceCpp
+#' @importFrom Rcpp evalCpp
 ## usethis namespace: end
 NULL
