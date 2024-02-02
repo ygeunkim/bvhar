@@ -138,56 +138,6 @@ minnesota_prior <- function(x_dummy, y_dummy) {
     .Call(`_bvhar_minnesota_prior`, x_dummy, y_dummy)
 }
 
-#' Log of Multivariate Gamma Function
-#' 
-#' Compute log of multivariate gamma function numerically
-#' 
-#' @param x Double, non-negative argument
-#' @param p Integer, dimension
-#' 
-#' @noRd
-log_mgammafn <- function(x, p) {
-    .Call(`_bvhar_log_mgammafn`, x, p)
-}
-
-#' Density of Inverse Gamma Distribution
-#' 
-#' Compute the pdf of Inverse Gamma distribution
-#' 
-#' @param x non-negative argument
-#' @param shp Shape of the distribution
-#' @param scl Scale of the distribution
-#' @param lg If true, return log(f)
-#' 
-#' @noRd
-invgamma_dens <- function(x, shp, scl, lg) {
-    .Call(`_bvhar_invgamma_dens`, x, shp, scl, lg)
-}
-
-#' Building Spike-and-slab SD Diagonal Matrix
-#' 
-#' In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
-#' 
-#' @param spike_sd Standard deviance for Spike normal distribution
-#' @param slab_sd Standard deviance for Slab normal distribution
-#' @param mixture_dummy Indicator vector (0-1) corresponding to each element
-#' @noRd
-build_ssvs_sd <- function(spike_sd, slab_sd, mixture_dummy) {
-    .Call(`_bvhar_build_ssvs_sd`, spike_sd, slab_sd, mixture_dummy)
-}
-
-#' Building Lower Triangular Matrix
-#' 
-#' In MCMC, this function builds \eqn{L} given \eqn{a} vector.
-#' 
-#' @param dim Dimension (dim x dim) of L
-#' @param lower_vec Vector a
-#' 
-#' @noRd
-build_inv_lower <- function(dim, lower_vec) {
-    .Call(`_bvhar_build_inv_lower`, dim, lower_vec)
-}
-
 get_maxomp <- function() {
     .Call(`_bvhar_get_maxomp`)
 }
@@ -1258,22 +1208,15 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
-#' Numerically Stable Log Marginal Likelihood Excluding Constant Term
+#' Log of Multivariate Gamma Function
 #' 
-#' This function computes log of ML stable,
-#' excluding the constant term.
+#' Compute log of multivariate gamma function numerically
 #' 
-#' @param dim Dimension of the time series
-#' @param num_design The number of the data matrix, \eqn{n = T - p}
-#' @param prior_prec Prior precision of Matrix Normal distribution
-#' @param prior_scale Prior scale of Inverse-Wishart distribution
-#' @param mn_prec Posterior precision of Matrix Normal distribution
-#' @param iw_scale Posterior scale of Inverse-Wishart distribution
-#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-#' 
+#' @param x Double, non-negative argument
+#' @param p Integer, dimension
 #' @noRd
-compute_logml <- function(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape) {
-    .Call(`_bvhar_compute_logml`, dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape)
+log_mgammafn <- function(x, p) {
+    .Call(`_bvhar_log_mgammafn`, x, p)
 }
 
 #' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
