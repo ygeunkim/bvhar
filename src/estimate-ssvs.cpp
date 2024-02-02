@@ -1,5 +1,5 @@
-#include <mcmcssvs.h>
-#include <bvharinterrupt.h>
+#include "mcmcssvs.h"
+#include "bvharinterrupt.h"
 
 //' BVAR(p) SSVS by Gibbs Sampler
 //' 

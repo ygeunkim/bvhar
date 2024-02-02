@@ -1215,8 +1215,9 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 #' @param x Double, non-negative argument
 #' @param p Integer, dimension
 #' @noRd
-#' [[Rcpp::export]]
-NULL
+log_mgammafn <- function(x, p) {
+    .Call(`_bvhar_log_mgammafn`, x, p)
+}
 
 #' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
 #' 

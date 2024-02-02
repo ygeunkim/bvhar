@@ -1,5 +1,5 @@
 #include <Rcpp.h>
-#include <bvharomp.h>
+#include "bvharomp.h"
 
 // [[Rcpp::export]]
 int get_maxomp() {
