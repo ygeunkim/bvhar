@@ -1,6 +1,6 @@
-#include <bvhardraw.h>
-#include <bvharprogress.h>
-#include <bvharinterrupt.h>
+#include "bvhardraw.h"
+#include "bvharprogress.h"
+#include "bvharinterrupt.h"
 
 //' Log of Joint Posterior Density of Hyperparameters
 //' 
@@ -26,13 +26,13 @@ double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int 
                             Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape,
                             Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,
                             int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl) {
-  double res = compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);
+  double res = bvhar::compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);
   res += -dim * num_design / 2.0 * log(M_PI) +
-    log_mgammafn((prior_shape + num_design) / 2.0, dim) -
-    log_mgammafn(prior_shape / 2.0, dim); // constant term
+    bvhar::lmgammafn((prior_shape + num_design) / 2.0, dim) -
+    bvhar::lmgammafn(prior_shape / 2.0, dim); // constant term
   res += bvhar::gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, true); // gamma distribution
   for (int i = 0; i < cand_invgam.size(); i++) {
-    res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
+    res += bvhar::invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, true); // inverse gamma distribution
   }
   return res;
 }

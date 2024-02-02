@@ -1,4 +1,4 @@
-#include <minnesota.h>
+#include "minnesota.h"
 
 //' BVAR(p) Point Estimates based on Minnesota Prior
 //' 
