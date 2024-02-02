@@ -67,6 +67,57 @@ inline double gamma_dens(double x, double shp, double scl, bool lg) {
 	return Rf_dgamma(x, shp, scl, lg);
 }
 
+// Log of Multivariate Gamma Function
+// 
+// Compute log of multivariate gamma function numerically
+// 
+// @param x Double, non-negative argument
+// @param p Integer, dimension
+inline double lmgammafn(double x, int p) {
+  // if (p < 1) {
+  //   Rcpp::stop("'p' should be larger than or same as 1.");
+  // }
+  // if (x <= 0) {
+  //   Rcpp::stop("'x' should be larger than 0.");
+  // }
+  if (p == 1) {
+    return lgammafn(x);
+  }
+  // if (2 * x < p) {
+  //   Rcpp::stop("'x / 2' should be larger than 'p'.");
+  // }
+  double res = p * (p - 1) / 4.0 * log(M_PI);
+  for (int i = 0; i < p; i++) {
+    res += lgammafn(x - i / 2.0);
+  }
+  return res;
+}
+
+// Density of Inverse Gamma Distribution
+// 
+// Compute the pdf of Inverse Gamma distribution
+// 
+// @param x non-negative argument
+// @param shp Shape of the distribution
+// @param scl Scale of the distribution
+// @param lg If true, return log(f)
+inline double invgamma_dens(double x, double shp, double scl, bool lg) {
+  if (x < 0 ) {
+    Rcpp::stop("'x' should be larger than 0.");
+  }
+  if (shp <= 0 ) {
+    Rcpp::stop("'shp' should be larger than 0.");
+  }
+  if (scl <= 0 ) {
+    Rcpp::stop("'scl' should be larger than 0.");
+  }
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
+  if (lg) {
+    return log(res);
+  }
+  return res;
+}
+
 // RNG----------------------------------------
 inline double bindom_rand(int n, double prob) {
 	return Rf_rbinom(n, prob);

@@ -1,5 +1,5 @@
-#include <bvharomp.h>
-#include <bvhardraw.h>
+#include "bvharomp.h"
+#include "bvhardraw.h"
 
 //' Forecasting BVAR(p)
 //' 
@@ -324,7 +324,7 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
       sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
     ); // h_T+1 = h_T + u_T
     tvp_lvol.diagonal() = 1 / sv_update.array().exp(); // Dt = diag(exp(h_t))
-    contem_mat = build_inv_lower(dim, a_record.row(b));
+    contem_mat = bvhar::build_inv_lower(dim, a_record.row(b));
     tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
     predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(
       1,
@@ -355,7 +355,7 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
         sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
       );
       tvp_lvol.diagonal() = 1 / sv_update.array();
-      contem_mat = build_inv_lower(dim, a_record.row(b));
+      contem_mat = bvhar::build_inv_lower(dim, a_record.row(b));
       tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat;
       predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(
         1,
