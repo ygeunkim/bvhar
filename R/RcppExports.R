@@ -86,8 +86,8 @@ scale_har <- function(dim, week, month, include_mean) {
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly, include_mean) {
-    .Call(`_bvhar_build_ydummy`, p, sigma, lambda, daily, weekly, monthly, include_mean)
+build_ydummy_export <- function(p, sigma, lambda, daily, weekly, monthly, include_mean) {
+    .Call(`_bvhar_build_ydummy_export`, p, sigma, lambda, daily, weekly, monthly, include_mean)
 }
 
 #' Construct Dummy design matrix for Minnesota Prior
@@ -108,8 +108,8 @@ build_ydummy <- function(p, sigma, lambda, daily, weekly, monthly, include_mean)
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1). [https://doi:10.1002/jae.1137](https://doi:10.1002/jae.1137)
 #' 
 #' @noRd
-build_xdummy <- function(lag_seq, lambda, sigma, eps, include_mean) {
-    .Call(`_bvhar_build_xdummy`, lag_seq, lambda, sigma, eps, include_mean)
+build_xdummy_export <- function(lag_seq, lambda, sigma, eps, include_mean) {
+    .Call(`_bvhar_build_xdummy_export`, lag_seq, lambda, sigma, eps, include_mean)
 }
 
 #' Parameters of Normal Inverted Wishart Prior

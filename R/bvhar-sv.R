@@ -184,10 +184,6 @@ bvhar_sv <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    # sigma <- bayes_spec$sigma
-    # lambda <- bayes_spec$lambda
-    # eps <- bayes_spec$eps
-    # # Minnesota-moment--------------------------------------
     if (minnesota_type == "MN_VAR") {
       if (is.null(bayes_spec$delta)) {
         bayes_spec$delta <- rep(1, dim_data)
@@ -203,55 +199,7 @@ bvhar_sv <- function(y,
         bayes_spec$monthly <- rep(1, dim_data)
       }
     }
-    # Yh <- switch(minnesota_type,
-    #   "MN_VAR" = {
-    #     if (is.null(bayes_spec$delta)) {
-    #       bayes_spec$delta <- rep(1, dim_data)
-    #     }
-    #     Yh <- build_ydummy(
-    #       3,
-    #       sigma,
-    #       lambda,
-    #       bayes_spec$delta,
-    #       numeric(dim_data),
-    #       numeric(dim_data),
-    #       # include_mean
-    #       FALSE
-    #     )
-    #     colnames(Yh) <- name_var
-    #     Yh
-    #   },
-    #   "MN_VHAR" = {
-    #     if (is.null(bayes_spec$daily)) {
-    #       bayes_spec$daily <- rep(1, dim_data)
-    #     }
-    #     if (is.null(bayes_spec$weekly)) {
-    #       bayes_spec$weekly <- rep(1, dim_data)
-    #     }
-    #     if (is.null(bayes_spec$monthly)) {
-    #       bayes_spec$monthly <- rep(1, dim_data)
-    #     }
-    #     Yh <- build_ydummy(
-    #       3,
-    #       sigma,
-    #       lambda,
-    #       bayes_spec$daily,
-    #       bayes_spec$weekly,
-    #       bayes_spec$monthly,
-    #       # include_mean
-    #       FALSE
-    #     )
-    #     colnames(Yh) <- name_var
-    #     Yh
-    #   }
-    # ) # d*dim+dim x dim
-    # Xh <- build_xdummy(1:3, lambda, sigma, eps, FALSE) # 3*dim+dim x 3*dim
-    # colnames(Xh) <- concatenate_colnames(name_var, c("day", "week", "month"), FALSE)
-    # mn_prior <- minnesota_prior(Xh, Yh)
-    # prior_mean <- mn_prior$prior_mean # 3*dim x dim
-    # prior_prec <- mn_prior$prior_prec # 3*dim x 3*dim
-    # param_prior <- append(mn_prior, list(sigma = diag(1 / sigma))) # sigma: num_phi x num_phi
-    param_prior <- append(bayes_spec, list(p = 3)) # sigma: num_phi x num_phi
+    param_prior <- append(bayes_spec, list(p = 3))
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L

@@ -70,7 +70,7 @@ struct MinnParams : public SvParams {
 		_prior_prec = dummy_design.transpose() * dummy_design;
 		_prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
 		_prec_diag = Eigen::MatrixXd::Zero(dim, dim);
-		_prec_diag.diagonal() = _sigma;
+		_prec_diag.diagonal() = 1 / _sigma.array();
 	}
 };
 

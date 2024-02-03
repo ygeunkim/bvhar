@@ -142,22 +142,9 @@ bvar_sv <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    # sigma <- bayes_spec$sigma
     if (is.null(bayes_spec$delta)) {
       bayes_spec$delta <- rep(1, dim_data)
     }
-    # delta <- bayes_spec$delta
-    # lambda <- bayes_spec$lambda
-    # eps <- bayes_spec$eps
-    # # Minnesota-moment--------------------------------------
-    # Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), FALSE)
-    # colnames(Yp) <- name_var
-    # Xp <- build_xdummy(1:p, lambda, sigma, eps, FALSE)
-    # colnames(Xp) <- concatenate_colnames(name_var, 1:p, FALSE)
-    # mn_prior <- minnesota_prior(Xp, Yp)
-    # prior_mean <- mn_prior$prior_mean
-    # prior_prec <- mn_prior$prior_prec
-    # # param_prior <- append(mn_prior, list(sigma = diag(1 / sigma)))
     param_prior <- append(bayes_spec, list(p = p))
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L

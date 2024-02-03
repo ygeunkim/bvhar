@@ -129,22 +129,8 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean) {
-  int dim = sigma.size();
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * p + dim + 1, dim); // Yp
-  // first block------------------------
-  res.block(0, 0, dim, dim).diagonal() = daily.array() * sigma.array(); // deltai * sigma or di * sigma
-  if (p > 1) {
-    // avoid error when p = 1
-    res.block(dim, 0, dim, dim).diagonal() = weekly.array() * sigma.array(); // wi * sigma
-    res.block(2 * dim, 0, dim, dim).diagonal() = monthly.array() * sigma.array(); // mi * sigma
-  }
-  // second block-----------------------
-  res.block(dim * p, 0, dim, dim).diagonal() = sigma;
-  if (include_mean) {
-    return res;
-  }
-  return res.topRows(dim * p + dim);
+Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean) {
+	return bvhar::build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean);
 }
 
 //' Construct Dummy design matrix for Minnesota Prior
@@ -166,22 +152,8 @@ Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen:
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
-  int dim = sigma.size();
-  int var_lag = lag_seq.size();
-  Eigen::MatrixXd Sig = Eigen::MatrixXd::Zero(dim, dim);
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * var_lag + dim + 1, dim * var_lag + 1);
-  // first block------------------
-  Eigen::MatrixXd Jp = Eigen::MatrixXd::Zero(var_lag, var_lag);
-  Jp.diagonal() = lag_seq;
-  Sig.diagonal() = sigma / lambda;
-  res.block(0, 0, dim * var_lag, dim * var_lag) = Eigen::kroneckerProduct(Jp, Sig);
-  // third block------------------
-  res(dim * var_lag + dim, dim * var_lag) = eps;
-  if (include_mean) {
-    return res;
-  }
-  return res.block(0, 0, dim * var_lag + dim, dim * var_lag);
+Eigen::MatrixXd build_xdummy_export(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
+	return bvhar::build_xdummy(lag_seq, lambda, sigma, eps, include_mean);
 }
 
 //' Parameters of Normal Inverted Wishart Prior
