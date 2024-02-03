@@ -151,13 +151,13 @@ inline Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_d
 inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd,
 											Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols,
 											Eigen::MatrixXd& chol_factor, boost::random::mt19937& rng) {
-  int num_coef = prior_sd.size();
-  Eigen::MatrixXd scaled_xtx = kronecker_eigen(chol_factor * chol_factor.transpose(), XtX); // Sigma^(-1) = chol * chol^T
+	int num_coef = prior_sd.size();
+  Eigen::MatrixXd scaled_xtx = kronecker_eigen((chol_factor * chol_factor.transpose()).eval(), XtX); // Sigma^(-1) = chol * chol^T
   Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
   prior_prec.diagonal() = 1 / prior_sd.array().square();
   // Eigen::MatrixXd normal_variance = (scaled_xtx + prior_prec).llt().solve(Eigen::MatrixXd::Identity(num_coef, num_coef)); // Delta
-	// Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
-	// coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance));
+  // Eigen::VectorXd normal_mean = normal_variance * (scaled_xtx * coef_ols + prior_prec * prior_mean); // mu
+  // coef = vectorize_eigen(sim_mgaussian_chol(1, normal_mean, normal_variance, rng));
 	Eigen::VectorXd standard_normal(num_coef);
 	for (int i = 0; i < num_coef; i++) {
 		standard_normal[i] = normal_rand(rng);

@@ -29,6 +29,7 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> u
 template<typename Derived1, typename Derived2>
 inline Eigen::Matrix<typename Derived1::Scalar, Derived1::RowsAtCompileTime, Derived2::ColsAtCompileTime> 
 kronecker_eigen(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& y) {
+	// should use x.eval() when x is expression such as block or transpose.
   return Eigen::kroneckerProduct(x, y).eval();
 }
 

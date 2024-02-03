@@ -75,7 +75,6 @@
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom foreach foreach getDoParRegistered
 #' @order 1
 #' @export
 bvhar_ssvs <- function(y, 
@@ -225,10 +224,15 @@ bvhar_ssvs <- function(y,
     init_gibbs <- TRUE
   } else {
     init_coef <- 1L
+    # init_coef <- runif(num_restrict, -1, 1)
     init_coef_dummy <- 1L
+    # init_coef_dummy <- rbinom(num_restrict, 1, .5) # minnesota structure?
     init_chol_diag <- 1L
+    # init_chol_diag <- exp(runif(dim_data, -1, 1))
     init_chol_upper <- 1L
+    # init_chol_upper <- exp(runif(num_eta, -1, 0))
     init_chol_dummy <- 1L
+    # init_chol_dummy <- rbinom(num_eta, 1, .5)
     init_gibbs <- FALSE
   }
   # MCMC-----------------------------

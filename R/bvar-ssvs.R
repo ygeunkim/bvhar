@@ -74,7 +74,6 @@
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom foreach foreach getDoParRegistered
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
