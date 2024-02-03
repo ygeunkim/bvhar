@@ -20,8 +20,8 @@
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' 
 #' @noRd
-build_y0 <- function(y, var_lag, index) {
-    .Call(`_bvhar_build_y0`, y, var_lag, index)
+build_response <- function(y, var_lag, index) {
+    .Call(`_bvhar_build_response`, y, var_lag, index)
 }
 
 #' Build Design Matrix of VAR(p)

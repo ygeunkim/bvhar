@@ -56,7 +56,7 @@ bvar_sv <- function(y,
   }
   dim_data <- ncol(y)
   # Y0 = X0 B + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {

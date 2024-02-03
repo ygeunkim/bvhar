@@ -116,7 +116,7 @@ bvhar_ssvs <- function(y,
   }
   dim_data <- ncol(y) # k
   # dim_har <- 3 * dim_data + 1
-  Y0 <- build_y0(y, har[2], har[2] + 1) # n x k
+  Y0 <- build_response(y, har[2], har[2] + 1) # n x k
   num_design <- nrow(Y0) # n
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)

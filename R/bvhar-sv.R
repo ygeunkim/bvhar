@@ -100,7 +100,7 @@ bvhar_sv <- function(y,
   num_phi <- 3 * dim_data^2
   num_eta <- dim_data * (dim_data - 1) / 2
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, month, month + 1)
+  Y0 <- build_response(y, month, month + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {

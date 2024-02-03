@@ -186,7 +186,7 @@ bvar_niwhm <- function(y,
   lambda <- bayes_spec$lambda$mode
   eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
