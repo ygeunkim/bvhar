@@ -410,7 +410,7 @@ public:
 			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
@@ -497,7 +497,7 @@ public:
 			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
@@ -602,7 +602,7 @@ public:
 			Rcpp::Named("kappa_record") = hs_record.shrink_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);

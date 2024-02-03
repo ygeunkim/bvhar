@@ -271,7 +271,7 @@ bvar_sv <- function(y,
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   if (include_mean) {
-    res$coefficients <- rbind(res$coefficients, colMeans(res$alpha0_record))
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)

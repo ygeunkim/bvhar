@@ -348,7 +348,7 @@ bvhar_sv <- function(y,
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   if (include_mean) {
-    res$coefficients <- rbind(res$coefficients, colMeans(res$phi0_record))
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
