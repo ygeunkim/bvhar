@@ -5,7 +5,7 @@
 
 namespace bvhar {
 
-inline Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index) {
+inline Eigen::MatrixXd build_y0(const Eigen::MatrixXd& y, int var_lag, int index) {
   int num_design = y.rows() - var_lag; // s = n - p
   int dim = y.cols(); // m: dimension of the multivariate time series
   Eigen::MatrixXd res(num_design, dim); // Yj (or Y0)
@@ -15,7 +15,7 @@ inline Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index) {
   return res;
 }
 
-inline Eigen::MatrixXd build_x0(Eigen::MatrixXd y, int var_lag, bool include_mean) {
+inline Eigen::MatrixXd build_x0(const Eigen::MatrixXd& y, int var_lag, bool include_mean) {
   int num_design = y.rows() - var_lag; // s = n - p
   int dim = y.cols(); // m: dimension of the multivariate time series
   int dim_design = dim * var_lag + 1; // k = mp + 1
@@ -58,7 +58,7 @@ inline Eigen::MatrixXd build_vhar(int dim, int week, int month, bool include_mea
 }
 
 inline Eigen::MatrixXd build_ydummy(int p, const Eigen::VectorXd& sigma, double lambda,
-																		const Eigen::VectorXd& daily, const Eigen::VectorXd weekly, const Eigen::VectorXd& monthly,
+																		const Eigen::VectorXd& daily, const Eigen::VectorXd& weekly, const Eigen::VectorXd& monthly,
 																		bool include_mean) {
   int dim = sigma.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * p + dim + 1, dim); // Yp
@@ -77,7 +77,9 @@ inline Eigen::MatrixXd build_ydummy(int p, const Eigen::VectorXd& sigma, double 
   return res.topRows(dim * p + dim);
 }
 
-inline Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
+inline Eigen::MatrixXd build_xdummy(const Eigen::VectorXd& lag_seq,
+																		double lambda, const Eigen::VectorXd& sigma,
+																		double eps, bool include_mean) {
   int dim = sigma.size();
   int var_lag = lag_seq.size();
   Eigen::MatrixXd Sig = Eigen::MatrixXd::Zero(dim, dim);

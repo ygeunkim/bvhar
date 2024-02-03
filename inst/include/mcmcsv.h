@@ -413,7 +413,7 @@ public:
 			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -500,7 +500,7 @@ public:
 			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -605,7 +605,7 @@ public:
 			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}

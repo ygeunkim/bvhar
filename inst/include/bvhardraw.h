@@ -424,32 +424,19 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
   }
 }
 
-inline Eigen::MatrixXd thin_record(const Eigen::MatrixXd& record, int num_iter, int num_burn, int thin) {
-	if (thin == 1) {
-		return record.bottomRows(num_iter - num_burn);
-	}
-	ColMajorMatrixXd col_record(record.bottomRows(num_iter - num_burn));
-	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
-	Eigen::Map<const ColMajorMatrixXd, 0, Eigen::InnerStride<>> res(
+template<typename Derived>
+inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options> thin_record(const Eigen::MatrixBase<Derived>& record, int num_iter, int num_burn, int thin) {
+  if (thin == 1) {
+    return record.bottomRows(num_iter - num_burn);
+  }
+  Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options> col_record(record.bottomRows(num_iter - num_burn));
+  int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
+  Eigen::Map<const Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options>, 0, Eigen::InnerStride<>> res(
     col_record.data(),
     num_res, record.cols(),
     Eigen::InnerStride<>(thin * col_record.innerStride())
   );
-	return res;
-}
-
-inline Eigen::VectorXd thin_vec_record(const Eigen::VectorXd& record, int num_iter, int num_burn, int thin) {
-	if (thin == 1) {
-		return record.tail(num_iter - num_burn);
-	}
-	Eigen::VectorXd col_record(record.tail(num_iter - num_burn));
-	int num_res = (num_iter - num_burn + thin - 1) / thin; // nrow after thinning
-	Eigen::Map<const Eigen::VectorXd, 0, Eigen::InnerStride<>> res(
-    col_record.data(),
-    num_res,
-		Eigen::InnerStride<>(thin * col_record.innerStride())
-  );
-	return res;
+  return res;
 }
 
 } // namespace bvhar
