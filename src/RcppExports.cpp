@@ -11,16 +11,16 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// build_y0
-Eigen::MatrixXd build_y0(Eigen::MatrixXd y, int var_lag, int index);
-RcppExport SEXP _bvhar_build_y0(SEXP ySEXP, SEXP var_lagSEXP, SEXP indexSEXP) {
+// build_response
+Eigen::MatrixXd build_response(Eigen::MatrixXd y, int var_lag, int index);
+RcppExport SEXP _bvhar_build_response(SEXP ySEXP, SEXP var_lagSEXP, SEXP indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
     Rcpp::traits::input_parameter< int >::type index(indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_y0(y, var_lag, index));
+    rcpp_result_gen = Rcpp::wrap(build_response(y, var_lag, index));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -51,9 +51,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// build_ydummy
-Eigen::MatrixXd build_ydummy(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean);
-RcppExport SEXP _bvhar_build_ydummy(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP, SEXP include_meanSEXP) {
+// build_ydummy_export
+Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean);
+RcppExport SEXP _bvhar_build_ydummy_export(SEXP pSEXP, SEXP sigmaSEXP, SEXP lambdaSEXP, SEXP dailySEXP, SEXP weeklySEXP, SEXP monthlySEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,13 +64,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type weekly(weeklySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type monthly(monthlySEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean));
+    rcpp_result_gen = Rcpp::wrap(build_ydummy_export(p, sigma, lambda, daily, weekly, monthly, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
-// build_xdummy
-Eigen::MatrixXd build_xdummy(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean);
-RcppExport SEXP _bvhar_build_xdummy(SEXP lag_seqSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP, SEXP include_meanSEXP) {
+// build_xdummy_export
+Eigen::MatrixXd build_xdummy_export(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean);
+RcppExport SEXP _bvhar_build_xdummy_export(SEXP lag_seqSEXP, SEXP lambdaSEXP, SEXP sigmaSEXP, SEXP epsSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -79,7 +79,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_xdummy(lag_seq, lambda, sigma, eps, include_mean));
+    rcpp_result_gen = Rcpp::wrap(build_xdummy_export(lag_seq, lambda, sigma, eps, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1171,11 +1171,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bvhar_build_y0", (DL_FUNC) &_bvhar_build_y0, 3},
+    {"_bvhar_build_response", (DL_FUNC) &_bvhar_build_response, 3},
     {"_bvhar_build_design", (DL_FUNC) &_bvhar_build_design, 3},
     {"_bvhar_scale_har", (DL_FUNC) &_bvhar_scale_har, 4},
-    {"_bvhar_build_ydummy", (DL_FUNC) &_bvhar_build_ydummy, 7},
-    {"_bvhar_build_xdummy", (DL_FUNC) &_bvhar_build_xdummy, 5},
+    {"_bvhar_build_ydummy_export", (DL_FUNC) &_bvhar_build_ydummy_export, 7},
+    {"_bvhar_build_xdummy_export", (DL_FUNC) &_bvhar_build_xdummy_export, 5},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
     {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
