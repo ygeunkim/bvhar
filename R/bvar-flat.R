@@ -64,7 +64,7 @@ bvar_flat <- function(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE) {
     stop("'bayes_spec' must be the result of 'set_bvar_flat()'.")
   }
   # Y0 = X0 B + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   m <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)

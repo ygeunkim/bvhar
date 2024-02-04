@@ -74,7 +74,6 @@
 #' * Vectorization formulation [var_vec_formulation]
 #' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
-#' @importFrom foreach foreach getDoParRegistered
 #' @order 1
 #' @export
 bvar_ssvs <- function(y, 
@@ -114,7 +113,7 @@ bvar_ssvs <- function(y,
   }
   # Y0 = X0 A + Z---------------------
   dim_data <- ncol(y) # k
-  Y0 <- build_y0(y, p, p + 1) # n x k
+  Y0 <- build_response(y, p, p + 1) # n x k
   num_design <- nrow(Y0) # n
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)

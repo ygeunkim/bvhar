@@ -85,7 +85,7 @@ public:
 	OlsVar(const Eigen::MatrixXd& y, int lag, const bool include_mean, int method)
 	: lag(lag), const_term(include_mean), data(y) {
 		response = build_y0(data, lag, lag + 1);
-		design = build_design(data, lag, const_term);
+		design = build_x0(data, lag, const_term);
 		switch (method) {
 		case 1:
 			_ols = std::unique_ptr<MultiOls>(new MultiOls(design, response));
@@ -123,8 +123,8 @@ public:
 	OlsVhar(const Eigen::MatrixXd& y, int week, int month, const bool include_mean, int method)
 	: week(week), month(month), const_term(include_mean), data(y) {
 		response = build_y0(data, month, month + 1);
-		har_trans = scale_har(response.cols(), week, month, const_term);
-		var_design = build_design(data, month, const_term);
+		har_trans = bvhar::build_vhar(response.cols(), week, month, const_term);
+		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		switch (method) {
 		case 1:
