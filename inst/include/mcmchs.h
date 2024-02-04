@@ -88,13 +88,21 @@ public:
 		updateRecords();
 	}
 	Rcpp::List returnRecords(int num_burn, int thin) const {
-		return Rcpp::List::create(
-			Rcpp::Named("alpha_record") = thin_record(coef_record, num_iter, num_burn, thin),
-			Rcpp::Named("lambda_record") = thin_record(local_record, num_iter, num_burn, thin),
-			Rcpp::Named("tau_record") = thin_record(global_record, num_iter, num_burn, thin),
-			Rcpp::Named("sigma_record") = thin_vec_record(sig_record, num_iter, num_burn, thin),
-			Rcpp::Named("kappa_record") = thin_record(shrink_record, num_iter, num_burn, thin)
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = coef_record,
+			Rcpp::Named("lambda_record") = local_record,
+			Rcpp::Named("tau_record") = global_record,
+			Rcpp::Named("sigma_record") = sig_record,
+			Rcpp::Named("kappa_record") = shrink_record
 		);
+		for (auto& record : res) {
+			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
+				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			} else {
+				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+			}
+		}
+		return res;
 	}
 protected:
 	int num_iter;

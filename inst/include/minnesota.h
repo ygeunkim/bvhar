@@ -126,7 +126,7 @@ public:
 	: lag(lag), const_term(include_mean),
 		data(y), dim(data.cols()) {
 		response = build_y0(data, lag, lag + 1);
-		design = build_design(data, lag, const_term);
+		design = build_x0(data, lag, const_term);
 		dummy_response = build_ydummy(
 			lag, spec._sigma,
 			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
@@ -165,8 +165,8 @@ public:
 	: week(week), month(month), const_term(include_mean),
 		data(y), dim(data.cols()) {
 		response = build_y0(data, month, month + 1);
-		har_trans = scale_har(dim, week, month, const_term);
-		var_design = build_design(data, month, const_term);
+		har_trans = bvhar::build_vhar(dim, week, month, const_term);
+		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		dummy_design = build_xdummy(
 			Eigen::VectorXd::LinSpaced(3, 1, 3),

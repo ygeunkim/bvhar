@@ -186,7 +186,7 @@ bvar_niwhm <- function(y,
   lambda <- bayes_spec$lambda$mode
   eps <- bayes_spec$eps
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -236,9 +236,9 @@ bvar_niwhm <- function(y,
   psi <- init_par$par[2:(1 + dim_data)]
   hess <- init_par$hessian
   # dummy-----------------------------
-  Yp <- build_ydummy(p, psi, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
+  Yp <- build_ydummy_export(p, psi, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
   colnames(Yp) <- name_var
-  Xp <- build_xdummy(1:p, lambda, psi, eps, include_mean)
+  Xp <- build_xdummy_export(1:p, lambda, psi, eps, include_mean)
   colnames(Xp) <- name_lag
   # NIW-------------------------------
   posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)

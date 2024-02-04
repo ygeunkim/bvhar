@@ -100,7 +100,7 @@ bvhar_sv <- function(y,
   num_phi <- 3 * dim_data^2
   num_eta <- dim_data * (dim_data - 1) / 2
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, month, month + 1)
+  Y0 <- build_response(y, month, month + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -184,75 +184,25 @@ bvhar_sv <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    sigma <- bayes_spec$sigma
-    lambda <- bayes_spec$lambda
-    eps <- bayes_spec$eps
-    # Minnesota-moment--------------------------------------
-    Yh <- switch(minnesota_type,
-      "MN_VAR" = {
-        if (is.null(bayes_spec$delta)) {
-          bayes_spec$delta <- rep(1, dim_data)
-        }
-        Yh <- build_ydummy(
-          3,
-          sigma,
-          lambda,
-          bayes_spec$delta,
-          numeric(dim_data),
-          numeric(dim_data),
-          # include_mean
-          FALSE
-        )
-        colnames(Yh) <- name_var
-        Yh
-      },
-      "MN_VHAR" = {
-        if (is.null(bayes_spec$daily)) {
-          bayes_spec$daily <- rep(1, dim_data)
-        }
-        if (is.null(bayes_spec$weekly)) {
-          bayes_spec$weekly <- rep(1, dim_data)
-        }
-        if (is.null(bayes_spec$monthly)) {
-          bayes_spec$monthly <- rep(1, dim_data)
-        }
-        Yh <- build_ydummy(
-          3,
-          sigma,
-          lambda,
-          bayes_spec$daily,
-          bayes_spec$weekly,
-          bayes_spec$monthly,
-          # include_mean
-          FALSE
-        )
-        colnames(Yh) <- name_var
-        Yh
+    if (minnesota_type == "MN_VAR") {
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(1, dim_data)
       }
-    ) # d*dim+dim x dim
-    # Xh <- build_xdummy(1:3, lambda, sigma, eps, include_mean)
-    Xh <- build_xdummy(1:3, lambda, sigma, eps, FALSE) # 3*dim+dim x 3*dim
-    # colnames(Xh) <- name_har
-    colnames(Xh) <- concatenate_colnames(name_var, c("day", "week", "month"), FALSE)
-    mn_prior <- minnesota_prior(Xh, Yh)
-    prior_mean <- mn_prior$prior_mean # 3*dim x dim
-    prior_prec <- mn_prior$prior_prec # 3*dim x 3*dim
-    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma))) # sigma: num_phi x num_phi
-    # glob_idmat <- matrix(0L, nrow = dim_har, ncol = dim_data)
-    # grp_id <- 1
+    } else {
+      if (is.null(bayes_spec$daily)) {
+        bayes_spec$daily <- rep(1, dim_data)
+      }
+      if (is.null(bayes_spec$weekly)) {
+        bayes_spec$weekly <- rep(1, dim_data)
+      }
+      if (is.null(bayes_spec$monthly)) {
+        bayes_spec$monthly <- rep(1, dim_data)
+      }
+    }
+    param_prior <- append(bayes_spec, list(p = 3))
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L
-    # glob_idmat <- build_grpmat(
-    #   p = 3,
-    #   dim_data = dim_data,
-    #   dim_design = num_phi / dim_data,
-    #   num_coef = num_phi,
-    #   minnesota = minnesota,
-    #   include_mean = FALSE
-    # )
-    # grp_id <- unique(c(glob_idmat))
-    # num_grp <- length(grp_id)
     if (length(bayes_spec$coef_spike) == 1) {
       bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
     }
@@ -327,12 +277,6 @@ bvhar_sv <- function(y,
       }
     )
   } else {
-    # num_restrict <- ifelse(
-    #   include_mean,
-    #   num_phi + dim_data,
-    #   num_phi
-    # )
-    # num_restrict <- num_phi
     if (length(bayes_spec$local_sparsity) != num_phi) { # -> change other files too: dim_har (dim_design) to num_restrict
       if (length(bayes_spec$local_sparsity) == 1) {
         bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_phi)
@@ -340,24 +284,6 @@ bvhar_sv <- function(y,
         stop("Length of the vector 'local_sparsity' should be dim^2 * 3 or dim^2 * 3 + 1.")
       }
     }
-    # glob_idmat <- build_grpmat(
-    #   p = 3,
-    #   dim_data = dim_data,
-    #   dim_design = dim_har,
-    #   num_coef = num_restrict,
-    #   minnesota = minnesota,
-    #   include_mean = include_mean
-    # )
-    # glob_idmat <- build_grpmat(
-    #   p = 3,
-    #   dim_data = dim_data,
-    #   dim_design = num_phi / dim_data,
-    #   num_coef = num_phi,
-    #   minnesota = minnesota,
-    #   include_mean = FALSE
-    # )
-    # grp_id <- unique(c(glob_idmat))
-    # num_grp <- length(grp_id)
     bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
     param_prior <- list()
     param_init <- lapply(
@@ -422,7 +348,7 @@ bvhar_sv <- function(y,
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
   if (include_mean) {
-    res$coefficients <- rbind(res$coefficients, colMeans(res$phi0_record))
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -490,10 +416,10 @@ bvhar_sv <- function(y,
     res$group <- glob_idmat
     res$num_group <- length(grp_id)
   }
-  if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
-    res$prior_mean <- prior_mean
-    res$prior_prec <- prior_prec
-  }
+  # if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
+  #   res$prior_mean <- prior_mean
+  #   res$prior_prec <- prior_prec
+  # }
   # variables------------
   res$df <- dim_har
   res$p <- 3
