@@ -64,8 +64,8 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
   eps <- bayes_spec$eps
   dim_data <- length(sigma)
   # dummy-----------------------------
-  Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), FALSE)
-  Xp <- build_xdummy(1:p, lambda, sigma, eps, FALSE)
+  Yp <- build_ydummy_export(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), FALSE)
+  Xp <- build_xdummy_export(1:p, lambda, sigma, eps, FALSE)
   # prior-----------------------------
   prior <- minnesota_prior(Xp, Yp)
   mn_mean <- prior$prior_mean
@@ -161,7 +161,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       if (is.null(bayes_spec$delta)) {
         stop("'delta' in 'set_bvhar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data), FALSE)
+      Yh <- build_ydummy_export(3, sigma, lambda, bayes_spec$delta, numeric(dim_data), numeric(dim_data), FALSE)
       Yh
     },
     "MN_VHAR" = {
@@ -174,7 +174,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       if (is.null(bayes_spec$monthly)) {
         stop("'monthly' in 'set_weight_bvhar()' should be specified. (It is NULL.)")
       }
-      Yh <- build_ydummy(
+      Yh <- build_ydummy_export(
         3,
         sigma, 
         lambda, 
@@ -186,7 +186,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       Yh
     }
   )
-  Xh <- build_xdummy(1:3, lambda, sigma, eps, FALSE)
+  Xh <- build_xdummy_export(1:3, lambda, sigma, eps, FALSE)
   # prior-----------------------------
   prior <- minnesota_prior(Xh, Yh)
   mn_mean <- prior$prior_mean

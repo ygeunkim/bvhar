@@ -82,9 +82,9 @@ public:
 		coef_record.row(0) = coef_draw;
 		coef_dummy_record.row(0) = coef_dummy;
 		chol_diag_record.row(0) = chol_diag;
-		chol_upper_record.row(0) = chol_diag;
+		chol_upper_record.row(0) = chol_coef;
 		chol_dummy_record.row(0) = chol_dummy;
-		chol_factor_record.row(0) = vectorize_eigen(chol_ols);
+		chol_factor_record.row(0) = vectorize_eigen(chol_factor);
 	}
 	virtual ~McmcSsvs() = default;
 	void addStep() { mcmc_step++; }
