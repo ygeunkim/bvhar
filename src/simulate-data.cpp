@@ -148,7 +148,7 @@ Eigen::MatrixXd sim_vhar_eigen(int num_sim,
     include_mean = false;
   } // 22m (none)
   int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = scale_har(dim, week, month, include_mean).block(0, 0, num_har, dim_har);
+  Eigen::MatrixXd hartrans_mat = bvhar::build_vhar(dim, week, month, include_mean).block(0, 0, num_har, dim_har);
   Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
   obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
   for (int i = 0; i < month; i++) {
@@ -222,7 +222,7 @@ Eigen::MatrixXd sim_vhar_chol(int num_sim,
     include_mean = false;
   } // 22m (none)
   int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = scale_har(dim, week, month, include_mean).block(0, 0, num_har, dim_har);
+  Eigen::MatrixXd hartrans_mat = bvhar::build_vhar(dim, week, month, include_mean).block(0, 0, num_har, dim_har);
   Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
   obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
   for (int i = 0; i < month; i++) {

@@ -6,6 +6,10 @@
 
 * Prevent SSVS overflow issues by using log-sum-exp trick when computing Bernoulli posterior probability.
 
+* Add separate constant term prior specification (`intercept`) in `bvhar_sv()` and `bvar_sv()` (`set_intercept()`).
+
+* Convert every header file inst/include to header-only format. This enables external inclusion of our classes, structs, and Rcpp functions by using `LinkingTo` (in R package development) or `// [[Rcpp::depends(RcppEigen, BH, bvhar)]]`.
+
 ## Parallel Chain MCMC
 
 * Use OpenMP parallel for loop

@@ -1,6 +1,7 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
+#include "bvhardesign.h"
 #include "bvhardraw.h"
 #include "bvharprogress.h"
 
@@ -33,9 +34,9 @@ struct SvParams {
 };
 
 struct MinnParams : public SvParams {
+	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
-	Eigen::MatrixXd _prec_diag;
 
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -43,9 +44,34 @@ struct MinnParams : public SvParams {
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
-		_prior_mean(Rcpp::as<Eigen::MatrixXd>(priors["prior_mean"])),
-		_prior_prec(Rcpp::as<Eigen::MatrixXd>(priors["prior_prec"])),
-		_prec_diag(Rcpp::as<Eigen::MatrixXd>(priors["sigma"])) {}
+		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
+		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
+		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
+		double _lambda = priors["lambda"];
+		double _eps = priors["eps"];
+		int dim = _sigma.size();
+		Eigen::VectorXd _daily(dim);
+		Eigen::VectorXd _weekly(dim);
+		Eigen::VectorXd _monthly(dim);
+		if (priors.containsElementNamed("delta")) {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["delta"]);
+			_weekly.setZero();
+			_monthly.setZero();
+		} else {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["daily"]);
+			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
+		}
+		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, _lambda, _daily, _weekly, _monthly, false);
+		Eigen::MatrixXd dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			_lambda, _sigma, _eps, false
+		);
+		_prior_prec = dummy_design.transpose() * dummy_design;
+		_prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
+		_prec_diag = Eigen::MatrixXd::Zero(dim, dim);
+		_prec_diag.diagonal() = 1 / _sigma.array();
+	}
 };
 
 struct SsvsParams : public SvParams {
@@ -384,10 +410,10 @@ public:
 			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -471,10 +497,10 @@ public:
 			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -576,10 +602,10 @@ public:
 			Rcpp::Named("kappa_record") = hs_record.shrink_record
 		);
 		if (include_mean) {
-			res["alpha0_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(record, num_iter, num_burn, thin);
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
