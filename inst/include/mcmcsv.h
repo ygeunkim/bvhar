@@ -120,6 +120,55 @@ struct HorseshoeParams : public SvParams {
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
 };
 
+struct HierminnParams : public SvParams {
+	Eigen::VectorXd _sigma;
+	// double _lambda;
+	double _eps;
+	// Eigen::MatrixXd _prior_mean;
+	Eigen::VectorXd _daily;
+	Eigen::VectorXd _weekly;
+	Eigen::VectorXd _monthly;
+
+	HierminnParams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
+		bool include_mean
+	)
+	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		_sigma(Rcpp::as<Eigen::VectorXd>(priors["sigma"])),
+		_eps(priors["eps"]) {
+		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
+		// Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
+		// double _lambda = priors["lambda"];
+		// double _eps = priors["eps"];
+		int dim = _sigma.size();
+		// Eigen::VectorXd _daily(dim);
+		// Eigen::VectorXd _weekly(dim);
+		// Eigen::VectorXd _monthly(dim);
+		_daily = Eigen::VectorXd::Zero(dim);
+		_weekly = Eigen::VectorXd::Zero(dim);
+		_monthly = Eigen::VectorXd::Zero(dim);
+		if (priors.containsElementNamed("delta")) {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["delta"]);
+			_weekly.setZero();
+			_monthly.setZero();
+		} else {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["daily"]);
+			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
+		}
+		// Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, 1.0, _daily, _weekly, _monthly, false);
+		// Eigen::MatrixXd dummy_design = build_xdummy(
+		// 	Eigen::VectorXd::LinSpaced(lag, 1, lag),
+		// 	1.0, _sigma, _eps, false
+		// );
+		// Eigen::MatrixXd _prior_prec = dummy_design.transpose() * dummy_design;
+		// _prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
+		// _prec_diag = Eigen::MatrixXd::Zero(dim, dim);
+		// _prec_diag.diagonal() = 1 / _sigma.array();
+	}
+};
+
 struct SvInits {
 	Eigen::MatrixXd _coef;
 	Eigen::VectorXd _contem;
@@ -629,6 +678,68 @@ private:
 	Eigen::VectorXd contem_var;
 	Eigen::VectorXd latent_contem_local;
 	Eigen::VectorXd latent_contem_global;
+};
+
+class HierminnSv : public McmcSv {
+public:
+	HierminnSv(const HierminnParams& params, const SvInits& inits, unsigned int seed)
+		: McmcSv(params, inits, seed), sig_diag(params._sigma) {
+		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
+		// if (include_mean) {
+		// 	prior_alpha_mean.tail(dim) = params._mean_non;
+		// }
+	}
+	virtual ~HierminnSv() = default;
+	void updateCoefPrec() override {};
+	void updateCoefShrink() override {};
+	void updateImpactPrec() override {};
+	void updateRecords() override { sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init); }
+	void doPosteriorDraws() override {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateCoefPrec();
+		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+		updateCoef();
+		updateCoefShrink();
+		updateImpactPrec();
+		latent_innov = y - x * coef_mat; // E_t before a
+		updateImpact();
+		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+		updateState();
+		updateStateVar();
+		updateInitState();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const override {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			Rcpp::Named("h_record") = sv_record.lvol_record,
+			Rcpp::Named("a_record") = sv_record.contem_coef_record,
+			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record
+		);
+		if (include_mean) {
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
+		}
+		for (auto& record : res) {
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+		}
+		return res;
+	}
+private:
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXi grp_mat; // 1: cross-lag vs 2: own-lag
+	Eigen::VectorXi grp_vec;
+	double tight_own; // lambda for own-lag ~ Gamma(shape, rate)
+	double tight_cross; // lambda for cross-lag ~ Gamma(shape, rate)
+	Eigen::VectorXd sig_diag; // OLS for sigma to compute scale
+	double shape_own;
+	double rate_own;
+	double shape_cross;
+	double rate_cross;
+	Eigen::MatrixXd dummy_response;
+	Eigen::MatrixXd dummy_design;
 };
 
 } // namespace bvhar
