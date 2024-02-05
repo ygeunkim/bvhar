@@ -121,6 +121,8 @@ struct HorseshoeParams : public SvParams {
 };
 
 struct HierminnParams : public SvParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _sigma;
 	// double _lambda;
 	double _eps;
@@ -128,16 +130,20 @@ struct HierminnParams : public SvParams {
 	Eigen::VectorXd _daily;
 	Eigen::VectorXd _weekly;
 	Eigen::VectorXd _monthly;
+	int _lag;
 
 	HierminnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		_grp_id(grp_id), _grp_mat(grp_mat),
 		_sigma(Rcpp::as<Eigen::VectorXd>(priors["sigma"])),
 		_eps(priors["eps"]) {
-		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
+		// int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
+		_lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
 		// Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
 		// double _lambda = priors["lambda"];
 		// double _eps = priors["eps"];
@@ -683,17 +689,41 @@ private:
 class HierminnSv : public McmcSv {
 public:
 	HierminnSv(const HierminnParams& params, const SvInits& inits, unsigned int seed)
-		: McmcSv(params, inits, seed), sig_diag(params._sigma) {
+		: McmcSv(params, inits, seed),
+			lag(params._lag), grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(vectorize_eigen(grp_mat)),
+			daily(params._daily), weekly(params._weekly), monthly(params._monthly),
+			tight_own(1.0), tight_cross(1.0), sig_diag(params._sigma),
+			tight_impact(1.0),
+			shape_own(.1), rate_own(.1),
+			shape_cross(.1), rate_cross(.1),
+			shape_impact(.1), rate_impact(.1) {
 		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
 		// if (include_mean) {
 		// 	prior_alpha_mean.tail(dim) = params._mean_non;
 		// }
+		// Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, _lambda, _daily, _weekly, _monthly, false);
+		// Eigen::MatrixXd dummy_design = build_xdummy(
+		// 	Eigen::VectorXd::LinSpaced(lag, 1, lag),
+		// 	_lambda, _sigma, _eps, false
+		// );
 	}
 	virtual ~HierminnSv() = default;
-	void updateCoefPrec() override {};
-	void updateCoefShrink() override {};
-	void updateImpactPrec() override {};
+	void updateCoefPrec() override {
+		// dummy_response
+		// dummy_design
+		// prior_alpha_prec
+		// prior_alpha_mean
+	};
+	void updateCoefShrink() override {
+		// tight_own
+		// tight_cross
+	};
+	void updateImpactPrec() override {
+		// contem_ydummy
+		// contem_xdummy
+		// tight_impact
+	};
 	void updateRecords() override { sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -731,15 +761,24 @@ private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXi grp_mat; // 1: cross-lag vs 2: own-lag
 	Eigen::VectorXi grp_vec;
+	Eigen::VectorXd daily;
+	Eigen::VectorXd weekly;
+	Eigen::VectorXd monthly;
 	double tight_own; // lambda for own-lag ~ Gamma(shape, rate)
 	double tight_cross; // lambda for cross-lag ~ Gamma(shape, rate)
 	Eigen::VectorXd sig_diag; // OLS for sigma to compute scale
+	double tight_impact; // lambda in contemporaneous coef ~ Gamma(shape, rate)
+	// Eigen::VectorXd contem_scl; // MN scale = 1 for contemporaneous
 	double shape_own;
 	double rate_own;
 	double shape_cross;
 	double rate_cross;
+	double shape_impact;
+	double rate_impact;
 	Eigen::MatrixXd dummy_response;
 	Eigen::MatrixXd dummy_design;
+	Eigen::MatrixXd contem_ydummy;
+	Eigen::MatrixXd contem_xdummy;
 };
 
 } // namespace bvhar
