@@ -56,7 +56,7 @@ bvar_sv <- function(y,
   }
   dim_data <- ncol(y)
   # Y0 = X0 B + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -142,40 +142,13 @@ bvar_sv <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    sigma <- bayes_spec$sigma
     if (is.null(bayes_spec$delta)) {
       bayes_spec$delta <- rep(1, dim_data)
     }
-    delta <- bayes_spec$delta
-    lambda <- bayes_spec$lambda
-    eps <- bayes_spec$eps
-    # Minnesota-moment--------------------------------------
-    # Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
-    Yp <- build_ydummy(p, sigma, lambda, delta, numeric(dim_data), numeric(dim_data), FALSE)
-    colnames(Yp) <- name_var
-    # Xp <- build_xdummy(1:p, lambda, sigma, eps, include_mean)
-    Xp <- build_xdummy(1:p, lambda, sigma, eps, FALSE)
-    # colnames(Xp) <- name_lag
-    colnames(Xp) <- concatenate_colnames(name_var, 1:p, FALSE)
-    mn_prior <- minnesota_prior(Xp, Yp)
-    prior_mean <- mn_prior$prior_mean
-    prior_prec <- mn_prior$prior_prec
-    param_prior <- append(mn_prior, list(sigma = diag(1 / sigma)))
-    glob_idmat <- matrix(0L, nrow = dim_design, ncol = dim_data)
-    grp_id <- 1
+    param_prior <- append(bayes_spec, list(p = p))
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L
-    # glob_idmat <- build_grpmat(
-    #   p = p,
-    #   dim_data = dim_data,
-    #   dim_design = num_alpha / dim_data,
-    #   num_coef = num_alpha,
-    #   minnesota = ifelse(minnesota, "short", "no"),
-    #   include_mean = FALSE
-    # )
-    # grp_id <- unique(c(glob_idmat))
-    # num_grp <- length(grp_id)
     if (length(bayes_spec$coef_spike) == 1) {
       bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
     }
@@ -229,11 +202,6 @@ bvar_sv <- function(y,
       }
     )
   } else {
-    # num_restrict <- ifelse(
-    #   include_mean,
-    #   num_alpha + dim_data,
-    #   num_alpha
-    # )
     if (length(bayes_spec$local_sparsity) != dim_design) {
       if (length(bayes_spec$local_sparsity) == 1) {
         bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_alpha)
@@ -241,16 +209,6 @@ bvar_sv <- function(y,
         stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
       }
     }
-    # glob_idmat <- build_grpmat(
-    #   p = p,
-    #   dim_data = dim_data,
-    #   dim_design = dim_design,
-    #   num_coef = num_restrict,
-    #   minnesota = ifelse(minnesota, "short", "no"),
-    #   include_mean = include_mean
-    # )
-    # grp_id <- unique(c(glob_idmat))
-    # num_grp <- length(grp_id)
     bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
     param_prior <- list()
     param_init <- lapply(
@@ -313,7 +271,7 @@ bvar_sv <- function(y,
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   if (include_mean) {
-    res$coefficients <- rbind(res$coefficients, colMeans(res$alpha0_record))
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -381,10 +339,10 @@ bvar_sv <- function(y,
     res$group <- glob_idmat
     res$num_group <- length(grp_id)
   }
-  if (bayes_spec$prior == "Minnesota") {
-    res$prior_mean <- prior_mean
-    res$prior_prec <- prior_prec
-  }
+  # if (bayes_spec$prior == "Minnesota") {
+  #   res$prior_mean <- prior_mean
+  #   res$prior_prec <- prior_prec
+  # }
   # variables------------
   res$df <- dim_design
   res$p <- p

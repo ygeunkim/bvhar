@@ -90,7 +90,7 @@ bvar_horseshoe <- function(y,
     stop("'thinning' should be non-negative.")
   }
   # Y0 = X0 A + Z---------------------
-  Y0 <- build_y0(y, p, p + 1)
+  Y0 <- build_response(y, p, p + 1)
   dim_data <- ncol(y)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)

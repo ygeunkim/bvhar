@@ -26,11 +26,11 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> u
 	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
 }
 
-// Eigen::MatrixXd kronecker_eigen(Eigen::MatrixXd x, Eigen::MatrixXd y);
-
-inline Eigen::MatrixXd kronecker_eigen(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y) {
-  Eigen::MatrixXd res = Eigen::kroneckerProduct(x, y).eval();
-  return res;
+template<typename Derived1, typename Derived2>
+inline Eigen::Matrix<typename Derived1::Scalar, Derived1::RowsAtCompileTime, Derived2::ColsAtCompileTime> 
+kronecker_eigen(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& y) {
+	// should use x.eval() when x is expression such as block or transpose.
+  return Eigen::kroneckerProduct(x, y).eval();
 }
 
 // Gamma function
