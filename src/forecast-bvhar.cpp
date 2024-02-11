@@ -280,10 +280,10 @@ Eigen::MatrixXd forecast_bvharsv(int month, int step, Eigen::MatrixXd response_m
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvharsv_density(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+Eigen::MatrixXd forecast_bvharsv_density(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 																 				 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_last_record,
 																				 Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record, bool include_mean) {
-  int num_sim = phi_record.rows(); // draw = iter * num_chains
+	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
   int lag_var = HARtrans.cols(); // month * dim( + 1)
@@ -291,7 +291,7 @@ Eigen::MatrixXd forecast_bvharsv_density(int month, int step, Eigen::MatrixXd re
 	int num_coef = dim_har * dim;
 	int num_alpha = include_mean ? num_coef - dim : num_coef;
   Eigen::VectorXd density_forecast(dim);
-  Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+  Eigen::MatrixXd predictive_distn(step * num_chains, num_sim * dim);
   Eigen::VectorXd last_pvec(lag_var);
 	Eigen::VectorXd tmp_vec(lag_var - dim); // (month - 1) * dim (+ 1)
   Eigen::VectorXd sv_update(dim);
@@ -304,50 +304,66 @@ Eigen::MatrixXd forecast_bvharsv_density(int month, int step, Eigen::MatrixXd re
   Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_prec(dim, dim);
-  for (int b = 0; b < num_sim; b++) {
-		coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_record.row(b).head(num_alpha).transpose(), dim);
-		if (include_mean) {
-			coef_mat_record.bottomRows(1) = phi_record.row(b).tail(dim);
+	Eigen::MatrixXd phi_chain(num_sim, num_coef);
+	Eigen::MatrixXd h_chain(num_sim, dim);
+	Eigen::MatrixXd a_chain(num_sim, dim * (dim - 1) / 2);
+	Eigen::MatrixXd sigh_chain(num_sim, dim);
+	for (int chain = 0; chain < num_chains; chain++) {
+		phi_chain = phi_record.middleRows(chain * num_sim, num_sim);
+		h_chain = h_last_record.middleRows(chain * num_sim, num_sim);
+		a_chain = a_record.middleRows(chain * num_sim, num_sim);
+		sigh_chain = sigh_record.middleRows(chain * num_sim, num_sim);
+		for (int b = 0; b < num_sim; b++) {
+			coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose(), dim);
+			if (include_mean) {
+				coef_mat_record.bottomRows(1) = phi_chain.row(b).tail(dim);
+			}
+			density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat_record;
+			sv_cov.diagonal() = 1 / sigh_chain.row(b).array(); // covariance of h_t
+			sv_update = bvhar::vectorize_eigen(
+				sim_mgaussian_chol(1, h_chain.row(b), sv_cov)
+			); // h_T+1 = h_T + u_T
+			tvp_lvol.diagonal() = 1 / sv_update.array();
+			contem_mat = bvhar::build_inv_lower(dim, a_chain.row(b));
+			tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
+			predictive_distn.block(chain * step, b * dim, 1, dim) = sim_mgaussian_chol(
+				1, density_forecast, tvp_prec.inverse()
+			);
 		}
-		density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat_record;
-    sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
-    sv_update = bvhar::vectorize_eigen(
-      sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
-    ); // h_T+1 = h_T + u_T
-    tvp_lvol.diagonal() = 1 / sv_update.array();
-    contem_mat = bvhar::build_inv_lower(dim, a_record.row(b));
-    tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
-    predictive_distn.block(0, b * dim, 1, dim) = sim_mgaussian_chol(
-      1, density_forecast, tvp_prec.inverse()
-    );
-  }
+	}
   if (step == 1) {
 		return predictive_distn;
   }
-  for (int i = 1; i < step; i++) {
-    for (int b = 0; b < num_sim; b++) {
-			tmp_vec = last_pvec.head(lag_var - dim);
-			last_pvec << density_forecast, tmp_vec;
-			coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_record.row(b).head(num_alpha).transpose(), dim);
-			if (include_mean) {
-				coef_mat_record.bottomRows(1) = phi_record.row(b).tail(dim);
+	for (int chain = 0; chain < num_chains; chain++) {
+		phi_chain = phi_record.middleRows(chain * num_sim, num_sim);
+		h_chain = h_last_record.middleRows(chain * num_sim, num_sim);
+		a_chain = a_record.middleRows(chain * num_sim, num_sim);
+		sigh_chain = sigh_record.middleRows(chain * num_sim, num_sim);
+		for (int i = 1; i < step; i++) {
+			for (int b = 0; b < num_sim; b++) {
+				tmp_vec = last_pvec.head(lag_var - dim);
+				last_pvec << density_forecast, tmp_vec;
+				coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose(), dim);
+				if (include_mean) {
+					coef_mat_record.bottomRows(1) = phi_chain.row(b).tail(dim);
+				}
+				density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat_record;
+				sv_cov.diagonal() = 1 / sigh_chain.row(b).array(); // covariance of h_t
+				sv_update = bvhar::vectorize_eigen(
+					sim_mgaussian_chol(1, h_chain.row(b), sv_cov)
+				); // h_T+1 = h_T + u_T
+				tvp_lvol.diagonal() = 1 / sv_update.array().exp();
+				contem_mat = bvhar::build_inv_lower(dim, a_chain.row(b));
+				tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
+				predictive_distn.block(chain * step + i, b * dim, 1, dim) = sim_mgaussian_chol(
+					1,
+					density_forecast,
+					tvp_prec.inverse()
+				);
 			}
-			density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat_record;
-      sv_cov.diagonal() = 1 / sigh_record.row(b).array(); // covariance of h_t
-      sv_update = bvhar::vectorize_eigen(
-        sim_mgaussian_chol(1, h_last_record.row(b), sv_cov)
-      ); // h_T+1 = h_T + u_T
-      tvp_lvol.diagonal() = 1 / sv_update.array().exp();
-      contem_mat = bvhar::build_inv_lower(dim, a_record.row(b));
-      tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
-      predictive_distn.block(i, b * dim, 1, dim) = sim_mgaussian_chol(
-        1,
-        density_forecast,
-        tvp_prec.inverse()
-      );
-    }
-  }
-	return predictive_distn;
+		}
+	}
+	return predictive_distn; // rbind(chains), cbind(sims)
 }
 
 //' Out-of-Sample Forecasting of BVHAR based on Rolling Window
