@@ -394,6 +394,7 @@ bvhar_ssvs <- function(y,
     res$init$init_chol_dummy <- matrix(0L, nrow = dim_data, ncol = dim_data)
     res$init$init_chol_dummy[upper.tri(res$init$init_chol_dummy, diag = FALSE)] <- rep(1L, num_eta)
   }
+  res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
