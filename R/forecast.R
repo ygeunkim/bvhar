@@ -313,29 +313,41 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
+  num_chains <- object$chain
   pred_res <- forecast_bvarssvs(
+    num_chains,
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
+    object$df,
     as_draws_matrix(object$alpha_record),
     as_draws_matrix(object$eta_record),
     as_draws_matrix(object$psi_record)
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$alpha_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$alpha_record) / num_chains
+  y_distn <-
+    pred_res %>% 
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
+  colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
@@ -370,11 +382,12 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
+  num_chains <- object$chain
   pred_res <- forecast_bvharssvs(
+    num_chains,
     object$month,
     n_ahead,
     object$y0,
-    object$coefficients,
     object$HARtrans,
     as_draws_matrix(object$phi_record),
     as_draws_matrix(object$eta_record),
@@ -382,18 +395,29 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$phi_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$phi_record) / num_chains
+  y_distn <-
+    pred_res %>%
+    # pred_res$predictive %>%
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
+  colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
@@ -420,29 +444,40 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
+  num_chains <- object$chain
   pred_res <- forecast_bvarhs(
+    num_chains,
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
+    object$df,
     as_draws_matrix(object$alpha_record),
-    as_draws_matrix(object$eta_record),
-    as_draws_matrix(object$omega_record)
+    as.numeric(as_draws_matrix(object$sigma_record))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$alpha_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$alpha_record) / num_chains
+  y_distn <-
+    pred_res %>%
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(pred_mean) <- var_names
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
@@ -469,30 +504,41 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
+  num_chains <- object$chain
   pred_res <- forecast_bvharhs(
+    num_chains,
     object$month,
     n_ahead,
     object$y0,
-    object$coefficients,
     object$HARtrans,
     as_draws_matrix(object$phi_record),
-    as_draws_matrix(object$eta_record),
-    as_draws_matrix(object$omega_record)
+    as.numeric(as_draws_matrix(object$sigma_record))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
-  pred_mean <- pred_res$posterior_mean
-  colnames(pred_mean) <- var_names
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$phi_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$phi_record) / num_chains
+  y_distn <-
+    pred_res %>% 
+    # pred_res$predictive %>%
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
+  colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
@@ -518,17 +564,17 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @export
 predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
+  num_chains <- object$chain
   h_record <- as_draws_matrix(object$h_record)
   alpha_record <- as_draws_matrix(object$alpha_record)
   if (object$type == "const") {
-    alpha_record <- cbind(alpha_record, as_draws_matrix(object$alpha0_record))
+    alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
   }
   pred_res <- forecast_bvarsv_density(
+    num_chains,
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
-    # as_draws_matrix(object$alpha_record),
     alpha_record,
     h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
     as_draws_matrix(object$a_record),
@@ -537,17 +583,27 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$alpha_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$alpha_record) / num_chains
+  y_distn <-
+    pred_res %>% 
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
   pred_mean <- apply(y_distn, c(1, 2), mean)
-  colnames(pred_mean) <- var_names
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
+  colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
@@ -574,18 +630,18 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
 #' @export
 predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
+  num_chains <- object$chain
   h_record <- as_draws_matrix(object$h_record)
   phi_record <- as_draws_matrix(object$phi_record)
   if (object$type == "const") {
-    phi_record <- cbind(phi_record, as_draws_matrix(object$phi0_record))
+    phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
   }
   pred_res <- forecast_bvharsv_density(
+    num_chains,
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
     object$HARtrans,
-    # as_draws_matrix(object$phi_record),
     phi_record,
     h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
     as_draws_matrix(object$a_record),
@@ -594,17 +650,27 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$phi_record)
-  y_distn <- 
-    pred_res$predictive %>% 
-    array(dim = c(n_ahead, dim_data, num_step))
+  num_step <- nrow(object$phi_record) / num_chains
+  y_distn <-
+    pred_res %>%
+    array(dim = c(n_ahead * num_chains, dim_data, num_step))
   pred_mean <- apply(y_distn, c(1, 2), mean)
-  colnames(pred_mean) <- var_names
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  if (num_chains > 1) {
+    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
+    pred_mean <- Reduce("+", pred_mean) / num_chains
+    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
+    lower_quantile <- Reduce("+", lower_quantile) / num_chains
+    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
+    upper_quantile <- Reduce("+", upper_quantile) / num_chains
+    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
+    est_se <- Reduce("+", est_se) / num_chains
+  }
+  colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
-  est_se <- apply(y_distn, c(1, 2), sd)
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,

@@ -724,8 +724,8 @@ forecast_bvar <- function(object, step, num_sim) {
 #' @param eta_record Matrix, MCMC trace of eta.
 #' @param psi_record Matrix, MCMC trace of psi.
 #' @noRd
-forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvarssvs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, psi_record)
+forecast_bvarssvs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvarssvs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
 }
 
 #' Forecasting VAR(p) with Horseshoe Prior
@@ -738,8 +738,8 @@ forecast_bvarssvs <- function(var_lag, step, response_mat, coef_mat, alpha_recor
 #' @param eta_record Matrix, MCMC trace of eta.
 #' @param omega_record Matrix, MCMC trace of omega.
 #' @noRd
-forecast_bvarhs <- function(var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record) {
-    .Call(`_bvhar_forecast_bvarhs`, var_lag, step, response_mat, coef_mat, alpha_record, eta_record, omega_record)
+forecast_bvarhs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvarhs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
 }
 
 #' Forecasting VAR-SV
@@ -766,8 +766,8 @@ forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
 #' @param sigh_record MCMC record of variance of log-volatilities
 #' 
 #' @noRd
-forecast_bvarsv_density <- function(var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean) {
-    .Call(`_bvhar_forecast_bvarsv_density`, var_lag, step, response_mat, coef_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean)
+forecast_bvarsv_density <- function(num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean) {
+    .Call(`_bvhar_forecast_bvarsv_density`, num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -885,8 +885,8 @@ forecast_bvharmn <- function(object, step, num_sim) {
 #' @param eta_record Matrix, MCMC trace of eta.
 #' @param psi_record Matrix, MCMC trace of psi.
 #' @noRd
-forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvharssvs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, psi_record)
+forecast_bvharssvs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvharssvs`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
 }
 
 #' Forecasting VHAR with Horseshoe Prior
@@ -900,8 +900,8 @@ forecast_bvharssvs <- function(month, step, response_mat, coef_mat, HARtrans, ph
 #' @param eta_record Matrix, MCMC trace of eta.
 #' @param omega_record Matrix, MCMC trace of omega.
 #' @noRd
-forecast_bvharhs <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record) {
-    .Call(`_bvhar_forecast_bvharhs`, month, step, response_mat, coef_mat, HARtrans, phi_record, eta_record, omega_record)
+forecast_bvharhs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvharhs`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
 }
 
 #' Forecasting VHAR-SV
@@ -926,8 +926,8 @@ forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
 #' @param HARtrans VHAR linear transformation matrix
 #' 
 #' @noRd
-forecast_bvharsv_density <- function(month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean) {
-    .Call(`_bvhar_forecast_bvharsv_density`, month, step, response_mat, coef_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean)
+forecast_bvharsv_density <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean) {
+    .Call(`_bvhar_forecast_bvharsv_density`, num_chains, month, step, response_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Rolling Window
