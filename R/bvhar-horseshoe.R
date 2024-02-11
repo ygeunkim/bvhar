@@ -279,6 +279,7 @@ bvhar_horseshoe <- function(y,
   res$type <- ifelse(include_mean, "const", "none")
   res$algo <- ifelse(algo == 1, "gibbs", "blocked")
   res$spec <- bayes_spec
+  res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
