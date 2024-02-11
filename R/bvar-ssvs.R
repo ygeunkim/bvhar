@@ -384,7 +384,7 @@ bvar_ssvs <- function(y,
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
-  res$chain <- init_spec$chain
+  # res$chain <- init_spec$chain
   res$group <- glob_idmat
   res$num_group <- length(grp_id)
   # data------------------
