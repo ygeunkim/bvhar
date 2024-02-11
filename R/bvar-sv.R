@@ -355,6 +355,7 @@ bvar_sv <- function(y,
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- bayes_spec
   res$sv <- sv_spec
+  res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn
   res$thin <- thinning
