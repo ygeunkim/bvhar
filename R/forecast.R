@@ -521,13 +521,13 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   h_record <- as_draws_matrix(object$h_record)
   alpha_record <- as_draws_matrix(object$alpha_record)
   if (object$type == "const") {
-    alpha_record <- cbind(alpha_record, as_draws_matrix(object$alpha0_record))
+    alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
   }
   pred_res <- forecast_bvarsv_density(
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
+    # object$coefficients,
     # as_draws_matrix(object$alpha_record),
     alpha_record,
     h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
@@ -538,8 +538,9 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
   num_step <- nrow(object$alpha_record)
-  y_distn <- 
-    pred_res$predictive %>% 
+  y_distn <-
+    pred_res %>% 
+    # pred_res$predictive %>% 
     array(dim = c(n_ahead, dim_data, num_step))
   pred_mean <- apply(y_distn, c(1, 2), mean)
   colnames(pred_mean) <- var_names
@@ -577,13 +578,13 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   h_record <- as_draws_matrix(object$h_record)
   phi_record <- as_draws_matrix(object$phi_record)
   if (object$type == "const") {
-    phi_record <- cbind(phi_record, as_draws_matrix(object$phi0_record))
+    phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
   }
   pred_res <- forecast_bvharsv_density(
     object$p,
     n_ahead,
     object$y0,
-    object$coefficients,
+    # object$coefficients,
     object$HARtrans,
     # as_draws_matrix(object$phi_record),
     phi_record,
@@ -595,8 +596,9 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
   num_step <- nrow(object$phi_record)
-  y_distn <- 
-    pred_res$predictive %>% 
+  y_distn <-
+    pred_res %>% 
+    # pred_res$predictive %>% 
     array(dim = c(n_ahead, dim_data, num_step))
   pred_mean <- apply(y_distn, c(1, 2), mean)
   colnames(pred_mean) <- var_names

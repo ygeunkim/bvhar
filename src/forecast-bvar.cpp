@@ -281,39 +281,30 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_bvarsv_density(int var_lag,
-                                   int step,
-                                   Eigen::MatrixXd response_mat,
-                                   Eigen::MatrixXd coef_mat,
-                                   Eigen::MatrixXd alpha_record,
-                                   Eigen::MatrixXd h_last_record,
-                                   Eigen::MatrixXd a_record,
-                                   Eigen::MatrixXd sigh_record,
-																	 bool include_mean) {
+Eigen::MatrixXd forecast_bvarsv_density(int var_lag, int step, Eigen::MatrixXd response_mat,
+                                   			Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_last_record,
+																				Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record, bool include_mean) {
   int num_sim = alpha_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
-  int dim_design = coef_mat.rows();
-  Eigen::MatrixXd point_forecast(step, dim);
+	int dim_design = include_mean ? var_lag * dim + 1 : var_lag * dim;
+	int num_coef = dim_design * dim;
+	int num_alpha = include_mean ? num_coef - dim : num_coef;
   Eigen::VectorXd density_forecast(dim);
   Eigen::MatrixXd predictive_distn(step, num_sim * dim);
   Eigen::VectorXd last_pvec(dim_design);
-  Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
+	Eigen::VectorXd tmp_vec(dim_design - dim);
   Eigen::VectorXd sv_update(dim);
   Eigen::MatrixXd sv_cov = Eigen::MatrixXd::Zero(dim, dim);
   last_pvec[dim_design - 1] = 1.0;
   for (int i = 0; i < var_lag; i++) {
     last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
   }
-  point_forecast.row(0) = last_pvec.transpose() * coef_mat;
-	Eigen::MatrixXd coef_mat_record(coef_mat.rows(), dim); // include constant term
-	int num_coef = coef_mat.size();
-	int num_alpha = include_mean ? num_coef - dim : num_coef;
+	Eigen::MatrixXd coef_mat_record(dim_design, dim); // include constant term
   Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
   Eigen::MatrixXd tvp_prec(dim, dim);
   for (int b = 0; b < num_sim; b++) {
-    // density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
 		coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_record.row(b).head(num_alpha).transpose(), dim);
 		if (include_mean) {
 			coef_mat_record.bottomRows(1) = alpha_record.row(b).tail(dim);
@@ -333,18 +324,12 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
     );
   }
   if (step == 1) {
-    return Rcpp::List::create(
-      Rcpp::Named("posterior_mean") = point_forecast,
-      Rcpp::Named("predictive") = predictive_distn
-    );
+		return predictive_distn;
   }
   for (int i = 1; i < step; i++) {
-    tmp_vec = last_pvec.segment(0, (var_lag - 1) * dim);
-    last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
-    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
-    point_forecast.row(i) = last_pvec.transpose() * coef_mat;
     for (int b = 0; b < num_sim; b++) {
-      // density_forecast = last_pvec.transpose() * bvhar::unvectorize(alpha_record.row(b), dim);
+			tmp_vec = last_pvec.head(dim_design - dim);
+			last_pvec << density_forecast, tmp_vec;
 			coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_record.row(b).head(num_alpha).transpose(), dim);
 			if (include_mean) {
 				coef_mat_record.bottomRows(1) = alpha_record.row(b).tail(dim);
@@ -364,10 +349,7 @@ Rcpp::List forecast_bvarsv_density(int var_lag,
       );
     }
   }
-  return Rcpp::List::create(
-    Rcpp::Named("posterior_mean") = point_forecast,
-    Rcpp::Named("predictive") = predictive_distn
-  );
+	return predictive_distn;
 }
 
 //' Out-of-Sample Forecasting of BVAR based on Rolling Window
