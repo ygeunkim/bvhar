@@ -399,7 +399,7 @@ bvhar_ssvs <- function(y,
   res$burn <- num_burn
   res$thin <- thinning
   # res$chain <- init_spec$chain
-  res$chain <- num_chains
+  # res$chain <- num_chains
   res$group <- glob_idmat
   res$num_group <- length(grp_id)
   # data------------------
