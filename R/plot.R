@@ -15,7 +15,7 @@ autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"),
   bayes_plt <- switch(
     type,
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
-    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
+    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
   )
   bayes_plt
@@ -568,7 +568,7 @@ autoplot.bvharsp <- function(object,
     type,
     "coef" = autoplot.summary.bvharsp(object, point = TRUE, ...),
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
-    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
+    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
   )
   # additional processing later (title, labs)--------------

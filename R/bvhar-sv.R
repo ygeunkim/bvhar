@@ -409,7 +409,8 @@ bvhar_sv <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
-      res$tau_record
+      res$tau_record,
+      res$kappa_record
     )
   }
   if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
