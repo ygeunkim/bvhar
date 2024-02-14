@@ -591,7 +591,6 @@ Eigen::MatrixXd roll_bvarsv(Eigen::MatrixXd y, int lag, int num_iter, int num_bu
   Eigen::MatrixXd tot_mat(window + num_test, dim); // entire data set = train + test for parallel
   tot_mat.topRows(window) = y;
   tot_mat.bottomRows(num_test) = y_test;
-  // shared(res, num_horizon, tot_mat, window, dim, fit, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step) \
 #pragma omp parallel for num_threads(nthreads_roll) private(roll_mat, bvar_mod, y_pred)
   for (int i = 1; i < num_horizon; i++) {
     // roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
