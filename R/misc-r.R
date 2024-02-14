@@ -242,6 +242,17 @@ build_grpmat <- function(p, dim_data, dim_design, num_coef, minnesota, include_m
   } else {
     idx <- gl(p, dim_data)
   }
+  if (p == 1) {
+    glob_idmat <- matrix(1L, nrow = dim_design, ncol = dim_data)
+    if (minnesota == "no") {
+      return(glob_idmat)
+    }
+    if (include_mean) {
+      glob_idmat[dim_design,] <- 0L
+    }
+    diag(glob_idmat[1:dim_data,]) <- 2L
+    return(glob_idmat)
+  }
   switch(
     minnesota,
     "no" = matrix(1L, nrow = dim_design, ncol = dim_data),
