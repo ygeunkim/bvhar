@@ -68,7 +68,7 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \code{bvar_sv()} returns an object named \code{bvarsv} \link{class}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV.
+This function fits VAR-SV.
 It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{

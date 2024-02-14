@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR-SV
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VHAR-SV.
+#' This function fits VHAR-SV.
 #' It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables

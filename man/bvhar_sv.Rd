@@ -109,7 +109,7 @@ Horseshoe:
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR-SV.
+This function fits VHAR-SV.
 It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{

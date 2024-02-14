@@ -92,7 +92,7 @@ It is a list with the following components:
 }
 }
 \description{
-This function fits VHAR with horseshoe prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VHAR with horseshoe prior.
 }
 \references{
 Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.

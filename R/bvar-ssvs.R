@@ -1,6 +1,6 @@
 #' Fitting Bayesian VAR(p) of SSVS Prior
 #' 
-#' This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
