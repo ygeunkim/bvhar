@@ -84,6 +84,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   }
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
   res <- estimate_har(y, week, month, include_mean, method)
+  colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_har
