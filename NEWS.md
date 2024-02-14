@@ -1,4 +1,4 @@
-# bvhar (development version)
+# bvhar 2.0.0
 
 * Start to implement OOP in C++ source for each model, ready for major update.
 
