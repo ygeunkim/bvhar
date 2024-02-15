@@ -47,11 +47,11 @@ install.packages("bvhar")
 
 ### Development version
 
-You can install the development version from this repository.
+You can install the development version from [develop branch](https://github.com/ygeunkim/bvhar/tree/develop).
 
 ```{r devinst, eval=FALSE}
 # install.packages("remotes")
-remotes::install_github("ygeunkim/bvhar")
+remotes::install_github("ygeunkim/bvhar@develop")
 ```
 
 ## Models

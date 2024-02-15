@@ -43,6 +43,8 @@ reference:
   - set_ssvs
   - set_lambda
   - set_horseshoe
+  - set_sv
+  - set_intercept
 
 - title: BVAR
   desc: >
@@ -209,3 +211,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.1.0
   - text: "Version 1.2.0"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.2.0
+  - text: "Version 2.0.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.0.0

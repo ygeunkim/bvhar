@@ -10,11 +10,11 @@ struct HsParams {
 	int _iter;
 	Eigen::MatrixXd _x;
 	Eigen::MatrixXd _y;
-  Eigen::VectorXi _grp_id;
-	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_global;
 	double _init_sigma;
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXi _grp_mat;
 	
 	HsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,

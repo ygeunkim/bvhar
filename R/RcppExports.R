@@ -146,6 +146,10 @@ check_omp <- function() {
     invisible(.Call(`_bvhar_check_omp`))
 }
 
+is_omp <- function() {
+    .Call(`_bvhar_is_omp`)
+}
+
 #' Generate Multivariate Normal Random Vector
 #' 
 #' This function samples n x muti-dimensional normal random matrix.
