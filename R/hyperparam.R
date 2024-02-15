@@ -254,6 +254,35 @@ set_weight_bvhar <- function(sigma,
   bvhar_param
 }
 
+#' Prior for Constant Term
+#' 
+#' Set Normal prior hyperparameters for constant term
+#' 
+#' @param mean Normal mean of constant term
+#' @param sd Normal standard deviance for constant term
+#' 
+#' @order 1
+#' @export
+set_intercept <- function(mean = 0, sd = .1) {
+  if (!is.vector(mean)) {
+    stop("'mean' should be a vector.")
+  }
+  if (length(sd) != 1) {
+    stop("'sd' should be length 1 numeric.")
+  }
+  if (sd < 0) {
+    stop("'sd' should be positive.")
+  }
+  non_param <- list(
+    process = "Intercept",
+    prior = "Normal",
+    mean_non = mean,
+    sd_non = sd
+  )
+  class(non_param) <- c("interceptspec", "bvharspec")
+  non_param
+}
+
 #' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
 #' 
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
@@ -261,6 +290,8 @@ set_weight_bvhar <- function(sigma,
 #' @param coef_spike Standard deviance for Spike normal distribution (See Details).
 #' @param coef_slab Standard deviance for Slab normal distribution (See Details).
 #' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
+#' @param coef_s1 First shape of coefficients prior beta distribution
+#' @param coef_s2 Second shape of coefficients prior beta distribution
 #' @param mean_non Prior mean of unrestricted coefficients
 #' @param sd_non Standard deviance for unrestricted coefficients
 #' @param shape Gamma shape parameters for precision matrix (See Details).
@@ -268,6 +299,8 @@ set_weight_bvhar <- function(sigma,
 #' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
 #' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor (See Details).
 #' @param chol_mixture Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
+#' @param chol_s1 First shape of cholesky factor prior beta distribution
+#' @param chol_s2 Second shape of cholesky factor prior beta distribution
 #' @details 
 #' Let \eqn{\alpha} be the vectorized coefficient, \eqn{\alpha = vec(A)}.
 #' Spike-slab prior is given using two normal distributions.
@@ -315,20 +348,30 @@ set_weight_bvhar <- function(sigma,
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
                      coef_mixture = .5,
+                     coef_s1 = 1,
+                     coef_s2 = 1,
                      mean_non = 0,
                      sd_non = .1,
                      shape = .01,
                      rate = .01,
                      chol_spike = .1,
                      chol_slab = 5,
-                     chol_mixture = .5) {
-  if (!(is.vector(coef_spike) && 
-        is.vector(coef_slab) && 
-        is.vector(coef_mixture) &&
-        is.vector(shape) &&
-        is.vector(rate) &&
-        is.vector(mean_non))) {
+                     chol_mixture = .5,
+                     chol_s1 = 1,
+                     chol_s2 = 1) {
+  if (!(is.vector(coef_spike) &&
+    is.vector(coef_slab) &&
+    is.vector(coef_mixture) &&
+    is.vector(shape) &&
+    is.vector(rate) &&
+    is.vector(mean_non))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
+  }
+  if (!(length(coef_s1) == 1 &&
+    length(coef_s2) == 1 &&
+    length(chol_s1) == 1 &&
+    length(chol_s2 == 1))) {
+    stop("'coef_s1', 'coef_s2', 'chol_s1', and 'chol_s2' should be length 1 numeric.")
   }
   if (length(sd_non) != 1) {
     stop("'sd_non' should be length 1 numeric.")
@@ -351,7 +394,9 @@ set_ssvs <- function(coef_spike = .1,
   coef_param <- list(
     coef_spike = coef_spike,
     coef_slab = coef_slab,
-    coef_mixture = coef_mixture
+    coef_mixture = coef_mixture,
+    coef_s1 = coef_s1,
+    coef_s2 = coef_s2
   )
   non_param <- list(
     mean_non = mean_non,
@@ -387,6 +432,8 @@ set_ssvs <- function(coef_spike = .1,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
     chol_mixture = chol_mixture,
+    chol_s1 = chol_s1,
+    chol_s2 = chol_s2,
     process = "VAR",
     prior = "SSVS"
   )
@@ -446,39 +493,11 @@ init_ssvs <- function(init_coef,
     init_chol_dummy <- NULL
     num_chain <- 1
   } else {
-    if ((length(dim(init_coef)) == 3 || is.list(init_coef)) &&
-        (length(dim(init_coef_dummy)) == 3 || is.list(init_coef_dummy)) &&
-        (length(dim(init_chol)) == 3 || is.list(init_chol)) &&
-        (length(dim(init_chol_dummy)) == 3 || is.list(init_chol_dummy))) {
-      # 3d array to list--------------------------------
-      init_coef <- change_to_list(init_coef)
-      init_coef_dummy <- change_to_list(init_coef_dummy)
-      init_chol <- change_to_list(init_chol)
-      init_chol_dummy <- change_to_list(init_chol_dummy)
-      # Errors in multiple chain------------------------
-      if (length(
-        unique(c(length(init_coef), length(init_coef_dummy), length(init_chol), length(init_chol_dummy)))
-      ) > 1) {
-        stop("Different chain(>1) number has been defined.")
-      }
-      isnot_identical(init_coef, case = "dim")
-      isnot_identical(init_coef_dummy, case = "dim")
-      isnot_identical(init_chol, case = "dim")
-      isnot_identical(init_chol_dummy, case = "dim")
-      isnot_identical(init_coef, case = "values")
-      isnot_identical(init_chol, case = "values")
-      num_chain <- length(init_coef)
-      coef_mat <- init_coef[[1]]
-      coef_dummy <- init_coef_dummy[[1]]
-      chol_mat <- init_chol[[1]]
-      chol_dummy <- init_chol_dummy[[1]]
-    } else {
-      num_chain <- 1
-      coef_mat <- init_coef
-      coef_dummy <- init_coef_dummy
-      chol_mat <- init_chol
-      chol_dummy <- init_chol_dummy
-    }
+    num_chain <- 1
+    coef_mat <- init_coef
+    coef_dummy <- init_coef_dummy
+    chol_mat <- init_chol
+    chol_dummy <- init_chol_dummy
     # Check dimension validity-----------------------------
     dim_design <- nrow(coef_mat) # kp(+1)
     dim_data <- ncol(coef_mat) # k = dim
@@ -500,7 +519,7 @@ init_ssvs <- function(init_coef,
   res <- list(
     process = "VAR",
     prior = "SSVS",
-    chain = num_chain,
+    # chain = num_chain,
     init_coef = init_coef,
     init_coef_dummy = init_coef_dummy,
     init_chol = init_chol,
@@ -555,5 +574,50 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     global_sparsity = global_sparsity#,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
+  res
+}
+
+#' Stochastic Volatility Specification
+#' 
+#' `r lifecycle::badge("experimental")` Set SV hyperparameters.
+#' 
+#' @param ig_shape Inverse-Gamma shape of state variance.
+#' @param ig_scl Inverse-Gamma scale of state variance.
+#' @param initial_mean Prior mean of initial state.
+#' @param initial_prec Prior precision of initial state.
+#' @references
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#'
+#' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+#' @order 1
+#' @export
+set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = .1) {
+  if (!is.vector(ig_shape) ||
+    !is.vector(ig_scl) ||
+    !is.vector(initial_mean)) {
+    stop("'ig_shape', 'ig_scl', and 'initial_mean' should be a vector.")
+  }
+  if ((length(ig_shape) != length(ig_scl)) ||
+    (length(ig_scl) != length(initial_mean))) {
+    stop("'ig_shape', 'ig_scl', and 'initial_mean' should have same length.")
+  }
+  if (is.vector(initial_prec) && length(initial_prec) > 1) {
+    initial_prec <- diag(initial_prec)
+  }
+  if (is.matrix(initial_prec)) {
+    if ((length(ig_shape) != nrow(initial_prec))
+        || (length(ig_shape) != ncol(initial_prec))) {
+      stop("'initial_prec' should be symmetric matrix of same size with the other vectors.")
+    }
+  }
+  res <- list(
+    process = "SV",
+    prior = "Cholesky",
+    shape = ig_shape,
+    scale = ig_scl,
+    initial_mean = initial_mean,
+    initial_prec = initial_prec
+  )
+  class(res) <- "svspec"
   res
 }

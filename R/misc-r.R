@@ -171,6 +171,40 @@ split_psirecord <- function(x, chain = 1, varname = "cholesky") {
   res
 }
 
+#' Split Multi-chain MCMC Records
+#' 
+#' Preprocess multi-chain MCMC records, which is column-binded.
+#'
+#' @param x Parameter matrix
+#' @param chain The number of the chains
+#' @noRd
+split_chain <- function(x, chain = 1, varname = "alpha") {
+  if (chain == 1) {
+    return(x)
+  } else {
+    # matrix format: [chain1, chain2, ...]
+    # num_var <- ncol(x) / chain
+    num_row <- nrow(x) / chain
+    res <-
+      # split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>%
+      # lapply(t) %>%
+      split.data.frame(x, gl(chain, num_row)) %>%
+      unlist(x) %>%
+      array(
+        # dim = c(nrow(x), chain, num_var),
+        dim = c(num_row, chain, ncol(x)),
+        dimnames = list(
+          # iteration = seq_len(nrow(x)),
+          iteration = seq_len(num_row),
+          chain = seq_len(chain),
+          # variable = paste0(varname, "[", seq_len(num_var), "]")
+          variable = paste0(varname, "[", seq_len(ncol(x)), "]")
+        )
+      )
+  }
+  res
+}
+
 #' Get Gamma Distribution Parameters
 #' 
 #' Compute Gamma distribution parameters from its mode and sd
@@ -207,6 +241,17 @@ build_grpmat <- function(p, dim_data, dim_design, num_coef, minnesota, include_m
     idx <- c(gl(p, dim_data), p + 1)
   } else {
     idx <- gl(p, dim_data)
+  }
+  if (p == 1) {
+    glob_idmat <- matrix(1L, nrow = dim_design, ncol = dim_data)
+    if (minnesota == "no") {
+      return(glob_idmat)
+    }
+    if (include_mean) {
+      glob_idmat[dim_design,] <- 0L
+    }
+    diag(glob_idmat[1:dim_data,]) <- 2L
+    return(glob_idmat)
   }
   switch(
     minnesota,

@@ -11,6 +11,9 @@ print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   cat(sprintf("BVAR(%i) with SSVS Prior\n", x$p))
   cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
@@ -45,6 +48,9 @@ print.bvharssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   )
   cat("BVHAR with SSVS Prior\n")
   cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
@@ -80,6 +86,9 @@ print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
   cat("Fitted by blocked Gibbs sampling\n")
   # cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
@@ -114,6 +123,9 @@ print.bvharhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("BVHAR with Horseshoe Prior\n")
   # cat("Fitted by Gibbs sampling\n")
   cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
@@ -148,6 +160,9 @@ print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   cat(sprintf("BVAR(%i) with Stochastic Volatility\n", x$p))
   cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {
@@ -183,6 +198,9 @@ print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
   cat("BVHAR with Stochastic Volatility\n")
   cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
   cat(paste0("Total number of iteration: ", x$iter, "\n"))
   cat(paste0("Number of burn-in: ", x$burn, "\n"))
   if (x$thin > 1) {

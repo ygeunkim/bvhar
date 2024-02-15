@@ -1,3 +1,30 @@
+# bvhar 2.0.0
+
+* Start to implement OOP in C++ source for each model, ready for major update.
+
+* Add SV specification (`sv_spec` argument) in `bvhar_sv()` and `bvar_sv()` (`set_sv()`).
+
+* Prevent SSVS overflow issues by using log-sum-exp trick when computing Bernoulli posterior probability.
+
+* Add separate constant term prior specification (`intercept`) in `bvhar_sv()` and `bvar_sv()` (`set_intercept()`).
+
+* Convert every header file inst/include to header-only format. This enables external inclusion of our classes, structs, and Rcpp functions by using `LinkingTo` (in R package development) or `// [[Rcpp::depends(RcppEigen, BH, bvhar)]]`.
+
+## Parallel Chain MCMC
+
+* Use OpenMP parallel for loop
+
+* Progress bar will show the status only for master thread when OpenMP enabled.
+
+* Interruption detect will just save values and break the loop, not return immediately.
+
+* Do burn-in and thinning in each `returnRecords()` method to make pre-process parallel chains easier.
+
+* Use boost library (`BH` package) RNG instead of Rf_* RNG of `Rcpp` for thread-safety.
+
+* Introduce function overloading to internal Rcpp random generation functions temporarily.
+It's for maintaining `set.seed()` usage of some functions.
+
 # bvhar 1.2.0
 
 * Replace progress bar of `RcppProgress` package with custom header (`bvharprogress.h`).
