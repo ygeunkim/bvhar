@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of SSVS Prior
 #' 
-#' This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.

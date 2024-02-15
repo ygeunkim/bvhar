@@ -14,3 +14,12 @@ void check_omp() {
 	Rcpp::Rcout << "OpenMP not available in this machine." << "\n";
 #endif
 }
+
+// [[Rcpp::export]]
+bool is_omp() {
+#ifdef _OPENMP
+  return true;
+#else
+	return false;
+#endif
+}

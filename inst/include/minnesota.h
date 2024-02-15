@@ -42,7 +42,7 @@ class Minnesota {
 public:
 	Minnesota(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy)
 	: design(x), response(y), dummy_design(x_dummy), dummy_response(y_dummy),
-		num_design(response.rows()), dim(response.cols()), dim_design(design.cols()),
+		dim(response.cols()), num_design(response.rows()), dim_design(design.cols()),
 		num_dummy(dummy_design.rows()), num_augment(num_design + num_dummy) {
 		prior_prec = dummy_design.transpose() * dummy_design;
 		prior_mean = prior_prec.inverse() * dummy_design.transpose() * dummy_response;

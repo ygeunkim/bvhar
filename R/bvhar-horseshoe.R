@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of Horseshoe Prior
 #' 
-#' This function fits VHAR with horseshoe prior.
+#' `r lifecycle::badge("experimental")` This function fits VHAR with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.

@@ -17,7 +17,7 @@ bvar_sv(
   sv_spec = set_sv(),
   intercept = set_intercept(),
   include_mean = TRUE,
-  minnesota = FALSE,
+  minnesota = TRUE,
   save_init = FALSE,
   verbose = FALSE,
   num_thread = 1
@@ -40,15 +40,15 @@ knit_print.bvarsv(x, ...)
 
 \item{thinning}{Thinning every thinning-th iteration}
 
-\item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+\item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_ssvs]{set_ssvs()}}, or \code{\link[=set_horseshoe]{set_horseshoe()}}.}
 
 \item{sv_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} SV specification by \code{\link[=set_sv]{set_sv()}}.}
 
-\item{intercept}{Prior for the constant term by \code{\link[=set_intercept]{set_intercept()}}.}
+\item{intercept}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Prior for the constant term by \code{\link[=set_intercept]{set_intercept()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{FALSE}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{TRUE}.}
 
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
@@ -56,7 +56,7 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
-\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
+\item{num_thread}{Number of threads}
 
 \item{x}{\code{bvarsv} object}
 
@@ -66,9 +66,47 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 }
 \value{
 \code{bvar_sv()} returns an object named \code{bvarsv} \link{class}.
+\describe{
+\item{alpha_record}{MCMC trace for vectorized coefficients (\eqn{\alpha}) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{h_record}{MCMC trace for log-volatilities.}
+\item{a_record}{MCMC trace for contemporaneous coefficients.}
+\item{h0_record}{MCMC trace for initial log-volatilities.}
+\item{sigh_record}{MCMC trace for log-volatilities variance.}
+\item{coefficients}{Posterior mean of coefficients.}
+\item{chol_posterior}{Posterior mean of contemporaneous effects.}
+\item{pip}{Posterior inclusion probabilities.}
+\item{param}{Every set of MCMC trace.}
+\item{group}{Indicators for group.}
+\item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
+\item{p}{VAR lag}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - \code{p}}
+\item{totobs}{Total number of the observation}
+\item{call}{Matched call}
+\item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
+\item{spec}{Coefficients prior specification}
+\item{sv}{log volatility prior specification}
+\item{chain}{The numer of chains}
+\item{iter}{Total iterations}
+\item{burn}{Burn-in}
+\item{thin}{Thinning}
+\item{y0}{\eqn{Y_0}}
+\item{design}{\eqn{X_0}}
+\item{y}{Raw input}
+}
+Different members are added according to priors. If it is SSVS:
+\describe{
+\item{gamma_record}{MCMC trace for dummy variable.}
+}
+Horseshoe:
+\describe{
+\item{lambda_record}{MCMC trace for local shrinkage level.}
+\item{tau_record}{MCMC trace for global shrinkage level.}
+\item{kappa_record}{MCMC trace for shrinkage factor.}
+}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits VAR-SV.
+This function fits VAR-SV.
 It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{

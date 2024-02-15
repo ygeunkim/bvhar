@@ -15,7 +15,7 @@ autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"),
   bayes_plt <- switch(
     type,
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
-    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
+    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
   )
   bayes_plt
@@ -568,7 +568,7 @@ autoplot.bvharsp <- function(object,
     type,
     "coef" = autoplot.summary.bvharsp(object, point = TRUE, ...),
     "trace" = mcmc_trace(x = object$param, pars = pars, regex_pars = regex_pars, ...),
-    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars), ...,
+    "dens" = mcmc_dens(x = object$param, pars = pars, regex_pars = regex_pars, ...),
     "area" = mcmc_areas(x = object$param, pars = pars, regex_pars = regex_pars, ...)
   )
   # additional processing later (title, labs)--------------
@@ -579,7 +579,7 @@ autoplot.bvharsp <- function(object,
 #' 
 #' @param object List of `summary.bvharsp`.
 #' @importFrom tibble rownames_to_column
-#' @importFrom tidyr pivot_longer separate_wider_delim
+#' @importFrom tidyr pivot_longer separate_wider_regex
 #' @importFrom dplyr mutate case_when
 #' @noRd
 gather_heat <- function(object) {
@@ -591,19 +591,8 @@ gather_heat <- function(object) {
     mutate(x = factor(x, levels = colnames(object$coefficients)))
   is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
   if (object$type == "const") {
-    # heat_coef <-
-    #   heat_coef %>%
-    #   mutate(term = ifelse(
-    #     term == "const",
-    #     ifelse(
-    #       is_vhar,
-    #       concatenate_colnames("const", rep(c("day", "week", "month"), each = object$m), FALSE),
-    #       concatenate_colnames("const", rep(1:object$p, each = object$m), FALSE)
-    #     ),
-    #     term
-    #   ))
     heat_coef <-
-      heat_coef %>%
+      heat_coef %>% 
       mutate(term = ifelse(
         term == "const",
         paste("const", term, sep = "_"),
@@ -611,8 +600,11 @@ gather_heat <- function(object) {
       ))
   }
   heat_coef <-
-    heat_coef %>%
-    separate_wider_delim(term, delim = "_", names = c("y", "ord")) %>% 
+    heat_coef %>% 
+    separate_wider_regex(
+      term,
+      patterns = c(y = ".*", "_", ord = ".*$")
+    ) %>% 
     mutate(y = factor(y, levels = c(rev(colnames(object$coefficients)), "const")))
   # VHAR model--------------------------------
   if (is_vhar) {
@@ -639,7 +631,7 @@ gather_heat <- function(object) {
 #' @param point Use point for sparsity representation
 #' @param ... Other arguments passed on the [ggplot2::geom_tile()].
 #' @return A ggplot object
-#' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid
+#' @importFrom ggplot2 ggplot aes geom_tile geom_point scale_x_discrete guides guide_colourbar labs element_blank facet_grid scale_colour_gradient2
 #' @export
 autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
@@ -651,6 +643,7 @@ autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
       p +
       geom_tile(fill = NA, colour = "#403d3d") +
       geom_point(aes(colour = value, size = abs(value))) +
+      scale_colour_gradient2(low = "#d73027", mid = "#f0f0f0", high = "#4575b4") +
       guides(
         colour = guide_colourbar(title = element_blank()),
         size = "none"

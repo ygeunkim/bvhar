@@ -56,7 +56,7 @@ etf_test <- etf_eval$test
     - This option is valid only when OpenMP in user's machine.
 
 ```{r fitssvs}
-(fit_ssvs <- bvhar_ssvs(etf_train, num_chains = 1, num_iter = 50, include_mean = FALSE, minnesota = "longrun"))
+(fit_ssvs <- bvhar_ssvs(etf_train, num_chains = 1, num_iter = 20, include_mean = FALSE, minnesota = "longrun"))
 ```
 
 `autoplot()` for the fit (`bvharsp` object) provides coefficients heatmap.
@@ -72,7 +72,7 @@ autoplot(fit_ssvs)
 `bayes_spec` is the initial specification by `set_horseshoe()`. Others are the same.
 
 ```{r fiths}
-(fit_hs <- bvhar_horseshoe(etf_train, num_chains = 2, num_iter = 50, include_mean = FALSE, minnesota = "longrun"))
+(fit_hs <- bvhar_horseshoe(etf_train, num_chains = 2, num_iter = 20, include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ```{r heaths}
@@ -90,7 +90,7 @@ autoplot(fit_hs)
 ## SSVS
 
 ```{r svssvs}
-(fit_ssvs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_ssvs(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+(fit_ssvs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 20, bayes_spec = set_ssvs(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ```{r heatssvssv}
@@ -100,7 +100,7 @@ autoplot(fit_ssvs_sv)
 ## Horseshoe
 
 ```{r}
-(fit_hs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_horseshoe(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+(fit_hs_sv <- bvhar_sv(etf_train, num_chains = 2, num_iter = 20, bayes_spec = set_horseshoe(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ## Bayesian visualization
@@ -111,10 +111,10 @@ autoplot(fit_ssvs_sv)
 autoplot(fit_hs_sv, type = "trace", regex_pars = "tau")
 ```
 
-`type = "dens"` draws MCMC density plot.
+`type = "dens"` draws MCMC density plot. If specifying additional argument `facet_args = list(dir = "v")` of `bayesplot`, you can see plot as the same format with coefficient matrix.
 
 ```{r denshs}
-autoplot(fit_hs, type = "dens", regex_pars = "tau")
+autoplot(fit_hs_sv, type = "dens", regex_pars = "kappa", facet_args = list(dir = "v", nrow = nrow(fit_hs_sv$coefficients)))
 ```
 
 
