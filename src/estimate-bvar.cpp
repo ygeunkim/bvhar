@@ -61,7 +61,6 @@ Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
   int num_design = y.rows();
   int dim = y.cols();
-  int dim_design = x.cols();
   if (U.rows() != x.cols()) {
     Rcpp::stop("Wrong dimension: U");
   }
