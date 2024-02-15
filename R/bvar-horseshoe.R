@@ -1,6 +1,6 @@
 #' Fitting Bayesian VAR(p) of Horseshoe Prior
 #' 
-#' This function fits BVAR(p) with horseshoe prior.
+#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag

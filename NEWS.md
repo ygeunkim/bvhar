@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+# bvhar 2.0.0
+
 * Start to implement OOP in C++ source for each model, ready for major update.
 
 * Add SV specification (`sv_spec` argument) in `bvhar_sv()` and `bvar_sv()` (`set_sv()`).

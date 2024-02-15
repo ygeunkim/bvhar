@@ -114,6 +114,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// is_omp
+bool is_omp();
+RcppExport SEXP _bvhar_is_omp() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(is_omp());
+    return rcpp_result_gen;
+END_RCPP
+}
 // sim_mgaussian
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
@@ -1179,6 +1189,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
     {"_bvhar_get_maxomp", (DL_FUNC) &_bvhar_get_maxomp, 0},
     {"_bvhar_check_omp", (DL_FUNC) &_bvhar_check_omp, 0},
+    {"_bvhar_is_omp", (DL_FUNC) &_bvhar_is_omp, 0},
     {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
     {"_bvhar_sim_mgaussian_chol", (DL_FUNC) &_bvhar_sim_mgaussian_chol, 3},
     {"_bvhar_sim_mstudent", (DL_FUNC) &_bvhar_sim_mstudent, 5},

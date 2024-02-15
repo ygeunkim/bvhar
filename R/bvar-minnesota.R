@@ -103,6 +103,7 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   }
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean) # in misc-r.R file
   res <- estimate_bvar_mn(y, p, bayes_spec, include_mean)
+  colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$design) <- name_lag
   # Prior-----------------------------

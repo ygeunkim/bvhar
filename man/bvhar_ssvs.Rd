@@ -99,7 +99,7 @@ It is a list with the following components:
 }
 }
 \description{
-This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 }
 \details{
 SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
