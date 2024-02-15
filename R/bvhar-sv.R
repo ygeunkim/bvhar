@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR-SV
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VHAR-SV.
+#' This function fits VHAR-SV.
 #' It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
@@ -9,22 +9,23 @@
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
+#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) [set_weight_bvhar()], [set_ssvs()], or [set_horseshoe()].
 #' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
-#' @param intercept Prior for the constant term by [set_intercept()].
+#' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` (default) type.
+#' You can also set `"no"`.
 #' @param save_init Save every record starting from the initial values (`TRUE`).
 #' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
 #' If `num_burn > 0` or `thinning != 1`, this option is ignored.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
+#' @param num_thread Number of threads
 #' @details
 #' Cholesky stochastic volatility modeling for VHAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
 #' @return `bvhar_sv()` returns an object named `bvharsv` [class]. It is a list with the following components:
 #' \describe{
-#'   \item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with [posterior::draws_df] format.}
+#'   \item{phi_record}{MCMC trace for vectorized coefficients (\eqn{\phi}) with [posterior::draws_df] format.}
 #'   \item{h_record}{MCMC trace for log-volatilities.}
 #'   \item{a_record}{MCMC trace for contemporaneous coefficients.}
 #'   \item{h0_record}{MCMC trace for initial log-volatilities.}
@@ -44,12 +45,12 @@
 #'   \item{call}{Matched call}
 #'   \item{process}{Description of the model, e.g. `"VHAR_SSVS_SV", `"VHAR_Horseshoe_SV", or `"VHAR_minnesota-part_SV"}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{spec}{SSVS specification defined by [set_ssvs()]}
-#'   \item{init}{Initial specification defined by [init_ssvs()]}
+#'   \item{spec}{Coefficients prior specification}
+#'   \item{sv}{log volatility prior specification}
+#'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
 #'   \item{burn}{Burn-in}
 #'   \item{thin}{Thinning}
-#'   \item{chain}{The numer of chains}
 #'   \item{HARtrans}{VHAR linear transformation matrix}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
@@ -83,7 +84,7 @@ bvhar_sv <- function(y,
                      sv_spec = set_sv(),
                      intercept = set_intercept(),
                      include_mean = TRUE,
-                     minnesota = c("no", "short", "longrun"),
+                     minnesota = c("longrun", "short", "no"),
                      save_init = FALSE,
                      verbose = FALSE,
                      num_thread = 1) {
@@ -409,7 +410,8 @@ bvhar_sv <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
-      res$tau_record
+      res$tau_record,
+      res$kappa_record
     )
   }
   if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {

@@ -1,7 +1,7 @@
 #' Fitting Bayesian VAR-SV
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VAR-SV.
-#'  It can have Minnesota, SSVS, and Horseshoe prior.
+#' This function fits VAR-SV.
+#' It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
@@ -9,20 +9,59 @@
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
-#' @param bayes_spec A BVAR model specification by [set_bvar()].
+#' @param bayes_spec A BVAR model specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
 #' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
-#' @param intercept Prior for the constant term by [set_intercept()].
+#' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). By default, `FALSE`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). By default, `TRUE`.
 #' @param save_init Save every record starting from the initial values (`TRUE`).
 #' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
 #' If `num_burn > 0` or `thinning != 1`, this option is ignored.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
-#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
+#' @param num_thread Number of threads
 #' @details
 #' Cholesky stochastic volatility modeling for VAR based on
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
 #' @return `bvar_sv()` returns an object named `bvarsv` [class].
+#' \describe{
+#'   \item{alpha_record}{MCMC trace for vectorized coefficients (\eqn{\alpha}) with [posterior::draws_df] format.}
+#'   \item{h_record}{MCMC trace for log-volatilities.}
+#'   \item{a_record}{MCMC trace for contemporaneous coefficients.}
+#'   \item{h0_record}{MCMC trace for initial log-volatilities.}
+#'   \item{sigh_record}{MCMC trace for log-volatilities variance.}
+#'   \item{coefficients}{Posterior mean of coefficients.}
+#'   \item{chol_posterior}{Posterior mean of contemporaneous effects.}
+#'   \item{pip}{Posterior inclusion probabilities.}
+#'   \item{param}{Every set of MCMC trace.}
+#'   \item{group}{Indicators for group.}
+#'   \item{df}{Numer of Coefficients: `3m + 1` or `3m`}
+#'   \item{p}{VAR lag}
+#'   \item{m}{Dimension of the data}
+#'   \item{obs}{Sample size used when training = `totobs` - `p`}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{call}{Matched call}
+#'   \item{process}{Description of the model, e.g. `"VHAR_SSVS_SV", `"VHAR_Horseshoe_SV", or `"VHAR_minnesota-part_SV"}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{spec}{Coefficients prior specification}
+#'   \item{sv}{log volatility prior specification}
+#'   \item{chain}{The numer of chains}
+#'   \item{iter}{Total iterations}
+#'   \item{burn}{Burn-in}
+#'   \item{thin}{Thinning}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{design}{\eqn{X_0}}
+#'   \item{y}{Raw input}
+#' }
+#' Different members are added according to priors. If it is SSVS:
+#' \describe{
+#'   \item{gamma_record}{MCMC trace for dummy variable.}
+#' }
+#' Horseshoe:
+#' \describe{
+#'   \item{lambda_record}{MCMC trace for local shrinkage level.}
+#'   \item{tau_record}{MCMC trace for global shrinkage level.}
+#'   \item{kappa_record}{MCMC trace for shrinkage factor.}
+#' }
 #' @references 
 #' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
 #' 
@@ -44,7 +83,7 @@ bvar_sv <- function(y,
                     sv_spec = set_sv(),
                     intercept = set_intercept(),
                     include_mean = TRUE,
-                    minnesota = FALSE,
+                    minnesota = TRUE,
                     save_init = FALSE,
                     verbose = FALSE,
                     num_thread = 1) {
@@ -332,7 +371,8 @@ bvar_sv <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
-      res$tau_record
+      res$tau_record,
+      res$kappa_record
     )
   }
   if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {

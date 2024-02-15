@@ -122,6 +122,7 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
   }
   is_short <- minnesota_type == "MN_VAR"
   res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean, is_short)
+  colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   # Prior-----------------------------
   colnames(res$prior_mean) <- name_var
