@@ -45,7 +45,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
-          repository-name: ygeunkim.github.io
+          repository-name: ygeunkim/ygeunkim.github.io
           clean: false
           branch: main
           folder: docs
