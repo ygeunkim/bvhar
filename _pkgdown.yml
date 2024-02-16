@@ -177,7 +177,7 @@ reference:
   - is.varlse
   - split_coef
 
-destination: '../../myprofile/young-blogdown/static/package/bvhar'
+# destination: '../../myprofile/young-blogdown/static/package/bvhar'
 
 navbar:
   structure:
