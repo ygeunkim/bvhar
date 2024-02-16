@@ -36,14 +36,17 @@ jobs:
           needs: website
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        # run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        run: pkgdown::build_site()
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
+          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          repository-name: ygeunkim.github.io
           clean: false
-          branch: gh-pages
+          branch: main
           folder: docs
           target-folder: package/bvhar
