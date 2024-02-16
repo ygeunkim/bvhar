@@ -47,6 +47,6 @@ jobs:
           token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
           repository-name: ygeunkim/ygeunkim.github.io
           clean: false
-          branch: main
+          branch: master
           folder: docs
           target-folder: package/bvhar
