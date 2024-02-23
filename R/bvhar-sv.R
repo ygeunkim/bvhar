@@ -106,6 +106,7 @@ bvhar_sv <- function(y,
     name_var <- colnames(y)
   } else {
     name_var <- paste0("y", seq_len(dim_data))
+    colnames(y) <- name_var
   }
   colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
