@@ -1,5 +1,4 @@
 #include "bvharomp.h"
-// #include "bvhardraw.h"
 #include "mcmcsv.h"
 
 //' Forecasting BVAR(p)
@@ -285,8 +284,7 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv_density(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                                   Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record,
-																	 Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+                                   Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
 																	 Eigen::VectorXi seed_chain, bool include_mean) {
 	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
   std::vector<std::unique_ptr<bvhar::SvRecords>> sv_records(num_chains);
