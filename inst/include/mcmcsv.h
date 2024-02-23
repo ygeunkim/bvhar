@@ -184,6 +184,12 @@ struct SvRecords {
 		lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
 		lvol_init_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
 		lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {}
+	SvRecords(
+		Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record
+	)
+	: coef_record(alpha_record), contem_coef_record(a_record),
+		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
+		lvol_record(h_record) {}
 	void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
@@ -194,6 +200,101 @@ struct SvRecords {
 		lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
+	}
+	Eigen::MatrixXd forecastDensity(Eigen::MatrixXd response_mat, int lag, int step, int seed, bool include_mean) {
+		boost::random::mt19937 rng(seed);
+		int num_sim = coef_record.rows();
+		int dim = response_mat.cols();
+  	int num_design = response_mat.rows();
+		int dim_design = include_mean ? lag * dim + 1 : lag * dim;
+		int num_coef = dim_design * dim;
+		int num_alpha = include_mean ? num_coef - dim : num_coef;
+		Eigen::VectorXd density_forecast(dim);
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+		Eigen::VectorXd last_pvec(dim_design);
+		Eigen::VectorXd tmp_vec(dim_design - dim);
+		Eigen::VectorXd sv_update(dim);
+		Eigen::MatrixXd sv_cov = Eigen::MatrixXd::Zero(dim, dim);
+		last_pvec[dim_design - 1] = 1.0;
+		for (int i = 0; i < lag; i++) {
+			last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
+		}
+		Eigen::MatrixXd coef_mat_record(dim_design, dim); // include constant term
+		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
+		Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
+		Eigen::MatrixXd tvp_prec(dim, dim);
+		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim);
+		for (int h = 0; h < step; h++) {
+			for (int i = 0; i < num_sim; i++) {
+				coef_mat_record.topRows(lag * dim) = bvhar::unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
+				if (include_mean) {
+					coef_mat_record.bottomRows(1) = coef_record.row(i).tail(dim);
+				}
+				density_forecast = last_pvec.transpose() * coef_mat_record;
+				sv_cov.diagonal() = 1 / lvol_sig_record.row(i).array(); // covariance of h_t
+				sv_update = bvhar::vectorize_eigen(
+					sim_mgaussian_chol(1, h_last_record.row(i), sv_cov)
+				); // h_T+1 = h_T + u_T
+				tvp_lvol.diagonal() = 1 / sv_update.array().exp(); // Dt = diag(exp(h_t))
+				contem_mat = bvhar::build_inv_lower(dim, contem_coef_record.row(i));
+				tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
+				predictive_distn.block(h, i * dim, 1, dim) = sim_mgaussian_chol(
+					1,
+					density_forecast,
+					tvp_prec.inverse(),
+					rng
+				);
+			}
+		}
+		return predictive_distn;
+	}
+	Eigen::MatrixXd forecastDensity(Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, int month, int step, int seed, bool include_mean) {
+		boost::random::mt19937 rng(seed);
+		int num_sim = coef_record.rows();
+		int dim = response_mat.cols();
+  	int num_design = response_mat.rows();
+		int dim_design = HARtrans.cols(); // month * dim( + 1)
+		int dim_har = HARtrans.rows(); // 3 * dim( + 1)
+		int num_coef = dim_har * dim;
+		int num_alpha = include_mean ? num_coef - dim : num_coef;
+		Eigen::VectorXd density_forecast(dim);
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim);
+		Eigen::VectorXd last_pvec(dim_design);
+		Eigen::VectorXd tmp_vec(dim_design - dim);
+		Eigen::VectorXd sv_update(dim);
+		Eigen::MatrixXd sv_cov = Eigen::MatrixXd::Zero(dim, dim);
+		last_pvec[dim_design - 1] = 1.0;
+		for (int i = 0; i < month; i++) {
+			last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
+		}
+		Eigen::MatrixXd coef_mat_record(dim_design, dim); // include constant term
+		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
+		Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
+		Eigen::MatrixXd tvp_prec(dim, dim);
+		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim);
+		for (int h = 0; h < step; h++) {
+			for (int i = 0; i < num_sim; i++) {
+				coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
+				if (include_mean) {
+					coef_mat_record.bottomRows(1) = coef_record.row(i).tail(dim);
+				}
+				density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat_record;
+				sv_cov.diagonal() = 1 / lvol_sig_record.row(i).array(); // covariance of h_t
+				sv_update = bvhar::vectorize_eigen(
+					sim_mgaussian_chol(1, h_last_record.row(i), sv_cov)
+				); // h_T+1 = h_T + u_T
+				tvp_lvol.diagonal() = 1 / sv_update.array().exp(); // Dt = diag(exp(h_t))
+				contem_mat = bvhar::build_inv_lower(dim, contem_coef_record.row(i));
+				tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
+				predictive_distn.block(h, i * dim, 1, dim) = sim_mgaussian_chol(
+					1,
+					density_forecast,
+					tvp_prec.inverse(),
+					rng
+				);
+			}
+		}
+		return predictive_distn;
 	}
 };
 

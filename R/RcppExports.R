@@ -770,8 +770,8 @@ forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
 #' @param sigh_record MCMC record of variance of log-volatilities
 #' 
 #' @noRd
-forecast_bvarsv_density <- function(num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean) {
-    .Call(`_bvhar_forecast_bvarsv_density`, num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean)
+forecast_bvarsv_density <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean) {
+    .Call(`_bvhar_forecast_bvarsv_density`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window

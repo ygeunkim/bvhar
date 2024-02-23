@@ -640,8 +640,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // forecast_bvarsv_density
-Eigen::MatrixXd forecast_bvarsv_density(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_last_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record, bool include_mean);
-RcppExport SEXP _bvhar_forecast_bvarsv_density(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP alpha_recordSEXP, SEXP h_last_recordSEXP, SEXP a_recordSEXP, SEXP sigh_recordSEXP, SEXP include_meanSEXP) {
+Rcpp::List forecast_bvarsv_density(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record, Eigen::VectorXi seed_chain, bool include_mean);
+RcppExport SEXP _bvhar_forecast_bvarsv_density(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP alpha_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP, SEXP sigh_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -650,11 +650,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type alpha_record(alpha_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_last_record(h_last_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_record(h_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigh_record(sigh_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvarsv_density(num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean));
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarsv_density(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1222,7 +1223,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_forecast_bvarssvs", (DL_FUNC) &_bvhar_forecast_bvarssvs, 8},
     {"_bvhar_forecast_bvarhs", (DL_FUNC) &_bvhar_forecast_bvarhs, 7},
     {"_bvhar_forecast_bvarsv", (DL_FUNC) &_bvhar_forecast_bvarsv, 4},
-    {"_bvhar_forecast_bvarsv_density", (DL_FUNC) &_bvhar_forecast_bvarsv_density, 9},
+    {"_bvhar_forecast_bvarsv_density", (DL_FUNC) &_bvhar_forecast_bvarsv_density, 10},
     {"_bvhar_roll_bvar", (DL_FUNC) &_bvhar_roll_bvar, 6},
     {"_bvhar_roll_bvarflat", (DL_FUNC) &_bvhar_roll_bvarflat, 6},
     {"_bvhar_expand_bvar", (DL_FUNC) &_bvhar_expand_bvar, 6},
