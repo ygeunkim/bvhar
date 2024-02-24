@@ -566,6 +566,22 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(object$alpha_record)
+  is_stable <- apply(
+    alpha_record,
+    1,
+    function(x) {
+      all(
+        matrix(x, ncol = object$m) %>%
+          compute_stablemat() %>%
+          eigen() %>%
+          .$values %>%
+          Mod() < 1
+      )
+    }
+  )
+  if (any(!is_stable)) {
+    warning("Some alpha records are unstable, so add burn-in")
+  }
   if (object$type == "const") {
     alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
   }
@@ -623,6 +639,23 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(object$phi_record)
+  is_stable <- apply(
+    phi_record,
+    1,
+    function(x) {
+      coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
+      all(
+        coef %>% 
+          compute_stablemat() %>% 
+          eigen() %>% 
+          .$values %>% 
+          Mod() < 1
+      )
+    }
+  )
+  if (any(!is_stable)) {
+    warning("Some phi records are unstable, so add burn-in")
+  }
   if (object$type == "const") {
     phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
   }
