@@ -205,51 +205,45 @@ struct SvRecords {
 		boost::random::mt19937 rng(seed);
 		int num_sim = coef_record.rows();
 		int dim = response_mat.cols();
-  	int num_design = response_mat.rows();
 		int dim_design = include_mean ? lag * dim + 1 : lag * dim;
 		int num_coef = dim_design * dim;
 		int num_alpha = include_mean ? num_coef - dim : num_coef;
-		Eigen::VectorXd density_forecast(dim); // posterior mean
-		Eigen::VectorXd point_forecast(dim);
-		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::VectorXd last_pvec(dim_design);
-		Eigen::VectorXd tmp_vec(dim_design - dim);
-		Eigen::VectorXd sv_update(dim);
+		Eigen::VectorXd sv_update(dim); // h_(T + h)
 		last_pvec[dim_design - 1] = 1.0;
-		for (int i = 0; i < lag; i++) {
-			last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i); // R input: use y not y0
-		}
+		last_pvec.head(lag * dim) = vectorize_eigen(response_mat.colwise().reverse().topRows(lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - p + 1)^T]
+		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_T
+		Eigen::VectorXd tmp_vec = last_pvec.tail(dim_design - dim); // y_(T - 1), ... y_(T - p + 1)
+		Eigen::VectorXd post_mean(dim); // posterior mean
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::MatrixXd coef_mat(dim_design, dim); // include constant term
 		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim); // L
 		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim); // h_T record
 		Eigen::VectorXd standard_normal(dim); // Z ~ N(0, I)
 		for (int h = 0; h < step; h++) {
+			last_pvec.segment(dim, dim_design - dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
 				coef_mat.topRows(lag * dim) = unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
 				if (include_mean) {
 					coef_mat.bottomRows(1) = coef_record.row(i).tail(dim);
 				}
-				density_forecast = last_pvec.transpose() * coef_mat; // overflow issue here
-				// tmp_vec = last_pvec.head(dim_design - dim);
-				// last_pvec.head(dim) = density_forecast;
-				// last_pvec.segment(dim, dim_design - dim) = tmp_vec;
+				last_pvec.head(dim) = point_forecast;
+				post_mean = last_pvec.transpose() * coef_mat; // overflow issue here
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
 				standard_normal.array() *= lvol_sig_record.row(i).cwiseSqrt().array(); // sig_h Z ~ N(0, sig_h^2)
-				sv_update = h_last_record.row(i).transpose() + standard_normal; // h_T+1 = h_T + u_T
+				sv_update = h_last_record.row(i).transpose() + standard_normal; // h_(t+1) = h_t + u_t
+				h_last_record.row(i) = sv_update; // for next update
 				contem_mat = build_inv_lower(dim, contem_coef_record.row(i));
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
 				standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
-				// predictive_distn.block(h, i * dim, 1, dim).transpose() = density_forecast + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(density_forecast, L^-1 D L)
-				point_forecast = density_forecast + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(density_forecast, L^-1 D L)
+				point_forecast = post_mean + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				predictive_distn.block(h, i * dim, 1, dim) = point_forecast.transpose();
-				tmp_vec = last_pvec.head(dim_design - dim);
-				last_pvec.head(dim) = point_forecast;
-				last_pvec.segment(dim, dim_design - dim) = tmp_vec;
 			}
+			tmp_vec = last_pvec.head(dim_design - dim);
 		}
 		return predictive_distn;
 	}
@@ -257,52 +251,46 @@ struct SvRecords {
 		boost::random::mt19937 rng(seed);
 		int num_sim = coef_record.rows();
 		int dim = response_mat.cols();
-  	int num_design = response_mat.rows();
 		int dim_design = HARtrans.cols(); // month * dim( + 1)
 		int dim_har = HARtrans.rows(); // 3 * dim( + 1)
 		int num_coef = dim_har * dim;
 		int num_alpha = include_mean ? num_coef - dim : num_coef;
-		Eigen::VectorXd density_forecast(dim); // posterior mean
-		Eigen::VectorXd point_forecast(dim);
-		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::VectorXd last_pvec(dim_design);
-		Eigen::VectorXd tmp_vec(dim_design - dim);
-		Eigen::VectorXd sv_update(dim);
+		Eigen::VectorXd sv_update(dim); // h_(T + h)
 		last_pvec[dim_design - 1] = 1.0;
-		for (int i = 0; i < month; i++) {
-			last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i); // R input: use y not y0
-		}
+		last_pvec.head(month * dim) = vectorize_eigen(response_mat.colwise().reverse().topRows(month).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - month + 1)^T]
+		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_T
+		Eigen::VectorXd tmp_vec = last_pvec.tail(dim_design - dim); // y_(T - 1), ... y_(T - month + 1)
+		Eigen::VectorXd post_mean(dim); // posterior mean
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::MatrixXd coef_mat(dim_har, dim); // include constant term
 		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim); // L
 		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim); // h_T record
 		Eigen::VectorXd standard_normal(dim); // Z ~ N(0, I)
 		for (int h = 0; h < step; h++) {
+			last_pvec.segment(dim, dim_design - dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
 				coef_mat.topRows(3 * dim) = unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
 				if (include_mean) {
 					coef_mat.bottomRows(1) = coef_record.row(i).tail(dim);
 				}
-				density_forecast = last_pvec.transpose() * HARtrans.transpose() * coef_mat; // overflow here
-				// tmp_vec = last_pvec.head(dim_design - dim);
-				// last_pvec.head(dim) = density_forecast;
-				// last_pvec.segment(dim, dim_design - dim) = tmp_vec;
+				last_pvec.head(dim) = point_forecast;
+				post_mean = last_pvec.transpose() * HARtrans.transpose() * coef_mat; // overflow here
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
 				standard_normal.array() *= lvol_sig_record.row(i).cwiseSqrt().array(); // sig_h Z ~ N(0, sig_h^2)
-				sv_update = h_last_record.row(i).transpose() + standard_normal; // h_T+1 = h_T + u_T
+				sv_update = h_last_record.row(i).transpose() + standard_normal; // h_(t+1) = h_t + u_t
+				h_last_record.row(i) = sv_update; // for next update
 				contem_mat = build_inv_lower(dim, contem_coef_record.row(i));
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
 				standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
-				// predictive_distn.block(h, i * dim, 1, dim).transpose() = density_forecast + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(density_forecast, L^-1 D L)
-				point_forecast = density_forecast + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(density_forecast, L^-1 D L)
+				point_forecast = post_mean + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				predictive_distn.block(h, i * dim, 1, dim) = point_forecast.transpose();
-				tmp_vec = last_pvec.head(dim_design - dim);
-				last_pvec.head(dim) = point_forecast;
-				last_pvec.segment(dim, dim_design - dim) = tmp_vec;
 			}
+			tmp_vec = last_pvec.head(dim_design - dim);
 		}
 		return predictive_distn;
 	}
