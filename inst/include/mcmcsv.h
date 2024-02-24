@@ -208,27 +208,27 @@ struct SvRecords {
 		int dim_design = include_mean ? lag * dim + 1 : lag * dim;
 		int num_coef = dim_design * dim;
 		int num_alpha = include_mean ? num_coef - dim : num_coef;
-		Eigen::VectorXd last_pvec(dim_design);
+		Eigen::VectorXd last_pvec(dim_design); // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 		Eigen::VectorXd sv_update(dim); // h_(T + h)
 		last_pvec[dim_design - 1] = 1.0;
 		last_pvec.head(lag * dim) = vectorize_eigen(response_mat.colwise().reverse().topRows(lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - p + 1)^T]
-		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_T
-		Eigen::VectorXd tmp_vec = last_pvec.tail(dim_design - dim); // y_(T - 1), ... y_(T - p + 1)
+		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_(T + h - 1)
+		Eigen::VectorXd tmp_vec = last_pvec.segment(dim, (lag - 1) * dim); // y_(T + h - 2), ... y_(T + h - p)
 		Eigen::VectorXd post_mean(dim); // posterior mean
 		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::MatrixXd coef_mat(dim_design, dim); // include constant term
-		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim); // L
+		Eigen::MatrixXd contem_mat(dim, dim); // L
 		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim); // h_T record
 		Eigen::VectorXd standard_normal(dim); // Z ~ N(0, I)
 		for (int h = 0; h < step; h++) {
-			last_pvec.segment(dim, dim_design - dim) = tmp_vec;
+			last_pvec.segment(dim, (lag - 1) * dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
 				coef_mat.topRows(lag * dim) = unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
 				if (include_mean) {
 					coef_mat.bottomRows(1) = coef_record.row(i).tail(dim);
 				}
 				last_pvec.head(dim) = point_forecast;
-				post_mean = last_pvec.transpose() * coef_mat; // overflow issue here
+				post_mean = last_pvec.transpose() * coef_mat; // can have overflow issue due to stability of each coef_record
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
@@ -243,7 +243,7 @@ struct SvRecords {
 				point_forecast = post_mean + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				predictive_distn.block(h, i * dim, 1, dim) = point_forecast.transpose();
 			}
-			tmp_vec = last_pvec.head(dim_design - dim);
+			tmp_vec = last_pvec.head((lag - 1) * dim);
 		}
 		return predictive_distn;
 	}
@@ -255,27 +255,27 @@ struct SvRecords {
 		int dim_har = HARtrans.rows(); // 3 * dim( + 1)
 		int num_coef = dim_har * dim;
 		int num_alpha = include_mean ? num_coef - dim : num_coef;
-		Eigen::VectorXd last_pvec(dim_design);
+		Eigen::VectorXd last_pvec(dim_design); // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - month)^T, 1 ] (1 when constant term)
 		Eigen::VectorXd sv_update(dim); // h_(T + h)
 		last_pvec[dim_design - 1] = 1.0;
 		last_pvec.head(month * dim) = vectorize_eigen(response_mat.colwise().reverse().topRows(month).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - month + 1)^T]
-		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_T
-		Eigen::VectorXd tmp_vec = last_pvec.tail(dim_design - dim); // y_(T - 1), ... y_(T - month + 1)
+		Eigen::VectorXd point_forecast = last_pvec.head(dim); // y_(T + h - 1)
+		Eigen::VectorXd tmp_vec = last_pvec.segment(dim, (month - 1) * dim); // y_(T + h - 2), ... y_(T + h - month)
 		Eigen::VectorXd post_mean(dim); // posterior mean
 		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		Eigen::MatrixXd coef_mat(dim_har, dim); // include constant term
-		Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim); // L
+		Eigen::MatrixXd contem_mat(dim, dim); // L
 		Eigen::MatrixXd h_last_record = lvol_record.rightCols(dim); // h_T record
 		Eigen::VectorXd standard_normal(dim); // Z ~ N(0, I)
 		for (int h = 0; h < step; h++) {
-			last_pvec.segment(dim, dim_design - dim) = tmp_vec;
+			last_pvec.segment(dim, (month - 1) * dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
 				coef_mat.topRows(3 * dim) = unvectorize(coef_record.row(i).head(num_alpha).transpose(), dim);
 				if (include_mean) {
 					coef_mat.bottomRows(1) = coef_record.row(i).tail(dim);
 				}
 				last_pvec.head(dim) = point_forecast;
-				post_mean = last_pvec.transpose() * HARtrans.transpose() * coef_mat; // overflow here
+				post_mean = last_pvec.transpose() * HARtrans.transpose() * coef_mat; // can have overflow issue due to stability of each coef_record
 				for (int j = 0; j < dim; j++) {
 					standard_normal[j] = normal_rand(rng);
 				}
@@ -290,7 +290,7 @@ struct SvRecords {
 				point_forecast = post_mean + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				predictive_distn.block(h, i * dim, 1, dim) = point_forecast.transpose();
 			}
-			tmp_vec = last_pvec.head(dim_design - dim);
+			tmp_vec = last_pvec.head((month - 1) * dim);
 		}
 		return predictive_distn;
 	}
