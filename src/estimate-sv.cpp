@@ -125,3 +125,149 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 	}
 	return Rcpp::wrap(res);
 }
+
+// [[Rcpp::export]]
+Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
+										Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
+										Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat,
+										bool include_mean, int step, Eigen::MatrixXd y_test,
+										Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads_roll, int nthreads_mod) {
+  int num_window = y.rows();
+  int dim = y.cols();
+  int num_test = y_test.rows();
+  int num_horizon = num_test - step + 1;
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
+	for (int i = 0; i < num_horizon; i++) {
+		roll_mat[i] = tot_mat.middleRows(i, num_window);
+	}
+	std::vector<std::vector<Rcpp::List>> records(num_horizon, std::vector<Rcpp::List>(num_chains));
+	std::vector<Rcpp::List> rec_window(num_horizon);
+	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
+	for (auto &sv_chain : sv_objs) {
+		sv_chain.resize(num_chains);
+		for (auto &ptr : sv_chain) {
+			ptr = nullptr;
+		}
+	}
+	std::vector<std::vector<std::unique_ptr<bvhar::SvRecords>>> sv_forecast(num_horizon);
+	for (auto &sv_record : sv_forecast) {
+		sv_record.resize(num_chains);
+		for (auto &ptr : sv_record) {
+			ptr = nullptr;
+		}
+	}
+	std::vector<Eigen::MatrixXd> res(num_chains); // ->? std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	switch (prior_type) {
+		case 1: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::MinnParams minn_params(
+					num_iter, design, response,
+					param_sv, param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::SvInits sv_inits(init_spec);
+					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+			}
+			break;
+		}
+		case 2: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::SsvsParams ssvs_params(
+					num_iter, design, response,
+					param_sv, grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::SsvsInits ssvs_inits(init_spec);
+					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+			}
+			break;
+		}
+		case 3: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::HorseshoeParams horseshoe_params(
+					num_iter, design, response,
+					param_sv, grp_id, grp_mat,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HorseshoeInits hs_inits(init_spec);
+					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+			}
+			break;
+		}
+	}
+	auto run_gibbs = [&](int window, int chain) {
+		bvhar::bvharinterrupt();
+		for (int i = 0; i < num_iter; i++) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					records[window][chain] = sv_objs[window][chain]->returnRecords(0, 1);
+				}
+				sv_forecast[window][chain].reset(new bvhar::SvRecords(
+					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+				));
+				break;
+			}
+			sv_objs[window][chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+		}
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			records[window][chain] = sv_objs[window][chain]->returnRecords(num_burn, thinning);
+		}
+		sv_forecast[window][chain].reset(new bvhar::SvRecords(
+			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+		));
+	};
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads_roll)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		if (num_chains == 1) {
+			run_gibbs(window, 0);
+			res[0] = sv_forecast[window][0]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[0]), include_mean).row(step - 1);
+		} else {
+		#ifdef _OPENMP
+			#pragma omp parallel for num_threads(nthreads_mod)
+		#endif
+			for (int chain = 0; chain < num_chains; chain++) {
+				run_gibbs(window, chain);
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					res[chain] = sv_forecast[window][chain]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[chain]), include_mean).row(step - 1);
+				}
+			}
+		}
+	}
+  return Rcpp::wrap(res);
+}
