@@ -25,7 +25,7 @@ set_ssvs(
 
 \method{print}{ssvsinput}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.ssvsinput(x, ...)
+\method{knit_print}{ssvsinput}(x, ...)
 }
 \arguments{
 \item{coef_spike}{Standard deviance for Spike normal distribution (See Details).}

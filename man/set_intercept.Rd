@@ -10,7 +10,7 @@ set_intercept(mean = 0, sd = 0.1)
 
 \method{print}{interceptspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.interceptspec(x, ...)
+\method{knit_print}{interceptspec}(x, ...)
 }
 \arguments{
 \item{mean}{Normal mean of constant term}
