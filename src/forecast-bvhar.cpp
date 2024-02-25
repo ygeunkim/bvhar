@@ -238,40 +238,6 @@ Eigen::MatrixXd forecast_bvharhs(int num_chains, int month, int step,
 	return predictive_distn;
 }
 
-//' Forecasting VHAR-SV
-//' 
-//' @param month VHAR month order.
-//' @param step Integer, Step to forecast.
-//' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
-//' @param HARtrans VHAR linear transformation matrix
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvharsv(int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat, Eigen::MatrixXd HARtrans) {
-  int dim = response_mat.cols();
-  int num_design = response_mat.rows();
-  int dim_har = HARtrans.cols();
-  Eigen::MatrixXd point_forecast(step, dim);
-  Eigen::VectorXd last_pvec(dim_har);
-  Eigen::VectorXd tmp_vec((month - 1) * dim);
-  last_pvec[dim_har - 1] = 1.0;
-  for (int i = 0; i < month; i++) {
-    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
-  }
-  point_forecast.row(0) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
-  if (step == 1) {
-    return point_forecast;
-  }
-  for (int i = 1; i < step; i++) {
-    tmp_vec = last_pvec.segment(0, (month - 1) * dim);
-    last_pvec.segment(dim, (month - 1) * dim) = tmp_vec;
-    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
-    point_forecast.row(i) = last_pvec.transpose() * HARtrans.transpose() * coef_mat;
-  }
-  return point_forecast;
-}
-
 //' Forecasting Predictive Density of VHAR-SV
 //' 
 //' @param month VHAR month order.
@@ -282,22 +248,25 @@ Eigen::MatrixXd forecast_bvharsv(int month, int step, Eigen::MatrixXd response_m
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_bvharsv_density(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-																 		Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-																		Eigen::VectorXi seed_chain, bool include_mean) {
+Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+														Eigen::VectorXi seed_chain, bool include_mean) {
 	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvRecords>> sv_records(num_chains);
+	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
-		sv_records[i] = std::unique_ptr<bvhar::SvRecords>(new bvhar::SvRecords(
+		bvhar::SvRecords sv_record(
 			phi_record.middleRows(i * num_sim, num_sim),
 			h_record.middleRows(i * num_sim, num_sim),
 			a_record.middleRows(i * num_sim, num_sim),
 			sigh_record.middleRows(i * num_sim, num_sim)
+		);
+		forecaster[i] = std::unique_ptr<bvhar::SvVharForecaster>(new bvhar::SvVharForecaster(
+			sv_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
 		));
 	}
 	std::vector<Eigen::MatrixXd> res(num_chains);
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = sv_records[chain]->forecastDensity(response_mat, HARtrans, month, step, static_cast<unsigned int>(seed_chain[chain]), include_mean);
+		res[chain] = forecaster[chain]->forecastDensity();
 	}
 	return Rcpp::wrap(res);
 }
@@ -343,66 +312,6 @@ Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y,
     y_pred = bvhar_pred["posterior_mean"];
     res.row(i) = y_pred.row(step - 1);
   }
-  return res;
-}
-
-//' Out-of-Sample Forecasting of VHAR-SV based on Rolling Window
-//' 
-//' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
-//' 
-//' @param y Time series data of which columns indicate the variables
-//' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-//' @param bayes_spec List, BVHAR specification
-//' @param include_mean Add constant term
-//' @param step Integer, Step to forecast
-//' @param y_test Evaluation time series data period after `y`
-//' @param nthreads_roll Number of threads when rolling windows
-//' @param nthreads_mod Number of threads when fitting models
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd roll_bvharsv(Eigen::MatrixXd y, Eigen::VectorXi har,
-                             int num_iter, int num_burn, int thinning,
-                             Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test,
-                             int nthreads_roll, int nthreads_mod) {
-  if (!bayes_spec.inherits("bvharspec")) {
-    Rcpp::stop("'object' must be bvharspec object.");
-  }
-  Rcpp::Function fit("bvhar_sv");
-  int window = y.rows();
-  int dim = y.cols();
-  int num_test = y_test.rows();
-  int num_horizon = num_test - step + 1;
-  Eigen::MatrixXd roll_mat = y;
-  Rcpp::List bvhar_mod = fit(roll_mat, har, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-  Eigen::MatrixXd y_pred = forecast_bvharsv(bvhar_mod["month"], step, bvhar_mod["y0"], bvhar_mod["coefficients"], bvhar_mod["HARtrans"]);
-  // Eigen::MatrixXd y_pred = bvhar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-#ifdef _OPENMP
-  Eigen::MatrixXd tot_mat(window + num_test, dim); // entire data set = train + test for parallel
-  tot_mat.topRows(window) = y;
-  tot_mat.bottomRows(num_test) = y_test;
-#pragma omp parallel for num_threads(nthreads_roll) private(roll_mat, bvhar_mod, y_pred)
-  for (int i = 1; i < num_horizon; i++) {
-    // roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    // roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    roll_mat = tot_mat.block(i, 0, window, dim);
-    bvhar_mod = fit(roll_mat, har, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-    y_pred = forecast_bvharsv(bvhar_mod["month"], step, bvhar_mod["y0"], bvhar_mod["coefficients"], bvhar_mod["HARtrans"]);
-    // y_pred = bvhar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-#else
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    bvhar_mod = fit(roll_mat, har, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-    y_pred = forecast_bvharsv(bvhar_mod["month"], step, bvhar_mod["y0"], bvhar_mod["coefficients"], bvhar_mod["HARtrans"]);
-    // y_pred = bvhar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-#endif
   return res;
 }
 

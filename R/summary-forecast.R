@@ -85,7 +85,6 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
         param_prior <- list()
         prior_type <- 3
       }
-      # roll_bvarsv(y, object$p, object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
       roll_bvarsv(
         y, object$p, object$chain, object$iter, object$burn, object$thin,
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
@@ -97,11 +96,33 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
       )
     },
     "bvharsv" = {
-      roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = 3))
+        prior_type <- 1
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      roll_bvharsv(
+        y, object$week, object$month, object$chain, object$iter, object$burn, object$thin,
+        object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+        grp_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        sample.int(.Machine$integer.max, size = object$chain * num_horizon) %>% matrix(ncol = object$chain),
+        sample.int(.Machine$integer.max, size = object$chain),
+        roll_thread, mod_thread
+      )
+      # roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
     }
   )
-  if (model_type == "bvarsv") {
-    num_draw <- nrow(object$alpha_record) # concatenate multiple chains
+  if (model_type == "bvarsv" || model_type == "bvharsv") {
+    num_draw <- nrow(object$a_record) # concatenate multiple chains
     res_mat <-
       res_mat %>% 
       lapply(function(res) {

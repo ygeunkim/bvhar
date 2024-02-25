@@ -585,7 +585,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   if (object$type == "const") {
     alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
   }
-  pred_res <- forecast_bvarsv_density(
+  pred_res <- forecast_bvarsv(
     num_chains,
     object$p,
     n_ahead,
@@ -659,7 +659,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   if (object$type == "const") {
     phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
   }
-  pred_res <- forecast_bvharsv_density(
+  pred_res <- forecast_bvharsv(
     num_chains,
     object$month,
     n_ahead,

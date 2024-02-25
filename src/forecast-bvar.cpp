@@ -237,39 +237,6 @@ Eigen::MatrixXd forecast_bvarhs(int num_chains, int var_lag, int step,
 	return predictive_distn;
 }
 
-//' Forecasting VAR-SV
-//' 
-//' @param var_lag VAR order.
-//' @param step Integer, Step to forecast.
-//' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat) {
-  int dim = response_mat.cols();
-  int num_design = response_mat.rows();
-  int dim_design = coef_mat.rows();
-  Eigen::MatrixXd point_forecast(step, dim);
-  Eigen::VectorXd last_pvec(dim_design);
-  Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
-  last_pvec[dim_design - 1] = 1.0;
-  for (int i = 0; i < var_lag; i++) {
-    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
-  }
-  point_forecast.row(0) = last_pvec.transpose() * coef_mat;
-  if (step == 1) {
-    return point_forecast;
-  }
-  for (int i = 1; i < step; i++) {
-    tmp_vec = last_pvec.segment(0, (var_lag - 1) * dim);
-    last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
-    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
-    point_forecast.row(i) = last_pvec.transpose() * coef_mat;
-  }
-  return point_forecast;
-}
-
 //' Forecasting predictive density of VAR-SV
 //' 
 //' @param var_lag VAR order.
@@ -283,22 +250,25 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_bvarsv_density(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                                   Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-																	 Eigen::VectorXi seed_chain, bool include_mean) {
+Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+                           Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+													 Eigen::VectorXi seed_chain, bool include_mean) {
 	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-  std::vector<std::unique_ptr<bvhar::SvRecords>> sv_records(num_chains);
+	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
-		sv_records[i] = std::unique_ptr<bvhar::SvRecords>(new bvhar::SvRecords(
+		bvhar::SvRecords sv_record(
 			alpha_record.middleRows(i * num_sim, num_sim),
 			h_record.middleRows(i * num_sim, num_sim),
 			a_record.middleRows(i * num_sim, num_sim),
 			sigh_record.middleRows(i * num_sim, num_sim)
+		);
+		forecaster[i] = std::unique_ptr<bvhar::SvVarForecaster>(new bvhar::SvVarForecaster(
+			sv_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
 		));
 	}
 	std::vector<Eigen::MatrixXd> res(num_chains);
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = sv_records[chain]->forecastDensity(response_mat, var_lag, step, static_cast<unsigned int>(seed_chain[chain]), include_mean);
+		res[chain] = forecaster[chain]->forecastDensity();
 	}
 	return Rcpp::wrap(res);
 }
