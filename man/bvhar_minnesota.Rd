@@ -15,7 +15,7 @@ bvhar_minnesota(
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharmn(x, ...)
+\method{knit_print}{bvharmn}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

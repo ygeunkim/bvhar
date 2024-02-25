@@ -19,7 +19,7 @@ set_weight_bvhar(sigma, lambda = 0.1, eps = 1e-04, daily, weekly, monthly)
 
 \method{print}{bvharspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharspec(x, ...)
+\method{knit_print}{bvharspec}(x, ...)
 }
 \arguments{
 \item{sigma}{Standard error vector for each variable (Default: sd)}

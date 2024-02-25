@@ -16,7 +16,7 @@ init_ssvs(
 
 \method{print}{ssvsinit}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.ssvsinit(x, ...)
+\method{knit_print}{ssvsinit}(x, ...)
 }
 \arguments{
 \item{init_coef}{Initial coefficient matrix. Initialize with an array or list for multiple chains.}

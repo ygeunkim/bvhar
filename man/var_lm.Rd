@@ -10,7 +10,7 @@ var_lm(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"))
 
 \method{print}{varlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.varlse(x, ...)
+\method{knit_print}{varlse}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

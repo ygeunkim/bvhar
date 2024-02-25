@@ -23,7 +23,7 @@ bvhar_horseshoe(
 
 \method{print}{bvharhs}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharhs(x, ...)
+\method{knit_print}{bvharhs}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
