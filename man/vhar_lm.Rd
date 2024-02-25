@@ -15,7 +15,7 @@ vhar_lm(
 
 \method{print}{vharlse}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.vharlse(x, ...)
+\method{knit_print}{vharlse}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

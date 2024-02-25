@@ -10,7 +10,7 @@
 
 \method{print}{summary.varlse}(x, digits = max(3L, getOption("digits") - 3L), signif_code = TRUE, ...)
 
-knit_print.summary.varlse(x, ...)
+\method{knit_print}{summary.varlse}(x, ...)
 }
 \arguments{
 \item{object}{\code{varlse} object}
