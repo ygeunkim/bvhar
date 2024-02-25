@@ -21,7 +21,7 @@ bvar_niwhm(
 
 \method{print}{bvarhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarhm(x, ...)
+\method{knit_print}{bvarhm}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

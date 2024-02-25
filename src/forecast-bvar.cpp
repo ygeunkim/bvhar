@@ -1,5 +1,5 @@
 #include "bvharomp.h"
-#include "bvhardraw.h"
+#include "mcmcsv.h"
 
 //' Forecasting BVAR(p)
 //' 
@@ -237,39 +237,6 @@ Eigen::MatrixXd forecast_bvarhs(int num_chains, int var_lag, int step,
 	return predictive_distn;
 }
 
-//' Forecasting VAR-SV
-//' 
-//' @param var_lag VAR order.
-//' @param step Integer, Step to forecast.
-//' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd coef_mat) {
-  int dim = response_mat.cols();
-  int num_design = response_mat.rows();
-  int dim_design = coef_mat.rows();
-  Eigen::MatrixXd point_forecast(step, dim);
-  Eigen::VectorXd last_pvec(dim_design);
-  Eigen::VectorXd tmp_vec((var_lag - 1) * dim);
-  last_pvec[dim_design - 1] = 1.0;
-  for (int i = 0; i < var_lag; i++) {
-    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
-  }
-  point_forecast.row(0) = last_pvec.transpose() * coef_mat;
-  if (step == 1) {
-    return point_forecast;
-  }
-  for (int i = 1; i < step; i++) {
-    tmp_vec = last_pvec.segment(0, (var_lag - 1) * dim);
-    last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
-    last_pvec.segment(0, dim) = point_forecast.row(i - 1);
-    point_forecast.row(i) = last_pvec.transpose() * coef_mat;
-  }
-  return point_forecast;
-}
-
 //' Forecasting predictive density of VAR-SV
 //' 
 //' @param var_lag VAR order.
@@ -283,92 +250,27 @@ Eigen::MatrixXd forecast_bvarsv(int var_lag, int step, Eigen::MatrixXd response_
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvarsv_density(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                                   			Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_last_record,
-																				Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record, bool include_mean) {
-  int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-	// int num_sim = alpha_record.rows();
-  int dim = response_mat.cols();
-  int num_design = response_mat.rows();
-	int dim_design = include_mean ? var_lag * dim + 1 : var_lag * dim;
-	int num_coef = dim_design * dim;
-	int num_alpha = include_mean ? num_coef - dim : num_coef;
-  Eigen::VectorXd density_forecast(dim);
-  Eigen::MatrixXd predictive_distn(step * num_chains, num_sim * dim);
-  Eigen::VectorXd last_pvec(dim_design);
-	Eigen::VectorXd tmp_vec(dim_design - dim);
-  Eigen::VectorXd sv_update(dim);
-  Eigen::MatrixXd sv_cov = Eigen::MatrixXd::Zero(dim, dim);
-  last_pvec[dim_design - 1] = 1.0;
-  for (int i = 0; i < var_lag; i++) {
-    last_pvec.segment(i * dim, dim) = response_mat.row(num_design - 1 - i);
-  }
-	Eigen::MatrixXd coef_mat_record(dim_design, dim); // include constant term
-  Eigen::MatrixXd contem_mat = Eigen::MatrixXd::Zero(dim, dim);
-  Eigen::MatrixXd tvp_lvol = Eigen::MatrixXd::Zero(dim, dim);
-  Eigen::MatrixXd tvp_prec(dim, dim);
-	Eigen::MatrixXd alpha_chain(num_sim, num_coef);
-	Eigen::MatrixXd h_chain(num_sim, dim);
-	Eigen::MatrixXd a_chain(num_sim, dim * (dim - 1) / 2);
-	Eigen::MatrixXd sigh_chain(num_sim, dim);
-	for (int chain = 0; chain < num_chains; chain++) {
-		alpha_chain = alpha_record.middleRows(chain * num_sim, num_sim);
-		h_chain = h_last_record.middleRows(chain * num_sim, num_sim);
-		a_chain = a_record.middleRows(chain * num_sim, num_sim);
-		sigh_chain = sigh_record.middleRows(chain * num_sim, num_sim);
-		for (int b = 0; b < num_sim; b++) {
-			coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_chain.row(b).head(num_alpha).transpose(), dim);
-			if (include_mean) {
-				coef_mat_record.bottomRows(1) = alpha_chain.row(b).tail(dim);
-			}
-			density_forecast = last_pvec.transpose() * coef_mat_record;
-			sv_cov.diagonal() = 1 / sigh_chain.row(b).array(); // covariance of h_t
-			sv_update = bvhar::vectorize_eigen(
-				sim_mgaussian_chol(1, h_chain.row(b), sv_cov)
-			); // h_T+1 = h_T + u_T
-			tvp_lvol.diagonal() = 1 / sv_update.array().exp(); // Dt = diag(exp(h_t))
-			contem_mat = bvhar::build_inv_lower(dim, a_chain.row(b));
-			tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat; // L^T D_T  L
-			predictive_distn.block(chain * step, b * dim, 1, dim) = sim_mgaussian_chol(
-				1,
-				density_forecast,
-				tvp_prec.inverse()
-			);
-		}
+Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+                           Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+													 Eigen::VectorXi seed_chain, bool include_mean) {
+	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
+	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
+	for (int i = 0; i < num_chains; i++ ) {
+		bvhar::SvRecords sv_record(
+			alpha_record.middleRows(i * num_sim, num_sim),
+			h_record.middleRows(i * num_sim, num_sim),
+			a_record.middleRows(i * num_sim, num_sim),
+			sigh_record.middleRows(i * num_sim, num_sim)
+		);
+		forecaster[i] = std::unique_ptr<bvhar::SvVarForecaster>(new bvhar::SvVarForecaster(
+			sv_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+		));
 	}
-  if (step == 1) {
-		return predictive_distn;
-  }
+	std::vector<Eigen::MatrixXd> res(num_chains);
 	for (int chain = 0; chain < num_chains; chain++) {
-		alpha_chain = alpha_record.middleRows(chain * num_sim, num_sim);
-		h_chain = h_last_record.middleRows(chain * num_sim, num_sim);
-		a_chain = a_record.middleRows(chain * num_sim, num_sim);
-		sigh_chain = sigh_record.middleRows(chain * num_sim, num_sim);
-		for (int i = 1; i < step; i++) {
-			for (int b = 0; b < num_sim; b++) {
-				tmp_vec = last_pvec.head(dim_design - dim);
-				last_pvec << density_forecast, tmp_vec;
-				coef_mat_record.topRows(var_lag * dim) = bvhar::unvectorize(alpha_chain.row(b).head(num_alpha).transpose(), dim);
-				if (include_mean) {
-					coef_mat_record.bottomRows(1) = alpha_chain.row(b).tail(dim);
-				}
-				density_forecast = last_pvec.transpose() * coef_mat_record;
-				sv_cov.diagonal() = 1 / sigh_chain.row(b).array();
-				sv_update = bvhar::vectorize_eigen(
-					sim_mgaussian_chol(1, h_chain.row(b), sv_cov)
-				);
-				tvp_lvol.diagonal() = 1 / sv_update.array();
-				contem_mat = bvhar::build_inv_lower(dim, a_chain.row(b));
-				tvp_prec = contem_mat.transpose() * tvp_lvol * contem_mat;
-				predictive_distn.block(chain * step + i, b * dim, 1, dim) = sim_mgaussian_chol(
-					1,
-					density_forecast,
-					tvp_prec.inverse()
-				);
-			}
-		}
+		res[chain] = forecaster[chain]->forecastDensity();
 	}
-	return predictive_distn;
+	return Rcpp::wrap(res);
 }
 
 //' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -554,60 +456,5 @@ Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y,
     y_pred = bvar_pred["posterior_mean"];
     res.row(i) = y_pred.row(step - 1);
   }
-  return res;
-}
-
-//' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-//' 
-//' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
-//' 
-//' @param y Time series data of which columns indicate the variables
-//' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-//' @param bayes_spec List, BVHAR specification
-//' @param include_mean Add constant term
-//' @param step Integer, Step to forecast
-//' @param y_test Evaluation time series data period after `y`
-//' @param nthreads_roll Number of threads when rolling windows
-//' @param nthreads_mod Number of threads when fitting models
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd roll_bvarsv(Eigen::MatrixXd y, int lag, int num_iter, int num_burn, int thinning, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads_roll, int nthreads_mod) {
-  if (!bayes_spec.inherits("bvharspec")) {
-    Rcpp::stop("'object' must be bvharspec object.");
-  }
-  Rcpp::Function fit("bvar_sv");
-  int window = y.rows();
-  int dim = y.cols();
-  int num_test = y_test.rows();
-  int num_horizon = num_test - step + 1;
-  Eigen::MatrixXd roll_mat = y;
-  Rcpp::List bvar_mod = fit(roll_mat, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-  Eigen::MatrixXd y_pred = forecast_bvarsv(bvar_mod["p"], step, bvar_mod["y0"], bvar_mod["coefficients"]);
-  // Eigen::MatrixXd y_pred = bvhar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-#ifdef _OPENMP
-  Eigen::MatrixXd tot_mat(window + num_test, dim); // entire data set = train + test for parallel
-  tot_mat.topRows(window) = y;
-  tot_mat.bottomRows(num_test) = y_test;
-#pragma omp parallel for num_threads(nthreads_roll) private(roll_mat, bvar_mod, y_pred)
-  for (int i = 1; i < num_horizon; i++) {
-    // roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    // roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    roll_mat = tot_mat.block(i, 0, window, dim);
-    bvar_mod = fit(roll_mat, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-    y_pred = forecast_bvarsv(bvar_mod["p"], step, bvar_mod["y0"], bvar_mod["coefficients"]);
-    res.row(i) = y_pred.row(step - 1);
-  }
-#else
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    bvar_mod = fit(roll_mat, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, false, nthreads_mod);
-    y_pred = forecast_bvarsv(bvar_mod["p"], step, bvar_mod["y0"], bvar_mod["coefficients"]);
-    res.row(i) = y_pred.row(step - 1);
-  }
-#endif
   return res;
 }

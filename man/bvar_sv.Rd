@@ -25,7 +25,7 @@ bvar_sv(
 
 \method{print}{bvarsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarsv(x, ...)
+\method{knit_print}{bvarsv}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

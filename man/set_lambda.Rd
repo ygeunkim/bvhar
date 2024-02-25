@@ -13,7 +13,7 @@ set_psi(shape = 4e-04, scale = 4e-04, lower = 1e-05, upper = 3)
 
 \method{print}{bvharpriorspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharpriorspec(x, ...)
+\method{knit_print}{bvharpriorspec}(x, ...)
 }
 \arguments{
 \item{mode}{Mode of Gamma distribution. By default, \code{.2}.}

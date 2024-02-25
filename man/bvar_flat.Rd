@@ -10,7 +10,7 @@ bvar_flat(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE)
 
 \method{print}{bvarflat}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarflat(x, ...)
+\method{knit_print}{bvarflat}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

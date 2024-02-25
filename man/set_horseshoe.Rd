@@ -10,7 +10,7 @@ set_horseshoe(local_sparsity = 1, global_sparsity = 1)
 
 \method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.horseshoespec(x, ...)
+\method{knit_print}{horseshoespec}(x, ...)
 }
 \arguments{
 \item{local_sparsity}{Initial local shrinkage hyperparameters}
