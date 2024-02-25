@@ -565,42 +565,49 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
   num_chains <- object$chain
-  h_record <- as_draws_matrix(object$h_record)
   alpha_record <- as_draws_matrix(object$alpha_record)
+  is_stable <- apply(
+    alpha_record,
+    1,
+    function(x) {
+      all(
+        matrix(x, ncol = object$m) %>%
+          compute_stablemat() %>%
+          eigen() %>%
+          .$values %>%
+          Mod() < 1
+      )
+    }
+  )
+  if (any(!is_stable)) {
+    warning("Some alpha records are unstable, so add burn-in")
+  }
   if (object$type == "const") {
     alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
   }
-  pred_res <- forecast_bvarsv_density(
+  pred_res <- forecast_bvarsv(
     num_chains,
     object$p,
     n_ahead,
     object$y0,
     alpha_record,
-    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
+    as_draws_matrix(object$h_record),
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
+    sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const"
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$alpha_record) / num_chains
+  num_draw <- nrow(object$alpha_record) # concatenate multiple chains
   y_distn <-
     pred_res %>% 
-    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+    unlist() %>% 
+    array(dim = c(n_ahead, dim_data, num_draw))
   pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
-  if (num_chains > 1) {
-    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
-    pred_mean <- Reduce("+", pred_mean) / num_chains
-    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
-    lower_quantile <- Reduce("+", lower_quantile) / num_chains
-    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
-    upper_quantile <- Reduce("+", upper_quantile) / num_chains
-    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
-    est_se <- Reduce("+", est_se) / num_chains
-  }
   colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
@@ -631,43 +638,51 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
 predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
   dim_data <- object$m
   num_chains <- object$chain
-  h_record <- as_draws_matrix(object$h_record)
   phi_record <- as_draws_matrix(object$phi_record)
+  is_stable <- apply(
+    phi_record,
+    1,
+    function(x) {
+      coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
+      all(
+        coef %>% 
+          compute_stablemat() %>% 
+          eigen() %>% 
+          .$values %>% 
+          Mod() < 1
+      )
+    }
+  )
+  if (any(!is_stable)) {
+    warning("Some phi records are unstable, so add burn-in")
+  }
   if (object$type == "const") {
     phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
   }
-  pred_res <- forecast_bvharsv_density(
+  pred_res <- forecast_bvharsv(
     num_chains,
-    object$p,
+    object$month,
     n_ahead,
     object$y0,
     object$HARtrans,
     phi_record,
-    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
+    as_draws_matrix(object$h_record),
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
+    sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const"
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
-  num_step <- nrow(object$phi_record) / num_chains
+  num_draw <- nrow(object$alpha_record) # concatenate multiple chains
   y_distn <-
-    pred_res %>%
-    array(dim = c(n_ahead * num_chains, dim_data, num_step))
+    pred_res %>% 
+    unlist() %>% 
+    array(dim = c(n_ahead, dim_data, num_draw))
   pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
-  if (num_chains > 1) {
-    pred_mean <- split.data.frame(pred_mean, gl(num_chains, n_ahead))
-    pred_mean <- Reduce("+", pred_mean) / num_chains
-    lower_quantile <- split.data.frame(lower_quantile, gl(num_chains, n_ahead))
-    lower_quantile <- Reduce("+", lower_quantile) / num_chains
-    upper_quantile <- split.data.frame(upper_quantile, gl(num_chains, n_ahead))
-    upper_quantile <- Reduce("+", upper_quantile) / num_chains
-    est_se <- split.data.frame(est_se, gl(num_chains, n_ahead))
-    est_se <- Reduce("+", est_se) / num_chains
-  }
   colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names

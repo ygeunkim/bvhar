@@ -33,7 +33,7 @@ choose_bvhar(
 
 \method{print}{bvharemp}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharemp(x, ...)
+\method{knit_print}{bvharemp}(x, ...)
 }
 \arguments{
 \item{bayes_spec}{Initial Bayes model specification.}
