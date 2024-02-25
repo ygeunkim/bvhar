@@ -6,7 +6,7 @@
 \alias{knit_print.bvharcv}
 \title{Out-of-sample Forecasting based on Rolling Window}
 \usage{
-forecast_roll(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1)
+forecast_roll(object, n_ahead, y_test, threads_window = 1, threads_chains = 1)
 
 \method{print}{bvharcv}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -19,9 +19,9 @@ forecast_roll(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1)
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
 
-\item{roll_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads when rolling window}
+\item{threads_window}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads when rolling window.}
 
-\item{mod_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads when fitting the models}
+\item{threads_chains}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads for multiple chains MCMC}
 
 \item{x}{\code{bvharcv} object}
 
