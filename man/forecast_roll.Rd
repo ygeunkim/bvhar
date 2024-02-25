@@ -10,7 +10,7 @@ forecast_roll(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1)
 
 \method{print}{bvharcv}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharcv(x, ...)
+\method{knit_print}{bvharcv}(x, ...)
 }
 \arguments{
 \item{object}{Model object}

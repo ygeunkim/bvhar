@@ -24,7 +24,7 @@ bvhar_ssvs(
 
 \method{print}{bvharssvs}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharssvs(x, ...)
+\method{knit_print}{bvharssvs}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

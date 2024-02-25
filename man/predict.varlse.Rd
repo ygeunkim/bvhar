@@ -40,7 +40,7 @@
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.predbvhar(x, ...)
+\method{knit_print}{predbvhar}(x, ...)
 }
 \arguments{
 \item{object}{Model object}
