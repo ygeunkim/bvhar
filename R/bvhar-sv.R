@@ -106,6 +106,7 @@ bvhar_sv <- function(y,
     name_var <- colnames(y)
   } else {
     name_var <- paste0("y", seq_len(dim_data))
+    colnames(y) <- name_var
   }
   colnames(Y0) <- name_var
   if (!is.logical(include_mean)) {
@@ -414,10 +415,12 @@ bvhar_sv <- function(y,
       res$kappa_record
     )
   }
-  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
-    res$group <- glob_idmat
-    res$num_group <- length(grp_id)
-  }
+  # if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
+  #   res$group <- glob_idmat
+  #   res$num_group <- length(grp_id)
+  # }
+  res$group <- glob_idmat
+  res$num_group <- length(grp_id)
   # if (bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR") {
   #   res$prior_mean <- prior_mean
   #   res$prior_prec <- prior_prec
@@ -436,6 +439,11 @@ bvhar_sv <- function(y,
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- bayes_spec
   res$sv <- sv_spec
+  res$init <- param_init
+  # if (include_mean) {
+  #   res$intercept <- intercept
+  # }
+  res$intercept <- intercept
   res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn
@@ -445,11 +453,11 @@ bvhar_sv <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvharsp", "bvharsv", "svmod")
+  class(res) <- c("bvharsv", "bvharsp", "svmod")
   if (bayes_spec$prior == "Horseshoe") {
-    class(res) <- c("hsmod", class(res))
+    class(res) <- c(class(res), "hsmod")
   } else if (bayes_spec$prior == "SSVS") {
-    class(res) <- c("ssvsmod", class(res))
+    class(res) <- c(class(res), "ssvsmod")
   }
   res
 }

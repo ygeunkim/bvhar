@@ -14,7 +14,7 @@ bound_bvhar(
 
 \method{print}{boundbvharemp}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.boundbvharemp(x, ...)
+\method{knit_print}{boundbvharemp}(x, ...)
 }
 \arguments{
 \item{init_spec}{Initial Bayes model specification}

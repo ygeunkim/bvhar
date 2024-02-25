@@ -16,7 +16,7 @@
 
 \method{print}{summary.normaliw}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.summary.normaliw(x, ...)
+\method{knit_print}{summary.normaliw}(x, ...)
 }
 \arguments{
 \item{object}{\code{normaliw} object}

@@ -10,7 +10,7 @@ bvar_minnesota(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvarmn(x, ...)
+\method{knit_print}{bvarmn}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}

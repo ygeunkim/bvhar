@@ -16,7 +16,7 @@
 
 irf(object, lag_max, orthogonal, impulse_var, response_var, ...)
 
-knit_print.bvharirf(x, ...)
+\method{knit_print}{bvharirf}(x, ...)
 }
 \arguments{
 \item{object}{Model object}
