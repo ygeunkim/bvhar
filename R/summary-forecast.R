@@ -25,8 +25,8 @@ divide_ts <- function(y, n_ahead) {
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
-#' @param roll_thread `r lifecycle::badge("experimental")` Number of threads when rolling window
-#' @param mod_thread `r lifecycle::badge("experimental")` Number of threads when fitting the models
+#' @param threads_window `r lifecycle::badge("experimental")` Number of threads when rolling window.
+#' @param threads_chains `r lifecycle::badge("experimental")` Number of threads for multiple chains MCMC
 #' @details 
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
@@ -36,7 +36,7 @@ divide_ts <- function(y, n_ahead) {
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS.
 #' @order 1
 #' @export
-forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread = 1) {
+forecast_roll <- function(object, n_ahead, y_test, threads_window = 1, threads_chains = 1) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -55,6 +55,20 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   num_horizon <- nrow(y_test) - n_ahead + 1
+  if (threads_window > get_maxomp()) {
+    warning("'threads_window' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (threads_chains > get_maxomp()) {
+    warning("'threads_chains' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (model_type == "bvarsv" || model_type == "bvharsv") {
+    if (threads_window > num_horizon) {
+      warning(sprintf("'threads_window' > number of horizon will not use every thread. Specify as 'threads_window' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+    }
+    if (threads_chains > object$chain && object$chain != 1) {
+      warning(sprintf("'threads_chains' > MCMC chain will not use every thread. Specify as 'threads_chains' <= 'object$chain' = %d.", object$chain))
+    }
+  }
   res_mat <- switch(model_type,
     "varlse" = {
       roll_var(y, object$p, include_mean, n_ahead, y_test)
@@ -92,7 +106,7 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
         include_mean, n_ahead, y_test,
         sample.int(.Machine$integer.max, size = object$chain * num_horizon) %>% matrix(ncol = object$chain),
         sample.int(.Machine$integer.max, size = object$chain),
-        roll_thread, mod_thread
+        threads_window, threads_chains
       )
     },
     "bvharsv" = {
@@ -116,9 +130,8 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
         include_mean, n_ahead, y_test,
         sample.int(.Machine$integer.max, size = object$chain * num_horizon) %>% matrix(ncol = object$chain),
         sample.int(.Machine$integer.max, size = object$chain),
-        roll_thread, mod_thread
+        threads_window, threads_chains
       )
-      # roll_bvharsv(y, c(object$week, object$month), object$iter, object$burn, object$thin, object$spec, include_mean, n_ahead, y_test, roll_thread, mod_thread)
     }
   )
   if (model_type == "bvarsv" || model_type == "bvharsv") {
@@ -132,7 +145,6 @@ forecast_roll <- function(object, n_ahead, y_test, roll_thread = 1, mod_thread =
       }) %>% 
       do.call(rbind, .)
   }
-  # num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
     process = object$process,
