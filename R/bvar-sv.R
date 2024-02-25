@@ -376,10 +376,12 @@ bvar_sv <- function(y,
       res$kappa_record
     )
   }
-  if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
-    res$group <- glob_idmat
-    res$num_group <- length(grp_id)
-  }
+  # if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
+  #   res$group <- glob_idmat
+  #   res$num_group <- length(grp_id)
+  # }
+  res$group <- glob_idmat
+  res$num_group <- length(grp_id)
   # if (bayes_spec$prior == "Minnesota") {
   #   res$prior_mean <- prior_mean
   #   res$prior_prec <- prior_prec
@@ -396,6 +398,11 @@ bvar_sv <- function(y,
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- bayes_spec
   res$sv <- sv_spec
+  # if (include_mean) {
+  #   res$intercept <- intercept
+  # }
+  res$intercept <- intercept
+  res$init <- param_init
   res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn
@@ -404,11 +411,11 @@ bvar_sv <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvharsp", "bvarsv", "svmod")
+  class(res) <- c("bvarsv", "bvharsp", "svmod")
   if (bayes_spec$prior == "Horseshoe") {
-    class(res) <- c("hsmod", class(res))
+    class(res) <- c(class(res), "hsmod")
   } else if (bayes_spec$prior == "SSVS") {
-    class(res) <- c("ssvsmod", class(res))
+    class(res) <- c(class(res), "ssvsmod")
   }
   res
 }

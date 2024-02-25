@@ -467,6 +467,36 @@ estimate_var_sv <- function(num_chains, num_iter, num_burn, thin, x, y, param_sv
     .Call(`_bvhar_estimate_var_sv`, num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
 }
 
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads_roll Number of threads when rolling windows
+#' @param nthreads_mod Number of threads when fitting models
+#' 
+#' @noRd
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod)
+}
+
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VAR(p) given response and design matrices of multivariate time series.
@@ -836,24 +866,6 @@ expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @noRd
 expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_expand_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
-}
-
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-#' @param bayes_spec List, BVHAR specification
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' @param nthreads_roll Number of threads when rolling windows
-#' @param nthreads_mod Number of threads when fitting models
-#' 
-#' @noRd
-roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
 }
 
 #' Forecasting Bayesian VHAR

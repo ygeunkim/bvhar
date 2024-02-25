@@ -126,12 +126,37 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 	return Rcpp::wrap(res);
 }
 
+//' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+//' 
+//' This function conducts an rolling window forecasting of BVAR-SV.
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param lag VAR order
+//' @param num_chains Number of MCMC chains
+//' @param num_iter Number of iteration for MCMC
+//' @param num_burn Number of burn-in (warm-up) for MCMC
+//' @param thinning Thinning
+//' @param param_sv SV specification list
+//' @param param_prior Prior specification list
+//' @param param_intercept Intercept specification list
+//' @param param_init Initialization specification list
+//' @param seed_chain Seed for each window and chain in the form of matrix
+//' @param seed_forecast Seed for each window forecast
+//' @param nthreads Number of threads for openmp
+//' @param grp_id Unique group id
+//' @param grp_mat Group matrix
+//' @param include_mean Constant term
+//' @param step Integer, Step to forecast
+//' @param y_test Evaluation time series data period after `y`
+//' @param nthreads_roll Number of threads when rolling windows
+//' @param nthreads_mod Number of threads when fitting models
+//' 
+//' @noRd
 // [[Rcpp::export]]
-Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
-										Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-										Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat,
-										bool include_mean, int step, Eigen::MatrixXd y_test,
-										Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads_roll, int nthreads_mod) {
+Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
+											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
+											 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											 Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads_roll, int nthreads_mod) {
   int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -144,7 +169,6 @@ Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int n
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
 	}
 	std::vector<std::vector<Rcpp::List>> records(num_horizon, std::vector<Rcpp::List>(num_chains));
-	std::vector<Rcpp::List> rec_window(num_horizon);
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
 	for (auto &sv_chain : sv_objs) {
 		sv_chain.resize(num_chains);
@@ -159,7 +183,7 @@ Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int n
 			ptr = nullptr;
 		}
 	}
-	std::vector<Eigen::MatrixXd> res(num_chains); // ->? std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -232,7 +256,7 @@ Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int n
 				));
 				break;
 			}
-			sv_objs[window][chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+			sv_objs[window][chain]->doPosteriorDraws();
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
@@ -253,19 +277,14 @@ Rcpp::List roll_bvarsv_testing(Eigen::MatrixXd y, int lag, int num_chains, int n
 	for (int window = 0; window < num_horizon; window++) {
 		if (num_chains == 1) {
 			run_gibbs(window, 0);
-			res[0] = sv_forecast[window][0]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[0]), include_mean).row(step - 1);
+			res[window][0] = sv_forecast[window][0]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[0]), include_mean).row(step - 1);
 		} else {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads_mod)
 		#endif
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
-			#ifdef _OPENMP
-				#pragma omp critical
-			#endif
-				{
-					res[chain] = sv_forecast[window][chain]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[chain]), include_mean).row(step - 1);
-				}
+				res[window][chain] = sv_forecast[window][chain]->forecastDensity(roll_mat[window], lag, step, static_cast<unsigned int>(seed_forecast[chain]), include_mean).row(step - 1);
 			}
 		}
 	}
