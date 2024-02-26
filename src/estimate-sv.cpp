@@ -189,7 +189,6 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
-				// Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
@@ -206,7 +205,6 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		}
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
-				// Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
 				bvhar::SsvsParams ssvs_params(
 					num_iter, design, roll_y0[window],
@@ -224,7 +222,6 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		}
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
-				// Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
 				bvhar::HorseshoeParams horseshoe_params(
 					num_iter, design, roll_y0[window],
@@ -250,23 +247,25 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				{
 					records[window][chain] = sv_objs[window][chain]->returnRecords(0, 1);
 				}
-				bvhar::SvRecords sv_record(
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-				);
-				if (records[window][chain].containsElementNamed("c_record")) {
-					sv_record = bvhar::SvRecords(
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					sv_record.reset(new bvhar::SvRecords(
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["c_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-					);
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+					));
 				}
 				forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-					sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+					*sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 				));
 				break;
 			}
@@ -278,23 +277,25 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		{
 			records[window][chain] = sv_objs[window][chain]->returnRecords(num_burn, thinning);
 		}
-		bvhar::SvRecords sv_record(
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-		);
-		if (records[window][chain].containsElementNamed("c_record")) {
-			sv_record = bvhar::SvRecords(
+		std::unique_ptr<bvhar::SvRecords> sv_record;
+		if (include_mean) {
+			sv_record.reset(new bvhar::SvRecords(
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["c_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-			);
+			));
+		} else {
+			sv_record.reset(new bvhar::SvRecords(
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+			));
 		}
 		forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-			sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			*sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
 	};
 #ifdef _OPENMP
@@ -303,14 +304,14 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 	for (int window = 0; window < num_horizon; window++) {
 		if (num_chains == 1) {
 			run_gibbs(window, 0);
-			res[window][0] = forecaster[window][0]->forecastDensity().row(step - 1);
+			res[window][0] = forecaster[window][0]->forecastDensity().bottomRows(1);
 		} else {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads_mod)
 		#endif
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
-				res[window][chain] = forecaster[window][chain]->forecastDensity().row(step - 1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity().bottomRows(1);
 			}
 		}
 	}
@@ -357,11 +358,10 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 						y_test;
 	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
 	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
-	std::vector<Eigen::MatrixXd> roll_har(num_horizon);
+	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
 	for (int i = 0; i < num_horizon; i++) {
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
 		roll_y0[i] = bvhar::build_y0(roll_mat[i], month, month + 1);
-		roll_har[i] = bvhar::build_vhar(dim, week, month, include_mean);
 	}
 	std::vector<std::vector<Rcpp::List>> records(num_horizon, std::vector<Rcpp::List>(num_chains));
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
@@ -382,7 +382,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
-				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * roll_har[window].transpose();
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
 					param_sv, param_prior,
@@ -398,7 +398,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		}
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
-				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * roll_har[window].transpose();
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::SsvsParams ssvs_params(
 					num_iter, design, roll_y0[window],
 					param_sv, grp_id, grp_mat,
@@ -415,8 +415,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		}
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
-				// Eigen::MatrixXd response = bvhar::build_y0(roll_mat[window], lag, lag + 1);
-				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * roll_har[window].transpose();
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::HorseshoeParams horseshoe_params(
 					num_iter, design, roll_y0[window],
 					param_sv, grp_id, grp_mat,
@@ -441,23 +440,25 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				{
 					records[window][chain] = sv_objs[window][chain]->returnRecords(0, 1);
 				}
-				bvhar::SvRecords sv_record(
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
-					Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-				);
-				if (records[window][chain].containsElementNamed("c_record")) {
-					sv_record = bvhar::SvRecords(
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					sv_record.reset(new bvhar::SvRecords(
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["c_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
 						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-					);
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+						Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+					));
 				}
 				forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-					sv_record, step, roll_y0[window], roll_har[window], month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+					*sv_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 				));
 				break;
 			}
@@ -469,23 +470,25 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		{
 			records[window][chain] = sv_objs[window][chain]->returnRecords(num_burn, thinning);
 		}
-		bvhar::SvRecords sv_record(
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
-			Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-		);
-		if (records[window][chain].containsElementNamed("c_record")) {
-			sv_record = bvhar::SvRecords(
+		std::unique_ptr<bvhar::SvRecords> sv_record;
+		if (include_mean) {
+			sv_record.reset(new bvhar::SvRecords(
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["c_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
 				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
-			);
+			));
+		} else {
+			sv_record.reset(new bvhar::SvRecords(
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["alpha_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["h_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["a_record"]),
+				Rcpp::as<Eigen::MatrixXd>(records[window][chain]["sigh_record"])
+			));
 		}
 		forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-			sv_record, step, roll_y0[window], roll_har[window], month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			*sv_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
 	};
 #ifdef _OPENMP
@@ -494,14 +497,14 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 	for (int window = 0; window < num_horizon; window++) {
 		if (num_chains == 1) {
 			run_gibbs(window, 0);
-			res[window][0] = forecaster[window][0]->forecastDensity().row(step - 1);
+			res[window][0] = forecaster[window][0]->forecastDensity().bottomRows(1);
 		} else {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads_mod)
 		#endif
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
-				res[window][chain] = forecaster[window][chain]->forecastDensity().row(step - 1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity().bottomRows(1);
 			}
 		}
 	}
