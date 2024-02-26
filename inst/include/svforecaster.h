@@ -1,5 +1,5 @@
-#ifndef FORECASTSV_H
-#define FORECASTSV_H
+#ifndef SVFORECASTER_H
+#define SVFORECASTER_H
 
 #include "mcmcsv.h"
 
@@ -109,4 +109,4 @@ private:
 
 } // namespace bvhar
 
-#endif // FORECASTSV_H
+#endif // SVFORECASTER_H
