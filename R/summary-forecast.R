@@ -25,6 +25,7 @@ divide_ts <- function(y, n_ahead) {
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @param ... Additional arguments
 #' @param threads_window `r lifecycle::badge("experimental")` Number of threads when rolling window.
 #' @param threads_chains `r lifecycle::badge("experimental")` Number of threads for multiple chains MCMC
 #' @details 
@@ -36,7 +37,64 @@ divide_ts <- function(y, n_ahead) {
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS.
 #' @order 1
 #' @export
-forecast_roll <- function(object, n_ahead, y_test, threads_window = 1, threads_chains = 1) {
+forecast_roll <- function(object, n_ahead, y_test, ...) {
+  UseMethod("forecast_roll", object)
+}
+
+#' @rdname forecast_roll
+#' @export
+forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  num_horizon <- nrow(y_test) - n_ahead + 1
+  res_mat <- switch(model_type,
+    "varlse" = {
+      roll_var(y, object$p, include_mean, n_ahead, y_test)
+    },
+    "vharlse" = {
+      roll_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
+    },
+    "bvarmn" = {
+      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
+    },
+    "bvarflat" = {
+      roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
+    },
+    "bvharmn" = {
+      roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
+    }
+  )
+  colnames(res_mat) <- name_var
+  res <- list(
+    process = object$process,
+    forecast = res_mat,
+    eval_id = n_ahead:nrow(y_test),
+    y = y
+  )
+  class(res) <- c("predbvhar_roll", "bvharcv")
+  res
+}
+
+#' @rdname forecast_roll
+#' @param threads_window `r lifecycle::badge("experimental")` Number of threads when rolling window.
+#' @param threads_chains `r lifecycle::badge("experimental")` Number of threads for multiple chains MCMC
+#' @export
+forecast_roll.svmod <- function(object, n_ahead, y_test, threads_window = 1, threads_chains = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -61,30 +119,13 @@ forecast_roll <- function(object, n_ahead, y_test, threads_window = 1, threads_c
   if (threads_chains > get_maxomp()) {
     warning("'threads_chains' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
-  if (model_type == "bvarsv" || model_type == "bvharsv") {
-    if (threads_window > num_horizon) {
-      warning(sprintf("'threads_window' > number of horizon will not use every thread. Specify as 'threads_window' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
-    }
-    if (threads_chains > object$chain && object$chain != 1) {
-      warning(sprintf("'threads_chains' > MCMC chain will not use every thread. Specify as 'threads_chains' <= 'object$chain' = %d.", object$chain))
-    }
+  if (threads_window > num_horizon) {
+    warning(sprintf("'threads_window' > number of horizon will not use every thread. Specify as 'threads_window' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+  }
+  if (threads_chains > object$chain && object$chain != 1) {
+    warning(sprintf("'threads_chains' > MCMC chain will not use every thread. Specify as 'threads_chains' <= 'object$chain' = %d.", object$chain))
   }
   res_mat <- switch(model_type,
-    "varlse" = {
-      roll_var(y, object$p, include_mean, n_ahead, y_test)
-    },
-    "vharlse" = {
-      roll_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
-    },
-    "bvarmn" = {
-      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
-    },
-    "bvarflat" = {
-      roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
-    },
-    "bvharmn" = {
-      roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
-    },
     "bvarsv" = {
       grp_mat <- object$group
       grp_id <- unique(c(grp_mat))
@@ -134,17 +175,15 @@ forecast_roll <- function(object, n_ahead, y_test, threads_window = 1, threads_c
       )
     }
   )
-  if (model_type == "bvarsv" || model_type == "bvharsv") {
-    num_draw <- nrow(object$a_record) # concatenate multiple chains
-    res_mat <-
-      res_mat %>% 
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(1, object$m, num_draw)) %>%
-          apply(c(1, 2), mean)
-      }) %>% 
-      do.call(rbind, .)
-  }
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  res_mat <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), mean)
+    }) %>%
+    do.call(rbind, .)
   colnames(res_mat) <- name_var
   res <- list(
     process = object$process,
@@ -157,22 +196,29 @@ forecast_roll <- function(object, n_ahead, y_test, threads_window = 1, threads_c
 }
 
 #' Out-of-sample Forecasting based on Expanding Window
-#' 
+#'
 #' This function conducts expanding window forecasting.
-#' 
+#'
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
-#' @details 
+#' @param ... Additional arguments.
+#' @details
 #' Expanding windows forecasting fixes the starting period.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
 #' @return `predbvhar_expand` [class]
-#' @seealso 
+#' @seealso
 #' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
 #' @order 1
 #' @export
-forecast_expand <- function(object, n_ahead, y_test) {
+forecast_expand <- function(object, n_ahead, y_test, ...) {
+  UseMethod("forecast_expand", object)
+}
+
+#' @rdname forecast_expand
+#' @export
+forecast_expand.bvharmod <- function(object, n_ahead, y_test, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
