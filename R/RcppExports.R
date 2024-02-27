@@ -848,12 +848,12 @@ expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @param include_mean Constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
-#' @param nthreads_roll Number of threads when rolling windows
-#' @param nthreads_mod Number of threads when fitting models
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod)
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Forecasting Bayesian VHAR
@@ -975,12 +975,12 @@ expand_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
 #' @param include_mean Constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
-#' @param nthreads_roll Number of threads when rolling windows
-#' @param nthreads_mod Number of threads when fitting models
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod) {
-    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads_roll, nthreads_mod)
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Forecasting Vector Autoregression

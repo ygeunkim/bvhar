@@ -91,10 +91,9 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
 }
 
 #' @rdname forecast_roll
-#' @param threads_window `r lifecycle::badge("experimental")` Number of threads when rolling window.
-#' @param threads_chains `r lifecycle::badge("experimental")` Number of threads for multiple chains MCMC
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, threads_window = 1, threads_chains = 1, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -112,19 +111,43 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, threads_window = 1, thr
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  num_chains <- object$chain
   num_horizon <- nrow(y_test) - n_ahead + 1
-  if (threads_window > get_maxomp()) {
+  if (num_thread > get_maxomp()) {
     warning("'threads_window' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
-  if (threads_chains > get_maxomp()) {
+  if (num_thread > get_maxomp()) {
     warning("'threads_chains' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
-  if (threads_window > num_horizon) {
-    warning(sprintf("'threads_window' > number of horizon will not use every thread. Specify as 'threads_window' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+  if (num_thread > num_horizon) {
+    warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
   }
-  if (threads_chains > object$chain && object$chain != 1) {
-    warning(sprintf("'threads_chains' > MCMC chain will not use every thread. Specify as 'threads_chains' <= 'object$chain' = %d.", object$chain))
+  if (num_thread > num_chains && num_chains != 1) {
+    warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   }
+  if (num_horizon * num_chains %% num_thread != 0) {
+    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  }
+  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  if (chunk_size == 0) {
+    chunk_size <- 1
+  }
+  if (num_horizon > num_chains && chunk_size > num_chains) {
+    chunk_size <- min(
+      num_chains,
+      (num_horizon %/% num_thread) * num_chains
+    )
+    if (chunk_size == 0) {
+      chunk_size <- 1
+    }
+  }
+  # nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
+  # fit_ls <-
+  #   object[nm_record] %>%
+  #   lapply(function(x) {
+  #     as_draws_matrix(x) %>%
+  #       split.data.frame(gl(num_chains, nrow(x) / num_chains))
+  #   })
   res_mat <- switch(model_type,
     "bvarsv" = {
       grp_mat <- object$group
@@ -141,13 +164,13 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, threads_window = 1, thr
         prior_type <- 3
       }
       roll_bvarsv(
-        y, object$p, object$chain, object$iter, object$burn, object$thin,
+        y, object$p, num_chains, object$iter, object$burn, object$thin,
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        sample.int(.Machine$integer.max, size = object$chain * num_horizon) %>% matrix(ncol = object$chain),
-        sample.int(.Machine$integer.max, size = object$chain),
-        threads_window, threads_chains
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
       )
     },
     "bvharsv" = {
@@ -165,13 +188,13 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, threads_window = 1, thr
         prior_type <- 3
       }
       roll_bvharsv(
-        y, object$week, object$month, object$chain, object$iter, object$burn, object$thin,
+        y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        sample.int(.Machine$integer.max, size = object$chain * num_horizon) %>% matrix(ncol = object$chain),
-        sample.int(.Machine$integer.max, size = object$chain),
-        threads_window, threads_chains
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
       )
     }
   )

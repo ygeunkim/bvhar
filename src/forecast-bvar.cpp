@@ -481,15 +481,15 @@ Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y,
 //' @param include_mean Constant term
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
-//' @param nthreads_roll Number of threads when rolling windows
-//' @param nthreads_mod Number of threads when fitting models
+//' @param nthreads Number of threads
+//' @param chunk_size Chunk size for OpenMP static scheduling
 //' 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
-											 Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads_roll, int nthreads_mod) {
+											 Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
   int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -631,17 +631,36 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 			*sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
 	};
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads_roll)
-#endif
-	for (int window = 0; window < num_horizon; window++) {
-		if (num_chains == 1) {
+// #ifdef _OPENMP
+// 	#pragma omp parallel for num_threads(nthreads_roll)
+// #endif
+// 	for (int window = 0; window < num_horizon; window++) {
+// 		if (num_chains == 1) {
+// 			run_gibbs(window, 0);
+// 			res[window][0] = forecaster[window][0]->forecastDensity().bottomRows(1);
+// 		} else {
+// 		#ifdef _OPENMP
+// 			#pragma omp parallel for num_threads(nthreads_mod)
+// 		#endif
+// 			for (int chain = 0; chain < num_chains; chain++) {
+// 				run_gibbs(window, chain);
+// 				res[window][chain] = forecaster[window][chain]->forecastDensity().bottomRows(1);
+// 			}
+// 		}
+// 	}
+	if (num_chains > 1) {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int window = 0; window < num_horizon; window++) {
 			run_gibbs(window, 0);
 			res[window][0] = forecaster[window][0]->forecastDensity().bottomRows(1);
-		} else {
-		#ifdef _OPENMP
-			#pragma omp parallel for num_threads(nthreads_mod)
-		#endif
+		}
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+	#endif
+		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
 				res[window][chain] = forecaster[window][chain]->forecastDensity().bottomRows(1);
