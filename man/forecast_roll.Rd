@@ -16,7 +16,7 @@ forecast_roll(object, n_ahead, y_test, ...)
 
 \method{forecast_roll}{bvharmod}(object, n_ahead, y_test, ...)
 
-\method{forecast_roll}{svmod}(object, n_ahead, y_test, num_thread = 1, ...)
+\method{forecast_roll}{svmod}(object, n_ahead, y_test, use_fit = TRUE, num_thread = 1, ...)
 }
 \arguments{
 \item{object}{Model object}
@@ -30,6 +30,8 @@ forecast_roll(object, n_ahead, y_test, ...)
 \item{x}{\code{bvharcv} object}
 
 \item{digits}{digit option to print}
+
+\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 
 \item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 }

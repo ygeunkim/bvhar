@@ -811,8 +811,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // roll_bvarsv
-Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_roll_bvarsv(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP param_interceptSEXP, SEXP param_initSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP seed_forecastSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size);
+RcppExport SEXP _bvhar_roll_bvarsv(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP param_interceptSEXP, SEXP param_initSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP seed_forecastSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -822,6 +822,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_sv(param_svSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_prior(param_priorSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_intercept(param_interceptSEXP);
@@ -836,13 +837,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_forecast(seed_forecastSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_bvarsv(y, lag, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(roll_bvarsv(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size));
     return rcpp_result_gen;
 END_RCPP
 }
 // roll_bvharsv
-Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_roll_bvharsv(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP param_interceptSEXP, SEXP param_initSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP seed_forecastSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size);
+RcppExport SEXP _bvhar_roll_bvharsv(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP param_svSEXP, SEXP param_priorSEXP, SEXP param_interceptSEXP, SEXP param_initSEXP, SEXP prior_typeSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP seed_forecastSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -853,6 +854,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_sv(param_svSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_prior(param_priorSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_intercept(param_interceptSEXP);
@@ -867,7 +869,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_forecast(seed_forecastSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_bvharsv(y, week, month, num_chains, num_iter, num_burn, thinning, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(roll_bvharsv(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, seed_chain, seed_forecast, nthreads, chunk_size));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1224,8 +1226,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_expand_bvhar", (DL_FUNC) &_bvhar_expand_bvhar, 6},
     {"_bvhar_forecast_bvarsv", (DL_FUNC) &_bvhar_forecast_bvarsv, 10},
     {"_bvhar_forecast_bvharsv", (DL_FUNC) &_bvhar_forecast_bvharsv, 11},
-    {"_bvhar_roll_bvarsv", (DL_FUNC) &_bvhar_roll_bvarsv, 20},
-    {"_bvhar_roll_bvharsv", (DL_FUNC) &_bvhar_roll_bvharsv, 21},
+    {"_bvhar_roll_bvarsv", (DL_FUNC) &_bvhar_roll_bvarsv, 21},
+    {"_bvhar_roll_bvharsv", (DL_FUNC) &_bvhar_roll_bvharsv, 22},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_roll_var", (DL_FUNC) &_bvhar_roll_var, 5},
     {"_bvhar_expand_var", (DL_FUNC) &_bvhar_expand_var, 5},
