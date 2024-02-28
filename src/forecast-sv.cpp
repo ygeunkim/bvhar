@@ -16,7 +16,7 @@
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
                            Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-													 Eigen::VectorXi seed_chain, bool include_mean) {
+													 Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
 	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
@@ -31,6 +31,9 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 		));
 	}
 	std::vector<Eigen::MatrixXd> res(num_chains);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		res[chain] = forecaster[chain]->forecastDensity();
 	}
@@ -49,7 +52,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-														Eigen::VectorXi seed_chain, bool include_mean) {
+														Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
 	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
@@ -64,6 +67,9 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 		));
 	}
 	std::vector<Eigen::MatrixXd> res(num_chains);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		res[chain] = forecaster[chain]->forecastDensity();
 	}
