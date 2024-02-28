@@ -344,6 +344,16 @@ public:
 	virtual void updateRecords() = 0;
 	virtual void doPosteriorDraws() = 0;
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
+	SvRecords returnSvRecords(int num_burn, int thin) const {
+		// For out-of-forecasting: Not return lvol_init_record
+		SvRecords res_record(
+			thin_record(sv_record.coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(sv_record.lvol_record, num_iter, num_burn, thin).derived(),
+			thin_record(sv_record.contem_coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(sv_record.lvol_sig_record, num_iter, num_burn, thin).derived()
+		);
+		return res_record;
+	}
 
 protected:
 	bool include_mean;
