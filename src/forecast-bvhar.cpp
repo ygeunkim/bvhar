@@ -1,5 +1,4 @@
-#include "bvharomp.h"
-#include "mcmcsv.h"
+#include "bvhardraw.h"
 
 //' Forecasting Bayesian VHAR
 //' 
@@ -236,39 +235,6 @@ Eigen::MatrixXd forecast_bvharhs(int num_chains, int month, int step,
 		}
 	}
 	return predictive_distn;
-}
-
-//' Forecasting Predictive Density of VHAR-SV
-//' 
-//' @param month VHAR month order.
-//' @param step Integer, Step to forecast.
-//' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
-//' @param HARtrans VHAR linear transformation matrix
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-														Eigen::VectorXi seed_chain, bool include_mean) {
-	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			phi_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i] = std::unique_ptr<bvhar::SvVharForecaster>(new bvhar::SvVharForecaster(
-			sv_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-	}
-	return Rcpp::wrap(res);
 }
 
 //' Out-of-Sample Forecasting of BVHAR based on Rolling Window
