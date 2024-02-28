@@ -1,5 +1,9 @@
 # bvhar (development version)
 
+* Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
+
+* Add Rolling-window forecasting for SV models (`forecast_roll.bvarsv()` and `forecast_roll.bvharsv()`).
+
 # bvhar 2.0.0
 
 * Start to implement OOP in C++ source for each model, ready for major update.

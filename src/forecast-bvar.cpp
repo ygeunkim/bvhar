@@ -1,5 +1,4 @@
-#include "bvharomp.h"
-#include "mcmcsv.h"
+#include "bvhardraw.h"
 
 //' Forecasting BVAR(p)
 //' 
@@ -235,42 +234,6 @@ Eigen::MatrixXd forecast_bvarhs(int num_chains, int var_lag, int step,
 		}
 	}
 	return predictive_distn;
-}
-
-//' Forecasting predictive density of VAR-SV
-//' 
-//' @param var_lag VAR order.
-//' @param step Integer, Step to forecast.
-//' @param response_mat Response matrix.
-//' @param coef_mat Posterior mean.
-//' @param alpha_record MCMC record of coefficients
-//' @param h_last_record MCMC record of log-volatilities in last time
-//' @param a_record MCMC record of contemporaneous coefficients
-//' @param sigh_record MCMC record of variance of log-volatilities
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                           Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-													 Eigen::VectorXi seed_chain, bool include_mean) {
-	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			alpha_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i] = std::unique_ptr<bvhar::SvVarForecaster>(new bvhar::SvVarForecaster(
-			sv_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-	}
-	return Rcpp::wrap(res);
 }
 
 //' Out-of-Sample Forecasting of BVAR based on Rolling Window

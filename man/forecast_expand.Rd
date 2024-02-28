@@ -2,9 +2,12 @@
 % Please edit documentation in R/summary-forecast.R
 \name{forecast_expand}
 \alias{forecast_expand}
+\alias{forecast_expand.bvharmod}
 \title{Out-of-sample Forecasting based on Expanding Window}
 \usage{
-forecast_expand(object, n_ahead, y_test)
+forecast_expand(object, n_ahead, y_test, ...)
+
+\method{forecast_expand}{bvharmod}(object, n_ahead, y_test, ...)
 }
 \arguments{
 \item{object}{Model object}
@@ -12,6 +15,8 @@ forecast_expand(object, n_ahead, y_test)
 \item{n_ahead}{Step to forecast in rolling window scheme}
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 \code{predbvhar_expand} \link{class}
