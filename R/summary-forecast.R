@@ -26,8 +26,6 @@ divide_ts <- function(y, n_ahead) {
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
 #' @param ... Additional arguments
-#' @param threads_window `r lifecycle::badge("experimental")` Number of threads when rolling window.
-#' @param threads_chains `r lifecycle::badge("experimental")` Number of threads for multiple chains MCMC
 #' @details 
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
@@ -114,10 +112,10 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   num_chains <- object$chain
   num_horizon <- nrow(y_test) - n_ahead + 1
   if (num_thread > get_maxomp()) {
-    warning("'threads_window' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
   if (num_thread > get_maxomp()) {
-    warning("'threads_chains' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
   if (num_thread > num_horizon) {
     warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
