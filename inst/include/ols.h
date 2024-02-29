@@ -6,6 +6,13 @@
 
 namespace bvhar {
 
+struct OlsFit {
+	Eigen::MatrixXd _coef;
+	int _ord; // p of VAR or month of VHAR
+
+	OlsFit(const Eigen::MatrixXd& coef_mat, int ord) : _coef(coef_mat), _ord(ord) {}
+};
+
 class MultiOls {
 public:
 	MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
