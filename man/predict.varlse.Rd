@@ -34,9 +34,9 @@
 
 \method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarsv}(object, n_ahead, level = 0.05, ...)
+\method{predict}{bvarsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
 
-\method{predict}{bvharsv}(object, n_ahead, level = 0.05, ...)
+\method{predict}{bvharsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -52,6 +52,10 @@
 \item{...}{not used}
 
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
+
+\item{num_thread}{Number of threads}
+
+\item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
 
 \item{x}{\code{predbvhar} object}
 

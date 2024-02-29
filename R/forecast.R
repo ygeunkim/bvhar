@@ -558,32 +558,42 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(object$alpha_record)
-  is_stable <- apply(
-    alpha_record,
-    1,
-    function(x) {
-      all(
-        matrix(x, ncol = object$m) %>%
-          compute_stablemat() %>%
-          eigen() %>%
-          .$values %>%
-          Mod() < 1
-      )
+  if (warn) {
+    is_stable <- apply(
+      alpha_record,
+      1,
+      function(x) {
+        all(
+          matrix(x, ncol = object$m) %>%
+            compute_stablemat() %>%
+            eigen() %>%
+            .$values %>%
+            Mod() < 1
+        )
+      }
+    )
+    if (any(!is_stable)) {
+      warning("Some alpha records are unstable, so add burn-in")
     }
-  )
-  if (any(!is_stable)) {
-    warning("Some alpha records are unstable, so add burn-in")
   }
   if (object$type == "const") {
     alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   pred_res <- forecast_bvarsv(
     num_chains,
@@ -595,7 +605,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
     sample.int(.Machine$integer.max, size = num_chains),
-    object$type == "const"
+    object$type == "const",
+    num_thread
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
@@ -631,33 +642,43 @@ predict.bvarsv <- function(object, n_ahead, level = .05, ...) {
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
+predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(object$phi_record)
-  is_stable <- apply(
-    phi_record,
-    1,
-    function(x) {
-      coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
-      all(
-        coef %>% 
-          compute_stablemat() %>% 
-          eigen() %>% 
-          .$values %>% 
-          Mod() < 1
-      )
+  if (warn) {
+    is_stable <- apply(
+      phi_record,
+      1,
+      function(x) {
+        coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
+        all(
+          coef %>%
+            compute_stablemat() %>%
+            eigen() %>%
+            .$values %>%
+            Mod() < 1
+        )
+      }
+    )
+    if (any(!is_stable)) {
+      warning("Some phi records are unstable, so add burn-in")
     }
-  )
-  if (any(!is_stable)) {
-    warning("Some phi records are unstable, so add burn-in")
   }
   if (object$type == "const") {
     phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   pred_res <- forecast_bvharsv(
     num_chains,
@@ -670,7 +691,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, ...) {
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
     sample.int(.Machine$integer.max, size = num_chains),
-    object$type == "const"
+    object$type == "const",
+    num_thread
   )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
