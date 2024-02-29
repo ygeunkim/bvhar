@@ -906,8 +906,8 @@ expand_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
 #' @param sigh_record MCMC record of variance of log-volatilities
 #' 
 #' @noRd
-forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean) {
-    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean)
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
@@ -919,8 +919,8 @@ forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_recor
 #' @param HARtrans VHAR linear transformation matrix
 #' 
 #' @noRd
-forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean) {
-    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean)
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
