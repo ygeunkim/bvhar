@@ -11,7 +11,7 @@ public:
 	OlsForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean)
 	: response(response_mat), coef_mat(fit._coef),
 		include_mean(include_mean), step(step), dim(coef_mat.cols()), var_lag(ord),
-		dim_design(coef_mat.rows()), num_design(response_mat.rows()),
+		dim_design(coef_mat.rows()),
 		pred_save(Eigen::MatrixXd::Zero(step, dim)),
 		last_pvec(Eigen::VectorXd::Zero(dim_design)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
@@ -32,7 +32,6 @@ public:
 		return pred_save;
 	}
 protected:
-	// OlsFit ols_fit;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd coef_mat;
 	bool include_mean;
@@ -40,7 +39,6 @@ protected:
 	int dim;
 	int var_lag; // VAR order or month order of VHAR
 	int dim_design;
-	int num_design;
 	Eigen::MatrixXd pred_save; // rbind(step)
 	Eigen::VectorXd last_pvec; // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 	Eigen::VectorXd point_forecast; // y_(T + h - 1)
