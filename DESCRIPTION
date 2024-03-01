@@ -43,7 +43,7 @@ Imports:
 LinkingTo: 
     BH,
     Rcpp,
-    RcppEigen
+    RcppEigen(>= 0.3.4.0.0)
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.6.0)
