@@ -558,13 +558,14 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
 #' @param num_thread Number of threads
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = FALSE, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, innovation = TRUE, num_thread = 1, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(object$alpha_record)
@@ -604,6 +605,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = 
     as_draws_matrix(object$h_record),
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
+    innovation,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
     num_thread
@@ -642,13 +644,14 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = 
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
 #' @param num_thread Number of threads
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, warn = FALSE, ...) {
+predict.bvharsv <- function(object, n_ahead, level = .05, innovation = TRUE, num_thread = 1, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(object$phi_record)
@@ -690,6 +693,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, warn =
     as_draws_matrix(object$h_record),
     as_draws_matrix(object$a_record),
     as_draws_matrix(object$sigh_record),
+    innovation,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
     num_thread

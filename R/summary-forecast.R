@@ -89,10 +89,11 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
 }
 
 #' @rdname forecast_roll
+#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, use_fit = TRUE, num_thread = 1, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, innovation = TRUE, use_fit = TRUE, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -171,6 +172,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, use_fit = TRUE, num_thr
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
+        innovation,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size
@@ -196,6 +198,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, use_fit = TRUE, num_thr
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
+        innovation,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size

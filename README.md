@@ -280,7 +280,7 @@ Please cite this package with following BibTeX:
       title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
-      note = {R package version 2.0.0},
+      note = {R package version 2.0.1},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
