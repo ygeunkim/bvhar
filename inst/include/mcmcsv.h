@@ -207,7 +207,8 @@ struct SvRecords {
 	) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
-		lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+		// lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
+		lvol_record.row(id) = lvol_draw.transpose().reshaped();
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
 	}
@@ -283,7 +284,8 @@ public:
 			prior_alpha_mean.tail(dim) = prior_mean_non;
 			prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = prior_sd_non.array().square();
 		}
-		coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
+		// coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
+		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
 		if (include_mean) {
 			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
@@ -298,10 +300,12 @@ public:
 			coef_j.col(j).setZero();
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
-			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::VectorXd response_j = vectorize_eigen(
-				(((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).matrix().eval() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
-			); // Response vector of j-th column coef equation: n(k - j + 1)-dim
+			// Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+			// Eigen::VectorXd response_j = vectorize_eigen(
+			// 	(((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).matrix().eval() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			// ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
+			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			varsv_regression(
 				coef_mat.col(j),
 				design_coef, response_j,
@@ -309,7 +313,8 @@ public:
 				rng
 			);
 		}
-		coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
+		// coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
+		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
 		if (include_mean) {
 			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
@@ -324,7 +329,8 @@ public:
 	void updateImpact() {
 		for (int j = 2; j < dim + 1; j++) {
 			response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
-			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2).eval()).array(); // n x (j - 1)
+			// Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2).eval()).array(); // n x (j - 1)
+			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
 			contem_id = (j - 1) * (j - 2) / 2;
 			varsv_regression(
 				contem_coef.segment(contem_id, j - 1),
@@ -403,7 +409,8 @@ class MinnSv : public McmcSv {
 public:
 	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed)
 		: McmcSv(params, inits, seed) {
-		prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
+		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
+		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
@@ -449,7 +456,7 @@ class SsvsSv : public McmcSv {
 public:
 	SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
-		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(vectorize_eigen(grp_mat)), num_grp(grp_id.size()),
+		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 		coef_dummy(inits._coef_dummy), coef_weight(inits._coef_weight),
 		contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)), contem_weight(inits._contem_weight),
@@ -479,7 +486,8 @@ public:
 				slab_weight_mat
 			);
 		}
-		slab_weight = vectorize_eigen(slab_weight_mat);
+		// slab_weight = vectorize_eigen(slab_weight_mat);
+		slab_weight = slab_weight_mat.reshaped();
 		ssvs_dummy(
 			coef_dummy,
 			coef_vec.head(num_alpha),
@@ -556,7 +564,7 @@ class HorseshoeSv : public McmcSv {
 public:
 	HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
-		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(vectorize_eigen(grp_mat)), num_grp(grp_id.size()),
+		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 		local_lev(inits._init_local), global_lev(inits._init_global),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
@@ -577,7 +585,8 @@ public:
 				coef_var_loc
 			);
 		}
-		coef_var = vectorize_eigen(coef_var_loc);
+		// coef_var = vectorize_eigen(coef_var_loc);
+		coef_var = coef_var_loc.reshaped();
 		build_shrink_mat(lambda_mat, coef_var, local_lev);
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
@@ -591,7 +600,8 @@ public:
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
 		horseshoe_latent(latent_contem_global, contem_global_lev, rng);
-		contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol).eval());
+		// contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol).eval());
+		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
 		contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
 		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);

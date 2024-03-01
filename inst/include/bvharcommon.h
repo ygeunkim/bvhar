@@ -17,13 +17,15 @@ typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Co
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
 	// should use x.eval() when x is expression such as block or transpose. Use matrix().eval() if array.
-	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>::Map(x.derived().data(), x.size());
+	return x.reshaped();
 }
 
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> unvectorize(const Eigen::MatrixBase<Derived>& x, int num_cols) {
+	// should use x.eval() when x is expression such as block or transpose. Otherwise, can get wrong result.
 	int num_rows = x.size() / num_cols;
-	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
+	// return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
+	return x.reshaped(num_rows, num_cols);
 }
 
 template<typename Derived1, typename Derived2>
