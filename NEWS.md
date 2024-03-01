@@ -4,6 +4,14 @@
 
 * Add Rolling-window forecasting for SV models (`forecast_roll.bvarsv()` and `forecast_roll.bvharsv()`).
 
+* When forecasting SV models, it is available to choose whether to use time-varying covariance (`innovation` option, which is `TRUE` by default).
+
+# bvhar 2.0.1
+
+* Fix internal vectorization and unvectorization behavior.
+
+* Used Eigen 3.4 feature (`reshaped()`) to solve these (`RcppEigen >= 0.3.4.0.0`).
+
 # bvhar 2.0.0
 
 * Start to implement OOP in C++ source for each model, ready for major update.

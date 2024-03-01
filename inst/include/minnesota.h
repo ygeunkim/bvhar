@@ -199,7 +199,7 @@ public:
 		);
 		_mn = std::unique_ptr<Minnesota>(new Minnesota(design, response, dummy_design, dummy_response));
 	}
-	virtual ~MinnBvharS() = default;
+	virtual ~MinnBvharS() noexcept = default;
 	Rcpp::List returnMinnRes() override {
 		Rcpp::List mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
@@ -227,7 +227,7 @@ public:
 		);
 		_mn = std::unique_ptr<Minnesota>(new Minnesota(design, response, dummy_design, dummy_response));
 	}
-	virtual ~MinnBvharL() = default;
+	virtual ~MinnBvharL() noexcept = default;
 	Rcpp::List returnMinnRes() override {
 		Rcpp::List mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
