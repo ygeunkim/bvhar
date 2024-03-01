@@ -34,9 +34,25 @@
 
 \method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
+\method{predict}{bvarsv}(
+  object,
+  n_ahead,
+  level = 0.05,
+  innovation = TRUE,
+  num_thread = 1,
+  warn = FALSE,
+  ...
+)
 
-\method{predict}{bvharsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
+\method{predict}{bvharsv}(
+  object,
+  n_ahead,
+  level = 0.05,
+  innovation = TRUE,
+  num_thread = 1,
+  warn = FALSE,
+  ...
+)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -52,6 +68,8 @@
 \item{...}{not used}
 
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
+
+\item{innovation}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Include heteroskedastic covariance of innovation when forecasting. By default, \code{TRUE}.}
 
 \item{num_thread}{Number of threads}
 
