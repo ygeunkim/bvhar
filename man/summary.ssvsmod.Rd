@@ -9,7 +9,7 @@
 \usage{
 \method{print}{summary.bvharsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.summary.ssvsmod(x, ...)
+\method{knit_print}{summary.ssvsmod}(x, ...)
 
 \method{summary}{ssvsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 

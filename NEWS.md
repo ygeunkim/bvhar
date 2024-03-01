@@ -1,3 +1,9 @@
+# bvhar 2.0.1
+
+* Fix internal vectorization and unvectorization behavior.
+
+* Used Eigen 3.4 feature (`reshaped()`) to solve these (`RcppEigen >= 0.3.4.0.0`).
+
 # bvhar 2.0.0
 
 * Start to implement OOP in C++ source for each model, ready for major update.
