@@ -22,6 +22,7 @@ inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eige
 
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic> unvectorize(const Eigen::MatrixBase<Derived>& x, int num_cols) {
+	// should use x.eval() when x is expression such as block or transpose. Otherwise, can get wrong result.
 	int num_rows = x.size() / num_cols;
 	return Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Map(x.derived().data(), num_rows, num_cols);
 }

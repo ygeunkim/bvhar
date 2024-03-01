@@ -147,7 +147,7 @@ Eigen::MatrixXd forecast_bvharssvs(int num_chains, int month, int step,
 		eta_chain = eta_record.middleRows(chain * num_sim, num_sim);
 		psi_chain = psi_record.middleRows(chain * num_sim, num_sim);
 		for (int b = 0; b < num_sim; b++) {
-			density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b), dim);
+			density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b).eval(), dim);
 			chol_factor = bvhar::build_chol(psi_chain.row(b), eta_chain.row(b));
 			sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
 			predictive_distn.block(chain * step, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -164,7 +164,7 @@ Eigen::MatrixXd forecast_bvharssvs(int num_chains, int month, int step,
 			for (int b = 0; b < num_sim; b++) {
 				tmp_vec = last_pvec.head(lag_var - dim);
 				last_pvec << density_forecast, tmp_vec;
-				density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b), dim);
+				density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b).eval(), dim);
 				chol_factor = bvhar::build_chol(psi_chain.row(b), eta_chain.row(b));
 				sig_cycle = (chol_factor * chol_factor.transpose()).inverse();
 				predictive_distn.block(chain * step + i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -212,7 +212,7 @@ Eigen::MatrixXd forecast_bvharhs(int num_chains, int month, int step,
 		phi_chain = phi_record.middleRows(chain * num_sim, num_sim);
 		sig_chain = sigma_record.segment(chain * num_sim, num_sim);
 		for (int b = 0; b < num_sim; b++) {
-			density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b), dim);
+			density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b).eval(), dim);
 			sig_cycle.setIdentity();
 			sig_cycle *= sig_chain[b];
 			predictive_distn.block(chain * step, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -228,7 +228,7 @@ Eigen::MatrixXd forecast_bvharhs(int num_chains, int month, int step,
 			for (int b = 0; b < num_sim; b++) {
 				tmp_vec = last_pvec.head(lag_var - dim);
 				last_pvec << density_forecast, tmp_vec;
-				density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b), dim);
+				density_forecast = last_pvec.transpose() * HARtrans.transpose() * bvhar::unvectorize(phi_chain.row(b).eval(), dim);
 				sig_cycle.setIdentity();
 				sig_cycle *= sig_chain[b];
 				predictive_distn.block(chain * step + i, b * dim, 1, dim) = sim_mgaussian_chol(1, density_forecast, sig_cycle);
@@ -316,7 +316,7 @@ Eigen::MatrixXd forecast_bvharsv_density(int num_chains, int month, int step, Ei
 		a_chain = a_record.middleRows(chain * num_sim, num_sim);
 		sigh_chain = sigh_record.middleRows(chain * num_sim, num_sim);
 		for (int b = 0; b < num_sim; b++) {
-			coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose(), dim);
+			coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose().eval(), dim);
 			if (include_mean) {
 				coef_mat_record.bottomRows(1) = phi_chain.row(b).tail(dim);
 			}
@@ -345,7 +345,7 @@ Eigen::MatrixXd forecast_bvharsv_density(int num_chains, int month, int step, Ei
 			for (int b = 0; b < num_sim; b++) {
 				tmp_vec = last_pvec.head(lag_var - dim);
 				last_pvec << density_forecast, tmp_vec;
-				coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose(), dim);
+				coef_mat_record.topRows(3 * dim) = bvhar::unvectorize(phi_chain.row(b).head(num_alpha).transpose().eval(), dim);
 				if (include_mean) {
 					coef_mat_record.bottomRows(1) = phi_chain.row(b).tail(dim);
 				}
