@@ -112,6 +112,32 @@ sim_var <- function(num_sim,
   sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param)
 }
 
+#' Generate Normal-IW Random Family
+#' 
+#' This function samples normal inverse-wishart matrices.
+#' 
+#' @param num_sim Number to generate
+#' @param mat_mean Mean matrix of MN
+#' @param mat_scale_u First scale matrix of MN
+#' @param mat_scale Scale matrix of IW
+#' @param shape Shape of IW
+#' @details 
+#' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
+#' 
+#' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
+#' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+#' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
+#' 4. \eqn{A_i = M + P Z_i C_i^T}
+#' @export 
+sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
+  res <-
+    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape) %>%
+    simplify2array() %>%
+    apply(1, function(x) x)
+  names(res) <- c("mn", "iw")
+  res
+}
+
 #' Generate Multivariate Time Series Process Following VAR(p)
 #' 
 #' This function generates multivariate time series dataset that follows VAR(p).

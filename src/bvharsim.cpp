@@ -133,82 +133,36 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
 //' @return One n x k matrix following MN distribution.
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, 
-                                Eigen::MatrixXd mat_scale_u, 
-                                Eigen::MatrixXd mat_scale_v) {
-  int num_rows = mat_mean.rows();
-  int num_cols = mat_mean.cols();
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v) {
   if (mat_scale_u.rows() != mat_scale_u.cols()) {
     Rcpp::stop("Invalid 'mat_scale_u' dimension.");
   }
-  if (num_rows != mat_scale_u.rows()) {
+  if (mat_mean.rows() != mat_scale_u.rows()) {
     Rcpp::stop("Invalid 'mat_scale_u' dimension.");
   }
   if (mat_scale_v.rows() != mat_scale_v.cols()) {
     Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   }
-  if (num_cols != mat_scale_v.rows()) {
+  if (mat_mean.cols() != mat_scale_v.rows()) {
     Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   }
-  Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
-  Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
-  // Cholesky decomposition (lower triangular)
-  Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
-  Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
-  // standard normal
-  Eigen::MatrixXd mat_norm(num_rows, num_cols);
-  // Eigen::MatrixXd res(num_rows, num_cols, num_sim);
-  Eigen::MatrixXd res(num_rows, num_cols);
-  for (int i = 0; i < num_rows; i++) {
-    for (int j = 0; j < num_cols; j++) {
-      mat_norm(i, j) = norm_rand();
-    }
-  }
-  res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
-  return res;
-}
-
-//' Generate Lower Triangular Matrix of IW
-//' 
-//' This function generates \eqn{A = L (Q^{-1})^T}.
-//' 
-//' @param mat_scale Scale matrix of IW
-//' @param shape Shape of IW
-//' @details
-//' This function is the internal function for IW sampling and MNIW sampling functions.
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
-  int dim = mat_scale.cols();
-  if (shape <= dim - 1) {
-    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
-  }
-  if (mat_scale.rows() != mat_scale.cols()) {
-    Rcpp::stop("Invalid 'mat_scale' dimension.");
-  }
-  if (dim != mat_scale.rows()) {
-    Rcpp::stop("Invalid 'mat_scale' dimension.");
-  }
-  // upper triangular bartlett decomposition
-  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
-  // generate in row direction
-  for (int i = 0; i < dim; i++) {
-    // diagonal
-    mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i)); // qii^2 ~ chi^2(nu - i + 1)
-  }
-  // upper triangular (j > i) ~ N(0, 1)
-  for (int i = 0; i < dim - 1; i ++) {
-    for (int j = i + 1; j < dim; j++) {
-      mat_bartlett(i, j) = norm_rand();
-    }
-  }
-  // cholesky decomposition (lower triangular)
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(mat_scale);
-  Eigen::MatrixXd chol_scale = lltOfscale.matrixL();
-  // lower triangular
-  Eigen::MatrixXd chol_res = chol_scale * mat_bartlett.inverse().transpose();
-  return chol_res;
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
+  // // Cholesky decomposition (lower triangular)
+  // Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
+  // Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
+  // // standard normal
+  // Eigen::MatrixXd mat_norm(num_rows, num_cols);
+  // // Eigen::MatrixXd res(num_rows, num_cols, num_sim);
+  // Eigen::MatrixXd res(num_rows, num_cols);
+  // for (int i = 0; i < num_rows; i++) {
+  //   for (int j = 0; j < num_cols; j++) {
+  //     mat_norm(i, j) = norm_rand();
+  //   }
+  // }
+  // res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
+  // return res;
+	return bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v);
 }
 
 //' Generate Inverse-Wishart Random Matrix
@@ -230,9 +184,10 @@ Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
-  Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
-  Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
-  return res;
+  // Eigen::MatrixXd chol_res = bvhar::sim_iw_tri(mat_scale, shape);
+  // Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
+  // return res;
+	return bvhar::sim_inv_wishart(mat_scale, shape);
 }
 
 //' Generate Normal-IW Random Family
@@ -244,46 +199,42 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
 //' @param mat_scale_u First scale matrix of MN
 //' @param mat_scale Scale matrix of IW
 //' @param shape Shape of IW
-//' @details
-//' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
-//' 
-//' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-//' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
-//' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
-//' 4. \eqn{A_i = M + P Z_i C_i^T}
-//' @return List of MN and IW matrices.
-//' Multiple samples are column-stacked.
-//' @export
+//' @noRd
 // [[Rcpp::export]]
-Rcpp::List sim_mniw(int num_sim,
-                    Eigen::MatrixXd mat_mean, 
-                    Eigen::MatrixXd mat_scale_u, 
-                    Eigen::MatrixXd mat_scale, 
-                    double shape) {
-  int ncol_mn = mat_mean.cols();
-  int nrow_mn = mat_mean.rows();
-  int dim_iw = mat_scale.cols();
-  if (dim_iw != mat_scale.rows()) {
-    Rcpp::stop("Invalid 'mat_scale' dimension.");
+Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape) {
+  // int ncol_mn = mat_mean.cols();
+  // int nrow_mn = mat_mean.rows();
+  // int dim_iw = mat_scale.cols();
+  // if (dim_iw != mat_scale.rows()) {
+  //   Rcpp::stop("Invalid 'mat_scale' dimension.");
+  // }
+  // Eigen::MatrixXd chol_res(dim_iw, dim_iw);
+  // Eigen::MatrixXd mat_scale_v(dim_iw, dim_iw);
+  // // result matrices: bind in column wise
+  // Eigen::MatrixXd res_mn(nrow_mn, num_sim * ncol_mn); // [Y1, Y2, ..., Yn]
+  // Eigen::MatrixXd res_iw(dim_iw, num_sim * dim_iw); // [Sigma1, Sigma2, ... Sigma2]
+  // for (int i = 0; i < num_sim; i++) {
+  //   chol_res = bvhar::sim_iw_tri(mat_scale, shape);
+  //   mat_scale_v = chol_res * chol_res.transpose();
+  //   res_iw.block(0, i * dim_iw, dim_iw, dim_iw) = mat_scale_v;
+  //   // MN(mat_mean, mat_scale_u, mat_scale_v)
+  //   res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_matgaussian(
+  //     mat_mean, 
+  //     mat_scale_u, 
+  //     mat_scale_v
+  //   );
+  // }
+	// return Rcpp::List::create(
+  //   Rcpp::Named("mn") = res_mn,
+  //   Rcpp::Named("iw") = res_iw
+  // );
+	// Rcpp::List res = Rcpp::wrap(bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape));
+	// res.attr("names") = Rcpp::CharacterVector::create("mn", "iw");
+	// return res;
+	// std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	std::vector<std::vector<Eigen::MatrixXd>> res(num_sim, std::vector<Eigen::MatrixXd>(2));
+	for (int i = 0; i < num_sim; i++) {
+		res[i] = bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape);
   }
-  Eigen::MatrixXd chol_res(dim_iw, dim_iw);
-  Eigen::MatrixXd mat_scale_v(dim_iw, dim_iw);
-  // result matrices: bind in column wise
-  Eigen::MatrixXd res_mn(nrow_mn, num_sim * ncol_mn); // [Y1, Y2, ..., Yn]
-  Eigen::MatrixXd res_iw(dim_iw, num_sim * dim_iw); // [Sigma1, Sigma2, ... Sigma2]
-  for (int i = 0; i < num_sim; i++) {
-    chol_res = sim_iw_tri(mat_scale, shape);
-    mat_scale_v = chol_res * chol_res.transpose();
-    res_iw.block(0, i * dim_iw, dim_iw, dim_iw) = mat_scale_v;
-    // MN(mat_mean, mat_scale_u, mat_scale_v)
-    res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_matgaussian(
-      mat_mean, 
-      mat_scale_u, 
-      mat_scale_v
-    );
-  }
-  return Rcpp::List::create(
-    Rcpp::Named("mn") = res_mn,
-    Rcpp::Named("iw") = res_iw
-  );
+	return Rcpp::wrap(res);
 }
