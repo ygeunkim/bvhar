@@ -1005,10 +1005,12 @@ forecast_var <- function(object, step) {
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-roll_var <- function(y, lag, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_var`, y, lag, include_mean, step, y_test)
+roll_var <- function(y, lag, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_roll_var`, y, lag, include_mean, step, y_test, method, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -1043,14 +1045,17 @@ forecast_vhar <- function(object, step) {
 #' This function conducts an rolling window forecasting of VHAR.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-roll_vhar <- function(y, har, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_vhar`, y, har, include_mean, step, y_test)
+roll_vhar <- function(y, week, month, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_roll_vhar`, y, week, month, include_mean, step, y_test, method, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VHAR based on Expanding Window

@@ -28,36 +28,71 @@ Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
 //' This function conducts an rolling window forecasting of VHAR.
 //' 
 //' @param y Time series data of which columns indicate the variables
-//' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+//' @param week Integer, order for weekly term
+//' @param month Integer, order for monthly term
 //' @param include_mean Add constant term
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
+//' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+//' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, 
-                          Eigen::VectorXd har,
-                          bool include_mean, 
-                          int step,
-                          Eigen::MatrixXd y_test) {
-  Rcpp::Function fit("vhar_lm");
-  int window = y.rows();
+Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd roll_mat = y; // same size as y
-  Rcpp::List vhar_mod = fit(roll_mat, har, include_mean);
-  Eigen::MatrixXd y_pred = forecast_vhar(vhar_mod, step); // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    vhar_mod = fit(roll_mat, har, include_mean);
-    y_pred = forecast_vhar(vhar_mod, step);
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
+	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	for (int i = 0; i < num_horizon; i++) {
+		roll_mat[i] = tot_mat.middleRows(i, num_window);
+		roll_y0[i] = bvhar::build_y0(roll_mat[i], month, month + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MultiOls>> ols_objs(num_horizon);
+	switch(method) {
+	case 1: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], month, include_mean) * har_trans.transpose();
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::MultiOls(design, roll_y0[i]));
+		}
+	}
+	case 2: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], month, include_mean) * har_trans.transpose();
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::LltOls(design, roll_y0[i]));
+		}
+	}
+	case 3: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], month, include_mean) * har_trans.transpose();
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::QrOls(design, roll_y0[i]));
+		}
+	}
+	}
+	std::vector<std::unique_ptr<bvhar::VharForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(month);
+		forecaster[window].reset(new bvhar::VharForecaster(ols_fit, step, roll_y0[window], har_trans, include_mean));
+		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
 }
 
 //' Out-of-Sample Forecasting of VHAR based on Expanding Window

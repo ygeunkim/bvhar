@@ -32,32 +32,65 @@ Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
 //' @param include_mean Add constant term
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
+//' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+//' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd roll_var(Eigen::MatrixXd y, 
-                         int lag, 
-                         bool include_mean, 
-                         int step,
-                         Eigen::MatrixXd y_test) {
-  Rcpp::Function fit("var_lm");
-  int window = y.rows();
+Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd roll_mat = y; // same size as y
-  Rcpp::List var_mod = fit(roll_mat, lag, include_mean);
-  Eigen::MatrixXd y_pred = forecast_var(var_mod, step); // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows: move one period
-    var_mod = fit(roll_mat, lag, include_mean);
-    y_pred = forecast_var(var_mod, step);
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
+	for (int i = 0; i < num_horizon; i++) {
+		roll_mat[i] = tot_mat.middleRows(i, num_window);
+		roll_y0[i] = bvhar::build_y0(roll_mat[i], lag, lag + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MultiOls>> ols_objs(num_horizon);
+	switch(method) {
+	case 1: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::MultiOls(design, roll_y0[i]));
+		}
+	}
+	case 2: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::LltOls(design, roll_y0[i]));
+		}
+	}
+	case 3: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(roll_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::QrOls(design, roll_y0[i]));
+		}
+	}
+	}
+	std::vector<std::unique_ptr<bvhar::VarForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(lag);
+		forecaster[window].reset(new bvhar::VarForecaster(ols_fit, step, roll_y0[window], include_mean));
+		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
 }
 
 //' Out-of-Sample Forecasting of VAR based on Expanding Window

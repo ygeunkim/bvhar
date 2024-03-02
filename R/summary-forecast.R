@@ -40,8 +40,9 @@ forecast_roll <- function(object, n_ahead, y_test, ...) {
 }
 
 #' @rdname forecast_roll
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
+forecast_roll.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -60,12 +61,19 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   num_horizon <- nrow(y_test) - n_ahead + 1
+  if (model_type == "varlse" || model_type == "vharlse") {
+    method <- switch(object$method,
+      "nor" = 1,
+      "chol" = 2,
+      "qr" = 3
+    )
+  }
   res_mat <- switch(model_type,
     "varlse" = {
-      roll_var(y, object$p, include_mean, n_ahead, y_test)
+      roll_var(y, object$p, include_mean, n_ahead, y_test, method, num_thread)
     },
     "vharlse" = {
-      roll_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
+      roll_vhar(y, object$week, object$month, include_mean, n_ahead, y_test, method, num_thread)
     },
     "bvarmn" = {
       roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)

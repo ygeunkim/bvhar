@@ -49,6 +49,13 @@ public:
 			Rcpp::Named("y0") = response
 		);
 	}
+	OlsFit returnOlsFit(int ord) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		OlsFit res(coef, ord);
+		return res;
+	}
 protected:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
@@ -116,6 +123,10 @@ public:
 		ols_res["y"] = data;
 		return ols_res;
 	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(lag);
+		return res;
+	}
 protected:
 	int lag;
 	bool const_term;
@@ -158,6 +169,11 @@ public:
 		ols_res["design"] = var_design;
 		ols_res["y"] = data;
 		return ols_res;
+	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(month);
+		res._ord = month;
+		return res;
 	}
 protected:
 	int week;

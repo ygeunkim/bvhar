@@ -14,7 +14,7 @@ forecast_roll(object, n_ahead, y_test, ...)
 
 \method{knit_print}{bvharcv}(x, ...)
 
-\method{forecast_roll}{bvharmod}(object, n_ahead, y_test, ...)
+\method{forecast_roll}{bvharmod}(object, n_ahead, y_test, num_thread = 1, ...)
 
 \method{forecast_roll}{svmod}(
   object,
@@ -39,11 +39,11 @@ forecast_roll(object, n_ahead, y_test, ...)
 
 \item{digits}{digit option to print}
 
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
+
 \item{innovation}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Include heteroskedastic covariance of innovation when forecasting. By default, \code{TRUE}.}
 
 \item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
-
-\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 }
 \value{
 \code{predbvhar_roll} \link{class}
