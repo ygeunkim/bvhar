@@ -2,6 +2,7 @@
 #define BVHARSIM_H
 
 #include "bvharcommon.h"
+#include <vector>
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
@@ -17,9 +18,163 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape);
 
 Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape);
 
-// Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape);
-
 namespace bvhar {
+
+inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v) {
+  int num_rows = mat_mean.rows();
+  int num_cols = mat_mean.cols();
+  // if (mat_scale_u.rows() != mat_scale_u.cols()) {
+  //   Rcpp::stop("Invalid 'mat_scale_u' dimension.");
+  // }
+  // if (num_rows != mat_scale_u.rows()) {
+  //   Rcpp::stop("Invalid 'mat_scale_u' dimension.");
+  // }
+  // if (mat_scale_v.rows() != mat_scale_v.cols()) {
+  //   Rcpp::stop("Invalid 'mat_scale_v' dimension.");
+  // }
+  // if (num_cols != mat_scale_v.rows()) {
+  //   Rcpp::stop("Invalid 'mat_scale_v' dimension.");
+  // }
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
+  // Cholesky decomposition (lower triangular)
+  // Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
+  // Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
+	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL();
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+  Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
+  // Eigen::MatrixXd res(num_rows, num_cols);
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      mat_norm(i, j) = norm_rand();
+    }
+  }
+  // res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
+  // return res;
+	return mat_mean + chol_scale_u * mat_norm * chol_scale_v;
+}
+// overloading
+inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v, boost::random::mt19937& rng) {
+  int num_rows = mat_mean.rows();
+  int num_cols = mat_mean.cols();
+	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL();
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+  Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      mat_norm(i, j) = normal_rand(rng);
+    }
+  }
+	return mat_mean + chol_scale_u * mat_norm * chol_scale_v;
+}
+
+// Generate Lower Triangular Matrix of IW
+// 
+// This function generates \eqn{A = L (Q^{-1})^T}.
+// 
+// @param mat_scale Scale matrix of IW
+// @param shape Shape of IW
+// @details
+// This function is the internal function for IW sampling and MNIW sampling functions.
+inline Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
+  int dim = mat_scale.cols();
+	if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
+  if (mat_scale.rows() != mat_scale.cols()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  if (dim != mat_scale.rows()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); // upper triangular bartlett decomposition
+  // generate in row direction
+  for (int i = 0; i < dim; i++) {
+    mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i)); // diagonal: qii^2 ~ chi^2(nu - i + 1)
+  }
+  for (int i = 0; i < dim - 1; i ++) {
+    for (int j = i + 1; j < dim; j++) {
+      mat_bartlett(i, j) = norm_rand(); // upper triangular (j > i) ~ N(0, 1)
+    }
+  }
+  Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();
+  // return chol_scale * mat_bartlett.inverse().transpose(); // lower triangular
+	return chol_scale * mat_bartlett.transpose().triangularView<Eigen::Lower>().solve(Eigen::MatrixXd::Identity(dim, dim)); // lower triangular
+}
+// overloading
+inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape, boost::random::mt19937& rng) {
+  int dim = mat_scale.cols();
+	if (shape <= dim - 1) {
+    Rcpp::stop("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+  }
+  if (mat_scale.rows() != mat_scale.cols()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  if (dim != mat_scale.rows()) {
+    Rcpp::stop("Invalid 'mat_scale' dimension.");
+  }
+  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); // upper triangular bartlett decomposition
+  // generate in row direction
+  for (int i = 0; i < dim; i++) {
+    mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i, rng)); // diagonal: qii^2 ~ chi^2(nu - i + 1)
+  }
+  for (int i = 0; i < dim - 1; i ++) {
+    for (int j = i + 1; j < dim; j++) {
+      mat_bartlett(i, j) = normal_rand(rng); // upper triangular (j > i) ~ N(0, 1)
+    }
+  }
+  Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();
+	return chol_scale * mat_bartlett.transpose().triangularView<Eigen::Lower>().solve(Eigen::MatrixXd::Identity(dim, dim)); // lower triangular
+}
+
+inline Eigen::MatrixXd sim_inv_wishart(const Eigen::MatrixXd& mat_scale, double shape) {
+  Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
+  Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
+  return res;
+}
+
+inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u,
+																			 				const Eigen::MatrixXd& mat_scale, double shape) {
+  // int ncol_mn = mat_mean.cols();
+  // int nrow_mn = mat_mean.rows();
+  // int dim_iw = mat_scale.cols();
+  // if (dim_iw != mat_scale.rows()) {
+  //   Rcpp::stop("Invalid 'mat_scale' dimension.");
+  // }
+  // Eigen::MatrixXd chol_res(dim_iw, dim_iw);
+  // Eigen::MatrixXd mat_scale_v(dim_iw, dim_iw);
+  // result matrices: bind in column wise
+  // Eigen::MatrixXd res_mn(nrow_mn, num_sim * ncol_mn); // [Y1, Y2, ..., Yn]
+  // Eigen::MatrixXd res_iw(dim_iw, num_sim * dim_iw); // [Sigma1, Sigma2, ... Sigma2]
+  // for (int i = 0; i < num_sim; i++) {
+  //   chol_res = bvhar::sim_iw_tri(mat_scale, shape);
+  //   mat_scale_v = chol_res * chol_res.transpose();
+  //   res_iw.block(0, i * dim_iw, dim_iw, dim_iw) = mat_scale_v;
+  //   // MN(mat_mean, mat_scale_u, mat_scale_v)
+  //   res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
+  // }
+	// Eigen::MatrixXd res_mn(nrow_mn, ncol_mn); // [Y1, Y2, ..., Yn]
+  // Eigen::MatrixXd res_iw(dim_iw, dim_iw); // [Sigma1, Sigma2, ... Sigma2]
+  Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
+  Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();
+  // res_iw = mat_scale_v;
+  // MN(mat_mean, mat_scale_u, mat_scale_v)
+  // res_mn = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
+	std::vector<Eigen::MatrixXd> res(2);
+	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
+	res[1] = mat_scale_v;
+	return res;
+}
+// overloading
+inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u,
+																			 				const Eigen::MatrixXd& mat_scale, double shape, boost::random::mt19937& rng) {
+  Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape, rng);
+  Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();
+	std::vector<Eigen::MatrixXd> res(2);
+	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v, rng);
+	res[1] = mat_scale_v;
+	return res;
+}
 
 // Generate Lower Triangular Matrix of Wishart
 // 
