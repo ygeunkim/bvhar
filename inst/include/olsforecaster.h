@@ -8,10 +8,11 @@ namespace bvhar {
 
 class OlsForecaster {
 public:
-	OlsForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean)
+	OlsForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean)
 	: response(response_mat), coef_mat(fit._coef),
-		include_mean(include_mean), step(step), dim(coef_mat.cols()), var_lag(ord),
-		dim_design(coef_mat.rows()),
+		include_mean(include_mean), step(step), dim(coef_mat.cols()), var_lag(fit._ord),
+		// dim_design(coef_mat.rows()),
+		dim_design(include_mean ? var_lag * dim + 1 : var_lag * dim),
 		pred_save(Eigen::MatrixXd::Zero(step, dim)),
 		last_pvec(Eigen::VectorXd::Zero(dim_design)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
@@ -47,8 +48,8 @@ protected:
 
 class VarForecaster : public OlsForecaster {
 public:
-	VarForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean)
-	: OlsForecaster(fit, step, response_mat, lag, include_mean) {}
+	VarForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean)
+	: OlsForecaster(fit, step, response_mat, include_mean) {}
 	virtual ~VarForecaster() = default;
 	void updatePred() override {
 		point_forecast = last_pvec.transpose() * coef_mat; // y(T + h)^T = [yhat(T + h - 1)^T, ..., yhat(T + 1)^T, y(T)^T, ..., y(T + h - lag)^T] * Ahat
@@ -57,8 +58,8 @@ public:
 
 class VharForecaster : public OlsForecaster {
 public:
-	VharForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean)
-	: OlsForecaster(fit, step, response_mat, month, include_mean), har_trans(har_trans) {}
+	VharForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean)
+	: OlsForecaster(fit, step, response_mat, include_mean), har_trans(har_trans) {}
 	virtual ~VharForecaster() = default;
 	void updatePred() override {
 		point_forecast = last_pvec.transpose() * har_trans.transpose() * coef_mat; // y(T + h)^T = [yhat(T + h - 1)^T, ..., yhat(T + 1)^T, y(T)^T, ..., y(T + h - lag)^T] * C(HAR) * Ahat
