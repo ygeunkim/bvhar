@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.width = 6,
   fig.asp = .618
-  )
+)
 orig_opts <- options("digits")
 options(digits = 3)
 set.seed(1)
@@ -55,13 +55,14 @@ Nonetheless, we recommend you to keep $\nu > dim + 1$ condition. As mentioned, i
 sim_iw(diag(5), 7)
 ```
 
-In case of `sim_mniw()`, it returns list with `mn` (stacked MN matrices) and `iw` (stacked IW matrices):
+In case of `sim_mniw()`, it returns list with `mn` (stacked MN matrices) and `iw` (stacked IW matrices).
+Each `mn` and `iw` has draw lists.
 
 ```{r genmniw}
 sim_mniw(2, matrix(1:20, nrow = 4), diag(4), diag(5), 7)
 ```
 
-Since each matrix is stacked rowwise, it is actually not that readable and practical.
+<!-- Since each matrix is stacked rowwise, it is actually not that readable and practical. -->
 This function has been defined for the next simulation functions.
 
 # Minnesota Prior
