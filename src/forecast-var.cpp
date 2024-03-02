@@ -75,7 +75,7 @@ Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step
 	std::vector<std::unique_ptr<bvhar::VarForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
-	#pragma omp parallel num_threads(nthreads)
+	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
 		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(lag);
@@ -102,34 +102,63 @@ Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step
 //' @param include_mean Add constant term
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
+//' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+//' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd expand_var(Eigen::MatrixXd y, 
-                           int lag, 
-                           bool include_mean, 
-                           int step,
-                           Eigen::MatrixXd y_test) {
-  Rcpp::Function fit("var_lm");
-  int window = y.rows();
+Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
-  int num_iter = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
-  expand_mat.block(0, 0, window, dim) = y;
-  Rcpp::List var_mod = fit(y, lag, include_mean);
-  Eigen::MatrixXd y_pred = forecast_var(var_mod, step); // step x m
-  Eigen::MatrixXd res(num_iter, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_iter; i++) {
-    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
-    var_mod = fit(
-      expand_mat.block(0, 0, window + i, dim),
-      lag,
-      include_mean
-    );
-    y_pred = forecast_var(var_mod, step);
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
+  int num_horizon = num_test - step + 1; // longest forecast horizon
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
+	for (int i = 0; i < num_horizon; i++) {
+		expand_mat[i] = tot_mat.topRows(num_window + i);
+		expand_y0[i] = bvhar::build_y0(expand_mat[i], lag, lag + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MultiOls>> ols_objs(num_horizon);
+	switch(method) {
+	case 1: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(expand_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::MultiOls(design, expand_y0[i]));
+		}
+	}
+	case 2: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(expand_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::LltOls(design, expand_y0[i]));
+		}
+	}
+	case 3: {
+		for (int i = 0; i < num_horizon; ++i) {
+			Eigen::MatrixXd design = bvhar::build_x0(expand_mat[i], lag, include_mean);
+			ols_objs[i] = std::unique_ptr<bvhar::MultiOls>(new bvhar::QrOls(design, expand_y0[i]));
+		}
+	}
+	}
+	std::vector<std::unique_ptr<bvhar::VarForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(lag);
+		forecaster[window].reset(new bvhar::VarForecaster(ols_fit, step, expand_y0[window], include_mean));
+		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
 }

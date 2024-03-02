@@ -255,8 +255,9 @@ forecast_expand <- function(object, n_ahead, y_test, ...) {
 }
 
 #' @rdname forecast_expand
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-forecast_expand.bvharmod <- function(object, n_ahead, y_test, ...) {
+forecast_expand.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -274,13 +275,20 @@ forecast_expand.bvharmod <- function(object, n_ahead, y_test, ...) {
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  if (model_type == "varlse" || model_type == "vharlse") {
+    method <- switch(object$method,
+      "nor" = 1,
+      "chol" = 2,
+      "qr" = 3
+    )
+  }
   res_mat <- switch(
     model_type,
     "varlse" = {
-      expand_var(y, object$p, include_mean, n_ahead, y_test)
+      expand_var(y, object$p, include_mean, n_ahead, y_test, method, num_thread)
     },
     "vharlse" = {
-      expand_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
+      expand_vhar(y, object$week, object$month, include_mean, n_ahead, y_test, method, num_thread)
     },
     "bvarmn" = {
       expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
