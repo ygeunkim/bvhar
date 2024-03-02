@@ -134,6 +134,11 @@ inline double chisq_rand(double df) {
 	return Rf_rchisq(df);
 }
 
+inline double chisq_rand(double df, boost::random::mt19937& rng) {
+	boost::random::chi_squared_distribution<> rdist(df);
+	return rdist(rng);
+}
+
 inline double gamma_rand(double shp, double scl) {
 	return Rf_rgamma(shp, scl); // 2nd: scale
 }
