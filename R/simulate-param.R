@@ -74,16 +74,16 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
   iw_shape <- prior$prior_shape
   # random---------------------------
   if (full) {
-    res <- sim_mniw(
+    res <- sim_mniw_export(
       1,
       mn_mean, # mean of MN
       solve(mn_prec), # scale of MN = inverse of precision
       iw_scale, # scale of IW
       iw_shape # shape of IW
-    )
+    )[[1]]
     res <- list(
-      coefficients = res$mn,
-      covmat = res$iw
+      coefficients = res[[1]],
+      covmat = res[[2]]
     )
   } else {
     sig <- diag(sigma^2)
@@ -195,16 +195,16 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
   iw_shape <- prior$prior_shape
   # random---------------------------
   if (full) {
-    res <- sim_mniw(
+    res <- sim_mniw_export(
       1,
       mn_mean, # mean of MN
       solve(mn_prec), # scale of MN = inverse of precision
       iw_scale, # scale of IW
       iw_shape # shape of IW
-    )
+    )[[1]]
     res <- list(
-      coefficients = res$mn,
-      covmat = res$iw
+      coefficients = res[[1]],
+      covmat = res[[2]]
     )
   } else {
     sig <- diag(sigma^2)

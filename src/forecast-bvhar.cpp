@@ -37,15 +37,24 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   int dim_har = HARtrans.cols(); // 22m + 1 (const) or 22m (none)
   int month = object["month"];
   // (Phi, Sig) ~ MNIW
-  Rcpp::List coef_and_sig = sim_mniw(
-    num_sim, 
-    posterior_mean_mat, 
-    Eigen::Map<Eigen::MatrixXd>(posterior_mn_scale_u.data(), dim_design, dim_design), 
-    Eigen::Map<Eigen::MatrixXd>(posterior_scale.data(), dim, dim), 
-    posterior_shape
-  );
-  Eigen::MatrixXd coef_gen = coef_and_sig["mn"]; // generated Phihat: h x Bm, h = 3m (+ 1)
-  Eigen::MatrixXd sig_gen = coef_and_sig["iw"]; // generated Sighat: m x Bm
+  // Rcpp::List coef_and_sig = sim_mniw(
+  //   num_sim, 
+  //   posterior_mean_mat, 
+  //   Eigen::Map<Eigen::MatrixXd>(posterior_mn_scale_u.data(), dim_design, dim_design), 
+  //   Eigen::Map<Eigen::MatrixXd>(posterior_scale.data(), dim, dim), 
+  //   posterior_shape
+  // );
+  // Eigen::MatrixXd coef_gen = coef_and_sig["mn"]; // generated Phihat: h x Bm, h = 3m (+ 1)
+  // Eigen::MatrixXd sig_gen = coef_and_sig["iw"]; // generated Sighat: m x Bm
+	std::vector<std::vector<Eigen::MatrixXd>> coef_and_sig(num_sim, std::vector<Eigen::MatrixXd>(2));
+	for (int i = 0; i < num_sim; i++) {
+		coef_and_sig[i] = bvhar::sim_mn_iw(
+			posterior_mean_mat,
+			Eigen::Map<Eigen::MatrixXd>(posterior_mn_scale_u.data(), dim_design, dim_design),
+			Eigen::Map<Eigen::MatrixXd>(posterior_scale.data(), dim, dim),
+			posterior_shape
+		);
+	}
   // forecasting step
   Eigen::MatrixXd point_forecast(step, dim); // h x m matrix
   Eigen::MatrixXd density_forecast(step, num_sim * dim); // h x Bm matrix
@@ -63,14 +72,16 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
   }
   sig_closed.block(0, 0, 1, 1) += last_pvec * transformed_prec_mat * last_pvec.transpose();
   point_forecast.block(0, 0, 1, dim) = last_pvec * HARtrans.transpose() * posterior_mean_mat; // y(n + 1)^T = [y(n)^T, ..., y(n - p + 1)^T, 1] %*% t(HARtrans) %*% Phihat
-  density_forecast.block(0, 0, 1, num_sim * dim) = last_pvec * HARtrans.transpose() * coef_gen; // (1, k0) x (k0, h) x (h, Bm) = (1, Bm)
+  // density_forecast.block(0, 0, 1, num_sim * dim) = last_pvec * HARtrans.transpose() * coef_gen; // (1, k0) x (k0, h) x (h, Bm) = (1, Bm)
   // one-step ahead forecasting
-  Eigen::MatrixXd sig_mat = sig_gen.block(0, 0, dim, dim); // First Sighat
+  // Eigen::MatrixXd sig_mat = sig_gen.block(0, 0, dim, dim); // First Sighat
   for (int b = 0; b < num_sim; b++) {
+		density_forecast.block(0, b * dim, 1, dim) = last_pvec * HARtrans.transpose() * coef_and_sig[b][0];
     predictive_distn.block(0, b * dim, 1, dim) = sim_matgaussian(
       density_forecast.block(0, b * dim, 1, dim),
       Eigen::Map<Eigen::MatrixXd>(sig_closed.block(0, 0, 1, 1).data(), 1, 1),
-      Eigen::Map<Eigen::MatrixXd>(sig_mat.data(), dim, dim)
+      // Eigen::Map<Eigen::MatrixXd>(sig_mat.data(), dim, dim)
+			coef_and_sig[b][1]
     );
   }
   if (step == 1) {
@@ -88,13 +99,15 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
     // y(n + 2)^T = [yhat(n + 1)^T, y(n)^T, ... y(n - p + 2)^T, 1] %*% t(HARtrans) %*% Phihat
     point_forecast.block(i, 0, 1, dim) = last_pvec * HARtrans.transpose() * posterior_mean_mat;
     // Predictive distribution
-    density_forecast.block(i, 0, 1, num_sim * dim) = last_pvec * HARtrans.transpose() * coef_gen;
+    // density_forecast.block(i, 0, 1, num_sim * dim) = last_pvec * HARtrans.transpose() * coef_gen;
     for (int b = 0; b < num_sim; b++) {
-      sig_mat = sig_gen.block(0, b * dim, dim, dim); // b-th Sighat
+			density_forecast.block(i, b * dim, 1, dim) = last_pvec * HARtrans.transpose() * coef_and_sig[b][0];
+      // sig_mat = sig_gen.block(0, b * dim, dim, dim); // b-th Sighat
       predictive_distn.block(i, b * dim, 1, dim) = sim_matgaussian(
         density_forecast.block(i, b * dim, 1, dim),
         Eigen::Map<Eigen::MatrixXd>(sig_closed.block(0, 0, 1, 1).data(), 1, 1),
-        Eigen::Map<Eigen::MatrixXd>(sig_mat.data(), dim, dim)
+        // Eigen::Map<Eigen::MatrixXd>(sig_mat.data(), dim, dim)
+				coef_and_sig[b][1]
       );
     }
   }
