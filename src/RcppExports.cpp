@@ -178,18 +178,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_iw_tri
-Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape);
-RcppExport SEXP _bvhar_sim_iw_tri(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale(mat_scaleSEXP);
-    Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_iw_tri(mat_scale, shape));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sim_iw
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape);
 RcppExport SEXP _bvhar_sim_iw(SEXP mat_scaleSEXP, SEXP shapeSEXP) {
@@ -202,9 +190,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_mniw
-Rcpp::List sim_mniw(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape);
-RcppExport SEXP _bvhar_sim_mniw(SEXP num_simSEXP, SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scaleSEXP, SEXP shapeSEXP) {
+// sim_mniw_export
+Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape);
+RcppExport SEXP _bvhar_sim_mniw_export(SEXP num_simSEXP, SEXP mat_meanSEXP, SEXP mat_scale_uSEXP, SEXP mat_scaleSEXP, SEXP shapeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -213,7 +201,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale_u(mat_scale_uSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mat_scale(mat_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type shape(shapeSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape));
+    rcpp_result_gen = Rcpp::wrap(sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1194,9 +1182,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_mgaussian_chol", (DL_FUNC) &_bvhar_sim_mgaussian_chol, 3},
     {"_bvhar_sim_mstudent", (DL_FUNC) &_bvhar_sim_mstudent, 5},
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
-    {"_bvhar_sim_iw_tri", (DL_FUNC) &_bvhar_sim_iw_tri, 2},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
-    {"_bvhar_sim_mniw", (DL_FUNC) &_bvhar_sim_mniw, 5},
+    {"_bvhar_sim_mniw_export", (DL_FUNC) &_bvhar_sim_mniw_export, 5},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 6},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},

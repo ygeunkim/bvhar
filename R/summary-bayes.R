@@ -58,13 +58,14 @@ summary.normaliw <- function(object, num_iter = 10000L, num_burn = floor(num_ite
   nu <- object$iw_shape
   # list of mn and iw-------------------------
   # each simulation is column-stacked
-  coef_and_sig <- sim_mniw(
+  coef_and_sig <- sim_mniw_export(
     num_iter,
     mn_mean, # mean of MN
     chol2inv(chol(mn_prec)), # precision of MN = inverse of precision
     iw_scale, # scale of IW
     nu # shape of IW
-  )
+  ) %>%
+    simplify2array()
   # preprocess--------------------------------
   dim_design <- object$df # k or h = 3m + 1 or 3m
   dim_data <- ncol(object$y0)
@@ -89,18 +90,20 @@ summary.normaliw <- function(object, num_iter = 10000L, num_burn = floor(num_ite
   thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
   len_res <- length(thin_id)
   mn_name <- ifelse(grepl(pattern = "^BVAR_", object$process), "alpha", "phi")
-  coef_record <- 
-    coef_and_sig$mn %>% 
-    t() %>% 
-    split.data.frame(gl(num_iter, object$m)) %>% 
-    lapply(function(x) c(t(x)))
+  # coef_record <- 
+  #   coef_and_sig$mn %>% 
+  #   t() %>% 
+  #   split.data.frame(gl(num_iter, object$m)) %>% 
+  #   lapply(function(x) c(t(x)))
+  coef_record <- lapply(coef_and_sig[1,], c)
   coef_record <- coef_record[thin_id]
   coef_record <- do.call(rbind, coef_record)
   colnames(coef_record) <- paste0(mn_name, "[", seq_len(ncol(coef_record)), "]")
   res$coefficients <- 
     colMeans(coef_record) %>% 
     matrix(ncol = object$m)
-  coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
+  # coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
+  coef_and_sig$iw <- coef_and_sig[2,]
   coef_and_sig$iw <- coef_and_sig$iw[thin_id]
   res$psi_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
   res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)

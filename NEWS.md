@@ -6,6 +6,10 @@
 
 * When forecasting SV models, it is available to choose whether to use time-varying covariance (`innovation` option, which is `TRUE` by default).
 
+* `sim_mniw()` output format has been changed into list of lists.
+
+* Now can use MNIW generation by including header (`std::vector<Eigen::MatrixXd> sim_mn_iw(...)`).
+
 # bvhar 2.0.1
 
 * Fix internal vectorization and unvectorization behavior.
