@@ -213,20 +213,6 @@ sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
     .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
 }
 
-#' Generate Lower Triangular Matrix of IW
-#' 
-#' This function generates \eqn{A = L (Q^{-1})^T}.
-#' 
-#' @param mat_scale Scale matrix of IW
-#' @param shape Shape of IW
-#' @details
-#' This function is the internal function for IW sampling and MNIW sampling functions.
-#' 
-#' @noRd
-sim_iw_tri <- function(mat_scale, shape) {
-    .Call(`_bvhar_sim_iw_tri`, mat_scale, shape)
-}
-
 #' Generate Inverse-Wishart Random Matrix
 #' 
 #' This function samples one matrix IW matrix.
@@ -257,18 +243,9 @@ sim_iw <- function(mat_scale, shape) {
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
-#' @details
-#' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
-#' 
-#' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-#' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
-#' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
-#' 4. \eqn{A_i = M + P Z_i C_i^T}
-#' @return List of MN and IW matrices.
-#' Multiple samples are column-stacked.
-#' @export
-sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
-    .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+#' @noRd
+sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
+    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 }
 
 #' BVAR(p) Point Estimates based on Minnesota Prior
