@@ -38,6 +38,16 @@ struct BvharSpec : public MinnSpec {
 		_monthly(Rcpp::as<Eigen::VectorXd>(bayes_spec["monthly"])) {}
 };
 
+struct MinnFit {
+	Eigen::MatrixXd _coef;
+	Eigen::MatrixXd _prec;
+	Eigen::MatrixXd _iw_scale;
+	double _iw_shape;
+	
+	MinnFit(const Eigen::MatrixXd& coef_mat, const Eigen::MatrixXd& prec_mat, const Eigen::MatrixXd& iw_scale, double iw_shape)
+	: _coef(coef_mat), _prec(prec_mat), _iw_scale(iw_scale), _iw_shape(iw_shape) {}
+};
+
 class Minnesota {
 public:
 	Minnesota(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy)
@@ -96,6 +106,13 @@ public:
 			Rcpp::Named("design") = design
 		);
 	}
+	MinnFit returnMinnFit() {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		MinnFit res(coef, prec, scale, prior_shape + num_design);
+		return res;
+	}
 private:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
@@ -147,6 +164,9 @@ public:
 		mn_res["y"] = data;
 		return mn_res;
 	}
+	MinnFit returnMinnFit() {
+		return _mn->returnMinnFit();
+	}
 private:
 	int lag;
 	bool const_term;
@@ -175,6 +195,7 @@ public:
 	}
 	virtual ~MinnBvhar() = default;
 	virtual Rcpp::List returnMinnRes() = 0;
+	virtual MinnFit returnMinnFit() = 0;
 protected:
 	int week;
 	int month;
@@ -211,6 +232,9 @@ public:
 		mn_res["y"] = data;
 		return mn_res;
 	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
+	}
 private:
 	std::unique_ptr<Minnesota> _mn;
 	Eigen::MatrixXd dummy_response;
@@ -238,6 +262,9 @@ public:
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
 		return mn_res;
+	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
 	}
 private:
 	std::unique_ptr<Minnesota> _mn;
