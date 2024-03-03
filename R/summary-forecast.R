@@ -25,6 +25,7 @@ divide_ts <- function(y, n_ahead) {
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @param ... Additional arguments
 #' @details 
 #' Rolling windows forecasting fixes window size.
@@ -35,13 +36,13 @@ divide_ts <- function(y, n_ahead) {
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS.
 #' @order 1
 #' @export
-forecast_roll <- function(object, n_ahead, y_test, ...) {
+forecast_roll <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   UseMethod("forecast_roll", object)
 }
 
 #' @rdname forecast_roll
 #' @export
-forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
+forecast_roll.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -60,21 +61,39 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   num_horizon <- nrow(y_test) - n_ahead + 1
+  if (model_type == "varlse" || model_type == "vharlse") {
+    method <- switch(object$method,
+      "nor" = 1,
+      "chol" = 2,
+      "qr" = 3
+    )
+  }
+  if (model_type != "bvarflat") {
+    if (num_thread > get_maxomp()) {
+      warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    }
+    if (num_thread > get_maxomp()) {
+      warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    }
+    if (num_thread > num_horizon) {
+      warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+    }
+  }
   res_mat <- switch(model_type,
     "varlse" = {
-      roll_var(y, object$p, include_mean, n_ahead, y_test)
+      roll_var(y, object$p, include_mean, n_ahead, y_test, method, num_thread)
     },
     "vharlse" = {
-      roll_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
+      roll_vhar(y, object$week, object$month, include_mean, n_ahead, y_test, method, num_thread)
     },
     "bvarmn" = {
-      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
+      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, num_thread)
     },
     "bvarflat" = {
       roll_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      roll_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
+      roll_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, num_thread)
     }
   )
   colnames(res_mat) <- name_var
@@ -91,9 +110,8 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, ...) {
 #' @rdname forecast_roll
 #' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
-#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, innovation = TRUE, use_fit = TRUE, num_thread = 1, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovation = TRUE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -232,6 +250,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, innovation = TRUE, use_
 #' @param object Model object
 #' @param n_ahead Step to forecast in rolling window scheme
 #' @param y_test Test data to be compared. Use [divide_ts()] if you don't have separate evaluation dataset.
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @param ... Additional arguments.
 #' @details
 #' Expanding windows forecasting fixes the starting period.
@@ -242,13 +261,13 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, innovation = TRUE, use_
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
 #' @order 1
 #' @export
-forecast_expand <- function(object, n_ahead, y_test, ...) {
+forecast_expand <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   UseMethod("forecast_expand", object)
 }
 
 #' @rdname forecast_expand
 #' @export
-forecast_expand.bvharmod <- function(object, n_ahead, y_test, ...) {
+forecast_expand.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -266,25 +285,43 @@ forecast_expand.bvharmod <- function(object, n_ahead, y_test, ...) {
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  if (model_type == "varlse" || model_type == "vharlse") {
+    method <- switch(object$method,
+      "nor" = 1,
+      "chol" = 2,
+      "qr" = 3
+    )
+  }
+  num_horizon <- nrow(y_test) - n_ahead + 1
+  if (model_type != "bvarflat") {
+    if (num_thread > get_maxomp()) {
+      warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    }
+    if (num_thread > get_maxomp()) {
+      warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+    }
+    if (num_thread > num_horizon) {
+      warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+    }
+  }
   res_mat <- switch(
     model_type,
     "varlse" = {
-      expand_var(y, object$p, include_mean, n_ahead, y_test)
+      expand_var(y, object$p, include_mean, n_ahead, y_test, method, num_thread)
     },
     "vharlse" = {
-      expand_vhar(y, c(object$week, object$month), include_mean, n_ahead, y_test)
+      expand_vhar(y, object$week, object$month, include_mean, n_ahead, y_test, method, num_thread)
     },
     "bvarmn" = {
-      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test)
+      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, num_thread)
     },
     "bvarflat" = {
       expand_bvarflat(y, object$p, object$spec, include_mean, n_ahead, y_test)
     },
     "bvharmn" = {
-      expand_bvhar(y, c(object$week, object$month), object$spec, include_mean, n_ahead, y_test)
+      expand_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, num_thread)
     }
   )
-  num_horizon <- nrow(y_test) - n_ahead + 1
   colnames(res_mat) <- name_var
   res <- list(
     process = object$process,
