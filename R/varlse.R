@@ -72,7 +72,7 @@ var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"
     y <- as.matrix(y)
   }
   method <- match.arg(method)
-  method <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
+  method_fit <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
   } else {
@@ -82,7 +82,7 @@ var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"
     stop("'include_mean' is logical.")
   }
   name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
-  res <- estimate_var(y, p, include_mean, method)
+  res <- estimate_var(y, p, include_mean, method_fit)
   colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$design) <- name_lag
@@ -91,6 +91,7 @@ var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"
   colnames(res$covmat) <- name_var
   rownames(res$covmat) <- name_var
   # return as new S3 class-----------
+  res$method <- method
   res$call <- match.call()
   class(res) <- c("varlse", "bvharmod")
   res

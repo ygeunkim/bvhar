@@ -65,7 +65,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
     y <- as.matrix(y)
   }
   method <- match.arg(method)
-  method <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
+  method_fit <- switch(method, "nor" = 1, "chol" = 2, "qr" = 3)
   if (length(har) != 2 || !is.numeric(har)) {
     stop("'har' should be numeric vector of length 2.")
   }
@@ -83,7 +83,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
     stop("'include_mean' is logical.")
   }
   name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean)
-  res <- estimate_har(y, week, month, include_mean, method)
+  res <- estimate_har(y, week, month, include_mean, method_fit)
   colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$coefficients) <- name_var
@@ -91,6 +91,7 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   colnames(res$covmat) <- name_var
   rownames(res$covmat) <- name_var
   # return as new S3 class-----------
+  res$method <- method
   res$call <- match.call()
   class(res) <- c("vharlse", "bvharmod")
   res
