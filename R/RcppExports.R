@@ -1252,32 +1252,6 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
-#' Rolling-sample Total Spillover Index of VAR
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param window Rolling window size
-#' @param step forecast horizon for FEVD
-#' @param lag VAR order
-#' @param include_mean Add constant term
-#' 
-#' @noRd
-dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean) {
-    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean)
-}
-
-#' Rolling-sample Total Spillover Index of VHAR
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param window Rolling window size
-#' @param step forecast horizon for FEVD
-#' @param har VHAR order
-#' @param include_mean Add constant term
-#' 
-#' @noRd
-dynamic_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
-    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, har, include_mean)
-}
-
 #' Rolling-sample Total Spillover Index of BVAR
 #' 
 #' @param y Time series data of which columns indicate the variables
@@ -1306,6 +1280,32 @@ dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag,
 #' @noRd
 dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
     .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of VAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param lag VAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean) {
+    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean)
+}
+
+#' Rolling-sample Total Spillover Index of VHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param har VHAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
+    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, har, include_mean)
 }
 
 #' Dynamic Total Spillover Index of BVAR-SV
