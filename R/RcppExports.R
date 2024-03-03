@@ -663,6 +663,64 @@ VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, m
     .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
 }
 
+#' Forecasting VAR(p) with SSVS
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvarssvs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvarssvs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
+}
+
+#' Forecasting VAR(p) with Horseshoe Prior
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvarhs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvarhs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
+}
+
+#' Forecasting VHAR with SSVS
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvharssvs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvharssvs`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
+}
+
+#' Forecasting VHAR with Horseshoe Prior
+#' 
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of phi.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvharhs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvharhs`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
+}
+
 #' Forecasting BVAR(p)
 #' 
 #' @param object `bvarmn` or `bvarflat` object
@@ -695,32 +753,26 @@ forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
-#' Forecasting VAR(p) with SSVS
+#' Forecasting Bayesian VHAR
 #' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
-#' @noRd
-forecast_bvarssvs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvarssvs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
-}
-
-#' Forecasting VAR(p) with Horseshoe Prior
+#' @param object `bvharmn` object
+#' @param step Integer, Step to forecast
+#' @param num_sim Integer, number to simulate parameters from posterior distribution
+#' @details
+#' n-step ahead forecasting using VHAR recursively.
 #' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
+#' For given number of simulation (`num_sim`),
+#' 
+#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
+#'     - Point forecast: Use \eqn{\hat\Phi}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
+#' 
+#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @noRd
-forecast_bvarhs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvarhs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
+forecast_bvharmn <- function(object, step, num_sim) {
+    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -785,58 +837,6 @@ expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @noRd
 expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_expand_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
-}
-
-#' Forecasting Bayesian VHAR
-#' 
-#' @param object `bvharmn` object
-#' @param step Integer, Step to forecast
-#' @param num_sim Integer, number to simulate parameters from posterior distribution
-#' @details
-#' n-step ahead forecasting using VHAR recursively.
-#' 
-#' For given number of simulation (`num_sim`),
-#' 
-#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
-#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
-#'     - Point forecast: Use \eqn{\hat\Phi}
-#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
-#'     - tilde notation indicates simulated ones
-#' 
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
-#' @noRd
-forecast_bvharmn <- function(object, step, num_sim) {
-    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
-}
-
-#' Forecasting VHAR with SSVS
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
-#' @noRd
-forecast_bvharssvs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvharssvs`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
-}
-
-#' Forecasting VHAR with Horseshoe Prior
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of phi.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvharhs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvharhs`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Rolling Window
