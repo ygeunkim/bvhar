@@ -164,6 +164,9 @@ public:
 		mn_res["y"] = data;
 		return mn_res;
 	}
+	MinnFit returnMinnFit() {
+		return _mn->returnMinnFit();
+	}
 private:
 	int lag;
 	bool const_term;
@@ -192,6 +195,7 @@ public:
 	}
 	virtual ~MinnBvhar() = default;
 	virtual Rcpp::List returnMinnRes() = 0;
+	virtual MinnFit returnMinnFit() = 0;
 protected:
 	int week;
 	int month;
@@ -228,6 +232,9 @@ public:
 		mn_res["y"] = data;
 		return mn_res;
 	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
+	}
 private:
 	std::unique_ptr<Minnesota> _mn;
 	Eigen::MatrixXd dummy_response;
@@ -255,6 +262,9 @@ public:
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
 		return mn_res;
+	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
 	}
 private:
 	std::unique_ptr<Minnesota> _mn;

@@ -5,7 +5,7 @@
 \alias{forecast_expand.bvharmod}
 \title{Out-of-sample Forecasting based on Expanding Window}
 \usage{
-forecast_expand(object, n_ahead, y_test, ...)
+forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 
 \method{forecast_expand}{bvharmod}(object, n_ahead, y_test, num_thread = 1, ...)
 }
@@ -16,9 +16,9 @@ forecast_expand(object, n_ahead, y_test, ...)
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
 
-\item{...}{Additional arguments.}
-
 \item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
+
+\item{...}{Additional arguments.}
 }
 \value{
 \code{predbvhar_expand} \link{class}

@@ -98,35 +98,47 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, 
-                          int lag, 
-                          Rcpp::List bayes_spec,
-                          bool include_mean, 
-                          int step,
-                          Eigen::MatrixXd y_test) {
+Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads) {
   if (!bayes_spec.inherits("bvharspec")) {
     Rcpp::stop("'object' must be bvharspec object.");
   }
-  Rcpp::Function fit("bvar_minnesota");
-  int window = y.rows();
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd roll_mat = y; // same size as y
-  Rcpp::List bvar_mod = fit(roll_mat, lag, bayes_spec, include_mean);
-  Rcpp::List bvar_pred = forecast_bvar(bvar_mod, step, 1);
-  Eigen::MatrixXd y_pred = bvar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    bvar_mod = fit(roll_mat, lag, bayes_spec, include_mean);
-    bvar_pred = forecast_bvar(bvar_mod, step, 1);
-    y_pred = bvar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
+	for (int i = 0; i < num_horizon; i++) {
+		roll_mat[i] = tot_mat.middleRows(i, num_window);
+		roll_y0[i] = bvhar::build_y0(roll_mat[i], lag, lag + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MinnBvar>> mn_objs(num_horizon);
+	for (int i = 0; i < num_horizon; ++i) {
+		bvhar::BvarSpec mn_spec(bayes_spec);
+		mn_objs[i] = std::unique_ptr<bvhar::MinnBvar>(new bvhar::MinnBvar(roll_mat[i], lag, mn_spec, include_mean));
+	}
+	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean));
+		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
 }
 
 //' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -142,12 +154,7 @@ Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y, 
-                              int lag, 
-                              Rcpp::List bayes_spec,
-                              bool include_mean, 
-                              int step,
-                              Eigen::MatrixXd y_test) {
+Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test) {
   if (!bayes_spec.inherits("bvharspec")) {
     Rcpp::stop("'object' must be bvharspec object.");
   }
@@ -166,104 +173,6 @@ Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y,
     roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
     roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
     bvar_mod = fit(roll_mat, lag, bayes_spec, include_mean);
-    bvar_pred = forecast_bvar(bvar_mod, step, 1);
-    y_pred = bvar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
-}
-
-//' Out-of-Sample Forecasting of BVAR based on Expanding Window
-//' 
-//' This function conducts an expanding window forecasting of BVAR with Minnesota prior.
-//' 
-//' @param y Time series data of which columns indicate the variables
-//' @param lag BVAR order
-//' @param bayes_spec List, BVAR specification
-//' @param include_mean Add constant term
-//' @param step Integer, Step to forecast
-//' @param y_test Evaluation time series data period after `y`
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, 
-                            int lag, 
-                            Rcpp::List bayes_spec,
-                            bool include_mean, 
-                            int step,
-                            Eigen::MatrixXd y_test) {
-  if (!bayes_spec.inherits("bvharspec")) {
-    Rcpp::stop("'object' must be bvharspec object.");
-  }
-  Rcpp::Function fit("bvar_minnesota");
-  int window = y.rows();
-  int dim = y.cols();
-  int num_test = y_test.rows();
-  int num_iter = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
-  expand_mat.block(0, 0, window, dim) = y;
-  Rcpp::List bvar_mod = fit(y, lag, bayes_spec, include_mean);
-  Rcpp::List bvar_pred = forecast_bvar(bvar_mod, step, 1);
-  Eigen::MatrixXd y_pred = bvar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_iter, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_iter; i++) {
-    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
-    bvar_mod = fit(
-      expand_mat.block(0, 0, window + i, dim),
-      lag, 
-      bayes_spec, 
-      include_mean
-    );
-    bvar_pred = forecast_bvar(bvar_mod, step, 1);
-    y_pred = bvar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
-}
-
-//' Out-of-Sample Forecasting of BVAR based on Expanding Window
-//' 
-//' This function conducts an expanding window forecasting of BVAR with Flat prior.
-//' 
-//' @param y Time series data of which columns indicate the variables
-//' @param lag BVAR order
-//' @param bayes_spec List, BVAR specification
-//' @param include_mean Add constant term
-//' @param step Integer, Step to forecast
-//' @param y_test Evaluation time series data period after `y`
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y, 
-                                int lag, 
-                                Rcpp::List bayes_spec,
-                                bool include_mean, 
-                                int step,
-                                Eigen::MatrixXd y_test) {
-  if (!bayes_spec.inherits("bvharspec")) {
-    Rcpp::stop("'object' must be bvharspec object.");
-  }
-  Rcpp::Function fit("bvar_flat");
-  int window = y.rows();
-  int dim = y.cols();
-  int num_test = y_test.rows();
-  int num_iter = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
-  expand_mat.block(0, 0, window, dim) = y;
-  Rcpp::List bvar_mod = fit(y, lag, bayes_spec, include_mean);
-  Rcpp::List bvar_pred = forecast_bvar(bvar_mod, step, 1);
-  Eigen::MatrixXd y_pred = bvar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_iter, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_iter; i++) {
-    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
-    bvar_mod = fit(
-      expand_mat.block(0, 0, window + i, dim),
-      lag, 
-      bayes_spec, 
-      include_mean
-    );
     bvar_pred = forecast_bvar(bvar_mod, step, 1);
     y_pred = bvar_pred["posterior_mean"];
     res.row(i) = y_pred.row(step - 1);
@@ -284,32 +193,153 @@ Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, 
-                           Eigen::VectorXd har,
-                           Rcpp::List bayes_spec,
-                           bool include_mean, 
-                           int step,
-                           Eigen::MatrixXd y_test) {
+Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads) {
   if (!bayes_spec.inherits("bvharspec")) {
     Rcpp::stop("'object' must be bvharspec object.");
   }
-  Rcpp::Function fit("bvhar_minnesota");
-  int window = y.rows();
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd roll_mat = y; // same size as y
-  Rcpp::List bvhar_mod = fit(roll_mat, har, bayes_spec, include_mean);
-  Rcpp::List bvhar_pred = forecast_bvharmn(bvhar_mod, step, 1);
-  Eigen::MatrixXd y_pred = bvhar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_horizon, dim);
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
+	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	for (int i = 0; i < num_horizon; i++) {
+		roll_mat[i] = tot_mat.middleRows(i, num_window);
+		roll_y0[i] = bvhar::build_y0(roll_mat[i], month, month + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MinnBvhar>> mn_objs(num_horizon);
+	if (bayes_spec.containsElementNamed("delta")) {
+		for (int i = 0; i < num_horizon; ++i) {
+			bvhar::BvarSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(roll_mat[i], week, month, mn_spec, include_mean));
+		}
+	} else {
+		for (int i = 0; i < num_horizon; ++i) {
+			bvhar::BvharSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(roll_mat[i], week, month, mn_spec, include_mean));
+		}
+	}
+	std::vector<std::unique_ptr<bvhar::BvharForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, roll_y0[window], har_trans, month, 1, include_mean));
+		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
+}
+
+//' Out-of-Sample Forecasting of BVAR based on Expanding Window
+//' 
+//' This function conducts an expanding window forecasting of BVAR with Minnesota prior.
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param lag BVAR order
+//' @param bayes_spec List, BVAR specification
+//' @param include_mean Add constant term
+//' @param step Integer, Step to forecast
+//' @param y_test Evaluation time series data period after `y`
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads) {
+  if (!bayes_spec.inherits("bvharspec")) {
+    Rcpp::stop("'object' must be bvharspec object.");
+  }
+	int num_window = y.rows();
+  int dim = y.cols();
+  int num_test = y_test.rows();
+  int num_horizon = num_test - step + 1; // longest forecast horizon
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
+	for (int i = 0; i < num_horizon; i++) {
+		expand_mat[i] = tot_mat.topRows(num_window + i);
+		expand_y0[i] = bvhar::build_y0(expand_mat[i], lag, lag + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MinnBvar>> mn_objs(num_horizon);
+	for (int i = 0; i < num_horizon; ++i) {
+		// 
+		bvhar::BvarSpec mn_spec(bayes_spec);
+		mn_objs[i] = std::unique_ptr<bvhar::MinnBvar>(new bvhar::MinnBvar(expand_mat[i], lag, mn_spec, include_mean));
+	}
+	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean));
+		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
+}
+
+//' Out-of-Sample Forecasting of BVAR based on Expanding Window
+//' 
+//' This function conducts an expanding window forecasting of BVAR with Flat prior.
+//' 
+//' @param y Time series data of which columns indicate the variables
+//' @param lag BVAR order
+//' @param bayes_spec List, BVAR specification
+//' @param include_mean Add constant term
+//' @param step Integer, Step to forecast
+//' @param y_test Evaluation time series data period after `y`
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test) {
+  if (!bayes_spec.inherits("bvharspec")) {
+    Rcpp::stop("'object' must be bvharspec object.");
+  }
+  Rcpp::Function fit("bvar_flat");
+  int window = y.rows();
+  int dim = y.cols();
+  int num_test = y_test.rows();
+  int num_iter = num_test - step + 1; // longest forecast horizon
+  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
+  expand_mat.block(0, 0, window, dim) = y;
+  Rcpp::List bvar_mod = fit(y, lag, bayes_spec, include_mean);
+  Rcpp::List bvar_pred = forecast_bvar(bvar_mod, step, 1);
+  Eigen::MatrixXd y_pred = bvar_pred["posterior_mean"]; // step x m
+  Eigen::MatrixXd res(num_iter, dim);
   res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_horizon; i++) {
-    roll_mat.block(0, 0, window - 1, dim) = roll_mat.block(1, 0, window - 1, dim); // rolling windows
-    roll_mat.row(window - 1) = y_test.row(i - 1); // rolling windows
-    bvhar_mod = fit(roll_mat, har, bayes_spec, include_mean);
-    bvhar_pred = forecast_bvharmn(bvhar_mod, step, 1);
-    y_pred = bvhar_pred["posterior_mean"];
+  for (int i = 1; i < num_iter; i++) {
+    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
+    bvar_mod = fit(
+      expand_mat.block(0, 0, window + i, dim),
+      lag, 
+      bayes_spec, 
+      include_mean
+    );
+    bvar_pred = forecast_bvar(bvar_mod, step, 1);
+    y_pred = bvar_pred["posterior_mean"];
     res.row(i) = y_pred.row(step - 1);
   }
   return res;
@@ -328,38 +358,55 @@ Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, 
-                             Eigen::VectorXd har,
-                             Rcpp::List bayes_spec,
-                             bool include_mean, 
-                             int step,
-                             Eigen::MatrixXd y_test) {
+Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads) {
   if (!bayes_spec.inherits("bvharspec")) {
     Rcpp::stop("'object' must be bvharspec object.");
   }
-  Rcpp::Function fit("bvhar_minnesota");
-  int window = y.rows();
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
-  int num_iter = num_test - step + 1; // longest forecast horizon
-  Eigen::MatrixXd expand_mat(window + num_iter, dim); // train + h-step forecast points
-  expand_mat.block(0, 0, window, dim) = y;
-  Rcpp::List bvhar_mod = fit(y, har, bayes_spec, include_mean);
-  Rcpp::List bvhar_pred = forecast_bvharmn(bvhar_mod, step, 1);
-  Eigen::MatrixXd y_pred = bvhar_pred["posterior_mean"]; // step x m
-  Eigen::MatrixXd res(num_iter, dim);
-  res.row(0) = y_pred.row(step - 1); // only need the last one (e.g. step = h => h-th row)
-  for (int i = 1; i < num_iter; i++) {
-    expand_mat.row(window + i - 1) = y_test.row(i - 1); // expanding window
-    bvhar_mod = fit(
-      expand_mat.block(0, 0, window + i, dim), 
-      har,
-      bayes_spec, 
-      include_mean
-    );
-    bvhar_pred = forecast_bvharmn(bvhar_mod, step, 1);
-    y_pred = bvhar_pred["posterior_mean"];
-    res.row(i) = y_pred.row(step - 1);
-  }
-  return res;
+  int num_horizon = num_test - step + 1; // longest forecast horizon
+	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+	tot_mat << y,
+						y_test;
+	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
+	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
+	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	for (int i = 0; i < num_horizon; i++) {
+		expand_mat[i] = tot_mat.topRows(num_window + i);
+		expand_y0[i] = bvhar::build_y0(expand_mat[i], month, month + 1);
+	}
+	std::vector<std::unique_ptr<bvhar::MinnBvhar>> mn_objs(num_horizon);
+	// bool minn_short = true;
+	if (bayes_spec.containsElementNamed("delta")) {
+		// minn_short = false;
+		for (int i = 0; i < num_horizon; ++i) {
+			bvhar::BvarSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(expand_mat[i], week, month, mn_spec, include_mean));
+		}
+	} else {
+		for (int i = 0; i < num_horizon; ++i) {
+			bvhar::BvharSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(expand_mat[i], week, month, mn_spec, include_mean));
+		}
+	}
+	std::vector<std::unique_ptr<bvhar::BvharForecaster>> forecaster(num_horizon);
+	std::vector<Eigen::MatrixXd> res(num_horizon);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int window = 0; window < num_horizon; window++) {
+		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, expand_y0[window], har_trans, month, 1, include_mean));
+		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+	}
+	return std::accumulate(
+		res.begin() + 1, res.end(), res[0],
+		[](const Eigen::MatrixXd& acc, const Eigen::MatrixXd& curr) {
+			Eigen::MatrixXd concat_mat(acc.rows() + curr.rows(), acc.cols());
+			concat_mat << acc,
+										curr;
+			return concat_mat;
+		}
+	);
 }

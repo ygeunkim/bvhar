@@ -29,6 +29,15 @@ public:
 	virtual void updateVariance() = 0;
 	virtual void computeMean() = 0;
 	virtual void updateDensity(int h) = 0;
+	void forecastPoint() {
+		for (int h = 0; h < step; ++h) {
+			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
+			last_pvec.head(dim) = point_forecast;
+			computeMean();
+			pred_save.row(h) = point_forecast;
+			tmp_vec = last_pvec.head((var_lag - 1) * dim);
+		}
+	}
 	void forecastDensity() {
 		for (int i = 0; i < num_sim; ++i) {
 			coef_and_sig[i] = sim_mn_iw(posterior_mean, posterior_sig, posterior_iw_scale, posterior_iw_shape);
@@ -48,6 +57,10 @@ public:
 			Rcpp::Named("posterior_mean") = pred_save,
       Rcpp::Named("predictive") = predictive_distn
 		);
+	}
+	Eigen::MatrixXd returnPoint() {
+		forecastPoint();
+		return pred_save;
 	}
 protected:
 	Eigen::MatrixXd response;

@@ -787,8 +787,8 @@ forecast_bvharmn <- function(object, step, num_sim) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, y_test)
+roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -807,6 +807,22 @@ roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_roll_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
 }
 
+#' Out-of-Sample Forecasting of BVHAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param bayes_spec List, BVHAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' 
+#' @noRd
+roll_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_roll_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
+}
+
 #' Out-of-Sample Forecasting of BVAR based on Expanding Window
 #' 
 #' This function conducts an expanding window forecasting of BVAR with Minnesota prior.
@@ -819,8 +835,8 @@ roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvar`, y, lag, bayes_spec, include_mean, step, y_test)
+expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_expand_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Expanding Window
@@ -839,22 +855,6 @@ expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
     .Call(`_bvhar_expand_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
 }
 
-#' Out-of-Sample Forecasting of BVHAR based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-#' @param bayes_spec List, BVHAR specification
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' 
-#' @noRd
-roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
-}
-
 #' Out-of-Sample Forecasting of BVHAR based on Expanding Window
 #' 
 #' This function conducts an expanding window forecasting of BVHAR with Minnesota prior.
@@ -867,8 +867,8 @@ roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
+expand_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_expand_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
 #' Forecasting Vector Autoregression
