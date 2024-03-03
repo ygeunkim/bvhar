@@ -6,6 +6,13 @@
 
 namespace bvhar {
 
+struct OlsFit {
+	Eigen::MatrixXd _coef;
+	int _ord; // p of VAR or month of VHAR
+
+	OlsFit(const Eigen::MatrixXd& coef_mat, int ord) : _coef(coef_mat), _ord(ord) {}
+};
+
 class MultiOls {
 public:
 	MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
@@ -41,6 +48,13 @@ public:
 			Rcpp::Named("obs") = num_design,
 			Rcpp::Named("y0") = response
 		);
+	}
+	OlsFit returnOlsFit(int ord) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		OlsFit res(coef, ord);
+		return res;
 	}
 protected:
 	Eigen::MatrixXd design;
@@ -109,6 +123,10 @@ public:
 		ols_res["y"] = data;
 		return ols_res;
 	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(lag);
+		return res;
+	}
 protected:
 	int lag;
 	bool const_term;
@@ -151,6 +169,11 @@ public:
 		ols_res["design"] = var_design;
 		ols_res["y"] = data;
 		return ols_res;
+	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(month);
+		res._ord = month;
+		return res;
 	}
 protected:
 	int week;

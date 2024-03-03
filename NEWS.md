@@ -6,6 +6,8 @@
 
 * When forecasting SV models, it is available to choose whether to use time-varying covariance (`innovation` option, which is `TRUE` by default).
 
+* `forecast_roll()` and `forecast_expand()` can implement OpenMP multithreading, except in `bvarflat` class.
+
 * `sim_mniw()` output format has been changed into list of lists.
 
 * Now can use MNIW generation by including header (`std::vector<Eigen::MatrixXd> sim_mn_iw(...)`).
