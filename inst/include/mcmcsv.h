@@ -482,7 +482,7 @@ public:
 	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
 			slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
-				coef_weight.segment(j, 1).replicate(num_alpha / dim, dim),
+				coef_weight[j],
 				slab_weight_mat
 			);
 		}
@@ -581,7 +581,7 @@ public:
 	void updateCoefPrec() override {
 		for (int j = 0; j < num_grp; j++) {
 			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-				global_lev.segment(j, 1).replicate(num_alpha / dim, dim),
+				global_lev[j],
 				coef_var_loc
 			);
 		}
