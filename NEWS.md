@@ -2,7 +2,9 @@
 
 * Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
 
-* Add Rolling-window forecasting for SV models (`forecast_roll.bvarsv()` and `forecast_roll.bvharsv()`).
+* Add Rolling-window forecasting for SV models (`forecast_roll.svmod()`).
+
+* Add Expanding-window forecasting for SV models (`forecast_expand.svmod()`).
 
 * When forecasting SV models, it is available to choose whether to use time-varying covariance (`innovation` option, which is `TRUE` by default).
 
