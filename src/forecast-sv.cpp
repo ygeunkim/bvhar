@@ -547,7 +547,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SvInits sv_inits(init_spec);
+					bvhar::SvInits sv_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
@@ -564,7 +564,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
@@ -580,7 +580,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HorseshoeInits hs_inits(init_spec);
+					bvhar::HorseshoeInits hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
@@ -722,7 +722,6 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		}
 	}
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
-	// initialization error: due to wrong param_init: lvol init depends on num_design but changes according to windows
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -734,7 +733,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SvInits sv_inits(init_spec);
+					bvhar::SvInits sv_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
@@ -751,7 +750,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
@@ -767,14 +766,13 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HorseshoeInits hs_inits(init_spec);
+					bvhar::HorseshoeInits hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 			}
 			break;
 		}
 	}
-	// initialization error: due to wrong param_init: lvol init depends on num_design but changes according to windows
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
