@@ -572,6 +572,34 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
   }
 }
 
+inline void minnesota_own(double& lambda, double& shape, double& rate, Eigen::VectorXd& coef_vec, Eigen::VectorXd& mn_scale, Eigen::VectorXi& grp_id, Eigen::VectorXi& own_id, boost::random::mt19937& rng) {
+	int num_grp = grp_id.size();
+	Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_grp);
+	for (int i = 0; i < num_grp; ++i) {
+		if ((own_id.array() == grp_id[i]).any()) {
+			one_hot[i] = 1;
+		}
+	}
+	// double chi = (coef_vec.array().square() * one_hot.array() / mn_scale.array()).sum();
+	lambda = bvhar::sim_gig(1,
+		shape - own_id.size() / 2,
+		2 * rate,
+		(coef_vec.array().square() * one_hot.array() / mn_scale.array()).sum(),
+		rng
+	)[0];
+}
+
+// inline void minnesota_scale(double& mn_scale, double& shp, double& scl, Eigen::VectorXd& coef_vec, double& lambda, Eigen::VectorXi& grp_id, Eigen::VectorXi& cross_id, boost::random::mt19937& rng) {
+// 	int num_grp = grp_id.size();
+// 	Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_grp);
+// 	for (int i = 0; i < num_grp; ++i) {
+// 		if ((cross_id.array() == grp_id[i]).any()) {
+// 			one_hot[i] = 1;
+// 		}
+// 	}
+// 	// 
+// }
+
 template<typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options> thin_record(const Eigen::MatrixBase<Derived>& record, int num_iter, int num_burn, int thin) {
   if (thin == 1) {
