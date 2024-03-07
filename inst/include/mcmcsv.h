@@ -143,6 +143,12 @@ struct SvInits {
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(Rcpp::as<Eigen::MatrixXd>(init["lvol"])),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
+	SvInits(Rcpp::List& init, int num_design)
+	: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
+		_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
+		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
+		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
+		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
 };
 
 struct SsvsInits : public SvInits {
@@ -152,6 +158,11 @@ struct SsvsInits : public SvInits {
 	
 	SsvsInits(Rcpp::List& init)
 	: SvInits(init),
+		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
+		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
+		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
+	SsvsInits(Rcpp::List& init, int num_design)
+	: SvInits(init, num_design),
 		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
 		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
 		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
@@ -165,6 +176,12 @@ struct HorseshoeInits : public SvInits {
 	
 	HorseshoeInits(Rcpp::List& init)
 	: SvInits(init),
+		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+	HorseshoeInits(Rcpp::List& init, int num_design)
+	: SvInits(init, num_design),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
 		_init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
