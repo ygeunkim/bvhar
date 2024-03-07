@@ -333,6 +333,142 @@ forecast_expand.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ..
   res
 }
 
+#' @rdname forecast_expand
+#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
+#' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @export
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovation = TRUE, use_fit = TRUE, ...) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  num_chains <- object$chain
+  num_horizon <- nrow(y_test) - n_ahead + 1
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_horizon) {
+    warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y_test) - n_ahead + 1' = %d.", num_horizon))
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
+  }
+  if (num_horizon * num_chains %% num_thread != 0) {
+    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  }
+  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  if (chunk_size == 0) {
+    chunk_size <- 1
+  }
+  if (num_horizon > num_chains && chunk_size > num_chains) {
+    chunk_size <- min(
+      num_chains,
+      (num_horizon %/% num_thread) * num_chains
+    )
+    if (chunk_size == 0) {
+      chunk_size <- 1
+    }
+  }
+  fit_ls <- list()
+  if (use_fit) {
+    nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
+    fit_ls <- 
+      object[nm_record] %>% 
+      lapply(function(x) {
+        as_draws_matrix(x) %>% 
+          split.data.frame(gl(num_chains, nrow(x) / num_chains))
+      })
+  }
+  res_mat <- switch(model_type,
+    "bvarsv" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = object$p))
+        prior_type <- 1
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      expand_bvarsv(
+        y, object$p, num_chains, object$iter, object$burn, object$thin,
+        fit_ls,
+        object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+        grp_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        innovation,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    },
+    "bvharsv" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = 3))
+        prior_type <- 1
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      expand_bvharsv(
+        y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+        fit_ls,
+        object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+        grp_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        innovation,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    }
+  )
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  res_mat <- 
+    res_mat %>% 
+    lapply(function(res) {
+      unlist(res) %>% 
+        array(dim = c(1, object$m, num_draw)) %>% 
+        apply(c(1, 2), mean)
+    }) %>% 
+    do.call(rbind, .)
+  colnames(res_mat) <- name_var
+  res <- list(
+    process = object$process,
+    forecast = res_mat,
+    eval_id = n_ahead:nrow(y_test),
+    y = y
+  )
+  class(res) <- c("predbvhar_expand", "bvharcv")
+  res
+}
+
 #' Evaluate the Model Based on MSE (Mean Square Error)
 #' 
 #' This function computes MSE given prediction result versus evaluation set.
