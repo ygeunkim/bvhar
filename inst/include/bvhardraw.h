@@ -572,33 +572,35 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
   }
 }
 
-inline void minnesota_own(double& lambda, double& shape, double& rate, Eigen::VectorXd& coef_vec, Eigen::VectorXd& mn_scale, Eigen::VectorXi& grp_id, Eigen::VectorXi& own_id, boost::random::mt19937& rng) {
-	int num_grp = grp_id.size();
-	Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_grp);
-	for (int i = 0; i < num_grp; ++i) {
-		if ((own_id.array() == grp_id[i]).any()) {
-			one_hot[i] = 1;
-		}
-	}
+// Generating lambda of Minnesota-SV
+// 
+// @param lambda lambda1 or lambda2
+// @param shape Gamma prior shape
+// @param rate Gamma prior rate
+// @param coef_vec Coefficients vector
+// @param coef_mean Prior mean of coefficients vector
+// @param mn_scale Minnesota scale
+// @param grp_vec Group vector
+// @param lag_id id for own-lag or cross-lag
+// @param rng boost rng
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::VectorXd& coef_vec, Eigen::VectorXd& coef_mean,
+														 Eigen::VectorXd& mn_scale, boost::random::mt19937& rng) {
+	// int num_lag = lag_id.size();
+	int num_alpha = coef_vec.size();
+	// Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_coef);
+	// for (int i = 0; i < num_coef; ++i) {
+	// 	if ((lag_id.array() == grp_vec[i]).any()) {
+	// 		one_hot[i] = 1;
+	// 	}
+	// }
 	// double chi = (coef_vec.array().square() * one_hot.array() / mn_scale.array()).sum();
 	lambda = bvhar::sim_gig(1,
-		shape - own_id.size() / 2,
+		shape - num_alpha / 2,
 		2 * rate,
-		(coef_vec.array().square() * one_hot.array() / mn_scale.array()).sum(),
+		((coef_vec - coef_mean).array().square() / mn_scale.array()).sum(),
 		rng
 	)[0];
 }
-
-// inline void minnesota_scale(double& mn_scale, double& shp, double& scl, Eigen::VectorXd& coef_vec, double& lambda, Eigen::VectorXi& grp_id, Eigen::VectorXi& cross_id, boost::random::mt19937& rng) {
-// 	int num_grp = grp_id.size();
-// 	Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_grp);
-// 	for (int i = 0; i < num_grp; ++i) {
-// 		if ((cross_id.array() == grp_id[i]).any()) {
-// 			one_hot[i] = 1;
-// 		}
-// 	}
-// 	// 
-// }
 
 template<typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options> thin_record(const Eigen::MatrixBase<Derived>& record, int num_iter, int num_burn, int thin) {
