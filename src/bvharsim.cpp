@@ -238,3 +238,17 @@ Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixX
   }
 	return Rcpp::wrap(res);
 }
+
+//' Generate Generalized Inverse Gaussian
+//' 
+//' This function samples GIG(lambda, psi, chi) random variates.
+//' 
+//' @param num_sim Number to generate process
+//' @param lambda Index of modified Bessel function of third kind.
+//' @param psi Second parameter of GIG
+//' @param chi Third parameter of GIG
+//' @noRd
+// [[Rcpp::export]]
+Eigen::VectorXd sim_gig_export(int num_sim, double lambda, double psi, double chi) {
+	return bvhar::sim_gig(num_sim, lambda, psi, chi);
+}
