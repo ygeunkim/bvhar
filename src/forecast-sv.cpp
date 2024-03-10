@@ -232,6 +232,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		forecaster[window][chain].reset(new bvhar::SvVarForecaster(
 			sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
+		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
 	if (num_chains > 1) {
 	#ifdef _OPENMP
@@ -416,6 +417,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		forecaster[window][chain].reset(new bvhar::SvVharForecaster(
 			sv_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
+		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
 	if (num_chains == 1) {
 	#ifdef _OPENMP
@@ -599,6 +601,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		forecaster[window][chain].reset(new bvhar::SvVarForecaster(
 			sv_record, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
+		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
 	if (num_chains > 1) {
 	#ifdef _OPENMP
@@ -783,6 +786,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		forecaster[window][chain].reset(new bvhar::SvVharForecaster(
 			sv_record, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 		));
+		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
 	if (num_chains == 1) {
 	#ifdef _OPENMP
