@@ -129,6 +129,7 @@ Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, boo
 		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
 		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+		mn_objs[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -232,6 +233,7 @@ Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List ba
 		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
 		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, roll_y0[window], har_trans, month, 1, include_mean));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+		mn_objs[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -289,6 +291,7 @@ Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
 		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+		mn_objs[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -399,6 +402,7 @@ Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
 		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, expand_y0[window], har_trans, month, 1, include_mean));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
+		mn_objs[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
