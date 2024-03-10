@@ -248,6 +248,19 @@ sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 }
 
+#' Generate Generalized Inverse Gaussian
+#' 
+#' This function samples GIG(lambda, psi, chi) random variates.
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param psi Second parameter of GIG
+#' @param chi Third parameter of GIG
+#' @noRd
+sim_gig_export <- function(num_sim, lambda, psi, chi) {
+    .Call(`_bvhar_sim_gig_export`, num_sim, lambda, psi, chi)
+}
+
 #' BVAR(p) Point Estimates based on Minnesota Prior
 #' 
 #' Point estimates for posterior distribution
