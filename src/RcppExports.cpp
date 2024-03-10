@@ -205,204 +205,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// VARcoeftoVMA
-Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max);
-RcppExport SEXP _bvhar_VARcoeftoVMA(SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP lag_maxSEXP) {
+// sim_gig_export
+Eigen::VectorXd sim_gig_export(int num_sim, double lambda, double psi, double chi);
+RcppExport SEXP _bvhar_sim_gig_export(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP psiSEXP, SEXP chiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(VARcoeftoVMA(var_coef, var_lag, lag_max));
-    return rcpp_result_gen;
-END_RCPP
-}
-// VARtoVMA
-Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max);
-RcppExport SEXP _bvhar_VARtoVMA(SEXP objectSEXP, SEXP lag_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(VARtoVMA(object, lag_max));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_var_mse
-Eigen::MatrixXd compute_var_mse(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coef, int var_lag, int step);
-RcppExport SEXP _bvhar_compute_var_mse(SEXP cov_matSEXP, SEXP var_coefSEXP, SEXP var_lagSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_var_mse(cov_mat, var_coef, var_lag, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_covmse
-Eigen::MatrixXd compute_covmse(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_compute_covmse(SEXP objectSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_covmse(object, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// VARcoeftoVMA_ortho
-Eigen::MatrixXd VARcoeftoVMA_ortho(Eigen::MatrixXd var_coef, Eigen::MatrixXd var_covmat, int var_lag, int lag_max);
-RcppExport SEXP _bvhar_VARcoeftoVMA_ortho(SEXP var_coefSEXP, SEXP var_covmatSEXP, SEXP var_lagSEXP, SEXP lag_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type var_covmat(var_covmatSEXP);
-    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(VARcoeftoVMA_ortho(var_coef, var_covmat, var_lag, lag_max));
-    return rcpp_result_gen;
-END_RCPP
-}
-// VHARcoeftoVMA
-Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month);
-RcppExport SEXP _bvhar_VHARcoeftoVMA(SEXP vhar_coefSEXP, SEXP HARtrans_matSEXP, SEXP lag_maxSEXP, SEXP monthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans_mat(HARtrans_matSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(VHARcoeftoVMA(vhar_coef, HARtrans_mat, lag_max, month));
-    return rcpp_result_gen;
-END_RCPP
-}
-// VHARtoVMA
-Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max);
-RcppExport SEXP _bvhar_VHARtoVMA(SEXP objectSEXP, SEXP lag_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(VHARtoVMA(object, lag_max));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_vhar_mse
-Eigen::MatrixXd compute_vhar_mse(Eigen::MatrixXd cov_mat, Eigen::MatrixXd vhar_coef, Eigen::MatrixXd har_trans, int month, int step);
-RcppExport SEXP _bvhar_compute_vhar_mse(SEXP cov_matSEXP, SEXP vhar_coefSEXP, SEXP har_transSEXP, SEXP monthSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type har_trans(har_transSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_vhar_mse(cov_mat, vhar_coef, har_trans, month, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_covmse_har
-Eigen::MatrixXd compute_covmse_har(Rcpp::List object, int step);
-RcppExport SEXP _bvhar_compute_covmse_har(SEXP objectSEXP, SEXP stepSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_covmse_har(object, step));
-    return rcpp_result_gen;
-END_RCPP
-}
-// VHARcoeftoVMA_ortho
-Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd vhar_covmat, Eigen::MatrixXd HARtrans_mat, int lag_max, int month);
-RcppExport SEXP _bvhar_VHARcoeftoVMA_ortho(SEXP vhar_coefSEXP, SEXP vhar_covmatSEXP, SEXP HARtrans_matSEXP, SEXP lag_maxSEXP, SEXP monthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_coef(vhar_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vhar_covmat(vhar_covmatSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans_mat(HARtrans_matSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    rcpp_result_gen = Rcpp::wrap(VHARcoeftoVMA_ortho(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_fevd
-Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize);
-RcppExport SEXP _bvhar_compute_fevd(SEXP vma_coefSEXP, SEXP cov_matSEXP, SEXP normalizeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type vma_coef(vma_coefSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_fevd(vma_coef, cov_mat, normalize));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_spillover
-Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd);
-RcppExport SEXP _bvhar_compute_spillover(SEXP fevdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type fevd(fevdSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_spillover(fevd));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_to_spillover
-Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_to_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_to_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_from_spillover
-Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_from_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_from_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_tot_spillover
-double compute_tot_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_tot_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_tot_spillover(spillover));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_net_spillover
-Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover);
-RcppExport SEXP _bvhar_compute_net_spillover(SEXP spilloverSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type spillover(spilloverSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_net_spillover(spillover));
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< double >::type chi(chiSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_gig_export(num_sim, lambda, psi, chi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1465,22 +1278,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw_export", (DL_FUNC) &_bvhar_sim_mniw_export, 5},
-    {"_bvhar_VARcoeftoVMA", (DL_FUNC) &_bvhar_VARcoeftoVMA, 3},
-    {"_bvhar_VARtoVMA", (DL_FUNC) &_bvhar_VARtoVMA, 2},
-    {"_bvhar_compute_var_mse", (DL_FUNC) &_bvhar_compute_var_mse, 4},
-    {"_bvhar_compute_covmse", (DL_FUNC) &_bvhar_compute_covmse, 2},
-    {"_bvhar_VARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VARcoeftoVMA_ortho, 4},
-    {"_bvhar_VHARcoeftoVMA", (DL_FUNC) &_bvhar_VHARcoeftoVMA, 4},
-    {"_bvhar_VHARtoVMA", (DL_FUNC) &_bvhar_VHARtoVMA, 2},
-    {"_bvhar_compute_vhar_mse", (DL_FUNC) &_bvhar_compute_vhar_mse, 5},
-    {"_bvhar_compute_covmse_har", (DL_FUNC) &_bvhar_compute_covmse_har, 2},
-    {"_bvhar_VHARcoeftoVMA_ortho", (DL_FUNC) &_bvhar_VHARcoeftoVMA_ortho, 5},
-    {"_bvhar_compute_fevd", (DL_FUNC) &_bvhar_compute_fevd, 3},
-    {"_bvhar_compute_spillover", (DL_FUNC) &_bvhar_compute_spillover, 1},
-    {"_bvhar_compute_to_spillover", (DL_FUNC) &_bvhar_compute_to_spillover, 1},
-    {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
-    {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
-    {"_bvhar_compute_net_spillover", (DL_FUNC) &_bvhar_compute_net_spillover, 1},
+    {"_bvhar_sim_gig_export", (DL_FUNC) &_bvhar_sim_gig_export, 4},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 6},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
