@@ -113,22 +113,22 @@ sim_var <- function(num_sim,
 }
 
 #' Generate Normal-IW Random Family
-#' 
+#'
 #' This function samples normal inverse-wishart matrices.
-#' 
+#'
 #' @param num_sim Number to generate
 #' @param mat_mean Mean matrix of MN
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
-#' @details 
+#' @details
 #' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
-#' 
+#'
 #' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
 #' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
 #' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
 #' 4. \eqn{A_i = M + P Z_i C_i^T}
-#' @export 
+#' @export
 sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
   res <-
     sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape) %>%
@@ -136,6 +136,37 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
     apply(1, function(x) x)
   names(res) <- c("mn", "iw")
   res
+}
+
+#' Generate Generalized Inverse Gaussian Distribution
+#' 
+#' This function samples \eqn{GIG(\lambda, \psi, \chi)} random variates.
+#' 
+#' @param num_sim Number to generate
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param psi Second parameter of GIG. Should be positive.
+#' @param chi Third parameter of GIG. Should be positive.
+#' @details
+#' The density of \eqn{GIG(\lambda, \psi, \chi)} considered here is as follows.
+#' \deqn{f(x) = \frac{(\psi / \chi)^(\lambda / 2)}{2 K_{\lambda}(\sqrt{\psi \chi})} x^{\lambda - 1} \exp(-\frac{1}{2} (\frac{\chi}{x} + \psi x))}
+#' where \eqn{x > 0}.
+#' @references Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
+#' @export
+sim_gig <- function(num_sim, lambda, psi, chi) {
+  if (lambda > 0) {
+    if (psi <= 0 || chi < 0) {
+      stop("When lambda > 0, it should be 'psi' > 0 and 'chi' >= 0.")
+    }
+  } else if (lambda == 0) {
+    if (psi <= 0 || chi <= 0) {
+      stop("When lambda == 0, it should be 'psi' > 0 and 'chi' > 0.")
+    }
+  } else {
+    if (psi < 0 || chi <= 0) {
+      stop("When lambda < 0, it should be 'psi' >= 0 and 'chi' > 0.")
+    }
+  }
+  sim_gig_export(num_sim, lambda, psi, chi)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

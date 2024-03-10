@@ -338,25 +338,26 @@ inline Eigen::VectorXd rgig_with_mode(int num_sim, double lambda, double beta) {
 // @param lambda Index of modified Bessel function of third kind.
 // @param psi Second parameter of GIG
 // @param chi Third parameter of GIG
-// 
-// @references Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
 inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi) {
-	if (psi <= 0 || chi <= 0) {
-		Rcpp::stop("Wrong 'psi' and 'chi' range.");
-	}
+	// if (psi <= 0 || chi <= 0) {
+	// 	Rcpp::stop("Wrong 'psi' and 'chi' range.");
+	// }
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	double quasi_bound = sqrt(1 - lambda) * 2 / 3;
+	// double quasi_bound = sqrt(1 - abs_lam) * 2 / 3;
+	double quasi_bound = abs_lam <= 1 ? sqrt(1 - abs_lam) * 2 / 3 : 1;
 	if (abs_lam < 1 && beta <= quasi_bound) {
-		res = rgig_nonconcave(num_sim, lambda, beta) * alpha; // non-T_(-1/2)-concave part
+		res = rgig_nonconcave(num_sim, abs_lam, beta) / alpha; // non-T_(-1/2)-concave part
 	} else if (abs_lam <= 1 && beta >= std::min(.5, quasi_bound) && beta <= 1) {
-		res = rgig_without_mode(num_sim, lambda, beta) * alpha; // without mode shift
-	} else if (abs_lam > 1 && beta > 1) {
-		res = rgig_with_mode(num_sim, lambda, beta) * alpha; // with mode shift
+		res = rgig_without_mode(num_sim, abs_lam, beta) / alpha; // without mode shift
+	// } else if (abs_lam > 1 && beta > 1) {
+	} else if (abs_lam > 1 && beta > quasi_bound) {
+		res = rgig_with_mode(num_sim, abs_lam, beta) / alpha; // with mode shift
 	} else {
-		Rcpp::stop("Wrong parameter ranges for quasi GIG density.");
+		// Rcpp::stop("Wrong parameter ranges for quasi GIG density.");
+		Rf_error("Wrong parameter ranges for quasi GIG density.");
 	}
 	if (lambda < 0) {
 		res = res.cwiseInverse();
