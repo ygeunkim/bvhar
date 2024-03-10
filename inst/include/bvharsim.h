@@ -348,13 +348,13 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	double quasi_bound = sqrt(1 - lambda) * 2 / 3;
+	double quasi_bound = sqrt(1 - abs_lam) * 2 / 3;
 	if (abs_lam < 1 && beta <= quasi_bound) {
-		res = rgig_nonconcave(num_sim, lambda, beta) * alpha; // non-T_(-1/2)-concave part
+		res = rgig_nonconcave(num_sim, abs_lam, beta) * alpha; // non-T_(-1/2)-concave part
 	} else if (abs_lam <= 1 && beta >= std::min(.5, quasi_bound) && beta <= 1) {
-		res = rgig_without_mode(num_sim, lambda, beta) * alpha; // without mode shift
+		res = rgig_without_mode(num_sim, abs_lam, beta) * alpha; // without mode shift
 	} else if (abs_lam > 1 && beta > 1) {
-		res = rgig_with_mode(num_sim, lambda, beta) * alpha; // with mode shift
+		res = rgig_with_mode(num_sim, abs_lam, beta) * alpha; // with mode shift
 	} else {
 		Rcpp::stop("Wrong parameter ranges for quasi GIG density.");
 	}
