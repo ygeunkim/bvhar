@@ -205,6 +205,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sim_gig_export
+Eigen::VectorXd sim_gig_export(int num_sim, double lambda, double psi, double chi);
+RcppExport SEXP _bvhar_sim_gig_export(SEXP num_simSEXP, SEXP lambdaSEXP, SEXP psiSEXP, SEXP chiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< double >::type chi(chiSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_gig_export(num_sim, lambda, psi, chi));
+    return rcpp_result_gen;
+END_RCPP
+}
 // estimate_bvar_mn
 Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean);
 RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP) {
@@ -1265,6 +1279,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 3},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw_export", (DL_FUNC) &_bvhar_sim_mniw_export, 5},
+    {"_bvhar_sim_gig_export", (DL_FUNC) &_bvhar_sim_gig_export, 4},
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 6},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
