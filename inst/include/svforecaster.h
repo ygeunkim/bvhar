@@ -25,7 +25,7 @@ public:
 		standard_normal(Eigen::VectorXd::Zero(dim)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(var_lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(var_lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
-		point_forecast = last_pvec.head(dim); // y_T
+		post_mean = last_pvec.head(dim); // y_T
 		tmp_vec = last_pvec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
 	}
 	virtual ~SvForecaster() = default;
@@ -52,15 +52,13 @@ public:
 				if (include_mean) {
 					coef_mat.bottomRows(1) = sv_record.coef_record.row(i).tail(dim);
 				}
-				last_pvec.head(dim) = point_forecast;
+				last_pvec.head(dim) = post_mean;
 				computeMean(i); // can have overflow issue due to stability of each coef_record
 				if (sv) {
 					updateVariance(i);
-					point_forecast = post_mean + contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
-				} else {
-					point_forecast = post_mean;
+					post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				}
-				predictive_distn.block(h, i * dim, 1, dim) = point_forecast.transpose();
+				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
 			}
 			tmp_vec = last_pvec.head((var_lag - 1) * dim);
 		}
@@ -82,13 +80,12 @@ protected:
 	int num_sim;
 	Eigen::VectorXd last_pvec; // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 	Eigen::VectorXd sv_update; // h_(T + h)
-	Eigen::VectorXd post_mean; // posterior mean
+	Eigen::VectorXd post_mean; // posterior mean and y_(T + h - 1)
 	Eigen::MatrixXd predictive_distn; // rbind(step), cbind(sims)
 	Eigen::MatrixXd coef_mat; // include constant term when include_mean = true
 	Eigen::MatrixXd contem_mat; // L
 	Eigen::MatrixXd h_last_record; // h_T record
 	Eigen::VectorXd standard_normal; // Z ~ N(0, I)
-	Eigen::VectorXd point_forecast; // y_(T + h - 1)
 	Eigen::VectorXd tmp_vec; // y_(T + h - 2), ... y_(T + h - lag)
 };
 
