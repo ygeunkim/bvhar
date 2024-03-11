@@ -104,6 +104,8 @@ Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step
 		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(lag);
 		forecaster[window].reset(new bvhar::VarForecaster(ols_fit, step, roll_y0[window], include_mean));
 		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+		ols_objs[window].reset(); // free the memory by making nullptr
+		forecaster[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -176,6 +178,8 @@ Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_m
 		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(month);
 		forecaster[window].reset(new bvhar::VharForecaster(ols_fit, step, roll_y0[window], har_trans, include_mean));
 		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+		ols_objs[window].reset(); // free the memory by making nullptr
+		forecaster[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -246,6 +250,8 @@ Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int st
 		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(lag);
 		forecaster[window].reset(new bvhar::VarForecaster(ols_fit, step, expand_y0[window], include_mean));
 		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+		ols_objs[window].reset(); // free the memory by making nullptr
+		forecaster[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
@@ -318,6 +324,8 @@ Eigen::MatrixXd expand_vhar(Eigen::MatrixXd y, int week, int month, bool include
 		bvhar::OlsFit ols_fit = ols_objs[window]->returnOlsFit(month);
 		forecaster[window].reset(new bvhar::VharForecaster(ols_fit, step, expand_y0[window], har_trans, include_mean));
 		res[window] = forecaster[window]->forecastPoint().bottomRows(1);
+		ols_objs[window].reset(); // free the memory by making nullptr
+		forecaster[window].reset(); // free the memory by making nullptr
 	}
 	return std::accumulate(
 		res.begin() + 1, res.end(), res[0],
