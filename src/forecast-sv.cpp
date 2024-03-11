@@ -36,6 +36,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		res[chain] = forecaster[chain]->forecastDensity(use_sv);
+		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
 }
@@ -72,6 +73,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
 		res[chain] = forecaster[chain]->forecastDensity(use_sv);
+		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
 }
@@ -243,6 +245,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				run_gibbs(window, 0);
 			}
 			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
 	#ifdef _OPENMP
@@ -254,6 +257,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					run_gibbs(window, chain);
 				}
 				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
@@ -428,6 +432,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				run_gibbs(window, 0);
 			}
 			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
 	#ifdef _OPENMP
@@ -439,6 +444,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					run_gibbs(window, chain);
 				}
 				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
@@ -612,6 +618,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				run_gibbs(window, 0);
 			}
 			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
 	#ifdef _OPENMP
@@ -623,6 +630,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					run_gibbs(window, chain);
 				}
 				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
@@ -797,6 +805,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				run_gibbs(window, 0);
 			}
 			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
 	#ifdef _OPENMP
@@ -808,6 +817,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					run_gibbs(window, chain);
 				}
 				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
