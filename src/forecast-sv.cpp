@@ -122,6 +122,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
 		roll_y0[i] = bvhar::build_y0(roll_mat[i], lag, lag + 1);
 	}
+	tot_mat.resize(0, 0); // free the memory
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
 	for (auto &sv_chain : sv_objs) {
 		sv_chain.resize(num_chains);
@@ -181,6 +182,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					bvhar::SvInits sv_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -198,6 +200,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					bvhar::SsvsInits ssvs_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -214,6 +217,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					bvhar::HorseshoeInits hs_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -309,6 +313,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
 		roll_y0[i] = bvhar::build_y0(roll_mat[i], month, month + 1);
 	}
+	tot_mat.resize(0, 0); // free the memory
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
 	for (auto &sv_chain : sv_objs) {
 		sv_chain.resize(num_chains);
@@ -368,6 +373,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					bvhar::SvInits sv_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -385,6 +391,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					bvhar::SsvsInits ssvs_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -401,6 +408,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					bvhar::HorseshoeInits hs_inits(init_spec);
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -495,6 +503,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		expand_mat[i] = tot_mat.topRows(num_window + i);
 		expand_y0[i] = bvhar::build_y0(expand_mat[i], lag, lag + 1);
 	}
+	tot_mat.resize(0, 0); // free the memory
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
 	for (auto &sv_chain : sv_objs) {
 		sv_chain.resize(num_chains);
@@ -554,6 +563,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					bvhar::SvInits sv_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -571,6 +581,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					bvhar::SsvsInits ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -587,6 +598,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					bvhar::HorseshoeInits hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -682,6 +694,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		expand_mat[i] = tot_mat.topRows(num_window + i);
 		expand_y0[i] = bvhar::build_y0(expand_mat[i], month, month + 1);
 	}
+	tot_mat.resize(0, 0); // free the memory
 	std::vector<std::vector<std::unique_ptr<bvhar::McmcSv>>> sv_objs(num_horizon);
 	for (auto &sv_chain : sv_objs) {
 		sv_chain.resize(num_chains);
@@ -741,6 +754,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					bvhar::SvInits sv_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -758,6 +772,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					bvhar::SsvsInits ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
@@ -774,6 +789,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					bvhar::HorseshoeInits hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
+				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
 		}
