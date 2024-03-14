@@ -17,14 +17,6 @@ compute_ci <- function(draws, level = .05) {
       "rhat"
     )
   colnames(cred_int) <- c("term", "conf.low", "conf.high", "rhat")
-  if (any(cred_int$rhat >= 1.1)) {
-    warning(
-      sprintf(
-        "Convergence warning: %s",
-        paste(cred_int$term[cred_int$rhat >= 1.1], collapse = ", ")
-      )
-    )
-  }
   cred_int
 }
 
@@ -93,7 +85,7 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
 #' @rdname summary.ssvsmod
 #' @return `summary.hsmod` object
 #' @export
-summary.hsmod <- function(object, method = c("ci", "pip"), threshold = .5, level = .05, ...) {
+summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
   method <- match.arg(method)
   if (method == "ci") {
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
