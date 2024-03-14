@@ -332,7 +332,7 @@ bvar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_lag
   } else if (bayes_spec$prior == "Horseshoe") {
-    res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
+    res$pip <- 1 - matrix(colMeans(res$kappa_record), ncol = dim_data)
     if (include_mean) {
       res$pip <- rbind(res$pip, rep(1L, dim_data))
     }
