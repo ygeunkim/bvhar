@@ -43,26 +43,23 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
   method <- match.arg(method)
   if (method == "ci"){
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
-    selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
+    selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m)
+    if (object$type == "const") {
+      cred_int_const <- compute_ci(object$c_record, level = level)
+      selection <- rbind(
+        selection,
+        cred_int_const$conf.low * cred_int_const$conf.high >= 0
+      )
+    }
   } else {
     selection <- object$pip > threshold
   }
   rownames(selection) <- rownames(object$coefficients)
   colnames(selection) <- colnames(object$coefficients)
-  # coefficients-------------------------------
-  coef_mean <- switch(
-    object$type,
-    "none" = object$coefficients,
-    "const" = object$coefficients[-object$df,]
-  )
-  coef_res <- switch(
-    object$type,
-    "none" = ifelse(selection, coef_mean, 0L),
-    "const" = rbind(ifelse(selection, coef_mean, 0L), object$coefficients[object$df, ])
-  )
-  if (object$type == "const") {
-    rownames(coef_res)[object$df] <- "const"
-  }
+  # coef_res <- ifelse(selection, object$coefficients, 0L)
+  coef_res <- selection * object$coefficients
+  rownames(coef_res) <- rownames(object$coefficients)
+  colnames(coef_res) <- colnames(object$coefficients)
   # return S3 object---------------------------
   res <- list(
     call = object$call,
@@ -71,7 +68,7 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
     m = object$m,
     type = object$type,
     coefficients = coef_res,
-    posterior_mean = coef_mean,
+    posterior_mean = object$coefficients,
     choose_coef = selection,
     method = method
   )
@@ -88,17 +85,25 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
 #' @rdname summary.ssvsmod
 #' @return `summary.hsmod` object
 #' @export
-summary.hsmod <- function(object, method = c("ci", "pip"), threshold = .5, level = .05, ...) {
+summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
   method <- match.arg(method)
   if (method == "ci") {
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
-    selection <- matrix(ifelse(cred_int$conf.low * cred_int$conf.high < 0, FALSE, TRUE), ncol = object$m)
+    selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m) # TRUE when non-zero
+    if (object$type == "const") {
+      cred_int_const <- compute_ci(object$c_record, level = level)
+      selection <- rbind(
+        selection,
+        cred_int_const$conf.low * cred_int_const$conf.high >= 0
+      )
+      cred_int <- rbind(cred_int, cred_int_const)
+    }
   } else {
     selection <- object$pip > threshold
   }
   rownames(selection) <- rownames(object$coefficients)
   colnames(selection) <- colnames(object$coefficients)
-  coef_res <- ifelse(selection, object$coefficients, 0L)
+  coef_res <- selection * object$coefficients
   rownames(coef_res) <- rownames(object$coefficients)
   colnames(coef_res) <- colnames(object$coefficients)
   # return S3 object---------------------------

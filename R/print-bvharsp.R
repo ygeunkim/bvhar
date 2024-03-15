@@ -240,12 +240,10 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
   selection_method <- x$method
   coef_list <- switch(x$type,
     "const" = {
-      split.data.frame(x$coefficients[-(x$p * x$m + 1), ], gl(x$p, x$m)) %>%
-        lapply(t)
+      split.data.frame(x$coefficients[-(x$p * x$m + 1), ], gl(x$p, x$m))
     },
     "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>%
-        lapply(t)
+      split.data.frame(x$coefficients, gl(x$p, x$m))
     }
   )
   # cat(paste0("Variable Selection for ", mod_type, "(", sprintf("%i", x$p), ") using SSVS\n"))
@@ -275,6 +273,17 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
     }
     print.default(
       coef_list[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n")
+  }
+  if (x$type == "const") {
+    intercept <- x$coefficients[x$p * x$m + 1,]
+    cat("Constant term:\n")
+    print.default(
+      intercept,
       digits = digits,
       print.gap = 2L,
       quote = FALSE
