@@ -13,7 +13,7 @@
 
 \method{summary}{ssvsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 
-\method{summary}{hsmod}(object, method = c("ci", "pip"), threshold = 0.5, level = 0.05, ...)
+\method{summary}{hsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 }
 \arguments{
 \item{x}{\code{summary.ssvsmod} object}
