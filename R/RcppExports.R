@@ -1364,8 +1364,8 @@ dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean) {
-    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean)
+dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean, method, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of VHAR
@@ -1377,8 +1377,8 @@ dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean) {
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-dynamic_vhar_tot_spillover <- function(y, window, step, har, include_mean) {
-    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, har, include_mean)
+dynamic_vhar_tot_spillover <- function(y, window, step, week, month, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, week, month, include_mean, method, nthreads)
 }
 
 #' Dynamic Total Spillover Index of BVAR-SV

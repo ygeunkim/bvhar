@@ -25,11 +25,11 @@ struct StructuralFit : public OlsFit {
 		dim(coef_mat.cols()), ma_rows(dim * (_lag_max + 1)),
 		_vma(Eigen::MatrixXd::Zero(ma_rows, dim)), _cov(cov_mat) {
 		int num_full_rows = _lag_max < _ord ? dim * _ord : ma_rows;
-		Eigen::MatrixXd full_coef(num_full_rows, dim); // same size with VMA coefficient matrix
+		Eigen::MatrixXd full_coef = Eigen::MatrixXd::Zero(num_full_rows, dim); // same size with VMA coefficient matrix
 		full_coef.topRows(dim * _ord) = _coef.topRows(dim * _ord); // fill first mp row with VAR coefficient matrix
 		_vma.topRows(dim) = Eigen::MatrixXd::Identity(dim, dim); // W0 = I_k
 		for (int i = 1; i < (_lag_max + 1); ++i) {
-			for (int j = 0; j < i; j++) {
+			for (int j = 0; j < i; ++j) {
 				_vma.middleRows(i * dim, dim) += full_coef.middleRows(j * dim, dim) * _vma.middleRows((i - j - 1) * dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
 			}
 		}
@@ -84,6 +84,13 @@ public:
 		fitObs();
 		estimateCov();
 		StructuralFit res(coef, ord, lag_max, cov);
+		return res;
+	}
+	StructuralFit returnStructuralFit(const Eigen::MatrixXd& trans_mat, int ord, int lag_max) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		StructuralFit res(trans_mat.transpose() * coef, ord, lag_max, cov);
 		return res;
 	}
 protected:
@@ -210,7 +217,7 @@ public:
 		return res;
 	}
 	StructuralFit returnStructuralFit(int lag_max) {
-		StructuralFit res = _ols->returnStructuralFit(month, lag_max);
+		StructuralFit res = _ols->returnStructuralFit(har_trans, month, lag_max);
 		return res;
 	}
 protected:
