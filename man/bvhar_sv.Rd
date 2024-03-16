@@ -19,6 +19,7 @@ bvhar_sv(
   include_mean = TRUE,
   minnesota = c("longrun", "short", "no"),
   save_init = FALSE,
+  convergence = NULL,
   verbose = FALSE,
   num_thread = 1
 )
@@ -54,6 +55,8 @@ You can also set \code{"no"}.}
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
 If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
+
+\item{convergence}{Convergence threshold for rhat < convergence. By default, \code{NULL} which means no warning.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
