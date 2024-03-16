@@ -17,6 +17,7 @@
 #' @param save_init Save every record starting from the initial values (`TRUE`).
 #' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
 #' If `num_burn > 0` or `thinning != 1`, this option is ignored.
+#' @param convergence Convergence threshold for rhat < convergence. By default, `NULL` which means no warning.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread Number of threads
 #' @details
@@ -70,7 +71,7 @@
 #' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
 #' 
 #' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
-#' @importFrom posterior as_draws_df bind_draws
+#' @importFrom posterior as_draws_df bind_draws summarise_draws
 #' @order 1
 #' @export
 bvar_sv <- function(y,
@@ -85,6 +86,7 @@ bvar_sv <- function(y,
                     include_mean = TRUE,
                     minnesota = TRUE,
                     save_init = FALSE,
+                    convergence = NULL,
                     verbose = FALSE,
                     num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -330,7 +332,7 @@ bvar_sv <- function(y,
     colnames(res$pip) <- name_var
     rownames(res$pip) <- name_lag
   } else if (bayes_spec$prior == "Horseshoe") {
-    res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
+    res$pip <- 1 - matrix(colMeans(res$kappa_record), ncol = dim_data)
     if (include_mean) {
       res$pip <- rbind(res$pip, rep(1L, dim_data))
     }
@@ -380,6 +382,18 @@ bvar_sv <- function(y,
   #   res$group <- glob_idmat
   #   res$num_group <- length(grp_id)
   # }
+  if (!is.null(convergence)) {
+    conv_diagnostics <- summarise_draws(res$param, "rhat")
+    if (any(conv_diagnostics$rhat >= convergence)) {
+      warning(
+        sprintf(
+          "Convergence warning with Rhat >= %f:\n%s",
+          convergence,
+          paste0(conv_diagnostics$variable[conv_diagnostics$rhat >= convergence], collapse = ", ")
+        )
+      )
+    }
+  }
   res$group <- glob_idmat
   res$num_group <- length(grp_id)
   # if (bayes_spec$prior == "Minnesota") {
