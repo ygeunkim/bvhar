@@ -991,8 +991,8 @@ expand_vhar <- function(y, week, month, include_mean, step, y_test, method, nthr
 #' @param sigh_record MCMC record of variance of log-volatilities
 #' 
 #' @noRd
-forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, use_sv, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, use_sv, seed_chain, include_mean, nthreads)
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
@@ -1004,8 +1004,8 @@ forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_recor
 #' @param HARtrans VHAR linear transformation matrix
 #' 
 #' @noRd
-forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, use_sv, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, use_sv, seed_chain, include_mean, nthreads)
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1022,6 +1022,7 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, ph
 #' @param param_prior Prior specification list
 #' @param param_intercept Intercept specification list
 #' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
 #' @param seed_chain Seed for each window and chain in the form of matrix
 #' @param seed_forecast Seed for each window forecast
 #' @param nthreads Number of threads for openmp
@@ -1034,8 +1035,8 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, ph
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size)
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1052,6 +1053,7 @@ roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_re
 #' @param param_prior Prior specification list
 #' @param param_intercept Intercept specification list
 #' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
 #' @param seed_chain Seed for each window and chain in the form of matrix
 #' @param seed_forecast Seed for each window forecast
 #' @param nthreads Number of threads for openmp
@@ -1064,8 +1066,8 @@ roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_re
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size)
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1082,6 +1084,7 @@ roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinnin
 #' @param param_prior Prior specification list
 #' @param param_intercept Intercept specification list
 #' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
 #' @param seed_chain Seed for each window and chain in the form of matrix
 #' @param seed_forecast Seed for each window forecast
 #' @param nthreads Number of threads for openmp
@@ -1094,8 +1097,8 @@ roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinnin
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size)
+expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1112,6 +1115,7 @@ expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_
 #' @param param_prior Prior specification list
 #' @param param_intercept Intercept specification list
 #' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
 #' @param seed_chain Seed for each window and chain in the form of matrix
 #' @param seed_forecast Seed for each window forecast
 #' @param nthreads Number of threads for openmp
@@ -1124,8 +1128,8 @@ expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, use_sv, seed_chain, seed_forecast, nthreads, chunk_size)
+expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' VAR(1) Representation Given VAR Coefficient Matrix
@@ -1349,34 +1353,5 @@ compute_fpe <- function(object) {
 #' @noRd
 tune_var <- function(y, lag_max, include_mean) {
     .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
-}
-
-#' log Density of Multivariate Normal with LDLT Precision Matrix
-#' 
-#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
-#' 
-#' @param x Point
-#' @param mean_vec Mean
-#' @param lower_vec row of a_record
-#' @param diag_vec row of h_record
-#' 
-#' @noRd
-compute_log_dmgaussian <- function(x, mean_vec, lower_vec, diag_vec) {
-    .Call(`_bvhar_compute_log_dmgaussian`, x, mean_vec, lower_vec, diag_vec)
-}
-
-#' Compute Log Predictive Likelihood
-#' 
-#' This function computes log-predictive likelihood (LPL).
-#' 
-#' @param True value
-#' @param Predicted value
-#' @param h_last_record MCMC record of log-volatilities in last time
-#' @param a_record MCMC record of contemporaneous coefficients
-#' @param sigh_record MCMC record of variance of log-volatilities
-#' 
-#' @noRd
-compute_lpl <- function(y, posterior_mean, h_last_record, a_record, sigh_record) {
-    .Call(`_bvhar_compute_lpl`, y, posterior_mean, h_last_record, a_record, sigh_record)
 }
 
