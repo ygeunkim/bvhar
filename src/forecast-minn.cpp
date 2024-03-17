@@ -106,6 +106,9 @@ Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, boo
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 	tot_mat << y,
 						y_test;
@@ -203,6 +206,9 @@ Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List ba
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 	tot_mat << y,
 						y_test;
@@ -270,6 +276,9 @@ Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
 	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	tot_mat << y,
 						y_test;
 	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
@@ -373,6 +382,9 @@ Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List 
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1; // longest forecast horizon
 	Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	tot_mat << y,
 						y_test;
 	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
