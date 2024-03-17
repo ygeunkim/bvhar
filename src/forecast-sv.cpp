@@ -16,7 +16,7 @@
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
                            Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-													 bool use_sv, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+													 Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -38,7 +38,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity(use_sv);
+		res[chain] = forecaster[chain]->forecastDensity();
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -56,7 +56,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-														bool use_sv, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+														Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -78,7 +78,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity(use_sv);
+		res[chain] = forecaster[chain]->forecastDensity();
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -98,6 +98,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 //' @param param_prior Prior specification list
 //' @param param_intercept Intercept specification list
 //' @param param_init Initialization specification list
+//' @param get_lpl Compute LPL
 //' @param seed_chain Seed for each window and chain in the form of matrix
 //' @param seed_forecast Seed for each window forecast
 //' @param nthreads Number of threads for openmp
@@ -114,7 +115,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
-											 bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -177,6 +178,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		}
 	}
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	Eigen::MatrixXd lpl_record(num_horizon, num_chains);
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -257,7 +259,9 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 			if (!use_fit || window != 0) {
 				run_gibbs(window, 0);
 			}
-			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			Eigen::VectorXd valid_vec = y_test.row(step);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
@@ -269,7 +273,9 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				if (!use_fit || window != 0) {
 					run_gibbs(window, chain);
 				}
-				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				Eigen::VectorXd valid_vec = y_test.row(step);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
@@ -291,6 +297,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 //' @param param_prior Prior specification list
 //' @param param_intercept Intercept specification list
 //' @param param_init Initialization specification list
+//' @param get_lpl Compute LPL
 //' @param seed_chain Seed for each window and chain in the form of matrix
 //' @param seed_forecast Seed for each window forecast
 //' @param nthreads Number of threads for openmp
@@ -307,7 +314,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
-											  bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -371,6 +378,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		}
 	}
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	Eigen::MatrixXd lpl_record(num_horizon, num_chains);
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -451,7 +459,9 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 			if (!use_fit || window != 0) {
 				run_gibbs(window, 0);
 			}
-			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			Eigen::VectorXd valid_vec = y_test.row(step);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
@@ -463,12 +473,19 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				if (!use_fit || window != 0) {
 					run_gibbs(window, chain);
 				}
-				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				Eigen::VectorXd valid_vec = y_test.row(step);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
-  return Rcpp::wrap(res);
+	if (!get_lpl) {
+		return Rcpp::wrap(res);
+	}
+	Rcpp::List res_list = Rcpp::wrap(res);
+	res_list["lpl"] = lpl_record.mean();
+	return res_list;
 }
 
 //' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -485,6 +502,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 //' @param param_prior Prior specification list
 //' @param param_intercept Intercept specification list
 //' @param param_init Initialization specification list
+//' @param get_lpl Compute LPL
 //' @param seed_chain Seed for each window and chain in the form of matrix
 //' @param seed_forecast Seed for each window forecast
 //' @param nthreads Number of threads for openmp
@@ -501,7 +519,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
-											 	 bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -564,6 +582,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		}
 	}
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	Eigen::MatrixXd lpl_record(num_horizon, num_chains);
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -644,7 +663,9 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			if (!use_fit || window != 0) {
 				run_gibbs(window, 0);
 			}
-			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			Eigen::VectorXd valid_vec = y_test.row(step);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
@@ -656,12 +677,19 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				if (!use_fit || window != 0) {
 					run_gibbs(window, chain);
 				}
-				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				Eigen::VectorXd valid_vec = y_test.row(step);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
-  return Rcpp::wrap(res);
+  if (!get_lpl) {
+		return Rcpp::wrap(res);
+	}
+	Rcpp::List res_list = Rcpp::wrap(res);
+	res_list["lpl"] = lpl_record.mean();
+	return res_list;
 }
 
 //' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -678,6 +706,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 //' @param param_prior Prior specification list
 //' @param param_intercept Intercept specification list
 //' @param param_init Initialization specification list
+//' @param get_lpl Compute LPL
 //' @param seed_chain Seed for each window and chain in the form of matrix
 //' @param seed_forecast Seed for each window forecast
 //' @param nthreads Number of threads for openmp
@@ -694,7 +723,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  	Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
-											  	bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -758,6 +787,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		}
 	}
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+	Eigen::MatrixXd lpl_record(num_horizon, num_chains);
 	switch (prior_type) {
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
@@ -838,7 +868,9 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 			if (!use_fit || window != 0) {
 				run_gibbs(window, 0);
 			}
-			res[window][0] = forecaster[window][0]->forecastDensity(use_sv).bottomRows(1);
+			Eigen::VectorXd valid_vec = y_test.row(step);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
 	} else {
@@ -850,10 +882,17 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				if (!use_fit || window != 0) {
 					run_gibbs(window, chain);
 				}
-				res[window][chain] = forecaster[window][chain]->forecastDensity(use_sv).bottomRows(1);
+				Eigen::VectorXd valid_vec = y_test.row(step);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
 		}
 	}
-  return Rcpp::wrap(res);
+  if (!get_lpl) {
+		return Rcpp::wrap(res);
+	}
+	Rcpp::List res_list = Rcpp::wrap(res);
+	res_list["lpl"] = lpl_record.mean();
+	return res_list;
 }
