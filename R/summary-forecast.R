@@ -108,10 +108,10 @@ forecast_roll.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ...)
 }
 
 #' @rdname forecast_roll
-#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
+#' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovation = TRUE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -190,7 +190,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovat
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        innovation,
+        lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size
@@ -216,7 +216,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovat
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        innovation,
+        lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size
@@ -224,6 +224,10 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovat
     }
   )
   num_draw <- nrow(object$a_record) # concatenate multiple chains
+  if (lpl) {
+    lpl_val <- res_mat$lpl
+    res_mat$lpl <- NULL
+  }
   res_mat <-
     res_mat %>%
     lapply(function(res) {
@@ -239,6 +243,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovat
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
+  if (lpl) {
+    res$lpl <- lpl_val
+  }
   class(res) <- c("predbvhar_roll", "bvharcv")
   res
 }
@@ -334,10 +341,10 @@ forecast_expand.bvharmod <- function(object, n_ahead, y_test, num_thread = 1, ..
 }
 
 #' @rdname forecast_expand
-#' @param innovation `r lifecycle::badge("experimental")` Include heteroskedastic covariance of innovation when forecasting. By default, `TRUE`.
+#' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innovation = TRUE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -416,7 +423,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innov
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        innovation,
+        lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size
@@ -442,7 +449,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innov
         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
         grp_id, grp_mat,
         include_mean, n_ahead, y_test,
-        innovation,
+        lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         num_thread, chunk_size
@@ -450,6 +457,10 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innov
     }
   )
   num_draw <- nrow(object$a_record) # concatenate multiple chains
+  if (lpl) {
+    lpl_val <- res_mat$lpl
+    res_mat$lpl <- NULL
+  }
   res_mat <- 
     res_mat %>% 
     lapply(function(res) {
@@ -465,6 +476,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, innov
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
+  if (lpl) {
+    res$lpl <- lpl_val
+  }
   class(res) <- c("predbvhar_expand", "bvharcv")
   res
 }
@@ -963,39 +977,4 @@ rmafe.predbvhar <- function(x, pred_bench, y, ...) {
 #' @export
 rmafe.bvharcv <- function(x, pred_bench, y, ...) {
   sum(mae(x, y)) / sum(mae(pred_bench, y))
-}
-
-#' Evaluate the Model Based on Log Predictive Likelihood
-#' 
-#' This function computes LPL given prediction result versus evaluation set.
-#' 
-#' @param x Forecasting object
-#' @param y Test data to be compared. should be the same format with the train data.
-#' @param ... not used
-#' @export
-lpl <- function(x, y, ...) {
-  UseMethod("lpl", x)
-}
-
-#' @rdname lpl
-#' @param x Forecasting object
-#' @param y Test data to be compared. should be the same format with the train data.
-#' @param ... not used
-#' @references
-#' Cross, J. L., Hou, C., & Poon, A. (2020). *Macroeconomic forecasting with large Bayesian VARs: Global-local priors and the illusion of sparsity*. International Journal of Forecasting, 36(3), 899–915.
-#' 
-#' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
-#' @importFrom posterior as_draws_matrix
-#' @export
-lpl.predsv <- function(x, y, ...) {
-  object <- x$object
-  dim_data <- object$m
-  h_record <- as_draws_matrix(object$h_record)
-  compute_lpl(
-    as.matrix(y),
-    x$forecast,
-    h_record[,(ncol(h_record) - dim_data + 1):ncol(h_record)],
-    as_draws_matrix(object$a_record),
-    as_draws_matrix(object$sigh_record)
-  )
 }

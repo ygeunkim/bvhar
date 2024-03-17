@@ -21,7 +21,7 @@ forecast_roll(object, n_ahead, y_test, num_thread = 1, ...)
   n_ahead,
   y_test,
   num_thread = 1,
-  innovation = TRUE,
+  lpl = FALSE,
   use_fit = TRUE,
   ...
 )
@@ -41,7 +41,7 @@ forecast_roll(object, n_ahead, y_test, num_thread = 1, ...)
 
 \item{digits}{digit option to print}
 
-\item{innovation}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Include heteroskedastic covariance of innovation when forecasting. By default, \code{TRUE}.}
+\item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
 
 \item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 }

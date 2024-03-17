@@ -22,7 +22,8 @@ public:
 		coef_mat(Eigen::MatrixXd::Zero(num_coef / dim, dim)),
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
 		h_last_record(sv_record.lvol_record.rightCols(dim)),
-		standard_normal(Eigen::VectorXd::Zero(dim)) {
+		standard_normal(Eigen::VectorXd::Zero(dim)),
+		lpl(Eigen::VectorXd::Zero(step)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(var_lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(var_lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
 		post_mean = last_pvec.head(dim); // y_T
@@ -43,7 +44,7 @@ public:
 		}
 		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
 	}
-	Eigen::MatrixXd forecastDensity(bool sv) {
+	Eigen::MatrixXd forecastDensity() {
 		std::lock_guard<std::mutex> lock(mtx);
 		for (int h = 0; h < step; h++) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
@@ -54,15 +55,40 @@ public:
 				}
 				last_pvec.head(dim) = post_mean;
 				computeMean(i); // can have overflow issue due to stability of each coef_record
-				if (sv) {
-					updateVariance(i);
-					post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
-				}
+				updateVariance(i);
+				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
 			}
 			tmp_vec = last_pvec.head((var_lag - 1) * dim);
 		}
 		return predictive_distn;
+	}
+	Eigen::MatrixXd forecastDensity(const Eigen::VectorXd& valid_vec) {
+		std::lock_guard<std::mutex> lock(mtx);
+		for (int h = 0; h < step; h++) {
+			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
+			for (int i = 0; i < num_sim; i++) {
+				coef_mat.topRows(nrow_coef) = unvectorize(sv_record.coef_record.row(i).head(num_alpha).transpose(), dim);
+				if (include_mean) {
+					coef_mat.bottomRows(1) = sv_record.coef_record.row(i).tail(dim);
+				}
+				last_pvec.head(dim) = post_mean;
+				computeMean(i); // can have overflow issue due to stability of each coef_record
+				updateVariance(i);
+				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
+				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
+				lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
+			}
+			lpl[h] /= num_sim;
+			tmp_vec = last_pvec.head((var_lag - 1) * dim);
+		}
+		return predictive_distn;
+	}
+	Eigen::VectorXd returnLplRecord() {
+		return lpl;
+	}
+	double returnLpl() {
+		return lpl.mean();
 	}
 protected:
 	SvRecords sv_record;
@@ -87,6 +113,7 @@ protected:
 	Eigen::MatrixXd h_last_record; // h_T record
 	Eigen::VectorXd standard_normal; // Z ~ N(0, I)
 	Eigen::VectorXd tmp_vec; // y_(T + h - 2), ... y_(T + h - lag)
+	Eigen::VectorXd lpl; // average log-predictive likelihood
 };
 
 class SvVarForecaster : public SvForecaster {
