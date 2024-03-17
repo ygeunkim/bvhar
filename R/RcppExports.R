@@ -1355,32 +1355,3 @@ tune_var <- function(y, lag_max, include_mean) {
     .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
 }
 
-#' log Density of Multivariate Normal with LDLT Precision Matrix
-#' 
-#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
-#' 
-#' @param x Point
-#' @param mean_vec Mean
-#' @param lower_vec row of a_record
-#' @param diag_vec row of h_record
-#' 
-#' @noRd
-compute_log_dmgaussian <- function(x, mean_vec, lower_vec, diag_vec) {
-    .Call(`_bvhar_compute_log_dmgaussian`, x, mean_vec, lower_vec, diag_vec)
-}
-
-#' Compute Log Predictive Likelihood
-#' 
-#' This function computes log-predictive likelihood (LPL).
-#' 
-#' @param True value
-#' @param Predicted value
-#' @param h_last_record MCMC record of log-volatilities in last time
-#' @param a_record MCMC record of contemporaneous coefficients
-#' @param sigh_record MCMC record of variance of log-volatilities
-#' 
-#' @noRd
-compute_lpl <- function(y, posterior_mean, h_last_record, a_record, sigh_record) {
-    .Call(`_bvhar_compute_lpl`, y, posterior_mean, h_last_record, a_record, sigh_record)
-}
-

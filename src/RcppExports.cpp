@@ -1231,35 +1231,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_log_dmgaussian
-double compute_log_dmgaussian(Eigen::VectorXd x, Eigen::VectorXd mean_vec, Eigen::VectorXd lower_vec, Eigen::VectorXd diag_vec);
-RcppExport SEXP _bvhar_compute_log_dmgaussian(SEXP xSEXP, SEXP mean_vecSEXP, SEXP lower_vecSEXP, SEXP diag_vecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean_vec(mean_vecSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower_vec(lower_vecSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type diag_vec(diag_vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_log_dmgaussian(x, mean_vec, lower_vec, diag_vec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_lpl
-Eigen::VectorXd compute_lpl(Eigen::MatrixXd y, Eigen::MatrixXd posterior_mean, Eigen::MatrixXd h_last_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record);
-RcppExport SEXP _bvhar_compute_lpl(SEXP ySEXP, SEXP posterior_meanSEXP, SEXP h_last_recordSEXP, SEXP a_recordSEXP, SEXP sigh_recordSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type posterior_mean(posterior_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_last_record(h_last_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sigh_record(sigh_recordSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_lpl(y, posterior_mean, h_last_record, a_record, sigh_record));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_response", (DL_FUNC) &_bvhar_build_response, 3},
@@ -1337,8 +1308,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_hq", (DL_FUNC) &_bvhar_compute_hq, 1},
     {"_bvhar_compute_fpe", (DL_FUNC) &_bvhar_compute_fpe, 1},
     {"_bvhar_tune_var", (DL_FUNC) &_bvhar_tune_var, 3},
-    {"_bvhar_compute_log_dmgaussian", (DL_FUNC) &_bvhar_compute_log_dmgaussian, 4},
-    {"_bvhar_compute_lpl", (DL_FUNC) &_bvhar_compute_lpl, 5},
     {NULL, NULL, 0}
 };
 
