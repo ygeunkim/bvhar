@@ -17,6 +17,9 @@
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
                            Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
 													 bool use_sv, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
 	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
@@ -54,6 +57,9 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
 														bool use_sv, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
 	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
 	for (int i = 0; i < num_chains; i++ ) {
@@ -109,7 +115,10 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
 											 bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
-  int num_window = y.rows();
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1;
@@ -299,7 +308,10 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
 											  bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
-  int num_window = y.rows();
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1;
@@ -490,7 +502,10 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
 											 	 bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
-  int num_window = y.rows();
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1;
@@ -680,7 +695,10 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  	Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
 											  	bool use_sv, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
-  int num_window = y.rows();
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
+	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
   int num_horizon = num_test - step + 1;

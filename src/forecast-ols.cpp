@@ -61,6 +61,9 @@ Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -134,6 +137,9 @@ Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -207,6 +213,9 @@ Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_m
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -280,6 +289,9 @@ Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int st
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd expand_vhar(Eigen::MatrixXd y, int week, int month, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
+#ifdef _OPENMP
+  Eigen::setNbThreads(nthreads);
+#endif
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
