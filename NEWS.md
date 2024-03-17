@@ -14,6 +14,10 @@
 
 * Now can use MNIW generation by including header (`std::vector<Eigen::MatrixXd> sim_mn_iw(...)`).
 
+* Compute LPL inside `forecast_roll.svmod()` and `forecast_expand.svmod()` using `lpl` option.
+
+* Instead, `lpl` method is removed.
+
 # bvhar 2.0.1
 
 * Fix internal vectorization and unvectorization behavior.
