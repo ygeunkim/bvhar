@@ -1,6 +1,7 @@
-#include "bvharomp.h"
-#include "bvharsim.h"
-#include "bvharstructural.h"
+// #include "bvharomp.h"
+// #include "bvharsim.h"
+// #include "bvharstructural.h"
+#include "minnspillover.h"
 
 //' Rolling-sample Total Spillover Index of BVAR
 //' 

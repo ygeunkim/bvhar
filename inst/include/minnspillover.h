@@ -12,7 +12,7 @@ class MinnSpillover {
 public:
 	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int ord)
 	: coef(fit._coef), cov(fit._prec.inverse()), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
-		step(lag_max), dim(coef.cols()), ma_rows(dim * (step + 1)),
+		step(lag_max), dim(coef.cols()), ma_rows(dim * step),
 		num_iter(num_iter), num_burn(num_burn), lag(ord),
 		vma_mat(Eigen::MatrixXd::Zero(ma_rows, dim)),
 		fevd(Eigen::MatrixXd::Zero(dim * step, dim)),
@@ -28,7 +28,7 @@ public:
 			record[i] = sim_mn_iw(coef, cov, iw_scale, iw_shape);
 		}
 	}
-	virtual void computeSpillover() {
+	virtual void computeSpillover(int nthreads) {
 		// MNIW before this method
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads) private(vma_mat)
@@ -75,7 +75,7 @@ public:
 	BvharSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int ord, const Eigen::MatrixXd& har_trans)
 	: MinnSpillover(fit, lag_max, num_iter, num_burn, ord), har_trans(har_trans) {}
 	virtual ~BvharSpillover() = default;
-	void computeSpillover() override {
+	void computeSpillover(int nthreads) override {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads) private(vma_mat)
 	#endif
