@@ -493,7 +493,7 @@ inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& desi
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam,
-                            				 Eigen::VectorXd coef_vec, double prior_var, boost::random::mt19937& rng) {
+                            				 Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
   Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square());
   for (int i = 0; i < dim; i++) {
@@ -510,12 +510,14 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 // @param coef_mn Coefficients vector in the i = j lag or cross lag
 // @param prior_var Variance constant of the likelihood
 inline double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd& local_hyperparam,
-                                 				Eigen::VectorXd& coef_vec, double prior_var, boost::random::mt19937& rng) {
+                                 				Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
-  double invgam_scl = 1 / global_latent;
-  for (int i = 0; i < dim; i++) {
-    invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
-  }
+  // double invgam_scl = 1 / global_latent;
+  // for (int i = 0; i < dim; i++) {
+  //   // invgam_scl += pow(coef_vec[i], 2.0) / (2 * prior_var * pow(local_hyperparam[i], 2.0));
+	// 	invgam_scl += coef_vec[i] * coef_vec[i] / (2 * prior_var * local_hyperparam[i] * local_hyperparam[i]);
+  // }
+	double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
 	return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl, rng));
 }
 
@@ -531,7 +533,7 @@ inline double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd& l
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
                                   			 Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam,
-																				 Eigen::VectorXd coef_vec, double prior_var, boost::random::mt19937& rng) {
+																				 Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
   Eigen::VectorXi global_id(num_coef);
@@ -568,7 +570,8 @@ inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::Vec
 inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, boost::random::mt19937& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
-		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)), rng);
+		// latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / pow(hyperparam[i], 2.0)), rng);
+		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam[i] * hyperparam[i])), rng);
   }
 }
 
