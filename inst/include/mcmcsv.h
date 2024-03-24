@@ -602,7 +602,6 @@ public:
 				coef_var_loc
 			);
 		}
-		// coef_var = vectorize_eigen(coef_var_loc);
 		coef_var = coef_var_loc.reshaped();
 		build_shrink_mat(lambda_mat, coef_var, local_lev);
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
@@ -617,7 +616,6 @@ public:
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
 		horseshoe_latent(latent_contem_global, contem_global_lev, rng);
-		// contem_var = vectorize_eigen(contem_global_lev.replicate(1, num_lowerchol).eval());
 		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
 		contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
@@ -625,7 +623,7 @@ public:
 	}
 	void updateRecords() override {
 		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, global_lev);
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), global_lev.cwiseSqrt());
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);

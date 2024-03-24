@@ -76,8 +76,8 @@ public:
 		shrink_record.row(mcmc_step) = shrink_fac;
 		coef_record.row(mcmc_step) = coef_draw;
 		sig_record[mcmc_step] = sig_draw;
-		local_record.row(mcmc_step) = local_lev;
-		global_record.row(mcmc_step) = global_lev;
+		local_record.row(mcmc_step) = local_lev.cwiseSqrt();
+		global_record.row(mcmc_step) = global_lev.cwiseSqrt();
 	}
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
