@@ -244,25 +244,18 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
   												 Eigen::VectorXd& param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_latent = param_obs.size();
-  Eigen::VectorXi global_id(num_latent);
+	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
   int mn_size = 0;
-  int mn_id = 0;
   for (int i = 0; i < num_grp; i++) {
-    global_id = (grp_vec.array() == grp_id[i]).cast<int>();
-    mn_size = global_id.sum();
+		global_id = grp_vec.array() == grp_id[i];
+		mn_size = global_id.count();
     Eigen::VectorXd mn_param(mn_size);
-    for (int j = 0; j < num_latent; j++) {
-      if (global_id[j] == 1) {
-        mn_param[mn_id] = param_obs[j];
-        mn_id++;
-      }
-    }
-    mn_id = 0;
-    weight[i] = beta_rand(
-      prior_s1 + mn_param.sum(),
-      prior_s2 + mn_size - mn_param.sum(),
-			rng
-    );
+		for (int j = 0, k = 0; j < num_latent; ++j) {
+			if (global_id[j]) {
+				mn_param[k++] = param_obs[j];
+			}
+		}
+    weight[i] = beta_rand(prior_s1 + mn_param.sum(), prior_s2 + mn_size - mn_param.sum(), rng);
   }
 }
 
@@ -536,29 +529,20 @@ inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::Vec
 																				 Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
-  Eigen::VectorXi global_id(num_coef);
+	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
   int mn_size = 0;
-  int mn_id = 0;
   for (int i = 0; i < num_grp; i++) {
-    global_id = (grp_vec.array() == grp_id[i]).cast<int>();
-    mn_size = global_id.sum();
+		global_id = grp_vec.array() == grp_id[i];
+		mn_size = global_id.count();
     Eigen::VectorXd mn_coef(mn_size);
     Eigen::VectorXd mn_local(mn_size);
-    for (int j = 0; j < num_coef; j++) {
-      if (global_id[j] == 1) {
-        mn_coef[mn_id] = coef_vec[j];
-        mn_local[mn_id] = local_hyperparam[j];
-        mn_id++;
-      }
-    }
-    mn_id = 0;
-    global_lev[i] = horseshoe_global_sparsity(
-      global_latent[i],
-      mn_local,
-      mn_coef,
-      prior_var,
-			rng
-    ); 
+		for (int j = 0, k = 0; j < num_coef; ++j) {
+			if (global_id[j]) {
+				mn_coef[k] = coef_vec[j];
+				mn_local[k++] = local_hyperparam[j];
+			}
+		}
+    global_lev[i] = horseshoe_global_sparsity(global_latent[i], mn_local, mn_coef, prior_var, rng); 
   }
 }
 
