@@ -1249,8 +1249,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // dynamic_bvar_tot_spillover
-Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int lag, Rcpp::List bayes_spec, bool include_mean, int nthreads);
-RcppExport SEXP _bvhar_dynamic_bvar_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP nthreadsSEXP) {
+Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvar_tot_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1262,8 +1262,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamic_bvar_tot_spillover(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads));
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvar_tot_spillover(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, seed_chain, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1514,7 +1515,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
-    {"_bvhar_dynamic_bvar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvar_tot_spillover, 9},
+    {"_bvhar_dynamic_bvar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvar_tot_spillover, 10},
     {"_bvhar_dynamic_bvhar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvhar_tot_spillover, 9},
     {"_bvhar_dynamic_var_tot_spillover", (DL_FUNC) &_bvhar_dynamic_var_tot_spillover, 7},
     {"_bvhar_dynamic_vhar_tot_spillover", (DL_FUNC) &_bvhar_dynamic_vhar_tot_spillover, 8},

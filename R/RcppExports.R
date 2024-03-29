@@ -1340,8 +1340,8 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads) {
-    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, nthreads)
+dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of BVHAR
