@@ -1396,8 +1396,8 @@ dynamic_vhar_tot_spillover <- function(y, window, step, week, month, include_mea
 #' @param a_record Contemporaneous coefficients MCMC record
 #' 
 #' @noRd
-dynamic_bvarsv_tot_spillover <- function(lag, step, response_mat, alpha_record, h_record, a_record, nthreads) {
-    .Call(`_bvhar_dynamic_bvarsv_tot_spillover`, lag, step, response_mat, alpha_record, h_record, a_record, nthreads)
+dynamic_bvarsv_tot_spillover <- function(lag, step, num_design, alpha_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvarsv_tot_spillover`, lag, step, num_design, alpha_record, h_record, a_record, nthreads)
 }
 
 #' Dynamic Total Spillover Index of BVHAR-SV
@@ -1412,8 +1412,8 @@ dynamic_bvarsv_tot_spillover <- function(lag, step, response_mat, alpha_record, 
 #' @param a_record Contemporaneous coefficients MCMC record
 #' 
 #' @noRd
-dynamic_bvharsv_tot_spillover <- function(month, step, response_mat, HARtrans, phi_record, h_record, a_record, nthreads) {
-    .Call(`_bvhar_dynamic_bvharsv_tot_spillover`, month, step, response_mat, HARtrans, phi_record, h_record, a_record, nthreads)
+dynamic_bvharsv_tot_spillover <- function(week, month, step, num_design, phi_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvharsv_tot_spillover`, week, month, step, num_design, phi_record, h_record, a_record, nthreads)
 }
 
 #' Log of Multivariate Gamma Function
