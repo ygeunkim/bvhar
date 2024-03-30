@@ -1355,8 +1355,8 @@ dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag,
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads) {
-    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, har, bayes_spec, include_mean, nthreads)
+dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, week, month, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of VAR
