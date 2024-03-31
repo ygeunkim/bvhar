@@ -1,6 +1,40 @@
 #include "bvharomp.h"
 #include "olsspillover.h"
 
+//' Generalized Spillover of VAR
+//' 
+//' @param object varlse or vharlse object.
+//' @param step Step to forecast.
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List compute_ols_spillover(Rcpp::List object, int step) {
+	if (!(object.inherits("varlse") || object.inherits("vharlse"))) {
+    Rcpp::stop("'object' must be varlse or vharlse object.");
+  }
+	std::unique_ptr<Eigen::MatrixXd> coef_mat;
+	int ord;
+	if (object.inherits("vharlse")) {
+		coef_mat.reset(new Eigen::MatrixXd(Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]).transpose() * Rcpp::as<Eigen::MatrixXd>(object["coefficients"])));
+		ord = object["month"];
+	} else {
+		coef_mat.reset(new Eigen::MatrixXd(Rcpp::as<Eigen::MatrixXd>(object["coefficients"])));
+		ord = object["p"];
+	}
+	bvhar::StructuralFit fit(*coef_mat, ord, step - 1, Rcpp::as<Eigen::MatrixXd>(object["covmat"]));
+	std::unique_ptr<bvhar::OlsSpillover> spillover(new bvhar::OlsSpillover(fit));
+	spillover->computeSpillover();
+	Eigen::VectorXd to_sp = spillover->returnTo();
+	Eigen::VectorXd from_sp = spillover->returnFrom();
+	return Rcpp::List::create(
+		Rcpp::Named("connect") = spillover->returnSpillover(),
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("net") = to_sp - from_sp,
+		Rcpp::Named("net_pairwise") = spillover->returnNet()
+	);
+}
+
 //' Rolling-sample Total Spillover Index of VAR
 //' 
 //' @param y Time series data of which columns indicate the variables

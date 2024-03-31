@@ -9,10 +9,10 @@ namespace bvhar {
 
 class MinnSpillover {
 public:
-	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int ord, unsigned int seed)
+	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int thin, int ord, unsigned int seed)
 	: coef(fit._coef), cov(fit._prec.inverse()), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
 		step(lag_max), dim(coef.cols()),
-		num_iter(num_iter), num_burn(num_burn), lag(ord),
+		num_iter(num_iter), num_burn(num_burn), thin(thin), lag(ord),
 		vma_mat(Eigen::MatrixXd::Zero(dim * step, dim)),
 		fevd(Eigen::MatrixXd::Zero(dim * step, dim)),
 		spillover(Eigen::MatrixXd::Zero(dim, dim)),
@@ -27,19 +27,28 @@ public:
 		for (int i = 0; i < num_iter - num_burn; ++i) {
 			record[i] = sim_mn_iw(coef, cov, iw_scale, iw_shape, rng);
 		}
+		if (thin > 1) {
+			int id = 0;
+			for (size_t thin_id = thin; thin_id < record.size(); thin_id += thin) {
+				std::swap(record[id], record[thin_id]); // Move thin_id-th to the first num_iter - num_burn elements
+				id++;
+			}
+			record.erase(record.begin() + id, record.end());
+		}
 	}
 	virtual void computeSpillover() {
-	// virtual void computeSpillover(int nthreads) {
-		// MNIW before this method
-	// #ifdef _OPENMP
-	// 	#pragma omp parallel for num_threads(nthreads) private(vma_mat)
-	// #endif
-		for (int j = 0; j < num_iter - num_burn; ++j) {
+		for (size_t j = 0; j < record.size(); ++j) {
 			vma_mat = convert_var_to_vma(record[j][0], lag, step - 1);
 			fevd += compute_vma_fevd(vma_mat, record[j][1], true);
 		}
-		fevd /= (num_iter - num_burn);
+		fevd /= static_cast<int>(record.size());
 		spillover = compute_sp_index(fevd);
+	}
+	Eigen::MatrixXd returnFevd() {
+		return fevd;
+	}
+	Eigen::MatrixXd returnSpillover() {
+		return spillover;
 	}
 	Eigen::VectorXd returnTo() {
 		return compute_to(spillover);
@@ -62,6 +71,7 @@ protected:
 	int dim;
 	int num_iter;
 	int num_burn;
+	int thin;
 	int lag; // p of VAR or month of VHAR
 	Eigen::MatrixXd vma_mat;
 	Eigen::MatrixXd fevd;
@@ -73,19 +83,15 @@ protected:
 
 class BvharSpillover : public MinnSpillover {
 public:
-	BvharSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int ord, const Eigen::MatrixXd& har_trans, unsigned int seed)
-	: MinnSpillover(fit, lag_max, num_iter, num_burn, ord, seed), har_trans(har_trans) {}
+	BvharSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int thin, int ord, const Eigen::MatrixXd& har_trans, unsigned int seed)
+	: MinnSpillover(fit, lag_max, num_iter, num_burn, thin, ord, seed), har_trans(har_trans) {}
 	virtual ~BvharSpillover() = default;
 	void computeSpillover() override {
-	// void computeSpillover(int nthreads) override {
-	// #ifdef _OPENMP
-	// 	#pragma omp parallel for num_threads(nthreads) private(vma_mat)
-	// #endif
-		for (int j = 0; j < num_iter - num_burn; ++j) {
+		for (size_t j = 0; j < record.size(); ++j) {
 			vma_mat = convert_vhar_to_vma(record[j][0], har_trans, step - 1, lag);
 			fevd += compute_vma_fevd(vma_mat, record[j][1], true);
 		}
-		fevd /= (num_iter - num_burn);
+		fevd /= static_cast<int>(record.size());
 		spillover = compute_sp_index(fevd);
 	}
 private:

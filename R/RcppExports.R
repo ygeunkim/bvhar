@@ -1329,19 +1329,37 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
+#' Generalized Spillover of Minnesota prior
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param seed Random seed for boost library
+#' 
+#' @noRd
+compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
+    .Call(`_bvhar_compute_mn_spillover`, object, step, num_iter, num_burn, thin, seed)
+}
+
 #' Rolling-sample Total Spillover Index of BVAR
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param window Rolling window size
 #' @param step forecast horizon for FEVD
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
 #' @param lag BVAR order
 #' @param bayes_spec BVAR specification
 #' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, lag, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of BVHAR
@@ -1349,14 +1367,29 @@ dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, lag,
 #' @param y Time series data of which columns indicate the variables
 #' @param window Rolling window size
 #' @param step forecast horizon for FEVD
-#' @param har BVHAR order
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param week Week order
+#' @param month Month order
 #' @param bayes_spec BVHAR specification
 #' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+}
+
+#' Generalized Spillover of VAR
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' 
+#' @noRd
+compute_ols_spillover <- function(object, step) {
+    .Call(`_bvhar_compute_ols_spillover`, object, step)
 }
 
 #' Rolling-sample Total Spillover Index of VAR

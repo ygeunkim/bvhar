@@ -38,6 +38,12 @@ public:
 		fevd /= num_sim;
 		spillover = compute_sp_index(fevd);
 	}
+	Eigen::MatrixXd returnFevd() {
+		return fevd;
+	}
+	Eigen::MatrixXd returnSpillover() {
+		return spillover;
+	}
 	Eigen::VectorXd returnTo() {
 		return compute_to(spillover);
 	}

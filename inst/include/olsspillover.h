@@ -21,6 +21,12 @@ public:
 		fevd = compute_vma_fevd(vma_mat, cov, true);
 		spillover = compute_sp_index(fevd);
 	}
+	Eigen::MatrixXd returnFevd() {
+		return fevd;
+	}
+	Eigen::MatrixXd returnSpillover() {
+		return spillover;
+	}
 	Eigen::VectorXd returnTo() {
 		return compute_to(spillover);
 	}

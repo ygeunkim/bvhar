@@ -1,19 +1,59 @@
 #include "bvharomp.h"
 #include "minnspillover.h"
 
+//' Generalized Spillover of Minnesota prior
+//' 
+//' @param object varlse or vharlse object.
+//' @param step Step to forecast.
+//' @param num_iter Number to sample MNIW distribution
+//' @param num_burn Number of burn-in
+//' @param thin Thinning
+//' @param seed Random seed for boost library
+//' 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int num_burn, int thin, unsigned int seed) {
+	if (!(object.inherits("bvarmn") || object.inherits("bvharmn"))) {
+    Rcpp::stop("'object' must be bvarmn or bvharmn object.");
+  }
+	std::unique_ptr<bvhar::MinnSpillover> spillover;
+	if (object.inherits("bvharmn")) {
+		bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["iw_scale"]), object["iw_shape"]);
+		spillover.reset(new bvhar::BvharSpillover(fit, step, num_iter, num_burn, thin, object["month"], Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]), seed));
+	} else {
+		bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["iw_scale"]), object["iw_shape"]);
+		spillover.reset(new bvhar::MinnSpillover(fit, step, num_iter, num_burn, thin, object["p"], seed));
+	}
+	spillover->updateMniw();
+	spillover->computeSpillover();
+	Eigen::VectorXd to_sp = spillover->returnTo();
+	Eigen::VectorXd from_sp = spillover->returnFrom();
+	return Rcpp::List::create(
+		Rcpp::Named("connect") = spillover->returnSpillover(),
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("net") = to_sp - from_sp,
+		Rcpp::Named("net_pairwise") = spillover->returnNet()
+	);
+}
+
 //' Rolling-sample Total Spillover Index of BVAR
 //' 
 //' @param y Time series data of which columns indicate the variables
 //' @param window Rolling window size
 //' @param step forecast horizon for FEVD
+//' @param num_iter Number to sample MNIW distribution
+//' @param num_burn Number of burn-in
+//' @param thin Thinning
 //' @param lag BVAR order
 //' @param bayes_spec BVAR specification
 //' @param include_mean Add constant term
+//' @param seed_chain Random seed for each window
 //' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn,
+Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
 																 					 int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -32,7 +72,7 @@ Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int st
 #endif
 	for (int i = 0; i < num_horizon; ++i) {
 		bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
-		spillover[i].reset(new bvhar::MinnSpillover(mn_fit, step, num_iter, num_burn, lag, static_cast<unsigned int>(seed_chain[i])));
+		spillover[i].reset(new bvhar::MinnSpillover(mn_fit, step, num_iter, num_burn, thin, lag, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		spillover[i]->computeSpillover();
 		res[i] = spillover[i]->returnTot();
@@ -47,14 +87,19 @@ Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int st
 //' @param y Time series data of which columns indicate the variables
 //' @param window Rolling window size
 //' @param step forecast horizon for FEVD
-//' @param har BVHAR order
+//' @param num_iter Number to sample MNIW distribution
+//' @param num_burn Number of burn-in
+//' @param thin Thinning
+//' @param week Week order
+//' @param month Month order
 //' @param bayes_spec BVHAR specification
 //' @param include_mean Add constant term
+//' @param seed_chain Random seed for each window
 //' @param nthreads Number of threads for openmp
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn,
+Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
 																			      int week, int month, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -80,7 +125,7 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 #endif
 	for (int i = 0; i < num_horizon; ++i) {
 		bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
-		spillover[i].reset(new bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, month, har_trans, static_cast<unsigned int>(seed_chain[i])));
+		spillover[i].reset(new bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, thin, month, har_trans, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		spillover[i]->computeSpillover();
 		res[i] = spillover[i]->returnTot();
