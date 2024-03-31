@@ -32,6 +32,7 @@ Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int n
 		Rcpp::Named("connect") = spillover->returnSpillover(),
 		Rcpp::Named("to") = to_sp,
 		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("tot") = spillover->returnTot(),
 		Rcpp::Named("net") = to_sp - from_sp,
 		Rcpp::Named("net_pairwise") = spillover->returnNet()
 	);
@@ -53,8 +54,8 @@ Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int n
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
-																 					 int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
+Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
+																 	int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
 		Rcpp::stop("Window size is too large.");
@@ -66,7 +67,9 @@ Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int st
 		mn_objs[i] = std::unique_ptr<bvhar::MinnBvar>(new bvhar::MinnBvar(roll_mat, lag, mn_spec, include_mean));
 	}
 	std::vector<std::unique_ptr<bvhar::MinnSpillover>> spillover(num_horizon);
-	Eigen::VectorXd res(num_horizon);
+	Eigen::VectorXd tot(num_horizon);
+	Eigen::MatrixXd to_sp(num_horizon, y.cols());
+	Eigen::MatrixXd from_sp(num_horizon, y.cols());
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
@@ -75,11 +78,18 @@ Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int st
 		spillover[i].reset(new bvhar::MinnSpillover(mn_fit, step, num_iter, num_burn, thin, lag, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		spillover[i]->computeSpillover();
-		res[i] = spillover[i]->returnTot();
+		to_sp.row(i) = spillover[i]->returnTo();
+		from_sp.row(i) = spillover[i]->returnFrom();
+		tot[i] = spillover[i]->returnTot();
 		mn_objs[i].reset(); // free the memory by making nullptr
 		spillover[i].reset(); // free the memory by making nullptr
 	}
-	return res;
+	return Rcpp::List::create(
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("tot") = tot,
+		Rcpp::Named("net") = to_sp - from_sp
+	);
 }
 
 //' Rolling-sample Total Spillover Index of BVHAR
@@ -99,8 +109,8 @@ Eigen::VectorXd dynamic_bvar_tot_spillover(Eigen::MatrixXd y, int window, int st
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
-																			      int week, int month, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
+Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
+																			 int week, int month, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
   int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
 		Rcpp::stop("Window size is too large.");
@@ -119,7 +129,9 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 		}
 	}
 	std::vector<std::unique_ptr<bvhar::BvharSpillover>> spillover(num_horizon);
-  Eigen::VectorXd res(num_horizon);
+  Eigen::VectorXd tot(num_horizon);
+	Eigen::MatrixXd to_sp(num_horizon, y.cols());
+	Eigen::MatrixXd from_sp(num_horizon, y.cols());
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
@@ -128,9 +140,16 @@ Eigen::VectorXd dynamic_bvhar_tot_spillover(Eigen::MatrixXd y, int window, int s
 		spillover[i].reset(new bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, thin, month, har_trans, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		spillover[i]->computeSpillover();
-		res[i] = spillover[i]->returnTot();
+		to_sp.row(i) = spillover[i]->returnTo();
+		from_sp.row(i) = spillover[i]->returnFrom();
+		tot[i] = spillover[i]->returnTot();
 		mn_objs[i].reset(); // free the memory by making nullptr
 		spillover[i].reset(); // free the memory by making nullptr
 	}
-	return res;
+	return Rcpp::List::create(
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("tot") = tot,
+		Rcpp::Named("net") = to_sp - from_sp
+	);
 }

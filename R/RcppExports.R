@@ -1358,8 +1358,8 @@ compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvar_tot_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvar_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of BVHAR
@@ -1378,8 +1378,8 @@ dynamic_bvar_tot_spillover <- function(y, window, step, num_iter, num_burn, thin
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvhar_tot_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvhar_tot_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvhar_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Generalized Spillover of VAR
@@ -1401,8 +1401,8 @@ compute_ols_spillover <- function(object, step) {
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean, method, nthreads) {
-    .Call(`_bvhar_dynamic_var_tot_spillover`, y, window, step, lag, include_mean, method, nthreads)
+dynamic_var_spillover <- function(y, window, step, lag, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_var_spillover`, y, window, step, lag, include_mean, method, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of VHAR
@@ -1414,8 +1414,8 @@ dynamic_var_tot_spillover <- function(y, window, step, lag, include_mean, method
 #' @param include_mean Add constant term
 #' 
 #' @noRd
-dynamic_vhar_tot_spillover <- function(y, window, step, week, month, include_mean, method, nthreads) {
-    .Call(`_bvhar_dynamic_vhar_tot_spillover`, y, window, step, week, month, include_mean, method, nthreads)
+dynamic_vhar_spillover <- function(y, window, step, week, month, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_vhar_spillover`, y, window, step, week, month, include_mean, method, nthreads)
 }
 
 #' Dynamic Total Spillover Index of BVAR-SV
@@ -1429,8 +1429,8 @@ dynamic_vhar_tot_spillover <- function(y, window, step, week, month, include_mea
 #' @param a_record Contemporaneous coefficients MCMC record
 #' 
 #' @noRd
-dynamic_bvarsv_tot_spillover <- function(lag, step, num_design, alpha_record, h_record, a_record, nthreads) {
-    .Call(`_bvhar_dynamic_bvarsv_tot_spillover`, lag, step, num_design, alpha_record, h_record, a_record, nthreads)
+dynamic_bvarsv_spillover <- function(lag, step, num_design, alpha_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvarsv_spillover`, lag, step, num_design, alpha_record, h_record, a_record, nthreads)
 }
 
 #' Dynamic Total Spillover Index of BVHAR-SV

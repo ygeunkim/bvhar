@@ -13,10 +13,12 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvarsv_tot_spillover(int lag, int step, int num_design,
-																	 					 Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
+Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design,
+																	 	Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
 	int dim = h_record.cols() / num_design;
-	Eigen::VectorXd res(num_design); // length = T - p
+	Eigen::VectorXd tot(num_design); // length = T - p
+	Eigen::MatrixXd to_sp(num_design, dim);
+	Eigen::MatrixXd from_sp(num_design, dim);
 	std::vector<std::unique_ptr<bvhar::SvSpillover>> spillover(num_design);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
@@ -25,10 +27,17 @@ Eigen::VectorXd dynamic_bvarsv_tot_spillover(int lag, int step, int num_design,
 		bvhar::SvRecords sv_record(alpha_record, h_record, a_record, Eigen::MatrixXd::Zero(h_record.rows(), dim));
 		spillover[i].reset(new bvhar::SvSpillover(sv_record, step, lag, i));
 		spillover[i]->computeSpillover();
-		res[i] = spillover[i]->returnTot();
+		to_sp.row(i) = spillover[i]->returnTo();
+		from_sp.row(i) = spillover[i]->returnFrom();
+		tot[i] = spillover[i]->returnTot();
 		spillover[i].reset(); // free the memory by making nullptr
 	}
-	return res;
+	return Rcpp::List::create(
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("tot") = tot,
+		Rcpp::Named("net") = to_sp - from_sp
+	);
 }
 
 //' Dynamic Total Spillover Index of BVHAR-SV
@@ -44,11 +53,13 @@ Eigen::VectorXd dynamic_bvarsv_tot_spillover(int lag, int step, int num_design,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::VectorXd dynamic_bvharsv_tot_spillover(int week, int month, int step, int num_design,
-																	 					  Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
+Rcpp::List dynamic_bvharsv_tot_spillover(int week, int month, int step, int num_design,
+																	 			 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
 	int dim = h_record.cols() / num_design;
 	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, false);
-	Eigen::VectorXd res(num_design); // length = T - p
+	Eigen::VectorXd tot(num_design); // length = T - p
+	Eigen::MatrixXd to_sp(num_design, dim);
+	Eigen::MatrixXd from_sp(num_design, dim);
 	std::vector<std::unique_ptr<bvhar::SvVharSpillover>> spillover(num_design);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
@@ -57,8 +68,15 @@ Eigen::VectorXd dynamic_bvharsv_tot_spillover(int week, int month, int step, int
 		bvhar::SvRecords sv_record(phi_record, h_record, a_record, Eigen::MatrixXd::Zero(h_record.rows(), dim));
 		spillover[i].reset(new bvhar::SvVharSpillover(sv_record, step, month, i, har_trans));
 		spillover[i]->computeSpillover();
-		res[i] = spillover[i]->returnTot();
+		to_sp.row(i) = spillover[i]->returnTo();
+		from_sp.row(i) = spillover[i]->returnFrom();
+		tot[i] = spillover[i]->returnTot();
 		spillover[i].reset(); // free the memory by making nullptr
 	}
-	return res;
+	return Rcpp::List::create(
+		Rcpp::Named("to") = to_sp,
+		Rcpp::Named("from") = from_sp,
+		Rcpp::Named("tot") = tot,
+		Rcpp::Named("net") = to_sp - from_sp
+	);
 }
