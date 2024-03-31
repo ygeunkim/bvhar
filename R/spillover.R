@@ -48,6 +48,7 @@ spillover.bvharmod <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
   rownames(res$net_pairwise) <- rownames(res$connect)
   res$connect <- rbind(res$connect, "to_spillovers" = res$to)
   res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
+  res$ahead <- n_ahead
   res$process <- object$process
   class(res) <- "bvharspillover"
   res
@@ -61,6 +62,7 @@ spillover.bvharmod <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
 #' @param n_ahead step to forecast. By default, 10.
 #' @param ... Not used
 #' @references Diebold, F. X., & Yilmaz, K. (2012). *Better to give than to receive: Predictive directional measurement of volatility spillovers*. International Journal of forecasting, 28(1), 57-66.
+#' @importFrom tibble as_tibble
 #' @order 1
 #' @export
 dynamic_spillover <- function(object, n_ahead = 10L, ...) {
@@ -132,22 +134,15 @@ dynamic_spillover.bvharmod <- function(object, n_ahead = 10L, window, num_iter =
   )
   colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
-  # colnames(sp_list$net) <- paste(colnames(object$y), "to", sep = "_")
-  # colnames(sp_list$to) <- colnames(object$y)
-  # colnames(sp_list$from) <- colnames(object$y)
   colnames(sp_list$net) <- colnames(object$y)
-  # tot <- sp_list$tot
-  # sp_list$tot <- NULL
-  # sp_list <- do.call(cbind, sp_list)
-  # colnames(sp_list) <- sub("\\.", "\\_", colnames(sp_list))
   res <- list(
     tot = sp_list$tot,
-    directional = cbind(sp_list$to, sp_list$from),
-    net = sp_list$net,
+    directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    net = as_tibble(sp_list$net),
     index = window:nrow(object$y),
+    ahead = n_ahead,
     process = object$process
   )
-  # res$process <- object$process
   class(res) <- "bvhardynsp"
   res
 }
@@ -172,7 +167,6 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
-  # Add code when chain > 1
   sp_list <- switch(model_type,
     "bvarsv" = {
       dynamic_bvarsv_spillover(
@@ -195,9 +189,10 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
   colnames(sp_list$net) <- colnames(object$y)
   res <- list(
     tot = sp_list$tot,
-    directional = cbind(sp_list$to, sp_list$from),
-    net = sp_list$net,
+    directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    net = as_tibble(sp_list$net),
     index = seq_len(nrow(object$y))[-seq_len(nrow(object$y) - nrow(object$y0))],
+    ahead = n_ahead,
     process = object$process
   )
   class(res) <- "bvhardynsp"

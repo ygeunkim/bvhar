@@ -18,7 +18,7 @@ spillover(
 
 \method{print}{bvharspillover}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-knit_print.bvharspillover(x, ...)
+\method{knit_print}{bvharspillover}(x, ...)
 
 \method{spillover}{bvharmod}(
   object,

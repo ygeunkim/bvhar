@@ -33,17 +33,51 @@ print.bvharspillover <- function(x, digits = max(3L, getOption("digits") - 3L), 
 }
 
 #' @rdname spillover
-#' @param x `bvharspillover` object
-#' @param ... not used
-#' @order 3
-#' @export
+#' @exportS3Method knitr::knit_print
 knit_print.bvharspillover <- function(x, ...) {
   print(x)
 }
 
+#' @rdname dynamic_spillover
+#' @param x `bvhardynsp` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @importFrom utils head
+#' @order 2
 #' @export
-registerS3method(
-  "knit_print", "bvharspillover",
-  knit_print.bvharspillover,
-  envir = asNamespace("knitr")
-)
+print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat("Dynamics of spillover effect:\n")
+  cat(sprintf("Forecast using %s\n", x$process))
+  cat(sprintf("Forecast step: %d\n", x$ahead))
+  cat("========================\n")
+  cat("Total spillovers:\n")
+  cat(sprintf("# A vector: %d\n", length(x$tot)))
+  print(
+    head(x$tot),
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("------------------------\n")
+  cat("Directional spillovers:\n")
+  print(
+    x$directional,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("------------------------\n")
+  cat("Net spillovers:\n")
+  print(
+    x$net,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname dynamic_spillover
+#' @exportS3Method knitr::knit_print
+knit_print.bvhardynsp <- function(x, ...) {
+  print(x)
+}
