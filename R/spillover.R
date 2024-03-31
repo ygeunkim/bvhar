@@ -13,21 +13,13 @@
 #' @importFrom tidyr pivot_longer
 #' @order 1
 #' @export
-spillover <- function(object,
-                      n_ahead = 10L,
-                      num_iter = 10000L,
-                      num_burn = floor(num_iter / 2),
-                      thinning = 1L, ...) {
+spillover <- function(object, n_ahead = 10L, num_iter = 10000L, num_burn = floor(num_iter / 2), thinning = 1L, ...) {
   UseMethod("spillover", object)
 }
 
 #' @rdname spillover
 #' @export 
-spillover.bvharmod <- function(object,
-                               n_ahead = 10L,
-                               num_iter = 10000L,
-                               num_burn = floor(num_iter / 2),
-                               thinning = 1L, ...) {
+spillover.bvharmod <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn = floor(num_iter / 2), thinning = 1L, ...) {
   if (object$process == "VAR") {
     mod_type <- "freq_var"
   } else if (object$process == "VHAR") {
@@ -37,140 +29,177 @@ spillover.bvharmod <- function(object,
   }
   dim_data <- object$coefficients
   if (grepl(pattern = "^freq_", mod_type)) {
-    vma_coef <- switch(mod_type,
-      "freq_var" = VARtoVMA(object, n_ahead - 1),
-      "freq_vhar" = VHARtoVMA(object, n_ahead - 1)
-    )
-    fevd <- compute_fevd(vma_coef, object$covmat, TRUE)
-    connect_tab <- compute_spillover(fevd)
-    colnames(connect_tab) <- colnames(object$coefficients)
-    rownames(connect_tab) <- colnames(object$coefficients)
-    connect_tab
-    sp_long <-
-      connect_tab %>%
-      as.data.frame() %>%
-      rownames_to_column(var = "series") %>%
-      pivot_longer(-"series", names_to = "shock", values_to = "spillover")
-    res <- list(
-      connect = connect_tab,
-      df_long = sp_long
-    )
+    res <- compute_ols_spillover(object, n_ahead)
   } else {
-    mn_mean <- object$coefficients
-    coef_and_sig <- sim_mniw(
-      num_iter,
-      mn_mean,
-      solve(object$mn_prec),
-      object$iw_scale,
-      object$iw_shape
-    )
-    thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
-    coef_record <-
-      coef_and_sig$mn %>%
-      t() %>%
-      split.data.frame(gl(num_iter, object$m)) %>%
-      lapply(function(x) t(x))
-    coef_record <- coef_record[thin_id]
-    cov_record <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
-    cov_record <- cov_record[thin_id]
-    mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
-    sp_list <- lapply(
-      seq_along(thin_id),
-      function(x) {
-        vma_coef <- switch(mod_type,
-          "var" = VARcoeftoVMA(coef_record[[x]], object$p, n_ahead - 1),
-          "vhar" = VHARcoeftoVMA(coef_record[[x]], object$HARtrans, n_ahead - 1, object$month)
-        )
-        fevd <- compute_fevd(coef_record[[x]], cov_record[[x]], TRUE)
-        connect_tab <- compute_spillover(fevd)
-        colnames(connect_tab) <- colnames(mn_mean)
-        rownames(connect_tab) <- colnames(mn_mean)
-        connect_tab
-      }
-    )
-    sp_long <- lapply(
-      seq_along(sp_list),
-      function(id) {
-        sp_list[[id]] %>%
-          as.data.frame() %>%
-          rownames_to_column(var = "series") %>%
-          pivot_longer(-"series", names_to = "shock", values_to = "spillover") %>%
-          mutate(draws_id = id)
-      }
-    )
-    sp_long <- do.call(rbind, sp_long)
-    sp_mean <- Reduce("+", sp_list) / length(sp_list)
-    res <- list(
-      connect = sp_mean,
-      df_long = sp_long,
-      record = sp_list
+    res <- compute_mn_spillover(
+      object, step = n_ahead,
+      num_iter = num_iter, num_burn = num_burn, thin = thinning,
+      seed = sample.int(.Machine$integer.max, size = 1)
     )
   }
+  colnames(res$connect) <- colnames(object$coefficients)
+  rownames(res$connect) <- colnames(object$coefficients)
+  res$df_long <-
+    res$connect %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "series") %>%
+    pivot_longer(-"series", names_to = "shock", values_to = "spillover")
+  colnames(res$net_pairwise) <- colnames(res$connect)
+  rownames(res$net_pairwise) <- rownames(res$connect)
+  res$connect <- rbind(res$connect, "to_spillovers" = res$to)
+  res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
   res$process <- object$process
   class(res) <- "bvharspillover"
   res
 }
 
-#' Summarizing Spillover
-#' 
-#' This function computes directional spillovers.
-#' 
-#' @param object `bvharspillover` object
+#' Dynamic Spillover
+#'
+#' This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
+#'
+#' @param object Model object
+#' @param n_ahead step to forecast. By default, 10.
 #' @param ... Not used
+#' @references Diebold, F. X., & Yilmaz, K. (2012). *Better to give than to receive: Predictive directional measurement of volatility spillovers*. International Journal of forecasting, 28(1), 57-66.
 #' @order 1
 #' @export
-summary.bvharspillover <- function(object, ...) {
-  if (object$process == "VAR") {
-    mod_type <- "freq_var"
-  } else if (object$process == "VHAR") {
-    mod_type <- "freq_vhar"
-  } else {
-    mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
+dynamic_spillover <- function(object, n_ahead = 10L, ...) {
+  UseMethod("dynamic_spillover", object)
+}
+
+#' @rdname dynamic_spillover
+#' @param window Window size
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thinning Thinning every thinning-th iteration
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
+#' @export
+dynamic_spillover.bvharmod <- function(object, n_ahead = 10L, window, num_iter = 5000L, num_burn = floor(num_iter / 2), thinning = 1L, num_thread = 1, ...) {
+  num_horizon <- nrow(object$y) - window + 1
+  if (num_horizon < 0) {
+    stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
   }
-  sp_tab <- object$connect
-  net_pairwise <- compute_net_spillover(sp_tab) # Net pairwise spillovers
-  colnames(net_pairwise) <- colnames(sp_tab)
-  rownames(net_pairwise) <- rownames(sp_tab)
-  if (grepl(pattern = "^freq_", mod_type)) {
-    to_others <- compute_to_spillover(sp_tab) # To spillovers
-    from_others <- compute_from_spillover(sp_tab) # From spillovers
-    tot_sp <- compute_tot_spillover(sp_tab) # Total spillovers
-    to_including <- colSums(sp_tab)
-  } else {
-    to_list <- lapply(
-      object$record,
-      compute_to_spillover
-    ) %>%
-      do.call(rbind, .)
-    from_list <- lapply(
-      object$record,
-      compute_from_spillover
-    ) %>%
-      do.call(rbind, .)
-    tot_list <- sapply(object$record, compute_tot_spillover)
-    to_others <- colMeans(to_list)
-    from_others <- colMeans(from_list)
-    tot_sp <- mean(tot_list)
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
   }
-  net_sp <- to_others - from_others # Net spillovers
-  # sp_tab <- rbind(sp_tab, "from others" = from_others)
-  # sp_tab <- cbind(sp_tab, "to others" = c(to_others, tot_sp))
-  sp_tab <- rbind(sp_tab, "to_spillovers" = to_others)
-  sp_tab <- cbind(sp_tab, "from_spillovers" = c(from_others, tot_sp))
-  res <- list(
-    connect = sp_tab,
-    df_long = object$sp_long,
-    to = to_others,
-    from = from_others,
-    tot = tot_sp,
-    net = net_sp,
-    net_pairwise = net_pairwise
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_horizon) {
+    warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y) - window + 1' = %d.", num_horizon))
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  if (model_type == "varlse" || model_type == "vharlse") {
+    method <- switch(object$method,
+      "nor" = 1,
+      "chol" = 2,
+      "qr" = 3
+    )
+  }
+  sp_list <- switch(model_type,
+    "varlse" = {
+      dynamic_var_spillover(
+        y = object$y, window = window, step = n_ahead,
+        lag = object$p, include_mean = include_mean, method = method,
+        nthreads = num_thread
+      )
+    },
+    "vharlse" = {
+      dynamic_vhar_spillover(
+        y = object$y, window = window, step = n_ahead,
+        week = object$week, month = object$month, include_mean = include_mean, method = method,
+        nthreads = num_thread
+      )
+    },
+    "bvarmn" = {
+      dynamic_bvar_spillover(
+        y = object$y, window = window, step = n_ahead,
+        num_iter = num_iter, num_burn = num_burn, thin = thinning,
+        lag = object$p, bayes_spec = object$spec, include_mean = include_mean,
+        seed_chain = sample.int(.Machine$integer.max, size = num_horizon), nthreads = num_thread
+      )
+    },
+    "bvharmn" = {
+      dynamic_bvhar_spillover(
+        y = object$y, window = window, step = n_ahead,
+        num_iter = num_iter, num_burn = num_burn, thin = thinning,
+        week = object$week, month = object$month, bayes_spec = object$spec, include_mean = include_mean,
+        seed_chain = sample.int(.Machine$integer.max, size = num_horizon), nthreads = num_thread
+      )
+    },
+    stop("Not supported model.")
   )
-  if (!grepl(pattern = "^freq_", mod_type)) {
-    res$to_record <- to_list
-    res$from_record <- from_list
-    res$tot_record <- tot_list
+  colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
+  colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  # colnames(sp_list$net) <- paste(colnames(object$y), "to", sep = "_")
+  # colnames(sp_list$to) <- colnames(object$y)
+  # colnames(sp_list$from) <- colnames(object$y)
+  colnames(sp_list$net) <- colnames(object$y)
+  # tot <- sp_list$tot
+  # sp_list$tot <- NULL
+  # sp_list <- do.call(cbind, sp_list)
+  # colnames(sp_list) <- sub("\\.", "\\_", colnames(sp_list))
+  res <- list(
+    tot = sp_list$tot,
+    directional = cbind(sp_list$to, sp_list$from),
+    net = sp_list$net,
+    index = window:nrow(object$y),
+    process = object$process
+  )
+  # res$process <- object$process
+  class(res) <- "bvhardynsp"
+  res
+}
+
+#' @rdname dynamic_spillover
+#' @param num_thread `r lifecycle::badge("experimental")` Number of threads
+#' @importFrom posterior as_draws_matrix
+#' @export
+dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) {
+  num_design <- nrow(object$y0)
+  if (num_design < 0) {
+    stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
   }
-  class(res) <- "summary.bvharspillover"
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_design) {
+    warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y) - p (month)' = %d.", num_design))
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  # Add code when chain > 1
+  sp_list <- switch(model_type,
+    "bvarsv" = {
+      dynamic_bvarsv_spillover(
+        lag = object$p, step = n_ahead, num_design = num_design,
+        alpha_record = as_draws_matrix(object$alpha_record), h_record = as_draws_matrix(object$h_record), a_record = as_draws_matrix(object$a_record),
+        nthreads = num_thread
+      )
+    },
+    "bvharsv" = {
+      dynamic_bvharsv_tot_spillover(
+        week = object$week, month = object$month, step = n_ahead, num_design = num_design,
+        phi_record = as_draws_matrix(object$phi_record), h_record = as_draws_matrix(object$h_record), a_record = as_draws_matrix(object$a_record),
+        nthreads = num_thread
+      )
+    },
+    stop("Not supported model.")
+  )
+  colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
+  colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  colnames(sp_list$net) <- colnames(object$y)
+  res <- list(
+    tot = sp_list$tot,
+    directional = cbind(sp_list$to, sp_list$from),
+    net = sp_list$net,
+    index = seq_len(nrow(object$y))[-seq_len(nrow(object$y) - nrow(object$y0))],
+    process = object$process
+  )
+  class(res) <- "bvhardynsp"
   res
 }
