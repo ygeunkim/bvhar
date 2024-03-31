@@ -59,9 +59,24 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
     quote = FALSE
   )
   cat("------------------------\n")
-  cat("Directional spillovers:\n")
+  # cat("Directional spillovers:\n")
+  # print(
+  #   x$directional,
+  #   digits = digits,
+  #   print.gap = 2L,
+  #   quote = FALSE
+  # )
+  cat("To spillovers:\n")
   print(
-    x$directional,
+    x$to,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("------------------------\n")
+  cat("From spillovers:\n")
+  print(
+    x$from,
     digits = digits,
     print.gap = 2L,
     quote = FALSE

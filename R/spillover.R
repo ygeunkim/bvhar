@@ -132,12 +132,16 @@ dynamic_spillover.bvharmod <- function(object, n_ahead = 10L, window, num_iter =
     },
     stop("Not supported model.")
   )
-  colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
-  colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
+  # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  colnames(sp_list$to) <- colnames(object$y)
+  colnames(sp_list$from) <- colnames(object$y)
   colnames(sp_list$net) <- colnames(object$y)
   res <- list(
     tot = sp_list$tot,
-    directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    # directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    to = as_tibble(sp_list$to),
+    from = as_tibble(sp_list$from),
     net = as_tibble(sp_list$net),
     index = window:nrow(object$y),
     ahead = n_ahead,
@@ -184,12 +188,16 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
     },
     stop("Not supported model.")
   )
-  colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
-  colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
+  # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
+  colnames(sp_list$to) <- colnames(object$y)
+  colnames(sp_list$from) <- colnames(object$y)
   colnames(sp_list$net) <- colnames(object$y)
   res <- list(
     tot = sp_list$tot,
-    directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    # directional = as_tibble(cbind(sp_list$to, sp_list$from)),
+    to = as_tibble(sp_list$to),
+    from = as_tibble(sp_list$from),
     net = as_tibble(sp_list$net),
     index = seq_len(nrow(object$y))[-seq_len(nrow(object$y) - nrow(object$y0))],
     ahead = n_ahead,
