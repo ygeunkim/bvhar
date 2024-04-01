@@ -180,7 +180,7 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
       )
     },
     "bvharsv" = {
-      dynamic_bvharsv_tot_spillover(
+      dynamic_bvharsv_spillover(
         week = object$week, month = object$month, step = n_ahead, num_design = num_design,
         phi_record = as_draws_matrix(object$phi_record), h_record = as_draws_matrix(object$h_record), a_record = as_draws_matrix(object$a_record),
         nthreads = num_thread

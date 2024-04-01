@@ -53,8 +53,8 @@ Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List dynamic_bvharsv_tot_spillover(int week, int month, int step, int num_design,
-																	 			 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
+Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_design,
+																	 	 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
 	int dim = h_record.cols() / num_design;
 	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, false);
 	Eigen::VectorXd tot(num_design); // length = T - p

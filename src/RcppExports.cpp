@@ -1371,9 +1371,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// dynamic_bvharsv_tot_spillover
-Rcpp::List dynamic_bvharsv_tot_spillover(int week, int month, int step, int num_design, Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads);
-RcppExport SEXP _bvhar_dynamic_bvharsv_tot_spillover(SEXP weekSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP num_designSEXP, SEXP phi_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP, SEXP nthreadsSEXP) {
+// dynamic_bvharsv_spillover
+Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_design, Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvharsv_spillover(SEXP weekSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP num_designSEXP, SEXP phi_recordSEXP, SEXP h_recordSEXP, SEXP a_recordSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1385,7 +1385,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type h_record(h_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type a_record(a_recordSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamic_bvharsv_tot_spillover(week, month, step, num_design, phi_record, h_record, a_record, nthreads));
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvharsv_spillover(week, month, step, num_design, phi_record, h_record, a_record, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1554,7 +1554,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_dynamic_var_spillover", (DL_FUNC) &_bvhar_dynamic_var_spillover, 7},
     {"_bvhar_dynamic_vhar_spillover", (DL_FUNC) &_bvhar_dynamic_vhar_spillover, 8},
     {"_bvhar_dynamic_bvarsv_spillover", (DL_FUNC) &_bvhar_dynamic_bvarsv_spillover, 7},
-    {"_bvhar_dynamic_bvharsv_tot_spillover", (DL_FUNC) &_bvhar_dynamic_bvharsv_tot_spillover, 8},
+    {"_bvhar_dynamic_bvharsv_spillover", (DL_FUNC) &_bvhar_dynamic_bvharsv_spillover, 8},
     {"_bvhar_log_mgammafn", (DL_FUNC) &_bvhar_log_mgammafn, 2},
     {"_bvhar_logml_stable", (DL_FUNC) &_bvhar_logml_stable, 1},
     {"_bvhar_compute_aic", (DL_FUNC) &_bvhar_compute_aic, 1},
