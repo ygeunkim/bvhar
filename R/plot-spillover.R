@@ -7,7 +7,7 @@
 #' @param ... Additional
 #'
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes geom_path geom_ribbon
+#' @importFrom ggplot2 ggplot aes geom_path
 #' @export
 autoplot.bvhardynsp <- function(object, type = c("tot", "to", "from", "net"), row_facet = NULL, col_facet = NULL, ...) {
   type <- match.arg(type)
@@ -24,21 +24,24 @@ autoplot.bvhardynsp <- function(object, type = c("tot", "to", "from", "net"), ro
       cbind(id = object$index, object$to) %>%
         pivot_longer(-id, names_to = "series", values_to = "value") %>%
         ggplot(aes(x = id)) +
-        geom_ribbon(aes(ymin = 0, ymax = value)) +
+        # geom_ribbon(aes(ymin = 0, ymax = value)) +
+        geom_path(aes(y = value)) +
         facet_wrap(series ~ ., nrow = row_facet, ncol = col_facet)
     },
     "from" = {
       cbind(id = object$index, object$from) %>%
         pivot_longer(-id, names_to = "series", values_to = "value") %>%
         ggplot(aes(x = id)) +
-        geom_ribbon(aes(ymin = 0, ymax = value)) +
+        # geom_ribbon(aes(ymin = 0, ymax = value)) +
+        geom_path(aes(y = value)) +
         facet_wrap(series ~ ., nrow = row_facet, ncol = col_facet)
     },
     "net" = {
       cbind(id = object$index, object$net) %>%
         pivot_longer(-id, names_to = "series", values_to = "value") %>%
         ggplot(aes(x = id)) +
-        geom_ribbon(aes(ymin = 0, ymax = value)) +
+        # geom_ribbon(aes(ymin = 0, ymax = value)) +
+        geom_path(aes(y = value)) +
         facet_wrap(series ~ ., nrow = row_facet, ncol = col_facet)
     },
     stop("not yet")
