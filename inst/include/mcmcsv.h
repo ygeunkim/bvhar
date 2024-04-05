@@ -237,11 +237,18 @@ struct SsvsRecords {
 	Eigen::MatrixXd contem_dummy_record;
 	Eigen::MatrixXd contem_weight_record;
 
+	SsvsRecords() : coef_dummy_record(), coef_weight_record(), contem_dummy_record(), contem_weight_record() {}
 	SsvsRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
 	: coef_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_alpha)),
 		coef_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
 		contem_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol)),
 		contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+	SsvsRecords(
+		const Eigen::MatrixXd& coef_dummy_record, const Eigen::MatrixXd& coef_weight_record,
+		const Eigen::MatrixXd& contem_dummy_record, const Eigen::MatrixXd& contem_weight_record
+	)
+	: coef_dummy_record(coef_dummy_record), coef_weight_record(coef_weight_record),
+		contem_dummy_record(contem_dummy_record), contem_weight_record(contem_weight_record) {}
 	void assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight) {
 		coef_dummy_record.row(id) = coef_dummy;
 		coef_weight_record.row(id) = coef_weight;
@@ -255,10 +262,13 @@ struct HorseshoeRecords {
 	Eigen::MatrixXd global_record;
 	Eigen::MatrixXd shrink_record;
 
+	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
 	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
 	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
 		global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
 		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
+	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
+	: local_record(local_record), global_record(global_record), shrink_record(shrink_record) {}
 	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
 		shrink_record.row(id) = shrink_fac;
 		local_record.row(id) = local_lev;
@@ -377,6 +387,8 @@ public:
 		);
 		return res_record;
 	}
+	virtual SsvsRecords returnSsvsRecords(int num_burn, int thin) const = 0;
+	virtual HorseshoeRecords returnHsRecords(int num_burn, int thin) const = 0;
 
 protected:
 	bool include_mean;
@@ -467,6 +479,12 @@ public:
 		}
 		return res;
 	}
+	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
+		return SsvsRecords();
+	}
+	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
+		return HorseshoeRecords();
+	}
 };
 
 class SsvsSv : public McmcSv {
@@ -555,6 +573,19 @@ public:
 		}
 		return res;
 	}
+	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
+		SsvsRecords res_record(
+			thin_record(ssvs_record.coef_dummy_record, num_iter, num_burn, thin).derived(),
+			thin_record(ssvs_record.coef_weight_record, num_iter, num_burn, thin).derived(),
+			thin_record(ssvs_record.contem_dummy_record, num_iter, num_burn, thin).derived(),
+			thin_record(ssvs_record.contem_weight_record, num_iter, num_burn, thin).derived()
+		);
+		return res_record;
+	}
+	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
+		return HorseshoeRecords();
+	}
+
 private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXi grp_mat;
@@ -659,6 +690,17 @@ public:
 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
+	}
+	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
+		return SsvsRecords();
+	}
+	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
+		HorseshoeRecords res_record(
+			thin_record(hs_record.local_record, num_iter, num_burn, thin).derived(),
+			thin_record(hs_record.global_record, num_iter, num_burn, thin).derived(),
+			thin_record(hs_record.shrink_record, num_iter, num_burn, thin).derived()
+		);
+		return res_record;
 	}
 
 private:
