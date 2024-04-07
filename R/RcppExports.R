@@ -261,6 +261,184 @@ sim_gig_export <- function(num_sim, lambda, psi, chi) {
     .Call(`_bvhar_sim_gig_export`, num_sim, lambda, psi, chi)
 }
 
+#' @noRd
+VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
+}
+
+#' Convert VAR to VMA(infinite)
+#' 
+#' Convert VAR process to infinite vector MA process
+#' 
+#' @param object `varlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Let VAR(p) be stable.
+#' \deqn{Y_t = c + \sum_{j = 0} W_j Z_{t - j}}
+#' For VAR coefficient \eqn{B_1, B_2, \ldots, B_p},
+#' \deqn{I = (W_0 + W_1 L + W_2 L^2 + \cdots + ) (I - B_1 L - B_2 L^2 - \cdots - B_p L^p)}
+#' Recursively,
+#' \deqn{W_0 = I}
+#' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
+#' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
+#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @export
+VARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VARtoVMA`, object, lag_max)
+}
+
+#' @noRd
+compute_var_mse <- function(cov_mat, var_coef, var_lag, step) {
+    .Call(`_bvhar_compute_var_mse`, cov_mat, var_coef, var_lag, step)
+}
+
+#' Compute Forecast MSE Matrices
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object `varlse` object
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+compute_covmse <- function(object, step) {
+    .Call(`_bvhar_compute_covmse`, object, step)
+}
+
+#' Convert VAR to Orthogonalized VMA(infinite)
+#' 
+#' Convert VAR process to infinite orthogonalized vector MA process
+#' 
+#' @param var_coef VAR coefficient matrix
+#' @param var_covmat VAR covariance matrix
+#' @param var_lag VAR order
+#' @param lag_max Maximum lag for VMA
+#' @noRd
+VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
+}
+
+#' @noRd
+VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max, month)
+}
+
+#' Convert VHAR to VMA(infinite)
+#' 
+#' Convert VHAR process to infinite vector MA process
+#' 
+#' @param object `vharlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Let VAR(p) be stable
+#' and let VAR(p) be
+#' \eqn{Y_0 = X_0 B + Z}
+#' 
+#' VHAR is VAR(22) with
+#' \deqn{Y_0 = X_1 B + Z = ((X_0 \tilde{T}^T)) \Phi + Z}
+#' 
+#' Observe that
+#' \deqn{B = \tilde{T}^T \Phi}
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @export
+VHARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VHARtoVMA`, object, lag_max)
+}
+
+#' @noRd
+compute_vhar_mse <- function(cov_mat, vhar_coef, har_trans, month, step) {
+    .Call(`_bvhar_compute_vhar_mse`, cov_mat, vhar_coef, har_trans, month, step)
+}
+
+#' Compute Forecast MSE Matrices for VHAR
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VHAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+compute_covmse_har <- function(object, step) {
+    .Call(`_bvhar_compute_covmse_har`, object, step)
+}
+
+#' Orthogonal Impulse Response Functions of VHAR
+#' 
+#' Compute orthogonal impulse responses of VHAR
+#' 
+#' @param vhar_coef VHAR coefficient
+#' @param vhar_covmat VHAR covariance matrix
+#' @param HARtrans_mat HAR linear transformation matrix
+#' @param lag_max Maximum lag for VMA
+#' @param month Order for monthly term
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
+}
+
+#' h-step ahead Forecast Error Variance Decomposition
+#' 
+#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+#'
+#' @noRd
+compute_fevd <- function(vma_coef, cov_mat, normalize) {
+    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat, normalize)
+}
+
+#' h-step ahead Normalized Spillover
+#'
+#' @noRd
+compute_spillover <- function(fevd) {
+    .Call(`_bvhar_compute_spillover`, fevd)
+}
+
+#' To-others Spillovers
+#' 
+#' @noRd
+compute_to_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_to_spillover`, spillover)
+}
+
+#' From-others Spillovers
+#' 
+#' @noRd
+compute_from_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_from_spillover`, spillover)
+}
+
+#' Total Spillovers
+#' 
+#' @noRd
+compute_tot_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_tot_spillover`, spillover)
+}
+
+#' Net Pairwise Spillovers
+#' 
+#' @noRd
+compute_net_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_net_spillover`, spillover)
+}
+
 #' BVAR(p) Point Estimates based on Minnesota Prior
 #' 
 #' Point estimates for posterior distribution
@@ -514,67 +692,6 @@ infer_var <- function(object) {
     .Call(`_bvhar_infer_var`, object)
 }
 
-#' @noRd
-VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
-    .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
-}
-
-#' Convert VAR to VMA(infinite)
-#' 
-#' Convert VAR process to infinite vector MA process
-#' 
-#' @param object `varlse` object
-#' @param lag_max Maximum lag for VMA
-#' @details
-#' Let VAR(p) be stable.
-#' \deqn{Y_t = c + \sum_{j = 0} W_j Z_{t - j}}
-#' For VAR coefficient \eqn{B_1, B_2, \ldots, B_p},
-#' \deqn{I = (W_0 + W_1 L + W_2 L^2 + \cdots + ) (I - B_1 L - B_2 L^2 - \cdots - B_p L^p)}
-#' Recursively,
-#' \deqn{W_0 = I}
-#' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
-#' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
-#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
-#' @return VMA coefficient of k(lag-max + 1) x k dimension
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @export
-VARtoVMA <- function(object, lag_max) {
-    .Call(`_bvhar_VARtoVMA`, object, lag_max)
-}
-
-#' Compute Forecast MSE Matrices
-#' 
-#' Compute the forecast MSE matrices using VMA coefficients
-#' 
-#' @param object `varlse` object
-#' @param step Integer, Step to forecast
-#' @details
-#' See pp38 of Lütkepohl (2007).
-#' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
-#' Recursively,
-#' \deqn{\Sigma_y(1) = \Sigma}
-#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
-#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-compute_covmse <- function(object, step) {
-    .Call(`_bvhar_compute_covmse`, object, step)
-}
-
-#' Convert VAR to Orthogonalized VMA(infinite)
-#' 
-#' Convert VAR process to infinite orthogonalized vector MA process
-#' 
-#' @param var_coef VAR coefficient matrix
-#' @param var_covmat VAR covariance matrix
-#' @param var_lag VAR order
-#' @param lag_max Maximum lag for VMA
-#' @noRd
-VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
-    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
-}
-
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
 #' 
 #' This function fits VHAR given response and design matrices of multivariate time series.
@@ -611,69 +728,6 @@ estimate_har <- function(y, week, month, include_mean, method) {
 #' @noRd
 infer_vhar <- function(object) {
     .Call(`_bvhar_infer_vhar`, object)
-}
-
-#' @noRd
-VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
-    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max, month)
-}
-
-#' Convert VHAR to VMA(infinite)
-#' 
-#' Convert VHAR process to infinite vector MA process
-#' 
-#' @param object `vharlse` object
-#' @param lag_max Maximum lag for VMA
-#' @details
-#' Let VAR(p) be stable
-#' and let VAR(p) be
-#' \eqn{Y_0 = X_0 B + Z}
-#' 
-#' VHAR is VAR(22) with
-#' \deqn{Y_0 = X_1 B + Z = ((X_0 \tilde{T}^T)) \Phi + Z}
-#' 
-#' Observe that
-#' \deqn{B = \tilde{T}^T \Phi}
-#' @return VMA coefficient of k(lag-max + 1) x k dimension
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @export
-VHARtoVMA <- function(object, lag_max) {
-    .Call(`_bvhar_VHARtoVMA`, object, lag_max)
-}
-
-#' Compute Forecast MSE Matrices for VHAR
-#' 
-#' Compute the forecast MSE matrices using VMA coefficients
-#' 
-#' @param object \code{varlse} object by \code{\link{var_lm}}
-#' @param step Integer, Step to forecast
-#' @details
-#' See pp38 of Lütkepohl (2007).
-#' Let \eqn{\Sigma} be the covariance matrix of VHAR and let \eqn{W_j} be the VMA coefficients.
-#' Recursively,
-#' \deqn{\Sigma_y(1) = \Sigma}
-#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
-#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-compute_covmse_har <- function(object, step) {
-    .Call(`_bvhar_compute_covmse_har`, object, step)
-}
-
-#' Orthogonal Impulse Response Functions of VHAR
-#' 
-#' Compute orthogonal impulse responses of VHAR
-#' 
-#' @param vhar_coef VHAR coefficient
-#' @param vhar_covmat VHAR covariance matrix
-#' @param HARtrans_mat HAR linear transformation matrix
-#' @param lag_max Maximum lag for VMA
-#' @param month Order for monthly term
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
-    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
 }
 
 #' Forecasting VAR(p) with SSVS
@@ -1329,6 +1383,126 @@ sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error,
 #' @noRd
 sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
+}
+
+#' Generalized Spillover of Minnesota prior
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param seed Random seed for boost library
+#' 
+#' @noRd
+compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
+    .Call(`_bvhar_compute_mn_spillover`, object, step, num_iter, num_burn, thin, seed)
+}
+
+#' Rolling-sample Total Spillover Index of BVAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param lag BVAR order
+#' @param bayes_spec BVAR specification
+#' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+dynamic_bvar_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of BVHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param week Week order
+#' @param month Month order
+#' @param bayes_spec BVHAR specification
+#' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+dynamic_bvhar_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+}
+
+#' Generalized Spillover of VAR
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' 
+#' @noRd
+compute_ols_spillover <- function(object, step) {
+    .Call(`_bvhar_compute_ols_spillover`, object, step)
+}
+
+#' Rolling-sample Total Spillover Index of VAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param lag VAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_var_spillover <- function(y, window, step, lag, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_var_spillover`, y, window, step, lag, include_mean, method, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of VHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param har VHAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_vhar_spillover <- function(y, window, step, week, month, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_vhar_spillover`, y, window, step, week, month, include_mean, method, nthreads)
+}
+
+#' Dynamic Total Spillover Index of BVAR-SV
+#' 
+#' @param lag VAR lag.
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param response_mat Response matrix.
+#' @param phi_record Coefficients MCMC record
+#' @param h_record log volatility MCMC record
+#' @param a_record Contemporaneous coefficients MCMC record
+#' 
+#' @noRd
+dynamic_bvarsv_spillover <- function(lag, step, num_design, alpha_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvarsv_spillover`, lag, step, num_design, alpha_record, h_record, a_record, nthreads)
+}
+
+#' Dynamic Total Spillover Index of BVHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param response_mat Response matrix.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Coefficients MCMC record
+#' @param h_record log volatility MCMC record
+#' @param a_record Contemporaneous coefficients MCMC record
+#' 
+#' @noRd
+dynamic_bvharsv_spillover <- function(week, month, step, num_design, phi_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvharsv_spillover`, week, month, step, num_design, phi_record, h_record, a_record, nthreads)
 }
 
 #' Log of Multivariate Gamma Function
