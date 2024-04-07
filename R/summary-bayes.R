@@ -105,15 +105,24 @@ summary.normaliw <- function(object, num_iter = 10000L, num_burn = floor(num_ite
   # coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
   coef_and_sig$iw <- coef_and_sig[2,]
   coef_and_sig$iw <- coef_and_sig$iw[thin_id]
-  res$psi_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
+  res$cov_record <- coef_and_sig$iw
+  res$cov_record <- lapply(
+    coef_and_sig$iw,
+    function(x) {
+      rownames(x) <- rownames(object$iw_scale)
+      colnames(x) <- colnames(object$iw_scale)
+      x
+    }
+  )
+  prec_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
   res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
   res$omega_record <- 
-    lapply(res$psi_record, diag) %>% 
+    lapply(prec_record, diag) %>% 
     do.call(rbind, .)
   colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
   res$omega_record <- as_draws_df(res$omega_record)
   res$eta_record <-
-    lapply(res$psi_record, function(x) x[upper.tri(x, diag = FALSE)])
+    lapply(prec_record, function(x) x[upper.tri(x, diag = FALSE)])
   res$eta_record <- do.call(rbind, res$eta_record)
   colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
   res$eta_record <- as_draws_df(res$eta_record)

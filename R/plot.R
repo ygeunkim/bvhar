@@ -527,7 +527,7 @@ gg_loss <- function(mod_list,
 #' 
 #' @param object `bvharirf` object
 #' @param ... Other arguments passed on the [ggplot2::geom_path()].
-#' @seealso [analyze_ir()]
+#' @seealso [irf()]
 #' @return A ggplot object
 #' @importFrom tidyr unite
 #' @importFrom ggplot2 ggplot aes facet_wrap vars labs geom_path scale_x_continuous labs element_blank
