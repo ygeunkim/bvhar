@@ -7,6 +7,8 @@
 \method{autoplot}{bvhardynsp}(
   object,
   type = c("tot", "to", "from", "net"),
+  hcol = "grey",
+  hsize = 1.5,
   row_facet = NULL,
   col_facet = NULL,
   ...
@@ -17,6 +19,10 @@
 
 \item{type}{Index to draw}
 
+\item{hcol}{color of horizontal line = 0 (By default, grey)}
+
+\item{hsize}{size of horizontal line = 0 (By default, 1.5)}
+
 \item{row_facet}{\code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}}
 
 \item{col_facet}{\code{ncol} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}}
@@ -24,5 +30,5 @@
 \item{...}{Additional}
 }
 \description{
-Dynamic Spillover Indices Plot
+Draws dynamic directional spillover plot.
 }
