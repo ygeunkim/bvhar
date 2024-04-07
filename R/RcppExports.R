@@ -1067,6 +1067,13 @@ roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_re
     .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
+#' Out-of-Sample Forecasting of sparse VAR-SV based on Rolling Window
+#' 
+#' @noRd
+roll_sparse_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_sparse_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
 #' 
 #' This function conducts an rolling window forecasting of BVAR-SV.
@@ -1096,6 +1103,13 @@ roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_re
 #' @noRd
 roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
     .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of sparse VHAR-SV based on Rolling Window
+#' 
+#' @noRd
+roll_sparse_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_sparse_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
