@@ -1,5 +1,13 @@
 # bvhar (development version)
 
+## Spillover effects
+
+* `spillover()` computes static spillover given model.
+
+* `dynamic_spillover()` computes dynamic spillover given model.
+
+## Forecasting SV models
+
 * `predict()`, `forecast_roll()`, and `forecast_expand()` of `svmod` have `sparse` option to use sparsity.
 
 * Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
