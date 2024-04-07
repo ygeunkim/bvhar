@@ -559,7 +559,7 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
-#' @param sparse Apply restriction. By default, `FALSE`.
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
@@ -677,7 +677,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
-#' @param sparse Apply restriction. By default, `FALSE`.
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior as_draws_matrix

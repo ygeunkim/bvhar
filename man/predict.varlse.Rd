@@ -71,7 +71,7 @@
 
 \item{num_thread}{Number of threads}
 
-\item{sparse}{Apply restriction. By default, \code{FALSE}.}
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
 

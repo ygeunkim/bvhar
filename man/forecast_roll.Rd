@@ -42,7 +42,7 @@ forecast_roll(object, n_ahead, y_test, num_thread = 1, ...)
 
 \item{digits}{digit option to print}
 
-\item{sparse}{Apply restriction. By default, \code{FALSE}.}
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
 

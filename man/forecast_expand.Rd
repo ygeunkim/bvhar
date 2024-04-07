@@ -15,6 +15,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   n_ahead,
   y_test,
   num_thread = 1,
+  sparse = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
   ...
@@ -30,6 +31,8 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 \item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 
 \item{...}{Additional arguments.}
+
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
 
