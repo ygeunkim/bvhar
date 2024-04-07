@@ -34,9 +34,25 @@
 
 \method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
+\method{predict}{bvarsv}(
+  object,
+  n_ahead,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  warn = FALSE,
+  ...
+)
 
-\method{predict}{bvharsv}(object, n_ahead, level = 0.05, num_thread = 1, warn = FALSE, ...)
+\method{predict}{bvharsv}(
+  object,
+  n_ahead,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  warn = FALSE,
+  ...
+)
 
 \method{print}{predbvhar}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -54,6 +70,8 @@
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
 
 \item{num_thread}{Number of threads}
+
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
 
@@ -197,4 +215,6 @@ Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
 
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+
+Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2).
 }
