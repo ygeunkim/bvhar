@@ -608,7 +608,6 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       as_draws_matrix(object$a_record),
       as_draws_matrix(object$sigh_record),
       as_draws_matrix(object$gamma_record),
-      length(unique(c(object$group))),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -624,7 +623,6 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       as_draws_matrix(object$a_record),
       as_draws_matrix(object$sigh_record),
       as_draws_matrix(object$kappa_record),
-      length(unique(c(object$group))),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -729,7 +727,6 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       as_draws_matrix(object$a_record),
       as_draws_matrix(object$sigh_record),
       as_draws_matrix(object$gamma_record),
-      length(unique(c(object$group))),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -746,7 +743,6 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       as_draws_matrix(object$a_record),
       as_draws_matrix(object$sigh_record),
       as_draws_matrix(object$kappa_record),
-      length(unique(c(object$group))),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread

@@ -998,15 +998,15 @@ forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_recor
 #' Forecasting sparse predictive density of VAR-SV with SSVS prior
 #' 
 #' @noRd
-forecast_ssvs_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, gamma_record, num_grp, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_ssvs_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, gamma_record, num_grp, seed_chain, include_mean, nthreads)
+forecast_ssvs_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, gamma_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_ssvs_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, gamma_record, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting sparse predictive density of VAR-SV with horseshoe prior
 #' 
 #' @noRd
-forecast_hs_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, kappa_record, num_grp, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_hs_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, kappa_record, num_grp, seed_chain, include_mean, nthreads)
+forecast_hs_bvarsv <- function(num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, kappa_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_hs_bvarsv`, num_chains, var_lag, step, response_mat, alpha_record, h_record, a_record, sigh_record, kappa_record, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
@@ -1025,15 +1025,15 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, ph
 #' Forecasting sparse predictive density of VHAR-SV with SSVS prior
 #' 
 #' @noRd
-forecast_ssvs_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, gamma_record, num_grp, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_ssvs_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, gamma_record, num_grp, seed_chain, include_mean, nthreads)
+forecast_ssvs_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, gamma_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_ssvs_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, gamma_record, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting sparse predictive density of VHAR-SV with horseshoe prior
 #' 
 #' @noRd
-forecast_hs_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, kappa_record, num_grp, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_hs_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, kappa_record, num_grp, seed_chain, include_mean, nthreads)
+forecast_hs_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, kappa_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_hs_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, kappa_record, seed_chain, include_mean, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
