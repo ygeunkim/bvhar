@@ -134,8 +134,63 @@ public:
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
 	}
-private:
+protected:
 	Eigen::MatrixXd har_trans;
+};
+
+class SvVarSparseForecaster : public SvVarForecaster {
+public:
+	SvVarSparseForecaster(const SvRecords& records, const SsvsRecords& ssvs_record, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
+	: SvVarForecaster(records, step, response_mat, lag, include_mean, seed),
+		shrink_record(ssvs_record.coef_dummy_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {}
+	SvVarSparseForecaster(const SvRecords& records, const HorseshoeRecords& hs_record, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
+	: SvVarForecaster(records, step, response_mat, lag, include_mean, seed),
+		// shrink_record(hs_record.shrink_record.unaryExpr([](double kappa) { return kappa >= .5 ? 0 : 1; })),
+		shrink_record(hs_record.shrink_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {
+		shrink_record = shrink_record.unaryExpr([](double kappa) {
+			return kappa >= .5 ? 0.0 : 1.0; // use 1 - kappa
+		});
+	}
+	virtual ~SvVarSparseForecaster() = default;
+	void computeMean(int i) override {
+		activity_graph.topRows(nrow_coef) = unvectorize(shrink_record.row(i), dim);
+		for (int j = 0; j < var_lag; ++j) {
+			// coef_mat.middleCols(j * dim, dim) *= unvectorize(shrink_record.row(i).transpose(), dim);
+			// activity_graph.block(j * dim, j * dim, dim, dim) = unvectorize(shrink_record.row(i).transpose(), dim);
+			coef_mat.middleRows(j * dim, dim) = activity_graph.middleRows(j * dim, dim).transpose() * coef_mat.middleRows(j * dim, dim);
+		}
+		post_mean = last_pvec.transpose() * coef_mat;
+	}
+private:
+	Eigen::MatrixXd shrink_record; // 0 or 1
+	Eigen::MatrixXd activity_graph;
+};
+
+class SvVharSparseForecaster : public SvVharForecaster {
+public:
+	SvVharSparseForecaster(const SvRecords& records, const SsvsRecords& ssvs_record, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
+	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
+		shrink_record(ssvs_record.coef_dummy_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {}
+	SvVharSparseForecaster(const SvRecords& records, const HorseshoeRecords& hs_record, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
+	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
+		// shrink_record(hs_record.shrink_record.unaryExpr([](double kappa) { return kappa >= .5 ? 0 : 1; })),
+		shrink_record(hs_record.shrink_record),
+		activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {
+		shrink_record = shrink_record.unaryExpr([](double kappa) {
+			return kappa >= .5 ? 0.0 : 1.0; // use 1 - kappa
+		});
+	}
+	virtual ~SvVharSparseForecaster() = default;
+	void computeMean(int i) override {
+		activity_graph.topRows(nrow_coef) = unvectorize(shrink_record.row(i).transpose(), dim);
+		for (int j = 0; j < 3; ++j) {
+			coef_mat.middleRows(j * dim, dim) = activity_graph.middleRows(j * dim, dim).transpose() * coef_mat.middleRows(j * dim, dim);
+		}
+		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
+	}
+private:
+	Eigen::MatrixXd shrink_record; // 0 or 1
+	Eigen::MatrixXd activity_graph;
 };
 
 } // namespace bvhar
