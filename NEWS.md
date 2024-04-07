@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* `predict()`, `forecast_roll()`, and `forecast_expand()` of `svmod` have `sparse` option to use sparsity.
+
 * Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
 
 * Add Rolling-window forecasting for SV models (`forecast_roll.svmod()`).
