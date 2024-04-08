@@ -48,7 +48,10 @@ public:
 	}
 	virtual ~MultiOls() = default;
 	virtual void estimateCoef() {
-		coef = (design.transpose() * design).inverse() * design.transpose() * response; // return coef -> use in OlsVar
+		// coef = (design.transpose() * design).inverse() * design.transpose() * response; // return coef -> use in OlsVar
+		for (int i = 0; i < dim; ++i) {
+			coef.col(i) = (design.transpose() * design).inverse() * design.transpose() * response.col(i); // Per-equation: more efficient
+		}
 	}
 	virtual void fitObs() {
 		yhat = design * coef;
