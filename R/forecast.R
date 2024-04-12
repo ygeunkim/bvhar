@@ -84,7 +84,7 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @section n-step ahead forecasting VHAR:
-#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix (See [var_design_formulation]).
+#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix.
 #' Since VHAR is the linearly transformed VAR(22),
 #' let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
 #' 
@@ -150,8 +150,6 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
-#' 
-#' See [bvar_predictive_density] how to generate the predictive distribution.
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
@@ -213,8 +211,6 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
-#' 
-#' See [bvar_predictive_density] how to generate the predictive distribution.
 #' @importFrom stats quantile
 #' @order 1
 #' @export

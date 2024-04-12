@@ -83,7 +83,6 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 
 Gibbs sampler is used for the estimation.
-See \link{ssvs_bvar_algo} how it works.
 }
 \references{
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).

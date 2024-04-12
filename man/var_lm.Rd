@@ -82,8 +82,8 @@ If \code{include_type = TRUE}, there is \eqn{c} term.
 Otherwise (\code{include_type = FALSE}), there is no \eqn{c} term.
 The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
 \itemize{
-\item Response matrix, \eqn{Y_0} in \link{var_design_formulation}
-\item Design matrix, \eqn{X_0} in \link{var_design_formulation}
+\item Response matrix, \eqn{Y_0}
+\item Design matrix, \eqn{X_0}
 \item Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 }
 
@@ -168,6 +168,5 @@ Gideon Schwarz. (1978). \emph{Estimating the Dimension of a Model}. Ann. Statist
 \seealso{
 \itemize{
 \item \code{\link[=summary.varlse]{summary.varlse()}} to summarize VAR model
-\item \link{var_design_formulation} for the model design
 }
 }

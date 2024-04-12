@@ -65,6 +65,3 @@ It moves the window ahead and forecast h-ahead in \code{y_test} set.
 \references{
 Hyndman, R. J., & Athanasopoulos, G. (2021). \emph{Forecasting: Principles and practice} (3rd ed.). OTEXTS.
 }
-\seealso{
-See \link{ts_forecasting_cv} for out-of-sample forecasting methods.
-}

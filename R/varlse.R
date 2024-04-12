@@ -15,8 +15,8 @@
 #' Otherwise (`include_type = FALSE`), there is no \eqn{c} term.
 #' The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
 #' 
-#' * Response matrix, \eqn{Y_0} in [var_design_formulation]
-#' * Design matrix, \eqn{X_0} in [var_design_formulation]
+#' * Response matrix, \eqn{Y_0}
+#' * Design matrix, \eqn{X_0}
 #' * Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 #' 
 #' Then perform least squares to the following multivariate regression model
@@ -51,7 +51,6 @@
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso 
 #' * [summary.varlse()] to summarize VAR model
-#' * [var_design_formulation] for the model design
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' fit <- var_lm(y = etf_vix, p = 2)

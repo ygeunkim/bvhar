@@ -95,9 +95,6 @@ There are two types of Minnesota priors for BVHAR:
 \item VAR-type Minnesota prior specified by \code{\link[=set_bvhar]{set_bvhar()}}, so-called BVHAR-S model.
 \item VHAR-type Minnesota prior specified by \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}, so-called BVHAR-L model.
 }
-
-Two types of Minnesota priors builds different dummy variables for Y0.
-See \link{var_design_formulation}.
 }
 \examples{
 # Perform the function using etf_vix dataset

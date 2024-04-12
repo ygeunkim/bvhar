@@ -133,7 +133,7 @@ Then
 
 \section{n-step ahead forecasting VHAR}{
 
-Let \eqn{T_{HAR}} is VHAR linear transformation matrix (See \link{var_design_formulation}).
+Let \eqn{T_{HAR}} is VHAR linear transformation matrix.
 Since VHAR is the linearly transformed VAR(22),
 let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
 
@@ -162,8 +162,6 @@ Then predictive posterior for each step
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
-
-See \link{bvar_predictive_density} how to generate the predictive distribution.
 }
 
 \section{n-step ahead forecasting BVHAR}{
@@ -177,8 +175,6 @@ Then predictive posterior for each step
 \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 and recursively,
 \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
-
-See \link{bvar_predictive_density} how to generate the predictive distribution.
 }
 
 \section{n-step ahead forecasting VAR(p) with SSVS and Horseshoe}{

@@ -17,9 +17,6 @@
 #' 
 #' * VAR-type Minnesota prior specified by [set_bvhar()], so-called BVHAR-S model.
 #' * VHAR-type Minnesota prior specified by [set_weight_bvhar()], so-called BVHAR-L model.
-#' 
-#' Two types of Minnesota priors builds different dummy variables for Y0.
-#' See [var_design_formulation].
 #' @return `bvhar_minnesota()` returns an object `bvharmn` [class].
 #' It is a list with the following components:
 #' 

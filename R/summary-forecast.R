@@ -31,8 +31,6 @@ divide_ts <- function(y, n_ahead) {
 #' Rolling windows forecasting fixes window size.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
 #' @return `predbvhar_roll` [class]
-#' @seealso 
-#' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS.
 #' @order 1
 #' @export
@@ -329,8 +327,6 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
 #' Expanding windows forecasting fixes the starting period.
 #' It moves the window ahead and forecast h-ahead in `y_test` set.
 #' @return `predbvhar_expand` [class]
-#' @seealso
-#' See [ts_forecasting_cv] for out-of-sample forecasting methods.
 #' @references Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and practice* (3rd ed.). OTEXTS. [https://otexts.com/fpp3/](https://otexts.com/fpp3/)
 #' @order 1
 #' @export
