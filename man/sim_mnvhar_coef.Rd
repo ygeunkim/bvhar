@@ -51,6 +51,5 @@ Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregress
 \itemize{
 \item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
 \item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
-\item \link{bvar_adding_dummy} for dummy observations definition.
 }
 }

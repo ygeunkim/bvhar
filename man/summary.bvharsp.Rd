@@ -2,27 +2,28 @@
 % Please edit documentation in R/print-bvharsp.R, R/summary-sparse.R
 \name{print.summary.bvharsp}
 \alias{print.summary.bvharsp}
-\alias{knit_print.summary.ssvsmod}
+\alias{knit_print.summary.bvharsp}
+\alias{summary.bvharsp}
 \alias{summary.ssvsmod}
 \alias{summary.hsmod}
 \title{Summarizing BVAR and BVHAR with Shrinkage Priors}
 \usage{
 \method{print}{summary.bvharsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
-\method{knit_print}{summary.ssvsmod}(x, ...)
+\method{knit_print}{summary.bvharsp}(x, ...)
 
 \method{summary}{ssvsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 
 \method{summary}{hsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 }
 \arguments{
-\item{x}{\code{summary.ssvsmod} object}
+\item{x}{\code{summary.bvharsp} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 
-\item{object}{\code{ssvsmod} object}
+\item{object}{Model fit}
 
 \item{method}{Use PIP (\code{"pip"}) or credible interval (\code{"ci"}).}
 
@@ -33,7 +34,7 @@
 \value{
 \code{summary.ssvsmod} object
 
-\code{summary.hsmod} object
+\code{hsmod} object
 }
 \description{
 Conduct variable selection.

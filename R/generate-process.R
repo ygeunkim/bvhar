@@ -58,7 +58,7 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -175,7 +175,7 @@ sim_gig <- function(num_sim, lambda, psi, chi) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param vhar_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param vhar_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param week Weekly order of VHAR. By default, `5`.
 #' @param month Weekly order of VHAR. By default, `22`.
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.

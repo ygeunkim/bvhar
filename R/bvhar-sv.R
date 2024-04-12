@@ -26,16 +26,12 @@
 #' \deqn{\Sigma_t = L^T D_t^{-1} L}
 #' @return `bvhar_sv()` returns an object named `bvharsv` [class]. It is a list with the following components:
 #' \describe{
-#'   \item{phi_record}{MCMC trace for vectorized coefficients (\eqn{\phi}) with [posterior::draws_df] format.}
-#'   \item{h_record}{MCMC trace for log-volatilities.}
-#'   \item{a_record}{MCMC trace for contemporaneous coefficients.}
-#'   \item{h0_record}{MCMC trace for initial log-volatilities.}
-#'   \item{sigh_record}{MCMC trace for log-volatilities variance.}
 #'   \item{coefficients}{Posterior mean of coefficients.}
 #'   \item{chol_posterior}{Posterior mean of contemporaneous effects.}
-#'   \item{pip}{Posterior inclusion probabilities.}
 #'   \item{param}{Every set of MCMC trace.}
+#'   \item{param_names}{Name of every parameter.}
 #'   \item{group}{Indicators for group.}
+#'   \item{num_group}{Number of groups.}
 #'   \item{df}{Numer of Coefficients: `3m + 1` or `3m`}
 #'   \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 #'   \item{week}{Order for weekly term}
@@ -48,6 +44,8 @@
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{spec}{Coefficients prior specification}
 #'   \item{sv}{log volatility prior specification}
+#'   \item{init}{Initial values}
+#'   \item{intercept}{Intercept prior specification}
 #'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
 #'   \item{burn}{Burn-in}
@@ -57,15 +55,9 @@
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
 #' }
-#' Different members are added according to priors. If it is SSVS:
+#' If it is SSVS or Horseshoe:
 #' \describe{
-#'   \item{gamma_record}{MCMC trace for dummy variable.}
-#' }
-#' Horseshoe:
-#' \describe{
-#'   \item{lambda_record}{MCMC trace for local shrinkage level.}
-#'   \item{tau_record}{MCMC trace for global shrinkage level.}
-#'   \item{kappa_record}{MCMC trace for shrinkage factor.}
+#'   \item{pip}{Posterior inclusion probabilities.}
 #' }
 #' @references 
 #' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
@@ -404,6 +396,12 @@ bvhar_sv <- function(y,
     res$h0_record,
     res$sigh_record
   )
+  if (include_mean) {
+    res$param <- bind_draws(
+      res$param,
+      res$c_record
+    )
+  }
   if (bayes_spec$prior == "SSVS") {
     res$param <- bind_draws(
       res$param,
@@ -417,6 +415,8 @@ bvhar_sv <- function(y,
       res$kappa_record
     )
   }
+  res[rec_names] <- NULL
+  res$param_names <- param_names
   # if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
   #   res$group <- glob_idmat
   #   res$num_group <- length(grp_id)

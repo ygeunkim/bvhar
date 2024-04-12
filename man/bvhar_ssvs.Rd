@@ -62,20 +62,13 @@ bvhar_ssvs(
 It is a list with the following components:
 
 \describe{
-\item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{eta_record}{MCMC trace for upper triangular element of cholesky factor (eta \eqn{\eta}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{psi_record}{MCMC trace for diagonal element of cholesky factor (psi \eqn{\psi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{omega_record}{MCMC trace for indicator variable for \eqn{eta} (omega \eqn{\omega}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{gamma_record}{MCMC trace for indicator variable for \eqn{alpha} (gamma \eqn{\gamma}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{chol_record}{MCMC trace for cholesky factor matrix \eqn{\Psi} with \link{list} format.}
-\item{ols_coef}{OLS estimates for VAR coefficients.}
-\item{ols_cholesky}{OLS estimates for cholesky factor}
 \item{coefficients}{Posterior mean of VAR coefficients.}
+\item{chol_posterior}{Posterior mean of cholesky factor matrix}
+\item{covmat}{Posterior mean of covariance matrix}
 \item{omega_posterior}{Posterior mean of omega}
 \item{pip}{Posterior inclusion probability}
 \item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, eta, psi, omega, and gamma}
-\item{chol_posterior}{Posterior mean of cholesky factor matrix}
-\item{covmat}{Posterior mean of covariance matrix}
+\item{param_names}{Name of every parameter.}
 \item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
 \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
@@ -88,10 +81,12 @@ It is a list with the following components:
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
 \item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
+\item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
 \item{thin}{Thinning}
-\item{chain}{The numer of chains}
+\item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{HARtrans}{VHAR linear transformation matrix}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
@@ -114,16 +109,9 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 
 Gibbs sampler is used for the estimation.
-See \link{ssvs_bvar_algo} how it works.
 }
 \references{
 Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
-}
-\seealso{
-\itemize{
-\item Vectorization formulation \link{var_vec_formulation}
-\item Gibbs sampler algorithm \link{ssvs_bvar_algo}
-}
 }

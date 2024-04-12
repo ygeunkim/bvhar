@@ -15,8 +15,8 @@
 #' Otherwise (`include_type = FALSE`), there is no \eqn{c} term.
 #' The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
 #' 
-#' * Response matrix, \eqn{Y_0} in [var_design_formulation]
-#' * Design matrix, \eqn{X_0} in [var_design_formulation]
+#' * Response matrix, \eqn{Y_0}
+#' * Design matrix, \eqn{X_0}
 #' * Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
 #' 
 #' Then perform least squares to the following multivariate regression model
@@ -41,17 +41,16 @@
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: VAR}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{method}{Solving method}
+#'   \item{call}{Matched call}
 #' }
 #' It is also a `bvharmod` class.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso 
-#' * [coef.varlse()], [residuals.varlse()], and [fitted.varlse()]
 #' * [summary.varlse()] to summarize VAR model
-#' * [predict.varlse()] to forecast the VAR process
-#' * [var_design_formulation] for the model design
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' fit <- var_lm(y = etf_vix, p = 2)
