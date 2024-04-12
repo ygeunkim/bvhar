@@ -202,7 +202,8 @@ bvar_horseshoe <- function(y,
     res$alpha_record,
     res$lambda_record,
     res$tau_record,
-    res$sigma_record
+    res$sigma_record,
+    res$kappa_record
   )
   res[rec_names] <- NULL
   res$param_names <- param_names

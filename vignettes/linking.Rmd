@@ -30,14 +30,20 @@ library(bvhar)
 This package provides public C++ headers. Some might be implement these useful.
 
 - `bvharsim.h`: Rcpp random generation functions that are widely used in Bayesian statistics.
-- `ols.h`: OLS classes
-- `minnesota.h`: Minnesota prior classes
-- `mcmcsv.h`: Classes for stochastic volatility models. It includes
+- `ols.h`: OLS classes and structs
+- `minnesota.h`: Minnesota prior classes and structs
+- `mcmcsv.h`: Classes and structs for stochastic volatility models. It includes
     - Minnesota prior
     - SSVS prior
     - Horseshoe prior
 - `mcmchs.h`: Horseshoe prior classes
 - `mcmcssvs.h`: SSVS prior classes
+- `olsforecaster.h`: Forecasting class for each VAR and VHAR
+- `minnforecaster.h`: Minnesota prior forecaster classes
+- `svforecaster.h`: SV models forecaster classes
+- `olsspillover.h`: FEVD and spillover class for each VAR and VHAR
+- `minnspillover.h`: FEVD and spillover class for Minnesota prior
+- `svspillover.h`: FEVD and spillover class for SV models
 - `bvharprogress.h`: Simple progress bar classes
 - `bvharinterrupt.h`: Interruption handler classes
 
