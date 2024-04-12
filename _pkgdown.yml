@@ -119,13 +119,8 @@ reference:
 - title: Information criteria
   desc: ~
   contents:
-  - AIC.varlse
-  - BIC.varlse
   - FPE
-  - FPE.varlse
   - HQ
-  - HQ.varlse
-  - logLik.varlse
   - choose_var
   - compute_dic
   - compute_dic.bvarmn
