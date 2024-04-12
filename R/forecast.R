@@ -48,6 +48,7 @@
 #'   \item{y}{object$y}
 #' }
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @name predict
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
@@ -77,7 +78,7 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object `vharlse` object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
@@ -130,7 +131,7 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
@@ -196,7 +197,7 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
@@ -251,7 +252,7 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -295,7 +296,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -363,7 +364,7 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -433,7 +434,7 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -493,7 +494,7 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -554,7 +555,7 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
@@ -672,7 +673,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.

@@ -22,7 +22,7 @@ sim_vhar(
 
 \item{num_burn}{Number of burn-in}
 
-\item{vhar_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=coef.varlse]{coef.varlse()}} from \code{\link[=var_lm]{var_lm()}}}
+\item{vhar_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=coef]{coef()}} from \code{\link[=var_lm]{var_lm()}}}
 
 \item{week}{Weekly order of VHAR. By default, \code{5}.}
 

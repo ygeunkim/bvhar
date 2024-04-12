@@ -1309,7 +1309,7 @@ compute_vhar_stablemat <- function(object) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -1327,7 +1327,7 @@ sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init,
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.

@@ -77,7 +77,7 @@ reference:
 - title: Forecasting
   desc: ~
   contents:
-  - predict.varlse
+  - predict
   - divide_ts
   - forecast_roll
   - forecast_expand
@@ -166,10 +166,9 @@ reference:
   - stableroot.varlse
   - is.stable
   - is.stable.varlse
-  - coef.varlse
-  - residuals.varlse
-  - fitted.varlse
-  - is.varlse
+  - coef
+  - residuals
+  - fitted
   - split_coef
 
 # destination: '../../myprofile/young-blogdown/static/package/bvhar'

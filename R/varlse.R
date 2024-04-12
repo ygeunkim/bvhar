@@ -48,9 +48,7 @@
 #' It is also a `bvharmod` class.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @seealso 
-#' * [coef.varlse()], [residuals.varlse()], and [fitted.varlse()]
 #' * [summary.varlse()] to summarize VAR model
-#' * [predict.varlse()] to forecast the VAR process
 #' * [var_design_formulation] for the model design
 #' @examples 
 #' # Perform the function using etf_vix dataset

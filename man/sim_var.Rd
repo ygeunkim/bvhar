@@ -21,7 +21,7 @@ sim_var(
 
 \item{num_burn}{Number of burn-in}
 
-\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=coef.varlse]{coef.varlse()}} from \code{\link[=var_lm]{var_lm()}}}
+\item{var_coef}{VAR coefficient. The format should be the same as the output of \code{\link[=coef]{coef()}} from \code{\link[=var_lm]{var_lm()}}}
 
 \item{var_lag}{Lag of VAR}
 
