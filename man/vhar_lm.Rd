@@ -58,19 +58,20 @@ It is a list with the following components:
 \item{residuals}{Residuals}
 \item{covmat}{LS estimate for covariance matrix}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
+\item{m}{Dimension of the data}
+\item{obs}{Sample size used when training = \code{totobs} - 22}
+\item{y0}{\eqn{Y_0}}
 \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
 \item{month}{Order for monthly term}
-\item{m}{Dimension of the data}
-\item{obs}{Sample size used when training = \code{totobs} - 22}
 \item{totobs}{Total number of the observation}
-\item{call}{Matched call}
 \item{process}{Process: VHAR}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
-\item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
+\item{method}{Solving method}
+\item{call}{Matched call}
 }
 It is also a \code{bvharmod} class.
 }

@@ -19,7 +19,7 @@ test_that("Members", {
     include_mean = FALSE
   )
   expect_s3_class(fit_test, "hsmod")
-  expect_true(all(c("lambda_record", "tau_record", "kappa_record") %in% names(fit_test)))
+  expect_true(all(c("lambda", "tau", "kappa") %in% fit_test$param_names))
   
   fit_test <- bvar_sv(
     etf_vix[1:50, 1:3],
@@ -30,7 +30,7 @@ test_that("Members", {
     include_mean = FALSE
   )
   expect_s3_class(fit_test, "ssvsmod")
-  expect_true("gamma_record" %in% names(fit_test))
+  expect_true("gamma" %in% fit_test$param_names)
 })
 
 test_that("Multi chain", {

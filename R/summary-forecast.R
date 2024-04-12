@@ -162,13 +162,22 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
   }
   fit_ls <- list()
   if (use_fit) {
-    nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
-    fit_ls <-
-      object[nm_record] %>%
-      lapply(function(x) {
-        as_draws_matrix(x) %>%
-          split.data.frame(gl(num_chains, nrow(x) / num_chains))
-      })
+    # nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
+    # fit_ls <-
+    #   object[nm_record] %>%
+    #   lapply(function(x) {
+    #     as_draws_matrix(x) %>%
+    #       split.data.frame(gl(num_chains, nrow(x) / num_chains))
+    #   })
+    fit_ls <- lapply(
+      object$param_names,
+      function(x) {
+        subset_draws(object$param, variable = x) %>%
+          as_draws_matrix() %>%
+          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+      }
+    ) %>% 
+    setNames(paste(object$param_names, "record", sep = "_"))
   }
   if (sparse) {
     res_mat <- switch(model_type,
@@ -452,13 +461,22 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
   }
   fit_ls <- list()
   if (use_fit) {
-    nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
-    fit_ls <-
-      object[nm_record] %>%
-      lapply(function(x) {
-        as_draws_matrix(x) %>%
-          split.data.frame(gl(num_chains, nrow(x) / num_chains))
-      })
+    # nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
+    # fit_ls <-
+    #   object[nm_record] %>%
+    #   lapply(function(x) {
+    #     as_draws_matrix(x) %>%
+    #       split.data.frame(gl(num_chains, nrow(x) / num_chains))
+    #   })
+    fit_ls <- lapply(
+      object$param_names,
+      function(x) {
+        subset_draws(object$param, variable = x) %>%
+          as_draws_matrix() %>%
+          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+      }
+    ) %>%
+      setNames(paste(object$param_names, "record", sep = "_"))
   }
   if (sparse) {
     res_mat <- switch(model_type,

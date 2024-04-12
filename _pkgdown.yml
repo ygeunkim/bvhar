@@ -152,7 +152,7 @@ reference:
 - title: Other generic functions
   desc: ~
   contents:
-  - analyze_ir
+  - irf
   - stableroot
   - is.stable
   - coef

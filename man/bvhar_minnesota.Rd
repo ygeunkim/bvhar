@@ -59,24 +59,24 @@ It is a list with the following components:
 \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
 \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{\nu_0} - obs + 2). \eqn{\nu_0}: nrow(Dummy observation) - k}
 \item{df}{Numer of Coefficients: 3m + 1 or 3m}
-\item{p}{3, this element exists to run the other functions}
-\item{week}{Order for weekly term}
-\item{month}{Order for monthly term}
 \item{m}{Dimension of the time series}
 \item{obs}{Sample size used when training = \code{totobs} - 22}
-\item{totobs}{Total number of the observation}
-\item{call}{Matched call}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} (BVHAR-S) or \code{"BVHAR_MN_VHAR"} (BVHAR-L)}
-\item{spec}{Model specification (\code{bvharspec})}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{M_0}}
 \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{\Psi_0}}
 \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\nu_0}}
-\item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
+\item{p}{3, this element exists to run the other functions}
+\item{week}{Order for weekly term}
+\item{month}{Order for monthly term}
+\item{totobs}{Total number of the observation}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 \item{y}{Raw input (\code{matrix})}
+\item{call}{Matched call}
+\item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} (BVHAR-S) or \code{"BVHAR_MN_VHAR"} (BVHAR-L)}
+\item{spec}{Model specification (\code{bvharspec})}
 }
 It is also \code{normaliw} and \code{bvharmod} class.
 }

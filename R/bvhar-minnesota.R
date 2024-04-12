@@ -31,24 +31,24 @@
 #'   \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
 #'   \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{\nu_0} - obs + 2). \eqn{\nu_0}: nrow(Dummy observation) - k}
 #'   \item{df}{Numer of Coefficients: 3m + 1 or 3m}
-#'   \item{p}{3, this element exists to run the other functions}
-#'   \item{week}{Order for weekly term}
-#'   \item{month}{Order for monthly term}
 #'   \item{m}{Dimension of the time series}
 #'   \item{obs}{Sample size used when training = `totobs` - 22}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{call}{Matched call}
-#'   \item{process}{Process string in the `bayes_spec`: `"BVHAR_MN_VAR"` (BVHAR-S) or `"BVHAR_MN_VHAR"` (BVHAR-L)}
-#'   \item{spec}{Model specification (`bvharspec`)}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{M_0}}
 #'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 #'   \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{\Psi_0}}
 #'   \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\nu_0}}
-#'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
+#'   \item{p}{3, this element exists to run the other functions}
+#'   \item{week}{Order for weekly term}
+#'   \item{month}{Order for monthly term}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 #'   \item{y}{Raw input (`matrix`)}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process string in the `bayes_spec`: `"BVHAR_MN_VAR"` (BVHAR-S) or `"BVHAR_MN_VHAR"` (BVHAR-L)}
+#'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
 #' @references Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
@@ -125,8 +125,8 @@ bvhar_minnesota <- function(y, har = c(5, 22), bayes_spec = set_bvhar(), include
   # Prior-----------------------------
   colnames(res$prior_mean) <- name_var
   rownames(res$prior_mean) <- name_har
-  colnames(res$prior_prec) <- name_har
-  rownames(res$prior_prec) <- name_har
+  colnames(res$prior_precision) <- name_har
+  rownames(res$prior_precision) <- name_har
   colnames(res$prior_scale) <- name_var
   rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------

@@ -41,9 +41,11 @@
 #'   \item{call}{Matched call}
 #'   \item{process}{Process: VAR}
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
+#'   \item{y0}{\eqn{Y_0}}
+#'   \item{method}{Solving method}
+#'   \item{call}{Matched call}
 #' }
 #' It is also a `bvharmod` class.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.

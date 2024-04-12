@@ -8,6 +8,7 @@
 \alias{AIC.varlse}
 \alias{BIC.varlse}
 \alias{is.varlse}
+\alias{is.bvharmod}
 \alias{knit_print.varlse}
 \title{Fitting Vector Autoregressive Model of Order p Model}
 \usage{
@@ -22,6 +23,8 @@ var_lm(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"))
 \method{BIC}{varlse}(object, ...)
 
 is.varlse(x)
+
+is.bvharmod(x)
 
 \method{knit_print}{varlse}(x, ...)
 }
@@ -60,9 +63,11 @@ It is a list with the following components:
 \item{call}{Matched call}
 \item{process}{Process: VAR}
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
+\item{y0}{\eqn{Y_0}}
+\item{method}{Solving method}
+\item{call}{Matched call}
 }
 It is also a \code{bvharmod} class.
 }

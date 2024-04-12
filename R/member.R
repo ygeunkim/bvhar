@@ -153,6 +153,12 @@ is.bvharmn <- function(x) {
   inherits(x, "bvharmn")
 }
 
+#' @rdname var_lm
+#' @export
+is.bvharmod <- function(x) {
+  inherits(x, "bvharmod")
+}
+
 #' @rdname predict
 #' @export
 is.predbvhar <- function(x) {
@@ -163,6 +169,12 @@ is.predbvhar <- function(x) {
 #' @export
 is.bvharcv <- function(x) {
   inherits(x, "bvharcv")
+}
+
+#' @rdname irf
+#' @export
+is.bvharirf <- function(x) {
+  inherits(x, "bvharirf")
 }
 
 #' @rdname set_bvar

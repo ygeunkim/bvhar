@@ -54,21 +54,21 @@ It is a list with the following components:
 \item{iw_scale}{Posterior scale matrix of posterior inverse-Wishart distribution}
 \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
 \item{df}{Numer of Coefficients: mp + 1 or mp}
-\item{p}{Lag of VAR}
 \item{m}{Dimension of the time series}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
-\item{totobs}{Total number of the observation}
-\item{call}{Matched call}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVAR_Minnesota"}}
-\item{spec}{Model specification (\code{bvharspec})}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
 \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
 \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
+\item{p}{Lag of VAR}
+\item{totobs}{Total number of the observation}
+\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{y}{Raw input (\code{matrix})}
+\item{call}{Matched call}
+\item{process}{Process string in the \code{bayes_spec}: \code{"BVAR_Minnesota"}}
+\item{spec}{Model specification (\code{bvharspec})}
 }
 It is also \code{normaliw} and \code{bvharmod} class.
 }
@@ -108,7 +108,6 @@ Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate M
 \seealso{
 \itemize{
 \item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
-\item \code{\link[=coef.bvarmn]{coef.bvarmn()}}, \code{\link[=residuals.bvarmn]{residuals.bvarmn()}}, and \code{\link[=fitted.bvarmn]{fitted.bvarmn()}}
 \item \code{\link[=summary.normaliw]{summary.normaliw()}} to summarize BVAR model
 }
 }
