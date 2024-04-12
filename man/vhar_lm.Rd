@@ -104,6 +104,5 @@ Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volat
 \itemize{
 \item \code{\link[=coef.vharlse]{coef.vharlse()}}, \code{\link[=residuals.vharlse]{residuals.vharlse()}}, and \code{\link[=fitted.vharlse]{fitted.vharlse()}}
 \item \code{\link[=summary.vharlse]{summary.vharlse()}} to summarize VHAR model
-\item \code{\link[=predict.vharlse]{predict.vharlse()}} to forecast the VHAR process
 }
 }

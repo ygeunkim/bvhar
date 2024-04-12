@@ -44,7 +44,6 @@
 #' @seealso 
 #' * [coef.vharlse()], [residuals.vharlse()], and [fitted.vharlse()]
 #' * [summary.vharlse()] to summarize VHAR model
-#' * [predict.vharlse()] to forecast the VHAR process
 #' @examples 
 #' # Perform the function using etf_vix dataset
 #' fit <- vhar_lm(y = etf_vix)

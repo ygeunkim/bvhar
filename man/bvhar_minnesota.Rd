@@ -116,8 +116,6 @@ Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregress
 \itemize{
 \item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of BVHAR-S
 \item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of BVHAR-L
-\item \code{\link[=coef.bvharmn]{coef.bvharmn()}}, \code{\link[=residuals.bvharmn]{residuals.bvharmn()}}, and \code{\link[=fitted.bvharmn]{fitted.bvharmn()}}
 \item \code{\link[=summary.normaliw]{summary.normaliw()}} to summarize BVHAR model
-\item \code{\link[=predict.bvharmn]{predict.bvharmn()}} to forecast the BVHAR process
 }
 }

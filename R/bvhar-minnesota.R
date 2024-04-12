@@ -55,9 +55,7 @@
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of BVHAR-S
 #' * [set_weight_bvhar()] to specify the hyperparameters of BVHAR-L
-#' * [coef.bvharmn()], [residuals.bvharmn()], and [fitted.bvharmn()]
 #' * [summary.normaliw()] to summarize BVHAR model
-#' * [predict.bvharmn()] to forecast the BVHAR process
 #' @examples
 #' # Perform the function using etf_vix dataset
 #' fit <- bvhar_minnesota(y = etf_vix[,1:3])

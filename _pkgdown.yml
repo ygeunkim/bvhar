@@ -16,27 +16,24 @@ development:
   mode: auto
 
 reference:
-- title: The bvhar package
-  desc: ~
+- title: Package
+  desc: >
+    The bvhar package
   contents:
   - bvhar-package
   
-- title: VAR
+- title: Frequentist modeling
   desc: >
-    Vector autoregressive model.
+    Vector autoregressive (VAR) and heterogeneous autoregressive (VHAR) models.
   contents:
   - var_lm
-  - VARtoVMA
-
-- title: VHAR
-  desc: >
-    Vector heterogeneous autoregressive model.
-  contents:
   - vhar_lm
+  - VARtoVMA
   - VHARtoVMA
 
-- title: Bayesian Model
-  desc: ~
+- title: Prior specification
+  desc: >
+    Prior settings for Bayesian models.
   contents:
   - set_bvar
   - init_ssvs
@@ -46,9 +43,9 @@ reference:
   - set_sv
   - set_intercept
 
-- title: BVAR
+- title: Bayesian modeling
   desc: >
-    Bayesian VAR model.
+    Bayesian VAR and Bayesian VHAR models.
   contents:
   - bvar_minnesota
   - bvar_flat
@@ -56,15 +53,10 @@ reference:
   - bvar_sv
   - bvar_ssvs
   - bvar_horseshoe
-
-- title: BVHAR
-  desc: >
-    Bayesian VHAR model.
-  contents:
   - bvhar_minnesota
   - bvhar_sv
   - bvhar_ssvs
-  - bvhar_horseshoe
+  - bvhar_horseshoe  
 
 - title: Summary method
   desc: ~
@@ -123,7 +115,6 @@ reference:
   - HQ
   - choose_var
   - compute_dic
-  - compute_dic.bvarmn
 
 - title: Plots
   desc: ~
@@ -163,13 +154,10 @@ reference:
   contents:
   - analyze_ir
   - stableroot
-  - stableroot.varlse
   - is.stable
-  - is.stable.varlse
   - coef
   - residuals
   - fitted
-  - split_coef
 
 # destination: '../../myprofile/young-blogdown/static/package/bvhar'
 

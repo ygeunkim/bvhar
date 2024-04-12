@@ -56,7 +56,6 @@
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [coef.bvarmn()], [residuals.bvarmn()], and [fitted.bvarmn()]
 #' * [summary.normaliw()] to summarize BVAR model
-#' * [predict.bvarmn()] to forecast the BVAR process
 #' @examples
 #' # Perform the function using etf_vix dataset
 #' fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)

@@ -23,13 +23,14 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
 #' For example,
 #' `c("varlse", "bvharmod")`.
 #' @return A `list` object
+#' @keywords internal
+#' @noRd
 #' @export
 split_coef <- function(object, ...) {
   UseMethod("split_coef", object)
 }
 
-#' @rdname split_coef
-#' @export
+#' @noRd
 split_coef.bvharmod <- function(object, ...) {
   switch(
     object$type,
@@ -44,8 +45,7 @@ split_coef.bvharmod <- function(object, ...) {
   )
 }
 
-#' @rdname split_coef
-#' @export
+#' @noRd
 split_coef.bvharirf <- function(object, ...) {
   irf_mat <- object$coefficients
   split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
