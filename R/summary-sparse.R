@@ -23,7 +23,7 @@ compute_ci <- function(draws, level = .05) {
 #' 
 #' Conduct variable selection.
 #' 
-#' @param object `ssvsmod` object
+#' @param object Model fit
 #' @param method Use PIP (`"pip"`) or credible interval (`"ci"`).
 #' @param threshold Threshold for posterior inclusion probability
 #' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
@@ -37,6 +37,7 @@ compute_ci <- function(draws, level = .05) {
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
 #' 
 #' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85–117.
+#' @name summary.bvharsp
 #' @importFrom posterior subset_draws
 #' @export
 summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
@@ -82,8 +83,8 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
   res
 }
 
-#' @rdname summary.ssvsmod
-#' @return `summary.hsmod` object
+#' @rdname summary.bvharsp
+#' @return `hsmod` object
 #' @export
 summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level = .05, ...) {
   method <- match.arg(method)

@@ -3,14 +3,29 @@
 \name{HQ}
 \alias{HQ}
 \alias{HQ.logLik}
+\alias{HQ.varlse}
+\alias{HQ.vharlse}
+\alias{HQ.bvarmn}
+\alias{HQ.bvarflat}
+\alias{HQ.bvharmn}
 \title{Hannan-Quinn Criterion}
 \usage{
 HQ(object, ...)
 
 \method{HQ}{logLik}(object, ...)
+
+\method{HQ}{varlse}(object, ...)
+
+\method{HQ}{vharlse}(object, ...)
+
+\method{HQ}{bvarmn}(object, ...)
+
+\method{HQ}{bvarflat}(object, ...)
+
+\method{HQ}{bvharmn}(object, ...)
 }
 \arguments{
-\item{object}{Model fit}
+\item{object}{\code{logLik} object or Model fit}
 
 \item{...}{not used}
 }
@@ -18,16 +33,34 @@ HQ(object, ...)
 HQ value.
 }
 \description{
-Generic function that computes HQ criterion.
+Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 }
 \details{
 The formula is
 
-\deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(n)}
+\deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(T)}
 
-whic can be computed by
+which can be computed by
 \code{AIC(object, ..., k = 2 * log(log(nobs(object))))} with \code{\link[stats:AIC]{stats::AIC()}}.
+
+Let \eqn{\tilde{\Sigma}_e} be the MLE
+and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (\code{covmat}) for \eqn{\Sigma_e}.
+Note that
+
+\deqn{\tilde{\Sigma}_e = \frac{n - k}{T} \hat{\Sigma}_e}
+
+Then
+
+\deqn{HQ(p) = \log \det \Sigma_e + \frac{2 \log \log n}{n}(\text{number of freely estimated parameters})}
+
+where the number of freely estimated parameters is \eqn{pm^2}.
 }
 \references{
 Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
+
+Hannan, E.J. and Quinn, B.G. (1979). \emph{The Determination of the Order of an Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
+
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
+
+Quinn, B.G. (1980). \emph{Order Determination for a Multivariate Autoregression}. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185.
 }

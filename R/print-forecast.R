@@ -1,5 +1,5 @@
 #' Print Method for `predbvhar` object
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param x `predbvhar` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -10,7 +10,7 @@ print.predbvhar <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   invisible(x)
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @exportS3Method knitr::knit_print
 knit_print.predbvhar <- function(x, ...) {
   print(x)

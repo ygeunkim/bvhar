@@ -222,8 +222,8 @@ knit_print.bvharsv <- function(x, ...) {
   print(x)
 }
 
-#' @rdname summary.ssvsmod
-#' @param x `summary.ssvsmod` object
+#' @rdname summary.bvharsp
+#' @param x `summary.bvharsp` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
@@ -306,8 +306,8 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
   }
 }
 
-#' @rdname summary.ssvsmod
+#' @rdname summary.bvharsp
 #' @exportS3Method knitr::knit_print
-knit_print.summary.ssvsmod <- function(x, ...) {
+knit_print.summary.bvharsp <- function(x, ...) {
   print(x)
 }

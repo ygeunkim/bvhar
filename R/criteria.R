@@ -1,15 +1,12 @@
-#' Extract Log-Likelihood of Multivariate Time Series Model
-#' 
-#' Compute log-likelihood function value of VAR(p), VHAR, BVAR(p), and BVHAR
-#' 
-#' @param object Model fit
+#' @rdname var_lm
+#' @param object `varlse` object
 #' @param ... not used
 #' @details 
 #' Consider the response matrix \eqn{Y_0}.
-#' Let \eqn{n} be the total number of sample,
+#' Let \eqn{T} be the total number of sample,
 #' let \eqn{m} be the dimension of the time series,
 #' let \eqn{p} be the order of the model,
-#' and let \eqn{s = n - p}.
+#' and let \eqn{n = T - p}.
 #' Likelihood of VAR(p) has
 #' 
 #' \deqn{Y_0 \mid B, \Sigma_e \sim MN(X_0 B, I_s, \Sigma_e)}
@@ -19,19 +16,14 @@
 #' 
 #' Then log-likelihood of vector autoregressive model family is specified by
 #' 
-#' \deqn{\log p(Y_0 \mid B, \Sigma_e) = - \frac{sm}{2} \log 2\pi - \frac{s}{2} \log \det \Sigma_e - \frac{1}{2} tr( (Y_0 - X_0 B) \Sigma_e^{-1} (Y_0 - X_0 B)^T )}
+#' \deqn{\log p(Y_0 \mid B, \Sigma_e) = - \frac{nm}{2} \log 2\pi - \frac{n}{2} \log \det \Sigma_e - \frac{1}{2} tr( (Y_0 - X_0 B) \Sigma_e^{-1} (Y_0 - X_0 B)^T )}
 #' 
 #' In addition, recall that the OLS estimator for the matrix coefficient matrix is the same as MLE under the Gaussian assumption.
-#' MLE for \eqn{\Sigma_e} has different denominator, \eqn{s}.
+#' MLE for \eqn{\Sigma_e} has different denominator, \eqn{n}.
 #' 
 #' \deqn{\hat{B} = \hat{B}^{LS} = \hat{B}^{ML} = (X_0^T X_0)^{-1} X_0^T Y_0}
 #' \deqn{\hat\Sigma_e = \frac{1}{s - k} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B})}
 #' \deqn{\tilde\Sigma_e = \frac{1}{s} (Y_0 - X_0 \hat{B})^T (Y_0 - X_0 \hat{B}) = \frac{s - k}{s} \hat\Sigma_e}
-#' @return A `logLik` object.
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @seealso
-#' * [var_lm()]
-#' * [var_design_formulation]
 #' @importFrom stats logLik
 #' @export
 logLik.varlse <- function(object, ...) {
@@ -54,15 +46,9 @@ logLik.varlse <- function(object, ...) {
   log_lik
 }
 
-#' @rdname logLik.varlse
-#' @param object Model fit
+#' @rdname vhar_lm
+#' @param object `vharlse` object
 #' @param ... not used
-#' @details 
-#' In case of VHAR, just consider the linear relationship.
-#' 
-#' @references Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196.
-#' @seealso [vhar_lm()]
-#' @importFrom stats logLik
 #' @export
 logLik.vharlse <- function(object, ...) {
   obs <- object$obs
@@ -84,18 +70,9 @@ logLik.vharlse <- function(object, ...) {
   log_lik
 }
 
-#' @rdname logLik.varlse
-#' @param object Model fit
+#' @rdname bvar_minnesota
+#' @param object `bvarmn` object
 #' @param ... not used
-#' @details 
-#' While frequentist models use OLS and MLE for coefficient and covariance matrices, Bayesian models implement posterior means.
-#' 
-#' @references 
-#' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
-#' 
-#' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25.
-#' @seealso [bvar_minnesota()]
-#' @importFrom stats logLik
 #' @export
 logLik.bvarmn <- function(object, ...) {
   obs <- object$obs
@@ -117,12 +94,9 @@ logLik.bvarmn <- function(object, ...) {
   log_lik
 }
 
-#' @rdname logLik.varlse
-#' @param object Model fit
+#' @rdname bvar_flat
+#' @param object `bvarflat` object
 #' @param ... not used
-#' @references Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526).
-#' @seealso [bvar_flat()]
-#' @importFrom stats logLik
 #' @export
 logLik.bvarflat <- function(object, ...) {
   obs <- object$obs
@@ -144,11 +118,9 @@ logLik.bvarflat <- function(object, ...) {
   log_lik
 }
 
-#' @rdname logLik.varlse
-#' @param object Model fit
+#' @rdname bvhar_minnesota
+#' @param object `bvharmn` object
 #' @param ... not used
-#' @seealso [bvhar_minnesota()]
-#' @importFrom stats logLik
 #' @export
 logLik.bvharmn <- function(object, ...) {
   obs <- object$obs
@@ -170,25 +142,21 @@ logLik.bvharmn <- function(object, ...) {
   log_lik
 }
 
-#' Akaike's Information Criterion of Multivariate Time Series Model
-#' 
-#' Compute AIC of VAR(p), VHAR, BVAR(p), and BVHAR
-#' 
-#' @param object Model fit
+#' @rdname var_lm
+#' @param object `varlse` object
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
 #' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
-#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{s} \hat{\Sigma}_e}
+#' \deqn{\tilde{\Sigma}_e = \frac{n - k}{n} \hat{\Sigma}_e}
 #' 
 #' Then
 #' 
-#' \deqn{AIC(p) = \log \det \Sigma_e + \frac{2}{s}(\text{number of freely estimated parameters})}
+#' \deqn{AIC(p) = \log \det \Sigma_e + \frac{2}{n}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
-#' @return AIC value.
 #' @references
 #' Akaike, H. (1969). *Fitting autoregressive models for prediction*. Ann Inst Stat Math 21, 243–247.
 #' 
@@ -197,8 +165,6 @@ logLik.bvharmn <- function(object, ...) {
 #' Akaike H. (1974). *A new look at the statistical model identification*. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723.
 #' 
 #' Akaike H. (1998). *Information Theory and an Extension of the Maximum Likelihood Principle*. In: Parzen E., Tanabe K., Kitagawa G. (eds) Selected Papers of Hirotugu Akaike. Springer Series in Statistics (Perspectives in Statistics). Springer, New York, NY.
-#' 
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @importFrom stats AIC
 #' @export
 AIC.varlse <- function(object, ...) {
@@ -207,10 +173,9 @@ AIC.varlse <- function(object, ...) {
     AIC()
 }
 
-#' @rdname AIC.varlse
-#' @param object Model fit
+#' @rdname vhar_lm
+#' @param object `vharlse` object
 #' @param ... not used
-#' @importFrom stats AIC
 #' @export
 AIC.vharlse <- function(object, ...) {
   object %>% 
@@ -218,10 +183,9 @@ AIC.vharlse <- function(object, ...) {
     AIC()
 }
 
-#' @rdname AIC.varlse
-#' @param object Model fit
+#' @rdname bvar_minnesota
+#' @param object `bvarmn` object
 #' @param ... not used
-#' @importFrom stats AIC
 #' @export
 AIC.bvarmn <- function(object, ...) {
   object %>% 
@@ -229,10 +193,9 @@ AIC.bvarmn <- function(object, ...) {
     AIC()
 }
 
-#' @rdname AIC.varlse
-#' @param object Model fit
+#' @rdname bvar_flat
+#' @param object `bvarflat` object
 #' @param ... not used
-#' @importFrom stats AIC
 #' @export
 AIC.bvarflat <- function(object, ...) {
   object %>% 
@@ -240,10 +203,9 @@ AIC.bvarflat <- function(object, ...) {
     AIC()
 }
 
-#' @rdname AIC.varlse
-#' @param object Model fit
+#' @rdname bvhar_minnesota
+#' @param object `bvharmn` object
 #' @param ... not used
-#' @importFrom stats AIC
 #' @export
 AIC.bvharmn <- function(object, ...) {
   object %>% 
@@ -253,7 +215,7 @@ AIC.bvharmn <- function(object, ...) {
 
 #' Final Prediction Error Criterion
 #' 
-#' Generic function that computes FPE criterion.
+#' Compute FPE of VAR(p) and VHAR
 #' 
 #' @param object Model fit
 #' @param ... not used
@@ -263,60 +225,43 @@ FPE <- function(object, ...) {
   UseMethod("FPE", object)
 }
 
-#' Final Prediction Error Criterion of Multivariate Time Series Model
-#' 
-#' Compute FPE of VAR(p), VHAR, BVAR(p), and BVHAR
-#' 
-#' @param object Model fit
-#' @param ... not used
+#' @rdname FPE
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
 #' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
-#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
+#' \deqn{\tilde{\Sigma}_e = \frac{n - k}{T} \hat{\Sigma}_e}
 #' 
 #' Then
 #' 
-#' \deqn{FPE(p) = (\frac{s + k}{s - k})^m \det \tilde{\Sigma}_e}
-#' @return FPE value.
+#' \deqn{FPE(p) = (\frac{n + k}{n - k})^m \det \tilde{\Sigma}_e}
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
 FPE.varlse <- function(object, ...) {
   compute_fpe(object)
 }
 
-#' @rdname FPE.varlse
-#' @param object Model fit
-#' @param ... not used
+#' @rdname FPE
 #' @export
 FPE.vharlse <- function(object, ...) {
   compute_fpe(object)
 }
 
-#' Bayesian Information Criterion of Multivariate Time Series Model
-#' 
-#' Compute BIC of VAR(p), VHAR, BVAR(p), and BVHAR
-#' 
-#' @param object Model fit
-#' @param ... not used
+#' @rdname var_lm
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
 #' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
-#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
+#' \deqn{\tilde{\Sigma}_e = \frac{n - k}{T} \hat{\Sigma}_e}
 #' 
 #' Then
 #' 
-#' \deqn{BIC(p) = \log \det \Sigma_e + \frac{\log s}{s}(\text{number of freely estimated parameters})}
+#' \deqn{BIC(p) = \log \det \Sigma_e + \frac{\log n}{n}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{pm^2}.
-#' @return BIC value.
-#' @references 
-#' Gideon Schwarz. (1978). *Estimating the Dimension of a Model*. Ann. Statist. 6 (2) 461 - 464.
-#' 
-#' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @references Gideon Schwarz. (1978). *Estimating the Dimension of a Model*. Ann. Statist. 6 (2) 461 - 464.
 #' @importFrom stats BIC
 #' @export
 BIC.varlse <- function(object, ...) {
@@ -325,10 +270,7 @@ BIC.varlse <- function(object, ...) {
     BIC()
 }
 
-#' @rdname BIC.varlse
-#' @param object Model fit
-#' @param ... not used
-#' @importFrom stats BIC
+#' @rdname vhar_lm
 #' @export
 BIC.vharlse <- function(object, ...) {
   object %>% 
@@ -336,10 +278,7 @@ BIC.vharlse <- function(object, ...) {
     BIC()
 }
 
-#' @rdname BIC.varlse
-#' @param object Model fit
-#' @param ... not used
-#' @importFrom stats BIC
+#' @rdname bvar_minnesota
 #' @export
 BIC.bvarmn <- function(object, ...) {
   object %>% 
@@ -347,10 +286,7 @@ BIC.bvarmn <- function(object, ...) {
     BIC()
 }
 
-#' @rdname BIC.varlse
-#' @param object Model fit
-#' @param ... not used
-#' @importFrom stats BIC
+#' @rdname bvar_flat
 #' @export
 BIC.bvarflat <- function(object, ...) {
   object %>% 
@@ -358,10 +294,7 @@ BIC.bvarflat <- function(object, ...) {
     BIC()
 }
 
-#' @rdname BIC.varlse
-#' @param object Model fit
-#' @param ... not used
-#' @importFrom stats BIC
+#' @rdname bvhar_minnesota
 #' @export
 BIC.bvharmn <- function(object, ...) {
   object %>% 
@@ -371,9 +304,9 @@ BIC.bvharmn <- function(object, ...) {
 
 #' Hannan-Quinn Criterion
 #' 
-#' Generic function that computes HQ criterion.
+#' Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
-#' @param object Model fit
+#' @param object `logLik` object or Model fit
 #' @param ... not used
 #' @return HQ value.
 #' @export
@@ -385,9 +318,9 @@ HQ <- function(object, ...) {
 #' @details 
 #' The formula is
 #' 
-#' \deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(n)}
+#' \deqn{HQ = -2 \log p(y \mid \hat\theta) + k \log\log(T)}
 #' 
-#' whic can be computed by
+#' which can be computed by
 #' `AIC(object, ..., k = 2 * log(log(nobs(object))))` with [stats::AIC()].
 #' 
 #' @references Hannan, E.J. and Quinn, B.G. (1979). *The Determination of the Order of an Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
@@ -397,25 +330,19 @@ HQ.logLik <- function(object, ...) {
   AIC(object, k = 2 * log(log(nobs(object))))
 }
 
-#' Hannan-Quinn Criterion of Multivariate Time Series Model
-#' 
-#' Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
-#' 
-#' @param object Model fit
-#' @param ... not used
+#' @rdname HQ
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
 #' and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (`covmat`) for \eqn{\Sigma_e}.
 #' Note that
 #' 
-#' \deqn{\tilde{\Sigma}_e = \frac{s - k}{n} \hat{\Sigma}_e}
+#' \deqn{\tilde{\Sigma}_e = \frac{n - k}{T} \hat{\Sigma}_e}
 #' 
 #' Then
 #' 
-#' \deqn{HQ(p) = \log \det \Sigma_e + \frac{2 \log \log s}{s}(\text{number of freely estimated parameters})}
+#' \deqn{HQ(p) = \log \det \Sigma_e + \frac{2 \log \log n}{n}(\text{number of freely estimated parameters})}
 #' 
 #' where the number of freely estimated parameters is \eqn{pm^2}.
-#' @return HQ value.
 #' @references
 #' Hannan, E.J. and Quinn, B.G. (1979). *The Determination of the Order of an Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 41: 190-195.
 #' 
@@ -429,9 +356,7 @@ HQ.varlse <- function(object, ...) {
     HQ()
 }
 
-#' @rdname HQ.varlse
-#' @param object Model fit
-#' @param ... not used
+#' @rdname HQ
 #' @export
 HQ.vharlse <- function(object, ...) {
   object %>% 
@@ -439,9 +364,7 @@ HQ.vharlse <- function(object, ...) {
     HQ()
 }
 
-#' @rdname HQ.varlse
-#' @param object Model fit
-#' @param ... not used
+#' @rdname HQ
 #' @export
 HQ.bvarmn <- function(object, ...) {
   object %>% 
@@ -449,9 +372,7 @@ HQ.bvarmn <- function(object, ...) {
     HQ()
 }
 
-#' @rdname HQ.varlse
-#' @param object Model fit
-#' @param ... not used
+#' @rdname HQ
 #' @export
 HQ.bvarflat <- function(object, ...) {
   object %>% 
@@ -459,9 +380,7 @@ HQ.bvarflat <- function(object, ...) {
     HQ()
 }
 
-#' @rdname HQ.varlse
-#' @param object Model fit
-#' @param ... not used
+#' @rdname HQ
 #' @export
 HQ.bvharmn <- function(object, ...) {
   object %>% 
@@ -547,12 +466,10 @@ compute_logml <- function(object, ...) {
 }
 
 #' @rdname compute_logml
-#' @param object Model fit
-#' @param ... not used
 #' @details 
 #' Closed form of Marginal Likelihood of BVAR can be derived by
 #' 
-#' \deqn{p(Y_0) = \pi^{-ms / 2} \frac{\Gamma_m ((\alpha_0 + s) / 2)}{\Gamma_m (\alpha_0 / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + s) / 2}}
+#' \deqn{p(Y_0) = \pi^{-mn / 2} \frac{\Gamma_m ((\alpha_0 + n) / 2)}{\Gamma_m (\alpha_0 / 2)} \det(\Omega_0)^{-m / 2} \det(S_0)^{\alpha_0 / 2} \det(\hat{V})^{- m / 2} \det(\hat{\Sigma}_e)^{-(\alpha_0 + n) / 2}}
 #' @export
 compute_logml.bvarmn <- function(object, ...) {
   dim_data <- object$m # m
@@ -573,12 +490,10 @@ compute_logml.bvarmn <- function(object, ...) {
 }
 
 #' @rdname compute_logml
-#' @param object Model fit
-#' @param ... not used
 #' @details 
 #' Closed form of Marginal Likelihood of BVHAR can be derived by
 #' 
-#' \deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + s) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + s) / 2}}
+#' \deqn{p(Y_0) = \pi^{-ms_0 / 2} \frac{\Gamma_m ((d_0 + n) / 2)}{\Gamma_m (d_0 / 2)} \det(P_0)^{-m / 2} \det(U_0)^{d_0 / 2} \det(\hat{V}_{HAR})^{- m / 2} \det(\hat{\Sigma}_e)^{-(d_0 + n) / 2}}
 #' @export
 compute_logml.bvharmn <- function(object, ...) {
   dim_data <- object$m # m

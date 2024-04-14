@@ -23,21 +23,21 @@
 #'   \item{iw_scale}{Posterior scale matrix of posterior inverse-Wishart distribution}
 #'   \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}
 #'   \item{df}{Numer of Coefficients: mp + 1 or mp}
-#'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the time series}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
-#'   \item{totobs}{Total number of the observation}
-#'   \item{call}{Matched call}
-#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Minnesota"`}
-#'   \item{spec}{Model specification (`bvharspec`)}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: \eqn{A_0}}
 #'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{\Omega_0^{-1}}}
 #'   \item{prior_scale}{Prior scale matrix of inverse-Wishart distribution: \eqn{S_0}}
 #'   \item{prior_shape}{Prior shape of inverse-Wishart distribution: \eqn{\alpha_0}}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
+#'   \item{p}{Lag of VAR}
+#'   \item{totobs}{Total number of the observation}
+#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{y}{Raw input (`matrix`)}
+#'   \item{call}{Matched call}
+#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Minnesota"`}
+#'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
 #' @references 
@@ -54,9 +54,7 @@
 #' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968.
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
-#' * [coef.bvarmn()], [residuals.bvarmn()], and [fitted.bvarmn()]
 #' * [summary.normaliw()] to summarize BVAR model
-#' * [predict.bvarmn()] to forecast the BVAR process
 #' @examples
 #' # Perform the function using etf_vix dataset
 #' fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)
@@ -109,8 +107,8 @@ bvar_minnesota <- function(y, p = 1, bayes_spec = set_bvar(), include_mean = TRU
   # Prior-----------------------------
   colnames(res$prior_mean) <- name_var
   rownames(res$prior_mean) <- name_lag
-  colnames(res$prior_prec) <- name_lag
-  rownames(res$prior_prec) <- name_lag
+  colnames(res$prior_precision) <- name_lag
+  rownames(res$prior_precision) <- name_lag
   colnames(res$prior_scale) <- name_var
   rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------

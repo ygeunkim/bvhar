@@ -18,17 +18,12 @@
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{alpha_record}{MCMC trace for vectorized coefficients (alpha \eqn{\alpha}) with [posterior::draws_df] format.}
-#'   \item{lambda_record}{MCMC trace for local shrinkage level (lambda \eqn{\lambda}) with [posterior::draws_df] format.}
-#'   \item{tau_record}{MCMC trace for global shrinkage level (tau \eqn{\tau}) with [posterior::draws_df] format.}
-#'   \item{psi_record}{MCMC trace for precision matrix (psi \eqn{\Psi}) with [list] format.}
-#'   \item{chain}{The numer of chains}
 #'   \item{coefficients}{Posterior mean of VAR coefficients.}
-#'   \item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
 #'   \item{covmat}{Posterior mean of covariance matrix}
-#'   \item{omega_record}{MCMC trace for diagonal element of \eqn{\Psi} (omega) with [posterior::draws_df] format.}
-#'   \item{eta_record}{MCMC trace for upper triangular element of \eqn{\Psi} (eta) with [posterior::draws_df] format.}
+#'   \item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
+#'   \item{pip}{Posterior inclusion probabilities.}
 #'   \item{param}{[posterior::draws_df] with every variable: alpha, lambda, tau, omega, and eta}
+#'   \item{param_names}{Name of every parameter.}
 #'   \item{df}{Numer of Coefficients: `mp + 1` or `mp`}
 #'   \item{p}{Lag of VAR}
 #'   \item{m}{Dimension of the data}
@@ -39,9 +34,12 @@
 #'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
 #'   \item{algo}{Usual Gibbs sampling (`"gibbs"`) or fast sampling (`"fast"`)}
 #'   \item{spec}{Horseshoe specification defined by [set_horseshoe()]}
+#'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
 #'   \item{burn}{Burn-in}
 #'   \item{thin}{Thinning}
+#'   \item{group}{Indicators for group.}
+#'   \item{num_group}{Number of groups.}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
@@ -199,64 +197,16 @@ bvar_horseshoe <- function(y,
     )
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
-  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  # res$alpha_record <- res$alpha_record[thin_id,]
-  # colnames(res$alpha_record) <- paste0(
-  #   "alpha[",
-  #   seq_len(ncol(res$alpha_record)),
-  #   "]"
-  # )
-  # res$coefficients <- 
-  #   colMeans(res$alpha_record) %>% 
-  #   matrix(ncol = dim_data)
-  # colnames(res$coefficients) <- name_var
-  # rownames(res$coefficients) <- name_lag
-  # res$alpha_record <- as_draws_df(res$alpha_record)
-  # if (minnesota) {
-  #   res$tau_record <- res$tau_record[thin_id,]
-  #   colnames(res$tau_record) <- paste0(
-  #     "tau[",
-  #     seq_len(ncol(res$tau_record)),
-  #     "]"
-  #   )
-  # } else {
-  #   res$tau_record <- as.matrix(res$tau_record[thin_id])
-  #   colnames(res$tau_record) <- "tau"
-  # }
-  # res$tau_record <- as_draws_df(res$tau_record)
-  # res$lambda_record <- res$lambda_record[thin_id,]
-  # colnames(res$lambda_record) <- paste0(
-  #   "lambda[",
-  #   seq_len(ncol(res$lambda_record)),
-  #   "]"
-  # )
-  # res$lambda_record <- as_draws_df(res$lambda_record)
-  # res$covmat <- mean(res$sigma) * diag(dim_data)
-  # res$psi_posterior <- diag(dim_data) / mean(res$sigma)
-  # colnames(res$covmat) <- name_var
-  # rownames(res$covmat) <- name_var
-  # colnames(res$psi_posterior) <- name_var
-  # rownames(res$psi_posterior) <- name_var
-  # res$sigma_record <- as.matrix(res$sigma_record[thin_id])
-  # colnames(res$sigma_record) <- "sigma"
-  # res$sigma_record <- as_draws_df(res$sigma_record)
-  # res$kappa_record <- res$kappa_record[thin_id,]
-  # colnames(res$kappa_record) <- paste0(
-  #   "kappa[",
-  #   seq_len(ncol(res$kappa_record)),
-  #   "]"
-  # )
-  # res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
-  # colnames(res$pip) <- name_var
-  # rownames(res$pip) <- name_lag
-  # res$kappa_record <- as_draws_df(res$kappa_record)
   # Parameters-----------------
   res$param <- bind_draws(
     res$alpha_record,
     res$lambda_record,
     res$tau_record,
-    res$sigma_record
+    res$sigma_record,
+    res$kappa_record
   )
+  res[rec_names] <- NULL
+  res$param_names <- param_names
   # variables------------
   res$df <- ncol(X0)
   res$p <- p

@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
+
 ## Spillover effects
 
 * `spillover()` computes static spillover given model.

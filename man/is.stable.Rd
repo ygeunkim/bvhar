@@ -2,18 +2,45 @@
 % Please edit documentation in R/stable-process.R
 \name{is.stable}
 \alias{is.stable}
+\alias{is.stable.varlse}
+\alias{is.stable.vharlse}
+\alias{is.stable.bvarmn}
+\alias{is.stable.bvarflat}
+\alias{is.stable.bvharmn}
 \title{Stability of the process}
 \usage{
 is.stable(x, ...)
+
+\method{is.stable}{varlse}(x, ...)
+
+\method{is.stable}{vharlse}(x, ...)
+
+\method{is.stable}{bvarmn}(x, ...)
+
+\method{is.stable}{bvarflat}(x, ...)
+
+\method{is.stable}{bvharmn}(x, ...)
 }
 \arguments{
-\item{x}{object}
+\item{x}{Model fit}
 
 \item{...}{not used}
 }
 \value{
 logical class
+
+logical class
 }
 \description{
-Stability of the process
+Check the stability condition of coefficient matrix.
+}
+\details{
+VAR(p) is stable if
+
+\deqn{\det(I_m - A z) \neq 0}
+
+for \eqn{\lvert z \rvert \le 1}.
+}
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }

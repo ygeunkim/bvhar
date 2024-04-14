@@ -71,16 +71,12 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \value{
 \code{bvhar_sv()} returns an object named \code{bvharsv} \link{class}. It is a list with the following components:
 \describe{
-\item{phi_record}{MCMC trace for vectorized coefficients (\eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{h_record}{MCMC trace for log-volatilities.}
-\item{a_record}{MCMC trace for contemporaneous coefficients.}
-\item{h0_record}{MCMC trace for initial log-volatilities.}
-\item{sigh_record}{MCMC trace for log-volatilities variance.}
 \item{coefficients}{Posterior mean of coefficients.}
 \item{chol_posterior}{Posterior mean of contemporaneous effects.}
-\item{pip}{Posterior inclusion probabilities.}
 \item{param}{Every set of MCMC trace.}
+\item{param_names}{Name of every parameter.}
 \item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
 \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
@@ -92,6 +88,8 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
 \item{spec}{Coefficients prior specification}
 \item{sv}{log volatility prior specification}
+\item{init}{Initial values}
+\item{intercept}{Intercept prior specification}
 \item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
@@ -101,15 +99,9 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
-Different members are added according to priors. If it is SSVS:
+If it is SSVS or Horseshoe:
 \describe{
-\item{gamma_record}{MCMC trace for dummy variable.}
-}
-Horseshoe:
-\describe{
-\item{lambda_record}{MCMC trace for local shrinkage level.}
-\item{tau_record}{MCMC trace for global shrinkage level.}
-\item{kappa_record}{MCMC trace for shrinkage factor.}
+\item{pip}{Posterior inclusion probabilities.}
 }
 }
 \description{

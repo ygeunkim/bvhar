@@ -18,7 +18,6 @@
 #' }
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
-#' * [bvar_adding_dummy] for dummy observations definition.
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
@@ -113,7 +112,6 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of VAR-type Minnesota prior.
 #' * [set_weight_bvhar()] to specify the hyperparameters of HAR-type Minnesota prior.
-#' * [bvar_adding_dummy] for dummy observations definition.
 #' @return List with the following component.
 #' \describe{
 #'   \item{coefficients}{BVHAR coefficient (MN)}

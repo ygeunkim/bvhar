@@ -120,7 +120,6 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 #' 
 #' Gibbs sampler is used for the estimation.
-#' See [ssvs_bvar_algo] how it works.
 #' @return `bvar_niwhm` returns an object named `bvarhm` [class].
 #' It is a list with the following components:
 #' 

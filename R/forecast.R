@@ -48,6 +48,7 @@
 #'   \item{y}{object$y}
 #' }
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @name predict
 #' @importFrom stats qnorm
 #' @order 1
 #' @export
@@ -77,13 +78,13 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object `vharlse` object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
 #' @section n-step ahead forecasting VHAR:
-#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix (See [var_design_formulation]).
+#' Let \eqn{T_{HAR}} is VHAR linear transformation matrix.
 #' Since VHAR is the linearly transformed VAR(22),
 #' let \eqn{y_{(n)}^T = (y_n^T, y_{n - 1}^T, ..., y_{n - 21}^T, 1)}.
 #' 
@@ -130,7 +131,7 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
@@ -149,8 +150,6 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + 1)}^T \hat{V}^{-1} \hat{y}_{(n + 1)}) )}
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e \otimes (1 + \hat{y}_{(n + h - 1)}^T \hat{V}^{-1} \hat{y}_{(n + h - 1)}) )}
-#' 
-#' See [bvar_predictive_density] how to generate the predictive distribution.
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
@@ -196,7 +195,7 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
@@ -212,8 +211,6 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' \deqn{y_{n + 2} \mid \Sigma_e, y \sim N( vec(y_{(n + 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + 1)}) )}
 #' and recursively,
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
-#' 
-#' See [bvar_predictive_density] how to generate the predictive distribution.
 #' @importFrom stats quantile
 #' @order 1
 #' @export
@@ -251,7 +248,7 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -295,7 +292,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -308,7 +305,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, ...) {
 #' \deqn{y_{n + 1} \mid A, \Sigma_e, y \sim N( vec(y_{(n)}^T A), \Sigma_e )}
 #' \deqn{y_{n + h} \mid A, \Sigma_e, y \sim N( vec(\hat{y}_{(n + h - 1)}^T A), \Sigma_e )}
 #' @references George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @importFrom stats quantile
 #' @order 1
 #' @export
@@ -320,9 +317,9 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
     n_ahead,
     object$y0,
     object$df,
-    as_draws_matrix(object$alpha_record),
-    as_draws_matrix(object$eta_record),
-    as_draws_matrix(object$psi_record)
+    as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+    as_draws_matrix(subset_draws(object$param, variable = "eta")),
+    as_draws_matrix(subset_draws(object$param, variable = "psi"))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
@@ -363,7 +360,7 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
@@ -377,7 +374,7 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
 #' \deqn{y_{n + h} \mid \Sigma_e, y \sim N( vec(y_{(n + h - 1)}^T \tilde{T}^T \Phi), \Sigma_e \otimes (1 + y_{(n + h - 1)}^T \tilde{T} \hat\Psi^{-1} \tilde{T} y_{(n + h - 1)}) )}
 #' 
 #' @references George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @importFrom stats quantile
 #' @order 1
 #' @export
@@ -389,9 +386,9 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
     n_ahead,
     object$y0,
     object$HARtrans,
-    as_draws_matrix(object$phi_record),
-    as_draws_matrix(object$eta_record),
-    as_draws_matrix(object$psi_record)
+    as_draws_matrix(subset_draws(object$param, variable = "phi")),
+    as_draws_matrix(subset_draws(object$param, variable = "eta")),
+    as_draws_matrix(subset_draws(object$param, variable = "psi"))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
@@ -433,13 +430,13 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @importFrom stats quantile
 #' @order 1
 #' @export
@@ -451,8 +448,8 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
     n_ahead,
     object$y0,
     object$df,
-    as_draws_matrix(object$alpha_record),
-    as.numeric(as_draws_matrix(object$sigma_record))
+    as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+    as.numeric(as_draws_matrix(subset_draws(object$param, variable = "sigma")))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
@@ -493,13 +490,13 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' 
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param ... not used
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @importFrom stats quantile
 #' @order 1
 #' @export
@@ -511,8 +508,8 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
     n_ahead,
     object$y0,
     object$HARtrans,
-    as_draws_matrix(object$phi_record),
-    as.numeric(as_draws_matrix(object$sigma_record))
+    as_draws_matrix(subset_draws(object$param, variable = "phi")),
+    as.numeric(as_draws_matrix(subset_draws(object$param, variable = "sigma")))
   )
   dim_data <- object$m
   var_names <- colnames(object$y0)
@@ -554,7 +551,7 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
@@ -563,13 +560,13 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
 predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
-  alpha_record <- as_draws_matrix(object$alpha_record)
+  alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   if (warn) {
     is_stable <- apply(
       alpha_record,
@@ -589,7 +586,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
     }
   }
   if (object$type == "const") {
-    alpha_record <- cbind(alpha_record, as_draws_matrix(object$c_record))
+    alpha_record <- cbind(alpha_record, as_draws_matrix(subset_draws(object$param, variable = "c")))
   }
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
@@ -604,10 +601,10 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       n_ahead,
       object$y0,
       alpha_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
-      as_draws_matrix(object$gamma_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+      as_draws_matrix(subset_draws(object$param, variable = "gamma")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -619,10 +616,10 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       n_ahead,
       object$y0,
       alpha_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
-      as_draws_matrix(object$kappa_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+      as_draws_matrix(subset_draws(object$param, variable = "kappa")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -634,9 +631,9 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       n_ahead,
       object$y0,
       alpha_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -672,7 +669,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
   res
 }
 
-#' @rdname predict.varlse
+#' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
@@ -680,13 +677,13 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
 predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
-  phi_record <- as_draws_matrix(object$phi_record)
+  phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   if (warn) {
     is_stable <- apply(
       phi_record,
@@ -707,7 +704,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
     }
   }
   if (object$type == "const") {
-    phi_record <- cbind(phi_record, as_draws_matrix(object$c_record))
+    phi_record <- cbind(phi_record, as_draws_matrix(subset_draws(object$param, variable = "c")))
   }
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
@@ -723,10 +720,10 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       object$y0,
       object$HARtrans,
       phi_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
-      as_draws_matrix(object$gamma_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+      as_draws_matrix(subset_draws(object$param, variable = "gamma")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -739,10 +736,10 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       object$y0,
       object$HARtrans,
       phi_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
-      as_draws_matrix(object$kappa_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+      as_draws_matrix(subset_draws(object$param, variable = "kappa")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -755,9 +752,9 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       object$y0,
       object$HARtrans,
       phi_record,
-      as_draws_matrix(object$h_record),
-      as_draws_matrix(object$a_record),
-      as_draws_matrix(object$sigh_record),
+      as_draws_matrix(subset_draws(object$param, variable = "h")),
+      as_draws_matrix(subset_draws(object$param, variable = "a")),
+      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
