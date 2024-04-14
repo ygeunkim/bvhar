@@ -34,20 +34,27 @@ struct SvParams {
 };
 
 struct MinnParams : public SvParams {
+	double _lambda;
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
+	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
 
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
+		Rcpp::List& sv_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		Rcpp::List& priors, Rcpp::List& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		_lambda(priors["lambda"]),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
-		double _lambda = priors["lambda"];
+		// double _lambda = priors["lambda"];
 		double _eps = priors["eps"];
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
@@ -71,6 +78,14 @@ struct MinnParams : public SvParams {
 		_prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
 		_prec_diag = Eigen::MatrixXd::Zero(dim, dim);
 		_prec_diag.diagonal() = 1 / _sigma.array();
+		// _own_id(own_id), _cross_id(cross_id), _grp_mat(grp_mat),
+		_grp_mat = grp_mat;
+		for (int i = 0; i < own_id.size(); ++i) {
+			_own_id.insert(own_id[i]);
+		}
+		for (int i = 0; i < cross_id.size(); ++i) {
+			_cross_id.insert(cross_id[i]);
+		}
 	}
 };
 
@@ -437,7 +452,10 @@ private:
 class MinnSv : public McmcSv {
 public:
 	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed)
-		: McmcSv(params, inits, seed) {
+		: McmcSv(params, inits, seed),
+			own_id(params._own_id), cross_id(params._cross_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
+			own_lambda(params._lambda), cross_lambda(params._lambda),
+			own_shape(.01), own_rate(.01), cross_shape(.01), cross_rate(.01) {
 		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
@@ -446,13 +464,17 @@ public:
 		}
 	}
 	virtual ~MinnSv() = default;
-	void updateCoefPrec() override {};
+	void updateCoefPrec() override {
+		minnesota_lambda(own_lambda, own_shape, own_rate, coef_vec, prior_alpha_mean, prior_alpha_prec, grp_vec, own_id, rng);
+		minnesota_lambda(cross_lambda, cross_shape, cross_rate, coef_vec, prior_alpha_mean, prior_alpha_prec, grp_vec, cross_id, rng);
+	}
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
 	void updateRecords() override { sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
+		updateCoefPrec();
 		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 		updateCoef();
 		latent_innov = y - x * coef_mat; // E_t before a
@@ -485,6 +507,18 @@ public:
 	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
 		return HorseshoeRecords();
 	}
+private:
+	std::set<int> own_id;
+	std::set<int> cross_id;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
+	// int num_grp;
+	double own_lambda;
+	double cross_lambda;
+	double own_shape;
+	double own_rate;
+	double cross_shape;
+	double cross_rate;
 };
 
 class SsvsSv : public McmcSv {

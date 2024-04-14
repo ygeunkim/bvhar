@@ -165,6 +165,15 @@ bvhar_sv <- function(y,
     include_mean = FALSE
   )
   grp_id <- unique(c(glob_idmat))
+  # 
+  if (minnesota == "longrun") {
+    own_id <- c(2, 4, 6)
+    cross_id <- c(1, 3, 5)
+  } else {
+    own_id <- 2
+    cross_id <- c(1, 3, 4)
+  }
+  # 
   num_grp <- length(grp_id)
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVHAR") {
@@ -328,6 +337,8 @@ bvhar_sv <- function(y,
     param_init = param_init,
     prior_type = prior_type,
     grp_id = grp_id,
+    own_id = own_id,
+    cross_id = cross_id,
     grp_mat = glob_idmat,
     include_mean = include_mean,
     seed_chain = sample.int(.Machine$integer.max, size = num_chains),

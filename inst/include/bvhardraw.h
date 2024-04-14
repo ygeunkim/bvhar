@@ -2,6 +2,7 @@
 #define BVHARDRAW_H
 
 #include "bvharsim.h"
+#include <set>
 
 namespace bvhar {
 
@@ -565,27 +566,35 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
 // @param rate Gamma prior rate
 // @param coef_vec Coefficients vector
 // @param coef_mean Prior mean of coefficients vector
-// @param mn_scale Minnesota scale
+// @param coef_prec Prior precision matrix, sigma_i / sigma_j
+// @param grp_vec Group vector
+// @param grp_id Unique group id only for own-lag or cross-lag
 // @param grp_vec Group vector
 // @param lag_id id for own-lag or cross-lag
 // @param rng boost rng
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::VectorXd& coef_vec, Eigen::VectorXd& coef_mean,
-														 Eigen::VectorXd& mn_scale, boost::random::mt19937& rng) {
-	// int num_lag = lag_id.size();
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::VectorXd& coef_vec,
+														 Eigen::VectorXd& coef_mean, Eigen::MatrixXd& coef_prec,
+														 Eigen::VectorXi& grp_vec, std::set<int> grp_id, boost::random::mt19937& rng) {
 	int num_alpha = coef_vec.size();
-	// Eigen::VectorXi one_hot = Eigen::VectorXi::Zero(num_coef);
-	// for (int i = 0; i < num_coef; ++i) {
-	// 	if ((lag_id.array() == grp_vec[i]).any()) {
-	// 		one_hot[i] = 1;
-	// 	}
-	// }
-	// double chi = (coef_vec.array().square() * one_hot.array() / mn_scale.array()).sum();
-	lambda = bvhar::sim_gig(1,
-		shape - num_alpha / 2,
-		2 * rate,
-		((coef_vec - coef_mean).array().square() / mn_scale.array()).sum(),
-		rng
-	)[0];
+	// Eigen::VectorXd gig_param(num_alpha);
+	int mn_size = 0;
+	double gig_chi = 0;
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			// gig_param[mn_size++] = (coef_vec[i] - coef_mean[i]) * (coef_vec[i] - coef_mean[i]) / coef_prec(i, i);
+			gig_chi += (coef_vec[i] - coef_mean[i]) * (coef_vec[i] - coef_mean[i]) / coef_prec(i, i);
+			coef_prec(i, i) /= lambda;
+		}
+	}
+	// gig_param.conservativeResize(mn_size);
+	// lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_param.sum(), rng)[0];
+	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+	// lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, 2, rng)[0];
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			coef_prec(i, i) *= lambda;
+		}
+	}
 }
 
 template<typename Derived>
