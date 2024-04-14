@@ -153,7 +153,7 @@ dynamic_spillover.bvharmod <- function(object, n_ahead = 10L, window, num_iter =
 
 #' @rdname dynamic_spillover
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
-#' @importFrom posterior as_draws_matrix
+#' @importFrom posterior subset_draws as_draws_matrix
 #' @export
 dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) {
   num_design <- nrow(object$y0)
@@ -175,14 +175,18 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
     "bvarsv" = {
       dynamic_bvarsv_spillover(
         lag = object$p, step = n_ahead, num_design = num_design,
-        alpha_record = as_draws_matrix(object$alpha_record), h_record = as_draws_matrix(object$h_record), a_record = as_draws_matrix(object$a_record),
+        alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
+        a_record = as_draws_matrix(subset_draws(object$param, variable = "a")),
         nthreads = num_thread
       )
     },
     "bvharsv" = {
       dynamic_bvharsv_spillover(
         week = object$week, month = object$month, step = n_ahead, num_design = num_design,
-        phi_record = as_draws_matrix(object$phi_record), h_record = as_draws_matrix(object$h_record), a_record = as_draws_matrix(object$a_record),
+        phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
+        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
+        a_record = as_draws_matrix(subset_draws(object$param, variable = "a")),
         nthreads = num_thread
       )
     },

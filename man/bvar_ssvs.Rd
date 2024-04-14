@@ -62,20 +62,13 @@ bvar_ssvs(
 It is a list with the following components:
 
 \describe{
-\item{alpha_record}{MCMC trace for vectorized coefficients (alpha \eqn{\alpha}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{eta_record}{MCMC trace for upper triangular element of cholesky factor (eta \eqn{\eta}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{psi_record}{MCMC trace for diagonal element of cholesky factor (psi \eqn{\psi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{omega_record}{MCMC trace for indicator variable for \eqn{eta} (omega \eqn{\omega}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{gamma_record}{MCMC trace for indicator variable for \eqn{alpha} (gamma \eqn{\gamma}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{chol_record}{MCMC trace for cholesky factor matrix \eqn{\Psi} with \link{list} format.}
-\item{ols_coef}{OLS estimates for VAR coefficients.}
-\item{ols_cholesky}{OLS estimates for cholesky factor}
 \item{coefficients}{Posterior mean of VAR coefficients.}
+\item{chol_posterior}{Posterior mean of cholesky factor matrix}
+\item{covmat}{Posterior mean of covariance matrix}
 \item{omega_posterior}{Posterior mean of omega}
 \item{pip}{Posterior inclusion probability}
 \item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, eta, psi, omega, and gamma}
-\item{chol_posterior}{Posterior mean of cholesky factor matrix}
-\item{covmat}{Posterior mean of covariance matrix}
+\item{param_names}{Name of every parameter.}
 \item{df}{Numer of Coefficients: \code{mp + 1} or \code{mp}}
 \item{p}{Lag of VAR}
 \item{m}{Dimension of the data}
@@ -86,10 +79,12 @@ It is a list with the following components:
 \item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
 \item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
 \item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
+\item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
 \item{thin}{Thinning}
-\item{chain}{The numer of chains}
+\item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
@@ -109,9 +104,6 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{\psi_{jj}^2 \sim Gamma(shape = a_j, rate = b_j)}
 \deqn{\psi_{ij} \mid w_{ij} \sim (1 - w_{ij}) N(0, \kappa_{0,ij}^2) + w_{ij} N(0, \kappa_{1,ij}^2)}
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
-
-Gibbs sampler is used for the estimation.
-See \link{ssvs_bvar_algo} how it works.
 }
 \references{
 George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
@@ -119,10 +111,4 @@ George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sam
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
 
 Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
-}
-\seealso{
-\itemize{
-\item Vectorization formulation \link{var_vec_formulation}
-\item Gibbs sampler algorithm \link{ssvs_bvar_algo}
-}
 }

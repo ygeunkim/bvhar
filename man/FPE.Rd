@@ -2,9 +2,15 @@
 % Please edit documentation in R/criteria.R
 \name{FPE}
 \alias{FPE}
+\alias{FPE.varlse}
+\alias{FPE.vharlse}
 \title{Final Prediction Error Criterion}
 \usage{
 FPE(object, ...)
+
+\method{FPE}{varlse}(object, ...)
+
+\method{FPE}{vharlse}(object, ...)
 }
 \arguments{
 \item{object}{Model fit}
@@ -15,5 +21,19 @@ FPE(object, ...)
 FPE value.
 }
 \description{
-Generic function that computes FPE criterion.
+Compute FPE of VAR(p) and VHAR
+}
+\details{
+Let \eqn{\tilde{\Sigma}_e} be the MLE
+and let \eqn{\hat{\Sigma}_e} be the unbiased estimator (\code{covmat}) for \eqn{\Sigma_e}.
+Note that
+
+\deqn{\tilde{\Sigma}_e = \frac{n - k}{T} \hat{\Sigma}_e}
+
+Then
+
+\deqn{FPE(p) = (\frac{n + k}{n - k})^m \det \tilde{\Sigma}_e}
+}
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }

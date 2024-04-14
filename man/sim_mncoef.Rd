@@ -59,6 +59,5 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 \seealso{
 \itemize{
 \item \code{\link[=set_bvar]{set_bvar()}} to specify the hyperparameters of Minnesota prior.
-\item \link{bvar_adding_dummy} for dummy observations definition.
 }
 }

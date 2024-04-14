@@ -23,32 +23,34 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
 #' For example,
 #' `c("varlse", "bvharmod")`.
 #' @return A `list` object
-#' @export
+#' @keywords internal
+#' @noRd
 split_coef <- function(object, ...) {
-  UseMethod("split_coef", object)
-}
-
-#' @rdname split_coef
-#' @export
-split_coef.bvharmod <- function(object, ...) {
-  switch(
-    object$type,
-    "const" = {
-      split.data.frame(object$coefficients[-object$df,], gl(object$p, object$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(object$coefficients, gl(object$p, object$m)) %>% 
-        lapply(t)
-    }
-  )
-}
-
-#' @rdname split_coef
-#' @export
-split_coef.bvharirf <- function(object, ...) {
-  irf_mat <- object$coefficients
-  split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
+  if (!(is.bvharmod(object) || is.bvharirf(object))) {
+    stop("Not valid method")
+  }
+  if (is.bvharmod(object)) {
+    return(
+      switch(object$type,
+        "const" = {
+          split.data.frame(object$coefficients[-object$df, ], gl(object$p, object$m)) %>%
+            lapply(t)
+        },
+        "none" = {
+          split.data.frame(object$coefficients, gl(object$p, object$m)) %>%
+            lapply(t)
+        }
+      )
+    )
+  } else if (is.bvharirf(object)) {
+    # 
+    irf_mat <- object$coefficients
+    return(
+      split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
+    )
+  } else {
+    stop("Not valid method")
+  }
 }
 
 #' Changing 3d initial array Input to List

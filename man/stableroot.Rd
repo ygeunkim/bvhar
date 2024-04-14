@@ -2,12 +2,27 @@
 % Please edit documentation in R/stable-process.R
 \name{stableroot}
 \alias{stableroot}
+\alias{stableroot.varlse}
+\alias{stableroot.vharlse}
+\alias{stableroot.bvarmn}
+\alias{stableroot.bvarflat}
+\alias{stableroot.bvharmn}
 \title{Roots of characteristic polynomial}
 \usage{
 stableroot(x, ...)
+
+\method{stableroot}{varlse}(x, ...)
+
+\method{stableroot}{vharlse}(x, ...)
+
+\method{stableroot}{bvarmn}(x, ...)
+
+\method{stableroot}{bvarflat}(x, ...)
+
+\method{stableroot}{bvharmn}(x, ...)
 }
 \arguments{
-\item{x}{object}
+\item{x}{Model fit}
 
 \item{...}{not used}
 }
@@ -15,5 +30,15 @@ stableroot(x, ...)
 Numeric vector.
 }
 \description{
-Roots of characteristic polynomial
+Compute the character polynomial of coefficient matrix.
+}
+\details{
+To know whether the process is stable or not, make characteristic polynomial.
+
+\deqn{\det(I_m - A z) = 0}
+
+where \eqn{A} is VAR(1) coefficient matrix representation.
+}
+\references{
+Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }

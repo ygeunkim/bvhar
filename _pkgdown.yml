@@ -16,27 +16,26 @@ development:
   mode: auto
 
 reference:
-- title: The bvhar package
-  desc: ~
+- title: Package
+  desc: >
+    The bvhar package
   contents:
   - bvhar-package
   
-- title: VAR
+- title: Frequentist modeling
   desc: >
-    Vector autoregressive model.
+    Vector autoregressive (VAR) and heterogeneous autoregressive (VHAR) models.
   contents:
   - var_lm
-  - VARtoVMA
-
-- title: VHAR
-  desc: >
-    Vector heterogeneous autoregressive model.
-  contents:
   - vhar_lm
+  - VARtoVMA
   - VHARtoVMA
+  - summary.varlse
+  - summary.vharlse
 
-- title: Bayesian Model
-  desc: ~
+- title: Prior specification
+  desc: >
+    Prior settings for Bayesian models.
   contents:
   - set_bvar
   - init_ssvs
@@ -46,9 +45,9 @@ reference:
   - set_sv
   - set_intercept
 
-- title: BVAR
+- title: Bayesian modeling
   desc: >
-    Bayesian VAR model.
+    Bayesian VAR and Bayesian VHAR models.
   contents:
   - bvar_minnesota
   - bvar_flat
@@ -56,31 +55,27 @@ reference:
   - bvar_sv
   - bvar_ssvs
   - bvar_horseshoe
-
-- title: BVHAR
-  desc: >
-    Bayesian VHAR model.
-  contents:
   - bvhar_minnesota
   - bvhar_sv
   - bvhar_ssvs
   - bvhar_horseshoe
-
-- title: Summary method
-  desc: ~
-  contents:
-  - summary.varlse
-  - summary.vharlse
   - summary.normaliw
-  - summary.ssvsmod
+  - summary.bvharsp  
 
 - title: Forecasting
   desc: ~
   contents:
-  - predict.varlse
+  - predict
   - divide_ts
   - forecast_roll
   - forecast_expand
+
+- title: Structural analysis
+  desc: ~
+  contents:
+  - irf
+  - spillover
+  - dynamic_spillover
 
 - title: Evaluation
   desc: ~
@@ -119,16 +114,10 @@ reference:
 - title: Information criteria
   desc: ~
   contents:
-  - AIC.varlse
-  - BIC.varlse
   - FPE
-  - FPE.varlse
   - HQ
-  - HQ.varlse
-  - logLik.varlse
   - choose_var
   - compute_dic
-  - compute_dic.bvarmn
 
 - title: Plots
   desc: ~
@@ -141,6 +130,7 @@ reference:
   - autoplot.bvharirf
   - autoplot.bvharsp
   - autoplot.summary.bvharsp
+  - autoplot.bvhardynsp
 
 - title: Simulation and Random Generation
   desc: ~
@@ -154,6 +144,7 @@ reference:
   - sim_iw
   - sim_mniw
   - sim_mvt
+  - sim_gig
   - sim_ssvs_var
   - sim_horseshoe_var
 
@@ -166,16 +157,11 @@ reference:
 - title: Other generic functions
   desc: ~
   contents:
-  - analyze_ir
   - stableroot
-  - stableroot.varlse
   - is.stable
-  - is.stable.varlse
-  - coef.varlse
-  - residuals.varlse
-  - fitted.varlse
-  - is.varlse
-  - split_coef
+  - coef
+  - residuals
+  - fitted
 
 # destination: '../../myprofile/young-blogdown/static/package/bvhar'
 
