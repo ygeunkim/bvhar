@@ -436,7 +436,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	// }
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
-	double alpha = sqrt(psi / chi); // scaling parameter of quasi-density: scale the result
+	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	// if (abs_lam < 1 && beta <= sqrt(1 - abs_lam) * 2 / 3) {
 	// 	rgig_nonconcave(res, num_sim, abs_lam, beta); // non-T_(-1/2)-concave part
@@ -464,13 +464,13 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	if (lambda < 0) {
 		res = res.cwiseInverse();
 	}
-	return res / alpha;
+	return res / alpha; // alpha: reciprocal of scale parameter
 }
 // overloading
 inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi, boost::random::mt19937& rng) {
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
-	double alpha = sqrt(psi / chi); // scaling parameter of quasi-density: scale the result
+	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	// double quasi_bound = sqrt(1 - lambda) * 2 / 3;
 	// if (abs_lam < 1 && beta <= sqrt(1 - lambda) * 2 / 3) {

@@ -24,5 +24,7 @@ The density of \eqn{GIG(\lambda, \psi, \chi)} considered here is as follows.
 where \eqn{x > 0}.
 }
 \references{
-Hörmann, W., Leydold, J. Generating generalized inverse Gaussian random variates. Stat Comput 24, 547–557 (2014).
+Hörmann, W., Leydold, J. \emph{Generating generalized inverse Gaussian random variates}. Stat Comput 24, 547–557 (2014).
+
+Leydold, J, Hörmann, W.. \emph{GIGrvg: Random Variate Generator for the GIG Distribution}. R package version 0.8 (2023).
 }
