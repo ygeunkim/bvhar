@@ -351,9 +351,8 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -553,9 +552,8 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -778,9 +776,8 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -980,9 +977,8 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::MinnParams minn_params(
 					num_iter, design, roll_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -1201,9 +1197,8 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
 				bvhar::MinnParams minn_params(
 					num_iter, design, expand_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -1405,9 +1400,8 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
 				bvhar::MinnParams minn_params(
 					num_iter, design, expand_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -1633,9 +1627,8 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::MinnParams minn_params(
 					num_iter, design, expand_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
@@ -1838,9 +1831,8 @@ Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
 				bvhar::MinnParams minn_params(
 					num_iter, design, expand_y0[window],
-					param_sv, grp_id, grp_id, grp_mat, // fix this line
-					param_prior, param_intercept,
-					include_mean
+					param_sv, param_prior,
+					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];

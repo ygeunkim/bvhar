@@ -45,9 +45,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 		case 1: {
 			bvhar::MinnParams minn_params(
 				num_iter, x, y,
-				param_sv,
-				own_id, cross_id, grp_mat,
-				param_prior,
+				param_sv, param_prior,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
@@ -84,6 +82,21 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				Rcpp::List init_spec = param_init[i];
 				bvhar::HorseshoeInits hs_inits(init_spec);
 				sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 4: {
+			bvhar::Hierminnparams minn_params(
+				num_iter, x, y,
+				param_sv,
+				own_id, cross_id, grp_mat,
+				param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::SvInits sv_inits(init_spec);
+				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
