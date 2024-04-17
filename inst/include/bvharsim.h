@@ -3,6 +3,7 @@
 
 #include "bvharcommon.h"
 #include <vector>
+#include <limits>
 
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
@@ -217,13 +218,24 @@ inline double dgig_quasi(double x, double lambda, double beta) {
 	return (lambda - 1) * log(x) - beta * (x + 1 / x) / 2;
 }
 
+// Compute mode of quasi-density of GIG
+// @param lambda Index of modified Bessel function of third kind.
+// @param beta Square of the multiplication of the other two parameters.
+inline double dgig_mode(double lambda, double beta) {
+	if (lambda <= 1) {
+		return beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda);
+	}
+	return (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta;
+}
+
 // AR-Mehod for non-concave part
 // 
 // @param num_sim Number to generate process
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
 	x0 = beta / (1 - beta); // subdomain (0, x0)
 	xstar = std::max(x0, 2 / beta);
@@ -273,7 +285,8 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 }
 // overloading
 inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
 	x0 = beta / (1 - beta); // subdomain (0, x0)
 	xstar = std::max(x0, 2 / beta);
@@ -328,7 +341,8 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double mode_x = (1 + lambda + sqrt((1 + lambda) * (1 + lambda) + beta * beta)) / beta; // argmax of x g(x)
 	double bound_y = dgig_quasi(mode, lambda, beta) / 2; // To normalize g
 	double bound_x = mode_x * exp(dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
@@ -347,7 +361,8 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 }
 // overloading
 inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double mode_x = (1 + lambda + sqrt((1 + lambda) * (1 + lambda) + beta * beta)) / beta; // argmax of x g(x)
 	double bound_y = dgig_quasi(mode, lambda, beta) / 2; // To normalize g
 	double bound_x = mode_x * exp(dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
@@ -371,7 +386,8 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
+	// double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double quad_coef = -2 * (lambda + 1) / beta - mode;
 	double lin_coef = 2 * mode * (lambda - 1) / beta - 1;
 	double p = lin_coef - quad_coef * quad_coef / 3;
@@ -397,7 +413,8 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 }
 // overloading
 inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
+	// double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
+	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double quad_coef = -2 * (lambda + 1) / beta - mode;
 	double lin_coef = 2 * mode * (lambda - 1) / beta - 1;
 	double p = lin_coef - quad_coef * quad_coef / 3;
@@ -438,25 +455,22 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	// if (abs_lam < 1 && beta <= sqrt(1 - abs_lam) * 2 / 3) {
-	// 	rgig_nonconcave(res, num_sim, abs_lam, beta); // non-T_(-1/2)-concave part
-	// 	// res /= alpha;
-	// } else if (abs_lam <= 1 && beta >= std::min(.5, sqrt(1 - abs_lam) * 2 / 3) && beta <= 1) {
-	// 	rgig_without_mode(res, num_sim, abs_lam, beta); // without mode shift
-	// 	// res /= alpha;
-	// } else if (abs_lam > 1 && beta > 1) {
-	// // } else if (abs_lam > 1 && beta > quasi_bound) {
-	// 	rgig_with_mode(res, num_sim, abs_lam, beta); // with mode shift
-	// 	// res /= alpha;
-	// } else {
-	// 	// Rcpp::stop("Wrong parameter ranges for quasi GIG density.");
-	// 	Rf_error("Wrong parameter ranges for quasi GIG density.");
-	// }
-	if (abs_lam > 1 || beta > 1) {
+	if (beta < std::numeric_limits<double>::epsilon()) {
+		if (lambda > 0) {
+			for (int i = 0; i < num_sim; ++i) {
+				res[i] = gamma_rand(lambda, 2 / chi);
+			}
+		} else {
+			for (int i = 0; i < num_sim; ++i) {
+				res[i] = 1 / gamma_rand(-lambda, psi / 2);
+			}
+		}
+	}
+	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta); // with mode shift
-	} else if (abs_lam <= 1 && beta >= std::min(.5, sqrt(1 - abs_lam) * 2 / 3) && beta <= 1) {
+	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
 		rgig_without_mode(res, num_sim, abs_lam, beta); // without mode shift
-	} else if (abs_lam < 1 && beta <= sqrt(1 - abs_lam) * 2 / 3) {
+	} else if (beta > 0) {
 		rgig_nonconcave(res, num_sim, abs_lam, beta); // non-T_(-1/2)-concave part
 	} else {
 		Rf_error("Wrong parameter ranges for quasi GIG density.");
@@ -472,27 +486,22 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	// double quasi_bound = sqrt(1 - lambda) * 2 / 3;
-	// if (abs_lam < 1 && beta <= sqrt(1 - lambda) * 2 / 3) {
-	// 	// res = rgig_nonconcave(num_sim, lambda, beta, rng) * alpha; // non-T_(-1/2)-concave part
-	// 	rgig_nonconcave(res, num_sim, abs_lam, beta);
-	// 	res /= alpha;
-	// } else if (abs_lam <= 1 && beta >= std::min(.5, sqrt(1 - lambda) * 2 / 3) && beta <= 1) {
-	// 	// res = rgig_without_mode(num_sim, lambda, beta, rng) * alpha; // without mode shift
-	// 	rgig_without_mode(res, num_sim, abs_lam, beta);
-	// 	res /= alpha;
-	// } else if (abs_lam > 1 && beta > 1) {
-	// 	// res = rgig_with_mode(num_sim, lambda, beta, rng) * alpha; // with mode shift
-	// 	rgig_with_mode(res, num_sim, abs_lam, beta);
-	// 	res /= alpha;
-	// } else {
-	// 	Rcpp::stop("Wrong parameter ranges for quasi GIG density.");
-	// }
-	if (abs_lam > 1 || beta > 1) {
+	if (beta < std::numeric_limits<double>::epsilon()) {
+		if (lambda > 0) {
+			for (int i = 0; i < num_sim; ++i) {
+				res[i] = gamma_rand(lambda, 2 / chi, rng);
+			}
+		} else {
+			for (int i = 0; i < num_sim; ++i) {
+				res[i] = 1 / gamma_rand(-lambda, psi / 2, rng);
+			}
+		}
+	}
+	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta, rng); // with mode shift
-	} else if (abs_lam <= 1 && beta >= std::min(.5, sqrt(1 - abs_lam) * 2 / 3) && beta <= 1) {
+	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
 		rgig_without_mode(res, num_sim, abs_lam, beta, rng); // without mode shift
-	} else if (abs_lam < 1 && beta <= sqrt(1 - abs_lam) * 2 / 3) {
+	} else if (beta > 0) {
 		rgig_nonconcave(res, num_sim, abs_lam, beta, rng); // non-T_(-1/2)-concave part
 	} else {
 		Rf_error("Wrong parameter ranges for quasi GIG density.");
