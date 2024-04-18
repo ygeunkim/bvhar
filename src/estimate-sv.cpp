@@ -95,8 +95,8 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SvInits sv_inits(init_spec);
-				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::HierMinnInits minn_inits(init_spec);
+				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}

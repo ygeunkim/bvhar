@@ -581,14 +581,13 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 	// double gig_chi = 0;
 	for (int i = 0; i < num_alpha; ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			coef_prec(i, i) /= lambda;
 			gig_param[mn_size++] = (coef_vec[i] - coef_mean[i]) * (coef_vec[i] - coef_mean[i]) / coef_prec(i, i);
 			// gig_chi += (coef_vec[i] - coef_mean[i]) * (coef_vec[i] - coef_mean[i]) / coef_prec(i, i);
-			coef_prec(i, i) /= lambda;
 		}
 	}
 	gig_param.conservativeResize(mn_size);
 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_param.sum(), rng)[0];
-	// lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
 	for (int i = 0; i < num_alpha; ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
 			coef_prec(i, i) *= lambda;

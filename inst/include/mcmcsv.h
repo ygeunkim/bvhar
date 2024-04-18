@@ -75,7 +75,7 @@ struct MinnParams : public SvParams {
 };
 
 struct Hierminnparams : public SvParams {
-	double _lambda;
+	// double _lambda;
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
@@ -91,7 +91,7 @@ struct Hierminnparams : public SvParams {
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
-		_lambda(priors["lambda"]),
+		// _lambda(priors["lambda"]),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
@@ -110,10 +110,10 @@ struct Hierminnparams : public SvParams {
 			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
 			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
 		}
-		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, _lambda, _daily, _weekly, _monthly, false);
+		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, 1, _daily, _weekly, _monthly, false);
 		Eigen::MatrixXd dummy_design = build_xdummy(
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
-			_lambda, _sigma, _eps, false
+			1, _sigma, _eps, false
 		);
 		_prior_prec = dummy_design.transpose() * dummy_design;
 		_prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
@@ -205,6 +205,13 @@ struct SvInits {
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
+};
+
+struct HierMinnInits : public SvInits {
+	double _own_lambda;
+	double _cross_lambda;
+
+	HierMinnInits(Rcpp::List& init) : SvInits(init), _own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]) {}
 };
 
 struct SsvsInits : public SvInits {
@@ -544,14 +551,22 @@ public:
 
 class HierminnSv : public McmcSv {
 public:
-	HierminnSv(const Hierminnparams& params, const SvInits& inits, unsigned int seed)
+	HierminnSv(const Hierminnparams& params, const HierMinnInits& inits, unsigned int seed)
 		: McmcSv(params, inits, seed),
 			own_id(params._own_id), cross_id(params._cross_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
-			own_lambda(params._lambda), cross_lambda(params._lambda),
+			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda),
 			own_shape(.01), own_rate(.01), cross_shape(.01), cross_rate(.01) {
 		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				prior_alpha_prec(i, i) *= own_lambda;
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				prior_alpha_prec(i, i) *= cross_lambda;
+			}
+		}
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 		}

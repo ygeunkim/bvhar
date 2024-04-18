@@ -139,7 +139,7 @@ bvhar_sv <- function(y,
     intercept$mean_non <- rep(intercept$mean_non, dim_data)
   }
   prior_nm <- ifelse(
-    bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR",
+    bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR" || bayes_spec$prior == "MN_SH",
     "Minnesota",
     bayes_spec$prior
   )
@@ -205,6 +205,22 @@ bvhar_sv <- function(y,
       }
     }
     param_prior <- append(bayes_spec, list(p = 3))
+    if (bayes_spec$hierarchical) {
+      # add shape-rate of each lambda to param_prior later
+      prior_nm <- "MN_Hierarchical"
+      param_init <- lapply(
+        param_init,
+        function(init) {
+          append(
+            init,
+            list(
+              own_lambda = runif(1, 0, 1),
+              cross_lambda = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    }
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L
@@ -313,7 +329,8 @@ bvhar_sv <- function(y,
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
     "SSVS" = 2,
-    "Horseshoe" = 3
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
   )
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
