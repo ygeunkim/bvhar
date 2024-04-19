@@ -2,6 +2,7 @@
 #define BVHARDRAW_H
 
 #include "bvharsim.h"
+#include <set>
 
 namespace bvhar {
 
@@ -556,6 +557,78 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
   for (int i = 0; i < dim; i++) {
 		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam[i]), rng);
   }
+}
+
+// Generating lambda of Minnesota-SV
+// 
+// @param lambda lambda1 or lambda2
+// @param shape Gamma prior shape
+// @param rate Gamma prior rate
+// @param coef_vec Coefficients vector
+// @param coef_mean Prior mean of coefficients vector
+// @param coef_prec Prior precision matrix, sigma_i / sigma_j
+// @param grp_vec Group vector
+// @param grp_id Unique group id only for own-lag or cross-lag
+// @param grp_vec Group vector
+// @param lag_id id for own-lag or cross-lag
+// @param rng boost rng
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+														 Eigen::VectorXi& grp_vec, std::set<int> grp_id, boost::random::mt19937& rng) {
+	int num_alpha = coef.size();
+	// Eigen::VectorXd gig_param(num_alpha);
+	int mn_size = 0;
+	double gig_chi = 0;
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			// coef_prec(i, i) /= lambda;
+			// gig_param[mn_size++] = (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) / coef_prec(i, i);
+			// gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) / coef_prec(i, i);
+			coef_prec(i, i) *= lambda;
+			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+			mn_size++;
+		}
+	}
+	// int id = 0;
+	// double gig_chi = std::accumulate(
+	// 	coef.array().begin(), coef.array().end(), 0,
+	// 	[&id, &coef_mean, &coef_prec, &grp_vec, &grp_id, &lambda, &mn_size](double sum, double coef_vec) {
+	// 		if (grp_id.find(grp_vec[id]) != grp_id.end()) {
+	// 			coef_prec(id, id) /= lambda;
+	// 			sum += (coef_vec - coef_mean[id]) * (coef_vec - coef_mean[id]) / coef_prec(id, id);
+	// 			mn_size++;
+	// 		}
+	// 		id++;
+	// 		return sum;
+	// 	}
+	// );
+	// gig_param.conservativeResize(mn_size);
+	// lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_param.sum(), rng)[0];
+	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			// coef_prec(i, i) *= lambda;
+			coef_prec(i, i) /= lambda;
+		}
+	}
+}
+
+// Generating contemporaneous lambda of Minnesota-SV
+// 
+// @param lambda lambda1 or lambda2
+// @param shape Gamma prior shape
+// @param rate Gamma prior rate
+// @param coef_vec Coefficients vector
+// @param coef_mean Prior mean
+// @param coef_prec Prior precision matrix
+// @param rng boost rng
+inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 				Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+														 				boost::random::mt19937& rng) {
+	coef_prec.diagonal().array() /= lambda;
+	double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
+	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+	coef_prec.diagonal().array() *= lambda;
 }
 
 template<typename Derived>

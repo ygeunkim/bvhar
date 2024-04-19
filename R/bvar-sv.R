@@ -166,6 +166,10 @@ bvar_sv <- function(y,
     include_mean = FALSE
   )
   grp_id <- unique(c(glob_idmat))
+  #
+  own_id <- 2
+  cross_id <- seq_len(p + 1)[-2]
+  #
   num_grp <- length(grp_id)
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVAR") {
@@ -181,6 +185,24 @@ bvar_sv <- function(y,
       bayes_spec$delta <- rep(1, dim_data)
     }
     param_prior <- append(bayes_spec, list(p = p))
+    if (bayes_spec$hierarchical) {
+      param_prior$shape <- bayes_spec$lambda$param[1]
+      param_prior$rate <- bayes_spec$lambda$param[2]
+      prior_nm <- "MN_Hierarchical"
+      param_init <- lapply(
+        param_init,
+        function(init) {
+          append(
+            init,
+            list(
+              own_lambda = runif(1, 0, 1),
+              cross_lambda = runif(1, 0, 1),
+              contem_lambda = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    }
   } else if (prior_nm == "SSVS") {
     init_coef <- 1L
     init_coef_dummy <- 1L
@@ -268,7 +290,8 @@ bvar_sv <- function(y,
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
     "SSVS" = 2,
-    "Horseshoe" = 3
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
   )
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
@@ -292,6 +315,8 @@ bvar_sv <- function(y,
     param_init = param_init,
     prior_type = prior_type,
     grp_id = grp_id,
+    own_id = own_id,
+    cross_id = cross_id,
     grp_mat = glob_idmat,
     include_mean = include_mean,
     seed_chain = sample.int(.Machine$integer.max, size = num_chains),

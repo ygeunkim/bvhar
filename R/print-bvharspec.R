@@ -8,16 +8,16 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   cat(paste0("Model Specification for ", x$process, "\n\n"))
   cat("Parameters: Coefficent matrice and Covariance matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
-  fit_func <- switch(
-    x$prior,
-    "Minnesota" = "?bvar_minnesota",
-    "Flat" = "?bvar_flat",
-    "MN_VAR" = "?bvhar_minnesota",
-    "MN_VHAR" = "?bvhar_minnesota",
-    "MN_Hierarchical" = "?bvar_",
-    stop("Invalid 'x$prior' element")
-  )
-  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  # fit_func <- switch(
+  #   x$prior,
+  #   "Minnesota" = "?bvar_minnesota",
+  #   "Flat" = "?bvar_flat",
+  #   "MN_VAR" = "?bvhar_minnesota",
+  #   "MN_VHAR" = "?bvhar_minnesota",
+  #   "MN_Hierarchical" = "?bvar_",
+  #   stop("Invalid 'x$prior' element")
+  # )
+  # cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n\n")
   param <- x[!(names(x) %in% c("process", "prior"))]
   for (i in seq_along(param)) {
