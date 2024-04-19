@@ -215,7 +215,8 @@ bvhar_sv <- function(y,
             init,
             list(
               own_lambda = runif(1, 0, 1),
-              cross_lambda = runif(1, 0, 1)
+              cross_lambda = runif(1, 0, 1),
+              contem_lambda = runif(1, 0, 1)
             )
           )
         }
