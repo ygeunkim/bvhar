@@ -31,7 +31,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 													 Rcpp::List param_intercept,
 													 Rcpp::List param_init,
                            int prior_type,
-                           Eigen::VectorXi grp_id,
+                           Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id,
                            Eigen::MatrixXi grp_mat,
                            bool include_mean,
 													 Eigen::VectorXi seed_chain,
@@ -51,7 +51,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
 				bvhar::SvInits sv_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
+				sv_objs[i].reset(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -67,7 +67,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
 				bvhar::SsvsInits ssvs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
+				sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -81,7 +81,22 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
 				bvhar::HorseshoeInits hs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+				sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 4: {
+			bvhar::Hierminnparams minn_params(
+				num_iter, x, y,
+				param_sv,
+				own_id, cross_id, grp_mat,
+				param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::HierMinnInits minn_inits(init_spec);
+				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}

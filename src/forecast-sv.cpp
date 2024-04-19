@@ -280,7 +280,8 @@ Rcpp::List forecast_hs_bvharsv(int num_chains, int month, int step, Eigen::Matri
 // [[Rcpp::export]]
 Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+											 bool include_mean, int step, Eigen::MatrixXd y_test,
 											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
@@ -398,6 +399,25 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -460,7 +480,8 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 // [[Rcpp::export]]
 Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 				Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											 				Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											 				Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+															bool include_mean, int step, Eigen::MatrixXd y_test,
 											 				bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -599,6 +620,25 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -704,7 +744,8 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 // [[Rcpp::export]]
 Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											  Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+												bool include_mean, int step, Eigen::MatrixXd y_test,
 											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
@@ -823,6 +864,25 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -885,7 +945,8 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 // [[Rcpp::export]]
 Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  			 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											  			 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											  			 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+															 bool include_mean, int step, Eigen::MatrixXd y_test,
 											  			 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -1024,6 +1085,25 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -1126,7 +1206,8 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 // [[Rcpp::export]]
 Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											 	 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+												 bool include_mean, int step, Eigen::MatrixXd y_test,
 											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
@@ -1244,6 +1325,25 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -1306,7 +1406,8 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 // [[Rcpp::export]]
 Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											 	 				Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											 	 				Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											 	 				Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+																bool include_mean, int step, Eigen::MatrixXd y_test,
 											 	 				bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -1447,6 +1548,25 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -1555,7 +1675,8 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 // [[Rcpp::export]]
 Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											  	Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+													bool include_mean, int step, Eigen::MatrixXd y_test,
 											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
@@ -1674,6 +1795,25 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 			}
 			break;
 		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -1736,7 +1876,8 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 // [[Rcpp::export]]
 Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
 											  				 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
-											  				 Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, bool include_mean, int step, Eigen::MatrixXd y_test,
+											  				 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+																 bool include_mean, int step, Eigen::MatrixXd y_test,
 											  				 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -1873,6 +2014,25 @@ Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num
 					Rcpp::List init_spec = param_init[chain];
 					bvhar::HorseshoeInits hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		case 4: {
+			for (int window = 0; window < num_horizon; window++) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::Hierminnparams minn_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					own_id, cross_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HierMinnInits minn_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
 			}

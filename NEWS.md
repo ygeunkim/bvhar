@@ -2,6 +2,8 @@
 
 * MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
 
+* `bvar_sv()` and `bvhar_sv()` supports hierarchical Minnesota prior.
+
 ## Spillover effects
 
 * `spillover()` computes static spillover given model.
