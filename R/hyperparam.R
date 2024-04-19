@@ -68,12 +68,19 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(delta)) {
     delta <- NULL
   }
-  hiearchical <- is.bvharpriorspec(sigma)
-  if (hiearchical) {
-    if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
-      stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    # if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+    #   stop("When using hierarchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
+    # }
+    # prior_type <- "MN_Hierarchical"
+    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "Minnesota"
+    } else {
+      stop("Invalid hierarchical setting.")
     }
-    prior_type <- "MN_Hierarchical"
   } else {
     if (lambda <= 0) {
       stop("'lambda' should be larger than 0.")
@@ -97,7 +104,8 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     sigma = sigma,
     lambda = lambda,
     delta = delta,
-    eps = eps
+    eps = eps,
+    hierarchical = hierarchical
   )
   class(bvar_param) <- "bvharspec"
   bvar_param
@@ -158,18 +166,31 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(delta)) {
     delta <- NULL
   }
-  if (length(sigma) > 0 & length(delta) > 0) {
-    if (length(sigma) != length(delta)) {
-      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "MN_VAR"
+    } else {
+      stop("Invalid hierarchical setting.")
     }
+  } else {
+    if (length(sigma) > 0 & length(delta) > 0) {
+      if (length(sigma) != length(delta)) {
+        stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+      }
+    }
+    prior_type <- "MN_VAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     delta = delta,
-    eps = eps
+    eps = eps,
+    hierarchical = hierarchical
   )
   class(bvhar_param) <- "bvharspec"
   bvhar_param
@@ -223,32 +244,45 @@ set_weight_bvhar <- function(sigma,
   if (missing(monthly)) {
     monthly <- NULL
   }
-  if (length(sigma) > 0) {
-    if (length(daily) > 0) {
-      if (length(sigma) != length(daily)) {
-        stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "MN_VHAR"
+    } else {
+      stop("Invalid hierarchical setting.")
+    }
+  } else {
+    if (length(sigma) > 0) {
+      if (length(daily) > 0) {
+        if (length(sigma) != length(daily)) {
+          stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(weekly) > 0) {
+        if (length(sigma) != length(weekly)) {
+          stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(monthly) > 0) {
+        if (length(sigma) != length(monthly)) {
+          stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
+        }
       }
     }
-    if (length(weekly) > 0) {
-      if (length(sigma) != length(weekly)) {
-        stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
-      }
-    }
-    if (length(monthly) > 0) {
-      if (length(sigma) != length(monthly)) {
-        stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
-      }
-    }
+    prior_type <- "MN_VHAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VHAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     eps = eps,
     daily = daily,
     weekly = weekly,
-    monthly = monthly
+    monthly = monthly,
+    hierarchical = hierarchical
   )
   class(bvhar_param) <- "bvharspec"
   bvhar_param

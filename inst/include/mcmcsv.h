@@ -74,6 +74,65 @@ struct MinnParams : public SvParams {
 	}
 };
 
+struct Hierminnparams : public SvParams {
+	// double _lambda;
+	double shape;
+	double rate;
+	Eigen::MatrixXd _prec_diag;
+	Eigen::MatrixXd _prior_mean;
+	Eigen::MatrixXd _prior_prec;
+	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
+
+	Hierminnparams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		Rcpp::List& sv_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		Rcpp::List& priors, Rcpp::List& intercept,
+		bool include_mean
+	)
+	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		shape(priors["shape"]), rate(priors["rate"]),
+		// _lambda(priors["lambda"]),
+		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
+		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
+		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
+		// double _lambda = priors["lambda"];
+		double _eps = priors["eps"];
+		int dim = _sigma.size();
+		Eigen::VectorXd _daily(dim);
+		Eigen::VectorXd _weekly(dim);
+		Eigen::VectorXd _monthly(dim);
+		if (priors.containsElementNamed("delta")) {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["delta"]);
+			_weekly.setZero();
+			_monthly.setZero();
+		} else {
+			_daily = Rcpp::as<Eigen::VectorXd>(priors["daily"]);
+			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
+		}
+		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, 1, _daily, _weekly, _monthly, false);
+		Eigen::MatrixXd dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			1, _sigma, _eps, false
+		);
+		_prior_prec = dummy_design.transpose() * dummy_design;
+		_prior_mean = _prior_prec.inverse() * dummy_design.transpose() * dummy_response;
+		_prec_diag = Eigen::MatrixXd::Zero(dim, dim);
+		_prec_diag.diagonal() = 1 / _sigma.array();
+		// _own_id(own_id), _cross_id(cross_id), _grp_mat(grp_mat),
+		_grp_mat = grp_mat;
+		for (int i = 0; i < own_id.size(); ++i) {
+			_own_id.insert(own_id[i]);
+		}
+		for (int i = 0; i < cross_id.size(); ++i) {
+			_cross_id.insert(cross_id[i]);
+		}
+	}
+};
+
 struct SsvsParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
@@ -149,6 +208,16 @@ struct SvInits {
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
+};
+
+struct HierMinnInits : public SvInits {
+	double _own_lambda;
+	double _cross_lambda;
+	double _contem_lambda;
+
+	HierMinnInits(Rcpp::List& init)
+	: SvInits(init),
+	_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
 };
 
 struct SsvsInits : public SvInits {
@@ -436,8 +505,7 @@ private:
 
 class MinnSv : public McmcSv {
 public:
-	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed)
-		: McmcSv(params, inits, seed) {
+	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed) : McmcSv(params, inits, seed) {
 		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
@@ -446,7 +514,7 @@ public:
 		}
 	}
 	virtual ~MinnSv() = default;
-	void updateCoefPrec() override {};
+	void updateCoefPrec() override {}
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
 	void updateRecords() override { sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init); }
@@ -485,6 +553,106 @@ public:
 	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
 		return HorseshoeRecords();
 	}
+};
+
+class HierminnSv : public McmcSv {
+public:
+	HierminnSv(const Hierminnparams& params, const HierMinnInits& inits, unsigned int seed)
+		: McmcSv(params, inits, seed),
+			own_id(params._own_id), cross_id(params._cross_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
+			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
+			own_shape(params.shape), own_rate(params.rate),
+			cross_shape(params.shape), cross_rate(params.rate),
+			contem_shape(params.shape), contem_rate(params.rate) {
+		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+			}
+		}
+		if (include_mean) {
+			prior_alpha_mean.tail(dim) = params._mean_non;
+		}
+		prior_chol_prec.diagonal() /= contem_lambda; // divide because it is precision
+	}
+	virtual ~HierminnSv() = default;
+	void updateCoefPrec() override {
+		minnesota_lambda(
+			own_lambda, own_shape, own_rate,
+			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+			grp_vec, own_id, rng
+		);
+		minnesota_lambda(
+			cross_lambda, cross_shape, cross_rate,
+			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+			grp_vec, cross_id, rng
+		);
+	}
+	void updateCoefShrink() override {};
+	void updateImpactPrec() override {
+		minnesota_contem_lambda(
+			contem_lambda, contem_shape, contem_rate,
+			contem_coef, prior_chol_mean, prior_chol_prec,
+			rng
+		);
+	};
+	void updateRecords() override { sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init); }
+	void doPosteriorDraws() override {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateCoefPrec();
+		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+		updateCoef();
+		updateImpactPrec();
+		latent_innov = y - x * coef_mat; // E_t before a
+		updateImpact();
+		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+		updateState();
+		updateStateVar();
+		updateInitState();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const override {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			Rcpp::Named("h_record") = sv_record.lvol_record,
+			Rcpp::Named("a_record") = sv_record.contem_coef_record,
+			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record
+		);
+		if (include_mean) {
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
+		}
+		for (auto& record : res) {
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+		}
+		return res;
+	}
+	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
+		return SsvsRecords();
+	}
+	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
+		return HorseshoeRecords();
+	}
+private:
+	std::set<int> own_id;
+	std::set<int> cross_id;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
+	// int num_grp;
+	double own_lambda;
+	double cross_lambda;
+	double contem_lambda;
+	double own_shape;
+	double own_rate;
+	double cross_shape;
+	double cross_rate;
+	double contem_shape;
+	double contem_rate;
 };
 
 class SsvsSv : public McmcSv {
