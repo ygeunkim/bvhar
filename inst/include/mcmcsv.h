@@ -76,6 +76,8 @@ struct MinnParams : public SvParams {
 
 struct Hierminnparams : public SvParams {
 	// double _lambda;
+	double shape;
+	double rate;
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
@@ -91,6 +93,7 @@ struct Hierminnparams : public SvParams {
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		shape(priors["shape"]), rate(priors["rate"]),
 		// _lambda(priors["lambda"]),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
@@ -558,8 +561,9 @@ public:
 		: McmcSv(params, inits, seed),
 			own_id(params._own_id), cross_id(params._cross_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
-			own_shape(.01), own_rate(.01), cross_shape(.01), cross_rate(.01), contem_shape(.01), contem_rate(.01) {
-		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
+			own_shape(params.shape), own_rate(params.rate),
+			cross_shape(params.shape), cross_rate(params.rate),
+			contem_shape(params.shape), contem_rate(params.rate) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec);
 		for (int i = 0; i < num_alpha; ++i) {

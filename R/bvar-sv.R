@@ -186,7 +186,8 @@ bvar_sv <- function(y,
     }
     param_prior <- append(bayes_spec, list(p = p))
     if (bayes_spec$hierarchical) {
-      # add shape-rate of each lambda to param_prior later
+      param_prior$shape <- bayes_spec$lambda$param[1]
+      param_prior$rate <- bayes_spec$lambda$param[2]
       prior_nm <- "MN_Hierarchical"
       param_init <- lapply(
         param_init,
