@@ -182,9 +182,17 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
       "bvarsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = object$p))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -196,7 +204,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
           y, object$p, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -207,10 +215,23 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
       "bvharsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        if (length(grp_id) == 6) {
+          own_id <- c(2, 4, 6)
+          cross_id <- c(1, 3, 5)
+        } else {
+          own_id <- 2
+          cross_id <- c(1, 3, 4)
+        }
         # param_init <- object$init
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = 3))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -222,7 +243,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -236,10 +257,18 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
       "bvarsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
         # param_init <- object$init
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = object$p))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -251,7 +280,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
           y, object$p, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -262,10 +291,23 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
       "bvharsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        if (length(grp_id) == 6) {
+          own_id <- c(2, 4, 6)
+          cross_id <- c(1, 3, 5)
+        } else {
+          own_id <- 2
+          cross_id <- c(1, 3, 4)
+        }
         # param_init <- object$init
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = 3))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -277,7 +319,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -479,9 +521,17 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       "bvarsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = object$p))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -493,7 +543,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
           y, object$p, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -504,9 +554,22 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       "bvharsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        if (length(grp_id) == 6) {
+          own_id <- c(2, 4, 6)
+          cross_id <- c(1, 3, 5)
+        } else {
+          own_id <- 2
+          cross_id <- c(1, 3, 4)
+        }
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = 3))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -518,7 +581,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -532,10 +595,18 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       "bvarsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
         # param_init <- object$init
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = object$p))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -547,7 +618,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
           y, object$p, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
@@ -558,10 +629,23 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       "bvharsv" = {
         grp_mat <- object$group
         grp_id <- unique(c(grp_mat))
+        if (length(grp_id) == 6) {
+          own_id <- c(2, 4, 6)
+          cross_id <- c(1, 3, 5)
+        } else {
+          own_id <- 2
+          cross_id <- c(1, 3, 4)
+        }
         # param_init <- object$init
         if (is.bvharspec(object$spec)) {
           param_prior <- append(object$spec, list(p = 3))
-          prior_type <- 1
+          if (object$spec$hierarchical) {
+            param_prior$shape <- object$spec$lambda$param[1]
+            param_prior$rate <- object$spec$lambda$param[2]
+            prior_type <- 4
+          } else {
+            prior_type <- 1
+          }
         } else if (is.ssvsinput(object$spec)) {
           param_prior <- object$spec
           prior_type <- 2
@@ -573,7 +657,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
           fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, grp_mat,
+          grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
           lpl,
           sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),

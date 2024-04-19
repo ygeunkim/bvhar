@@ -63,11 +63,11 @@ inline Eigen::MatrixXd build_ydummy(int p, const Eigen::VectorXd& sigma, double 
   int dim = sigma.size();
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * p + dim + 1, dim); // Yp
   // first block------------------------
-  res.block(0, 0, dim, dim).diagonal() = daily.array() * sigma.array(); // deltai * sigma or di * sigma
+  res.block(0, 0, dim, dim).diagonal() = daily.array() * sigma.array() / lambda; // deltai * sigma or di * sigma
   if (p > 1) {
     // avoid error when p = 1
-    res.block(dim, 0, dim, dim).diagonal() = weekly.array() * sigma.array(); // wi * sigma
-    res.block(2 * dim, 0, dim, dim).diagonal() = monthly.array() * sigma.array(); // mi * sigma
+    res.block(dim, 0, dim, dim).diagonal() = weekly.array() * sigma.array() / lambda; // wi * sigma
+    res.block(2 * dim, 0, dim, dim).diagonal() = monthly.array() * sigma.array() / lambda; // mi * sigma
   }
   // second block-----------------------
   res.block(dim * p, 0, dim, dim).diagonal() = sigma;
