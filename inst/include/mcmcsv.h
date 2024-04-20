@@ -82,6 +82,7 @@ struct Hierminnparams : public SvParams {
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
 	Eigen::MatrixXi _grp_mat;
+	bool minnesota;
 	std::set<int> _own_id;
 	std::set<int> _cross_id;
 
@@ -124,6 +125,10 @@ struct Hierminnparams : public SvParams {
 		_prec_diag.diagonal() = 1 / _sigma.array();
 		// _own_id(own_id), _cross_id(cross_id), _grp_mat(grp_mat),
 		_grp_mat = grp_mat;
+		minnesota = true;
+		if (own_id.size() == 1 && cross_id.size() == 1) {
+			minnesota = false;
+		}
 		for (int i = 0; i < own_id.size(); ++i) {
 			_own_id.insert(own_id[i]);
 		}
@@ -559,7 +564,7 @@ class HierminnSv : public McmcSv {
 public:
 	HierminnSv(const Hierminnparams& params, const HierMinnInits& inits, unsigned int seed)
 		: McmcSv(params, inits, seed),
-			own_id(params._own_id), cross_id(params._cross_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
+			own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params.minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
 			own_shape(params.shape), own_rate(params.rate),
 			cross_shape(params.shape), cross_rate(params.rate),
@@ -586,11 +591,13 @@ public:
 			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
 			grp_vec, own_id, rng
 		);
-		minnesota_lambda(
-			cross_lambda, cross_shape, cross_rate,
-			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-			grp_vec, cross_id, rng
-		);
+		if (coef_minnesota) {
+			minnesota_lambda(
+				cross_lambda, cross_shape, cross_rate,
+				coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+				grp_vec, cross_id, rng
+			);
+		}
 	}
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {
@@ -641,6 +648,7 @@ public:
 private:
 	std::set<int> own_id;
 	std::set<int> cross_id;
+	bool coef_minnesota;
 	Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	// int num_grp;
