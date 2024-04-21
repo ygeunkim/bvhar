@@ -166,10 +166,13 @@ bvar_sv <- function(y,
     include_mean = FALSE
   )
   grp_id <- unique(c(glob_idmat))
-  #
-  own_id <- 2
-  cross_id <- seq_len(p + 1)[-2]
-  #
+  if (minnesota) {
+    own_id <- 2
+    cross_id <- seq_len(p + 1)[-2]
+  } else {
+    own_id <- 1
+    cross_id <- 2
+  }
   num_grp <- length(grp_id)
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVAR") {
