@@ -576,41 +576,16 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
 														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
 	int num_alpha = coef.size();
-	// Eigen::VectorXd gig_param(num_alpha);
 	int mn_size = 0;
 	double gig_chi = 0;
 	for (int i = 0; i < num_alpha; ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			// coef_prec(i, i) /= lambda;
-			// gig_param[mn_size++] = (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) / coef_prec(i, i);
-			// gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) / coef_prec(i, i);
 			coef_prec(i, i) *= lambda;
 			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
 			mn_size++;
 		}
 	}
-	// int id = 0;
-	// double gig_chi = std::accumulate(
-	// 	coef.array().begin(), coef.array().end(), 0,
-	// 	[&id, &coef_mean, &coef_prec, &grp_vec, &grp_id, &lambda, &mn_size](double sum, double coef_vec) {
-	// 		if (grp_id.find(grp_vec[id]) != grp_id.end()) {
-	// 			coef_prec(id, id) /= lambda;
-	// 			sum += (coef_vec - coef_mean[id]) * (coef_vec - coef_mean[id]) / coef_prec(id, id);
-	// 			mn_size++;
-	// 		}
-	// 		id++;
-	// 		return sum;
-	// 	}
-	// );
-	// gig_param.conservativeResize(mn_size);
-	// lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_param.sum(), rng)[0];
 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
-	for (int i = 0; i < num_alpha; ++i) {
-		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			// coef_prec(i, i) *= lambda;
-			coef_prec(i, i) /= lambda;
-		}
-	}
 }
 
 // Generating contemporaneous lambda of Minnesota-SV
