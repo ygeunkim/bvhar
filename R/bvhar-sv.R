@@ -165,15 +165,16 @@ bvhar_sv <- function(y,
     include_mean = FALSE
   )
   grp_id <- unique(c(glob_idmat))
-  # 
   if (minnesota == "longrun") {
     own_id <- c(2, 4, 6)
     cross_id <- c(1, 3, 5)
-  } else {
+  } else if (minnesota == "short") {
     own_id <- 2
     cross_id <- c(1, 3, 4)
+  } else {
+    own_id <- 1
+    cross_id <- 2
   }
-  # 
   num_grp <- length(grp_id)
   if (prior_nm == "Minnesota") {
     if (bayes_spec$process != "BVHAR") {
