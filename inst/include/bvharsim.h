@@ -262,10 +262,10 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 		while (rejected) {
 			draw_unif = unif_rand(0, 1);
 			draw_prop = unif_rand(0, A);
-			if (draw_prop <= A1) {
+			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
 				ar_const = log(k1);
-			} else if (draw_prop <= A1 + A2) {
+			} else if (draw_prop <= A1 + A2) { // subdomain (x0, 2 / beta)
 				draw_prop -= A1;
 				if (lambda == 0) {
 					cand = beta * exp(draw_prop * exp(beta));
@@ -273,12 +273,16 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 					cand = pow(pow(x0, lambda) + draw_prop * lambda / k2, 1 / lambda);
 				}
 				ar_const = log(k2) + (lambda - 1) * log(cand);
-			} else {
+			} else { // subdomain (xstar, inf)
 				draw_prop -= (A1 + A2);
-				cand = -2 * log(exp(-xstar * beta / 2) - draw_prop * beta / (2 * k3)) / beta;
+				cand = -2 * log(exp(-xstar * beta / 2) / beta - draw_prop * beta / (2 * k3));
 				ar_const = log(k3) - cand * beta / 2;
 			}
-			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
+			if (cand > 0) {
+				rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
+			} else {
+				rejected = true;
+			}
 		}
 		res[i] = cand;
 	}
@@ -313,10 +317,10 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 		while (rejected) {
 			draw_unif = unif_rand(0, 1, rng);
 			draw_prop = unif_rand(0, A, rng);
-			if (draw_prop <= A1) {
+			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
 				ar_const = log(k1);
-			} else if (draw_prop <= A1 + A2) {
+			} else if (draw_prop <= A1 + A2) { // subdomain (x0, 2 / beta)
 				draw_prop -= A1;
 				if (lambda == 0) {
 					cand = beta * exp(draw_prop * exp(beta));
@@ -324,12 +328,16 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 					cand = pow(pow(x0, lambda) + draw_prop * lambda / k2, 1 / lambda);
 				}
 				ar_const = log(k2) + (lambda - 1) * log(cand);
-			} else {
+			} else { // subdomain (xstar, inf)
 				draw_prop -= (A1 + A2);
-				cand = -2 * log(exp(-xstar * beta / 2) - draw_prop * beta / (2 * k3)) / beta;
+				cand = -2 * log(exp(-xstar * beta / 2) / beta - draw_prop * beta / (2 * k3));
 				ar_const = log(k3) - cand * beta / 2;
 			}
-			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
+			if (cand > 0) {
+				rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
+			} else {
+				rejected = true;
+			}
 		}
 		res[i] = cand;
 	}
@@ -406,7 +414,11 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 			draw_x = unif_rand(bound_x_neg, bound_x_pos);
 			draw_y = unif_rand(0, 1); // U(0, 1) since g has been normalized
 			cand = draw_x / draw_y + mode;
-			rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
+			if (cand > 0) {
+				rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
+			} else {
+				rejected = true; // cand can be negative
+			}
 		}
 		res[i] = cand;
 	}
@@ -433,7 +445,11 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 			draw_x = unif_rand(bound_x_neg, bound_x_pos, rng);
 			draw_y = unif_rand(0, 1, rng); // U(0, 1) since g has been normalized
 			cand = draw_x / draw_y + mode;
-			rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
+			if (cand > 0) {
+				rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
+			} else {
+				rejected = true; // cand can be negative
+			}
 		}
 		res[i] = cand;
 	}
