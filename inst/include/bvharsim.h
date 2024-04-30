@@ -56,15 +56,30 @@ inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::Matr
 inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v, boost::random::mt19937& rng) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
-	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL();
-  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL(); // U = LLT
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU(); // V = U_vTU_v
   Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
       mat_norm(i, j) = normal_rand(rng);
     }
   }
-	return mat_mean + chol_scale_u * mat_norm * chol_scale_v;
+	return mat_mean + chol_scale_u * mat_norm * chol_scale_v; // M + L X U_v ~ MN(M, LLT = U, U_vT U_v = V)
+}
+
+inline Eigen::MatrixXd sim_mn_prec(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& prec_mat, const Eigen::MatrixXd& mat_scale_v) {
+  int num_rows = mat_mean.rows();
+  int num_cols = mat_mean.cols();
+	// Eigen::MatrixXd chol_prec = prec_mat.llt().matrixU(); // U^(-1) = U_uTU_u
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+  Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
+  // Eigen::MatrixXd res(num_rows, num_cols);
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      mat_norm(i, j) = norm_rand(); // MN(0, I, I)
+    }
+  }
+	return mat_mean + prec_mat.llt().matrixU().solve(mat_norm * chol_scale_v); // M + U_u^(-1) X U_v ~ MN(M, U_u^(-1) U_u^(-1)T = U, U_vT U_v = V)
 }
 
 // Generate Lower Triangular Matrix of IW
