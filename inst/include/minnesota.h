@@ -3,7 +3,9 @@
 
 // #include <RcppEigen.h>
 #include "bvhardesign.h"
-#include <memory> // std::unique_ptr
+// #include <memory> // std::unique_ptr
+#include "bvhardraw.h"
+#include "bvharprogress.h"
 
 namespace bvhar {
 
@@ -46,6 +48,74 @@ struct MinnFit {
 	
 	MinnFit(const Eigen::MatrixXd& coef_mat, const Eigen::MatrixXd& prec_mat, const Eigen::MatrixXd& iw_scale, double iw_shape)
 	: _coef(coef_mat), _prec(prec_mat), _iw_scale(iw_scale), _iw_shape(iw_shape) {}
+};
+
+struct MhMinnInits {
+	double _lambda;
+	Eigen::VectorXd _psi;
+	Eigen::MatrixXd _hess;
+	double _acc_scale;
+	// Eigen::VectorXd _delta;
+
+	MhMinnInits(Rcpp::List& init) {
+		Eigen::VectorXd par = Rcpp::as<Eigen::VectorXd>(init["par"]);
+		_lambda = par[0];
+		_psi = par.tail(par.size() - 1);
+		_hess = Rcpp::as<Eigen::MatrixXd>(init["hessian"]);
+		_acc_scale = init["scale_variance"];
+		// _delta = Rcpp::as<Eigen::VectorXd>(spec["delta"]);
+	}
+};
+
+struct MhMinnSpec {
+	double _gam_shape;
+	double _gam_rate;
+	double _invgam_shape;
+	double _invgam_scl;
+
+	MhMinnSpec(Rcpp::List& lambda, Rcpp::List& psi) {
+		// Rcpp::List lambda = spec["lambda"];
+		// Rcpp::List psi = spec["sigma"];
+		// Rcpp::List param = lambda["param"];
+		Eigen::VectorXd lam_param = Rcpp::as<Eigen::VectorXd>(lambda["param"]);
+		_gam_shape = lam_param[0];
+		_gam_rate = lam_param[1];
+		Eigen::VectorXd psi_param = Rcpp::as<Eigen::VectorXd>(psi["param"]);
+		_invgam_shape = psi_param[0];
+		_invgam_scl = psi_param[1];
+	}
+};
+
+struct MhMinnRecords {
+	Eigen::MatrixXd coef_record; // alpha in VAR
+	Eigen::MatrixXd sig_record;
+	Eigen::VectorXd lam_record;
+	Eigen::MatrixXd psi_record;
+	VectorXb accept_record;
+	int _dim;
+	
+	MhMinnRecords(int num_iter, int dim, int dim_design)
+	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim_design)),
+		sig_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim)),
+		lam_record(Eigen::VectorXd::Zero(num_iter + 1)),
+		psi_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
+		accept_record(VectorXb(num_iter + 1)),
+		_dim(dim) {}
+	void assignRecords(
+		int id,
+		// const Eigen::VectorXd& coef_vec, const Eigen::MatrixXd& sig,
+		std::vector<Eigen::MatrixXd>& mniw_draw,
+		double lambda, Eigen::Ref<Eigen::VectorXd> psi, bool is_accept
+	) {
+		// coef_record.row(id) = coef_vec;
+		// sig_record.block((id - 1) * _dim, 0, _dim, _dim) = sig;
+		coef_record.row(id) = vectorize_eigen(mniw_draw[0]);
+		// sig_record.block((id - 1) * _dim, 0, _dim, _dim) = mniw_draw[1];
+		sig_record.row(id) = vectorize_eigen(mniw_draw[1]);
+		lam_record[id] = lambda;
+		psi_record.row(id) = psi;
+		accept_record[id] = is_accept;
+	}
 };
 
 class Minnesota {
@@ -113,7 +183,7 @@ public:
 		MinnFit res(coef, prec, scale, prior_shape + num_design);
 		return res;
 	}
-private:
+protected:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
@@ -269,6 +339,96 @@ public:
 private:
 	std::unique_ptr<Minnesota> _mn;
 	Eigen::MatrixXd dummy_response;
+};
+
+class MhMinnesota : public Minnesota {
+public:
+	MhMinnesota(
+		int num_iter, const MhMinnSpec& spec, const MhMinnInits& inits, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy, unsigned int seed
+	)
+	: Minnesota(x, y, x_dummy, y_dummy),
+		num_iter(num_iter), mn_record(num_iter, dim, dim_design),
+		gamma_shp(spec._gam_rate), gamma_rate(spec._gam_shape),
+		invgam_shp(spec._invgam_shape), invgam_scl(spec._invgam_scl), gaussian_variance(inits._acc_scale * inits._hess.inverse()),
+		prevprior(Eigen::VectorXd::Zero(1 + dim)),
+		candprior(Eigen::VectorXd::Zero(1 + dim)), numerator(0), denom(0),
+		is_accept(true), lambda(inits._lambda), psi(inits._psi), mniw(2),
+		mcmc_step(0), rng(seed) {
+		prevprior[0] = inits._lambda;
+		prevprior.tail(dim) = inits._psi;
+		mn_record.lam_record[0] = inits._lambda;
+		mn_record.psi_record.row(0) = inits._psi;
+		mn_record.accept_record[0] = is_accept;
+	}
+	virtual ~MhMinnesota() = default;
+	void computePosterior() {
+		estimateCoef();
+		estimateCov();
+	}
+	void addStep() { mcmc_step++; }
+	void updateRecords() { mn_record.assignRecords(mcmc_step, mniw, lambda, psi, is_accept); }
+	void updateHyper() {
+		candprior = Eigen::Map<Eigen::VectorXd>(sim_mgaussian_chol(1, prevprior, gaussian_variance).data(), 1 + dim);
+		numerator = jointdens_hyperparam(
+			candprior[0], candprior.segment(1, dim), dim, num_design,
+			prior_prec, prior_scale, prior_shape, prec, scale, prior_shape + num_design, gamma_shp, gamma_rate, invgam_shp, invgam_scl
+		);
+    denom = jointdens_hyperparam(
+			prevprior[0], prevprior.segment(1, dim), dim, num_design,
+			prior_prec, prior_scale, prior_shape, prec, scale, prior_shape + num_design, gamma_shp, gamma_rate, invgam_shp, invgam_scl
+		);
+		is_accept = ( log(bvhar::unif_rand(0, 1)) < std::min(numerator - denom, 0.0) );
+		if (is_accept) {
+			lambda = candprior[0];
+			psi = candprior.tail(dim);
+		}
+	}
+	void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, prior_shape + num_design, true, rng); }
+	void doPosteriorDraws() {
+		std::lock_guard<std::mutex> lock(mtx);
+		updateHyper();
+		updateMniw();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("lambda_record") = mn_record.lam_record,
+			Rcpp::Named("psi_record") = mn_record.psi_record,
+			Rcpp::Named("alpha_record") = mn_record.coef_record,
+			Rcpp::Named("sigma_record") = mn_record.sig_record,
+			Rcpp::Named("accept_record") = mn_record.accept_record
+		);
+		for (auto& record : res) {
+			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
+				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			}
+			//  else if (Rcpp::is<Rcpp::NumericVector>(record)) {
+			// 	record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+			// } else if (Rcpp::is<Rcpp::LogicalVector>(record)) {
+			// 	record = thin_record(Rcpp::as<VectorXb>(record), num_iter, num_burn, thin);
+			// }
+		}
+	}
+private:
+	int num_iter;
+	MhMinnRecords mn_record;
+	double gamma_shp;
+	double gamma_rate;
+	double invgam_shp;
+	double invgam_scl;
+	Eigen::MatrixXd gaussian_variance;
+	Eigen::VectorXd prevprior;
+	Eigen::VectorXd candprior;
+	double numerator;
+  double denom;
+	bool is_accept;
+	double lambda;
+	Eigen::VectorXd psi;
+	std::vector<Eigen::MatrixXd> mniw;
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
+	std::mutex mtx;
 };
 
 } // namespace bvhar

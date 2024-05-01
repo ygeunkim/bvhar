@@ -470,6 +470,11 @@ estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_sho
     .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean, minn_short)
 }
 
+#' @noRd
+estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads)
+}
+
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
 #' 
 #' Point estimates for Ghosh et al. (2018) nonhierarchical model for BVAR.
@@ -488,29 +493,6 @@ estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_sho
 #' @noRd
 estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
-}
-
-#' Log of Joint Posterior Density of Hyperparameters
-#' 
-#' This function computes the log of joint posterior density of hyperparameters.
-#' 
-#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
-#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
-#' @param dim Dimension of the time series
-#' @param num_design The number of the data matrix, \eqn{n = T - p}
-#' @param prior_prec Prior precision of Matrix Normal distribution
-#' @param prior_scale Prior scale of Inverse-Wishart distribution
-#' @param mn_prec Posterior precision of Matrix Normal distribution
-#' @param iw_scale Posterior scale of Inverse-Wishart distribution
-#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-#' @param gamma_shape Shape of hyperprior Gamma distribution
-#' @param gamma_rate Rate of hyperprior Gamma distribution
-#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
-#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
-#' 
-#' @noRd
-jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
-    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
 }
 
 #' Metropolis Algorithm for Normal-IW Hierarchical Model

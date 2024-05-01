@@ -1,4 +1,5 @@
 #include "minnesota.h"
+#include "bvharinterrupt.h"
 
 //' BVAR(p) Point Estimates based on Minnesota Prior
 //' 
@@ -39,6 +40,62 @@ Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 		mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
 	}
 	return mn_obj->returnMinnRes();
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin,
+														Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy,
+														Rcpp::List param_prior, Rcpp::List param_init,
+														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
+	std::vector<std::unique_ptr<bvhar::MhMinnesota>> mn_objs(num_chains);
+	std::vector<Rcpp::List> res(num_chains);
+	Rcpp::List lambda_spec = param_prior["lambda"];
+	Rcpp::List psi_spec = param_prior["sigma"];
+	bvhar::MhMinnSpec mn_spec(lambda_spec, psi_spec);
+  for (int i = 0; i < num_chains; ++i) {
+		Rcpp::List init_spec = param_init[i];
+		bvhar::MhMinnInits mn_init(init_spec);
+		mn_objs[i].reset(new bvhar::MhMinnesota(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+		mn_objs[i]->computePosterior();
+	}
+	auto run_mh = [&](int chain) {
+		bvhar::bvharprogress bar(num_iter, display_progress);
+		bvhar::bvharinterrupt();
+		for (int i = 0; i < num_iter; i++) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					res[chain] = mn_objs[chain]->returnRecords(0, 1);
+				}
+				break;
+			}
+			bar.increment();
+			if (display_progress) {
+				bar.update();
+			}
+			mn_objs[chain]->doPosteriorDraws();
+		}
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
+		}
+	};
+	if (num_chains == 1) {
+		run_mh(0);
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; chain++) {
+			run_mh(chain);
+		}
+	}
+	return Rcpp::wrap(res);
 }
 
 //' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior

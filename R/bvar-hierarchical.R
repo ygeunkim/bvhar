@@ -209,14 +209,14 @@ bvar_niwhm <- function(y,
         upper = upper_vec,
         hessian = TRUE,
         delta = delta,
-        eps = bayes_spec$eps, 
-        y = y, 
-        p = p, 
+        eps = bayes_spec$eps,
+        y = y,
+        p = p,
         include_mean = include_mean,
         parallel = parallel
       )
   } else {
-    init_par <- 
+    init_par <-
       optim(
         par = c(lambda, psi),
         fn = logml_bvarhm,
@@ -225,9 +225,9 @@ bvar_niwhm <- function(y,
         upper = upper_vec,
         hessian = TRUE,
         delta = delta,
-        eps = bayes_spec$eps, 
-        y = y, 
-        p = p, 
+        eps = bayes_spec$eps,
+        y = y,
+        p = p,
         include_mean = include_mean
       )
   }
@@ -239,119 +239,175 @@ bvar_niwhm <- function(y,
   colnames(Yp) <- name_var
   Xp <- build_xdummy_export(1:p, lambda, psi, eps, include_mean)
   colnames(Xp) <- name_lag
-  # NIW-------------------------------
-  posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
-  # Prior-----------------------------
-  prior_mean <- posterior$prior_mean
-  prior_prec <- posterior$prior_prec
-  prior_scale <- posterior$prior_scale
-  prior_shape <- posterior$prior_shape
-  # Matrix normal---------------------
-  mn_mean <- posterior$mnmean # matrix normal mean
-  colnames(mn_mean) <- name_var
-  rownames(mn_mean) <- name_lag
-  mn_prec <- posterior$mnprec # matrix normal precision
-  colnames(mn_prec) <- name_lag
-  rownames(mn_prec) <- name_lag
-  yhat <- posterior$fitted
-  colnames(yhat) <- name_var
-  # Inverse-wishart-------------------
-  iw_scale <- posterior$iwscale # IW scale
-  colnames(iw_scale) <- name_var
-  rownames(iw_scale) <- name_var
-  iw_shape <- prior_shape + nrow(Y0)
-  # Metropolis algorithm--------------
-  metropolis_res <- estimate_hierachical_niw(
+  # # NIW-------------------------------
+  # posterior <- estimate_bvar_mn(X0, Y0, Xp, Yp)
+  # # Prior-----------------------------
+  # prior_mean <- posterior$prior_mean
+  # prior_prec <- posterior$prior_prec
+  # prior_scale <- posterior$prior_scale
+  # prior_shape <- posterior$prior_shape
+  # # Matrix normal---------------------
+  # mn_mean <- posterior$mnmean # matrix normal mean
+  # colnames(mn_mean) <- name_var
+  # rownames(mn_mean) <- name_lag
+  # mn_prec <- posterior$mnprec # matrix normal precision
+  # colnames(mn_prec) <- name_lag
+  # rownames(mn_prec) <- name_lag
+  # yhat <- posterior$fitted
+  # colnames(yhat) <- name_var
+  # # Inverse-wishart-------------------
+  # iw_scale <- posterior$iwscale # IW scale
+  # colnames(iw_scale) <- name_var
+  # rownames(iw_scale) <- name_var
+  # iw_shape <- prior_shape + nrow(Y0)
+  # # Metropolis algorithm--------------
+  # metropolis_res <- estimate_hierachical_niw(
+  #   num_iter = num_iter,
+  #   num_burn = num_burn,
+  #   x = X0,
+  #   y = Y0,
+  #   prior_prec = prior_prec,
+  #   prior_scale = prior_scale,
+  #   prior_shape = prior_shape,
+  #   mn_mean = mn_mean,
+  #   mn_prec = mn_prec,
+  #   iw_scale = iw_scale,
+  #   posterior_shape = iw_shape,
+  #   gamma_shp = bayes_spec$lambda$param[1],
+  #   gamma_rate = bayes_spec$lambda$param[2],
+  #   invgam_shp = bayes_spec$sigma$param[1],
+  #   invgam_scl = bayes_spec$sigma$param[2],
+  #   acc_scale = scale_variance,
+  #   obs_information = hess,
+  #   init_lambda = lambda,
+  #   init_psi = psi,
+  #   display_progress = verbose
+  # )
+  num_chains <- 1
+  param_init <- list(append(init_par, list(scale_variance = scale_variance)))
+  res <- estimate_bvar_mh(
+    num_chains = num_chains,
     num_iter = num_iter,
     num_burn = num_burn,
+    thin = thinning,
     x = X0,
     y = Y0,
-    prior_prec = prior_prec,
-    prior_scale = prior_scale,
-    prior_shape = prior_shape,
-    mn_mean = mn_mean,
-    mn_prec = mn_prec,
-    iw_scale = iw_scale,
-    posterior_shape = iw_shape,
-    gamma_shp = bayes_spec$lambda$param[1],
-    gamma_rate = bayes_spec$lambda$param[2],
-    invgam_shp = bayes_spec$sigma$param[1],
-    invgam_scl = bayes_spec$sigma$param[2],
-    acc_scale = scale_variance,
-    obs_information = hess,
-    init_lambda = lambda,
-    init_psi = psi,
-    display_progress = verbose
+    x_dummy = Xp,
+    y_dummy = Yp,
+    param_prior = bayes_spec,
+    param_init = param_init,
+    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+    display_progress = verbose,
+    nthreads = 2
   )
-  
-  
-  # preprocess the results------------
-  thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  # thinparam_id <- seq(from = 1, to = num_iter - 1 - num_burn, by = thinning)
-  
-  thinparam_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  
-  metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
-  metropolis_res$alpha_record <- metropolis_res$alpha_record[thinparam_id,]
-  
-  # hyperparameters------------------
-  colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
-  metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record[thin_id])
-  colnames(metropolis_res$lambda_record) <- "lambda"
-  metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
-  metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
-  # parameters-----------------------
-  colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
-  metropolis_res$coefficients <- 
-    colMeans(metropolis_res$alpha_record) %>% 
-    matrix(ncol = dim_data)
-  colnames(metropolis_res$coefficients) <- name_var
-  rownames(metropolis_res$coefficients) <- name_lag
-  metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
-  # posterior mean-------------------
-  metropolis_res$covmat <- Reduce("+", split_psirecord(metropolis_res$sigma_record, 1, "sigma")) / length(thinparam_id)
-  colnames(metropolis_res$covmat) <- name_var
-  rownames(metropolis_res$covmat) <- name_var
-  # metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
-  metropolis_res$sigma_record <- 
-    t(metropolis_res$sigma_record) %>% 
-    matrix(ncol = 1) %>% 
-    split.data.frame(gl(dim_data^2, 1, nrow(metropolis_res$sigma_record) * dim_data)) %>% 
-    lapply(function(x) x[thinparam_id,])
-  # metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
-  names(metropolis_res$sigma_record) <- paste0("sigma[", 1:(dim_data^2), "]")
-  metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
-  # acceptance rate------------------
-  metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
-  metropolis_res$hyperparam <- bind_draws(
+  res <- do.call(rbind, res)
+  rec_names <- colnames(res)
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  res <- apply(res, 2, function(x) do.call(rbind, x))
+  names(res) <- rec_names
+  res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+  res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
+  res$acc_rate <- mean(res$accept_record)
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_lag
+  colnames(res$covmat) <- name_var
+  rownames(res$covmat) <- name_var
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  res$hyperparam <- bind_draws(
     metropolis_res$lambda_record,
-    metropolis_res$psi_record
+    metropolis_res$psi_record,
+    res$accept_record
   )
-  metropolis_res$param <- bind_draws(
+  res$param <- bind_draws(
     metropolis_res$alpha_record,
     metropolis_res$sigma_record
   )
+  res[rec_names] <- NULL
+  res$param_names <- param_names
+  # # preprocess the results------------
+  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  # # thinparam_id <- seq(from = 1, to = num_iter - 1 - num_burn, by = thinning)
+  
+  # thinparam_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
+  
+  # metropolis_res$psi_record <- metropolis_res$psi_record[thin_id,]
+  # metropolis_res$alpha_record <- metropolis_res$alpha_record[thinparam_id,]
+  
+  # # hyperparameters------------------
+  # colnames(metropolis_res$psi_record) <- paste0("psi[", seq_len(ncol(metropolis_res$psi_record)), "]")
+  # metropolis_res$lambda_record <- as.matrix(metropolis_res$lambda_record[thin_id])
+  # colnames(metropolis_res$lambda_record) <- "lambda"
+  # metropolis_res$psi_record <- as_draws_df(metropolis_res$psi_record)
+  # metropolis_res$lambda_record <- as_draws_df(metropolis_res$lambda_record)
+  # # parameters-----------------------
+  # colnames(metropolis_res$alpha_record) <- paste0("alpha[", seq_len(ncol(metropolis_res$alpha_record)), "]")
+  # metropolis_res$coefficients <- 
+  #   colMeans(metropolis_res$alpha_record) %>% 
+  #   matrix(ncol = dim_data)
+  # colnames(metropolis_res$coefficients) <- name_var
+  # rownames(metropolis_res$coefficients) <- name_lag
+  # metropolis_res$alpha_record <- as_draws_df(metropolis_res$alpha_record)
+  # # posterior mean-------------------
+  # metropolis_res$covmat <- Reduce("+", split_psirecord(metropolis_res$sigma_record, 1, "sigma")) / length(thinparam_id)
+  # colnames(metropolis_res$covmat) <- name_var
+  # rownames(metropolis_res$covmat) <- name_var
+  # # metropolis_res$sigma_record <- split_psirecord(metropolis_res$sigma_record, 1, "sigma")
+  # metropolis_res$sigma_record <- 
+  #   t(metropolis_res$sigma_record) %>% 
+  #   matrix(ncol = 1) %>% 
+  #   split.data.frame(gl(dim_data^2, 1, nrow(metropolis_res$sigma_record) * dim_data)) %>% 
+  #   lapply(function(x) x[thinparam_id,])
+  # # metropolis_res$sigma_record <- metropolis_res$sigma_record[thinparam_id]
+  # names(metropolis_res$sigma_record) <- paste0("sigma[", 1:(dim_data^2), "]")
+  # metropolis_res$sigma_record <- as_draws_df(metropolis_res$sigma_record)
+  # # acceptance rate------------------
+  # metropolis_res$acc_rate <- mean(metropolis_res$acceptance) # change to matrix and define in chain > 1 later
+  # metropolis_res$hyperparam <- bind_draws(
+  #   metropolis_res$lambda_record,
+  #   metropolis_res$psi_record
+  # )
+  # metropolis_res$param <- bind_draws(
+  #   metropolis_res$alpha_record,
+  #   metropolis_res$sigma_record
+  # )
   # variables-------------------------
-  metropolis_res$df <- nrow(mn_mean)
-  metropolis_res$p <- p
-  metropolis_res$m <- dim_data
-  metropolis_res$obs <- nrow(Y0)
-  metropolis_res$totobs <- nrow(y)
+  # metropolis_res$df <- nrow(mn_mean)
+  res$df <- nrow(res$coefficients)
+  res$p <- p
+  res$m <- dim_data
+  res$obs <- nrow(Y0)
+  res$totobs <- nrow(y)
   # model-----------------------------
-  metropolis_res$call <- match.call()
-  metropolis_res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
-  metropolis_res$type <- ifelse(include_mean, "const", "none")
-  metropolis_res$spec <- bayes_spec
-  metropolis_res$iter <- num_iter
-  metropolis_res$burn <- num_burn
-  metropolis_res$thin <- thinning
+  res$call <- match.call()
+  res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  res$type <- ifelse(include_mean, "const", "none")
+  res$spec <- bayes_spec
+  res$iter <- num_iter
+  res$burn <- num_burn
+  res$thin <- thinning
   # data------------------------------
-  metropolis_res$y0 <- Y0
-  metropolis_res$design <- X0
-  metropolis_res$y <- y
+  res$y0 <- Y0
+  res$design <- X0
+  res$y <- y
   # return S3 object------
-  class(metropolis_res) <- c("bvarhm", "bvharsp")
-  metropolis_res
+  class(es) <- c("bvarhm", "bvharsp")
+  res
 }
 
 #' @rdname bvar_niwhm
@@ -383,14 +439,15 @@ print.bvarhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("\n--------------------------------------------------\n")
   cat("Coefficients ~ Matrix Normal Record:\n")
   print(
-    x$alpha_record,
+    subset_draws(x$param, variable = "alpha"),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
   )
   cat("\nSigma ~ Inverse-Wishart Record:\n")
   print(
-    x$sigma_record,
+    # x$sigma_record,
+    subset_draws(x$param, variable = "sigma"),
     digits = digits,
     print.gap = 2L,
     quote = FALSE
