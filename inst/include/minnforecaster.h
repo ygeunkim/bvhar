@@ -40,7 +40,7 @@ public:
 	}
 	void forecastDensity() {
 		for (int i = 0; i < num_sim; ++i) {
-			coef_and_sig[i] = sim_mn_iw(posterior_mean, posterior_sig, posterior_iw_scale, posterior_iw_shape);
+			coef_and_sig[i] = sim_mn_iw(posterior_mean, posterior_sig, posterior_iw_scale, posterior_iw_shape, false);
 		}
 		for (int h = 0; h < step; ++h) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
@@ -105,7 +105,8 @@ public:
         // Eigen::MatrixXd::Constant(1, 1, sig_update[h]),
 				// Eigen::Map<Eigen::MatrixXd>(sig_update.block(h, 0, 1, 1).data(), 1, 1), // -> Matrix but too complex
 				mn_scl,
-				coef_and_sig[i][1]
+				coef_and_sig[i][1],
+				false
       );
 		}
 	}
@@ -132,7 +133,8 @@ public:
 				// Eigen::Map<Eigen::MatrixXd>(sig_update.block(h, 0, 1, 1).data(), 1, 1), // -> Matrix but too complex
 				// Eigen::MatrixXd::Constant(1, 1, sig_update[h]),
 				mn_scl,
-				coef_and_sig[i][1]
+				coef_and_sig[i][1],
+				false
       );
 		}
 	}

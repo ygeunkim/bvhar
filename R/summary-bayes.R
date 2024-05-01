@@ -61,9 +61,10 @@ summary.normaliw <- function(object, num_iter = 10000L, num_burn = floor(num_ite
   coef_and_sig <- sim_mniw_export(
     num_iter,
     mn_mean, # mean of MN
-    chol2inv(chol(mn_prec)), # precision of MN = inverse of precision
+    mn_prec, # precision of MN = inverse of precision
     iw_scale, # scale of IW
-    nu # shape of IW
+    nu, # shape of IW
+    TRUE
   ) %>%
     simplify2array()
   # preprocess--------------------------------

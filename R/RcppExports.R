@@ -199,6 +199,7 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' @param mat_mean Mean matrix
 #' @param mat_scale_u First scale matrix
 #' @param mat_scale_v Second scale matrix
+#' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse.
 #' @details
 #' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 #' 
@@ -209,8 +210,8 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' This function only generates one matrix, i.e. \eqn{Y_1}.
 #' @return One n x k matrix following MN distribution.
 #' @export
-sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
-    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
+sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v, u_prec) {
+    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v, u_prec)
 }
 
 #' Generate Inverse-Wishart Random Matrix
@@ -243,9 +244,10 @@ sim_iw <- function(mat_scale, shape) {
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
+#' @param prec If true, use mat_scale_u as its inverse
 #' @noRd
-sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
-    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec) {
+    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec)
 }
 
 #' Generate Generalized Inverse Gaussian

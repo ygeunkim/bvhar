@@ -10,7 +10,7 @@ namespace bvhar {
 class MinnSpillover {
 public:
 	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int thin, int ord, unsigned int seed)
-	: coef(fit._coef), cov(fit._prec.inverse()), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
+	: coef(fit._coef), prec(fit._prec), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
 		step(lag_max), dim(coef.cols()),
 		num_iter(num_iter), num_burn(num_burn), thin(thin), lag(ord),
 		vma_mat(Eigen::MatrixXd::Zero(dim * step, dim)),
@@ -22,10 +22,10 @@ public:
 	virtual ~MinnSpillover() = default;
 	void updateMniw() {
 		for (int i = 0; i < num_burn; ++i) {
-			record_warm[i] = sim_mn_iw(coef, cov, iw_scale, iw_shape, rng);
+			record_warm[i] = sim_mn_iw(coef, prec, iw_scale, iw_shape, true, rng);
 		}
 		for (int i = 0; i < num_iter - num_burn; ++i) {
-			record[i] = sim_mn_iw(coef, cov, iw_scale, iw_shape, rng);
+			record[i] = sim_mn_iw(coef, prec, iw_scale, iw_shape, true, rng);
 		}
 		if (thin > 1) {
 			int id = 0;
@@ -64,7 +64,7 @@ public:
 	}
 protected:
 	Eigen::MatrixXd coef;
-	Eigen::MatrixXd cov;
+	Eigen::MatrixXd prec;
 	Eigen::MatrixXd iw_scale;
 	double iw_shape;
 	int step;

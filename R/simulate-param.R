@@ -78,7 +78,8 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
       mn_mean, # mean of MN
       solve(mn_prec), # scale of MN = inverse of precision
       iw_scale, # scale of IW
-      iw_shape # shape of IW
+      iw_shape, # shape of IW
+      FALSE
     )[[1]]
     res <- list(
       coefficients = res[[1]],
@@ -88,8 +89,9 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
     sig <- diag(sigma^2)
     res <- sim_matgaussian(
       mn_mean,
-      solve(mn_prec),
-      sig
+      mn_prec,
+      sig,
+      TRUE
     )
     res <- list(
       coefficients = res,
@@ -198,7 +200,8 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
       mn_mean, # mean of MN
       solve(mn_prec), # scale of MN = inverse of precision
       iw_scale, # scale of IW
-      iw_shape # shape of IW
+      iw_shape, # shape of IW
+      FALSE
     )[[1]]
     res <- list(
       coefficients = res[[1]],
@@ -208,8 +211,9 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
     sig <- diag(sigma^2)
     res <- sim_matgaussian(
       mn_mean,
-      solve(mn_prec),
-      sig
+      mn_prec,
+      sig,
+      TRUE
     )
     res <- list(
       coefficients = res,

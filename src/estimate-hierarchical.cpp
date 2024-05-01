@@ -136,7 +136,7 @@ Rcpp::List estimate_hierachical_niw(int num_iter, int num_burn, Eigen::MatrixXd 
     // posterior_draw = sim_mniw(1, mn_mean, mn_prec.inverse(), iw_scale, posterior_shape);
 		// coef_record.row(i - 1) = bvhar::vectorize_eigen(Rcpp::as<Eigen::MatrixXd>(posterior_draw["mn"]));
     // sig_record.block((i - 1) * dim, 0, dim, dim) = Rcpp::as<Eigen::MatrixXd>(posterior_draw["iw"]);
-		posterior_draw = bvhar::sim_mn_iw(mn_mean, mn_prec.inverse(), iw_scale, posterior_shape);
+		posterior_draw = bvhar::sim_mn_iw(mn_mean, mn_prec.inverse(), iw_scale, posterior_shape, false);
 		coef_record.row(i - 1) = bvhar::vectorize_eigen(posterior_draw[0]);
     sig_record.block((i - 1) * dim, 0, dim, dim) = posterior_draw[1];
   }
