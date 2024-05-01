@@ -159,7 +159,7 @@ public:
 		fitObs();
 		estimateCov();
 		return Rcpp::List::create(
-			Rcpp::Named("coefficients") = coef,
+			Rcpp::Named("mn_mean") = coef,
 			Rcpp::Named("fitted.values") = yhat,
 			Rcpp::Named("residuals") = resid,
 			Rcpp::Named("mn_prec") = prec,

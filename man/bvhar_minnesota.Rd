@@ -4,21 +4,33 @@
 \name{bvhar_minnesota}
 \alias{bvhar_minnesota}
 \alias{print.bvharmn}
+\alias{print.bvharhm}
 \alias{logLik.bvharmn}
 \alias{AIC.bvharmn}
 \alias{BIC.bvharmn}
 \alias{is.bvharmn}
 \alias{knit_print.bvharmn}
+\alias{knit_print.bvharhm}
 \title{Fitting Bayesian VHAR of Minnesota Prior}
 \usage{
 bvhar_minnesota(
   y,
   har = c(5, 22),
+  num_chains = 1,
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
   bayes_spec = set_bvhar(),
-  include_mean = TRUE
+  scale_variance = 0.05,
+  include_mean = TRUE,
+  parallel = list(),
+  verbose = FALSE,
+  num_thread = 1
 )
 
 \method{print}{bvharmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{print}{bvharhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 \method{logLik}{bvharmn}(object, ...)
 
@@ -29,17 +41,35 @@ bvhar_minnesota(
 is.bvharmn(x)
 
 \method{knit_print}{bvharmn}(x, ...)
+
+\method{knit_print}{bvharhm}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
+\item{num_chains}{Number of MCMC chains}
+
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
+
+\item{thinning}{Thinning every thinning-th iteration}
+
 \item{bayes_spec}{A BVHAR model specification by \code{\link[=set_bvhar]{set_bvhar()}} (default) or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}.}
+
+\item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{x}{\code{bvarmn} object}
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{Number of threads}
+
+\item{x}{\code{bvharhm} object}
 
 \item{digits}{digit option to print}
 
@@ -52,9 +82,10 @@ is.bvharmn(x)
 It is a list with the following components:
 
 \describe{
-\item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
+\item{coefficients}{Posterior Mean}
 \item{fitted.values}{Fitted values}
 \item{residuals}{Residuals}
+\item{mn_mean}{Posterior mean matrix of Matrix Normal distribution}
 \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
 \item{iw_scale}{Posterior scale matrix of posterior inverse-wishart distribution}
 \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{\nu_0} - obs + 2). \eqn{\nu_0}: nrow(Dummy observation) - k}
