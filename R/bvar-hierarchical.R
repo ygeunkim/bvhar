@@ -301,9 +301,24 @@ bvar_niwhm <- function(y,
     nthreads = 2
   )
   res <- do.call(rbind, res)
+  # res <- apply(res, 2, function(x) {
+  #   if (unlist(lapply(x, is.vector))) {
+  #     as.matrix(x)
+  #   }
+  # })
   rec_names <- colnames(res)
   param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-  res <- apply(res, 2, function(x) do.call(rbind, x))
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
+  # res <- apply(res, 2, function(x) do.call(rbind, x))
   names(res) <- rec_names
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
@@ -330,13 +345,13 @@ bvar_niwhm <- function(y,
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
   res$hyperparam <- bind_draws(
-    metropolis_res$lambda_record,
-    metropolis_res$psi_record,
+    res$lambda_record,
+    res$psi_record,
     res$accept_record
   )
   res$param <- bind_draws(
-    metropolis_res$alpha_record,
-    metropolis_res$sigma_record
+    res$alpha_record,
+    res$sigma_record
   )
   res[rec_names] <- NULL
   res$param_names <- param_names
@@ -406,7 +421,7 @@ bvar_niwhm <- function(y,
   res$design <- X0
   res$y <- y
   # return S3 object------
-  class(es) <- c("bvarhm", "bvharsp")
+  class(res) <- c("bvarhm", "bvharsp")
   res
 }
 

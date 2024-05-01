@@ -387,6 +387,7 @@ public:
 	void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, prior_shape + num_design, true, rng); }
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
 		updateHyper();
 		updateMniw();
 		updateRecords();
@@ -397,18 +398,19 @@ public:
 			Rcpp::Named("psi_record") = mn_record.psi_record,
 			Rcpp::Named("alpha_record") = mn_record.coef_record,
 			Rcpp::Named("sigma_record") = mn_record.sig_record,
+			// Rcpp::Named("accept_record") = thin_record(mn_record.accept_record, num_iter, num_burn, thin)
 			Rcpp::Named("accept_record") = mn_record.accept_record
 		);
 		for (auto& record : res) {
 			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
 				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			} else if (Rcpp::is<Rcpp::NumericVector>(record)) {
+				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+			} else if (Rcpp::is<Rcpp::LogicalVector>(record)) {
+				record = thin_record(Rcpp::as<VectorXb>(record), num_iter, num_burn, thin);
 			}
-			//  else if (Rcpp::is<Rcpp::NumericVector>(record)) {
-			// 	record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
-			// } else if (Rcpp::is<Rcpp::LogicalVector>(record)) {
-			// 	record = thin_record(Rcpp::as<VectorXb>(record), num_iter, num_burn, thin);
-			// }
 		}
+		return res;
 	}
 private:
 	int num_iter;
