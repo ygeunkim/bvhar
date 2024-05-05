@@ -126,7 +126,10 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
+Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y,
+														int num_chains, int num_iter, int num_burn, int thin,
+														Eigen::MatrixXd U,
+														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
   int num_design = y.rows();
   int dim = y.cols();
   if (U.rows() != x.cols()) {
@@ -135,17 +138,62 @@ Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   if (U.cols() != x.cols()) {
     Rcpp::stop("Wrong dimension: U");
   }
-  Eigen::MatrixXd prec_mat = (x.transpose() * x + U); // MN precision
-  Eigen::MatrixXd mn_scale_mat = prec_mat.inverse(); // MN scale 1 = inverse of precision
-  Eigen::MatrixXd coef_mat = mn_scale_mat * x.transpose() * y; // MN mean
-  Eigen::MatrixXd yhat = x * coef_mat; // x %*% bhat
-  Eigen::MatrixXd Is = Eigen::MatrixXd::Identity(num_design, num_design);
-  Eigen::MatrixXd scale_mat = y.transpose() * (Is - x * mn_scale_mat * x.transpose()) * y; // IW scale
-  return Rcpp::List::create(
-    Rcpp::Named("mnmean") = coef_mat,
-    Rcpp::Named("mnprec") = prec_mat,
-    Rcpp::Named("fitted") = yhat,
-    Rcpp::Named("iwscale") = scale_mat,
-    Rcpp::Named("iwshape") = num_design - dim - 1
-  );
+  // Eigen::MatrixXd prec_mat = (x.transpose() * x + U); // MN precision
+  // Eigen::MatrixXd mn_scale_mat = prec_mat.inverse(); // MN scale 1 = inverse of precision
+  // Eigen::MatrixXd coef_mat = mn_scale_mat * x.transpose() * y; // MN mean
+  // Eigen::MatrixXd yhat = x * coef_mat; // x %*% bhat
+  // Eigen::MatrixXd Is = Eigen::MatrixXd::Identity(num_design, num_design);
+  // Eigen::MatrixXd scale_mat = y.transpose() * (Is - x * mn_scale_mat * x.transpose()) * y; // IW scale
+  // return Rcpp::List::create(
+  //   Rcpp::Named("mnmean") = coef_mat,
+  //   Rcpp::Named("mnprec") = prec_mat,
+  //   Rcpp::Named("fitted") = yhat,
+  //   Rcpp::Named("iwscale") = scale_mat,
+  //   Rcpp::Named("iwshape") = num_design - dim - 1
+  // );
+	std::vector<Rcpp::List> record(num_chains);
+	std::vector<std::unique_ptr<bvhar::MinnFlat>> flat_objs(num_chains);
+	for (int i = 0; i < num_chains; ++i) {
+		flat_objs[i].reset(new bvhar::MinnFlat(num_iter, x, y, U, static_cast<unsigned int>(seed_chain[i])));
+		flat_objs[i]->computePosterior();
+	}
+	auto run_mcmc = [&](int chain) {
+		bvhar::bvharprogress bar(num_iter, display_progress);
+		bvhar::bvharinterrupt();
+		for (int i = 0; i < num_iter; i++) {
+			if (bvhar::bvharinterrupt::is_interrupted()) {
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					record[chain] = flat_objs[chain]->returnRecords(0, 1);
+				}
+				break;
+			}
+			bar.increment();
+			if (display_progress) {
+				bar.update();
+			}
+			flat_objs[chain]->doPosteriorDraws();
+		}
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			record[chain] = flat_objs[chain]->returnRecords(num_burn, thin);
+		}
+	};
+	if (num_chains == 1) {
+		run_mcmc(0);
+	} else {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; chain++) {
+			run_mcmc(chain);
+		}
+	}
+	Rcpp::List res = flat_objs[0]->returnMinnRes();
+	res.push_back(Rcpp::wrap(record));
+	return res;
 }
