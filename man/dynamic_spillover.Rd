@@ -4,7 +4,8 @@
 \alias{dynamic_spillover}
 \alias{print.bvhardynsp}
 \alias{knit_print.bvhardynsp}
-\alias{dynamic_spillover.bvharmod}
+\alias{dynamic_spillover.olsmod}
+\alias{dynamic_spillover.normaliw}
 \alias{dynamic_spillover.svmod}
 \title{Dynamic Spillover}
 \usage{
@@ -14,16 +15,9 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 
 \method{knit_print}{bvhardynsp}(x, ...)
 
-\method{dynamic_spillover}{bvharmod}(
-  object,
-  n_ahead = 10L,
-  window,
-  num_iter = 5000L,
-  num_burn = floor(num_iter/2),
-  thinning = 1L,
-  num_thread = 1,
-  ...
-)
+\method{dynamic_spillover}{olsmod}(object, n_ahead = 10L, window, num_thread = 1, ...)
+
+\method{dynamic_spillover}{normaliw}(object, n_ahead = 10L, window, num_thread = 1, ...)
 
 \method{dynamic_spillover}{svmod}(object, n_ahead = 10L, num_thread = 1, ...)
 }
@@ -39,12 +33,6 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 \item{digits}{digit option to print}
 
 \item{window}{Window size}
-
-\item{num_iter}{Number to sample MNIW distribution}
-
-\item{num_burn}{Number of burn-in}
-
-\item{thinning}{Thinning every thinning-th iteration}
 
 \item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
 }

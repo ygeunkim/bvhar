@@ -85,6 +85,7 @@ bvar_flat <- function(y, p,
   } else {
     name_var <- paste0("y", seq_len(m))
   }
+  dim_data <- ncol(y)
   if (!is.logical(include_mean)) {
     stop("'include_mean' is logical.")
   }
@@ -107,12 +108,16 @@ bvar_flat <- function(y, p,
     display_progress = verbose,
     nthreads = num_thread
   )
-  res <- do.call(rbind, res)
-  colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
-  rec_names <- colnames(res)
+  # res <- do.call(rbind, res)
+  # res <- append(res, do.call(rbind, res$record))
+  # res$record <- NULL
+  res$record <- do.call(rbind, res$record)
+  rec_names <- colnames(res$record)
   param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-  res <- apply(res, 2, function(x) do.call(rbind, x))
-  names(res) <- rec_names
+  res$record <- apply(res$record, 2, function(x) do.call(rbind, x))
+  names(res$record) <- rec_names
+  res <- append(res, res$record)
+  res$record <- NULL
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
   res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
   if (num_chains > 1) {
@@ -141,13 +146,14 @@ bvar_flat <- function(y, p,
   colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$design) <- name_lag
+  res$p <- p
   # Prior-----------------------------
   colnames(res$prior_mean) <- name_var
   rownames(res$prior_mean) <- name_lag
   colnames(res$prior_precision) <- name_lag
   rownames(res$prior_precision) <- name_lag
-  colnames(res$prior_scale) <- name_var
-  rownames(res$prior_scale) <- name_var
+  # colnames(res$prior_scale) <- name_var
+  # rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------
   colnames(res$mn_mean) <- name_var
   rownames(res$mn_mean) <- name_lag
@@ -161,6 +167,7 @@ bvar_flat <- function(y, p,
   rownames(res$coefficients) <- name_lag
   colnames(res$covmat) <- name_var
   rownames(res$covmat) <- name_var
+  res$type <- ifelse(include_mean, "const", "none")
   res$chain <- num_chains
   res$iter <- num_iter
   res$burn <- num_burn

@@ -9,7 +9,13 @@ test_that("Test for bvarmn class", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvar <- bvar_minnesota(etf_vix, test_lag, etf_spec)
+  fit_test_bvar <- bvar_minnesota(
+    y = etf_vix,
+    p = test_lag,
+    num_iter = 10,
+    num_burn = 0,
+    bayes_spec = etf_spec
+  )
   
   expect_s3_class(etf_spec, "bvharspec")
   expect_s3_class(fit_test_bvar, "bvarmn")

@@ -11,7 +11,18 @@
 \alias{knit_print.bvarflat}
 \title{Fitting Bayesian VAR(p) of Flat Prior}
 \usage{
-bvar_flat(y, p, bayes_spec = set_bvar_flat(), include_mean = TRUE)
+bvar_flat(
+  y,
+  p,
+  num_chains = 1,
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
+  bayes_spec = set_bvar_flat(),
+  include_mean = TRUE,
+  verbose = FALSE,
+  num_thread = 1
+)
 
 \method{print}{bvarflat}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -30,9 +41,21 @@ is.bvarflat(x)
 
 \item{p}{VAR lag}
 
+\item{num_chains}{Number of MCMC chains}
+
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
+
+\item{thinning}{Thinning every thinning-th iteration}
+
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar_flat]{set_bvar_flat()}}.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{Number of threads}
 
 \item{x}{\code{bvarflat} object}
 

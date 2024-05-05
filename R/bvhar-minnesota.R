@@ -203,20 +203,25 @@ bvhar_minnesota <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    is_short <- minnesota_type == "MN_VAR"
+    # is_short <- minnesota_type == "MN_VAR"
     # res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean, is_short)
     res <- estimate_bvhar_mn(
       y = y, week = week, month = month,
-      num_chains = num_chains, num_iter = num_iter, thin = thinning,
+      num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
       bayes_spec = bayes_spec,
-      include_mean = include_mean, minn_short = is_short,
-      seed_chain = seed_chain, display_progress = verbose, nthreads = num_thread
+      include_mean = include_mean,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      display_progress = verbose, nthreads = num_thread
     )
-    res <- do.call(rbind, res)
-    rec_names <- colnames(res)
+    # res <- do.call(rbind, res)
+    # res <- append(res, do.call(rbind, res$record))
+    # res$record <- NULL
+    res$record <- do.call(rbind, res$record)
+    colnames(res$record) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res$record)) # alpha to phi
+    rec_names <- colnames(res$record)
     param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-    res <- apply(
-      res,
+    res$record <- apply(
+      res$record,
       2,
       function(x) {
         if (is.vector(x[[1]])) {
@@ -225,7 +230,9 @@ bvhar_minnesota <- function(y,
         do.call(rbind, x)
       }
     )
-    names(res) <- rec_names
+    names(res$record) <- rec_names
+    res <- append(res, res$record)
+    res$record <- NULL
     # summary across chains-------------
     res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
     res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
@@ -485,19 +492,24 @@ bvhar_minnesota <- function(y,
     # data------------------------------
     res$y0 <- Y0
     res$design <- X0
-    res$y <- y
+    # res$y <- y
     # variables-------------------------
     res$df <- nrow(res$coefficients)
-    res$p <- 3
+    # res$p <- 3
     res$m <- dim_data
     res$obs <- nrow(Y0)
     res$totobs <- nrow(y)
     # model-----------------------------
-    res$type <- ifelse(include_mean, "const", "none")
+    # res$type <- ifelse(include_mean, "const", "none")
     # res$iter <- num_iter
     # res$burn <- num_burn
     # res$thin <- thinning
   }
+  res$y <- y
+  res$p <- 3
+  res$week <- week
+  res$month <- month
+  res$type <- ifelse(include_mean, "const", "none")
   # is_short <- minnesota_type == "MN_VAR"
   # res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean, is_short)
   # colnames(res$y) <- name_var

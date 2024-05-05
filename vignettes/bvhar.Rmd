@@ -266,7 +266,7 @@ In turn, `bvar_minnesota(y, p, bayes_spec, include_mean = TRUE)` fits BVAR(p).
 - `include_mean = TRUE`: By default, you include the constant term in the model.
 
 ```{r bvarfit}
-(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, num_iter = 10, bvar_spec))
+(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, num_iter = 10, bayes_spec = bvar_spec))
 ```
 
 It is `bvarmn` class. For Bayes computation, it also has other class such as `normaliw` and `bvharmod`.
@@ -292,7 +292,7 @@ Use `set_bvar_flat(U)`.
 Then `bvar_flat(y, p, bayes_spec, include_mean = TRUE)`:
 
 ```{r flatfit}
-(fit_ghosh <- bvar_flat(etf_train, bvar_lag, flat_spec))
+(fit_ghosh <- bvar_flat(etf_train, bvar_lag, num_iter = 10, bayes_spec = flat_spec))
 ```
 
 ```{r flatlist}
@@ -398,6 +398,7 @@ monthly <- rep(.1, m)
 ```{r}
 fit_bvhar_v2 <- bvhar_minnesota(
   etf_train,
+  num_iter = 10,
   bayes_spec = bvhar_spec_v2
 )
 fit_bvhar_v2
