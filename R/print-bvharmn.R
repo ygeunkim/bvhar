@@ -56,11 +56,70 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
+  cat("====================================================\n\n")
+  cat("Parameter record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
   invisible(x)
 }
 
 #' @rdname bvhar_minnesota
 #' @exportS3Method knitr::knit_print
 knit_print.bvharmn <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname bvhar_minnesota
+#' @param x `bvharhm` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharhm <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat("BVHAR with Hierarchical Minnesota Prior\n")
+  cat("Fitted by Metropolis algorithm\n")
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Hyperparameter Selection:\n")
+  print(
+    x$hyperparam,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("\n--------------------------------------------------\n")
+  cat("Coefficients ~ Matrix Normal Record:\n")
+  print(
+    subset_draws(x$param, variable = "phi"),
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+  cat("\nSigma ~ Inverse-Wishart Record:\n")
+  print(
+    # x$sigma_record,
+    subset_draws(x$param, variable = "sigma"),
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname bvhar_minnesota
+#' @exportS3Method knitr::knit_print
+knit_print.bvharhm <- function(x, ...) {
   print(x)
 }

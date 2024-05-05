@@ -2,13 +2,16 @@
 % Please edit documentation in R/summary-forecast.R
 \name{forecast_expand}
 \alias{forecast_expand}
-\alias{forecast_expand.bvharmod}
+\alias{forecast_expand.olsmod}
+\alias{forecast_expand.normaliw}
 \alias{forecast_expand.svmod}
 \title{Out-of-sample Forecasting based on Expanding Window}
 \usage{
 forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 
-\method{forecast_expand}{bvharmod}(object, n_ahead, y_test, num_thread = 1, ...)
+\method{forecast_expand}{olsmod}(object, n_ahead, y_test, num_thread = 1, ...)
+
+\method{forecast_expand}{normaliw}(object, n_ahead, y_test, num_thread = 1, use_fit = TRUE, ...)
 
 \method{forecast_expand}{svmod}(
   object,
@@ -32,11 +35,11 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 
 \item{...}{Additional arguments.}
 
+\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
+
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
-
-\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 }
 \value{
 \code{predbvhar_expand} \link{class}

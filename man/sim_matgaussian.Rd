@@ -4,7 +4,7 @@
 \alias{sim_matgaussian}
 \title{Generate Matrix Normal Random Matrix}
 \usage{
-sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)
+sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v, u_prec)
 }
 \arguments{
 \item{mat_mean}{Mean matrix}
@@ -12,6 +12,8 @@ sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)
 \item{mat_scale_u}{First scale matrix}
 
 \item{mat_scale_v}{Second scale matrix}
+
+\item{u_prec}{If \code{TRUE}, use \code{mat_scale_u} as its inverse.}
 }
 \value{
 One n x k matrix following MN distribution.

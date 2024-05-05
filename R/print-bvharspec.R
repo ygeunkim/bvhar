@@ -476,3 +476,58 @@ print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     cat("\n")
   }
 }
+
+#' @rdname set_lambda
+#' @param x `bvharpriorspec` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharpriorspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Hyperprior specification for ", x$hyperparam, "\n\n"))
+  hyper_prior <- ifelse(x$hyperparam == "lambda", "Gamma", "Inv-Gamma")
+  switch(hyper_prior,
+    "Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", rate =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    },
+    "Inv-Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", scale =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    }
+  )
+  cat(sprintf("with mode: %.3f", x$mode))
+  invisible(x)
+}
+
+#' @rdname set_lambda
+#' @exportS3Method knitr::knit_print
+knit_print.bvharpriorspec <- function(x, ...) {
+  print(x)
+}
