@@ -12,9 +12,14 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag,
+														int num_chains, int num_iter, int num_burn, int thin,
+														Rcpp::List bayes_spec,
+														bool include_mean,
+														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
 	bvhar::BvarSpec mn_spec(bayes_spec);
-	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, mn_spec, include_mean));
+	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, num_chains, num_iter, mn_spec, include_mean, display_progress, seed_chain));
+	mn_obj->doPosteriorDraws(nthreads, num_burn, thin);
 	return mn_obj->returnMinnRes();
 }
 
@@ -30,15 +35,21 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, bool minn_short) {
+Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month,
+														 int num_chains, int num_iter, int num_burn, int thin,
+														 Rcpp::List bayes_spec, bool include_mean, bool minn_short,
+														 Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
 	std::unique_ptr<bvhar::MinnBvhar> mn_obj;
 	if (minn_short) {
 		bvhar::BvarSpec bvhar_spec(bayes_spec);
-		mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
+		// mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(y, week, month, num_iter, bvhar_spec, include_mean));
+		mn_obj.reset(new bvhar::MinnBvharS(y, week, month, num_chains, num_iter, bvhar_spec, include_mean, display_progress, seed_chain));
 	} else {
 		bvhar::BvharSpec bvhar_spec(bayes_spec);
-		mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
+		// mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(y, week, month, num_iter, bvhar_spec, include_mean));
+		mn_obj.reset(new bvhar::MinnBvharL(y, week, month, num_chains, num_iter, bvhar_spec, include_mean, display_progress, seed_chain));
 	}
+	mn_obj->doPosteriorDraws(nthreads, num_burn, thin);
 	return mn_obj->returnMinnRes();
 }
 

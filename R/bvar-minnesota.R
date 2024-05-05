@@ -163,38 +163,86 @@ bvar_minnesota <- function(y,
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    res <- estimate_bvar_mn(y, p, bayes_spec, include_mean)
-    coef_and_sig <- sim_mniw_export(
-      num_iter,
-      res$mn_mean,
-      res$mn_prec,
-      res$iw_scale,
-      res$iw_shape,
-      TRUE
-    ) %>%
-      simplify2array()
-    thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
-    len_res <- length(thin_id)
-    coef_record <- lapply(coef_and_sig[1, ], c)
-    coef_record <- coef_record[thin_id]
-    coef_record <- do.call(rbind, coef_record)
-    colnames(coef_record) <- paste0("alpha", "[", seq_len(ncol(coef_record)), "]")
-    res$coefficients <-
-      colMeans(coef_record) %>%
-      matrix(ncol = dim_data)
-    coef_and_sig$iw <- coef_and_sig[2, ]
-    coef_and_sig$iw <- coef_and_sig$iw[thin_id]
-    res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
-    # res$cov_record <- coef_and_sig$iw
-    sig_record <- do.call(
-      rbind,
-      lapply(coef_and_sig$iw, c)
+    res <- estimate_bvar_mn(
+      y = y, lag = p,
+      num_chains = num_chains, num_iter = num_iter, thin = thinning,
+      bayes_spec = bayes_spec,
+      include_mean = include_mean,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      display_progress = verbose, nthreads = num_thread
     )
-    colnames(sig_record) <- paste0("sigma[", seq_len(ncol(sig_record)), "]")
-    res$param <- bind_rows(
-      as_draws_df(coef_record),
-      as_draws_df(sig_record)
+    res <- do.call(rbind, res)
+    colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+    rec_names <- colnames(res)
+    param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+    res <- apply(
+      res,
+      2,
+      function(x) {
+        if (is.vector(x[[1]])) {
+          return(as.matrix(unlist(x)))
+        }
+        do.call(rbind, x)
+      }
     )
+    names(res) <- rec_names
+    # summary across chains-------------
+    res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+    res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
+    # preprocess the results------------
+    if (num_chains > 1) {
+      res[rec_names] <- lapply(
+        seq_along(res[rec_names]),
+        function(id) {
+          split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+        }
+      )
+    } else {
+      res[rec_names] <- lapply(
+        seq_along(res[rec_names]),
+        function(id) {
+          colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+          res[rec_names][[id]]
+        }
+      )
+    }
+    res[rec_names] <- lapply(res[rec_names], as_draws_df)
+    res$param <- bind_draws(
+      res$alpha_record,
+      res$sigma_record
+    )
+    res[rec_names] <- NULL
+    res$param_names <- param_names
+    # coef_and_sig <- sim_mniw_export(
+    #   num_iter,
+    #   res$mn_mean,
+    #   res$mn_prec,
+    #   res$iw_scale,
+    #   res$iw_shape,
+    #   TRUE
+    # ) %>%
+    #   simplify2array()
+    # thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
+    # len_res <- length(thin_id)
+    # coef_record <- lapply(coef_and_sig[1, ], c)
+    # coef_record <- coef_record[thin_id]
+    # coef_record <- do.call(rbind, coef_record)
+    # colnames(coef_record) <- paste0("alpha", "[", seq_len(ncol(coef_record)), "]")
+    # res$coefficients <-
+    #   colMeans(coef_record) %>%
+    #   matrix(ncol = dim_data)
+    # coef_and_sig$iw <- coef_and_sig[2, ]
+    # coef_and_sig$iw <- coef_and_sig$iw[thin_id]
+    # res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
+    # sig_record <- do.call(
+    #   rbind,
+    #   lapply(coef_and_sig$iw, c)
+    # )
+    # colnames(sig_record) <- paste0("sigma[", seq_len(ncol(sig_record)), "]")
+    # res$param <- bind_rows(
+    #   as_draws_df(coef_record),
+    #   as_draws_df(sig_record)
+    # )
     colnames(res$y) <- name_var
     colnames(res$y0) <- name_var
     colnames(res$design) <- name_lag
@@ -356,9 +404,9 @@ bvar_minnesota <- function(y,
     res$totobs <- nrow(y)
     # model-----------------------------
     res$type <- ifelse(include_mean, "const", "none")
-    res$iter <- num_iter
-    res$burn <- num_burn
-    res$thin <- thinning
+    # res$iter <- num_iter
+    # res$burn <- num_burn
+    # res$thin <- thinning
   }
   # res <- estimate_bvar_mn(y, p, bayes_spec, include_mean)
   # colnames(res$y) <- name_var
@@ -382,6 +430,10 @@ bvar_minnesota <- function(y,
   # # Inverse-wishart-------------------
   # colnames(res$iw_scale) <- name_var
   # rownames(res$iw_scale) <- name_var
+  res$chain <- num_chains
+  res$iter <- num_iter
+  res$burn <- num_burn
+  res$thin <- thinning
   # model-----------------------------
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
