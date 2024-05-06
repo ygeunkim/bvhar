@@ -93,6 +93,6 @@ vhar_lm <- function(y, har = c(5, 22), include_mean = TRUE, method = c("nor", "c
   # return as new S3 class-----------
   res$method <- method
   res$call <- match.call()
-  class(res) <- c("vharlse", "bvharmod")
+  class(res) <- c("vharlse", "olsmod", "bvharmod")
   res
 }

@@ -6,7 +6,8 @@
 \alias{print.bvharcv}
 \alias{is.bvharcv}
 \alias{knit_print.bvharcv}
-\alias{forecast_roll.bvharmod}
+\alias{forecast_roll.olsmod}
+\alias{forecast_roll.normaliw}
 \alias{forecast_roll.svmod}
 \title{Out-of-sample Forecasting based on Rolling Window}
 \usage{
@@ -18,7 +19,9 @@ is.bvharcv(x)
 
 \method{knit_print}{bvharcv}(x, ...)
 
-\method{forecast_roll}{bvharmod}(object, n_ahead, y_test, num_thread = 1, ...)
+\method{forecast_roll}{olsmod}(object, n_ahead, y_test, num_thread = 1, ...)
+
+\method{forecast_roll}{normaliw}(object, n_ahead, y_test, num_thread = 1, use_fit = TRUE, ...)
 
 \method{forecast_roll}{svmod}(
   object,
@@ -46,11 +49,11 @@ is.bvharcv(x)
 
 \item{digits}{digit option to print}
 
+\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
+
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
-
-\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 }
 \value{
 \code{predbvhar_roll} \link{class}

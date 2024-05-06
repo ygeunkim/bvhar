@@ -266,7 +266,7 @@ In turn, `bvar_minnesota(y, p, bayes_spec, include_mean = TRUE)` fits BVAR(p).
 - `include_mean = TRUE`: By default, you include the constant term in the model.
 
 ```{r bvarfit}
-(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, bvar_spec))
+(fit_bvar <- bvar_minnesota(etf_train, bvar_lag, num_iter = 10, bayes_spec = bvar_spec))
 ```
 
 It is `bvarmn` class. For Bayes computation, it also has other class such as `normaliw` and `bvharmod`.
@@ -292,7 +292,7 @@ Use `set_bvar_flat(U)`.
 Then `bvar_flat(y, p, bayes_spec, include_mean = TRUE)`:
 
 ```{r flatfit}
-(fit_ghosh <- bvar_flat(etf_train, bvar_lag, flat_spec))
+(fit_ghosh <- bvar_flat(etf_train, bvar_lag, num_iter = 10, bayes_spec = flat_spec))
 ```
 
 ```{r flatlist}
@@ -350,7 +350,7 @@ We call this VAR-type Minnesota prior or BVHAR-S.
 This is the default prior setting.
 
 ```{r}
-(fit_bvhar_v1 <- bvhar_minnesota(etf_train, bayes_spec = bvhar_spec_v1))
+(fit_bvhar_v1 <- bvhar_minnesota(etf_train, num_iter = 10, bayes_spec = bvhar_spec_v1))
 ```
 
 This model is `bvharmn` class.
@@ -397,31 +397,13 @@ monthly <- rep(.1, m)
 
 ```{r}
 fit_bvhar_v2 <- bvhar_minnesota(
-  etf_train, 
+  etf_train,
+  num_iter = 10,
   bayes_spec = bvhar_spec_v2
 )
 fit_bvhar_v2
 ```
 
-## Inference
-
-`summary()` method for `normaliw` object performs MCMC based on conjugate MNIW distribution.
-
-<!-- object, num_iter = 10000L, num_burn = floor(num_iter / 2), thinning = 1L, ... -->
-
-```{r conjmcmc}
-(inf_bvar <- summary(fit_bvar, num_iter = 10000, num_burn = 5000))
-```
-
-`autoplot()` gives several Bayes visualization based on `bayesplot` package.
-
-- `type = "trace"`
-- `type = "dens"`
-- `type = "area"`
-
-```{r mctrace}
-autoplot(inf_bvar, type = "trace", pars = c("alpha[1]", "alpha[2]"))
-```
 
 ```{r resetopts, include=FALSE}
 options(orig_opts)

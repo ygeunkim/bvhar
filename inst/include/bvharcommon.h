@@ -14,6 +14,8 @@ namespace bvhar {
 
 typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
 
+typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
+
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
 	// should use x.eval() when x is expression such as block or transpose. Use matrix().eval() if array.

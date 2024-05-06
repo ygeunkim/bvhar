@@ -4,16 +4,33 @@
 \name{bvar_minnesota}
 \alias{bvar_minnesota}
 \alias{print.bvarmn}
+\alias{print.bvarhm}
 \alias{logLik.bvarmn}
 \alias{AIC.bvarmn}
 \alias{BIC.bvarmn}
 \alias{is.bvarmn}
 \alias{knit_print.bvarmn}
+\alias{knit_print.bvarhm}
 \title{Fitting Bayesian VAR(p) of Minnesota Prior}
 \usage{
-bvar_minnesota(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE)
+bvar_minnesota(
+  y,
+  p = 1,
+  num_chains = 1,
+  num_iter = 1000,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
+  bayes_spec = set_bvar(),
+  scale_variance = 0.05,
+  include_mean = TRUE,
+  parallel = list(),
+  verbose = FALSE,
+  num_thread = 1
+)
 
 \method{print}{bvarmn}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{print}{bvarhm}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 \method{logLik}{bvarmn}(object, ...)
 
@@ -24,17 +41,35 @@ bvar_minnesota(y, p = 1, bayes_spec = set_bvar(), include_mean = TRUE)
 is.bvarmn(x)
 
 \method{knit_print}{bvarmn}(x, ...)
+
+\method{knit_print}{bvarhm}(x, ...)
 }
 \arguments{
 \item{y}{Time series data of which columns indicate the variables}
 
 \item{p}{VAR lag (Default: 1)}
 
+\item{num_chains}{Number of MCMC chains}
+
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
+
+\item{thinning}{Thinning every thinning-th iteration}
+
 \item{bayes_spec}{A BVAR model specification by \code{\link[=set_bvar]{set_bvar()}}.}
+
+\item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{x}{\code{bvarmn} object}
+\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{Number of threads}
+
+\item{x}{\code{bvarhm} object}
 
 \item{digits}{digit option to print}
 
@@ -47,9 +82,10 @@ is.bvarmn(x)
 It is a list with the following components:
 
 \describe{
-\item{coefficients}{Posterior Mean matrix of Matrix Normal distribution}
+\item{coefficients}{Posterior Mean}
 \item{fitted.values}{Fitted values}
 \item{residuals}{Residuals}
+\item{mn_mean}{Posterior mean matrix of Matrix Normal distribution}
 \item{mn_prec}{Posterior precision matrix of Matrix Normal distribution}
 \item{iw_scale}{Posterior scale matrix of posterior inverse-Wishart distribution}
 \item{iw_shape}{Posterior shape of inverse-Wishart distribution (\eqn{alpha_0} - obs + 2). \eqn{\alpha_0}: nrow(Dummy observation) - k}

@@ -437,7 +437,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		));
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
-	if (num_chains > 1) {
+	if (num_chains == 1) {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -677,7 +677,7 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 		// ));
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
-	if (num_chains > 1) {
+	if (num_chains == 1) {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -1363,7 +1363,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		));
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
-	if (num_chains > 1) {
+	if (num_chains == 1) {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -1608,7 +1608,7 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 		// ));
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
 	};
-	if (num_chains > 1) {
+	if (num_chains == 1) {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif

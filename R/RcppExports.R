@@ -199,6 +199,7 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' @param mat_mean Mean matrix
 #' @param mat_scale_u First scale matrix
 #' @param mat_scale_v Second scale matrix
+#' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse.
 #' @details
 #' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 #' 
@@ -209,8 +210,8 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' This function only generates one matrix, i.e. \eqn{Y_1}.
 #' @return One n x k matrix following MN distribution.
 #' @export
-sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
-    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
+sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v, u_prec) {
+    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v, u_prec)
 }
 
 #' Generate Inverse-Wishart Random Matrix
@@ -243,9 +244,10 @@ sim_iw <- function(mat_scale, shape) {
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
+#' @param prec If true, use mat_scale_u as its inverse
 #' @noRd
-sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
-    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec) {
+    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec)
 }
 
 #' Generate Generalized Inverse Gaussian
@@ -449,8 +451,8 @@ compute_net_spillover <- function(spillover) {
 #' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
-    .Call(`_bvhar_estimate_bvar_mn`, y, lag, bayes_spec, include_mean)
+estimate_bvar_mn <- function(y, lag, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mn`, y, lag, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' BVHAR Point Estimates based on Minnesota Prior
@@ -464,8 +466,13 @@ estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
 #' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_short) {
-    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean, minn_short)
+estimate_bvhar_mn <- function(y, week, month, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads)
+}
+
+#' @noRd
+estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
@@ -484,31 +491,8 @@ estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_sho
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
 #' @noRd
-estimate_mn_flat <- function(x, y, U) {
-    .Call(`_bvhar_estimate_mn_flat`, x, y, U)
-}
-
-#' Log of Joint Posterior Density of Hyperparameters
-#' 
-#' This function computes the log of joint posterior density of hyperparameters.
-#' 
-#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
-#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
-#' @param dim Dimension of the time series
-#' @param num_design The number of the data matrix, \eqn{n = T - p}
-#' @param prior_prec Prior precision of Matrix Normal distribution
-#' @param prior_scale Prior scale of Inverse-Wishart distribution
-#' @param mn_prec Posterior precision of Matrix Normal distribution
-#' @param iw_scale Posterior scale of Inverse-Wishart distribution
-#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-#' @param gamma_shape Shape of hyperprior Gamma distribution
-#' @param gamma_rate Rate of hyperprior Gamma distribution
-#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
-#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
-#' 
-#' @noRd
-jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
-    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
+estimate_mn_flat <- function(x, y, num_chains, num_iter, num_burn, thin, U, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_mn_flat`, x, y, num_chains, num_iter, num_burn, thin, U, seed_chain, display_progress, nthreads)
 }
 
 #' Metropolis Algorithm for Normal-IW Hierarchical Model
@@ -816,8 +800,8 @@ forecast_bvharhs <- function(num_chains, month, step, response_mat, HARtrans, ph
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' 
 #' @noRd
-forecast_bvar <- function(object, step, num_sim) {
-    .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
+forecast_bvar <- function(num_chains, var_lag, step, response_mat, alpha_record, sig_record, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvar`, num_chains, var_lag, step, response_mat, alpha_record, sig_record, include_mean, nthreads)
 }
 
 #' Forecasting Bayesian VHAR
@@ -838,8 +822,8 @@ forecast_bvar <- function(object, step, num_sim) {
 #' 
 #' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
 #' @noRd
-forecast_bvharmn <- function(object, step, num_sim) {
-    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
+forecast_bvharmn <- function(num_chains, month, step, response_mat, har_trans, phi_record, sig_record, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharmn`, num_chains, month, step, response_mat, har_trans, phi_record, sig_record, include_mean, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -854,8 +838,8 @@ forecast_bvharmn <- function(object, step, num_sim) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
-    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
+roll_bvar <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvar`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -870,8 +854,8 @@ roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) 
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
+roll_bvarflat <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarflat`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Rolling Window
@@ -886,8 +870,8 @@ roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
-    .Call(`_bvhar_roll_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
+roll_bvhar <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvhar`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Expanding Window
@@ -902,8 +886,8 @@ roll_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, n
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
-    .Call(`_bvhar_expand_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
+expand_bvar <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvar`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Expanding Window
@@ -918,8 +902,8 @@ expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
+expand_bvarflat <- function(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvarflat`, y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Expanding Window
@@ -934,8 +918,8 @@ expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
-    .Call(`_bvhar_expand_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
+expand_bvhar <- function(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvhar`, y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size)
 }
 
 #' Forecasting Vector Autoregression
@@ -1395,8 +1379,13 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
 #' @param seed Random seed for boost library
 #' 
 #' @noRd
-compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
-    .Call(`_bvhar_compute_mn_spillover`, object, step, num_iter, num_burn, thin, seed)
+compute_bvarmn_spillover <- function(lag, step, alpha_record, sig_record) {
+    .Call(`_bvhar_compute_bvarmn_spillover`, lag, step, alpha_record, sig_record)
+}
+
+#' @noRd
+compute_bvharmn_spillover <- function(month, step, har_trans, phi_record, sig_record) {
+    .Call(`_bvhar_compute_bvharmn_spillover`, month, step, har_trans, phi_record, sig_record)
 }
 
 #' Rolling-sample Total Spillover Index of BVAR
@@ -1414,8 +1403,8 @@ compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvar_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvar_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvar_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Rolling-sample Total Spillover Index of BVHAR
@@ -1434,8 +1423,8 @@ dynamic_bvar_spillover <- function(y, window, step, num_iter, num_burn, thin, la
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-dynamic_bvhar_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
-    .Call(`_bvhar_dynamic_bvhar_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+dynamic_bvhar_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
 }
 
 #' Generalized Spillover of VAR
