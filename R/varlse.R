@@ -92,6 +92,6 @@ var_lm <- function(y, p = 1, include_mean = TRUE, method = c("nor", "chol", "qr"
   # return as new S3 class-----------
   res$method <- method
   res$call <- match.call()
-  class(res) <- c("varlse", "bvharmod")
+  class(res) <- c("varlse", "olsmod", "bvharmod")
   res
 }

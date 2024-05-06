@@ -19,52 +19,46 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape);
 
 namespace bvhar {
 
-inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v) {
+// Generate MN(M, U, V)
+// @param mat_mean Mean matrix M
+// @param mat_scale_u First scale matrix U
+// @param mat_scale_v Second scale matrix V
+// @param prec If true, use mat_scale_u as inverse of U.
+inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v,
+															bool prec) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
-  // if (mat_scale_u.rows() != mat_scale_u.cols()) {
-  //   Rcpp::stop("Invalid 'mat_scale_u' dimension.");
-  // }
-  // if (num_rows != mat_scale_u.rows()) {
-  //   Rcpp::stop("Invalid 'mat_scale_u' dimension.");
-  // }
-  // if (mat_scale_v.rows() != mat_scale_v.cols()) {
-  //   Rcpp::stop("Invalid 'mat_scale_v' dimension.");
-  // }
-  // if (num_cols != mat_scale_v.rows()) {
-  //   Rcpp::stop("Invalid 'mat_scale_v' dimension.");
-  // }
-  // Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
-  // Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
-  // Cholesky decomposition (lower triangular)
-  // Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
-  // Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
-	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL();
-  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU(); // V = U_vTU_v
   Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
-  // Eigen::MatrixXd res(num_rows, num_cols);
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
       mat_norm(i, j) = norm_rand();
     }
   }
-  // res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
-  // return res;
-	return mat_mean + chol_scale_u * mat_norm * chol_scale_v;
+	if (prec) {
+		// U^(-1) = LLT => U = LT^(-1) L^(-1)
+		return mat_mean + mat_scale_u.llt().matrixU().solve(mat_norm * chol_scale_v); // M + LT^(-1) X U_v ~ MN(M, LT^(-1) L^(-1) = U, U_vT U_v = V)
+	}
+	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL(); // U = LLT
+	return mat_mean + chol_scale_u * mat_norm * chol_scale_v; // M + L X U_v ~ MN(M, LLT = U, U_vT U_v = V)
 }
 // overloading
-inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v, boost::random::mt19937& rng) {
+inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v,
+															bool prec, boost::random::mt19937& rng) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
-	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL();
-  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU();
+  Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU(); // V = U_vTU_v
   Eigen::MatrixXd mat_norm(num_rows, num_cols); // standard normal
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
       mat_norm(i, j) = normal_rand(rng);
     }
   }
-	return mat_mean + chol_scale_u * mat_norm * chol_scale_v;
+	if (prec) {
+		return mat_mean + mat_scale_u.llt().matrixU().solve(mat_norm * chol_scale_v); // M + U_u^(-1) X U_v ~ MN(M, U_u^(-1) U_u^(-1)T = U, U_vT U_v = V)
+	}
+	Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL(); // U = LLT
+	return mat_mean + chol_scale_u * mat_norm * chol_scale_v; // M + L X U_v ~ MN(M, LLT = U, U_vT U_v = V)
 }
 
 // Generate Lower Triangular Matrix of IW
@@ -132,45 +126,29 @@ inline Eigen::MatrixXd sim_inv_wishart(const Eigen::MatrixXd& mat_scale, double 
   return res;
 }
 
+// Generate MNIW(M, U, Psi, nu)
+// 
+// @param mat_mean Mean matrix M
+// @param mat_scale_u First scale matrix U
+// @param mat_scale Inverse wishart scale matrix Psi
+// @param shape Inverse wishart shape
+// @param prec If true, use mat_scale_u as \eqn{U^{-1}}
 inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u,
-																			 				const Eigen::MatrixXd& mat_scale, double shape) {
-  // int ncol_mn = mat_mean.cols();
-  // int nrow_mn = mat_mean.rows();
-  // int dim_iw = mat_scale.cols();
-  // if (dim_iw != mat_scale.rows()) {
-  //   Rcpp::stop("Invalid 'mat_scale' dimension.");
-  // }
-  // Eigen::MatrixXd chol_res(dim_iw, dim_iw);
-  // Eigen::MatrixXd mat_scale_v(dim_iw, dim_iw);
-  // result matrices: bind in column wise
-  // Eigen::MatrixXd res_mn(nrow_mn, num_sim * ncol_mn); // [Y1, Y2, ..., Yn]
-  // Eigen::MatrixXd res_iw(dim_iw, num_sim * dim_iw); // [Sigma1, Sigma2, ... Sigma2]
-  // for (int i = 0; i < num_sim; i++) {
-  //   chol_res = bvhar::sim_iw_tri(mat_scale, shape);
-  //   mat_scale_v = chol_res * chol_res.transpose();
-  //   res_iw.block(0, i * dim_iw, dim_iw, dim_iw) = mat_scale_v;
-  //   // MN(mat_mean, mat_scale_u, mat_scale_v)
-  //   res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
-  // }
-	// Eigen::MatrixXd res_mn(nrow_mn, ncol_mn); // [Y1, Y2, ..., Yn]
-  // Eigen::MatrixXd res_iw(dim_iw, dim_iw); // [Sigma1, Sigma2, ... Sigma2]
+																			 				const Eigen::MatrixXd& mat_scale, double shape, bool prec) {
   Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape);
   Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();
-  // res_iw = mat_scale_v;
-  // MN(mat_mean, mat_scale_u, mat_scale_v)
-  // res_mn = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
 	std::vector<Eigen::MatrixXd> res(2);
-	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v);
+	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v, prec);
 	res[1] = mat_scale_v;
 	return res;
 }
 // overloading
 inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u,
-																			 				const Eigen::MatrixXd& mat_scale, double shape, boost::random::mt19937& rng) {
+																			 				const Eigen::MatrixXd& mat_scale, double shape, bool prec, boost::random::mt19937& rng) {
   Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape, rng);
   Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();
 	std::vector<Eigen::MatrixXd> res(2);
-	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v, rng);
+	res[0] = sim_mn(mat_mean, mat_scale_u, mat_scale_v, prec, rng);
 	res[1] = mat_scale_v;
 	return res;
 }

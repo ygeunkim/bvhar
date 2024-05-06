@@ -4,23 +4,19 @@
 \alias{spillover}
 \alias{print.bvharspillover}
 \alias{knit_print.bvharspillover}
-\alias{spillover.bvharmod}
+\alias{spillover.olsmod}
+\alias{spillover.normaliw}
 \title{h-step ahead Normalized Spillover}
 \usage{
-spillover(
-  object,
-  n_ahead = 10L,
-  num_iter = 10000L,
-  num_burn = floor(num_iter/2),
-  thinning = 1L,
-  ...
-)
+spillover(object, n_ahead = 10L, ...)
 
 \method{print}{bvharspillover}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 \method{knit_print}{bvharspillover}(x, ...)
 
-\method{spillover}{bvharmod}(
+\method{spillover}{olsmod}(object, n_ahead = 10L, ...)
+
+\method{spillover}{normaliw}(
   object,
   n_ahead = 10L,
   num_iter = 5000L,
@@ -34,17 +30,17 @@ spillover(
 
 \item{n_ahead}{step to forecast. By default, 10.}
 
-\item{num_iter}{Number to sample MNIW distribution}
-
-\item{num_burn}{Number of burn-in}
-
-\item{thinning}{Thinning every thinning-th iteration}
-
 \item{...}{not used}
 
 \item{x}{\code{bvharspillover} object}
 
 \item{digits}{digit option to print}
+
+\item{num_iter}{Number to sample MNIW distribution}
+
+\item{num_burn}{Number of burn-in}
+
+\item{thinning}{Thinning every thinning-th iteration}
 }
 \description{
 This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
