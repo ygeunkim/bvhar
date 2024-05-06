@@ -44,7 +44,7 @@ sim_mnormal(3, rep(0, 2), diag(2))
 The output of `sim_matgaussian()` is a matrix.
 
 ```{r genmatnorm}
-sim_matgaussian(matrix(1:20, nrow = 4), diag(4), diag(5))
+sim_matgaussian(matrix(1:20, nrow = 4), diag(4), diag(5), FALSE)
 ```
 
 When generating IW, violating $\nu > dim - 1$ gives error.
@@ -59,7 +59,7 @@ In case of `sim_mniw()`, it returns list with `mn` (stacked MN matrices) and `iw
 Each `mn` and `iw` has draw lists.
 
 ```{r genmniw}
-sim_mniw(2, matrix(1:20, nrow = 4), diag(4), diag(5), 7)
+sim_mniw(2, matrix(1:20, nrow = 4), diag(4), diag(5), 7, FALSE)
 ```
 
 <!-- Since each matrix is stacked rowwise, it is actually not that readable and practical. -->

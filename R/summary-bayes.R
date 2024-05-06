@@ -3,9 +3,7 @@
 #' `summary` method for `normaliw` class.
 #' 
 #' @param object `normaliw` object
-#' @param num_iter Number to sample MNIW distribution
-#' @param num_burn Number of burn-in
-#' @param thinning Thinning every thinning-th iteration
+#' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
 #' @param ... not used
 #' @details 
 #' From Minnesota prior, set of coefficient matrices and residual covariance matrix have matrix Normal Inverse-Wishart distribution.
@@ -51,103 +49,129 @@
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
-summary.normaliw <- function(object, num_iter = 10000L, num_burn = floor(num_iter / 2), thinning = 1L, ...) {
-  mn_mean <- object$coefficients
-  mn_prec <- object$mn_prec
-  iw_scale <- object$iw_scale
-  nu <- object$iw_shape
-  # list of mn and iw-------------------------
-  # each simulation is column-stacked
-  coef_and_sig <- sim_mniw_export(
-    num_iter,
-    mn_mean, # mean of MN
-    chol2inv(chol(mn_prec)), # precision of MN = inverse of precision
-    iw_scale, # scale of IW
-    nu # shape of IW
-  ) %>%
-    simplify2array()
-  # preprocess--------------------------------
-  dim_design <- object$df # k or h = 3m + 1 or 3m
-  dim_data <- ncol(object$y0)
+summary.normaliw <- function(object, level = .05, ...) {
+  # mn_mean <- object$coefficients
+  # mn_prec <- object$mn_prec
+  # iw_scale <- object$iw_scale
+  # nu <- object$iw_shape
+  cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
+  selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m)
+  # if (object$type == "const") {
+  #   cred_int_const <- compute_ci(object$c_record, level = level)
+  #   selection <- rbind(
+  #     selection,
+  #     cred_int_const$conf.low * cred_int_const$conf.high >= 0
+  #   )
+  # }
+  rownames(selection) <- rownames(object$coefficients)
+  colnames(selection) <- colnames(object$coefficients)
+  coef_res <- selection * object$coefficients
+  rownames(coef_res) <- rownames(object$coefficients)
+  colnames(coef_res) <- colnames(object$coefficients)
+  # # list of mn and iw-------------------------
+  # # each simulation is column-stacked
+  # coef_and_sig <- sim_mniw_export(
+  #   num_iter,
+  #   mn_mean, # mean of MN
+  #   mn_prec, # precision of MN = inverse of precision
+  #   iw_scale, # scale of IW
+  #   nu, # shape of IW
+  #   TRUE
+  # ) %>%
+  #   simplify2array()
+  # # preprocess--------------------------------
+  # dim_design <- object$df # k or h = 3m + 1 or 3m
+  # dim_data <- ncol(object$y0)
+  # res <- list(
+  #   names = colnames(object$y0),
+  #   totobs = object$totobs,
+  #   obs = object$obs,
+  #   p = object$p,
+  #   m = object$m,
+  #   call = object$call,
+  #   spec = object$spec,
+  #   # posterior------------
+  #   mn_mean = mn_mean,
+  #   mn_prec = mn_prec,
+  #   iw_scale = iw_scale,
+  #   iw_shape = nu,
+  #   # MCMC-----------------
+  #   iter = num_iter,
+  #   burn = num_burn,
+  #   thin = thinning
+  # )
+  # thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
+  # len_res <- length(thin_id)
+  # mn_name <- ifelse(grepl(pattern = "^BVAR_", object$process), "alpha", "phi")
+  # # coef_record <- 
+  # #   coef_and_sig$mn %>% 
+  # #   t() %>% 
+  # #   split.data.frame(gl(num_iter, object$m)) %>% 
+  # #   lapply(function(x) c(t(x)))
+  # coef_record <- lapply(coef_and_sig[1,], c)
+  # coef_record <- coef_record[thin_id]
+  # coef_record <- do.call(rbind, coef_record)
+  # colnames(coef_record) <- paste0(mn_name, "[", seq_len(ncol(coef_record)), "]")
+  # res$coefficients <- 
+  #   colMeans(coef_record) %>% 
+  #   matrix(ncol = object$m)
+  # # coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
+  # coef_and_sig$iw <- coef_and_sig[2,]
+  # coef_and_sig$iw <- coef_and_sig$iw[thin_id]
+  # res$cov_record <- coef_and_sig$iw
+  # res$cov_record <- lapply(
+  #   coef_and_sig$iw,
+  #   function(x) {
+  #     rownames(x) <- rownames(object$iw_scale)
+  #     colnames(x) <- colnames(object$iw_scale)
+  #     x
+  #   }
+  # )
+  # prec_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
+  # res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
+  # res$omega_record <- 
+  #   lapply(prec_record, diag) %>% 
+  #   do.call(rbind, .)
+  # colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
+  # res$omega_record <- as_draws_df(res$omega_record)
+  # res$eta_record <-
+  #   lapply(prec_record, function(x) x[upper.tri(x, diag = FALSE)])
+  # res$eta_record <- do.call(rbind, res$eta_record)
+  # colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
+  # res$eta_record <- as_draws_df(res$eta_record)
+  # rownames(res$coefficients) <- rownames(object$coefficients)
+  # colnames(res$coefficients) <- colnames(object$coefficients)
+  # rownames(res$covmat) <- rownames(object$iw_scale)
+  # colnames(res$covmat) <- colnames(object$iw_scale)
+  # if (mn_name == "alpha") {
+  #   res$alpha_record <- coef_record
+  #   res$alpha_record <- as_draws_df(res$alpha_record)
+  #   res$param <- bind_draws(
+  #     res$alpha_record,
+  #     res$omega_record,
+  #     res$eta_record
+  #   )
+  # } else if (mn_name == "phi") {
+  #   res$phi_record <- coef_record
+  #   res$phi_record <- as_draws_df(res$phi_record)
+  #   res$param <- bind_draws(
+  #     res$phi_record,
+  #     res$omega_record,
+  #     res$eta_record
+  #   )
+  # }
   res <- list(
-    names = colnames(object$y0),
-    totobs = object$totobs,
-    obs = object$obs,
+    call = object$call,
+    process = object$process,
     p = object$p,
     m = object$m,
-    call = object$call,
-    spec = object$spec,
-    # posterior------------
-    mn_mean = mn_mean,
-    mn_prec = mn_prec,
-    iw_scale = iw_scale,
-    iw_shape = nu,
-    # MCMC-----------------
-    iter = num_iter,
-    burn = num_burn,
-    thin = thinning
+    type = object$type,
+    coefficients = coef_res,
+    posterior_mean = object$coefficients,
+    choose_coef = selection,
+    method = "ci"
   )
-  thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
-  len_res <- length(thin_id)
-  mn_name <- ifelse(grepl(pattern = "^BVAR_", object$process), "alpha", "phi")
-  # coef_record <- 
-  #   coef_and_sig$mn %>% 
-  #   t() %>% 
-  #   split.data.frame(gl(num_iter, object$m)) %>% 
-  #   lapply(function(x) c(t(x)))
-  coef_record <- lapply(coef_and_sig[1,], c)
-  coef_record <- coef_record[thin_id]
-  coef_record <- do.call(rbind, coef_record)
-  colnames(coef_record) <- paste0(mn_name, "[", seq_len(ncol(coef_record)), "]")
-  res$coefficients <- 
-    colMeans(coef_record) %>% 
-    matrix(ncol = object$m)
-  # coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
-  coef_and_sig$iw <- coef_and_sig[2,]
-  coef_and_sig$iw <- coef_and_sig$iw[thin_id]
-  res$cov_record <- coef_and_sig$iw
-  res$cov_record <- lapply(
-    coef_and_sig$iw,
-    function(x) {
-      rownames(x) <- rownames(object$iw_scale)
-      colnames(x) <- colnames(object$iw_scale)
-      x
-    }
-  )
-  prec_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
-  res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
-  res$omega_record <- 
-    lapply(prec_record, diag) %>% 
-    do.call(rbind, .)
-  colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
-  res$omega_record <- as_draws_df(res$omega_record)
-  res$eta_record <-
-    lapply(prec_record, function(x) x[upper.tri(x, diag = FALSE)])
-  res$eta_record <- do.call(rbind, res$eta_record)
-  colnames(res$eta_record) <- paste0("eta[", seq_len(ncol(res$eta_record)), "]")
-  res$eta_record <- as_draws_df(res$eta_record)
-  rownames(res$coefficients) <- rownames(object$coefficients)
-  colnames(res$coefficients) <- colnames(object$coefficients)
-  rownames(res$covmat) <- rownames(object$iw_scale)
-  colnames(res$covmat) <- colnames(object$iw_scale)
-  if (mn_name == "alpha") {
-    res$alpha_record <- coef_record
-    res$alpha_record <- as_draws_df(res$alpha_record)
-    res$param <- bind_draws(
-      res$alpha_record,
-      res$omega_record,
-      res$eta_record
-    )
-  } else if (mn_name == "phi") {
-    res$phi_record <- coef_record
-    res$phi_record <- as_draws_df(res$phi_record)
-    res$param <- bind_draws(
-      res$phi_record,
-      res$omega_record,
-      res$eta_record
-    )
-  }
-  class(res) <- "summary.normaliw"
+  class(res) <- c("summary.normaliw", "summary.bvharsp")
   res
 }
 

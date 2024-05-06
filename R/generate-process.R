@@ -121,6 +121,7 @@ sim_var <- function(num_sim,
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
+#' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse. By default, `FALSE`.
 #' @details
 #' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
 #'
@@ -129,9 +130,9 @@ sim_var <- function(num_sim,
 #' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
 #' 4. \eqn{A_i = M + P Z_i C_i^T}
 #' @export
-sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
+sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = FALSE) {
   res <-
-    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape) %>%
+    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) %>%
     simplify2array() %>%
     apply(1, function(x) x)
   names(res) <- c("mn", "iw")

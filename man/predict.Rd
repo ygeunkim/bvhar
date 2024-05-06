@@ -22,11 +22,11 @@
 
 \method{predict}{vharlse}(object, n_ahead, level = 0.05, ...)
 
-\method{predict}{bvarmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvarmn}(object, n_ahead, level = 0.05, num_thread = 1, ...)
 
-\method{predict}{bvharmn}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvharmn}(object, n_ahead, level = 0.05, num_thread = 1, ...)
 
-\method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, ...)
+\method{predict}{bvarflat}(object, n_ahead, n_iter = 100L, level = 0.05, num_thread = 1, ...)
 
 \method{predict}{bvarssvs}(object, n_ahead, level = 0.05, ...)
 
@@ -71,9 +71,9 @@ is.predbvhar(x)
 
 \item{...}{not used}
 
-\item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
-
 \item{num_thread}{Number of threads}
+
+\item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 

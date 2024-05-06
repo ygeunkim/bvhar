@@ -122,6 +122,7 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
 //' @param mat_mean Mean matrix
 //' @param mat_scale_u First scale matrix
 //' @param mat_scale_v Second scale matrix
+//' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse.
 //' @details
 //' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 //' 
@@ -133,7 +134,7 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
 //' @return One n x k matrix following MN distribution.
 //' @export
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v) {
+Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v, bool u_prec) {
   if (mat_scale_u.rows() != mat_scale_u.cols()) {
     Rcpp::stop("Invalid 'mat_scale_u' dimension.");
   }
@@ -146,23 +147,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_sc
   if (mat_mean.cols() != mat_scale_v.rows()) {
     Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   }
-  // Eigen::LLT<Eigen::MatrixXd> lltOfscaleu(mat_scale_u);
-  // Eigen::LLT<Eigen::MatrixXd> lltOfscalev(mat_scale_v);
-  // // Cholesky decomposition (lower triangular)
-  // Eigen::MatrixXd chol_scale_u = lltOfscaleu.matrixL();
-  // Eigen::MatrixXd chol_scale_v = lltOfscalev.matrixL();
-  // // standard normal
-  // Eigen::MatrixXd mat_norm(num_rows, num_cols);
-  // // Eigen::MatrixXd res(num_rows, num_cols, num_sim);
-  // Eigen::MatrixXd res(num_rows, num_cols);
-  // for (int i = 0; i < num_rows; i++) {
-  //   for (int j = 0; j < num_cols; j++) {
-  //     mat_norm(i, j) = norm_rand();
-  //   }
-  // }
-  // res = mat_mean + chol_scale_u * mat_norm * chol_scale_v.transpose();
-  // return res;
-	return bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v);
+	return bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v, u_prec);
 }
 
 //' Generate Inverse-Wishart Random Matrix
@@ -199,42 +184,13 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
 //' @param mat_scale_u First scale matrix of MN
 //' @param mat_scale Scale matrix of IW
 //' @param shape Shape of IW
+//' @param prec If true, use mat_scale_u as its inverse
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape) {
-  // int ncol_mn = mat_mean.cols();
-  // int nrow_mn = mat_mean.rows();
-  // int dim_iw = mat_scale.cols();
-  // if (dim_iw != mat_scale.rows()) {
-  //   Rcpp::stop("Invalid 'mat_scale' dimension.");
-  // }
-  // Eigen::MatrixXd chol_res(dim_iw, dim_iw);
-  // Eigen::MatrixXd mat_scale_v(dim_iw, dim_iw);
-  // // result matrices: bind in column wise
-  // Eigen::MatrixXd res_mn(nrow_mn, num_sim * ncol_mn); // [Y1, Y2, ..., Yn]
-  // Eigen::MatrixXd res_iw(dim_iw, num_sim * dim_iw); // [Sigma1, Sigma2, ... Sigma2]
-  // for (int i = 0; i < num_sim; i++) {
-  //   chol_res = bvhar::sim_iw_tri(mat_scale, shape);
-  //   mat_scale_v = chol_res * chol_res.transpose();
-  //   res_iw.block(0, i * dim_iw, dim_iw, dim_iw) = mat_scale_v;
-  //   // MN(mat_mean, mat_scale_u, mat_scale_v)
-  //   res_mn.block(0, i * ncol_mn, nrow_mn, ncol_mn) = sim_matgaussian(
-  //     mat_mean, 
-  //     mat_scale_u, 
-  //     mat_scale_v
-  //   );
-  // }
-	// return Rcpp::List::create(
-  //   Rcpp::Named("mn") = res_mn,
-  //   Rcpp::Named("iw") = res_iw
-  // );
-	// Rcpp::List res = Rcpp::wrap(bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape));
-	// res.attr("names") = Rcpp::CharacterVector::create("mn", "iw");
-	// return res;
-	// std::vector<std::vector<Eigen::MatrixXd>> res(num_horizon, std::vector<Eigen::MatrixXd>(num_chains));
+Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape, bool prec) {
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_sim, std::vector<Eigen::MatrixXd>(2));
 	for (int i = 0; i < num_sim; i++) {
-		res[i] = bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape);
+		res[i] = bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape, prec);
   }
 	return Rcpp::wrap(res);
 }

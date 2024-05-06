@@ -4,7 +4,7 @@
 \alias{sim_mniw}
 \title{Generate Normal-IW Random Family}
 \usage{
-sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = FALSE)
 }
 \arguments{
 \item{num_sim}{Number to generate}
@@ -16,6 +16,8 @@ sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)
 \item{mat_scale}{Scale matrix of IW}
 
 \item{shape}{Shape of IW}
+
+\item{u_prec}{If \code{TRUE}, use \code{mat_scale_u} as its inverse. By default, \code{FALSE}.}
 }
 \description{
 This function samples normal inverse-wishart matrices.
