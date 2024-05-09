@@ -9,6 +9,9 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/tail_quantile.hpp>
 
 namespace bvhar {
 
@@ -171,6 +174,26 @@ inline double beta_rand(double s1, double s2) {
 inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
+}
+
+inline double quantile_lower(const Eigen::Ref<Eigen::VectorXd>& x, double prob) {
+	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::tail_quantile<boost::accumulators::left>>> acc(
+		boost::accumulators::tag::tail<boost::accumulators::left>::cache_size = x.size()
+	);
+	for (const auto &val : x) {
+		acc(val);
+	}
+	return boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);
+}
+
+inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) {
+	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::tail_quantile<boost::accumulators::right>>> acc(
+		boost::accumulators::tag::tail<boost::accumulators::right>::cache_size = x.size()
+	);
+	for (const auto &val : x) {
+		acc(val);
+	}
+	return boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);
 }
 
 } // namespace bvhar
