@@ -641,13 +641,14 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param ci_lev `r lifecycle::badge("experimental")` If specified (e.g. `.05`), use CI across MCMC for restriction.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, ci_lev = NULL, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -679,35 +680,69 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   if (sparse && object$spec$prior == "SSVS") {
-    pred_res <- forecast_ssvs_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "gamma")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
+    if (is.null(ci_lev)) {
+      pred_res <- forecast_ssvs_bvarsv(
+        num_chains,
+        object$p,
+        n_ahead,
+        object$y0,
+        alpha_record,
+        as_draws_matrix(subset_draws(object$param, variable = "h")),
+        as_draws_matrix(subset_draws(object$param, variable = "a")),
+        as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+        as_draws_matrix(subset_draws(object$param, variable = "gamma")),
+        sample.int(.Machine$integer.max, size = num_chains),
+        object$type == "const",
+        num_thread
+      )
+    } else {
+      pred_res <- forecast_sparse_bvarsv(
+        num_chains,
+        object$p,
+        n_ahead,
+        object$y0,
+        ci_lev,
+        alpha_record,
+        as_draws_matrix(subset_draws(object$param, variable = "h")),
+        as_draws_matrix(subset_draws(object$param, variable = "a")),
+        as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+        sample.int(.Machine$integer.max, size = num_chains),
+        object$type == "const",
+        num_thread
+      )
+    }
   } else if (sparse && object$spec$prior == "Horseshoe") {
-    pred_res <- forecast_ssvs_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "kappa")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
+    if (is.null(ci_lev)) {
+      pred_res <- forecast_ssvs_bvarsv(
+        num_chains,
+        object$p,
+        n_ahead,
+        object$y0,
+        alpha_record,
+        as_draws_matrix(subset_draws(object$param, variable = "h")),
+        as_draws_matrix(subset_draws(object$param, variable = "a")),
+        as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+        as_draws_matrix(subset_draws(object$param, variable = "kappa")),
+        sample.int(.Machine$integer.max, size = num_chains),
+        object$type == "const",
+        num_thread
+      )
+    } else {
+      pred_res <- forecast_sparse_bvarsv(
+        num_chains,
+        object$p,
+        n_ahead,
+        object$y0,
+        ci_lev,
+        alpha_record,
+        as_draws_matrix(subset_draws(object$param, variable = "h")),
+        as_draws_matrix(subset_draws(object$param, variable = "a")),
+        as_draws_matrix(subset_draws(object$param, variable = "sigh")),
+        sample.int(.Machine$integer.max, size = num_chains),
+        object$type == "const",
+        num_thread
+      )
+    }
   } else {
     pred_res <- forecast_bvarsv(
       num_chains,

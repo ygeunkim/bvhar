@@ -44,6 +44,35 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 	return Rcpp::wrap(res);
 }
 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List forecast_sparse_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, double level,
+                           				Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+													 				Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
+	std::vector<std::unique_ptr<bvhar::SvVarSelectForecaster>> forecaster(num_chains);
+	for (int i = 0; i < num_chains; i++ ) {
+		bvhar::SvRecords sv_record(
+			alpha_record.middleRows(i * num_sim, num_sim),
+			h_record.middleRows(i * num_sim, num_sim),
+			a_record.middleRows(i * num_sim, num_sim),
+			sigh_record.middleRows(i * num_sim, num_sim)
+		);
+		forecaster[i].reset(new bvhar::SvVarSelectForecaster(
+				sv_record, level, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+		));
+	}
+	std::vector<Eigen::MatrixXd> res(num_chains);
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int chain = 0; chain < num_chains; chain++) {
+		res[chain] = forecaster[chain]->forecastDensity();
+		forecaster[chain].reset(); // free the memory by making nullptr
+	}
+	return Rcpp::wrap(res);
+}
+
 //' Forecasting sparse predictive density of VAR-SV with SSVS prior
 //' 
 //' @noRd
