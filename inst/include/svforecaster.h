@@ -140,14 +140,11 @@ protected:
 
 class SvVarSelectForecaster : public SvVarForecaster {
 public:
-	// SvVarSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
 	SvVarSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
 	: SvVarForecaster(records, step, response_mat, lag, include_mean, seed),
-		activity_graph(sv_record.computeActivity(level)) {}
+		activity_graph(unvectorize(sv_record.computeActivity(level), dim)) {}
 	virtual ~SvVarSelectForecaster() = default;
 	void computeMean(int i) override {
-		// coef_mat = activity_graph.array() * coef_mat.array();
-		// post_mean = last_pvec.transpose() * coef_mat;
 		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:
@@ -156,15 +153,11 @@ private:
 
 class SvVharSelectForecaster : public SvVharForecaster {
 public:
-	// SvVharSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
 	SvVharSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
 	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
-		activity_graph(sv_record.computeActivity(level)) {}
+		activity_graph(unvectorize(sv_record.computeActivity(level), dim)) {}
 	virtual ~SvVharSelectForecaster() = default;
 	void computeMean(int i) override {
-		// coef_mat = activity_graph.array() * coef_mat.array();
-		// post_mean = last_pvec.transpose() * coef_mat;
-		// post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
 		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:

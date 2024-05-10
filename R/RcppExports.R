@@ -1065,6 +1065,11 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, ph
     .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
 }
 
+#' @noRd
+forecast_sparse_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, level, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_sparse_bvharsv`, num_chains, month, step, response_mat, HARtrans, level, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
+}
+
 #' Forecasting sparse predictive density of VHAR-SV with SSVS prior
 #' 
 #' @noRd

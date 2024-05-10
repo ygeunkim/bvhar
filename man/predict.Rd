@@ -42,7 +42,6 @@
   level = 0.05,
   num_thread = 1,
   sparse = FALSE,
-  ci_lev = NULL,
   warn = FALSE,
   ...
 )
@@ -76,9 +75,8 @@ is.predbvhar(x)
 
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
 
-\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
-
-\item{ci_lev}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If specified (e.g. \code{.05}), use CI across MCMC for restriction.}
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.
+Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval across MCMC for restriction.}
 
 \item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
 
