@@ -640,6 +640,7 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
+#' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
@@ -648,7 +649,7 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -679,52 +680,40 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
   if (num_thread > num_chains && num_chains != 1) {
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
-  ci_lev <- NULL
+  prior_nm <- object$spec$prior
+  # ci_lev <- NULL
+  ci_lev <- .05
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE
+    prior_nm <- "ci"
   }
-  if (sparse && !is.null(ci_lev)) {
+  fit_ls <- lapply(
+    object$param_names,
+    function(x) {
+      subset_draws(object$param, variable = x) %>%
+        as_draws_matrix() %>%
+        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+    }
+  ) %>%
+    setNames(paste(object$param_names, "record", sep = "_"))
+  prior_type <- switch(prior_nm,
+    "ci" = 0,
+    "Minnesota" = 1,
+    "SSVS" = 2,
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
+  )
+  if (sparse) {
     pred_res <- forecast_sparse_bvarsv(
       num_chains,
       object$p,
       n_ahead,
       object$y0,
+      use_sv,
       ci_lev,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else if (sparse && object$spec$prior == "SSVS") {
-    pred_res <- forecast_ssvs_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "gamma")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else if (sparse && object$spec$prior == "Horseshoe") {
-    pred_res <- forecast_ssvs_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "kappa")),
+      fit_ls,
+      prior_type,
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -735,6 +724,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
       object$p,
       n_ahead,
       object$y0,
+      use_sv,
       alpha_record,
       as_draws_matrix(subset_draws(object$param, variable = "h")),
       as_draws_matrix(subset_draws(object$param, variable = "a")),
@@ -779,6 +769,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
+#' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
@@ -786,7 +777,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse 
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
@@ -818,55 +809,41 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
   if (num_thread > num_chains && num_chains != 1) {
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
-  ci_lev <- NULL
+  prior_nm <- object$spec$prior
+  # ci_lev <- NULL
+  ci_lev <- .05
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE
+    prior_nm <- "ci"
   }
-  if (sparse && !is.null(ci_lev)) {
+  fit_ls <- lapply(
+    object$param_names,
+    function(x) {
+      subset_draws(object$param, variable = x) %>%
+        as_draws_matrix() %>%
+        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+    }
+  ) %>%
+    setNames(paste(object$param_names, "record", sep = "_"))
+  prior_type <- switch(prior_nm,
+    "ci" = 0,
+    "Minnesota" = 1,
+    "SSVS" = 2,
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
+  )
+  if (sparse) {
     pred_res <- forecast_sparse_bvharsv(
       num_chains,
       object$month,
       n_ahead,
       object$y0,
       object$HARtrans,
+      use_sv,
       ci_lev,
-      phi_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else if (sparse && object$spec$prior == "SSVS") {
-    pred_res <- forecast_ssvs_bvharsv(
-      num_chains,
-      object$month,
-      n_ahead,
-      object$y0,
-      object$HARtrans,
-      phi_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "gamma")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else if (sparse && object$spec$prior == "Horseshoe") {
-    pred_res <- forecast_hs_bvharsv(
-      num_chains,
-      object$month,
-      n_ahead,
-      object$y0,
-      object$HARtrans,
-      phi_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      as_draws_matrix(subset_draws(object$param, variable = "kappa")),
+      fit_ls,
+      prior_type,
       sample.int(.Machine$integer.max, size = num_chains),
       object$type == "const",
       num_thread
@@ -878,6 +855,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, sparse
       n_ahead,
       object$y0,
       object$HARtrans,
+      use_sv,
       phi_record,
       as_draws_matrix(subset_draws(object$param, variable = "h")),
       as_draws_matrix(subset_draws(object$param, variable = "a")),

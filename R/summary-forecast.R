@@ -213,11 +213,12 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 }
 
 #' @rdname forecast_roll
+#' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -348,7 +349,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
         }
         roll_sparse_bvharsv(
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
@@ -385,7 +386,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
         }
         roll_bvarsv(
           y, object$p, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
@@ -424,7 +425,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse 
         }
         roll_bvharsv(
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
@@ -648,11 +649,12 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 }
 
 #' @rdname forecast_expand
+#' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -782,7 +784,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
         }
         expand_sparse_bvharsv(
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
@@ -819,7 +821,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
         }
         expand_bvarsv(
           y, object$p, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,
@@ -858,7 +860,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, spars
         }
         expand_bvharsv(
           y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
+          use_sv, fit_ls,
           object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
           grp_id, own_id, cross_id, grp_mat,
           include_mean, n_ahead, y_test,

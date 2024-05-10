@@ -14,7 +14,7 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, bool sv,
                            Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
 													 Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 #ifdef _OPENMP
@@ -38,7 +38,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
+		res[chain] = forecaster[chain]->forecastDensity(sv);
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -46,111 +46,127 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_sparse_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, double level,
-                           				Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+Rcpp::List forecast_sparse_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+																	bool sv, double level, Rcpp::List fit_record, int prior_type,
 													 				Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVarSelectForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			alpha_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i].reset(new bvhar::SvVarSelectForecaster(
-				sv_record, level, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
-		));
+	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
+	switch (prior_type) {
+		case 0: {
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				Rcpp::List alpha_list = fit_record["alpha_record"];
+				Rcpp::List h_list = fit_record["h_record"];
+				Rcpp::List a_list = fit_record["a_record"];
+				Rcpp::List sigh_list = fit_record["sigh_record"];
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				forecaster[i].reset(new bvhar::SvVarSelectForecaster(
+					*sv_record, level, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		case 1: {
+			Rf_error("not specified");
+		}
+		case 2: {
+			Rcpp::List alpha_list = fit_record["alpha_record"];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			Rcpp::List gamma_list = fit_record["gamma_record"];
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				bvhar::SsvsRecords ssvs_record(
+					Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd()
+				);
+				forecaster[i].reset(new bvhar::SvVarSparseForecaster(
+					*sv_record, ssvs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		case 3: {
+			Rcpp::List alpha_list = fit_record["alpha_record"];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			Rcpp::List kappa_list = fit_record["kappa_record"];
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				bvhar::HorseshoeRecords hs_record(
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd(),
+					Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
+				);
+				forecaster[i].reset(new bvhar::SvVarSparseForecaster(
+					*sv_record, hs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		default:
+			Rf_error("Not defined");
+			break;
 	}
 	std::vector<Eigen::MatrixXd> res(num_chains);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
-}
-
-//' Forecasting sparse predictive density of VAR-SV with SSVS prior
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_ssvs_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                           			Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-																Eigen::MatrixXd gamma_record, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
-	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVarSparseForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			alpha_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		bvhar::SsvsRecords ssvs_record(
-			gamma_record.middleRows(i * num_sim, num_sim),
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd()
-		);
-		forecaster[i].reset(new bvhar::SvVarSparseForecaster(
-			sv_record, ssvs_record,
-			step, response_mat, var_lag, include_mean,
-			static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
-}
-
-//' Forecasting sparse predictive density of VAR-SV with horseshoe prior
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_hs_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
-                           		Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-															Eigen::MatrixXd kappa_record, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
-	int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVarSparseForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			alpha_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		bvhar::HorseshoeRecords hs_record(
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd(),
-			kappa_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i].reset(new bvhar::SvVarSparseForecaster(
-			sv_record, hs_record,
-			step, response_mat, var_lag, include_mean,
-			static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
+		res[chain] = forecaster[chain]->forecastDensity(sv);
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -166,7 +182,7 @@ Rcpp::List forecast_hs_bvarsv(int num_chains, int var_lag, int step, Eigen::Matr
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sv,
 														Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
 														Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 #ifdef _OPENMP
@@ -190,7 +206,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
+		res[chain] = forecaster[chain]->forecastDensity(sv);
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -198,113 +214,149 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List forecast_sparse_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, double level,
-                           			 	 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
+Rcpp::List forecast_sparse_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+																	 bool sv, double level, Rcpp::List fit_record, int prior_type,
 																   Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVharSelectForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			phi_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i].reset(new bvhar::SvVharSelectForecaster(
-			sv_record, level,
-			step, response_mat, HARtrans, month, include_mean,
-			static_cast<unsigned int>(seed_chain[i])
-		));
+	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
+	switch (prior_type) {
+		case 0: {
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				Rcpp::List alpha_list = fit_record["phi_record"];
+				Rcpp::List h_list = fit_record["h_record"];
+				Rcpp::List a_list = fit_record["a_record"];
+				Rcpp::List sigh_list = fit_record["sigh_record"];
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				// forecaster[i].reset(new bvhar::SvVarSelectForecaster(
+				// 	*sv_record, level, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				// ));
+				forecaster[i].reset(new bvhar::SvVharSelectForecaster(
+					*sv_record, level, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		case 1: {
+			Rf_error("not specified");
+		}
+		case 2: {
+			Rcpp::List alpha_list = fit_record["phi_record"];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			Rcpp::List gamma_list = fit_record["gamma_record"];
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				bvhar::SsvsRecords ssvs_record(
+					Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd()
+				);
+				// forecaster[i].reset(new bvhar::SvVarSparseForecaster(
+				// 	*sv_record, ssvs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				// ));
+				forecaster[i].reset(new bvhar::SvVharSparseForecaster(
+					*sv_record, ssvs_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		case 3: {
+			Rcpp::List alpha_list = fit_record["phi_record"];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			Rcpp::List kappa_list = fit_record["kappa_record"];
+			for (int i = 0; i < num_chains; ++i) {
+				std::unique_ptr<bvhar::SvRecords> sv_record;
+				if (include_mean) {
+					Rcpp::List c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
+				bvhar::HorseshoeRecords hs_record(
+					Eigen::MatrixXd(),
+					Eigen::MatrixXd(),
+					Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
+				);
+				// forecaster[i].reset(new bvhar::SvVarSparseForecaster(
+				// 	*sv_record, hs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				// ));
+				forecaster[i].reset(new bvhar::SvVharSparseForecaster(
+					*sv_record, hs_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				));
+			}
+			break;
+		}
+		default:
+			Rf_error("Not defined");
+			break;
 	}
+	// for (int i = 0; i < num_chains; i++ ) {
+	// 	bvhar::SvRecords sv_record(
+	// 		phi_record.middleRows(i * num_sim, num_sim),
+	// 		h_record.middleRows(i * num_sim, num_sim),
+	// 		a_record.middleRows(i * num_sim, num_sim),
+	// 		sigh_record.middleRows(i * num_sim, num_sim)
+	// 	);
+	// 	forecaster[i].reset(new bvhar::SvVharSelectForecaster(
+	// 		sv_record, level,
+	// 		step, response_mat, HARtrans, month, include_mean,
+	// 		static_cast<unsigned int>(seed_chain[i])
+	// 	));
+	// }
 	std::vector<Eigen::MatrixXd> res(num_chains);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
-}
-
-//' Forecasting sparse predictive density of VHAR-SV with SSVS prior
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_ssvs_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-                           			 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-																 Eigen::MatrixXd gamma_record, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
-	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVharSparseForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			phi_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		bvhar::SsvsRecords ssvs_record(
-			gamma_record.middleRows(i * num_sim, num_sim),
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd()
-		);
-		forecaster[i].reset(new bvhar::SvVharSparseForecaster(
-			sv_record, ssvs_record,
-			step, response_mat, HARtrans, month, include_mean,
-			static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
-}
-
-//' Forecasting sparse predictive density of VHAR-SV with horseshoe prior
-//' 
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_hs_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-                           		 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, Eigen::MatrixXd sigh_record,
-															 Eigen::MatrixXd kappa_record, Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
-	int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
-	std::vector<std::unique_ptr<bvhar::SvVharSparseForecaster>> forecaster(num_chains);
-	for (int i = 0; i < num_chains; i++ ) {
-		bvhar::SvRecords sv_record(
-			phi_record.middleRows(i * num_sim, num_sim),
-			h_record.middleRows(i * num_sim, num_sim),
-			a_record.middleRows(i * num_sim, num_sim),
-			sigh_record.middleRows(i * num_sim, num_sim)
-		);
-		bvhar::HorseshoeRecords hs_record(
-			Eigen::MatrixXd(),
-			Eigen::MatrixXd(),
-			kappa_record.middleRows(i * num_sim, num_sim)
-		);
-		forecaster[i].reset(new bvhar::SvVharSparseForecaster(
-			sv_record, hs_record,
-			step, response_mat, HARtrans, month, include_mean,
-			static_cast<unsigned int>(seed_chain[i])
-		));
-	}
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
+		res[chain] = forecaster[chain]->forecastDensity(sv);
 		forecaster[chain].reset(); // free the memory by making nullptr
 	}
 	return Rcpp::wrap(res);
@@ -338,7 +390,7 @@ Rcpp::List forecast_hs_bvharsv(int num_chains, int month, int step, Eigen::Matri
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -506,7 +558,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -520,7 +572,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -538,7 +590,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											 				Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 				Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 															bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -746,7 +798,7 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -760,7 +812,7 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -802,7 +854,7 @@ Rcpp::List roll_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int nu
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -971,7 +1023,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -985,7 +1037,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -1003,7 +1055,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											  			 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  			 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 															 bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -1208,7 +1260,7 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -1222,7 +1274,7 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -1264,7 +1316,7 @@ Rcpp::List roll_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_c
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -1432,7 +1484,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -1446,7 +1498,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -1464,7 +1516,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											 	 				Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 				Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -1677,7 +1729,7 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -1691,7 +1743,7 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -1733,7 +1785,7 @@ Rcpp::List expand_sparse_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int 
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 													bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -1902,7 +1954,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -1916,7 +1968,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
@@ -1934,7 +1986,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record,
+Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, bool sv, Rcpp::List fit_record,
 											  				 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  				 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																 bool include_mean, int step, Eigen::MatrixXd y_test,
@@ -2148,7 +2200,7 @@ Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num
 				run_gibbs(window, 0);
 			}
 			Eigen::VectorXd valid_vec = y_test.row(step);
-			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
+			res[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
 			lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 			forecaster[window][0].reset(); // free the memory by making nullptr
 		}
@@ -2162,7 +2214,7 @@ Rcpp::List expand_sparse_bvharsv(Eigen::MatrixXd y, int week, int month, int num
 					run_gibbs(window, chain);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+				res[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
 				lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 				forecaster[window][chain].reset(); // free the memory by making nullptr
 			}
