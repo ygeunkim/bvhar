@@ -1019,41 +1019,43 @@ expand_vhar <- function(y, week, month, include_mean, step, y_test, method, nthr
 
 #' Forecasting predictive density of VAR-SV
 #' 
+#' @param num_chains Number of chains
 #' @param var_lag VAR order.
 #' @param step Integer, Step to forecast.
 #' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
-#' @param alpha_record MCMC record of coefficients
-#' @param h_last_record MCMC record of log-volatilities in last time
-#' @param a_record MCMC record of contemporaneous coefficients
-#' @param sigh_record MCMC record of variance of log-volatilities
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads
 #' 
 #' @noRd
-forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, alpha_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
-}
-
-#' @noRd
-forecast_sparse_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_sparse_bvarsv`, num_chains, var_lag, step, response_mat, sv, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
 #' 
+#' @param num_chains Number of MCMC chains
 #' @param month VHAR month order.
 #' @param step Integer, Step to forecast.
 #' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
 #' @param HARtrans VHAR linear transformation matrix
-#' 
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads 
+#'
 #' @noRd
-forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, phi_record, h_record, a_record, sigh_record, seed_chain, include_mean, nthreads)
-}
-
-#' @noRd
-forecast_sparse_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
-    .Call(`_bvhar_forecast_sparse_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window

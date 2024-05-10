@@ -704,36 +704,20 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv 
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4
   )
-  if (sparse) {
-    pred_res <- forecast_sparse_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      use_sv,
-      ci_lev,
-      fit_ls,
-      prior_type,
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else {
-    pred_res <- forecast_bvarsv(
-      num_chains,
-      object$p,
-      n_ahead,
-      object$y0,
-      use_sv,
-      alpha_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  }
+  pred_res <- forecast_bvarsv(
+    num_chains,
+    object$p,
+    n_ahead,
+    object$y0,
+    use_sv,
+    sparse,
+    ci_lev,
+    fit_ls,
+    prior_type,
+    sample.int(.Machine$integer.max, size = num_chains),
+    object$type == "const",
+    num_thread
+  )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
   num_draw <- nrow(alpha_record) # concatenate multiple chains
@@ -833,38 +817,21 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4
   )
-  if (sparse) {
-    pred_res <- forecast_sparse_bvharsv(
-      num_chains,
-      object$month,
-      n_ahead,
-      object$y0,
-      object$HARtrans,
-      use_sv,
-      ci_lev,
-      fit_ls,
-      prior_type,
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  } else {
-    pred_res <- forecast_bvharsv(
-      num_chains,
-      object$month,
-      n_ahead,
-      object$y0,
-      object$HARtrans,
-      use_sv,
-      phi_record,
-      as_draws_matrix(subset_draws(object$param, variable = "h")),
-      as_draws_matrix(subset_draws(object$param, variable = "a")),
-      as_draws_matrix(subset_draws(object$param, variable = "sigh")),
-      sample.int(.Machine$integer.max, size = num_chains),
-      object$type == "const",
-      num_thread
-    )
-  }
+  pred_res <- forecast_bvharsv(
+    num_chains,
+    object$month,
+    n_ahead,
+    object$y0,
+    object$HARtrans,
+    use_sv,
+    sparse,
+    ci_lev,
+    fit_ls,
+    prior_type,
+    sample.int(.Machine$integer.max, size = num_chains),
+    object$type == "const",
+    num_thread
+  )
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
   num_draw <- nrow(phi_record) # concatenate multiple chains
