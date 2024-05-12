@@ -136,6 +136,16 @@ bvhar_ssvs <- function(y,
   )
   grp_id <- unique(c(glob_idmat))
   num_grp <- length(grp_id)
+  if (minnesota == "longrun") {
+    own_id <- c(2, 4, 6)
+    cross_id <- c(1, 3, 5)
+  } else if (minnesota == "short") {
+    own_id <- 2
+    cross_id <- c(1, 3, 4)
+  } else {
+    own_id <- 1
+    cross_id <- 2
+  }
   # length 1 of bayes_spec--------------
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
   if (length(bayes_spec$coef_spike) == 1) {
@@ -150,6 +160,20 @@ bvhar_ssvs <- function(y,
   # if (length(bayes_spec$mean_coef) == 1) {
   #   bayes_spec$mean_coef <- rep(bayes_spec$mean_coef, num_restrict)
   # }
+  if (length(bayes_spec$coef_s1) == 2) {
+    # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+    coef_s1 <- numeric(num_grp)
+    coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
+    coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
+    bayes_spec$coef_s1 <- coef_s1
+  }
+  if (length(bayes_spec$coef_s2) == 2) {
+    # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+    coef_s2 <- numeric(num_grp)
+    coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
+    coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
+    bayes_spec$coef_s2 <- coef_s2
+  }
   if (length(bayes_spec$mean_non) == 1) {
     bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
   }

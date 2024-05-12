@@ -46,7 +46,7 @@ Rcpp::List estimate_bvar_ssvs(int num_chains, int num_iter, int num_burn, int th
                               Eigen::VectorXd init_coef_dummy, Eigen::VectorXd init_chol_dummy,
                               Eigen::VectorXd coef_spike, Eigen::VectorXd coef_slab, Eigen::VectorXd coef_slab_weight,
                               Eigen::VectorXd shape, Eigen::VectorXd rate,
-                              double coef_s1, double coef_s2,
+                              Eigen::VectorXd coef_s1, Eigen::VectorXd coef_s2,
                               Eigen::VectorXd chol_spike, Eigen::VectorXd chol_slab, Eigen::VectorXd chol_slab_weight,
                               double chol_s1, double chol_s2,
                               Eigen::VectorXi grp_id,
