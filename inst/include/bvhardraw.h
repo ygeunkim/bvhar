@@ -274,7 +274,7 @@ inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, doub
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
 inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-  												 Eigen::VectorXd& param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng) {
+  												 Eigen::VectorXd& param_obs, Eigen::VectorXd& prior_s1, Eigen::VectorXd& prior_s2, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_latent = param_obs.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
@@ -288,7 +288,7 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 				mn_param[k++] = param_obs[j];
 			}
 		}
-    weight[i] = beta_rand(prior_s1 + mn_param.sum(), prior_s2 + mn_size - mn_param.sum(), rng);
+    weight[i] = beta_rand(prior_s1[i] + mn_param.sum(), prior_s2[i] + mn_size - mn_param.sum(), rng);
   }
 }
 

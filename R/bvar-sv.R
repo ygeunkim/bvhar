@@ -221,6 +221,26 @@ bvar_sv <- function(y,
     # if (length(bayes_spec$mean_non) == 1) {
     #   bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
     # }
+    # if (length(bayes_spec$coef_s1) == 1) {
+    #   bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+    # }
+    # if (length(bayes_spec$coef_s2) == 1) {
+    #   bayes_spec$coef_s2 <- rep(bayes_spec$coef_s2, num_grp)
+    # }
+    if (length(bayes_spec$coef_s1) == 2) {
+      # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+      coef_s1 <- numeric(num_grp)
+      coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
+      coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
+      bayes_spec$coef_s1 <- coef_s1
+    }
+    if (length(bayes_spec$coef_s2) == 2) {
+      # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+      coef_s2 <- numeric(num_grp)
+      coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
+      coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
+      bayes_spec$coef_s2 <- coef_s2
+    }
     if (length(bayes_spec$chol_spike) == 1) {
       bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
     }
