@@ -14,7 +14,7 @@ public:
   	const Eigen::VectorXd& init_coef_dummy, const Eigen::VectorXd& init_chol_dummy,
   	const Eigen::VectorXd& coef_spike, const Eigen::VectorXd& coef_slab, const Eigen::VectorXd& coef_slab_weight,
   	const Eigen::VectorXd& shape, const Eigen::VectorXd& rate,
-  	const double& coef_s1, const double& coef_s2,
+  	const Eigen::VectorXd& coef_s1, const Eigen::VectorXd& coef_s2,
   	const Eigen::VectorXd& chol_spike, const Eigen::VectorXd& chol_slab, const Eigen::VectorXd& chol_slab_weight,
   	const double& chol_s1, const double& chol_s2,
   	const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
@@ -186,7 +186,7 @@ private:
 	Eigen::VectorXd chol_slab;
 	Eigen::VectorXd shape;
 	Eigen::VectorXd rate;
-	double coef_s1, coef_s2;
+	Eigen::VectorXd coef_s1, coef_s2;
 	double chol_s1, chol_s2;
 	Eigen::VectorXd prior_mean_non;
 	double prior_sd_non;
