@@ -446,8 +446,8 @@ set_intercept <- function(mean = 0, sd = .1) {
 set_ssvs <- function(coef_spike = .1, 
                      coef_slab = 5, 
                      coef_mixture = .5,
-                     coef_s1 = 1,
-                     coef_s2 = 1,
+                     coef_s1 = c(1, 1),
+                     coef_s2 = c(1, 1),
                      mean_non = 0,
                      sd_non = .1,
                      shape = .01,
@@ -465,11 +465,22 @@ set_ssvs <- function(coef_spike = .1,
     is.vector(mean_non))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
   }
-  if (!(length(coef_s1) == 1 &&
-    length(coef_s2) == 1 &&
-    length(chol_s1) == 1 &&
+  if (!(length(chol_s1) == 1 &&
     length(chol_s2 == 1))) {
-    stop("'coef_s1', 'coef_s2', 'chol_s1', and 'chol_s2' should be length 1 numeric.")
+    stop("'chol_s1' and 'chol_s2' should be length 1 numeric.")
+  }
+  # if (length(coef_s1) != length(coef_s2)) {
+  #   stop("'coef_s1' and 'coef_s2' should have the same length.")
+  # }
+  if (!(length(coef_s1) == 2 &&
+    length(coef_s2 == 2))) {
+    stop("'coef_s1' and 'coef_s2' should be length 2 numeric, each indicating own and cross lag.")
+  }
+  if (coef_s1[1] < coef_s2[1]) {
+    stop("'coef_s1[1]' should be same or larger than 'coef_s2[1]'.") # own-lag
+  }
+  if (coef_s1[2] > coef_s2[2]) {
+    stop("'coef_s1[2]' should be same or smaller than 'coef_s2[2]'.") # cross-lag
   }
   if (length(sd_non) != 1) {
     stop("'sd_non' should be length 1 numeric.")
