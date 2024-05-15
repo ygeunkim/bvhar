@@ -631,6 +631,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
       chunk_size <- 1
     }
   }
+  ci_lev <- 0
+  if (is.numeric(sparse)) {
+    ci_lev <- sparse
+    sparse <- TRUE
+    prior_nm <- "ci"
+  }
   fit_ls <- list()
   if (use_fit) {
     # nm_record <- names(object)[grepl(pattern = "_record$", x = names(object))]
@@ -650,157 +656,232 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
     ) %>%
       setNames(paste(object$param_names, "record", sep = "_"))
   }
-  if (sparse) {
-    res_mat <- switch(model_type,
-      "bvarsv" = {
-        grp_mat <- object$group
-        grp_id <- unique(c(grp_mat))
-        own_id <- 2
-        cross_id <- seq_len(object$p + 1)[-2]
-        if (is.bvharspec(object$spec)) {
-          param_prior <- append(object$spec, list(p = object$p))
-          if (object$spec$hierarchical) {
-            param_prior$shape <- object$spec$lambda$param[1]
-            param_prior$rate <- object$spec$lambda$param[2]
-            prior_type <- 4
-          } else {
-            prior_type <- 1
-          }
-        } else if (is.ssvsinput(object$spec)) {
-          param_prior <- object$spec
-          prior_type <- 2
+  res_mat <- switch(model_type,
+    "bvarsv" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      own_id <- 2
+      cross_id <- seq_len(object$p + 1)[-2]
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = object$p))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
         } else {
-          param_prior <- list()
-          prior_type <- 3
+          prior_type <- 1
         }
-        expand_sparse_bvarsv(
-          y, object$p, num_chains, object$iter, object$burn, object$thin,
-          fit_ls,
-          object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, own_id, cross_id, grp_mat,
-          include_mean, n_ahead, y_test,
-          lpl,
-          sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-          sample.int(.Machine$integer.max, size = num_chains),
-          num_thread, chunk_size
-        )
-      },
-      "bvharsv" = {
-        grp_mat <- object$group
-        grp_id <- unique(c(grp_mat))
-        if (length(grp_id) == 6) {
-          own_id <- c(2, 4, 6)
-          cross_id <- c(1, 3, 5)
-        } else {
-          own_id <- 2
-          cross_id <- c(1, 3, 4)
-        }
-        if (is.bvharspec(object$spec)) {
-          param_prior <- append(object$spec, list(p = 3))
-          if (object$spec$hierarchical) {
-            param_prior$shape <- object$spec$lambda$param[1]
-            param_prior$rate <- object$spec$lambda$param[2]
-            prior_type <- 4
-          } else {
-            prior_type <- 1
-          }
-        } else if (is.ssvsinput(object$spec)) {
-          param_prior <- object$spec
-          prior_type <- 2
-        } else {
-          param_prior <- list()
-          prior_type <- 3
-        }
-        expand_sparse_bvharsv(
-          y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          use_sv, fit_ls,
-          object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, own_id, cross_id, grp_mat,
-          include_mean, n_ahead, y_test,
-          lpl,
-          sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-          sample.int(.Machine$integer.max, size = num_chains),
-          num_thread, chunk_size
-        )
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
       }
-    )
-  } else {
-    res_mat <- switch(model_type,
-      "bvarsv" = {
-        grp_mat <- object$group
-        grp_id <- unique(c(grp_mat))
+      expand_bvarsv(
+        y, object$p, num_chains, object$iter, object$burn, object$thin,
+        use_sv, sparse, ci_lev, fit_ls,
+        object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    },
+    "bvharsv" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      if (length(grp_id) == 6) {
+        own_id <- c(2, 4, 6)
+        cross_id <- c(1, 3, 5)
+      } else {
         own_id <- 2
-        cross_id <- seq_len(object$p + 1)[-2]
-        # param_init <- object$init
-        if (is.bvharspec(object$spec)) {
-          param_prior <- append(object$spec, list(p = object$p))
-          if (object$spec$hierarchical) {
-            param_prior$shape <- object$spec$lambda$param[1]
-            param_prior$rate <- object$spec$lambda$param[2]
-            prior_type <- 4
-          } else {
-            prior_type <- 1
-          }
-        } else if (is.ssvsinput(object$spec)) {
-          param_prior <- object$spec
-          prior_type <- 2
-        } else {
-          param_prior <- list()
-          prior_type <- 3
-        }
-        expand_bvarsv(
-          y, object$p, num_chains, object$iter, object$burn, object$thin,
-          use_sv, fit_ls,
-          object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, own_id, cross_id, grp_mat,
-          include_mean, n_ahead, y_test,
-          lpl,
-          sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-          sample.int(.Machine$integer.max, size = num_chains),
-          num_thread, chunk_size
-        )
-      },
-      "bvharsv" = {
-        grp_mat <- object$group
-        grp_id <- unique(c(grp_mat))
-        if (length(grp_id) == 6) {
-          own_id <- c(2, 4, 6)
-          cross_id <- c(1, 3, 5)
-        } else {
-          own_id <- 2
-          cross_id <- c(1, 3, 4)
-        }
-        # param_init <- object$init
-        if (is.bvharspec(object$spec)) {
-          param_prior <- append(object$spec, list(p = 3))
-          if (object$spec$hierarchical) {
-            param_prior$shape <- object$spec$lambda$param[1]
-            param_prior$rate <- object$spec$lambda$param[2]
-            prior_type <- 4
-          } else {
-            prior_type <- 1
-          }
-        } else if (is.ssvsinput(object$spec)) {
-          param_prior <- object$spec
-          prior_type <- 2
-        } else {
-          param_prior <- list()
-          prior_type <- 3
-        }
-        expand_bvharsv(
-          y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-          use_sv, fit_ls,
-          object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
-          grp_id, own_id, cross_id, grp_mat,
-          include_mean, n_ahead, y_test,
-          lpl,
-          sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-          sample.int(.Machine$integer.max, size = num_chains),
-          num_thread, chunk_size
-        )
+        cross_id <- c(1, 3, 4)
       }
-    )
-  }
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = 3))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
+        } else {
+          prior_type <- 1
+        }
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      expand_bvharsv(
+        y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+        use_sv, sparse, ci_lev, fit_ls,
+        object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    }
+  )
+  # if (sparse) {
+  #   res_mat <- switch(model_type,
+  #     "bvarsv" = {
+  #       grp_mat <- object$group
+  #       grp_id <- unique(c(grp_mat))
+  #       own_id <- 2
+  #       cross_id <- seq_len(object$p + 1)[-2]
+  #       if (is.bvharspec(object$spec)) {
+  #         param_prior <- append(object$spec, list(p = object$p))
+  #         if (object$spec$hierarchical) {
+  #           param_prior$shape <- object$spec$lambda$param[1]
+  #           param_prior$rate <- object$spec$lambda$param[2]
+  #           prior_type <- 4
+  #         } else {
+  #           prior_type <- 1
+  #         }
+  #       } else if (is.ssvsinput(object$spec)) {
+  #         param_prior <- object$spec
+  #         prior_type <- 2
+  #       } else {
+  #         param_prior <- list()
+  #         prior_type <- 3
+  #       }
+  #       expand_sparse_bvarsv(
+  #         y, object$p, num_chains, object$iter, object$burn, object$thin,
+  #         fit_ls,
+  #         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+  #         grp_id, own_id, cross_id, grp_mat,
+  #         include_mean, n_ahead, y_test,
+  #         lpl,
+  #         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+  #         sample.int(.Machine$integer.max, size = num_chains),
+  #         num_thread, chunk_size
+  #       )
+  #     },
+  #     "bvharsv" = {
+  #       grp_mat <- object$group
+  #       grp_id <- unique(c(grp_mat))
+  #       if (length(grp_id) == 6) {
+  #         own_id <- c(2, 4, 6)
+  #         cross_id <- c(1, 3, 5)
+  #       } else {
+  #         own_id <- 2
+  #         cross_id <- c(1, 3, 4)
+  #       }
+  #       if (is.bvharspec(object$spec)) {
+  #         param_prior <- append(object$spec, list(p = 3))
+  #         if (object$spec$hierarchical) {
+  #           param_prior$shape <- object$spec$lambda$param[1]
+  #           param_prior$rate <- object$spec$lambda$param[2]
+  #           prior_type <- 4
+  #         } else {
+  #           prior_type <- 1
+  #         }
+  #       } else if (is.ssvsinput(object$spec)) {
+  #         param_prior <- object$spec
+  #         prior_type <- 2
+  #       } else {
+  #         param_prior <- list()
+  #         prior_type <- 3
+  #       }
+  #       expand_sparse_bvharsv(
+  #         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+  #         use_sv, fit_ls,
+  #         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+  #         grp_id, own_id, cross_id, grp_mat,
+  #         include_mean, n_ahead, y_test,
+  #         lpl,
+  #         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+  #         sample.int(.Machine$integer.max, size = num_chains),
+  #         num_thread, chunk_size
+  #       )
+  #     }
+  #   )
+  # } else {
+  #   res_mat <- switch(model_type,
+  #     "bvarsv" = {
+  #       grp_mat <- object$group
+  #       grp_id <- unique(c(grp_mat))
+  #       own_id <- 2
+  #       cross_id <- seq_len(object$p + 1)[-2]
+  #       # param_init <- object$init
+  #       if (is.bvharspec(object$spec)) {
+  #         param_prior <- append(object$spec, list(p = object$p))
+  #         if (object$spec$hierarchical) {
+  #           param_prior$shape <- object$spec$lambda$param[1]
+  #           param_prior$rate <- object$spec$lambda$param[2]
+  #           prior_type <- 4
+  #         } else {
+  #           prior_type <- 1
+  #         }
+  #       } else if (is.ssvsinput(object$spec)) {
+  #         param_prior <- object$spec
+  #         prior_type <- 2
+  #       } else {
+  #         param_prior <- list()
+  #         prior_type <- 3
+  #       }
+  #       expand_bvarsv(
+  #         y, object$p, num_chains, object$iter, object$burn, object$thin,
+  #         use_sv, fit_ls,
+  #         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+  #         grp_id, own_id, cross_id, grp_mat,
+  #         include_mean, n_ahead, y_test,
+  #         lpl,
+  #         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+  #         sample.int(.Machine$integer.max, size = num_chains),
+  #         num_thread, chunk_size
+  #       )
+  #     },
+  #     "bvharsv" = {
+  #       grp_mat <- object$group
+  #       grp_id <- unique(c(grp_mat))
+  #       if (length(grp_id) == 6) {
+  #         own_id <- c(2, 4, 6)
+  #         cross_id <- c(1, 3, 5)
+  #       } else {
+  #         own_id <- 2
+  #         cross_id <- c(1, 3, 4)
+  #       }
+  #       # param_init <- object$init
+  #       if (is.bvharspec(object$spec)) {
+  #         param_prior <- append(object$spec, list(p = 3))
+  #         if (object$spec$hierarchical) {
+  #           param_prior$shape <- object$spec$lambda$param[1]
+  #           param_prior$rate <- object$spec$lambda$param[2]
+  #           prior_type <- 4
+  #         } else {
+  #           prior_type <- 1
+  #         }
+  #       } else if (is.ssvsinput(object$spec)) {
+  #         param_prior <- object$spec
+  #         prior_type <- 2
+  #       } else {
+  #         param_prior <- list()
+  #         prior_type <- 3
+  #       }
+  #       expand_bvharsv(
+  #         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+  #         use_sv, fit_ls,
+  #         object$sv[3:6], param_prior, object$intercept, object$init, prior_type,
+  #         grp_id, own_id, cross_id, grp_mat,
+  #         include_mean, n_ahead, y_test,
+  #         lpl,
+  #         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+  #         sample.int(.Machine$integer.max, size = num_chains),
+  #         num_thread, chunk_size
+  #       )
+  #     }
+  #   )
+  # }
   num_draw <- nrow(object$a_record) # concatenate multiple chains
   if (lpl) {
     lpl_val <- res_mat$lpl
