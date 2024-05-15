@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
+
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
 
 * `bvar_minnesota()`, `bvar_flat()`, and `bvhar_minnesota()` implement conjugate MCMC.
