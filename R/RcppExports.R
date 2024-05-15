@@ -1085,15 +1085,8 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
-}
-
-#' Out-of-Sample Forecasting of sparse VAR-SV based on Rolling Window
-#' 
-#' @noRd
-roll_sparse_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_sparse_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1123,15 +1116,8 @@ roll_sparse_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning,
 #' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
 #' @noRd
-roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
-}
-
-#' Out-of-Sample Forecasting of sparse VHAR-SV based on Rolling Window
-#' 
-#' @noRd
-roll_sparse_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
-    .Call(`_bvhar_roll_sparse_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
