@@ -18,6 +18,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   n_ahead,
   y_test,
   num_thread = 1,
+  use_sv = TRUE,
   sparse = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
@@ -36,6 +37,8 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 \item{...}{Additional arguments.}
 
 \item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
+
+\item{use_sv}{Use SV term}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 

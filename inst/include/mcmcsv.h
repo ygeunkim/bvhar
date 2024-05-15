@@ -300,6 +300,17 @@ struct SvRecords {
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
 	}
+	Eigen::VectorXd computeActivity(double level) {
+		Eigen::VectorXd lower_ci(coef_record.cols());
+		Eigen::VectorXd upper_ci(coef_record.cols());
+		Eigen::VectorXd selection(coef_record.cols());
+		for (int i = 0; i < coef_record.cols(); ++i) {
+			// lower_ci[i] = quantile_lower(coef_record.col(i), level / 2);
+			// upper_ci[i] = quantile_upper(coef_record.col(i), 1 - level / 2);
+			selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
+		}
+		return selection;
+	}
 };
 
 struct SsvsRecords {
