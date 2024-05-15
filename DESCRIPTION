@@ -41,7 +41,7 @@ Imports:
     posterior,
     bayesplot
 LinkingTo: 
-    BH,
+    BH (>= 1.84.0-0),
     Rcpp,
     RcppEigen(>= 0.3.4.0.0)
 VignetteBuilder: knitr
