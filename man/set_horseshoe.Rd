@@ -7,7 +7,7 @@
 \alias{knit_print.horseshoespec}
 \title{Horseshoe Prior Specification}
 \usage{
-set_horseshoe(local_sparsity = 1, global_sparsity = 1)
+set_horseshoe(local_sparsity = 1, group_sparsity = 1, global_sparsity = 1)
 
 \method{print}{horseshoespec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

@@ -508,11 +508,17 @@ inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& respo
 // @param design_mat Design matrix for vectorized formulation
 // @param coef_vec Coefficients vector
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
-  int sample_size = response_vec.size();
-  double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
-  scl *= .5;
-  return 1 / gamma_rand(sample_size / 2, 1 / scl, rng);
+// inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+//   int sample_size = response_vec.size();
+//   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
+//   return 1 / gamma_rand(sample_size / 2, 2 / scl, rng);
+// }
+
+inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+  return 1 / gamma_rand(
+		design_mat.size() / 2,
+		2 / ((response_vec - design_mat * coef_vec).squaredNorm() + coef_vec.transpose() * shrink_mat * coef_vec), rng
+	);
 }
 
 // Generating the Squared Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler

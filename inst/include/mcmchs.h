@@ -75,7 +75,8 @@ public:
 	}
 	virtual void updateCoef() {
 		horseshoe_coef(coef_draw, response_vec, design_mat, sig_draw, lambda_mat, rng);
-		sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+		// sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+		sig_draw = horseshoe_var(response_vec, design_mat, coef_draw, lambda_mat, rng);
 	}
 	void updateCov() {
 		horseshoe_latent(latent_local, local_lev, rng);
@@ -91,9 +92,8 @@ public:
 		coef_record.row(mcmc_step) = coef_draw;
 		sig_record[mcmc_step] = sig_draw;
 		local_record.row(mcmc_step) = local_lev.cwiseSqrt();
-		// global_record.row(mcmc_step) = global_lev.cwiseSqrt();
-		group_record.row(mcmc_step) = group_lev;
-		global_record[mcmc_step] = global_lev;
+		group_record.row(mcmc_step) = group_lev.cwiseSqrt();
+		global_record[mcmc_step] = sqrt(global_lev);
 	}
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -168,10 +168,9 @@ public:
 		shrink_record.row(mcmc_step) = shrink_fac;
 		coef_record.row(mcmc_step) = block_coef.tail(num_coef);
 		sig_record[mcmc_step] = block_coef[0];
-		local_record.row(mcmc_step) = local_lev;
-		// global_record.row(mcmc_step) = global_lev;
-		group_record.row(mcmc_step) = group_lev;
-		global_record[mcmc_step] = global_lev;
+		local_record.row(mcmc_step) = local_lev.cwiseSqrt();
+		group_record.row(mcmc_step) = group_lev.cwiseSqrt();
+		global_record[mcmc_step] = sqrt(global_lev);
 	}
 private:
 	Eigen::VectorXd block_coef;
@@ -189,16 +188,16 @@ public:
 			sig_draw * lambda_mat,
 			rng
 		);
-		sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+		// sig_draw = horseshoe_var(response_vec, design_mat, lambda_mat, rng);
+		sig_draw = horseshoe_var(response_vec, design_mat, coef_draw, lambda_mat, rng);
 	}
 	void updateRecords() override {
 		shrink_record.row(mcmc_step) = shrink_fac;
 		coef_record.row(mcmc_step) = coef_draw;
 		sig_record[mcmc_step] = sig_draw;
-		local_record.row(mcmc_step) = local_lev;
-		// global_record.row(mcmc_step) = global_lev;
-		group_record.row(mcmc_step) = group_lev;
-		global_record[mcmc_step] = global_lev;
+		local_record.row(mcmc_step) = local_lev.cwiseSqrt();
+		group_record.row(mcmc_step) = group_lev.cwiseSqrt();
+		global_record[mcmc_step] = sqrt(global_lev);
 	}
 };
 
