@@ -454,7 +454,8 @@ inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec,
 	Eigen::MatrixXd post_sig = shrink_mat / var + design_mat.transpose() * design_mat;
 	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
 	Eigen::VectorXd post_mean = llt_sig.solve(design_mat.transpose() * response_vec);
-	coef = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+	// coef = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+	coef = post_mean + llt_sig.matrixU().solve(res);
 }
 
 // Generating the Coefficient Vector using Fast Sampling
@@ -511,7 +512,7 @@ inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& desi
   int sample_size = response_vec.size();
   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
   scl *= .5;
-  return 1 / gamma_rand(sample_size / 2, scl, rng);
+  return 1 / gamma_rand(sample_size / 2, 1 / scl, rng);
 }
 
 // Generating the Squared Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
