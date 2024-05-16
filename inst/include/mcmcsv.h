@@ -241,20 +241,26 @@ struct SsvsInits : public SvInits {
 
 struct HorseshoeInits : public SvInits {
 	Eigen::VectorXd _init_local;
-	Eigen::VectorXd _init_global;
+	Eigen::VectorXd _init_group;
+	// Eigen::VectorXd _init_global;
+	double _init_global;
 	Eigen::VectorXd _init_contem_local;
 	Eigen::VectorXd _init_conetm_global;
 	
 	HorseshoeInits(Rcpp::List& init)
 	: SvInits(init),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
+		// _init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 	HorseshoeInits(Rcpp::List& init, int num_design)
 	: SvInits(init, num_design),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
+		// _init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
+		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 };
@@ -341,20 +347,28 @@ struct SsvsRecords {
 
 struct HorseshoeRecords {
 	Eigen::MatrixXd local_record;
-	Eigen::MatrixXd global_record;
+	Eigen::MatrixXd group_record;
+	// Eigen::MatrixXd global_record;
+	Eigen::VectorXd global_record;
 	Eigen::MatrixXd shrink_record;
 
 	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
 	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
 	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
-		global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		// global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		global_record(Eigen::VectorXd::Zero(num_iter + 1)),
 		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
-	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
-	: local_record(local_record), global_record(global_record), shrink_record(shrink_record) {}
-	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
+	// HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
+	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record, const Eigen::MatrixXd& shrink_record)
+	: local_record(local_record), group_record(group_record), global_record(global_record), shrink_record(shrink_record) {}
+	// void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
+	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
 		shrink_record.row(id) = shrink_fac;
 		local_record.row(id) = local_lev;
-		global_record.row(id) = global_lev;
+		// global_record.row(id) = global_lev;
+		group_record.row(id) = group_lev;
+		global_record[id] = global_lev;
 	}
 };
 
@@ -808,35 +822,46 @@ public:
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
-		local_lev(inits._init_local), global_lev(inits._init_global),
+		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
+		local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
-		latent_local(Eigen::VectorXd::Zero(num_alpha)), latent_global(Eigen::VectorXd::Zero(num_grp)),
+		latent_local(Eigen::VectorXd::Zero(num_alpha)), latent_group(Eigen::VectorXd::Zero(num_grp)), latent_global(0.0),
 		lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)), latent_contem_global(Eigen::VectorXd::Zero(1)) {
-		hs_record.assignRecords(0, shrink_fac, local_lev, global_lev);
+		// hs_record.assignRecords(0, shrink_fac, local_lev, global_lev);
+		hs_record.assignRecords(0, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	virtual ~HorseshoeSv() = default;
 	void updateCoefPrec() override {
 		for (int j = 0; j < num_grp; j++) {
 			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-				global_lev[j],
+				// global_lev[j],
+				// global_lev * group_lev[j],
+				group_lev[j],
 				coef_var_loc
 			);
 		}
 		coef_var = coef_var_loc.reshaped();
-		build_shrink_mat(lambda_mat, coef_var, local_lev);
+		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
+		local_fac.array() = coef_var.array() * local_lev.array();
+		lambda_mat.setZero();
+		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array());
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}
 	void updateCoefShrink() override {
 		horseshoe_latent(latent_local, local_lev, rng);
+		// horseshoe_latent(latent_global, global_lev, rng);
+		horseshoe_latent(latent_group, group_lev, rng);
 		horseshoe_latent(latent_global, global_lev, rng);
+		global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
+		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), 1, rng);
-		horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
+		// horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
 	}
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
@@ -848,7 +873,7 @@ public:
 	}
 	void updateRecords() override {
 		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), global_lev.cwiseSqrt());
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), group_lev.cwiseSqrt(), sqrt(global_lev));
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -874,6 +899,7 @@ public:
 			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
 			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
 			Rcpp::Named("lambda_record") = hs_record.local_record,
+			Rcpp::Named("eta_record") = hs_record.group_record,
 			Rcpp::Named("tau_record") = hs_record.global_record,
 			Rcpp::Named("kappa_record") = hs_record.shrink_record
 		);
@@ -881,7 +907,12 @@ public:
 			res["c_record"] = sv_record.coef_record.rightCols(dim);
 		}
 		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
+				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			} else {
+				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+			}
+			// record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -891,6 +922,7 @@ public:
 	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
 		HorseshoeRecords res_record(
 			thin_record(hs_record.local_record, num_iter, num_burn, thin).derived(),
+			thin_record(hs_record.group_record, num_iter, num_burn, thin).derived(),
 			thin_record(hs_record.global_record, num_iter, num_burn, thin).derived(),
 			thin_record(hs_record.shrink_record, num_iter, num_burn, thin).derived()
 		);
@@ -904,10 +936,15 @@ private:
 	int num_grp;
 	HorseshoeRecords hs_record;
 	Eigen::VectorXd local_lev;
-	Eigen::VectorXd global_lev;
+	// Eigen::VectorXd global_lev;
+	Eigen::VectorXd group_lev;
+	double global_lev;
+	Eigen::VectorXd local_fac;
 	Eigen::VectorXd shrink_fac;
 	Eigen::VectorXd latent_local;
-	Eigen::VectorXd latent_global;
+	// Eigen::VectorXd latent_global;
+	Eigen::VectorXd latent_group;
+	double latent_global;
 	Eigen::MatrixXd lambda_mat;
 	Eigen::VectorXd coef_var;
 	Eigen::MatrixXd coef_var_loc;

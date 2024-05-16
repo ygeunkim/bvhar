@@ -328,19 +328,23 @@ bvhar_sv <- function(y,
         stop("Length of the vector 'local_sparsity' should be dim^2 * 3 or dim^2 * 3 + 1.")
       }
     }
-    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
+    # bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
+    bayes_spec$group_sparsity <- rep(bayes_spec$group_sparsity, num_grp)
     param_prior <- list()
     param_init <- lapply(
       param_init,
       function(init) {
         local_sparsity <- exp(runif(num_phi, -1, 1))
-        global_sparsity <- exp(runif(num_grp, -1, 1))
+        # global_sparsity <- exp(runif(num_grp, -1, 1))
+        global_sparsity <- exp(runif(1, -1, 1))
+        group_sparsity <- exp(runif(num_grp, -1, 1))
         contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
         contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
         append(
           init,
           list(
             local_sparsity = local_sparsity,
+            group_sparsity = group_sparsity,
             global_sparsity = global_sparsity,
             contem_local_sparsity = contem_local_sparsity,
             contem_global_sparsity = contem_global_sparsity
@@ -389,8 +393,17 @@ bvhar_sv <- function(y,
   colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
   rec_names <- colnames(res) # *_record
   param_names <- gsub(pattern = "_record$", replacement = "", rec_names) # phi, h, ...
-  # res <- apply(res, 2, function(x) do.call(cbind, x))
-  res <- apply(res, 2, function(x) do.call(rbind, x))
+  # res <- apply(res, 2, function(x) do.call(rbind, x))
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
   names(res) <- rec_names # *_record
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
@@ -462,6 +475,7 @@ bvhar_sv <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
+      res$eta_record,
       res$tau_record,
       res$kappa_record
     )

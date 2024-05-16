@@ -660,7 +660,7 @@ init_ssvs <- function(init_coef,
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsity = 1) {
   if (!is.vector(local_sparsity)) {
     stop("'local_sparsity' should be a vector.")
   }
@@ -680,6 +680,7 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
+    group_sparsity = group_sparsity,
     global_sparsity = global_sparsity#,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
