@@ -644,13 +644,14 @@ init_ssvs <- function(init_coef,
 #' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
 #' 
 #' @param local_sparsity Initial local shrinkage hyperparameters
+#' @param group_sparsity Initial group shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
 #' @details 
 #' Set horseshoe prior initialization for VAR family.
 #' 
-#' * `local_sparsity`: Local shrinkage for each row of coefficients matrix.
-#' * `global_sparsity`: (Initial) global shrinkage.
-#' * `init_cov`: Initial covariance matrix.
+#' * `local_sparsity`: Initial local shrinkage
+#' * `group_sparsity`: Initial group shrinkage
+#' * `global_sparsity`: Initial global shrinkage
 #' 
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.

@@ -18,6 +18,8 @@ is.horseshoespec(x)
 \arguments{
 \item{local_sparsity}{Initial local shrinkage hyperparameters}
 
+\item{group_sparsity}{Initial group shrinkage hyperparameters}
+
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
 \item{x}{\code{horseshoespec}}
@@ -32,9 +34,9 @@ Set initial hyperparameters and parameter before starting Gibbs sampler for Hors
 \details{
 Set horseshoe prior initialization for VAR family.
 \itemize{
-\item \code{local_sparsity}: Local shrinkage for each row of coefficients matrix.
-\item \code{global_sparsity}: (Initial) global shrinkage.
-\item \code{init_cov}: Initial covariance matrix.
+\item \code{local_sparsity}: Initial local shrinkage
+\item \code{group_sparsity}: Initial group shrinkage
+\item \code{global_sparsity}: Initial global shrinkage
 }
 
 In this package, horseshoe prior model is estimated by Gibbs sampling,
