@@ -548,8 +548,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' @noRd
-estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
+estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
