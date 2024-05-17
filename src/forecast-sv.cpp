@@ -122,6 +122,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 					bvhar::HorseshoeRecords hs_record(
 						Eigen::MatrixXd(),
 						Eigen::MatrixXd(),
+						Eigen::VectorXd(),
 						Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 					);
 					forecaster[i].reset(new bvhar::SvVarSparseForecaster(
@@ -296,6 +297,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 					bvhar::HorseshoeRecords hs_record(
 						Eigen::MatrixXd(),
 						Eigen::MatrixXd(),
+						Eigen::VectorXd(),
 						Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 					);
 					forecaster[i].reset(new bvhar::SvVharSparseForecaster(
@@ -465,6 +467,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 						bvhar::HorseshoeRecords hs_record(
 							Eigen::MatrixXd(),
 							Eigen::MatrixXd(),
+							Eigen::VectorXd(),
 							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 						);
 						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
@@ -781,6 +784,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 						bvhar::HorseshoeRecords hs_record(
 							Eigen::MatrixXd(),
 							Eigen::MatrixXd(),
+							Eigen::VectorXd(),
 							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 						);
 						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
@@ -1097,6 +1101,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 						bvhar::HorseshoeRecords hs_record(
 							Eigen::MatrixXd(),
 							Eigen::MatrixXd(),
+							Eigen::VectorXd(),
 							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 						);
 						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
@@ -1410,6 +1415,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 						bvhar::HorseshoeRecords hs_record(
 							Eigen::MatrixXd(),
 							Eigen::MatrixXd(),
+							Eigen::VectorXd(),
 							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
 						);
 						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
