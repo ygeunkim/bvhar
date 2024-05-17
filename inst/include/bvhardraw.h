@@ -428,7 +428,7 @@ inline void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::Ma
 // 
 // @param global_hyperparam Global sparsity hyperparameters
 // @param local_hyperparam Local sparsity hyperparameters
-inline void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyperparam, Eigen::VectorXd& local_hyperparam) {
+inline void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyperparam, Eigen::Ref<Eigen::VectorXd> local_hyperparam) {
 	cov.setZero();
   // cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array()).square();
 	cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array());
@@ -454,7 +454,8 @@ inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec,
 	Eigen::MatrixXd post_sig = shrink_mat / var + design_mat.transpose() * design_mat;
 	Eigen::LLT<Eigen::MatrixXd> llt_sig(post_sig);
 	Eigen::VectorXd post_mean = llt_sig.solve(design_mat.transpose() * response_vec);
-	coef = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+	// coef = post_mean + llt_sig.matrixU().solve(design_mat.transpose() * response_vec);
+	coef = post_mean + llt_sig.matrixU().solve(res);
 }
 
 // Generating the Coefficient Vector using Fast Sampling
@@ -507,11 +508,17 @@ inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& respo
 // @param design_mat Design matrix for vectorized formulation
 // @param coef_vec Coefficients vector
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
-inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
-  int sample_size = response_vec.size();
-  double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
-  scl *= .5;
-  return 1 / gamma_rand(sample_size / 2, scl, rng);
+// inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+//   int sample_size = response_vec.size();
+//   double scl = response_vec.transpose() * (Eigen::MatrixXd::Identity(sample_size, sample_size) - design_mat * shrink_mat * design_mat.transpose()) * response_vec;
+//   return 1 / gamma_rand(sample_size / 2, 2 / scl, rng);
+// }
+
+inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+  return 1 / gamma_rand(
+		design_mat.size() / 2,
+		2 / ((response_vec - design_mat * coef_vec).squaredNorm() + coef_vec.transpose() * shrink_mat * coef_vec), rng
+	);
 }
 
 // Generating the Squared Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -539,7 +546,7 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 // @param local_hyperparam Squared local sparsity hyperparameters vector
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
-inline double horseshoe_global_sparsity(double global_latent, Eigen::VectorXd& local_hyperparam,
+inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<Eigen::VectorXd> local_hyperparam,
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
 	double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array())).sum();
@@ -579,6 +586,29 @@ inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::Vec
   }
 }
 
+// For group shrinkage
+inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+                                  Eigen::VectorXd& group_latent, double& global_lev, Eigen::VectorXd& local_hyperparam,
+																	Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
+  int num_grp = grp_id.size();
+  int num_coef = coef_vec.size();
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < num_grp; i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_coef(mn_size);
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < num_coef; ++j) {
+			if (group_id[j]) {
+				mn_coef[k] = coef_vec[j];
+				mn_local[k++] = global_lev * local_hyperparam[j];
+			}
+		}
+    group_lev[i] = horseshoe_global_sparsity(group_latent[i], mn_local, mn_coef, prior_var, rng); 
+  }
+}
+
 // Generating the Latent Vector for Sparsity Hyperparameters in Horseshoe Gibbs Sampler
 // 
 // In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
@@ -589,6 +619,10 @@ inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperpara
   for (int i = 0; i < dim; i++) {
 		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam[i]), rng);
   }
+}
+// overloading
+inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::mt19937& rng) {
+  latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam), rng);
 }
 
 // Generating lambda of Minnesota-SV

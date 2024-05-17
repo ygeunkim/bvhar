@@ -289,13 +289,16 @@ bvar_sv <- function(y,
         stop("Length of the vector 'local_sparsity' should be dim * p or dim * p + 1.")
       }
     }
-    bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
+    # bayes_spec$global_sparsity <- rep(bayes_spec$global_sparsity, num_grp)
+    bayes_spec$group_sparsity <- rep(bayes_spec$group_sparsity, num_grp)
     param_prior <- list()
     param_init <- lapply(
       param_init,
       function(init) {
         local_sparsity <- exp(runif(num_alpha, -1, 1))
-        global_sparsity <- exp(runif(num_grp, -1, 1))
+        # global_sparsity <- exp(runif(num_grp, -1, 1))
+        global_sparsity <- exp(runif(1, -1, 1))
+        group_sparsity <- exp(runif(num_grp, -1, 1))
         contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
         contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
         append(
@@ -303,6 +306,7 @@ bvar_sv <- function(y,
           list(
             local_sparsity = local_sparsity,
             global_sparsity = global_sparsity,
+            group_sparsity = group_sparsity,
             contem_local_sparsity = contem_local_sparsity,
             contem_global_sparsity = contem_global_sparsity
           )
@@ -349,7 +353,17 @@ bvar_sv <- function(y,
   res <- do.call(rbind, res)
   rec_names <- colnames(res)
   param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-  res <- apply(res, 2, function(x) do.call(rbind, x))
+  # res <- apply(res, 2, function(x) do.call(rbind, x))
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
   names(res) <- rec_names
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
@@ -421,6 +435,7 @@ bvar_sv <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
+      res$eta_record,
       res$tau_record,
       res$kappa_record
     )

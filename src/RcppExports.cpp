@@ -539,8 +539,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_sur_horseshoe
-Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_global, double init_sigma, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, int blocked_gibbs, bool fast, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::VectorXd init_local, Eigen::VectorXd init_group, double init_global, double init_sigma, Eigen::VectorXi grp_id, Eigen::MatrixXi grp_mat, int blocked_gibbs, bool fast, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
+RcppExport SEXP _bvhar_estimate_sur_horseshoe(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP init_localSEXP, SEXP init_groupSEXP, SEXP init_globalSEXP, SEXP init_sigmaSEXP, SEXP grp_idSEXP, SEXP grp_matSEXP, SEXP blocked_gibbsSEXP, SEXP fastSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -551,7 +551,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_local(init_localSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_global(init_globalSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type init_group(init_groupSEXP);
+    Rcpp::traits::input_parameter< double >::type init_global(init_globalSEXP);
     Rcpp::traits::input_parameter< double >::type init_sigma(init_sigmaSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type grp_id(grp_idSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type grp_mat(grp_matSEXP);
@@ -560,7 +561,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_sur_horseshoe(num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1623,7 +1624,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvar_mh", (DL_FUNC) &_bvhar_estimate_bvar_mh, 13},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 10},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
-    {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 16},
+    {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 17},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 32},
     {"_bvhar_estimate_var_sv", (DL_FUNC) &_bvhar_estimate_var_sv, 19},
     {"_bvhar_estimate_var", (DL_FUNC) &_bvhar_estimate_var, 4},

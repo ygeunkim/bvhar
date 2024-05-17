@@ -644,13 +644,14 @@ init_ssvs <- function(init_coef,
 #' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
 #' 
 #' @param local_sparsity Initial local shrinkage hyperparameters
+#' @param group_sparsity Initial group shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
 #' @details 
 #' Set horseshoe prior initialization for VAR family.
 #' 
-#' * `local_sparsity`: Local shrinkage for each row of coefficients matrix.
-#' * `global_sparsity`: (Initial) global shrinkage.
-#' * `init_cov`: Initial covariance matrix.
+#' * `local_sparsity`: Initial local shrinkage
+#' * `group_sparsity`: Initial group shrinkage
+#' * `global_sparsity`: Initial global shrinkage
 #' 
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.
@@ -660,7 +661,7 @@ init_ssvs <- function(init_coef,
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsity = 1) {
   if (!is.vector(local_sparsity)) {
     stop("'local_sparsity' should be a vector.")
   }
@@ -680,6 +681,7 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
+    group_sparsity = group_sparsity,
     global_sparsity = global_sparsity#,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
