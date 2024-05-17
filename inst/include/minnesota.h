@@ -264,6 +264,45 @@ protected:
 	Eigen::MatrixXd scale; // IW scale
 };
 
+class McmcMniw {
+public:
+	McmcMniw(int num_iter, const MinnFit& mn_fit, unsigned int seed)
+	: mn_fit(mn_fit),
+		num_iter(num_iter), dim(mn_fit._coef.cols()), dim_design(mn_fit._coef.rows()),
+		mn_record(num_iter, dim, dim_design),
+		mniw(2), mcmc_step(0), rng(seed) {}
+	virtual ~McmcMniw() = default;
+	void addStep() { mcmc_step++; }
+	void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
+	void updateMniw() { mniw = sim_mn_iw(mn_fit._coef, mn_fit._prec, mn_fit._iw_scale, mn_fit._iw_shape, true, rng); }
+	void doPosteriorDraws() {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateMniw();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = mn_record.coef_record,
+			Rcpp::Named("sigma_record") = mn_record.sig_record
+		);
+		for (auto& record : res) {
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+		}
+		return res;
+	}
+private:
+	MinnFit mn_fit;
+	int num_iter;
+	int dim;
+	int dim_design;
+	MinnRecords mn_record;
+	std::vector<Eigen::MatrixXd> mniw;
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
+	std::mutex mtx;
+};
+
 // class MinnBvar {
 // public:
 // 	MinnBvar(
