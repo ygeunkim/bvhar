@@ -122,7 +122,8 @@ bvar_horseshoe <- function(y,
     include_mean = include_mean
   )
   grp_id <- unique(c(glob_idmat))
-  global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+  # global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+  bayes_spec$group_sparsity <- rep(bayes_spec$group_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -143,7 +144,8 @@ bvar_horseshoe <- function(y,
     x = X0,
     y = Y0,
     init_local = bayes_spec$local_sparsity,
-    init_global = global_sparsity,
+    init_group = bayes_spec$group_sparsity,
+    init_global = bayes_spec$global_sparsity,
     init_sigma = 1,
     grp_id = grp_id,
     grp_mat = glob_idmat,
@@ -201,6 +203,7 @@ bvar_horseshoe <- function(y,
   res$param <- bind_draws(
     res$alpha_record,
     res$lambda_record,
+    res$eta_record,
     res$tau_record,
     res$sigma_record,
     res$kappa_record

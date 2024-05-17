@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* `set_horseshoe()` has additional setting for `group_shrinkage`. Horseshoe sampling now has additional group shrinkage level parameters.
+
 * `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
 
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.

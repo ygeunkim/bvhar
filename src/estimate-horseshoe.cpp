@@ -26,7 +26,8 @@
 Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, int thin,
                                   Eigen::MatrixXd x, Eigen::MatrixXd y,
                                   Eigen::VectorXd init_local,
-                                  Eigen::VectorXd init_global,
+																	Eigen::VectorXd init_group,
+                                  double init_global,
                                   double init_sigma,
                                   Eigen::VectorXi grp_id,
                                   Eigen::MatrixXi grp_mat,
@@ -40,7 +41,7 @@ Rcpp::List estimate_sur_horseshoe(int num_chains, int num_iter, int num_burn, in
 	std::vector<std::unique_ptr<bvhar::McmcHs>> hs_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	bvhar::HsParams hs_params(
-		num_iter, x, y, init_local, init_global, init_sigma,
+		num_iter, x, y, init_local, init_group, init_global, init_sigma,
 		grp_id, grp_mat
 	);
 	switch (blocked_gibbs) {
