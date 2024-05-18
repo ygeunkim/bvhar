@@ -7,30 +7,31 @@
 
 namespace bvhar {
 
-struct SvParams {
-	int _iter;
-	Eigen::MatrixXd _x;
-	Eigen::MatrixXd _y;
-	Eigen::VectorXd _sig_shp;
-	Eigen::VectorXd _sig_scl;
+struct SvParams : public RegParams {
+	// int _iter;
+	// Eigen::MatrixXd _x;
+	// Eigen::MatrixXd _y;
+	// Eigen::VectorXd _sig_shp;
+	// Eigen::VectorXd _sig_scl;
 	Eigen::VectorXd _init_mean;
 	Eigen::MatrixXd _init_prec;
-	Eigen::VectorXd _mean_non;
-	double _sd_non;
-	bool _mean;
+	// Eigen::VectorXd _mean_non;
+	// double _sd_non;
+	// bool _mean;
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& spec, Rcpp::List& intercept,
 		bool include_mean
 	)
-	: _iter(num_iter), _x(x), _y(y),
-		_sig_shp(Rcpp::as<Eigen::VectorXd>(spec["shape"])),
-		_sig_scl(Rcpp::as<Eigen::VectorXd>(spec["scale"])),
+	: RegParams(num_iter, x, y, spec, intercept, include_mean),
+		// _iter(num_iter), _x(x), _y(y),
+		// _sig_shp(Rcpp::as<Eigen::VectorXd>(spec["shape"])),
+		// _sig_scl(Rcpp::as<Eigen::VectorXd>(spec["scale"])),
 		_init_mean(Rcpp::as<Eigen::VectorXd>(spec["initial_mean"])),
-		_init_prec(Rcpp::as<Eigen::MatrixXd>(spec["initial_prec"])),
-		_mean_non(Rcpp::as<Eigen::VectorXd>(intercept["mean_non"])),
-		_sd_non(intercept["sd_non"]), _mean(include_mean) {}
+		_init_prec(Rcpp::as<Eigen::MatrixXd>(spec["initial_prec"])) {}
+		// _mean_non(Rcpp::as<Eigen::VectorXd>(intercept["mean_non"])),
+		// _sd_non(intercept["sd_non"]), _mean(include_mean) {}
 };
 
 struct MinnParams : public SvParams {
@@ -181,32 +182,35 @@ struct HorseshoeParams : public SvParams {
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
 };
 
-struct SvInits {
-	Eigen::MatrixXd _coef;
-	Eigen::VectorXd _contem;
+struct SvInits : public RegInits {
+	// Eigen::MatrixXd _coef;
+	// Eigen::VectorXd _contem;
 	Eigen::VectorXd _lvol_init;
 	Eigen::MatrixXd _lvol;
 	Eigen::VectorXd _lvol_sig;
 
-	SvInits(const SvParams& params) {
-		_coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
+	SvInits(const SvParams& params)
+	: RegInits(params) {
+		// _coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
 		int dim = params._y.cols();
-		int num_lowerchol = dim * (dim - 1) / 2;
+		// int num_lowerchol = dim * (dim - 1) / 2;
 		int num_design = params._y.rows();
-		_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
+		// _contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 		_lvol_init = (params._y - params._x * _coef).transpose().array().square().rowwise().mean().log();
 		_lvol = _lvol_init.transpose().replicate(num_design, 1);
 		_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	}
 	SvInits(Rcpp::List& init)
-	: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
-		_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
+	: RegInits(init),
+		// _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
+		// _contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(Rcpp::as<Eigen::MatrixXd>(init["lvol"])),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
 	SvInits(Rcpp::List& init, int num_design)
-	: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
-		_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
+	: RegInits(init),
+		// _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
+		// _contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
@@ -265,16 +269,17 @@ struct HorseshoeInits : public SvInits {
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 };
 
-struct SvRecords {
-	Eigen::MatrixXd coef_record; // alpha in VAR
-	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+struct SvRecords : public RegRecords {
+	// Eigen::MatrixXd coef_record; // alpha in VAR
+	// Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
 	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
 	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	
 	SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
-	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
-		contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)),
+	: RegRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
+		// coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
+		// contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)),
 		lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
 		lvol_init_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
 		lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {}
@@ -282,14 +287,16 @@ struct SvRecords {
 		const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& h_record,
 		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& sigh_record
 	)
-	: coef_record(alpha_record), contem_coef_record(a_record),
+	: RegRecords(alpha_record, a_record),
+		// coef_record(alpha_record), contem_coef_record(a_record),
 		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
 		lvol_record(h_record) {}
 	SvRecords(
 		const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& c_record, const Eigen::MatrixXd& h_record,
 		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& sigh_record
 	)
-	: coef_record(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols())), contem_coef_record(a_record),
+	: RegRecords(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols()), a_record),
+		// coef_record(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols())), contem_coef_record(a_record),
 		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
 		lvol_record(h_record) {
 		coef_record << alpha_record, c_record;
@@ -306,70 +313,17 @@ struct SvRecords {
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
 	}
-	Eigen::VectorXd computeActivity(double level) {
-		Eigen::VectorXd lower_ci(coef_record.cols());
-		Eigen::VectorXd upper_ci(coef_record.cols());
-		Eigen::VectorXd selection(coef_record.cols());
-		for (int i = 0; i < coef_record.cols(); ++i) {
-			// lower_ci[i] = quantile_lower(coef_record.col(i), level / 2);
-			// upper_ci[i] = quantile_upper(coef_record.col(i), 1 - level / 2);
-			selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
-		}
-		return selection;
-	}
-};
-
-struct SsvsRecords {
-	Eigen::MatrixXd coef_dummy_record;
-	Eigen::MatrixXd coef_weight_record;
-	Eigen::MatrixXd contem_dummy_record;
-	Eigen::MatrixXd contem_weight_record;
-
-	SsvsRecords() : coef_dummy_record(), coef_weight_record(), contem_dummy_record(), contem_weight_record() {}
-	SsvsRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
-	: coef_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_alpha)),
-		coef_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		contem_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol)),
-		contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
-	SsvsRecords(
-		const Eigen::MatrixXd& coef_dummy_record, const Eigen::MatrixXd& coef_weight_record,
-		const Eigen::MatrixXd& contem_dummy_record, const Eigen::MatrixXd& contem_weight_record
-	)
-	: coef_dummy_record(coef_dummy_record), coef_weight_record(coef_weight_record),
-		contem_dummy_record(contem_dummy_record), contem_weight_record(contem_weight_record) {}
-	void assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight) {
-		coef_dummy_record.row(id) = coef_dummy;
-		coef_weight_record.row(id) = coef_weight;
-		contem_dummy_record.row(id) = contem_dummy;
-		contem_weight_record.row(id) = contem_weight;
-	}
-};
-
-struct HorseshoeRecords {
-	Eigen::MatrixXd local_record;
-	Eigen::MatrixXd group_record;
-	// Eigen::MatrixXd global_record;
-	Eigen::VectorXd global_record;
-	Eigen::MatrixXd shrink_record;
-
-	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
-	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
-	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
-		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		// global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		global_record(Eigen::VectorXd::Zero(num_iter + 1)),
-		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
-	// HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
-	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record, const Eigen::MatrixXd& shrink_record)
-	: local_record(local_record), group_record(group_record), global_record(global_record), shrink_record(shrink_record) {}
-	// void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
-	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
-		shrink_record.row(id) = shrink_fac;
-		local_record.row(id) = local_lev;
-		// global_record.row(id) = global_lev;
-		group_record.row(id) = group_lev;
-		global_record[id] = global_lev;
-	}
+	// Eigen::VectorXd computeActivity(double level) {
+	// 	Eigen::VectorXd lower_ci(coef_record.cols());
+	// 	Eigen::VectorXd upper_ci(coef_record.cols());
+	// 	Eigen::VectorXd selection(coef_record.cols());
+	// 	for (int i = 0; i < coef_record.cols(); ++i) {
+	// 		// lower_ci[i] = quantile_lower(coef_record.col(i), level / 2);
+	// 		// upper_ci[i] = quantile_upper(coef_record.col(i), 1 - level / 2);
+	// 		selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
+	// 	}
+	// 	return selection;
+	// }
 };
 
 class McmcSv {
