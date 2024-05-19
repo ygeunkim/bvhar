@@ -809,7 +809,7 @@ inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd&
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		diag_vec[i] = 1 / gamma_rand(
       shape[i] + 1 / 2,
-			1 / (scl[i] + ortho_latent.col(i).sum() / 2),
+			1 / (scl[i] + ortho_latent.col(i).squaredNorm() / 2),
 			rng
     );
 	}

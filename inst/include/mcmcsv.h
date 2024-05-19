@@ -34,12 +34,12 @@ struct SvParams : public RegParams {
 		// _sd_non(intercept["sd_non"]), _mean(include_mean) {}
 };
 
-struct MinnParams : public SvParams {
+struct MinnSvParams : public SvParams {
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
 
-	MinnParams(
+	MinnSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
 		bool include_mean
@@ -74,7 +74,7 @@ struct MinnParams : public SvParams {
 	}
 };
 
-struct Hierminnparams : public SvParams {
+struct HierminnSvParams : public SvParams {
 	// double _lambda;
 	double shape;
 	double rate;
@@ -86,7 +86,7 @@ struct Hierminnparams : public SvParams {
 	std::set<int> _own_id;
 	std::set<int> _cross_id;
 
-	Hierminnparams(
+	HierminnSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
@@ -136,7 +136,7 @@ struct Hierminnparams : public SvParams {
 	}
 };
 
-struct SsvsParams : public SvParams {
+struct SsvsSvParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _coef_spike;
@@ -150,7 +150,7 @@ struct SsvsParams : public SvParams {
 	double _contem_s1;
 	double _contem_s2;
 
-	SsvsParams(
+	SsvsSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
@@ -169,11 +169,11 @@ struct SsvsParams : public SvParams {
 		_contem_s1(ssvs_spec["chol_s1"]), _contem_s2(ssvs_spec["chol_s2"]) {}
 };
 
-struct HorseshoeParams : public SvParams {
+struct HsSvParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
 
-	HorseshoeParams(
+	HsSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		Rcpp::List& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
@@ -216,34 +216,34 @@ struct SvInits : public RegInits {
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
 };
 
-struct HierMinnInits : public SvInits {
+struct HierminnSvInits : public SvInits {
 	double _own_lambda;
 	double _cross_lambda;
 	double _contem_lambda;
 
-	HierMinnInits(Rcpp::List& init)
+	HierminnSvInits(Rcpp::List& init)
 	: SvInits(init),
-	_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
+		_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
 };
 
-struct SsvsInits : public SvInits {
+struct SsvsSvInits : public SvInits {
 	Eigen::VectorXd _coef_dummy;
-	Eigen::VectorXd _coef_weight; // in SsvsParams: move coef_mixture and chol_mixture in set_ssvs()?
-	Eigen::VectorXd _contem_weight; // in SsvsParams
+	Eigen::VectorXd _coef_weight; // in SsvsSvParams: move coef_mixture and chol_mixture in set_ssvs()?
+	Eigen::VectorXd _contem_weight; // in SsvsSvParams
 	
-	SsvsInits(Rcpp::List& init)
+	SsvsSvInits(Rcpp::List& init)
 	: SvInits(init),
 		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
 		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
 		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
-	SsvsInits(Rcpp::List& init, int num_design)
+	SsvsSvInits(Rcpp::List& init, int num_design)
 	: SvInits(init, num_design),
 		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
 		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
 		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
 };
 
-struct HorseshoeInits : public SvInits {
+struct HsSvInits : public SvInits {
 	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_group;
 	// Eigen::VectorXd _init_global;
@@ -251,7 +251,7 @@ struct HorseshoeInits : public SvInits {
 	Eigen::VectorXd _init_contem_local;
 	Eigen::VectorXd _init_conetm_global;
 	
-	HorseshoeInits(Rcpp::List& init)
+	HsSvInits(Rcpp::List& init)
 	: SvInits(init),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
 		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
@@ -259,7 +259,7 @@ struct HorseshoeInits : public SvInits {
 		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
-	HorseshoeInits(Rcpp::List& init, int num_design)
+	HsSvInits(Rcpp::List& init, int num_design)
 	: SvInits(init, num_design),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
 		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
@@ -486,7 +486,7 @@ private:
 
 class MinnSv : public McmcSv {
 public:
-	MinnSv(const MinnParams& params, const SvInits& inits, unsigned int seed) : McmcSv(params, inits, seed) {
+	MinnSv(const MinnSvParams& params, const SvInits& inits, unsigned int seed) : McmcSv(params, inits, seed) {
 		// prior_alpha_mean.head(num_alpha) = vectorize_eigen(params._prior_mean);
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
@@ -538,7 +538,7 @@ public:
 
 class HierminnSv : public McmcSv {
 public:
-	HierminnSv(const Hierminnparams& params, const HierMinnInits& inits, unsigned int seed)
+	HierminnSv(const HierminnSvParams& params, const HierminnSvInits& inits, unsigned int seed)
 		: McmcSv(params, inits, seed),
 			own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
@@ -651,7 +651,7 @@ private:
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(const SsvsParams& params, const SsvsInits& inits, unsigned int seed)
+	SsvsSv(const SsvsSvParams& params, const SsvsSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
@@ -772,7 +772,7 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(const HorseshoeParams& params, const HorseshoeInits& inits, unsigned int seed)
+	HorseshoeSv(const HsSvParams& params, const HsSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
