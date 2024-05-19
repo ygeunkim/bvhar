@@ -1,6 +1,6 @@
 #' Fitting Bayesian VAR(p) of Horseshoe Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with horseshoe prior.
+#' `r lifecycle::badge("deprecated")` This function fits BVAR(p) with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
@@ -64,6 +64,7 @@ bvar_horseshoe <- function(y,
                            algo = c("block", "gibbs"),
                            verbose = FALSE,
                            num_thread = 1) {
+  deprecate_warn("2.0.1", "bvar_horseshoe()", "var_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of SSVS Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+#' `r lifecycle::badge("deprecated")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
@@ -80,6 +80,7 @@ bvhar_ssvs <- function(y,
                        minnesota = c("no", "short", "longrun"),
                        verbose = FALSE,
                        num_thread = 1) {
+  deprecate_warn("2.0.1", "bvhar_ssvs()", "vhar_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

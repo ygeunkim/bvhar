@@ -1,7 +1,9 @@
 #' Fitting Bayesian VHAR-SV
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' This function fits VHAR-SV.
 #' It can have Minnesota, SSVS, and Horseshoe prior.
+#' This function is deprecated. Use [vhar_bayes()] with `cov_spec = set_sv()` option.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
@@ -82,6 +84,7 @@ bvhar_sv <- function(y,
                      convergence = NULL,
                      verbose = FALSE,
                      num_thread = 1) {
+  deprecate_soft("2.0.1", "bvhar_sv()", "vhar_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

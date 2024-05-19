@@ -1,6 +1,6 @@
 #' Fitting Bayesian VAR(p) of SSVS Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+#' `r lifecycle::badge("deprecated")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
@@ -77,6 +77,7 @@ bvar_ssvs <- function(y,
                       minnesota = FALSE,
                       verbose = FALSE,
                       num_thread = 1) {
+  deprecate_warn("2.0.1", "bvar_ssvs()", "var_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

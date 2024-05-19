@@ -46,8 +46,9 @@ etf_test <- etf_eval$test
 - `thinning`: Thinning
 - `bayes_spec`: Output of `set_ssvs()`
     - By default, use a default semi-automatic approach using `choose_ssvs()`.
-- `init_spec`: Gibbs sampler initialization by `init_ssvs()`.
-  - By default, `init_ssvs(type = "auto")` uses OLS.
+<!-- - `init_spec`: Gibbs sampler initialization by `init_ssvs()`. -->
+  <!-- - By default, `init_ssvs(type = "auto")` uses OLS. -->
+- `cov_spec`: Covariance prior specification. Use `set_ldlt()` for homoskedastic model.
 - `include_mean = TRUE`: By default, you include the constant term in the model.
 - `minnesota = c("no", "short", "longrun")`: Minnesota-type shrinkage.
 - `verbose = FALSE`: Progress bar
@@ -56,7 +57,7 @@ etf_test <- etf_eval$test
     - This option is valid only when OpenMP in user's machine.
 
 ```{r fitssvs}
-(fit_ssvs <- bvhar_ssvs(etf_train, num_chains = 1, num_iter = 20, include_mean = FALSE, minnesota = "longrun"))
+(fit_ssvs <- vhar_bayes(etf_train, num_chains = 1, num_iter = 20, bayes_spec = set_ssvs(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 `autoplot()` for the fit (`bvharsp` object) provides coefficients heatmap.
@@ -72,7 +73,7 @@ autoplot(fit_ssvs)
 `bayes_spec` is the initial specification by `set_horseshoe()`. Others are the same.
 
 ```{r fiths}
-(fit_hs <- bvhar_horseshoe(etf_train, num_chains = 2, num_iter = 20, include_mean = FALSE, minnesota = "longrun"))
+(fit_hs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, bayes_spec = set_horseshoe(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ```{r heaths}
