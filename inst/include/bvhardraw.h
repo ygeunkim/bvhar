@@ -806,9 +806,10 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 // @param rng boost rng
 inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
 													Eigen::MatrixXd& ortho_latent, boost::random::mt19937& rng) {
+	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		diag_vec[i] = 1 / gamma_rand(
-      shape[i] + 1 / 2,
+      shape[i] + num_design / 2,
 			1 / (scl[i] + ortho_latent.col(i).squaredNorm() / 2),
 			rng
     );
