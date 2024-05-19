@@ -6,6 +6,129 @@
 
 namespace bvhar {
 
+struct RegParams {
+	int _iter;
+	Eigen::MatrixXd _x;
+	Eigen::MatrixXd _y;
+	Eigen::VectorXd _sig_shp;
+	Eigen::VectorXd _sig_scl;
+	Eigen::VectorXd _mean_non;
+	double _sd_non;
+	bool _mean;
+
+	RegParams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		Rcpp::List& spec, Rcpp::List& intercept,
+		bool include_mean
+	)
+	: _iter(num_iter), _x(x), _y(y),
+		_sig_shp(Rcpp::as<Eigen::VectorXd>(spec["shape"])),
+		_sig_scl(Rcpp::as<Eigen::VectorXd>(spec["scale"])),
+		_mean_non(Rcpp::as<Eigen::VectorXd>(intercept["mean_non"])),
+		_sd_non(intercept["sd_non"]), _mean(include_mean) {}
+};
+
+struct RegInits {
+	Eigen::MatrixXd _coef;
+	Eigen::VectorXd _contem;
+
+	RegInits(const RegParams& params) {
+		_coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
+		int dim = params._y.cols();
+		int num_lowerchol = dim * (dim - 1) / 2;
+		int num_design = params._y.rows();
+		_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
+	}
+	RegInits(Rcpp::List& init)
+	: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
+		_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])) {}
+};
+
+struct RegRecords {
+	Eigen::MatrixXd coef_record; // alpha in VAR
+	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
+
+	RegRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
+	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
+		contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+	
+	RegRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record)
+	: coef_record(alpha_record), contem_coef_record(a_record) {}
+	// void assignRecords(
+	// 	int id,
+	// 	const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec
+	// ) {
+	// 	coef_record.row(id) = coef_vec;
+	// 	contem_coef_record.row(id) = contem_coef;
+	// 	fac_record.row(id) = diag_vec;
+	// }
+
+	Eigen::VectorXd computeActivity(double level) {
+		Eigen::VectorXd lower_ci(coef_record.cols());
+		Eigen::VectorXd upper_ci(coef_record.cols());
+		Eigen::VectorXd selection(coef_record.cols());
+		for (int i = 0; i < coef_record.cols(); ++i) {
+			// lower_ci[i] = quantile_lower(coef_record.col(i), level / 2);
+			// upper_ci[i] = quantile_upper(coef_record.col(i), 1 - level / 2);
+			selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
+		}
+		return selection;
+	}
+};
+
+struct SsvsRecords {
+	Eigen::MatrixXd coef_dummy_record;
+	Eigen::MatrixXd coef_weight_record;
+	Eigen::MatrixXd contem_dummy_record;
+	Eigen::MatrixXd contem_weight_record;
+
+	SsvsRecords() : coef_dummy_record(), coef_weight_record(), contem_dummy_record(), contem_weight_record() {}
+	SsvsRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+	: coef_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_alpha)),
+		coef_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		contem_dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, num_lowerchol)),
+		contem_weight_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+	SsvsRecords(
+		const Eigen::MatrixXd& coef_dummy_record, const Eigen::MatrixXd& coef_weight_record,
+		const Eigen::MatrixXd& contem_dummy_record, const Eigen::MatrixXd& contem_weight_record
+	)
+	: coef_dummy_record(coef_dummy_record), coef_weight_record(coef_weight_record),
+		contem_dummy_record(contem_dummy_record), contem_weight_record(contem_weight_record) {}
+	void assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight) {
+		coef_dummy_record.row(id) = coef_dummy;
+		coef_weight_record.row(id) = coef_weight;
+		contem_dummy_record.row(id) = contem_dummy;
+		contem_weight_record.row(id) = contem_weight;
+	}
+};
+
+struct HorseshoeRecords {
+	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd group_record;
+	// Eigen::MatrixXd global_record;
+	Eigen::VectorXd global_record;
+	Eigen::MatrixXd shrink_record;
+
+	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
+	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
+		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		// global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		global_record(Eigen::VectorXd::Zero(num_iter + 1)),
+		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
+	// HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
+	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record, const Eigen::MatrixXd& shrink_record)
+	: local_record(local_record), group_record(group_record), global_record(global_record), shrink_record(shrink_record) {}
+	// void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
+	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		shrink_record.row(id) = shrink_fac;
+		local_record.row(id) = local_lev;
+		// global_record.row(id) = global_lev;
+		group_record.row(id) = group_lev;
+		global_record[id] = global_lev;
+	}
+};
+
 // Numerically Stable Log Marginal Likelihood Excluding Constant Term
 // 
 // This function computes log of ML stable,
@@ -672,6 +795,24 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 	double gig_chi = (coef - coef_mean).squaredNorm();
 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
 	coef_prec.diagonal() /= lambda;
+}
+
+// Draw d_i in D from cholesky decomposition of precision matrix
+// 
+// @param diag_vec d_i vector
+// @param shape IG shape of d_i prior
+// @param scl IG scale of d_i prior
+// @param ortho_latent Residual matrix of triangular equation
+// @param rng boost rng
+inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
+													Eigen::MatrixXd& ortho_latent, boost::random::mt19937& rng) {
+	for (int i = 0; i < diag_vec.size(); ++i) {
+		diag_vec[i] = 1 / gamma_rand(
+      shape[i] + 1 / 2,
+			1 / (scl[i] + ortho_latent.col(i).squaredNorm() / 2),
+			rng
+    );
+	}
 }
 
 template<typename Derived>

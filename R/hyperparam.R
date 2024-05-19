@@ -640,24 +640,24 @@ init_ssvs <- function(init_coef,
 }
 
 #' Horseshoe Prior Specification
-#' 
+#'
 #' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
-#' 
+#'
 #' @param local_sparsity Initial local shrinkage hyperparameters
 #' @param group_sparsity Initial group shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
-#' @details 
+#' @details
 #' Set horseshoe prior initialization for VAR family.
-#' 
+#'
 #' * `local_sparsity`: Initial local shrinkage
 #' * `group_sparsity`: Initial group shrinkage
 #' * `global_sparsity`: Initial global shrinkage
-#' 
+#'
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.
-#' @references 
+#' @references
 #' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480.
-#' 
+#'
 #' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
 #' @order 1
 #' @export
@@ -682,20 +682,49 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
     group_sparsity = group_sparsity,
-    global_sparsity = global_sparsity#,init_cov = init_cov
+    global_sparsity = global_sparsity # ,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
   res
 }
 
-#' Stochastic Volatility Specification
-#' 
-#' `r lifecycle::badge("experimental")` Set SV hyperparameters.
-#' 
-#' @param ig_shape Inverse-Gamma shape of state variance.
-#' @param ig_scl Inverse-Gamma scale of state variance.
+#' Covariance Matrix Prior Specification
+#'
+#' `r lifecycle::badge("experimental")` Set prior for covariance matrix.
+#'
+#' @param ig_shape Inverse-Gamma shape of Cholesky diagonal vector.
+#' For SV ([set_sv()]), this is for state variance.
+#' @param ig_scl Inverse-Gamma scale of Cholesky diagonal vector.
+#' For SV ([set_sv()]), this is for state variance.
+#' @details
+#' [set_ldlt()] specifies LDLT of precision matrix,
+#' \deqn{\Sigma^{-1} = L^T D^{-1} L}
+#' @order 1
+#' @export
+set_ldlt <- function(ig_shape = 3, ig_scl = .01) {
+  if (!is.vector(ig_shape) ||
+    !is.vector(ig_scl)) {
+    stop("'ig_shape' and 'ig_scl' should be a vector.")
+  }
+  if ((length(ig_shape) != length(ig_scl))) {
+    stop("'ig_shape' and 'ig_scl' should have same length.")
+  }
+  res <- list(
+    process = "Homoskedastic",
+    prior = "Cholesky",
+    shape = ig_shape,
+    scale = ig_scl
+  )
+  class(res) <- c("ldltspec", "covspec")
+  res
+}
+
+#' @rdname set_ldlt
 #' @param initial_mean Prior mean of initial state.
 #' @param initial_prec Prior precision of initial state.
+#' @details
+#' [set_sv()] specifices time varying precision matrix under stochastic volatility framework based on
+#' \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L}
 #' @references
 #' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
 #'
@@ -729,6 +758,6 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
     initial_mean = initial_mean,
     initial_prec = initial_prec
   )
-  class(res) <- "svspec"
+  class(res) <- c("svspec", "covspec")
   res
 }

@@ -1,7 +1,7 @@
-#include "mcmcsv.h"
+#include "mcmcreg.h"
 #include "bvharinterrupt.h"
 
-//' VAR-SV by Gibbs Sampler
+//' VAR with Shrinkage Priors
 //' 
 //' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
 //' 
@@ -11,7 +11,7 @@
 //' @param thin Thinning
 //' @param x Design matrix X0
 //' @param y Response matrix Y0
-//' @param param_sv SV specification list
+//' @param param_reg Regression specification list
 //' @param param_prior Prior specification list
 //' @param param_intercept Intercept specification list
 //' @param param_init Initialization specification list
@@ -24,41 +24,35 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
-                           Eigen::MatrixXd x, Eigen::MatrixXd y,
-													 Rcpp::List param_sv,
-													 Rcpp::List param_prior,
-													 Rcpp::List param_intercept,
-													 Rcpp::List param_init,
-                           int prior_type,
-                           Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id,
-                           Eigen::MatrixXi grp_mat,
-                           bool include_mean,
-													 Eigen::VectorXi seed_chain,
-                           bool display_progress, int nthreads) {
+Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
+                        Eigen::MatrixXd x, Eigen::MatrixXd y,
+												Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept,
+												Rcpp::List param_init, int prior_type,
+                        Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+                        bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
-	std::vector<std::unique_ptr<bvhar::McmcSv>> sv_objs(num_chains);
+	std::vector<std::unique_ptr<bvhar::McmcReg>> sur_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
 		case 1: {
-			bvhar::MinnSvParams minn_params(
+			bvhar::MinnParams minn_params(
 				num_iter, x, y,
-				param_sv, param_prior,
+				param_reg, param_prior,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SvInits sv_inits(init_spec);
-				sv_objs[i].reset(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::LdltInits ldlt_inits(init_spec);
+				sur_objs[i].reset(new bvhar::MinnReg(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 2: {
-			bvhar::SsvsSvParams ssvs_params(
+			bvhar::SsvsParams ssvs_params(
 				num_iter, x, y,
-				param_sv,
+				param_reg,
 				grp_id, grp_mat,
 				param_prior,
 				param_intercept,
@@ -66,37 +60,37 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SsvsSvInits ssvs_inits(init_spec);
-				sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::SsvsInits ssvs_inits(init_spec);
+				sur_objs[i].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 3: {
-			bvhar::HsSvParams horseshoe_params(
+			bvhar::HorseshoeParams horseshoe_params(
 				num_iter, x, y,
-				param_sv,
+				param_reg,
 				grp_id, grp_mat,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HsSvInits hs_inits(init_spec);
-				sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::HsInits hs_inits(init_spec);
+				sur_objs[i].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 4: {
-			bvhar::HierminnSvParams minn_params(
+			bvhar::HierminnParams minn_params(
 				num_iter, x, y,
-				param_sv,
+				param_reg,
 				own_id, cross_id, grp_mat,
 				param_prior,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HierminnSvInits minn_inits(init_spec);
-				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::HierminnInits minn_inits(init_spec);
+				sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -111,7 +105,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				#pragma omp critical
 			#endif
 				{
-					res[chain] = sv_objs[chain]->returnRecords(0, 1);
+					res[chain] = sur_objs[chain]->returnRecords(0, 1);
 				}
 				break;
 			}
@@ -119,13 +113,13 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			if (display_progress) {
 				bar.update();
 			}
-			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+			sur_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
 	#endif
 		{
-			res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
+			res[chain] = sur_objs[chain]->returnRecords(num_burn, thin);
 		}
 	};
 	if (num_chains == 1) {

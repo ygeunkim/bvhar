@@ -1,8 +1,10 @@
-#' Fitting Bayesian VAR-SV
+#' Fitting Bayesian VAR with Coefficient and Covariance Prior
 #' 
-#' This function fits VAR-SV.
+#' `r lifecycle::badge("maturing")`
+#' This function fits BVAR.
+#' Covariance term can be homoskedastic or heteroskedastic (stochastic volatility).
 #' It can have Minnesota, SSVS, and Horseshoe prior.
-#' 
+#'
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag
 #' @param num_chains Number of MCMC chains
@@ -10,7 +12,7 @@
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
 #' @param thinning Thinning every thinning-th iteration
 #' @param bayes_spec A BVAR model specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
-#' @param sv_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
+#' @param cov_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). By default, `TRUE`.
@@ -24,7 +26,7 @@
 #' Cholesky stochastic volatility modeling for VAR based on
 #' \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L},
 #' and implements corrected triangular algorithm for Gibbs sampler.
-#' @return `bvar_sv()` returns an object named `bvarsv` [class].
+#' @return `var_bayes()` returns an object named `bvarsv` [class].
 #' \describe{
 #'   \item{coefficients}{Posterior mean of coefficients.}
 #'   \item{chol_posterior}{Posterior mean of contemporaneous effects.}
@@ -56,33 +58,32 @@
 #' \describe{
 #'   \item{pip}{Posterior inclusion probabilities.}
 #' }
-#' @references 
+#' @references
 #' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
-#' 
+#'
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
-#' 
+#'
 #' Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
-#' 
+#'
 #' Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
 #' @importFrom posterior as_draws_df bind_draws summarise_draws
 #' @order 1
 #' @export
-bvar_sv <- function(y,
-                    p,
-                    num_chains = 1,
-                    num_iter = 1000,
-                    num_burn = floor(num_iter / 2),
-                    thinning = 1,
-                    bayes_spec = set_bvar(),
-                    sv_spec = set_sv(),
-                    intercept = set_intercept(),
-                    include_mean = TRUE,
-                    minnesota = TRUE,
-                    save_init = FALSE,
-                    convergence = NULL,
-                    verbose = FALSE,
-                    num_thread = 1) {
-  deprecate_soft("2.0.1", "bvar_sv()", "var_bayes()")
+var_bayes <- function(y,
+                      p,
+                      num_chains = 1,
+                      num_iter = 1000,
+                      num_burn = floor(num_iter / 2),
+                      thinning = 1,
+                      bayes_spec = set_bvar(),
+                      cov_spec = set_ldlt(),
+                      intercept = set_intercept(),
+                      include_mean = TRUE,
+                      minnesota = TRUE,
+                      save_init = FALSE,
+                      convergence = NULL,
+                      verbose = FALSE,
+                      num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -117,19 +118,15 @@ bvar_sv <- function(y,
   )) {
     stop("Provide 'bvharspec', 'ssvsinput', or 'horseshoespec' for 'bayes_spec'.")
   }
-  if (!is.svspec(sv_spec)) {
-    stop("Provide 'svspec' for 'sv_spec'.")
+  if (!is.covspec(cov_spec)) {
+    stop("Provide 'covspec' for 'cov_spec'.")
   }
   if (!is.interceptspec(intercept)) {
     stop("Provide 'interceptspec' for 'intercept'.")
   }
-  if (length(sv_spec$shape) == 1) {
-    sv_spec$shape <- rep(sv_spec$shape, dim_data)
-    sv_spec$scale <- rep(sv_spec$scale, dim_data)
-    sv_spec$initial_mean <- rep(sv_spec$initial_mean, dim_data)
-  }
-  if (length(sv_spec$initial_prec) == 1) {
-    sv_spec$initial_prec <- sv_spec$initial_prec * diag(dim_data)
+  if (length(cov_spec$shape) == 1) {
+    cov_spec$shape <- rep(cov_spec$shape, dim_data)
+    cov_spec$scale <- rep(cov_spec$scale, dim_data)
   }
   if (length(intercept$mean_non) == 1) {
     intercept$mean_non <- rep(intercept$mean_non, dim_data)
@@ -151,10 +148,7 @@ bvar_sv <- function(y,
     function(x) {
       list(
         init_coef = matrix(runif(dim_data * dim_design, -1, 1), ncol = dim_data),
-        init_contem = exp(runif(num_eta, -1, 0)), # Cholesky factor
-        lvol_init = runif(dim_data, -1, 1),
-        lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
-        lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
+        init_contem = exp(runif(num_eta, -1, 0)) # Cholesky factor
       )
     }
   )
@@ -219,24 +213,13 @@ bvar_sv <- function(y,
     if (length(bayes_spec$coef_mixture) == 1) {
       bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
     }
-    # if (length(bayes_spec$mean_non) == 1) {
-    #   bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
-    # }
-    # if (length(bayes_spec$coef_s1) == 1) {
-    #   bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
-    # }
-    # if (length(bayes_spec$coef_s2) == 1) {
-    #   bayes_spec$coef_s2 <- rep(bayes_spec$coef_s2, num_grp)
-    # }
     if (length(bayes_spec$coef_s1) == 2) {
-      # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
       coef_s1 <- numeric(num_grp)
       coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
       coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
       bayes_spec$coef_s1 <- coef_s1
     }
     if (length(bayes_spec$coef_s2) == 2) {
-      # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
       coef_s2 <- numeric(num_grp)
       coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
       coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
@@ -330,27 +313,80 @@ bvar_sv <- function(y,
   if (num_burn == 0 && thinning == 1 && save_init) {
     num_burn <- -1
   }
-  res <- estimate_var_sv(
-    num_chains = num_chains,
-    num_iter = num_iter,
-    num_burn = num_burn,
-    thin = thinning,
-    x = X0,
-    y = Y0,
-    param_sv = sv_spec[3:6],
-    param_prior = param_prior,
-    param_intercept = intercept[c("mean_non", "sd_non")],
-    param_init = param_init,
-    prior_type = prior_type,
-    grp_id = grp_id,
-    own_id = own_id,
-    cross_id = cross_id,
-    grp_mat = glob_idmat,
-    include_mean = include_mean,
-    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-    display_progress = verbose,
-    nthreads = num_thread
-  )
+  if (is.svspec(cov_spec)) {
+    if (length(cov_spec$initial_mean) == 1) {
+      cov_spec$initial_mean <- rep(cov_spec$initial_mean, dim_data)
+    }
+    if (length(cov_spec$initial_prec) == 1) {
+      cov_spec$initial_prec <- cov_spec$initial_prec * diag(dim_data)
+    }
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(
+            lvol_init = runif(dim_data, -1, 1),
+            lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
+            lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
+          )
+        )
+      }
+    )
+    res <- estimate_var_sv(
+      num_chains = num_chains,
+      num_iter = num_iter,
+      num_burn = num_burn,
+      thin = thinning,
+      x = X0,
+      y = Y0,
+      param_sv = cov_spec[c("shape", "scale", "initial_mean", "initial_prec")],
+      param_prior = param_prior,
+      param_intercept = intercept[c("mean_non", "sd_non")],
+      param_init = param_init,
+      prior_type = prior_type,
+      grp_id = grp_id,
+      own_id = own_id,
+      cross_id = cross_id,
+      grp_mat = glob_idmat,
+      include_mean = include_mean,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      display_progress = verbose,
+      nthreads = num_thread
+    )
+  } else {
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(init_diag = exp(runif(dim_data, -1, 1))) # always positive
+        )
+      }
+    )
+    res <- estimate_sur(
+      num_chains = num_chains,
+      num_iter = num_iter,
+      num_burn = num_burn,
+      thin = thinning,
+      x = X0,
+      y = Y0,
+      param_reg = cov_spec[c("shape", "scale")],
+      param_prior = param_prior,
+      param_intercept = intercept[c("mean_non", "sd_non")],
+      param_init = param_init,
+      prior_type = prior_type,
+      grp_id = grp_id,
+      own_id = own_id,
+      cross_id = cross_id,
+      grp_mat = glob_idmat,
+      include_mean = include_mean,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      display_progress = verbose,
+      nthreads = num_thread
+    )
+  }
+  
   res <- do.call(rbind, res)
   rec_names <- colnames(res)
   param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
@@ -443,10 +479,6 @@ bvar_sv <- function(y,
   }
   res[rec_names] <- NULL
   res$param_names <- param_names
-  # if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
-  #   res$group <- glob_idmat
-  #   res$num_group <- length(grp_id)
-  # }
   if (!is.null(convergence)) {
     conv_diagnostics <- summarise_draws(res$param, "rhat")
     if (any(conv_diagnostics$rhat >= convergence)) {
@@ -473,13 +505,10 @@ bvar_sv <- function(y,
   res$totobs <- nrow(y)
   # model-----------------
   res$call <- match.call()
-  res$process <- paste("VAR", bayes_spec$prior, sv_spec$process, sep = "_")
+  res$process <- paste("VAR", bayes_spec$prior, cov_spec$process, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- bayes_spec
-  res$sv <- sv_spec
-  # if (include_mean) {
-  #   res$intercept <- intercept
-  # }
+  res$sv <- cov_spec
   res$intercept <- intercept
   res$init <- param_init
   res$chain <- num_chains
@@ -490,7 +519,10 @@ bvar_sv <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvarsv", "bvharsp", "svmod")
+  class(res) <- c("bvarsv", "bvharsp") # change bvarsv class name
+  if (is.svspec(cov_spec)) {
+    class(res) <- c(class(res), "svmod")
+  }
   if (bayes_spec$prior == "Horseshoe") {
     class(res) <- c(class(res), "hsmod")
   } else if (bayes_spec$prior == "SSVS") {
