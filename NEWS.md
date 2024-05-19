@@ -1,5 +1,9 @@
 # bvhar (development version)
 
+* `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.
+
+* `bvar_ssvs()`, `bvar_horseshoe()`, `bvar_sv()`, `bvhar_ssvs()`, `bvhar_horseshoe()`, and `bvhar_sv()` are deprecated, and will be removed in v2.1.0 with their source functions.
+
 * `set_horseshoe()` has additional setting for `group_shrinkage`. Horseshoe sampling now has additional group shrinkage level parameters.
 
 * `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
