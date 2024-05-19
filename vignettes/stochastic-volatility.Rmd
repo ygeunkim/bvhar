@@ -36,7 +36,8 @@ etf_test <- etf_eval$test
 
 # Models with Stochastic Volatilities
 
-`bvar_sv()` and `bvhar_sv()` fits VAR-SV and VHAR-SV with shrinkage priors, respectively.
+By specifying `cov_spec = set_sv()`,
+`var_bayes()` and `vhar_bayes()` fits VAR-SV and VHAR-SV with shrinkage priors, respectively.
 
 - Three different prior for innovation covariance, and specify through `bayes_spec`
     - Minneosta prior
@@ -59,7 +60,7 @@ set_intercept()
 ## SSVS
 
 ```{r svssvs}
-(fit_ssvs <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_ssvs(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+(fit_ssvs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_ssvs(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ```{r heatssvssv}
@@ -69,7 +70,7 @@ autoplot(fit_ssvs)
 ## Horseshoe
 
 ```{r}
-(fit_hs <- bvhar_sv(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_horseshoe(), sv_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
+(fit_hs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 50, bayes_spec = set_horseshoe(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 ```
 
 ## Bayesian visualization

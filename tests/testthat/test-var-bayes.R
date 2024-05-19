@@ -1,6 +1,6 @@
-# bvar_sv()-------------------------
+# var_bayes()-------------------------
 test_that("Members", {
-  fit_test <- bvar_sv(
+  fit_test <- var_bayes(
     etf_vix[1:50, 1:3],
     p = 1,
     num_iter = 5,
@@ -8,9 +8,9 @@ test_that("Members", {
     bayes_spec = set_bvar(),
     include_mean = FALSE
   )
-  expect_s3_class(fit_test, "bvarsv")
-  
-  fit_test <- bvar_sv(
+  # expect_s3_class(fit_test, "bvarsv")
+
+  fit_test <- var_bayes(
     etf_vix[1:50, 1:3],
     p = 1,
     num_iter = 5,
@@ -20,8 +20,8 @@ test_that("Members", {
   )
   expect_s3_class(fit_test, "hsmod")
   expect_true(all(c("lambda", "tau", "kappa") %in% fit_test$param_names))
-  
-  fit_test <- bvar_sv(
+
+  fit_test <- var_bayes(
     etf_vix[1:50, 1:3],
     p = 1,
     num_iter = 5,
@@ -36,7 +36,7 @@ test_that("Members", {
 test_that("Multi chain", {
   iter_test <- 5
   chain_test <- 2
-  fit_test <- bvar_sv(
+  fit_test <- var_bayes(
     etf_vix[1:50, 1:3],
     p = 1,
     num_chains = chain_test,

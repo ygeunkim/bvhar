@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of Horseshoe Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VHAR with horseshoe prior.
+#' `r lifecycle::badge("deprecated")` This function fits VHAR with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
@@ -66,6 +66,7 @@ bvhar_horseshoe <- function(y,
                             algo = c("block", "gibbs"),
                             verbose = FALSE,
                             num_thread = 1) {
+  deprecate_warn("2.0.1", "bvhar_horseshoe()", "vhar_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }

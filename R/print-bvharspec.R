@@ -421,13 +421,13 @@ knit_print.horseshoespec <- function(x, ...) {
   print(x)
 }
 
-#' @rdname set_sv
-#' @param x `svspec`
+#' @rdname set_ldlt
+#' @param x `covspec`
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.covspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
   cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
   cat(paste0("Prior: ", x$prior, "\n"))
