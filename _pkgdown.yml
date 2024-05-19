@@ -51,15 +51,22 @@ reference:
   contents:
   - bvar_minnesota
   - bvar_flat
+  - var_bayes
+  - bvhar_minnesota
+  - vhar_bayes
+  - summary.normaliw
+  - summary.bvharsp
+
+- title: Deprecated
+  desc: >
+    Deprecated modeling functions that will be removed soon
+  contents:
   - bvar_sv
   - bvar_ssvs
   - bvar_horseshoe
-  - bvhar_minnesota
   - bvhar_sv
   - bvhar_ssvs
   - bvhar_horseshoe
-  - summary.normaliw
-  - summary.bvharsp  
 
 - title: Forecasting
   desc: ~

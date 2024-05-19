@@ -374,7 +374,7 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.sqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
