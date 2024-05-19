@@ -593,6 +593,32 @@ estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_
     .Call(`_bvhar_estimate_bvar_ssvs`, num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads)
 }
 
+#' VAR with Shrinkage Priors
+#' 
+#' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
+#' 
+#' @param num_chain Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thin Thinning
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param param_reg Regression specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param seed_chain Seed for each chain
+#' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
+}
+
 #' VAR-SV by Gibbs Sampler
 #' 
 #' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
