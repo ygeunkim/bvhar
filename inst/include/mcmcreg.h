@@ -465,7 +465,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
@@ -569,7 +569,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
@@ -686,7 +686,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
