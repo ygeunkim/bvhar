@@ -36,7 +36,6 @@ struct RegInits {
 		_coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
 		int dim = params._y.cols();
 		int num_lowerchol = dim * (dim - 1) / 2;
-		int num_design = params._y.rows();
 		_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	}
 	RegInits(Rcpp::List& init)
@@ -808,9 +807,14 @@ inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd&
 													Eigen::MatrixXd& ortho_latent, boost::random::mt19937& rng) {
 	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
-		diag_vec[i] = 1 / gamma_rand(
+		// diag_vec[i] = 1 / gamma_rand(
+    //   shape[i] + num_design / 2,
+		// 	1 / (scl[i] + ortho_latent.col(i).squaredNorm() / 2),
+		// 	rng
+    // );
+		diag_vec[i] = gamma_rand(
       shape[i] + num_design / 2,
-			1 / (scl[i] + ortho_latent.col(i).squaredNorm() / 2),
+			scl[i] + ortho_latent.col(i).squaredNorm() / 2,
 			rng
     );
 	}
