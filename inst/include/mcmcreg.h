@@ -213,7 +213,7 @@ struct LdltRecords : public RegRecords {
 	) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
-		fac_record.row(id) = diag_vec;
+		fac_record.row(id) = 1 / diag_vec.array();
 	}
 };
 
@@ -336,7 +336,7 @@ protected:
 	Eigen::VectorXd prior_sd_non; // prior sd of intercept term: c^2 I
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
-	Eigen::VectorXd diag_vec;
+	Eigen::VectorXd diag_vec; // inverse of d_i
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
 	Eigen::MatrixXd prior_alpha_prec; // prior precision of alpha
 	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
@@ -374,7 +374,7 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
-		sqrt_sv = diag_vec.sqrt().transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -465,7 +465,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
@@ -569,7 +569,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
@@ -686,7 +686,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
-		sqrt_sv = diag_vec.transpose().replicate(num_design, 1);
+		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
 		updateCoefShrink();
 		updateImpactPrec();
