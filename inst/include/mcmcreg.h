@@ -213,7 +213,7 @@ struct LdltRecords : public RegRecords {
 	) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
-		fac_record.row(id) = 1 / diag_vec.array();
+		fac_record.row(id) = diag_vec.array();
 	}
 };
 
