@@ -8,16 +8,8 @@
 namespace bvhar {
 
 struct SvParams : public RegParams {
-	// int _iter;
-	// Eigen::MatrixXd _x;
-	// Eigen::MatrixXd _y;
-	// Eigen::VectorXd _sig_shp;
-	// Eigen::VectorXd _sig_scl;
 	Eigen::VectorXd _init_mean;
 	Eigen::MatrixXd _init_prec;
-	// Eigen::VectorXd _mean_non;
-	// double _sd_non;
-	// bool _mean;
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -25,13 +17,8 @@ struct SvParams : public RegParams {
 		bool include_mean
 	)
 	: RegParams(num_iter, x, y, spec, intercept, include_mean),
-		// _iter(num_iter), _x(x), _y(y),
-		// _sig_shp(Rcpp::as<Eigen::VectorXd>(spec["shape"])),
-		// _sig_scl(Rcpp::as<Eigen::VectorXd>(spec["scale"])),
 		_init_mean(Rcpp::as<Eigen::VectorXd>(spec["initial_mean"])),
 		_init_prec(Rcpp::as<Eigen::MatrixXd>(spec["initial_prec"])) {}
-		// _mean_non(Rcpp::as<Eigen::VectorXd>(intercept["mean_non"])),
-		// _sd_non(intercept["sd_non"]), _mean(include_mean) {}
 };
 
 struct MinnSvParams : public SvParams {
@@ -75,7 +62,6 @@ struct MinnSvParams : public SvParams {
 };
 
 struct HierminnSvParams : public SvParams {
-	// double _lambda;
 	double shape;
 	double rate;
 	Eigen::MatrixXd _prec_diag;
@@ -95,11 +81,9 @@ struct HierminnSvParams : public SvParams {
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		shape(priors["shape"]), rate(priors["rate"]),
-		// _lambda(priors["lambda"]),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
-		// double _lambda = priors["lambda"];
 		double _eps = priors["eps"];
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
@@ -183,34 +167,25 @@ struct HsSvParams : public SvParams {
 };
 
 struct SvInits : public RegInits {
-	// Eigen::MatrixXd _coef;
-	// Eigen::VectorXd _contem;
 	Eigen::VectorXd _lvol_init;
 	Eigen::MatrixXd _lvol;
 	Eigen::VectorXd _lvol_sig;
 
 	SvInits(const SvParams& params)
 	: RegInits(params) {
-		// _coef = (params._x.transpose() * params._x).llt().solve(params._x.transpose() * params._y); // OLS
 		int dim = params._y.cols();
-		// int num_lowerchol = dim * (dim - 1) / 2;
 		int num_design = params._y.rows();
-		// _contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 		_lvol_init = (params._y - params._x * _coef).transpose().array().square().rowwise().mean().log();
 		_lvol = _lvol_init.transpose().replicate(num_design, 1);
 		_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	}
 	SvInits(Rcpp::List& init)
 	: RegInits(init),
-		// _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
-		// _contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(Rcpp::as<Eigen::MatrixXd>(init["lvol"])),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
 	SvInits(Rcpp::List& init, int num_design)
 	: RegInits(init),
-		// _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
-		// _contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])),
 		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
@@ -246,7 +221,6 @@ struct SsvsSvInits : public SvInits {
 struct HsSvInits : public SvInits {
 	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_group;
-	// Eigen::VectorXd _init_global;
 	double _init_global;
 	Eigen::VectorXd _init_contem_local;
 	Eigen::VectorXd _init_conetm_global;
@@ -255,7 +229,6 @@ struct HsSvInits : public SvInits {
 	: SvInits(init),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
 		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
-		// _init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
 		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
@@ -263,23 +236,18 @@ struct HsSvInits : public SvInits {
 	: SvInits(init, num_design),
 		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
 		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
-		// _init_global(Rcpp::as<Eigen::VectorXd>(init["global_sparsity"])),
 		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 };
 
 struct SvRecords : public RegRecords {
-	// Eigen::MatrixXd coef_record; // alpha in VAR
-	// Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 	Eigen::MatrixXd lvol_sig_record; // sigma_h^2 = (sigma_(h1i)^2, ..., sigma_(hki)^2)
 	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
 	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	
 	SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: RegRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
-		// coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
-		// contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)),
 		lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
 		lvol_init_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
 		lvol_record(Eigen::MatrixXd::Zero(num_iter + 1, num_design * dim)) {}
@@ -288,7 +256,6 @@ struct SvRecords : public RegRecords {
 		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& sigh_record
 	)
 	: RegRecords(alpha_record, a_record),
-		// coef_record(alpha_record), contem_coef_record(a_record),
 		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
 		lvol_record(h_record) {}
 	SvRecords(
@@ -296,7 +263,6 @@ struct SvRecords : public RegRecords {
 		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& sigh_record
 	)
 	: RegRecords(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols()), a_record),
-		// coef_record(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols())), contem_coef_record(a_record),
 		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
 		lvol_record(h_record) {
 		coef_record << alpha_record, c_record;
@@ -308,22 +274,10 @@ struct SvRecords : public RegRecords {
 	) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
-		// lvol_record.row(id) = vectorize_eigen(lvol_draw.transpose().eval());
 		lvol_record.row(id) = lvol_draw.transpose().reshaped();
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
 	}
-	// Eigen::VectorXd computeActivity(double level) {
-	// 	Eigen::VectorXd lower_ci(coef_record.cols());
-	// 	Eigen::VectorXd upper_ci(coef_record.cols());
-	// 	Eigen::VectorXd selection(coef_record.cols());
-	// 	for (int i = 0; i < coef_record.cols(); ++i) {
-	// 		// lower_ci[i] = quantile_lower(coef_record.col(i), level / 2);
-	// 		// upper_ci[i] = quantile_upper(coef_record.col(i), 1 - level / 2);
-	// 		selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
-	// 	}
-	// 	return selection;
-	// }
 };
 
 class McmcSv {
@@ -803,7 +757,7 @@ public:
 		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array());
+		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}
@@ -827,7 +781,7 @@ public:
 	}
 	void updateRecords() override {
 		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), group_lev.cwiseSqrt(), sqrt(global_lev));
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);

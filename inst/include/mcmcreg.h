@@ -658,7 +658,7 @@ public:
 		coef_var = coef_var_loc.reshaped();
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array());
+		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}
@@ -680,7 +680,7 @@ public:
 	}
 	void updateRecords() override {
 		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), group_lev.cwiseSqrt(), sqrt(global_lev));
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
