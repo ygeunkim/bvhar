@@ -680,7 +680,7 @@ public:
 	}
 	void updateRecords() override {
 		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev.cwiseSqrt(), group_lev.cwiseSqrt(), sqrt(global_lev));
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);

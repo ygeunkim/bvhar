@@ -656,7 +656,7 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
   int dim = coef_vec.size();
 	Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array());
   for (int i = 0; i < dim; i++) {
-		local_lev[i] = 1 / gamma_rand(1.0, 1 / invgam_scl[i], rng);
+		local_lev[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl[i], rng));
   }
 }
 
@@ -672,7 +672,7 @@ inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<Eigen::
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
 	double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array())).sum();
-	return 1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl, rng);
+	return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl, rng));
 }
 
 // Generating the Squared Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -739,12 +739,12 @@ inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& g
 inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, boost::random::mt19937& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
-		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam[i]), rng);
+		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam[i] * hyperparam[i])), rng);
   }
 }
 // overloading
 inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::mt19937& rng) {
-  latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam), rng);
+  latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
 }
 
 // Generating lambda of Minnesota-SV
