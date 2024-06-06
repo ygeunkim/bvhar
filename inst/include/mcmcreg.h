@@ -658,7 +658,7 @@ public:
 		coef_var = coef_var_loc.reshaped();
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array());
+		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}

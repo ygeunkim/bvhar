@@ -552,8 +552,8 @@ inline void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::Ma
 // @param local_hyperparam Local sparsity hyperparameters
 inline void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyperparam, Eigen::Ref<Eigen::VectorXd> local_hyperparam) {
 	cov.setZero();
-  // cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array()).square();
-	cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array());
+  cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array()).square();
+	// cov.diagonal() = 1 / (local_hyperparam.array() * global_hyperparam.array());
 	// cov.diagonal() = -2 * (local_hyperparam.array() * global_hyperparam.array()).log();
 	// cov.diagonal() = (-2 * (local_hyperparam.array() * global_hyperparam.array()).log()).exp();
 	// cov.diagonal() = cov.diagonal().array().exp();
@@ -654,9 +654,9 @@ inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& desi
 inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam,
                             				 Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
-	Eigen::VectorXd invgam_scl = 1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array());
+	Eigen::VectorXd invgam_scl = (1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square())).cwiseInverse();
   for (int i = 0; i < dim; i++) {
-		local_lev[i] = sqrt(1 / gamma_rand(1.0, 1 / invgam_scl[i], rng));
+		local_lev[i] = sqrt(1 / gamma_rand(1.0, invgam_scl[i], rng));
   }
 }
 
@@ -671,8 +671,14 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<Eigen::VectorXd> local_hyperparam,
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, double prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
-	double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array())).sum();
-	return sqrt(1 / gamma_rand((dim + 1) / 2, 1 / invgam_scl, rng));
+	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
+	return sqrt(
+		1 / gamma_rand(
+			(dim + 1) / 2,
+			1 / (1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum()),
+			rng
+		)
+	);
 }
 
 // Generating the Squared Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
