@@ -338,7 +338,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
   pred_res <- forecast_bvar(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
-  # var_names <- colnames(object$y0)
+  var_names <- colnames(object$y0)
   # colnames(pred_mean) <- var_names
   # Predictive distribution-------------------------
   dim_data <- ncol(pred_mean)
