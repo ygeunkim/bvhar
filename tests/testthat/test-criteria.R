@@ -44,7 +44,7 @@ test_that("BVAR evaluation", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvar <- bvar_minnesota(etf_vix, test_lag, num_iter = 5, bayes_spec = bvar_spec)
+  fit_test_bvar <- bvar_minnesota(etf_vix, test_lag, bayes_spec = bvar_spec)
   expect_s3_class(fit_test_bvar, "bvarmn")
   
   expect_s3_class(logLik(fit_test_bvar), "logLik")
@@ -63,7 +63,7 @@ test_that("BVHAR-S evaluation", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvhar_s <- bvhar_minnesota(etf_vix, har = har, num_iter = 5, bayes_spec = vhar_spec)
+  fit_test_bvhar_s <- bvhar_minnesota(etf_vix, har = har, bayes_spec = vhar_spec)
   expect_s3_class(fit_test_bvhar_s, "bvharmn")
   
   expect_s3_class(logLik(fit_test_bvhar_s), "logLik")
@@ -85,7 +85,7 @@ test_that("BVHAR-L evaluation", {
     monthly = rep(.1, etf_ncol)
   )
   
-  fit_test_bvhar_s <- bvhar_minnesota(etf_vix, har = har, num_iter = 5, bayes_spec = vhar_spec)
+  fit_test_bvhar_s <- bvhar_minnesota(etf_vix, har = har, bayes_spec = vhar_spec)
   expect_s3_class(fit_test_bvhar_s, "bvharmn")
   
   expect_s3_class(logLik(fit_test_bvhar_s), "logLik")

@@ -133,17 +133,10 @@ struct MhMinnRecords {
 
 class Minnesota {
 public:
-	Minnesota(
-		int num_iter,
-		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy,
-		unsigned int seed
-	)
+	Minnesota(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy)
 	: design(x), response(y), dummy_design(x_dummy), dummy_response(y_dummy),
-		num_iter(num_iter),
 		dim(response.cols()), num_design(response.rows()), dim_design(design.cols()),
-		num_dummy(dummy_design.rows()), num_augment(num_design + num_dummy),
-		mn_record(num_iter, dim, dim_design),
-		mniw(2), mcmc_step(0), rng(seed) {
+		num_dummy(dummy_design.rows()), num_augment(num_design + num_dummy) {
 		prior_prec = dummy_design.transpose() * dummy_design;
 		prior_mean = prior_prec.inverse() * dummy_design.transpose() * dummy_response;
 		prior_scale = (dummy_response - dummy_design * prior_mean).transpose() * (dummy_response - dummy_design * prior_mean);
@@ -174,40 +167,17 @@ public:
 		yhat_star = xstar * coef;
 		scale = (ystar - yhat_star).transpose() * (ystar - yhat_star);
 	}
-	virtual void computePosterior() {
+	Rcpp::List returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-	}
-	void addStep() { mcmc_step++; }
-	virtual void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
-	void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, prior_shape + num_design, true, rng); }
-	virtual void doPosteriorDraws() {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateMniw();
-		updateRecords();
-	}
-	virtual Rcpp::List returnRecords(int num_burn, int thin) const {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = mn_record.coef_record,
-			Rcpp::Named("sigma_record") = mn_record.sig_record
-		);
-		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-		}
-		return res;
-	}
-	Rcpp::List returnMinnRes() {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
 		return Rcpp::List::create(
-			Rcpp::Named("mn_mean") = coef,
+			// Rcpp::Named("mn_mean") = coef,
+			Rcpp::Named("coefficients") = coef,
 			Rcpp::Named("fitted.values") = yhat,
 			Rcpp::Named("residuals") = resid,
 			Rcpp::Named("mn_prec") = prec,
-			Rcpp::Named("iw_scale") = scale,
+			Rcpp::Named("covmat") = scale,
 			Rcpp::Named("iw_shape") = prior_shape + num_design,
 			Rcpp::Named("df") = dim_design,
 			Rcpp::Named("m") = dim,
@@ -227,29 +197,16 @@ public:
 		MinnFit res(coef, prec, scale, prior_shape + num_design);
 		return res;
 	}
-	MinnRecords returnMinnRecords(int num_burn, int thin) const {
-		MinnRecords res_record(
-			thin_record(mn_record.coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(mn_record.sig_record, num_iter, num_burn, thin).derived()
-		);
-		return res_record;
-	}
 protected:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
 	Eigen::MatrixXd dummy_response;
-	int num_iter;
 	int dim;
 	int num_design;
 	int dim_design;
 	int num_dummy; // kp + k(+ 1)
 	int num_augment; // n + num_dummy
-	MinnRecords mn_record;
-	std::vector<Eigen::MatrixXd> mniw;
-	std::atomic<int> mcmc_step; // MCMC step
-	boost::random::mt19937 rng; // RNG instance for multi-chain
-	std::mutex mtx;
 	Eigen::MatrixXd prior_prec;
 	Eigen::MatrixXd prior_mean;
 	Eigen::MatrixXd prior_scale;
@@ -264,310 +221,195 @@ protected:
 	Eigen::MatrixXd scale; // IW scale
 };
 
-// class MinnBvar {
-// public:
-// 	MinnBvar(
-// 		const Eigen::MatrixXd& y, int lag,
-// 		int num_chains, int num_iter, const BvarSpec& spec, const bool include_mean,
-// 		bool display_progress, Eigen::VectorXi seed_chain
-// 	)
-// 	: lag(lag), const_term(include_mean),
-// 		data(y), dim(data.cols()),
-// 		num_chains(num_chains), num_iter(num_iter), progress(display_progress),
-// 		_records(num_chains) {
-// 		response = build_y0(data, lag, lag + 1);
-// 		design = build_x0(data, lag, const_term);
-// 		dummy_response = build_ydummy(
-// 			lag, spec._sigma,
-// 			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
-// 			const_term
-// 		);
-// 		dummy_design = build_xdummy(
-// 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
-// 			spec._lambda, spec._sigma, spec._eps, const_term
-// 		);
-// 		// _mn.reset(new Minnesota(num_iter, design, response, dummy_design, dummy_response, seed));
-// 		for (int i = 0; i < num_chains; ++i) {
-// 			_mn[i].reset(new Minnesota(
-// 				num_iter, design, response, dummy_design, dummy_response,
-// 				static_cast<unsigned int>(seed_chain[i])
-// 			));
-// 			_mn[i]->computePosterior();
-// 		}
-// 	}
-// 	virtual ~MinnBvar() = default;
-// 	void doPosteriorDraws(int nthreads, int num_burn, int thin) {
-// 		auto run_conj = [&](int chain) {
-// 			bvhar::bvharprogress bar(num_iter, progress);
-// 			// bvhar::bvharinterrupt();
-// 			for (int i = 0; i < num_iter; i++) {
-// 				// if (bvhar::bvharinterrupt::is_interrupted()) {
-// 				// #ifdef _OPENMP
-// 				// 	#pragma omp critical
-// 				// #endif
-// 				// 	{
-// 				// 		res[chain] = mn_objs[chain]->returnRecords(0, 1);
-// 				// 	}
-// 				// 	break;
-// 				// }
-// 				bar.increment();
-// 				bar.update();
-// 				_mn[chain]->doPosteriorDraws();
-// 			}
-// 		#ifdef _OPENMP
-// 			#pragma omp critical
-// 		#endif
-// 			{
-// 				_records[chain] = _mn[chain]->returnRecords(num_burn, thin);
-// 			}
-// 		};
-// 		if (num_chains == 1) {
-// 			run_conj(0);
-// 		} else {
-// 		#ifdef _OPENMP
-// 			#pragma omp parallel for num_threads(nthreads)
-// 		#endif
-// 			for (int chain = 0; chain < num_chains; chain++) {
-// 				run_conj(chain);
-// 			}
-// 		}
-// 	}
-// 	Rcpp::List returnMinnRes() {
-// 		// Rcpp::List mn_res = _mn->returnMinnRes();
-// 		Rcpp::List mn_res = _mn[0]->returnMinnRes();
-// 		mn_res["p"] = lag;
-// 		mn_res["totobs"] = data.rows();
-// 		mn_res["type"] = const_term ? "const" : "none";
-// 		mn_res["y"] = data;
-// 		mn_res.push_back(_records);
-// 		return mn_res;
-// 	}
-// 	MinnFit returnMinnFit() {
-// 		// return _mn->returnMinnFit();
-// 		return _mn[0]->returnMinnFit();
-// 	}
-// private:
-// 	int lag;
-// 	bool const_term;
-// 	Eigen::MatrixXd data;
-// 	int dim;
-// 	int num_chains;
-// 	int num_iter;
-// 	bool progress;
-// 	std::vector<Rcpp::List> _records;
-// 	// std::unique_ptr<Minnesota> _mn;
-// 	std::vector<std::unique_ptr<Minnesota>> _mn;
-// 	Eigen::MatrixXd design;
-// 	Eigen::MatrixXd response;
-// 	Eigen::MatrixXd dummy_design;
-// 	Eigen::MatrixXd dummy_response;
-// };
+class McmcMniw {
+public:
+	McmcMniw(int num_iter, const MinnFit& mn_fit, unsigned int seed)
+	: mn_fit(mn_fit),
+		num_iter(num_iter), dim(mn_fit._coef.cols()), dim_design(mn_fit._coef.rows()),
+		mn_record(num_iter, dim, dim_design),
+		mniw(2), mcmc_step(0), rng(seed) {}
+	virtual ~McmcMniw() = default;
+	void addStep() { mcmc_step++; }
+	void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
+	void updateMniw() { mniw = sim_mn_iw(mn_fit._coef, mn_fit._prec, mn_fit._iw_scale, mn_fit._iw_shape, true, rng); }
+	void doPosteriorDraws() {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateMniw();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = mn_record.coef_record,
+			Rcpp::Named("sigma_record") = mn_record.sig_record
+		);
+		for (auto& record : res) {
+			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+		}
+		return res;
+	}
+private:
+	MinnFit mn_fit;
+	int num_iter;
+	int dim;
+	int dim_design;
+	MinnRecords mn_record;
+	std::vector<Eigen::MatrixXd> mniw;
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
+	std::mutex mtx;
+};
 
-// class MinnBvhar {
-// public:
-// 	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
-// 	: week(week), month(month), const_term(include_mean),
-// 		data(y), dim(data.cols()) {
-// 		response = build_y0(data, month, month + 1);
-// 		har_trans = bvhar::build_vhar(dim, week, month, const_term);
-// 		var_design = build_x0(data, month, const_term);
-// 		design = var_design * har_trans.transpose();
-// 		dummy_design = build_xdummy(
-// 			Eigen::VectorXd::LinSpaced(3, 1, 3),
-// 			spec._lambda, spec._sigma, spec._eps, const_term
-// 		);
-// 	}
-// 	virtual ~MinnBvhar() = default;
-// 	virtual void doPosteriorDraws(int nthreads, int num_burn, int thin) = 0;
-// 	virtual Rcpp::List returnMinnRes() = 0;
-// 	virtual MinnFit returnMinnFit() = 0;
-// protected:
-// 	int week;
-// 	int month;
-// 	bool const_term;
-// 	Eigen::MatrixXd data;
-// 	int dim;
-// 	Eigen::MatrixXd var_design;
-// 	Eigen::MatrixXd response;
-// 	Eigen::MatrixXd har_trans;
-// 	Eigen::MatrixXd design;
-// 	Eigen::MatrixXd dummy_design;
-// };
+class MinnBvar {
+public:
+	MinnBvar(const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean)
+	: lag(lag), const_term(include_mean), data(y), dim(data.cols()) {
+		response = build_y0(data, lag, lag + 1);
+		design = build_x0(data, lag, const_term);
+		dummy_response = build_ydummy(
+			lag, spec._sigma,
+			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+			const_term
+		);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
+	virtual ~MinnBvar() = default;
+	Rcpp::List returnMinnRes() {
+		Rcpp::List mn_res = _mn->returnMinnRes();
+		mn_res["p"] = lag;
+		mn_res["totobs"] = data.rows();
+		mn_res["type"] = const_term ? "const" : "none";
+		mn_res["y"] = data;
+		return mn_res;
+	}
+	MinnFit returnMinnFit() {
+		return _mn->returnMinnFit();
+	}
+private:
+	int lag;
+	bool const_term;
+	Eigen::MatrixXd data;
+	int dim;
+	Eigen::MatrixXd design;
+	Eigen::MatrixXd response;
+	Eigen::MatrixXd dummy_design;
+	Eigen::MatrixXd dummy_response;
+	std::unique_ptr<Minnesota> _mn;
+};
 
-// class MinnBvharS : public MinnBvhar {
-// public:
-// 	MinnBvharS(
-// 		const Eigen::MatrixXd& y,
-// 		int week, int month,
-// 		int num_chains, int num_iter, const BvarSpec& spec, const bool include_mean,
-// 		bool display_progress, Eigen::VectorXi seed_chain
-// 	)
-// 	: MinnBvhar(y, week, month, spec, include_mean),
-// 		num_chains(num_chains), num_iter(num_iter), progress(display_progress),
-// 		_records(num_chains) {
-// 		dummy_response = build_ydummy(
-// 			3, spec._sigma, spec._lambda,
-// 			spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
-// 			const_term
-// 		);
-// 		// _mn.reset(new Minnesota(num_iter, design, response, dummy_design, dummy_response));
-// 		for (int i = 0; i < num_chains; ++i) {
-// 			_mn[i].reset(new Minnesota(
-// 				num_iter, design, response, dummy_design, dummy_response,
-// 				static_cast<unsigned int>(seed_chain[i])
-// 			));
-// 			_mn[i]->computePosterior();
-// 		}
-// 	}
-// 	virtual ~MinnBvharS() noexcept = default;
-// 	void doPosteriorDraws(int nthreads, int num_burn, int thin) override {
-// 		auto run_conj = [&](int chain) {
-// 			bvhar::bvharprogress bar(num_iter, progress);
-// 			for (int i = 0; i < num_iter; i++) {
-// 				bar.increment();
-// 				bar.update();
-// 				_mn[chain]->doPosteriorDraws();
-// 			}
-// 		#ifdef _OPENMP
-// 			#pragma omp critical
-// 		#endif
-// 			{
-// 				_records[chain] = _mn[chain]->returnRecords(num_burn, thin);
-// 			}
-// 		};
-// 		if (num_chains == 1) {
-// 			run_conj(0);
-// 		} else {
-// 		#ifdef _OPENMP
-// 			#pragma omp parallel for num_threads(nthreads)
-// 		#endif
-// 			for (int chain = 0; chain < num_chains; chain++) {
-// 				run_conj(chain);
-// 			}
-// 		}
-// 	}
-// 	Rcpp::List returnMinnRes() override {
-// 		// Rcpp::List mn_res = _mn->returnMinnRes();
-// 		Rcpp::List mn_res = _mn[0]->returnMinnRes();
-// 		mn_res["p"] = 3;
-// 		mn_res["week"] = week;
-// 		mn_res["month"] = month;
-// 		mn_res["totobs"] = data.rows();
-// 		mn_res["type"] = const_term ? "const" : "none";
-// 		mn_res["HARtrans"] = har_trans;
-// 		mn_res["y"] = data;
-// 		mn_res.push_back(_records);
-// 		return mn_res;
-// 	}
-// 	MinnFit returnMinnFit() override {
-// 		// return _mn->returnMinnFit();
-// 		return _mn[0]->returnMinnFit();
-// 	}
-// private:
-// 	int num_chains;
-// 	int num_iter;
-// 	bool progress;
-// 	std::vector<Rcpp::List> _records;
-// 	// std::unique_ptr<Minnesota> _mn;
-// 	Eigen::MatrixXd dummy_response;
-// 	std::vector<std::unique_ptr<Minnesota>> _mn;
-// };
+class MinnBvhar {
+public:
+	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
+	: week(week), month(month), const_term(include_mean),
+		data(y), dim(data.cols()) {
+		response = build_y0(data, month, month + 1);
+		har_trans = bvhar::build_vhar(dim, week, month, const_term);
+		var_design = build_x0(data, month, const_term);
+		design = var_design * har_trans.transpose();
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
+	}
+	virtual ~MinnBvhar() = default;
+	virtual Rcpp::List returnMinnRes() = 0;
+	virtual MinnFit returnMinnFit() = 0;
+protected:
+	int week;
+	int month;
+	bool const_term;
+	Eigen::MatrixXd data;
+	int dim;
+	Eigen::MatrixXd var_design;
+	Eigen::MatrixXd response;
+	Eigen::MatrixXd har_trans;
+	Eigen::MatrixXd design;
+	Eigen::MatrixXd dummy_design;
+};
 
-// class MinnBvharL : public MinnBvhar {
-// public:
-// 	MinnBvharL(
-// 		const Eigen::MatrixXd& y,
-// 		int week, int month,
-// 		int num_chains, int num_iter, const BvharSpec& spec, const bool include_mean,
-// 		bool display_progress, Eigen::VectorXi seed_chain
-// 	)
-// 	: MinnBvhar(y, week, month, spec, include_mean),
-// 		num_chains(num_chains), num_iter(num_iter), progress(display_progress),
-// 		_records(num_chains) {
-// 		dummy_response = build_ydummy(
-// 			3, spec._sigma, spec._lambda,
-// 			spec._daily, spec._weekly, spec._monthly,
-// 			const_term
-// 		);
-// 		// _mn.reset(new Minnesota(num_iter, design, response, dummy_design, dummy_response));
-// 		for (int i = 0; i < num_chains; ++i) {
-// 			_mn[i].reset(new Minnesota(
-// 				num_iter, design, response, dummy_design, dummy_response,
-// 				static_cast<unsigned int>(seed_chain[i])
-// 			));
-// 			_mn[i]->computePosterior();
-// 		}
-// 	}
-// 	virtual ~MinnBvharL() noexcept = default;
-// 	void doPosteriorDraws(int nthreads, int num_burn, int thin) override {
-// 		auto run_conj = [&](int chain) {
-// 			bvhar::bvharprogress bar(num_iter, progress);
-// 			for (int i = 0; i < num_iter; i++) {
-// 				bar.increment();
-// 				bar.update();
-// 				_mn[chain]->doPosteriorDraws();
-// 			}
-// 		#ifdef _OPENMP
-// 			#pragma omp critical
-// 		#endif
-// 			{
-// 				_records[chain] = _mn[chain]->returnRecords(num_burn, thin);
-// 			}
-// 		};
-// 		if (num_chains == 1) {
-// 			run_conj(0);
-// 		} else {
-// 		#ifdef _OPENMP
-// 			#pragma omp parallel for num_threads(nthreads)
-// 		#endif
-// 			for (int chain = 0; chain < num_chains; chain++) {
-// 				run_conj(chain);
-// 			}
-// 		}
-// 	}
-// 	Rcpp::List returnMinnRes() override {
-// 		// Rcpp::List mn_res = _mn->returnMinnRes();
-// 		Rcpp::List mn_res = _mn[0]->returnMinnRes();
-// 		mn_res["p"] = 3;
-// 		mn_res["week"] = week;
-// 		mn_res["month"] = month;
-// 		mn_res["totobs"] = data.rows();
-// 		mn_res["type"] = const_term ? "const" : "none";
-// 		mn_res["HARtrans"] = har_trans;
-// 		mn_res["y"] = data;
-// 		mn_res.push_back(_records);
-// 		return mn_res;
-// 	}
-// 	MinnFit returnMinnFit() override {
-// 		// return _mn->returnMinnFit();
-// 		return _mn[0]->returnMinnFit();
-// 	}
-// private:
-// 	int num_chains;
-// 	int num_iter;
-// 	bool progress;
-// 	std::vector<Rcpp::List> _records;
-// 	// std::unique_ptr<Minnesota> _mn;
-// 	Eigen::MatrixXd dummy_response;
-// 	std::vector<std::unique_ptr<Minnesota>> _mn;
-// };
+class MinnBvharS : public MinnBvhar {
+public:
+	MinnBvharS(const Eigen::MatrixXd& y, int week, int month, const BvarSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean) {
+		dummy_response = build_ydummy(
+			3, spec._sigma, spec._lambda,
+			spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+			const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
+	virtual ~MinnBvharS() noexcept = default;
+	Rcpp::List returnMinnRes() override {
+		Rcpp::List mn_res = _mn->returnMinnRes();
+		mn_res["p"] = 3;
+		mn_res["week"] = week;
+		mn_res["month"] = month;
+		mn_res["totobs"] = data.rows();
+		mn_res["type"] = const_term ? "const" : "none";
+		mn_res["HARtrans"] = har_trans;
+		mn_res["y"] = data;
+		return mn_res;
+	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
+	}
+private:
+	Eigen::MatrixXd dummy_response;
+	std::unique_ptr<Minnesota> _mn;
+};
 
-class MhMinnesota : public Minnesota {
+class MinnBvharL : public MinnBvhar {
+public:
+	MinnBvharL(const Eigen::MatrixXd& y, int week, int month, const BvharSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean) {
+		dummy_response = build_ydummy(
+			3, spec._sigma, spec._lambda,
+			spec._daily, spec._weekly, spec._monthly,
+			const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
+	virtual ~MinnBvharL() noexcept = default;
+	Rcpp::List returnMinnRes() override {
+		Rcpp::List mn_res = _mn->returnMinnRes();
+		mn_res["p"] = 3;
+		mn_res["week"] = week;
+		mn_res["month"] = month;
+		mn_res["totobs"] = data.rows();
+		mn_res["type"] = const_term ? "const" : "none";
+		mn_res["HARtrans"] = har_trans;
+		mn_res["y"] = data;
+		return mn_res;
+	}
+	MinnFit returnMinnFit() override {
+		return _mn->returnMinnFit();
+	}
+private:
+	Eigen::MatrixXd dummy_response;
+	std::unique_ptr<Minnesota> _mn;
+};
+
+class MhMinnesota : Minnesota {
 public:
 	MhMinnesota(
 		int num_iter, const MhMinnSpec& spec, const MhMinnInits& inits, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy, unsigned int seed
 	)
-	: Minnesota(num_iter, x, y, x_dummy, y_dummy, seed),
-		// num_iter(num_iter),
-		// mn_record(num_iter, dim, dim_design),
+	: Minnesota(x, y, x_dummy, y_dummy),
+		num_iter(num_iter),
+		mn_record(num_iter, dim, dim_design),
+		mniw(2), mcmc_step(0), rng(seed),
+		// Minnesota(num_iter, x, y, x_dummy, y_dummy, seed),
 		mh_record(num_iter, dim),
 		gamma_shp(spec._gam_rate), gamma_rate(spec._gam_shape),
 		invgam_shp(spec._invgam_shape), invgam_scl(spec._invgam_scl), gaussian_variance(inits._acc_scale * inits._hess.inverse()),
 		prevprior(Eigen::VectorXd::Zero(1 + dim)),
 		candprior(Eigen::VectorXd::Zero(1 + dim)), numerator(0), denom(0),
 		is_accept(true), lambda(inits._lambda), psi(inits._psi) {
-		// mniw(2), mcmc_step(0), rng(seed) {
 		prevprior[0] = inits._lambda;
 		prevprior.tail(dim) = inits._psi;
 		mh_record.lam_record[0] = inits._lambda;
@@ -575,12 +417,12 @@ public:
 		mh_record.accept_record[0] = is_accept;
 	}
 	virtual ~MhMinnesota() = default;
-	void computePosterior() override {
+	void computePosterior() {
 		estimateCoef();
 		estimateCov();
 	}
-	// void addStep() { mcmc_step++; }
-	void updateRecords() override {
+	void addStep() { mcmc_step++; }
+	void updateRecords() {
 		mn_record.assignRecords(mcmc_step, mniw); 
 		mh_record.assignRecords(mcmc_step, lambda, psi, is_accept); 
 	}
@@ -600,15 +442,15 @@ public:
 			psi = candprior.tail(dim);
 		}
 	}
-	// void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, prior_shape + num_design, true, rng); }
-	void doPosteriorDraws() override {
+	void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, prior_shape + num_design, true, rng); }
+	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateHyper();
 		updateMniw();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
+	Rcpp::List returnRecords(int num_burn, int thin) const {
 		Rcpp::List res = Rcpp::List::create(
 			Rcpp::Named("lambda_record") = mh_record.lam_record,
 			Rcpp::Named("psi_record") = mh_record.psi_record,
@@ -629,8 +471,12 @@ public:
 		return res;
 	}
 private:
-	// int num_iter;
-	// MinnRecords mn_record;
+	int num_iter;
+	MinnRecords mn_record;
+	std::vector<Eigen::MatrixXd> mniw;
+	std::atomic<int> mcmc_step; // MCMC step
+	boost::random::mt19937 rng; // RNG instance for multi-chain
+	std::mutex mtx;
 	MhMinnRecords mh_record;
 	double gamma_shp;
 	double gamma_rate;
@@ -644,19 +490,17 @@ private:
 	bool is_accept;
 	double lambda;
 	Eigen::VectorXd psi;
-	// std::vector<Eigen::MatrixXd> mniw;
-	// std::atomic<int> mcmc_step; // MCMC step
-	// boost::random::mt19937 rng; // RNG instance for multi-chain
-	// std::mutex mtx;
 };
 
 class MinnFlat {
 public:
-	MinnFlat(int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& prec, unsigned int seed)
+	// MinnFlat(int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& prec, unsigned int seed)
+	MinnFlat(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& prec)
 	: design(x), response(y), prior_prec(prec),
-		num_iter(num_iter), dim(response.cols()), num_design(response.rows()), dim_design(design.cols()),
-		mn_record(num_iter, dim, dim_design),
-		mniw(2), mcmc_step(0), rng(seed),
+		// num_iter(num_iter), dim(response.cols()), num_design(response.rows()), dim_design(design.cols()),
+		dim(response.cols()), num_design(response.rows()), dim_design(design.cols()),
+		// mn_record(num_iter, dim, dim_design),
+		// mniw(2), mcmc_step(0), rng(seed),
 		coef(Eigen::MatrixXd::Zero(dim_design, dim)),
 		prec(Eigen::MatrixXd::Zero(dim, dim)),
 		shape(0.0),
@@ -692,40 +536,42 @@ public:
 		scale = response.transpose() * (Eigen::MatrixXd::Identity(num_design, num_design) - design * prec.inverse() * design.transpose()) * response;
 		shape = num_design - dim - 1;
 	}
-	virtual void computePosterior() {
+	// virtual void computePosterior() {
+	// 	estimateCoef();
+	// 	fitObs();
+	// 	estimateCov();
+	// }
+	// void addStep() { mcmc_step++; }
+	// virtual void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
+	// void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, shape, true, rng); }
+	// virtual void doPosteriorDraws() {
+	// 	std::lock_guard<std::mutex> lock(mtx);
+	// 	addStep();
+	// 	updateMniw();
+	// 	updateRecords();
+	// }
+	// Rcpp::List returnRecords(int num_burn, int thin) const {
+	// 	Rcpp::List res = Rcpp::List::create(
+	// 		Rcpp::Named("alpha_record") = mn_record.coef_record,
+	// 		Rcpp::Named("sigma_record") = mn_record.sig_record
+	// 	);
+	// 	for (auto& record : res) {
+	// 		record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+	// 	}
+	// 	return res;
+	// }
+	Rcpp::List returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-	}
-	void addStep() { mcmc_step++; }
-	virtual void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
-	void updateMniw() { mniw = sim_mn_iw(coef, prec, scale, shape, true, rng); }
-	virtual void doPosteriorDraws() {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateMniw();
-		updateRecords();
-	}
-	Rcpp::List returnRecords(int num_burn, int thin) const {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = mn_record.coef_record,
-			Rcpp::Named("sigma_record") = mn_record.sig_record
-		);
-		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-		}
-		return res;
-	}
-	Rcpp::List returnMinnRes() {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
 		return Rcpp::List::create(
-			Rcpp::Named("mn_mean") = coef,
+			// Rcpp::Named("mn_mean") = coef,
+			Rcpp::Named("coefficients") = coef,
 			Rcpp::Named("fitted.values") = yhat,
 			Rcpp::Named("residuals") = resid,
 			Rcpp::Named("mn_prec") = prec,
-			Rcpp::Named("iw_scale") = scale,
+			// Rcpp::Named("iw_scale") = scale,
+			Rcpp::Named("covmat") = scale,
 			Rcpp::Named("iw_shape") = shape,
 			Rcpp::Named("df") = dim_design,
 			Rcpp::Named("m") = dim,
@@ -738,13 +584,13 @@ public:
 			Rcpp::Named("design") = design
 		);
 	}
-	MinnRecords returnMinnRecords(int num_burn, int thin) const {
-		MinnRecords res_record(
-			thin_record(mn_record.coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(mn_record.sig_record, num_iter, num_burn, thin).derived()
-		);
-		return res_record;
-	}
+	// MinnRecords returnMinnRecords(int num_burn, int thin) const {
+	// 	MinnRecords res_record(
+	// 		thin_record(mn_record.coef_record, num_iter, num_burn, thin).derived(),
+	// 		thin_record(mn_record.sig_record, num_iter, num_burn, thin).derived()
+	// 	);
+	// 	return res_record;
+	// }
 	MinnFit returnMinnFit() {
 		estimateCoef();
 		fitObs();
@@ -756,17 +602,17 @@ protected:
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd prior_prec;
-	int num_iter;
+	// int num_iter;
 	int dim;
 	int num_design;
 	int dim_design;
 	// int num_dummy; // kp + k(+ 1)
 	// int num_augment; // n + num_dummy
-	MinnRecords mn_record;
-	std::vector<Eigen::MatrixXd> mniw;
-	std::atomic<int> mcmc_step; // MCMC step
-	boost::random::mt19937 rng; // RNG instance for multi-chain
-	std::mutex mtx;
+	// MinnRecords mn_record;
+	// std::vector<Eigen::MatrixXd> mniw;
+	// std::atomic<int> mcmc_step; // MCMC step
+	// boost::random::mt19937 rng; // RNG instance for multi-chain
+	// std::mutex mtx;
 	// Eigen::MatrixXd prior_prec;
 	Eigen::MatrixXd prior_mean;
 	// Eigen::MatrixXd prior_scale;

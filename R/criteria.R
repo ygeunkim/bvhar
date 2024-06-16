@@ -78,7 +78,7 @@ logLik.bvarmn <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
-  posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
+  posterior_cov <- object$covmat / (object$iw_shape - m - 1)
   zhat <- object$residuals
   log_lik <- 
     -obs * m / 2 * log(2 * pi) - 
@@ -102,7 +102,7 @@ logLik.bvarflat <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
-  posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
+  posterior_cov <- object$covmat / (object$iw_shape - m - 1)
   zhat <- object$residuals
   log_lik <- 
     -obs * m / 2 * log(2 * pi) - 
@@ -126,7 +126,7 @@ logLik.bvharmn <- function(object, ...) {
   obs <- object$obs
   k <- object$df
   m <- object$m
-  posterior_cov <- object$iw_scale / (object$iw_shape - m - 1)
+  posterior_cov <- object$covmat / (object$iw_shape - m - 1)
   zhat <- object$residuals
   log_lik <- 
     -obs * m / 2 * log(2 * pi) - 
@@ -485,7 +485,7 @@ compute_logml.bvarmn <- function(object, ...) {
   ) - dim_data / 2 * log(
     det(object$mn_prec)
   ) - (prior_shape + num_obs) / 2 * log(
-    det(object$iw_scale)
+    det(object$covmat)
   )
 }
 
@@ -509,6 +509,6 @@ compute_logml.bvharmn <- function(object, ...) {
   ) - dim_data / 2 * log(
     det(object$mn_prec)
   ) - (prior_shape + num_obs) / 2 * log(
-    det(object$iw_scale)
+    det(object$covmat)
   )
 }
