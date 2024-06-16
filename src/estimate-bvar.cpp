@@ -12,63 +12,61 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag,
-														int num_chains, int num_iter, int num_burn, int thin,
-														Rcpp::List bayes_spec,
-														bool include_mean,
-														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	Eigen::MatrixXd response = bvhar::build_y0(y, lag, lag + 1);
-	Eigen::MatrixXd design = bvhar::build_x0(y, lag, include_mean);
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
+														// (Eigen::MatrixXd y, int lag,
+														// int num_chains, int num_iter, int num_burn, int thin,
+														// Rcpp::List bayes_spec,
+														// bool include_mean,
+														// Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
+	// Eigen::MatrixXd response = bvhar::build_y0(y, lag, lag + 1);
+	// Eigen::MatrixXd design = bvhar::build_x0(y, lag, include_mean);
 	bvhar::BvarSpec mn_spec(bayes_spec);
-	int dim = response.cols();
-	Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
-		lag, mn_spec._sigma, mn_spec._lambda,
-		mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
-		include_mean
-	);
-	Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
-		Eigen::VectorXd::LinSpaced(lag, 1, lag),
-		mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
-	);
-	// std::unique_ptr<bvhar::Minnesota> mn_obj(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, ));
-	std::vector<std::unique_ptr<bvhar::Minnesota>> mn_objs(num_chains);
-	for (int i = 0; i < num_chains; ++i) {
-		mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
-		mn_objs[i]->computePosterior();
-	}
-	std::vector<Rcpp::List> record(num_chains);
-	auto run_conj = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
-		for (int i = 0; i < num_iter; ++i) {
-			bar.increment();
-			bar.update();
-			mn_objs[chain]->doPosteriorDraws();
-		}
-	#ifdef _OPENMP
-		#pragma omp critical
-	#endif
-		{
-			record[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
-		}
-	};
-	if (num_chains == 1) {
-		run_conj(0);
-	} else {
-	#ifdef _OPENMP
-		#pragma omp parallel for num_threads(nthreads)
-	#endif
-		for (int chain = 0; chain < num_chains; ++chain) {
-			run_conj(chain);
-		}
-	}
-	Rcpp::List res = mn_objs[0]->returnMinnRes();
-	res["record"] = Rcpp::wrap(record);
-	return res;
-	// res.push_back(Rcpp::wrap(record));
+	// int dim = response.cols();
+	// Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 	lag, mn_spec._sigma, mn_spec._lambda,
+	// 	mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+	// 	include_mean
+	// );
+	// Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 	Eigen::VectorXd::LinSpaced(lag, 1, lag),
+	// 	mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
+	// );
+	// // std::unique_ptr<bvhar::Minnesota> mn_obj(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, ));
+	// std::vector<std::unique_ptr<bvhar::Minnesota>> mn_objs(num_chains);
+	// for (int i = 0; i < num_chains; ++i) {
+	// 	mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+	// 	mn_objs[i]->computePosterior();
+	// }
+	// std::vector<Rcpp::List> record(num_chains);
+	// auto run_conj = [&](int chain) {
+	// 	bvhar::bvharprogress bar(num_iter, display_progress);
+	// 	for (int i = 0; i < num_iter; ++i) {
+	// 		bar.increment();
+	// 		bar.update();
+	// 		mn_objs[chain]->doPosteriorDraws();
+	// 	}
+	// #ifdef _OPENMP
+	// 	#pragma omp critical
+	// #endif
+	// 	{
+	// 		record[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
+	// 	}
+	// };
+	// if (num_chains == 1) {
+	// 	run_conj(0);
+	// } else {
+	// #ifdef _OPENMP
+	// 	#pragma omp parallel for num_threads(nthreads)
+	// #endif
+	// 	for (int chain = 0; chain < num_chains; ++chain) {
+	// 		run_conj(chain);
+	// 	}
+	// }
+	// Rcpp::List res = mn_objs[0]->returnMinnRes();
+	// res["record"] = Rcpp::wrap(record);
 	// return res;
-	// std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, num_chains, num_iter, mn_spec, include_mean, display_progress, seed_chain));
-	// mn_obj->doPosteriorDraws(nthreads, num_burn, thin);
-	// return mn_obj->returnMinnRes();
+	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, mn_spec, include_mean));
+	return mn_obj->returnMinnRes();
 }
 
 //' BVHAR Point Estimates based on Minnesota Prior
@@ -83,92 +81,90 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month,
-														 int num_chains, int num_iter, int num_burn, int thin,
-														 Rcpp::List bayes_spec, bool include_mean,
-														 Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	Eigen::MatrixXd response = bvhar::build_y0(y, month, month + 1);
-	Eigen::MatrixXd var_design = bvhar::build_x0(y, month, include_mean);
-	int dim = response.cols();
-	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
-	Eigen::MatrixXd design = var_design * har_trans.transpose();
-	std::vector<std::unique_ptr<bvhar::Minnesota>> mn_objs(num_chains);
-	if (bayes_spec.containsElementNamed("delta")) {
-		bvhar::BvarSpec mn_spec(bayes_spec);
-		Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
-			3, mn_spec._sigma, mn_spec._lambda,
-			mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
-			include_mean
-		);
-		Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
-			Eigen::VectorXd::LinSpaced(3, 1, 3),
-			mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
-		);
-		for (int i = 0; i < num_chains; ++i) {
-			mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
-			mn_objs[i]->computePosterior();
-		}
-	} else {
-		bvhar::BvharSpec mn_spec(bayes_spec);
-		Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
-			Eigen::VectorXd::LinSpaced(3, 1, 3),
-			mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
-		);
-		Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
-			3, mn_spec._sigma, mn_spec._lambda,
-			mn_spec._daily, mn_spec._weekly, mn_spec._monthly,
-			include_mean
-		);
-		for (int i = 0; i < num_chains; ++i) {
-			mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
-			mn_objs[i]->computePosterior();
-		}
-	}
-	std::vector<Rcpp::List> record(num_chains);
-	auto run_conj = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
-		for (int i = 0; i < num_iter; ++i) {
-			bar.increment();
-			bar.update();
-			mn_objs[chain]->doPosteriorDraws();
-		}
-	#ifdef _OPENMP
-		#pragma omp critical
-	#endif
-		{
-			record[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
-		}
-	};
-	if (num_chains == 1) {
-		run_conj(0);
-	} else {
-	#ifdef _OPENMP
-		#pragma omp parallel for num_threads(nthreads)
-	#endif
-		for (int chain = 0; chain < num_chains; ++chain) {
-			run_conj(chain);
-		}
-	}
-	// Rcpp::List res = mn_objs[0]->returnMinnRes();
-	// res.push_back(Rcpp::wrap(record));
-	// return res;
-	Rcpp::List res = mn_objs[0]->returnMinnRes();
-	res["design"] = var_design;
-	res["HARtrans"] = har_trans;
-	res["record"] = Rcpp::wrap(record);
-	return res;
-	// std::unique_ptr<bvhar::MinnBvhar> mn_obj;
-	// if (minn_short) {
-	// 	bvhar::BvarSpec bvhar_spec(bayes_spec);
-	// 	// mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(y, week, month, num_iter, bvhar_spec, include_mean));
-	// 	mn_obj.reset(new bvhar::MinnBvharS(y, week, month, num_chains, num_iter, bvhar_spec, include_mean, display_progress, seed_chain));
+Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean) {
+	// (Eigen::MatrixXd y, int week, int month,
+	// 													 int num_chains, int num_iter, int num_burn, int thin,
+	// 													 Rcpp::List bayes_spec, bool include_mean,
+	// 													 Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
+	// Eigen::MatrixXd response = bvhar::build_y0(y, month, month + 1);
+	// Eigen::MatrixXd var_design = bvhar::build_x0(y, month, include_mean);
+	// int dim = response.cols();
+	// Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	// Eigen::MatrixXd design = var_design * har_trans.transpose();
+	// std::vector<std::unique_ptr<bvhar::Minnesota>> mn_objs(num_chains);
+	// if (bayes_spec.containsElementNamed("delta")) {
+	// 	bvhar::BvarSpec mn_spec(bayes_spec);
+	// 	Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		3, mn_spec._sigma, mn_spec._lambda,
+	// 		mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+	// 		include_mean
+	// 	);
+	// 	Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::VectorXd::LinSpaced(3, 1, 3),
+	// 		mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
+	// 	);
+	// 	for (int i = 0; i < num_chains; ++i) {
+	// 		mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+	// 		mn_objs[i]->computePosterior();
+	// 	}
 	// } else {
-	// 	bvhar::BvharSpec bvhar_spec(bayes_spec);
-	// 	// mn_obj = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(y, week, month, num_iter, bvhar_spec, include_mean));
-	// 	mn_obj.reset(new bvhar::MinnBvharL(y, week, month, num_chains, num_iter, bvhar_spec, include_mean, display_progress, seed_chain));
+	// 	bvhar::BvharSpec mn_spec(bayes_spec);
+	// 	Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::VectorXd::LinSpaced(3, 1, 3),
+	// 		mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
+	// 	);
+	// 	Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		3, mn_spec._sigma, mn_spec._lambda,
+	// 		mn_spec._daily, mn_spec._weekly, mn_spec._monthly,
+	// 		include_mean
+	// 	);
+	// 	for (int i = 0; i < num_chains; ++i) {
+	// 		mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+	// 		mn_objs[i]->computePosterior();
+	// 	}
 	// }
-	// mn_obj->doPosteriorDraws(nthreads, num_burn, thin);
-	// return mn_obj->returnMinnRes();
+	// std::vector<Rcpp::List> record(num_chains);
+	// auto run_conj = [&](int chain) {
+	// 	bvhar::bvharprogress bar(num_iter, display_progress);
+	// 	for (int i = 0; i < num_iter; ++i) {
+	// 		bar.increment();
+	// 		bar.update();
+	// 		mn_objs[chain]->doPosteriorDraws();
+	// 	}
+	// #ifdef _OPENMP
+	// 	#pragma omp critical
+	// #endif
+	// 	{
+	// 		record[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
+	// 	}
+	// };
+	// if (num_chains == 1) {
+	// 	run_conj(0);
+	// } else {
+	// #ifdef _OPENMP
+	// 	#pragma omp parallel for num_threads(nthreads)
+	// #endif
+	// 	for (int chain = 0; chain < num_chains; ++chain) {
+	// 		run_conj(chain);
+	// 	}
+	// }
+	// // Rcpp::List res = mn_objs[0]->returnMinnRes();
+	// // res.push_back(Rcpp::wrap(record));
+	// // return res;
+	// Rcpp::List res = mn_objs[0]->returnMinnRes();
+	// res["design"] = var_design;
+	// res["HARtrans"] = har_trans;
+	// res["record"] = Rcpp::wrap(record);
+	// return res;
+	std::unique_ptr<bvhar::MinnBvhar> mn_obj;
+	if (bayes_spec.containsElementNamed("delta")) {
+		bvhar::BvarSpec bvhar_spec(bayes_spec);
+		mn_obj.reset(new bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
+	} else {
+		bvhar::BvharSpec bvhar_spec(bayes_spec);
+		mn_obj.reset(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
+	}
+	return mn_obj->returnMinnRes();
 }
 
 //' @noRd
@@ -244,12 +240,13 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y,
-														int num_chains, int num_iter, int num_burn, int thin,
-														Eigen::MatrixXd U,
-														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-  int num_design = y.rows();
-  int dim = y.cols();
+Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U) {
+// Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y,
+// 														int num_chains, int num_iter, int num_burn, int thin,
+// 														Eigen::MatrixXd U,
+// 														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
+  // int num_design = y.rows();
+  // int dim = y.cols();
   if (U.rows() != x.cols()) {
     Rcpp::stop("Wrong dimension: U");
   }
@@ -269,51 +266,132 @@ Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y,
   //   Rcpp::Named("iwscale") = scale_mat,
   //   Rcpp::Named("iwshape") = num_design - dim - 1
   // );
-	std::vector<Rcpp::List> record(num_chains);
-	std::vector<std::unique_ptr<bvhar::MinnFlat>> flat_objs(num_chains);
+	std::unique_ptr<bvhar::MinnFlat> mn_obj(new bvhar::MinnFlat(x, y, U));
+	return mn_obj->returnMinnRes();
+	// std::vector<Rcpp::List> record(num_chains);
+	// std::vector<std::unique_ptr<bvhar::MinnFlat>> flat_objs(num_chains);
+	// for (int i = 0; i < num_chains; ++i) {
+	// 	flat_objs[i].reset(new bvhar::MinnFlat(num_iter, x, y, U, static_cast<unsigned int>(seed_chain[i])));
+	// 	flat_objs[i]->computePosterior();
+	// }
+	// auto run_mcmc = [&](int chain) {
+	// 	bvhar::bvharprogress bar(num_iter, display_progress);
+	// 	bvhar::bvharinterrupt();
+	// 	for (int i = 0; i < num_iter; i++) {
+	// 		if (bvhar::bvharinterrupt::is_interrupted()) {
+	// 		#ifdef _OPENMP
+	// 			#pragma omp critical
+	// 		#endif
+	// 			{
+	// 				record[chain] = flat_objs[chain]->returnRecords(0, 1);
+	// 			}
+	// 			break;
+	// 		}
+	// 		bar.increment();
+	// 		if (display_progress) {
+	// 			bar.update();
+	// 		}
+	// 		flat_objs[chain]->doPosteriorDraws();
+	// 	}
+	// #ifdef _OPENMP
+	// 	#pragma omp critical
+	// #endif
+	// 	{
+	// 		record[chain] = flat_objs[chain]->returnRecords(num_burn, thin);
+	// 	}
+	// };
+	// if (num_chains == 1) {
+	// 	run_mcmc(0);
+	// } else {
+	// #ifdef _OPENMP
+	// 	#pragma omp parallel for num_threads(nthreads)
+	// #endif
+	// 	for (int chain = 0; chain < num_chains; chain++) {
+	// 		run_mcmc(chain);
+	// 	}
+	// }
+	// Rcpp::List res = flat_objs[0]->returnMinnRes();
+	// res["record"] = Rcpp::wrap(record);
+	// return res;
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
+												 const Eigen::MatrixXd& mn_mean, const Eigen::MatrixXd& mn_prec,
+												 const Eigen::MatrixXd& iw_scale, double iw_shape,
+												 Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
+	// Eigen::MatrixXd response = bvhar::build_y0(y, month, month + 1);
+	// Eigen::MatrixXd var_design = bvhar::build_x0(y, month, include_mean);
+	// int dim = response.cols();
+	// Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	// Eigen::MatrixXd design = var_design * har_trans.transpose();
+	// std::vector<std::unique_ptr<bvhar::Minnesota>> mn_objs(num_chains);
+	std::vector<std::unique_ptr<bvhar::McmcMniw>> mn_objs(num_chains);
 	for (int i = 0; i < num_chains; ++i) {
-		flat_objs[i].reset(new bvhar::MinnFlat(num_iter, x, y, U, static_cast<unsigned int>(seed_chain[i])));
-		flat_objs[i]->computePosterior();
+		bvhar::MinnFit mn_fit(mn_mean, mn_prec, iw_scale, iw_shape);
+		mn_objs[i].reset(new bvhar::McmcMniw(num_iter, mn_fit, static_cast<unsigned int>(seed_chain[i])));
 	}
-	auto run_mcmc = [&](int chain) {
+	// if (bayes_spec.containsElementNamed("delta")) {
+	// 	bvhar::BvarSpec mn_spec(bayes_spec);
+	// 	Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		3, mn_spec._sigma, mn_spec._lambda,
+	// 		mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+	// 		include_mean
+	// 	);
+	// 	Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::VectorXd::LinSpaced(3, 1, 3),
+	// 		mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
+	// 	);
+	// 	for (int i = 0; i < num_chains; ++i) {
+	// 		mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+	// 		mn_objs[i]->computePosterior();
+	// 	}
+	// } else {
+	// 	bvhar::BvharSpec mn_spec(bayes_spec);
+	// 	Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::VectorXd::LinSpaced(3, 1, 3),
+	// 		mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
+	// 	);
+	// 	Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		3, mn_spec._sigma, mn_spec._lambda,
+	// 		mn_spec._daily, mn_spec._weekly, mn_spec._monthly,
+	// 		include_mean
+	// 	);
+	// 	for (int i = 0; i < num_chains; ++i) {
+	// 		mn_objs[i].reset(new bvhar::Minnesota(num_iter, design, response, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+	// 		mn_objs[i]->computePosterior();
+	// 	}
+	// }
+	std::vector<Rcpp::List> res(num_chains);
+	auto run_conj = [&](int chain) {
 		bvhar::bvharprogress bar(num_iter, display_progress);
-		bvhar::bvharinterrupt();
-		for (int i = 0; i < num_iter; i++) {
-			if (bvhar::bvharinterrupt::is_interrupted()) {
-			#ifdef _OPENMP
-				#pragma omp critical
-			#endif
-				{
-					record[chain] = flat_objs[chain]->returnRecords(0, 1);
-				}
-				break;
-			}
+		for (int i = 0; i < num_iter; ++i) {
 			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
-			flat_objs[chain]->doPosteriorDraws();
+			bar.update();
+			mn_objs[chain]->doPosteriorDraws();
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
 	#endif
 		{
-			record[chain] = flat_objs[chain]->returnRecords(num_burn, thin);
+			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
 		}
 	};
 	if (num_chains == 1) {
-		run_mcmc(0);
+		run_conj(0);
 	} else {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
-		for (int chain = 0; chain < num_chains; chain++) {
-			run_mcmc(chain);
+		for (int chain = 0; chain < num_chains; ++chain) {
+			run_conj(chain);
 		}
 	}
-	Rcpp::List res = flat_objs[0]->returnMinnRes();
-	// res.push_back(Rcpp::wrap(record));
+	// Rcpp::List res = mn_objs[0]->returnMinnRes();
+	// res["design"] = var_design;
+	// res["HARtrans"] = har_trans;
+	// res["record"] = Rcpp::wrap(record);
 	// return res;
-	res["record"] = Rcpp::wrap(record);
-	return res;
+	return Rcpp::wrap(res);
 }
