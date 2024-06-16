@@ -8,6 +8,7 @@
 \alias{knit_print.bvharcv}
 \alias{forecast_roll.olsmod}
 \alias{forecast_roll.normaliw}
+\alias{forecast_roll.ldltmod}
 \alias{forecast_roll.svmod}
 \title{Out-of-sample Forecasting based on Rolling Window}
 \usage{
@@ -22,6 +23,17 @@ is.bvharcv(x)
 \method{forecast_roll}{olsmod}(object, n_ahead, y_test, num_thread = 1, ...)
 
 \method{forecast_roll}{normaliw}(object, n_ahead, y_test, num_thread = 1, use_fit = TRUE, ...)
+
+\method{forecast_roll}{ldltmod}(
+  object,
+  n_ahead,
+  y_test,
+  num_thread = 1,
+  sparse = FALSE,
+  lpl = FALSE,
+  use_fit = TRUE,
+  ...
+)
 
 \method{forecast_roll}{svmod}(
   object,
@@ -52,11 +64,11 @@ is.bvharcv(x)
 
 \item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 
-\item{use_sv}{Use SV term}
-
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
+
+\item{use_sv}{Use SV term}
 }
 \value{
 \code{predbvhar_roll} \link{class}

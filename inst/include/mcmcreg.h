@@ -207,6 +207,15 @@ struct LdltRecords : public RegRecords {
 	LdltRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& d_record)
 	: RegRecords(alpha_record, a_record), fac_record(d_record) {}
 
+	LdltRecords(
+		const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& c_record,
+		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& d_record
+	)
+	: RegRecords(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols()), a_record),
+		fac_record(d_record) {
+		coef_record << alpha_record, c_record;
+	}
+
 	void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec

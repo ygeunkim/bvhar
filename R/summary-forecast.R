@@ -213,6 +213,178 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 }
 
 #' @rdname forecast_roll
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @export
+forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  num_chains <- object$chain
+  num_horizon <- nrow(y_test) - n_ahead + 1
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_horizon * num_chains) {
+    warning(sprintf("'num_thread' > (number of horizon * number of chains) will use not every thread. Specify as 'num_thread' <= '(nrow(y_test) - n_ahead + 1) * object$chain' = %d.", num_horizon * num_chains))
+  }
+  # if (num_thread > num_chains && num_chains != 1) {
+  #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
+  # }
+  if (num_horizon * num_chains %% num_thread != 0) {
+    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  }
+  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  if (chunk_size == 0) {
+    chunk_size <- 1
+  }
+  if (num_horizon > num_chains && chunk_size > num_chains) {
+    chunk_size <- min(
+      num_chains,
+      (num_horizon %/% num_thread) * num_chains
+    )
+    if (chunk_size == 0) {
+      chunk_size <- 1
+    }
+  }
+  ci_lev <- 0
+  if (is.numeric(sparse)) {
+    ci_lev <- sparse
+    sparse <- TRUE
+    prior_nm <- "ci"
+  }
+  fit_ls <- list()
+  if (use_fit) {
+    fit_ls <- lapply(
+      object$param_names,
+      function(x) {
+        subset_draws(object$param, variable = x) %>%
+          as_draws_matrix() %>%
+          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+      }
+    ) %>%
+      setNames(paste(object$param_names, "record", sep = "_"))
+  }
+  res_mat <- switch(model_type,
+    "bvarldlt" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      own_id <- 2
+      cross_id <- seq_len(object$p + 1)[-2]
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = object$p))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
+        } else {
+          prior_type <- 1
+        }
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      roll_bvarldlt(
+        y, object$p, num_chains, object$iter, object$burn, object$thin,
+        sparse, ci_lev, fit_ls,
+        object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    },
+    "bvharldlt" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      if (length(grp_id) == 6) {
+        own_id <- c(2, 4, 6)
+        cross_id <- c(1, 3, 5)
+      } else {
+        own_id <- 2
+        cross_id <- c(1, 3, 4)
+      }
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = 3))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
+        } else {
+          prior_type <- 1
+        }
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      roll_bvharldlt(
+        y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+        sparse, ci_lev, fit_ls,
+        object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    }
+  )
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  if (lpl) {
+    lpl_val <- res_mat$lpl
+    res_mat$lpl <- NULL
+  }
+  res_mat <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), mean)
+    }) %>%
+    do.call(rbind, .)
+  colnames(res_mat) <- name_var
+  res <- list(
+    process = object$process,
+    forecast = res_mat,
+    eval_id = n_ahead:nrow(y_test),
+    y = y
+  )
+  if (lpl) {
+    res$lpl <- lpl_val
+  }
+  class(res) <- c("predbvhar_roll", "bvharcv")
+  res
+}
+
+#' @rdname forecast_roll
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
@@ -573,6 +745,179 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
+  class(res) <- c("predbvhar_expand", "bvharcv")
+  res
+}
+
+#' @rdname forecast_expand
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @export
+forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+  y <- object$y
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0(
+      "y",
+      seq_len(ncol(y))
+    )
+  }
+  if (!is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.matrix(y_test)) {
+    y_test <- as.matrix(y_test)
+  }
+  model_type <- class(object)[1]
+  include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  num_chains <- object$chain
+  num_horizon <- nrow(y_test) - n_ahead + 1
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_horizon * num_chains) {
+    warning(sprintf("'num_thread' > (number of horizon * number of chains) will use not every thread. Specify as 'num_thread' <= '(nrow(y_test) - n_ahead + 1) * object$chain' = %d.", num_horizon * num_chains))
+  }
+  # if (num_thread > num_chains && num_chains != 1) {
+  #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
+  # }
+  if (num_horizon * num_chains %% num_thread != 0) {
+    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  }
+  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  if (chunk_size == 0) {
+    chunk_size <- 1
+  }
+  if (num_horizon > num_chains && chunk_size > num_chains) {
+    chunk_size <- min(
+      num_chains,
+      (num_horizon %/% num_thread) * num_chains
+    )
+    if (chunk_size == 0) {
+      chunk_size <- 1
+    }
+  }
+  ci_lev <- 0
+  if (is.numeric(sparse)) {
+    ci_lev <- sparse
+    sparse <- TRUE
+    prior_nm <- "ci"
+  }
+  fit_ls <- list()
+  if (use_fit) {
+    fit_ls <- lapply(
+      object$param_names,
+      function(x) {
+        subset_draws(object$param, variable = x) %>%
+          as_draws_matrix() %>%
+          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+      }
+    ) %>%
+      setNames(paste(object$param_names, "record", sep = "_"))
+  }
+  res_mat <- switch(model_type,
+    "bvarldlt" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      own_id <- 2
+      cross_id <- seq_len(object$p + 1)[-2]
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = object$p))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
+        } else {
+          prior_type <- 1
+        }
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      expand_bvarldlt(
+        y, object$p, num_chains, object$iter, object$burn, object$thin,
+        sparse, ci_lev, fit_ls,
+        object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    },
+    "bvharldlt" = {
+      grp_mat <- object$group
+      grp_id <- unique(c(grp_mat))
+      if (length(grp_id) == 6) {
+        own_id <- c(2, 4, 6)
+        cross_id <- c(1, 3, 5)
+      } else {
+        own_id <- 2
+        cross_id <- c(1, 3, 4)
+      }
+      # param_init <- object$init
+      if (is.bvharspec(object$spec)) {
+        param_prior <- append(object$spec, list(p = 3))
+        if (object$spec$hierarchical) {
+          param_prior$shape <- object$spec$lambda$param[1]
+          param_prior$rate <- object$spec$lambda$param[2]
+          prior_type <- 4
+        } else {
+          prior_type <- 1
+        }
+      } else if (is.ssvsinput(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 2
+      } else {
+        param_prior <- list()
+        prior_type <- 3
+      }
+      expand_bvharldlt(
+        y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
+        sparse, ci_lev, fit_ls,
+        object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
+        grp_id, own_id, cross_id, grp_mat,
+        include_mean, n_ahead, y_test,
+        lpl,
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains),
+        num_thread, chunk_size
+      )
+    }
+  )
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  if (lpl) {
+    lpl_val <- res_mat$lpl
+    res_mat$lpl <- NULL
+  }
+  res_mat <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), mean)
+    }) %>%
+    do.call(rbind, .)
+  colnames(res_mat) <- name_var
+  res <- list(
+    process = object$process,
+    forecast = res_mat,
+    eval_id = n_ahead:nrow(y_test),
+    y = y
+  )
+  if (lpl) {
+    res$lpl <- lpl_val
+  }
   class(res) <- c("predbvhar_expand", "bvharcv")
   res
 }
