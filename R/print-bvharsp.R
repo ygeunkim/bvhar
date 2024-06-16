@@ -311,3 +311,79 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
 knit_print.summary.bvharsp <- function(x, ...) {
   print(x)
 }
+
+#' @rdname var_bayes
+#' @param x `bvarldlt` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat(sprintf("BVAR(%i) with %s prior\n", x$p, x$spec$prior))
+  cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname var_bayes
+#' @exportS3Method knitr::knit_print
+knit_print.bvarldlt <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname vhar_bayes
+#' @param x `bvharldlt` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat(sprintf("BVHAR with %s prior\n", x$spec$prior))
+  cat("Fitted by Gibbs sampling\n")
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname vhar_bayes
+#' @exportS3Method knitr::knit_print
+knit_print.bvharldlt <- function(x, ...) {
+  print(x)
+}

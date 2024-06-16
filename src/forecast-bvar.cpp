@@ -11,12 +11,12 @@
 //' @param psi_record Matrix, MCMC trace of psi.
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvarssvs(int num_chains, int var_lag, int step,
-                             			Eigen::MatrixXd response_mat,
-																	int dim_design,
-                             			Eigen::MatrixXd alpha_record,
-																	Eigen::MatrixXd eta_record,
-																	Eigen::MatrixXd psi_record) {
+Eigen::MatrixXd forecast_bvarssvs_deprecate(int num_chains, int var_lag, int step,
+                             								Eigen::MatrixXd response_mat,
+																						int dim_design,
+                             								Eigen::MatrixXd alpha_record,
+																						Eigen::MatrixXd eta_record,
+																						Eigen::MatrixXd psi_record) {
   int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
@@ -77,11 +77,11 @@ Eigen::MatrixXd forecast_bvarssvs(int num_chains, int var_lag, int step,
 //' @param omega_record Matrix, MCMC trace of omega.
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvarhs(int num_chains, int var_lag, int step,
-                           			Eigen::MatrixXd response_mat,
-																int dim_design,
-																Eigen::MatrixXd alpha_record,
-																Eigen::VectorXd sigma_record) {
+Eigen::MatrixXd forecast_bvarhs_deprecate(int num_chains, int var_lag, int step,
+                           								Eigen::MatrixXd response_mat,
+																					int dim_design,
+																					Eigen::MatrixXd alpha_record,
+																					Eigen::VectorXd sigma_record) {
   int num_sim = num_chains > 1 ? alpha_record.rows() / num_chains : alpha_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
