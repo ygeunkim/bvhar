@@ -390,6 +390,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
 #' @order 1
 #' @export
 predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvarssvs()")
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   pred_res <- forecast_bvarssvs_deprecate(
@@ -460,6 +461,7 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvharssvs()")
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   pred_res <- forecast_bvharssvs_deprecate(
@@ -523,6 +525,7 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvarhs()")
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   pred_res <- forecast_bvarhs_deprecate(
@@ -584,6 +587,7 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvharhs()")
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   pred_res <- forecast_bvharhs_deprecate(
