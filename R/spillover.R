@@ -66,7 +66,7 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
   # } else {
   #   mod_type <- ifelse(grepl(pattern = "^BVAR_", object$process), "var", "vhar")
   # }
-  mod_type <- class(object)[1]
+  # mod_type <- class(object)[1]
   # dim_data <- object$coefficients
   # if (grepl(pattern = "^freq_", mod_type)) {
   #   res <- compute_ols_spillover(object, n_ahead)
@@ -78,27 +78,33 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
   #     seed = sample.int(.Machine$integer.max, size = 1)
   #   )
   # }
-  res <- switch(mod_type,
-    "bvarmn" = {
-      compute_bvarmn_spillover(
-        object$p,
-        step = n_ahead,
-        alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
-        sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma"))
-      )
-    },
-    "bvharmn" = {
-      compute_bvharmn_spillover(
-        object$month,
-        step = n_ahead, har_trans = object$HARtrans,
-        phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
-        sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma"))
-      )
-    }
+  res <- compute_mn_spillover(
+    object,
+    step = n_ahead,
+    num_iter = num_iter, num_burn = num_burn, thin = thinning,
+    seed = sample.int(.Machine$integer.max, size = 1)
   )
-  # Preprocess?
-  # 
-  # 
+  # res <- switch(mod_type,
+  #   "bvarmn" = {
+  #     compute_bvarmn_spillover(
+  #       object$p,
+  #       step = n_ahead,
+  #       alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+  #       sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma"))
+  #     )
+  #   },
+  #   "bvharmn" = {
+  #     compute_bvharmn_spillover(
+  #       object$month,
+  #       step = n_ahead, har_trans = object$HARtrans,
+  #       phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
+  #       sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma"))
+  #     )
+  #   }
+  # )
+  # # Preprocess?
+  # # 
+  # # 
   colnames(res$connect) <- colnames(object$coefficients)
   rownames(res$connect) <- colnames(object$coefficients)
   res$df_long <-
@@ -200,9 +206,14 @@ dynamic_spillover.olsmod <- function(object, n_ahead = 10L, window, num_thread =
 
 #' @rdname dynamic_spillover
 #' @param window Window size
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thinning Thinning every thinning-th iteration
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window, num_thread = 1, ...) {
+dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window,
+                                       num_iter = 1000L, num_burn = floor(num_iter / 2), thinning = 1,
+                                       num_thread = 1, ...) {
   num_horizon <- nrow(object$y) - window + 1
   if (num_horizon < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -217,7 +228,7 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window, num_thread
     warning(sprintf("'num_thread' > number of horizon will use not every thread. Specify as 'num_thread' <= 'nrow(y) - window + 1' = %d.", num_horizon))
   }
   model_type <- class(object)[1]
-  num_chains <- object$chain
+  # num_chains <- object$chain
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   # if (model_type == "varlse" || model_type == "vharlse") {
   #   method <- switch(object$method,
@@ -230,18 +241,22 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window, num_thread
     "bvarmn" = {
       dynamic_bvar_spillover(
         y = object$y, window = window, step = n_ahead,
-        num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
+        num_iter = num_iter, num_burn = num_burn, thin = thinning,
+        # num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
         lag = object$p, bayes_spec = object$spec, include_mean = include_mean,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
+        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },
     "bvharmn" = {
       dynamic_bvhar_spillover(
         y = object$y, window = window, step = n_ahead,
-        num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
+        num_iter = num_iter, num_burn = num_burn, thin = thinning,
+        # num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
         week = object$week, month = object$month, bayes_spec = object$spec, include_mean = include_mean,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
+        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },

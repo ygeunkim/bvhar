@@ -12,8 +12,6 @@ test_that("Test for bvarmn class", {
   fit_test_bvar <- bvar_minnesota(
     y = etf_vix,
     p = test_lag,
-    num_iter = 10,
-    num_burn = 0,
     bayes_spec = etf_spec
   )
   

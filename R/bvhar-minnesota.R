@@ -204,92 +204,59 @@ bvhar_minnesota <- function(y,
       bayes_spec$sigma <- apply(y, 2, sd)
     }
     # is_short <- minnesota_type == "MN_VAR"
-    # res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean, is_short)
-    res <- estimate_bvhar_mn(
-      y = y, week = week, month = month,
-      num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
-      bayes_spec = bayes_spec,
-      include_mean = include_mean,
-      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-      display_progress = verbose, nthreads = num_thread
-    )
-    # res <- do.call(rbind, res)
-    # res <- append(res, do.call(rbind, res$record))
+    res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean)
+    # res <- estimate_bvhar_mn(
+    #   y = y, week = week, month = month,
+    #   num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
+    #   bayes_spec = bayes_spec,
+    #   include_mean = include_mean,
+    #   seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+    #   display_progress = verbose, nthreads = num_thread
+    # )
+    # res$record <- do.call(rbind, res$record)
+    # colnames(res$record) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res$record)) # alpha to phi
+    # rec_names <- colnames(res$record)
+    # param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+    # res$record <- apply(
+    #   res$record,
+    #   2,
+    #   function(x) {
+    #     if (is.vector(x[[1]])) {
+    #       return(as.matrix(unlist(x)))
+    #     }
+    #     do.call(rbind, x)
+    #   }
+    # )
+    # names(res$record) <- rec_names
+    # res <- append(res, res$record)
     # res$record <- NULL
-    res$record <- do.call(rbind, res$record)
-    colnames(res$record) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res$record)) # alpha to phi
-    rec_names <- colnames(res$record)
-    param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-    res$record <- apply(
-      res$record,
-      2,
-      function(x) {
-        if (is.vector(x[[1]])) {
-          return(as.matrix(unlist(x)))
-        }
-        do.call(rbind, x)
-      }
-    )
-    names(res$record) <- rec_names
-    res <- append(res, res$record)
-    res$record <- NULL
-    # summary across chains-------------
-    res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
-    res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
-    # preprocess the results------------
-    if (num_chains > 1) {
-      res[rec_names] <- lapply(
-        seq_along(res[rec_names]),
-        function(id) {
-          split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
-        }
-      )
-    } else {
-      res[rec_names] <- lapply(
-        seq_along(res[rec_names]),
-        function(id) {
-          colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
-          res[rec_names][[id]]
-        }
-      )
-    }
-    res[rec_names] <- lapply(res[rec_names], as_draws_df)
-    res$param <- bind_draws(
-      res$phi_record,
-      res$sigma_record
-    )
-    res[rec_names] <- NULL
-    res$param_names <- param_names
-    # coef_and_sig <- sim_mniw_export(
-    #   num_iter,
-    #   res$mn_mean,
-    #   res$mn_prec,
-    #   res$iw_scale,
-    #   res$iw_shape,
-    #   TRUE
-    # ) %>%
-    #   simplify2array()
-    # thin_id <- seq(from = num_burn + 1, to = num_iter, by = thinning)
-    # len_res <- length(thin_id)
-    # coef_record <- lapply(coef_and_sig[1, ], c)
-    # coef_record <- coef_record[thin_id]
-    # coef_record <- do.call(rbind, coef_record)
-    # colnames(coef_record) <- paste0("phi", "[", seq_len(ncol(coef_record)), "]")
-    # res$coefficients <-
-    #   colMeans(coef_record) %>%
-    #   matrix(ncol = dim_data)
-    # coef_and_sig$iw <- coef_and_sig[2, ]
-    # coef_and_sig$iw <- coef_and_sig$iw[thin_id]
-    # res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
-    # sig_record <- do.call(
-    #   rbind,
-    #   lapply(coef_and_sig$iw, c)
+    # # summary across chains-------------
+    # res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+    # res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
+    # # preprocess the results------------
+    # if (num_chains > 1) {
+    #   res[rec_names] <- lapply(
+    #     seq_along(res[rec_names]),
+    #     function(id) {
+    #       split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+    #     }
+    #   )
+    # } else {
+    #   res[rec_names] <- lapply(
+    #     seq_along(res[rec_names]),
+    #     function(id) {
+    #       colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+    #       res[rec_names][[id]]
+    #     }
+    #   )
+    # }
+    # res[rec_names] <- lapply(res[rec_names], as_draws_df)
+    # res$param <- bind_draws(
+    #   res$phi_record,
+    #   res$sigma_record
     # )
-    # colnames(sig_record) <- paste0("sigma[", seq_len(ncol(sig_record)), "]")
-    # res$param <- bind_rows(
-    #   as_draws_df(coef_record),
-    #   as_draws_df(sig_record)
-    # )
+    # res[rec_names] <- NULL
+    # res$param_names <- param_names
     colnames(res$y) <- name_var
     colnames(res$y0) <- name_var
     # Prior-----------------------------
@@ -300,14 +267,14 @@ bvhar_minnesota <- function(y,
     colnames(res$prior_scale) <- name_var
     rownames(res$prior_scale) <- name_var
     # Matrix normal---------------------
-    colnames(res$mn_mean) <- name_var
-    rownames(res$mn_mean) <- name_har
+    # colnames(res$mn_mean) <- name_var
+    # rownames(res$mn_mean) <- name_har
     colnames(res$mn_prec) <- name_har
     rownames(res$mn_prec) <- name_har
     colnames(res$fitted.values) <- name_var
     # Inverse-wishart-------------------
-    colnames(res$iw_scale) <- name_var
-    rownames(res$iw_scale) <- name_var
+    colnames(res$covmat) <- name_var
+    rownames(res$covmat) <- name_var
   } else {
     psi <- bayes_spec$sigma$mode
     psi <- rep(psi, dim_data)

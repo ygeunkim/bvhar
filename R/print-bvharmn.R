@@ -56,14 +56,14 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     print.gap = 2L,
     quote = FALSE
   )
-  cat("====================================================\n\n")
-  cat("Parameter record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
+  # cat("====================================================\n\n")
+  # cat("Parameter record:\n")
+  # print(
+  #   x$param,
+  #   digits = digits,
+  #   print.gap = 2L,
+  #   quote = FALSE
+  # )
   invisible(x)
 }
 
