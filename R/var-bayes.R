@@ -533,7 +533,7 @@ var_bayes <- function(y,
   if (is.svspec(cov_spec)) {
     class(res) <- c("bvarsv", "svmod", class(res)) # remove bvarsv later
   } else {
-    class(res) <- c("bvarldlt", class(res))
+    class(res) <- c("bvarldlt", "ldltmod", class(res))
   }
   if (bayes_spec$prior == "Horseshoe") {
     class(res) <- c(class(res), "hsmod")
