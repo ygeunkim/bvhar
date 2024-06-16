@@ -1,4 +1,4 @@
-#include "bvhardraw.h"
+#include <bvhardraw.h>
 
 //' Forecasting VHAR with SSVS
 //' 
@@ -12,12 +12,12 @@
 //' @param psi_record Matrix, MCMC trace of psi.
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvharssvs(int num_chains, int month, int step,
-                              		 Eigen::MatrixXd response_mat,
-																	 Eigen::MatrixXd HARtrans,
-																	 Eigen::MatrixXd phi_record,
-																	 Eigen::MatrixXd eta_record,
-																	 Eigen::MatrixXd psi_record) {
+Eigen::MatrixXd forecast_bvharssvs_deprecate(int num_chains, int month, int step,
+                              		 					 Eigen::MatrixXd response_mat,
+																	 					 Eigen::MatrixXd HARtrans,
+																	 					 Eigen::MatrixXd phi_record,
+																	 					 Eigen::MatrixXd eta_record,
+																	 					 Eigen::MatrixXd psi_record) {
   int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();
@@ -81,11 +81,11 @@ Eigen::MatrixXd forecast_bvharssvs(int num_chains, int month, int step,
 //' @param omega_record Matrix, MCMC trace of omega.
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd forecast_bvharhs(int num_chains, int month, int step,
-																 Eigen::MatrixXd response_mat,
-																 Eigen::MatrixXd HARtrans,
-																 Eigen::MatrixXd phi_record,
-																 Eigen::VectorXd sigma_record) {
+Eigen::MatrixXd forecast_bvharhs_deprecate(int num_chains, int month, int step,
+																 					 Eigen::MatrixXd response_mat,
+																 					 Eigen::MatrixXd HARtrans,
+																 					 Eigen::MatrixXd phi_record,
+																 					 Eigen::VectorXd sigma_record) {
   int num_sim = num_chains > 1 ? phi_record.rows() / num_chains : phi_record.rows();
   int dim = response_mat.cols();
   int num_design = response_mat.rows();

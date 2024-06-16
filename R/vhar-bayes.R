@@ -492,11 +492,21 @@ vhar_bayes <- function(y,
   # res$param <- bind_draws(res[rec_names])
   res$param <- bind_draws(
     res$phi_record,
-    res$a_record,
-    res$h_record,
-    res$h0_record,
-    res$sigh_record
+    res$a_record
   )
+  if (is.svspec(cov_spec)) {
+    res$param <- bind_draws(
+      res$param,
+      res$h_record,
+      res$h0_record,
+      res$sigh_record
+    )
+  } else {
+    res$param <- bind_draws(
+      res$param,
+      res$d_record
+    )
+  }
   if (include_mean) {
     res$param <- bind_draws(
       res$param,
@@ -569,9 +579,11 @@ vhar_bayes <- function(y,
   res$y0 <- Y0
   res$design <- X0
   res$y <- y
-  class(res) <- c("bvharsv", "bvharsp") # change bvharsv class name
+  class(res) <- "bvharsp"
   if (is.svspec(cov_spec)) {
-    class(res) <- c(class(res), "svmod")
+    class(res) <- c("bvharsv", "svmod", class(res)) # remove bvharsv later
+  } else {
+    class(res) <- c("bvharldlt", "ldltmod", class(res))
   }
   if (bayes_spec$prior == "Horseshoe") {
     class(res) <- c(class(res), "hsmod")
