@@ -11,6 +11,8 @@
 \alias{predict.bvharssvs}
 \alias{predict.bvarhs}
 \alias{predict.bvharhs}
+\alias{predict.bvarldlt}
+\alias{predict.bvharldlt}
 \alias{predict.bvarsv}
 \alias{predict.bvharsv}
 \alias{print.predbvhar}
@@ -35,6 +37,26 @@
 \method{predict}{bvarhs}(object, n_ahead, level = 0.05, ...)
 
 \method{predict}{bvharhs}(object, n_ahead, level = 0.05, ...)
+
+\method{predict}{bvarldlt}(
+  object,
+  n_ahead,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  warn = FALSE,
+  ...
+)
+
+\method{predict}{bvharldlt}(
+  object,
+  n_ahead,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  warn = FALSE,
+  ...
+)
 
 \method{predict}{bvarsv}(
   object,
@@ -77,12 +99,12 @@ is.predbvhar(x)
 
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
 
-\item{use_sv}{Use SV term}
-
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.
 Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval across MCMC for restriction.}
 
 \item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
+
+\item{use_sv}{Use SV term}
 
 \item{x}{\code{predbvhar} object}
 
@@ -220,6 +242,8 @@ Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
 
 George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+
+Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2).
 
 Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2).
 }

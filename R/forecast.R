@@ -390,9 +390,10 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
 #' @order 1
 #' @export
 predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvarssvs()")
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  pred_res <- forecast_bvarssvs(
+  pred_res <- forecast_bvarssvs_deprecate(
     num_chains,
     object$p,
     n_ahead,
@@ -460,9 +461,10 @@ predict.bvarssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvharssvs()")
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-  pred_res <- forecast_bvharssvs(
+  pred_res <- forecast_bvharssvs_deprecate(
     num_chains,
     object$month,
     n_ahead,
@@ -523,9 +525,10 @@ predict.bvharssvs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvarhs()")
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  pred_res <- forecast_bvarhs(
+  pred_res <- forecast_bvarhs_deprecate(
     num_chains,
     object$p,
     n_ahead,
@@ -584,9 +587,10 @@ predict.bvarhs <- function(object, n_ahead, level = .05, ...) {
 #' @order 1
 #' @export
 predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
+  deprecate_warn("2.0.1", "predict.bvharhs()")
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-  pred_res <- forecast_bvharhs(
+  pred_res <- forecast_bvharhs_deprecate(
     num_chains,
     object$month,
     n_ahead,
@@ -632,6 +636,228 @@ predict.bvharhs <- function(object, n_ahead, level = .05, ...) {
     y = object$y
   )
   class(res) <- c("predsp", "predbvhar")
+  res
+}
+
+#' @rdname predict
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
+#' @param ... not used
+#' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
+#' @importFrom posterior subset_draws as_draws_matrix
+#' @order 1
+#' @export
+predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+  dim_data <- object$m
+  num_chains <- object$chain
+  alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
+  if (warn) {
+    is_stable <- apply(
+      alpha_record,
+      1,
+      function(x) {
+        all(
+          matrix(x, ncol = object$m) %>%
+            compute_stablemat() %>%
+            eigen() %>%
+            .$values %>%
+            Mod() < 1
+        )
+      }
+    )
+    if (any(!is_stable)) {
+      warning("Some alpha records are unstable, so add burn-in")
+    }
+  }
+  if (object$type == "const") {
+    alpha_record <- cbind(alpha_record, as_draws_matrix(subset_draws(object$param, variable = "c")))
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
+  prior_nm <- object$spec$prior
+  # ci_lev <- NULL
+  ci_lev <- .05
+  if (is.numeric(sparse)) {
+    ci_lev <- sparse
+    sparse <- TRUE
+    prior_nm <- "ci"
+  }
+  fit_ls <- lapply(
+    object$param_names,
+    function(x) {
+      subset_draws(object$param, variable = x) %>%
+        as_draws_matrix() %>%
+        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+    }
+  ) %>%
+    setNames(paste(object$param_names, "record", sep = "_"))
+  prior_type <- switch(prior_nm,
+    "ci" = 0,
+    "Minnesota" = 1,
+    "SSVS" = 2,
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
+  )
+  pred_res <- forecast_bvarldlt(
+    num_chains,
+    object$p,
+    n_ahead,
+    object$y0,
+    sparse,
+    ci_lev,
+    fit_ls,
+    prior_type,
+    sample.int(.Machine$integer.max, size = num_chains),
+    object$type == "const",
+    num_thread
+  )
+  var_names <- colnames(object$y0)
+  # Predictive distribution------------------------------------
+  num_draw <- nrow(alpha_record) # concatenate multiple chains
+  y_distn <-
+    pred_res %>%
+    unlist() %>%
+    array(dim = c(n_ahead, dim_data, num_draw))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(pred_mean) <- var_names
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  colnames(est_se) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
+    y = object$y
+  )
+  res$object <- object
+  class(res) <- c("predsv", "predbvhar")
+  res
+}
+
+#' @rdname predict
+#' @param object Model object
+#' @param n_ahead step to forecast
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
+#' @param ... not used
+#' @importFrom posterior subset_draws as_draws_matrix
+#' @order 1
+#' @export
+predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+  dim_data <- object$m
+  num_chains <- object$chain
+  phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
+  if (warn) {
+    is_stable <- apply(
+      phi_record,
+      1,
+      function(x) {
+        coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
+        all(
+          coef %>%
+            compute_stablemat() %>%
+            eigen() %>%
+            .$values %>%
+            Mod() < 1
+        )
+      }
+    )
+    if (any(!is_stable)) {
+      warning("Some phi records are unstable, so add burn-in")
+    }
+  }
+  if (object$type == "const") {
+    phi_record <- cbind(phi_record, as_draws_matrix(subset_draws(object$param, variable = "c")))
+  }
+  if (num_thread > get_maxomp()) {
+    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  }
+  if (num_thread > num_chains && num_chains != 1) {
+    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  }
+  prior_nm <- object$spec$prior
+  ci_lev <- .05
+  if (is.numeric(sparse)) {
+    ci_lev <- sparse
+    sparse <- TRUE
+    prior_nm <- "ci"
+  }
+  fit_ls <- lapply(
+    object$param_names,
+    function(x) {
+      subset_draws(object$param, variable = x) %>%
+        as_draws_matrix() %>%
+        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+    }
+  ) %>%
+    setNames(paste(object$param_names, "record", sep = "_"))
+  prior_type <- switch(prior_nm,
+    "ci" = 0,
+    "Minnesota" = 1,
+    "SSVS" = 2,
+    "Horseshoe" = 3,
+    "MN_Hierarchical" = 4
+  )
+  pred_res <- forecast_bvharldlt(
+    num_chains,
+    object$month,
+    n_ahead,
+    object$y0,
+    object$HARtrans,
+    sparse,
+    ci_lev,
+    fit_ls,
+    prior_type,
+    sample.int(.Machine$integer.max, size = num_chains),
+    object$type == "const",
+    num_thread
+  )
+  var_names <- colnames(object$y0)
+  # Predictive distribution------------------------------------
+  num_draw <- nrow(phi_record) # concatenate multiple chains
+  y_distn <-
+    pred_res %>% 
+    unlist() %>% 
+    array(dim = c(n_ahead, dim_data, num_draw))
+  pred_mean <- apply(y_distn, c(1, 2), mean)
+  lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
+  upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
+  est_se <- apply(y_distn, c(1, 2), sd)
+  colnames(pred_mean) <- var_names
+  colnames(lower_quantile) <- var_names
+  colnames(upper_quantile) <- var_names
+  colnames(est_se) <- var_names
+  res <- list(
+    process = object$process,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
+    y = object$y
+  )
+  res$object <- object
+  class(res) <- c("predldlt", "predbvhar")
   res
 }
 
