@@ -42,12 +42,18 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+      
+      - name: Determine evaluate package version to avoid R version conflict
+        run: |
+          if [ "${{ matrix.config.r }}" < "4.0.0" ]; then
+            echo "EVALUATE_PKG=evaluate@0.23" >> $GITHUB_ENV
+          else
+            echo "EVALUATE_PKG=evaluate" >> $GITHUB_ENV
+          fi
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::rcmdcheck
-            if (getRversion() < "4.0.0") evaluate@0.23
+          extra-packages: any::rcmdcheck, ${{ env.EVALUATE_PKG }}
           needs: check
 
 # do not build vignettes in github actions check and ignore warnings
