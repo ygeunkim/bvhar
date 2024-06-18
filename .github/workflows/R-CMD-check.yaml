@@ -43,21 +43,11 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      # - uses: r-lib/actions/setup-r-dependencies@v2
-      #   with:
-      #     extra-packages: any::rcmdcheck
-      #     needs: check
       - uses: r-lib/actions/setup-r-dependencies@v2
-        if: ${{ runner.os == 'Windows' && matrix.config.r == '3.6' }}
         with:
-          extra-packages: any::rcmdcheck
-          pak-version: rc
-          needs: check
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        if: ${{ runner.os != 'Windows' || matrix.config.r != '3.6' }}
-        with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            if (getRversion() < "4.0.0") evaluate@0.23
           needs: check
 
 # do not build vignettes in github actions check and ignore warnings
