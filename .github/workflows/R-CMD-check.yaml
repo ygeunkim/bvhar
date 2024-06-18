@@ -19,14 +19,19 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest,   r: 'release'}
+
           - {os: windows-latest, r: 'release'}
           # Use 3.6 to trigger usage of RTools35
           - {os: windows-latest, r: '3.6'}
           # use 4.1 to check with rtools40's older compiler
           - {os: windows-latest, r: '4.1'}
+
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'oldrel-2'}
+          - {os: ubuntu-latest,  r: 'oldrel-3'}
+          - {os: ubuntu-latest,  r: 'oldrel-4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +50,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, knitr=?ignore-before-r=4.0.0
+          extra-packages: any::rcmdcheck, evaluate=?ignore-before-r=4.0.0
           needs: check
 
 # do not build vignettes in github actions check and ignore warnings
