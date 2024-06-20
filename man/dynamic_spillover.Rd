@@ -17,7 +17,16 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 
 \method{dynamic_spillover}{olsmod}(object, n_ahead = 10L, window, num_thread = 1, ...)
 
-\method{dynamic_spillover}{normaliw}(object, n_ahead = 10L, window, num_thread = 1, ...)
+\method{dynamic_spillover}{normaliw}(
+  object,
+  n_ahead = 10L,
+  window,
+  num_iter = 1000L,
+  num_burn = floor(num_iter/2),
+  thinning = 1,
+  num_thread = 1,
+  ...
+)
 
 \method{dynamic_spillover}{svmod}(object, n_ahead = 10L, num_thread = 1, ...)
 }
@@ -35,6 +44,12 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 \item{window}{Window size}
 
 \item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
+
+\item{num_iter}{Number to sample MNIW distribution}
+
+\item{num_burn}{Number of burn-in}
+
+\item{thinning}{Thinning every thinning-th iteration}
 }
 \description{
 This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).

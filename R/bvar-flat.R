@@ -100,49 +100,50 @@ bvar_flat <- function(y, p,
   prior_prec <- bayes_spec$U
   # Matrix normal---------------------
   # posterior <- estimate_mn_flat(X0, Y0, prior_prec)
-  res <- estimate_mn_flat(
-    x = X0, y = Y0,
-    num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
-    U = prior_prec,
-    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-    display_progress = verbose,
-    nthreads = num_thread
-  )
-  # res <- do.call(rbind, res)
-  # res <- append(res, do.call(rbind, res$record))
+  res <- estimate_mn_flat(X0, Y0, prior_prec)
+  # res <- estimate_mn_flat(
+  #   x = X0, y = Y0,
+  #   num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
+  #   U = prior_prec,
+  #   seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+  #   display_progress = verbose,
+  #   nthreads = num_thread
+  # )
+  # # res <- do.call(rbind, res)
+  # # res <- append(res, do.call(rbind, res$record))
+  # # res$record <- NULL
+  # res$record <- do.call(rbind, res$record)
+  # rec_names <- colnames(res$record)
+  # param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  # res$record <- apply(res$record, 2, function(x) do.call(rbind, x))
+  # names(res$record) <- rec_names
+  # res <- append(res, res$record)
   # res$record <- NULL
-  res$record <- do.call(rbind, res$record)
-  rec_names <- colnames(res$record)
-  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
-  res$record <- apply(res$record, 2, function(x) do.call(rbind, x))
-  names(res$record) <- rec_names
-  res <- append(res, res$record)
-  res$record <- NULL
-  res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
-  res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
-  if (num_chains > 1) {
-    res[rec_names] <- lapply(
-      seq_along(res[rec_names]),
-      function(id) {
-        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
-      }
-    )
-  } else {
-    res[rec_names] <- lapply(
-      seq_along(res[rec_names]),
-      function(id) {
-        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
-        res[rec_names][[id]]
-      }
-    )
-  }
-  res[rec_names] <- lapply(res[rec_names], as_draws_df)
-  res$param <- bind_draws(
-    res$alpha_record,
-    res$sigma_record
-  )
-  res[rec_names] <- NULL
-  res$param_names <- param_names
+  # res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+  # res$covmat <- matrix(colMeans(res$sigma_record), ncol = dim_data)
+  # if (num_chains > 1) {
+  #   res[rec_names] <- lapply(
+  #     seq_along(res[rec_names]),
+  #     function(id) {
+  #       split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+  #     }
+  #   )
+  # } else {
+  #   res[rec_names] <- lapply(
+  #     seq_along(res[rec_names]),
+  #     function(id) {
+  #       colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+  #       res[rec_names][[id]]
+  #     }
+  #   )
+  # }
+  # res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  # res$param <- bind_draws(
+  #   res$alpha_record,
+  #   res$sigma_record
+  # )
+  # res[rec_names] <- NULL
+  # res$param_names <- param_names
   colnames(res$y) <- name_var
   colnames(res$y0) <- name_var
   colnames(res$design) <- name_lag
@@ -155,14 +156,14 @@ bvar_flat <- function(y, p,
   # colnames(res$prior_scale) <- name_var
   # rownames(res$prior_scale) <- name_var
   # Matrix normal---------------------
-  colnames(res$mn_mean) <- name_var
-  rownames(res$mn_mean) <- name_lag
+  # colnames(res$mn_mean) <- name_var
+  # rownames(res$mn_mean) <- name_lag
   colnames(res$mn_prec) <- name_lag
   rownames(res$mn_prec) <- name_lag
   colnames(res$fitted.values) <- name_var
   # Inverse-wishart-------------------
-  colnames(res$iw_scale) <- name_var
-  rownames(res$iw_scale) <- name_var
+  # colnames(res$iw_scale) <- name_var
+  # rownames(res$iw_scale) <- name_var
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
   colnames(res$covmat) <- name_var

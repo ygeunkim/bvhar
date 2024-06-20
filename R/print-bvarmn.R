@@ -50,21 +50,21 @@ print.bvarmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("====================================================\n")
   cat("IW scale matrix:\n")
   print.default(
-    x$iw_scale,
+    x$covmat,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
   )
   cat("\nIW degrees of freedom:\n")
   print.default(x$iw_shape)
-  cat("====================================================\n\n")
-  cat("Parameter record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
+  # cat("====================================================\n\n")
+  # cat("Parameter record:\n")
+  # print(
+  #   x$param,
+  #   digits = digits,
+  #   print.gap = 2L,
+  #   quote = FALSE
+  # )
   cat("\n\n--------------------------------------------------\n")
   cat("*_j of the Coefficient matrix: corresponding to the j-th BVAR lag\n\n")
   invisible(x)

@@ -10,8 +10,6 @@ test_that("Test for VAR-type minnesota", {
   )
   fit_test_bvhar_var <- bvhar_minnesota(
     y = etf_vix,
-    num_iter = 10,
-    num_burn = 0,
     bayes_spec = var_spec
   )
   

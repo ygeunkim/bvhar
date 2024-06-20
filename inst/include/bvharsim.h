@@ -449,7 +449,8 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	if (beta < std::numeric_limits<double>::epsilon()) {
+	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
+		// Handle round-off error following GIGrvg
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = gamma_rand(lambda, 2 / chi);
@@ -480,7 +481,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	if (beta < std::numeric_limits<double>::epsilon()) {
+	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = gamma_rand(lambda, 2 / chi, rng);

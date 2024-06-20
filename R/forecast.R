@@ -134,6 +134,7 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
+#' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
 #' @param ... not used
@@ -161,45 +162,45 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
 #' @importFrom stats quantile
 #' @order 1
 #' @export
-predict.bvarmn <- function(object, n_ahead, level = .05, num_thread = 1, ...) {
-  dim_data <- object$m
-  num_chains <- object$chain
-  if (num_thread > get_maxomp()) {
-    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
-  }
-  if (num_thread > num_chains && num_chains != 1) {
-    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
-  }
-  alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  pred_res <- forecast_bvar(
-    num_chains = num_chains,
-    var_lag = object$p,
-    step = n_ahead,
-    response_mat = object$y0,
-    alpha_record = alpha_record,
-    sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
-    include_mean = object$type == "const",
-    nthreads = num_thread
-  )
-  # pred_res <- forecast_bvar(object, n_ahead, n_iter)
+predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thread = 1, ...) {
+  # dim_data <- object$m
+  # num_chains <- object$chain
+  # if (num_thread > get_maxomp()) {
+  #   warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  # }
+  # if (num_thread > num_chains && num_chains != 1) {
+  #   warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  # }
+  # alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
+  # pred_res <- forecast_bvar(
+  #   num_chains = num_chains,
+  #   var_lag = object$p,
+  #   step = n_ahead,
+  #   response_mat = object$y0,
+  #   alpha_record = alpha_record,
+  #   sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
+  #   include_mean = object$type == "const",
+  #   nthreads = num_thread
+  # )
+  pred_res <- forecast_bvar(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
-  # pred_mean <- pred_res$posterior_mean
+  pred_mean <- pred_res$posterior_mean
   var_names <- colnames(object$y0)
-  # colnames(pred_mean) <- var_names
+  colnames(pred_mean) <- var_names
   # Predictive distribution-------------------------
-  # dim_data <- ncol(pred_mean)
-  # y_distn <-
-  #   pred_res$predictive %>%
-  #   array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
-  num_draw <- nrow(alpha_record) # concatenate multiple chains
+  dim_data <- ncol(pred_mean)
   y_distn <-
-    pred_res %>%
-    unlist() %>%
-    array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+    pred_res$predictive %>%
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  # num_draw <- nrow(alpha_record) # concatenate multiple chains
+  # y_distn <-
+  #   pred_res %>%
+  #   unlist() %>%
+  #   array(dim = c(n_ahead, dim_data, num_draw))
+  # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
-  colnames(pred_mean) <- var_names
+  # colnames(pred_mean) <- var_names
   colnames(lower_quantile) <- var_names
   colnames(upper_quantile) <- var_names
   # Standard error----------------------------------
@@ -224,6 +225,7 @@ predict.bvarmn <- function(object, n_ahead, level = .05, num_thread = 1, ...) {
 #' @rdname predict
 #' @param object Model object
 #' @param n_ahead step to forecast
+#' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param num_thread Number of threads
 #' @param ... not used
@@ -240,43 +242,43 @@ predict.bvarmn <- function(object, n_ahead, level = .05, num_thread = 1, ...) {
 #' @importFrom stats quantile
 #' @order 1
 #' @export
-predict.bvharmn <- function(object, n_ahead, level = .05, num_thread = 1, ...) {
-  # pred_res <- forecast_bvharmn(object, n_ahead, n_iter)
-  dim_data <- object$m
-  num_chains <- object$chain
-  if (num_thread > get_maxomp()) {
-    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
-  }
-  if (num_thread > num_chains && num_chains != 1) {
-    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
-  }
-  phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-  pred_res <- forecast_bvharmn(
-    num_chains = num_chains,
-    month = object$month,
-    step = n_ahead,
-    response_mat = object$y0,
-    har_trans = object$HARtrans,
-    phi_record = phi_record,
-    sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
-    include_mean = object$type == "const",
-    nthreads = num_thread
-  )
+predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thread = 1, ...) {
+  pred_res <- forecast_bvharmn(object, n_ahead, n_iter)
+  # dim_data <- object$m
+  # num_chains <- object$chain
+  # if (num_thread > get_maxomp()) {
+  #   warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  # }
+  # if (num_thread > num_chains && num_chains != 1) {
+  #   warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  # }
+  # phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
+  # pred_res <- forecast_bvharmn(
+  #   num_chains = num_chains,
+  #   month = object$month,
+  #   step = n_ahead,
+  #   response_mat = object$y0,
+  #   har_trans = object$HARtrans,
+  #   phi_record = phi_record,
+  #   sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
+  #   include_mean = object$type == "const",
+  #   nthreads = num_thread
+  # )
   # Point forecasting (Posterior mean)--------------
-  # pred_mean <- pred_res$posterior_mean
+  pred_mean <- pred_res$posterior_mean
   var_names <- colnames(object$y0)
   # colnames(pred_mean) <- var_names
   # Predictive distribution-------------------------
-  # dim_data <- ncol(pred_mean)
-  # y_distn <- 
-  #   pred_res$predictive %>% 
-  #   array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
-  num_draw <- nrow(phi_record) # concatenate multiple chains
-  y_distn <-
-    pred_res %>%
-    unlist() %>%
-    array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  dim_data <- ncol(pred_mean)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  # num_draw <- nrow(phi_record) # concatenate multiple chains
+  # y_distn <-
+  #   pred_res %>%
+  #   unlist() %>%
+  #   array(dim = c(n_ahead, dim_data, num_draw))
+  # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   colnames(pred_mean) <- var_names
@@ -314,41 +316,41 @@ predict.bvharmn <- function(object, n_ahead, level = .05, num_thread = 1, ...) {
 #' @order 1
 #' @export
 predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_thread = 1, ...) {
-  dim_data <- object$m
-  num_chains <- object$chain
-  if (num_thread > get_maxomp()) {
-    warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
-  }
-  if (num_thread > num_chains && num_chains != 1) {
-    warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
-  }
-  alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  pred_res <- forecast_bvar(
-    num_chains = num_chains,
-    var_lag = object$p,
-    step = n_ahead,
-    response_mat = object$y0,
-    alpha_record = alpha_record,
-    sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
-    include_mean = object$type == "const",
-    nthreads = num_thread
-  )
-  # pred_res <- forecast_bvar(object, n_ahead, n_iter)
+  # dim_data <- object$m
+  # num_chains <- object$chain
+  # if (num_thread > get_maxomp()) {
+  #   warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
+  # }
+  # if (num_thread > num_chains && num_chains != 1) {
+  #   warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
+  # }
+  # alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
+  # pred_res <- forecast_bvar(
+  #   num_chains = num_chains,
+  #   var_lag = object$p,
+  #   step = n_ahead,
+  #   response_mat = object$y0,
+  #   alpha_record = alpha_record,
+  #   sig_record = as_draws_matrix(subset_draws(object$param, variable = "sigma")),
+  #   include_mean = object$type == "const",
+  #   nthreads = num_thread
+  # )
+  pred_res <- forecast_bvar(object, n_ahead, n_iter)
   # Point forecasting (Posterior mean)--------------
-  # pred_mean <- pred_res$posterior_mean
+  pred_mean <- pred_res$posterior_mean
   var_names <- colnames(object$y0)
   # colnames(pred_mean) <- var_names
   # Predictive distribution-------------------------
-  # dim_data <- ncol(pred_mean)
-  # y_distn <- 
-  #   pred_res$predictive %>% 
-  #   array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
-  num_draw <- nrow(alpha_record) # concatenate multiple chains
-  y_distn <-
-    pred_res %>%
-    unlist() %>%
-    array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  dim_data <- ncol(pred_mean)
+  y_distn <- 
+    pred_res$predictive %>% 
+    array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
+  # num_draw <- nrow(alpha_record) # concatenate multiple chains
+  # y_distn <-
+  #   pred_res %>%
+  #   unlist() %>%
+  #   array(dim = c(n_ahead, dim_data, num_draw))
+  # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   colnames(pred_mean) <- var_names
