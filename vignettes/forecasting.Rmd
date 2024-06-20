@@ -118,7 +118,7 @@ y_delta <- rep(.2, m) # delta vector (0 vector since RV stationary)
 eps <- 1e-04 # very small number
 spec_bvar <- set_bvar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvar <- bvar_minnesota(y_train, 5, num_iter = 10, bayes_spec = spec_bvar)
+model_bvar <- bvar_minnesota(y_train, p = 5, bayes_spec = spec_bvar)
 ```
 
 ## BVHAR
@@ -128,7 +128,7 @@ BVHAR-S
 ```{r fitbvhars}
 spec_bvhar_v1 <- set_bvhar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvhar_v1 <- bvhar_minnesota(y_train, num_iter = 10, bayes_spec = spec_bvhar_v1)
+model_bvhar_v1 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v1)
 ```
 
 BVHAR-L
@@ -148,7 +148,7 @@ spec_bvhar_v2 <- set_weight_bvhar(
   y_month
 )
 # fit--------------------------------------
-model_bvhar_v2 <- bvhar_minnesota(y_train, num_iter = 10, bayes_spec = spec_bvhar_v2)
+model_bvhar_v2 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v2)
 ```
 
 # Splitting

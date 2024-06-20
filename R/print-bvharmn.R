@@ -51,19 +51,19 @@ print.bvharmn <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat("====================================================\n")
   cat("IW scale matrix:\n")
   print.default(
-    x$iw_scale,
+    x$covmat,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
   )
-  cat("====================================================\n\n")
-  cat("Parameter record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
+  # cat("====================================================\n\n")
+  # cat("Parameter record:\n")
+  # print(
+  #   x$param,
+  #   digits = digits,
+  #   print.gap = 2L,
+  #   quote = FALSE
+  # )
   invisible(x)
 }
 

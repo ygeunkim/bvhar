@@ -423,45 +423,31 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_mn
-Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thin, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean);
+RcppExport SEXP _bvhar_estimate_bvar_mn(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
-    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_mn(y, lag, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_mn(y, lag, bayes_spec, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
 // estimate_bvhar_mn
-Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thin, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_bvhar_mn(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean);
+RcppExport SEXP _bvhar_estimate_bvhar_mn(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
-    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvhar_mn(y, week, month, num_chains, num_iter, num_burn, thin, bayes_spec, include_mean, seed_chain, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvhar_mn(y, week, month, bayes_spec, include_mean));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -489,22 +475,36 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_mn_flat
-Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd U, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_mn_flat(SEXP xSEXP, SEXP ySEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP USEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd U);
+RcppExport SEXP _bvhar_estimate_mn_flat(SEXP xSEXP, SEXP ySEXP, SEXP USEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type x(xSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type U(USEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_mn_flat(x, y, U));
+    return rcpp_result_gen;
+END_RCPP
+}
+// estimate_mniw
+Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin, const Eigen::MatrixXd& mn_mean, const Eigen::MatrixXd& mn_prec, const Eigen::MatrixXd& iw_scale, double iw_shape, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
+RcppExport SEXP _bvhar_estimate_mniw(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP mn_meanSEXP, SEXP mn_precSEXP, SEXP iw_scaleSEXP, SEXP iw_shapeSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type U(USEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type mn_mean(mn_meanSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type mn_prec(mn_precSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type iw_scale(iw_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type iw_shape(iw_shapeSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_mn_flat(x, y, num_chains, num_iter, num_burn, thin, U, seed_chain, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_mniw(num_chains, num_iter, num_burn, thin, mn_mean, mn_prec, iw_scale, iw_shape, seed_chain, display_progress, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -989,185 +989,132 @@ BEGIN_RCPP
 END_RCPP
 }
 // forecast_bvar
-Rcpp::List forecast_bvar(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd alpha_record, Eigen::MatrixXd sig_record, bool include_mean, int nthreads);
-RcppExport SEXP _bvhar_forecast_bvar(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP alpha_recordSEXP, SEXP sig_recordSEXP, SEXP include_meanSEXP, SEXP nthreadsSEXP) {
+Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim);
+RcppExport SEXP _bvhar_forecast_bvar(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type alpha_record(alpha_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_record(sig_recordSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvar(num_chains, var_lag, step, response_mat, alpha_record, sig_record, include_mean, nthreads));
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvar(object, step, num_sim));
     return rcpp_result_gen;
 END_RCPP
 }
 // forecast_bvharmn
-Rcpp::List forecast_bvharmn(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd har_trans, Eigen::MatrixXd phi_record, Eigen::MatrixXd sig_record, bool include_mean, int nthreads);
-RcppExport SEXP _bvhar_forecast_bvharmn(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP har_transSEXP, SEXP phi_recordSEXP, SEXP sig_recordSEXP, SEXP include_meanSEXP, SEXP nthreadsSEXP) {
+Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim);
+RcppExport SEXP _bvhar_forecast_bvharmn(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type har_trans(har_transSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type phi_record(phi_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_record(sig_recordSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(forecast_bvharmn(num_chains, month, step, response_mat, har_trans, phi_record, sig_record, include_mean, nthreads));
+    Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharmn(object, step, num_sim));
     return rcpp_result_gen;
 END_RCPP
 }
 // roll_bvar
-Rcpp::List roll_bvar(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_roll_bvar(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_roll_bvar(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_bvar(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(roll_bvar(y, lag, bayes_spec, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // roll_bvarflat
-Rcpp::List roll_bvarflat(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Eigen::MatrixXd U, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_roll_bvarflat(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP USEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y, int lag, Eigen::MatrixXd U, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_roll_bvarflat(SEXP ySEXP, SEXP lagSEXP, SEXP USEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type U(USEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_bvarflat(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(roll_bvarflat(y, lag, U, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // roll_bvhar
-Rcpp::List roll_bvhar(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_roll_bvhar(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_roll_bvhar(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(roll_bvhar(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(roll_bvhar(y, week, month, bayes_spec, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // expand_bvar
-Rcpp::List expand_bvar(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_expand_bvar(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_expand_bvar(SEXP ySEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(expand_bvar(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(expand_bvar(y, lag, bayes_spec, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // expand_bvarflat
-Rcpp::List expand_bvarflat(Eigen::MatrixXd y, int lag, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Eigen::MatrixXd U, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_expand_bvarflat(SEXP ySEXP, SEXP lagSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP USEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y, int lag, Eigen::MatrixXd U, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_expand_bvarflat(SEXP ySEXP, SEXP lagSEXP, SEXP USEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type U(USEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(expand_bvarflat(y, lag, num_chains, num_iter, num_burn, thinning, fit_record, U, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(expand_bvarflat(y, lag, U, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // expand_bvhar
-Rcpp::List expand_bvhar(Eigen::MatrixXd y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning, Rcpp::List fit_record, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size);
-RcppExport SEXP _bvhar_expand_bvhar(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinningSEXP, SEXP fit_recordSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP, SEXP chunk_sizeSEXP) {
+Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean, int step, Eigen::MatrixXd y_test, int nthreads);
+RcppExport SEXP _bvhar_expand_bvhar(SEXP ySEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP stepSEXP, SEXP y_testSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type week(weekSEXP);
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
-    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
-    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
-    Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_test(y_testSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< int >::type chunk_size(chunk_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(expand_bvhar(y, week, month, num_chains, num_iter, num_burn, thinning, fit_record, bayes_spec, include_mean, step, y_test, seed_chain, nthreads, chunk_size));
+    rcpp_result_gen = Rcpp::wrap(expand_bvhar(y, week, month, bayes_spec, include_mean, step, y_test, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1567,67 +1514,52 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_bvarmn_spillover
-Rcpp::List compute_bvarmn_spillover(int lag, int step, Eigen::MatrixXd alpha_record, Eigen::MatrixXd sig_record);
-RcppExport SEXP _bvhar_compute_bvarmn_spillover(SEXP lagSEXP, SEXP stepSEXP, SEXP alpha_recordSEXP, SEXP sig_recordSEXP) {
+// compute_mn_spillover
+Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int num_burn, int thin, unsigned int seed);
+RcppExport SEXP _bvhar_compute_mn_spillover(SEXP objectSEXP, SEXP stepSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type alpha_record(alpha_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_record(sig_recordSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_bvarmn_spillover(lag, step, alpha_record, sig_record));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_bvharmn_spillover
-Rcpp::List compute_bvharmn_spillover(int month, int step, Eigen::MatrixXd har_trans, Eigen::MatrixXd phi_record, Eigen::MatrixXd sig_record);
-RcppExport SEXP _bvhar_compute_bvharmn_spillover(SEXP monthSEXP, SEXP stepSEXP, SEXP har_transSEXP, SEXP phi_recordSEXP, SEXP sig_recordSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
-    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type har_trans(har_transSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type phi_record(phi_recordSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig_record(sig_recordSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_bvharmn_spillover(month, step, har_trans, phi_record, sig_record));
+    Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
+    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_mn_spillover(object, step, num_iter, num_burn, thin, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // dynamic_bvar_spillover
-Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::MatrixXi seed_chain, int nthreads);
-RcppExport SEXP _bvhar_dynamic_bvar_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP) {
+Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin, int lag, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvar_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP lagSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type window(windowSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamic_bvar_spillover(y, window, step, num_chains, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads));
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvar_spillover(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
 // dynamic_bvhar_spillover
-Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, int week, int month, Rcpp::List bayes_spec, bool include_mean, Eigen::MatrixXi seed_chain, int nthreads);
-RcppExport SEXP _bvhar_dynamic_bvhar_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP) {
+Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin, int week, int month, Rcpp::List bayes_spec, bool include_mean, Eigen::VectorXi seed_chain, int nthreads);
+RcppExport SEXP _bvhar_dynamic_bvhar_spillover(SEXP ySEXP, SEXP windowSEXP, SEXP stepSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP bayes_specSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type window(windowSEXP);
     Rcpp::traits::input_parameter< int >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
     Rcpp::traits::input_parameter< int >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< int >::type num_burn(num_burnSEXP);
     Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
@@ -1635,9 +1567,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type month(monthSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bayes_spec(bayes_specSEXP);
     Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dynamic_bvhar_spillover(y, window, step, num_chains, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads));
+    rcpp_result_gen = Rcpp::wrap(dynamic_bvhar_spillover(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1837,10 +1769,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_compute_from_spillover", (DL_FUNC) &_bvhar_compute_from_spillover, 1},
     {"_bvhar_compute_tot_spillover", (DL_FUNC) &_bvhar_compute_tot_spillover, 1},
     {"_bvhar_compute_net_spillover", (DL_FUNC) &_bvhar_compute_net_spillover, 1},
-    {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 11},
-    {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 12},
+    {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
+    {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 5},
     {"_bvhar_estimate_bvar_mh", (DL_FUNC) &_bvhar_estimate_bvar_mh, 13},
-    {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 10},
+    {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
+    {"_bvhar_estimate_mniw", (DL_FUNC) &_bvhar_estimate_mniw, 11},
     {"_bvhar_estimate_hierachical_niw", (DL_FUNC) &_bvhar_estimate_hierachical_niw, 20},
     {"_bvhar_estimate_sur_horseshoe", (DL_FUNC) &_bvhar_estimate_sur_horseshoe, 17},
     {"_bvhar_estimate_bvar_ssvs", (DL_FUNC) &_bvhar_estimate_bvar_ssvs, 32},
@@ -1861,14 +1794,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_roll_bvharldlt", (DL_FUNC) &_bvhar_roll_bvharldlt, 27},
     {"_bvhar_expand_bvarldlt", (DL_FUNC) &_bvhar_expand_bvarldlt, 26},
     {"_bvhar_expand_bvharldlt", (DL_FUNC) &_bvhar_expand_bvharldlt, 27},
-    {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 8},
-    {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 9},
-    {"_bvhar_roll_bvar", (DL_FUNC) &_bvhar_roll_bvar, 14},
-    {"_bvhar_roll_bvarflat", (DL_FUNC) &_bvhar_roll_bvarflat, 14},
-    {"_bvhar_roll_bvhar", (DL_FUNC) &_bvhar_roll_bvhar, 15},
-    {"_bvhar_expand_bvar", (DL_FUNC) &_bvhar_expand_bvar, 14},
-    {"_bvhar_expand_bvarflat", (DL_FUNC) &_bvhar_expand_bvarflat, 14},
-    {"_bvhar_expand_bvhar", (DL_FUNC) &_bvhar_expand_bvhar, 15},
+    {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 3},
+    {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 3},
+    {"_bvhar_roll_bvar", (DL_FUNC) &_bvhar_roll_bvar, 7},
+    {"_bvhar_roll_bvarflat", (DL_FUNC) &_bvhar_roll_bvarflat, 7},
+    {"_bvhar_roll_bvhar", (DL_FUNC) &_bvhar_roll_bvhar, 8},
+    {"_bvhar_expand_bvar", (DL_FUNC) &_bvhar_expand_bvar, 7},
+    {"_bvhar_expand_bvarflat", (DL_FUNC) &_bvhar_expand_bvarflat, 7},
+    {"_bvhar_expand_bvhar", (DL_FUNC) &_bvhar_expand_bvhar, 8},
     {"_bvhar_forecast_var", (DL_FUNC) &_bvhar_forecast_var, 2},
     {"_bvhar_forecast_vhar", (DL_FUNC) &_bvhar_forecast_vhar, 2},
     {"_bvhar_roll_var", (DL_FUNC) &_bvhar_roll_var, 7},
@@ -1888,10 +1821,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_sim_var_chol", (DL_FUNC) &_bvhar_sim_var_chol, 8},
     {"_bvhar_sim_vhar_eigen", (DL_FUNC) &_bvhar_sim_vhar_eigen, 9},
     {"_bvhar_sim_vhar_chol", (DL_FUNC) &_bvhar_sim_vhar_chol, 9},
-    {"_bvhar_compute_bvarmn_spillover", (DL_FUNC) &_bvhar_compute_bvarmn_spillover, 4},
-    {"_bvhar_compute_bvharmn_spillover", (DL_FUNC) &_bvhar_compute_bvharmn_spillover, 5},
-    {"_bvhar_dynamic_bvar_spillover", (DL_FUNC) &_bvhar_dynamic_bvar_spillover, 12},
-    {"_bvhar_dynamic_bvhar_spillover", (DL_FUNC) &_bvhar_dynamic_bvhar_spillover, 13},
+    {"_bvhar_compute_mn_spillover", (DL_FUNC) &_bvhar_compute_mn_spillover, 6},
+    {"_bvhar_dynamic_bvar_spillover", (DL_FUNC) &_bvhar_dynamic_bvar_spillover, 11},
+    {"_bvhar_dynamic_bvhar_spillover", (DL_FUNC) &_bvhar_dynamic_bvhar_spillover, 12},
     {"_bvhar_compute_ols_spillover", (DL_FUNC) &_bvhar_compute_ols_spillover, 2},
     {"_bvhar_dynamic_var_spillover", (DL_FUNC) &_bvhar_dynamic_var_spillover, 7},
     {"_bvhar_dynamic_vhar_spillover", (DL_FUNC) &_bvhar_dynamic_vhar_spillover, 8},

@@ -19,14 +19,19 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest,   r: 'release'}
+
           - {os: windows-latest, r: 'release'}
           # Use 3.6 to trigger usage of RTools35
           - {os: windows-latest, r: '3.6'}
           # use 4.1 to check with rtools40's older compiler
           - {os: windows-latest, r: '4.1'}
+
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'oldrel-2'}
+          - {os: ubuntu-latest,  r: 'oldrel-3'}
+          - {os: ubuntu-latest,  r: 'oldrel-4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -42,19 +47,41 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+      
+      - name: Determine evaluate package version on Windows
+        if: runner.os == 'Windows'
+        run: |
+          if ($Env:MATRIX_CONFIG_R -lt "4.0.0") {
+            echo "EVALUATE_PKG=evaluate@0.23" >> $Env:GITHUB_ENV
+          } else {
+            echo "EVALUATE_PKG=evaluate" >> $Env:GITHUB_ENV
+           }
+        shell: pwsh
+        
+      - name: Determine evaluate package version on non-Windows
+        if: runner.os != 'Windows'
+        run: |
+          if [ "${{ matrix.config.r }}" \< "4.0.0" ]; then
+            echo "EVALUATE_PKG=evaluate@0.23" >> $GITHUB_ENV
+          else
+            echo "EVALUATE_PKG=evaluate" >> $GITHUB_ENV
+          fi
+        shell: bash
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck, ${{ env.EVALUATE_PKG }}
           needs: check
 
 # do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v2
         with:
-          args: 'c("--no-manual", "--as-cran", "--no-build-vignettes", "--no-tests", "--no-examples")'
-          build_args: '"--no-build-vignettes"'
+          args: 'c("--no-manual", "--as-cran", "--no-build-vignettes", "--no-examples")'
+          build_args: 'c("--no-manual", "--no-build-vignettes")'
           error-on: '"error"'
-          # upload-snapshots: true
+          check-dir: '"check"'
+          upload-snapshots: false
+          upload-results: false
 
 # do not upload artifact until changing to public repo
 # When public repo -> uncomment below

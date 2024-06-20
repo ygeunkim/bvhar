@@ -37,7 +37,7 @@ double logml_stable(Rcpp::List object) {
   if (!object.inherits("bvarmn") && !object.inherits("bvharmn")) {
     Rcpp::stop("'object' must be bvarmn or bvharmn object.");
   }
-  return bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["iw_scale"], object["iw_shape"]);
+  return bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["covmat"], object["iw_shape"]);
 }
 
 //' AIC of VAR(p) using RSS

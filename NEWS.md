@@ -10,8 +10,6 @@
 
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
 
-* `bvar_minnesota()`, `bvar_flat()`, and `bvhar_minnesota()` implement conjugate MCMC.
-
 * MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
 
 * `bvar_sv()` and `bvhar_sv()` supports hierarchical Minnesota prior.
