@@ -1529,6 +1529,14 @@ compute_vharldlt_spillover <- function(week, month, step, phi_record, d_record, 
     .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, phi_record, d_record, a_record)
 }
 
+dynamic_bvarldlt_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvarldlt_spillover`, y, window, step, num_iter, num_burn, thin, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
+}
+
+dynamic_bvharldlt_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvharldlt_spillover`, y, window, step, num_iter, num_burn, thin, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
+}
+
 #' Generalized Spillover of Minnesota prior
 #' 
 #' @param object varlse or vharlse object.

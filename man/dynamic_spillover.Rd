@@ -6,6 +6,7 @@
 \alias{knit_print.bvhardynsp}
 \alias{dynamic_spillover.olsmod}
 \alias{dynamic_spillover.normaliw}
+\alias{dynamic_spillover.ldltmod}
 \alias{dynamic_spillover.svmod}
 \title{Dynamic Spillover}
 \usage{
@@ -27,6 +28,8 @@ dynamic_spillover(object, n_ahead = 10L, ...)
   num_thread = 1,
   ...
 )
+
+\method{dynamic_spillover}{ldltmod}(object, n_ahead = 10L, window, num_thread = 1, ...)
 
 \method{dynamic_spillover}{svmod}(object, n_ahead = 10L, num_thread = 1, ...)
 }
