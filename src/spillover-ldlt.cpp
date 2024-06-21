@@ -4,7 +4,6 @@
 // [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step,
 																		 Eigen::MatrixXd alpha_record, Eigen::MatrixXd d_record, Eigen::MatrixXd a_record) {
-	int dim = d_record.cols();
 	bvhar::LdltRecords reg_record(alpha_record, a_record, d_record);
 	std::unique_ptr<bvhar::RegSpillover> spillover;
 	spillover.reset(new bvhar::RegSpillover(reg_record, step, lag));
