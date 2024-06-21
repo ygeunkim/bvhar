@@ -122,6 +122,62 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
   res
 }
 
+#' @rdname spillover
+#' @importFrom posterior subset_draws as_draws_matrix
+#' @export
+spillover.bvarldlt <- function(object, n_ahead = 10L, ...) {
+  res <- compute_varldlt_spillover(
+    object$p,
+    step = n_ahead,
+    alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    a_record = as_draws_matrix(subset_draws(object$param, variable = "a"))
+  )
+  colnames(res$connect) <- colnames(object$coefficients)
+  rownames(res$connect) <- colnames(object$coefficients)
+  res$df_long <-
+    res$connect %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "series") %>%
+    pivot_longer(-"series", names_to = "shock", values_to = "spillover")
+  colnames(res$net_pairwise) <- colnames(res$connect)
+  rownames(res$net_pairwise) <- rownames(res$connect)
+  res$connect <- rbind(res$connect, "to_spillovers" = res$to)
+  res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
+  res$ahead <- n_ahead
+  res$process <- object$process
+  class(res) <- "bvharspillover"
+  res
+}
+
+#' @rdname spillover
+#' @importFrom posterior subset_draws as_draws_matrix
+#' @export
+spillover.bvharldlt <- function(object, n_ahead = 10L, ...) {
+  res <- compute_vharldlt_spillover(
+    object$week, object$month,
+    step = n_ahead,
+    phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
+    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    a_record = as_draws_matrix(subset_draws(object$param, variable = "a"))
+  )
+  colnames(res$connect) <- colnames(object$coefficients)
+  rownames(res$connect) <- colnames(object$coefficients)
+  res$df_long <-
+    res$connect %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "series") %>%
+    pivot_longer(-"series", names_to = "shock", values_to = "spillover")
+  colnames(res$net_pairwise) <- colnames(res$connect)
+  rownames(res$net_pairwise) <- rownames(res$connect)
+  res$connect <- rbind(res$connect, "to_spillovers" = res$to)
+  res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
+  res$ahead <- n_ahead
+  res$process <- object$process
+  class(res) <- "bvharspillover"
+  res
+}
+
 #' Dynamic Spillover
 #'
 #' This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
