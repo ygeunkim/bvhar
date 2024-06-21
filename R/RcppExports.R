@@ -1521,6 +1521,22 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
+compute_varldlt_spillover <- function(lag, step, alpha_record, d_record, a_record) {
+    .Call(`_bvhar_compute_varldlt_spillover`, lag, step, alpha_record, d_record, a_record)
+}
+
+compute_vharldlt_spillover <- function(week, month, step, phi_record, d_record, a_record) {
+    .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, phi_record, d_record, a_record)
+}
+
+dynamic_bvarldlt_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvarldlt_spillover`, y, window, step, num_iter, num_burn, thin, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
+}
+
+dynamic_bvharldlt_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvharldlt_spillover`, y, window, step, num_iter, num_burn, thin, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
+}
+
 #' Generalized Spillover of Minnesota prior
 #' 
 #' @param object varlse or vharlse object.
