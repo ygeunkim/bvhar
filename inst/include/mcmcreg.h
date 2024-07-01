@@ -543,19 +543,24 @@ public:
 	}
 	virtual ~SsvsReg() = default;
 	void updateCoefPrec() override {
+		// First init coef_slab and coef_spike as: 1 / kronecker(_prec_diag, _prior_prec).diagonal().array() in Minnesota
+		// Note 1 / kronecker().diagonal() is precision -> Should use variance for coef_slab and coef_spike
+		// coef_slab *= lambda_1 in own-lag
+		// coef_spike *= lambda_2 in cross-lag
 		coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
 		prior_sd.head(num_alpha) = coef_mixture_mat;
 		prior_alpha_prec.setZero();
 		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
 	}
 	void updateCoefShrink() override {
+		// change the length of coef_weight as 2 (own and cross)
+		// -> separate the assignment into own + cross
 		for (int j = 0; j < num_grp; j++) {
 			slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
 				coef_weight[j],
 				slab_weight_mat
 			);
 		}
-		// slab_weight = vectorize_eigen(slab_weight_mat);
 		slab_weight = slab_weight_mat.reshaped();
 		ssvs_dummy(
 			coef_dummy,
@@ -563,6 +568,10 @@ public:
 			coef_slab, coef_spike, slab_weight,
 			rng
 		);
+		// separate coef_weight sampling into own + cross
+		// coef_s1 and coef_s2 length should be changed: separate variable as in minnesota? own_ and cross_
+		// Or set coef_s1, coef_s2 same in each own & cross -> might not need to change grp_id work
+		// -> can be done in R (line 238 of vhar-bayes.R and line 216 of var-bayes.R)
 		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
 	}
 	void updateImpactPrec() override {
@@ -638,6 +647,12 @@ private:
 	Eigen::VectorXd coef_mixture_mat;
 };
 
+// Define separate minnesota+ssvs class
+// based on the comments inside above SsvsReg
+// can inherit SsvsReg: add own_id and cross_id
+// If use inheritance, change private to protected in SsvsReg
+// Will use the same prior for contemporaneous coef -> so don't have to edit these
+
 class HorseshoeReg : public McmcReg {
 public:
 	HorseshoeReg(const HorseshoeParams& params, const HsInits& inits, unsigned int seed)
@@ -658,6 +673,9 @@ public:
 	}
 	virtual ~HorseshoeReg() = default;
 	void updateCoefPrec() override {
+		// Change group_lev into lambda_1 and lambda_2 of Minnesota
+		// -> change the length: 2 (own + cross)
+		// Separate the following assignment into own + lag
 		for (int j = 0; j < num_grp; j++) {
 			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
 				group_lev[j],
@@ -665,6 +683,9 @@ public:
 			);
 		}
 		coef_var = coef_var_loc.reshaped();
+		// local_lev corresponds to kronecker(_prec_diag, _prior_prec).diagonal().array() in Minnesota
+		// -> Set init values using this
+		// Since local_lev is in variance, not (prec_diag, prior_prec) but their reciprocal
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
 		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
@@ -672,10 +693,13 @@ public:
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}
 	void updateCoefShrink() override {
+		// Change the length of latent_group because group_lev will be changed: length = 2
 		horseshoe_latent(latent_local, local_lev, rng);
 		horseshoe_latent(latent_group, group_lev, rng);
 		horseshoe_latent(latent_global, global_lev, rng);
 		global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
+		// Separate group_lev sampling into own + cross
+		// OR make grp_mat values into 1+2? -> can be done in R
 		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), 1, rng);
 	}
@@ -763,6 +787,13 @@ private:
 	Eigen::VectorXd latent_contem_local;
 	Eigen::VectorXd latent_contem_global; // -> double
 };
+
+// Define separate minnesota+horseshoe class
+// based on the comments inside above HorseshoeReg
+// Inherit HorseshoeReg: change private to protected
+// Add own_id and cross_id, OR edit grp_mat and grp_id in R
+// grp_mat: two values indicating own-lag -> how to deal with constant group = 0?
+// Use the same prior for contemporaneous coef -> do not need to edit these
 
 }; // namespace bvhar
 
