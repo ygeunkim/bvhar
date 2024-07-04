@@ -141,7 +141,12 @@ var_bayes <- function(y,
   if (thinning < 1) {
     stop("'thinning' should be non-negative.")
   }
-  prior_nm <- bayes_spec$prior
+  # prior_nm <- bayes_spec$prior
+  prior_nm <- ifelse(
+    bayes_spec$prior == "MN_Hierarchical",
+    "Minnesota",
+    bayes_spec$prior
+  )
   # Initialization--------------------
   param_init <- lapply(
     seq_len(num_chains),
@@ -173,9 +178,9 @@ var_bayes <- function(y,
     if (bayes_spec$process != "BVAR") {
       stop("'bayes_spec' must be the result of 'set_bvar()'.")
     }
-    if (bayes_spec$prior != "Minnesota") {
-      stop("In 'set_bvar()', just input numeric values.")
-    }
+    # if (bayes_spec$prior != "Minnesota") {
+    #   stop("In 'set_bvar()', just input numeric values.")
+    # }
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
