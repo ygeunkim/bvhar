@@ -74,7 +74,7 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     #   stop("When using hierarchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
     # }
     # prior_type <- "MN_Hierarchical"
-    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
       prior_type <- "MN_Hierarchical"
     } else if (is.bvharpriorspec(lambda)) {
       prior_type <- "Minnesota"
@@ -232,7 +232,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   }
   hierarchical <- is.bvharpriorspec(lambda)
   if (hierarchical) {
-    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
       prior_type <- "MN_Hierarchical"
     } else if (is.bvharpriorspec(lambda)) {
       prior_type <- "MN_VAR"
@@ -310,7 +310,7 @@ set_weight_bvhar <- function(sigma,
   }
   hierarchical <- is.bvharpriorspec(lambda)
   if (hierarchical) {
-    if (all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
       prior_type <- "MN_Hierarchical"
     } else if (is.bvharpriorspec(lambda)) {
       prior_type <- "MN_VHAR"

@@ -6,6 +6,8 @@
 \alias{knit_print.bvharspillover}
 \alias{spillover.olsmod}
 \alias{spillover.normaliw}
+\alias{spillover.bvarldlt}
+\alias{spillover.bvharldlt}
 \title{h-step ahead Normalized Spillover}
 \usage{
 spillover(object, n_ahead = 10L, ...)
@@ -24,6 +26,10 @@ spillover(object, n_ahead = 10L, ...)
   thinning = 1L,
   ...
 )
+
+\method{spillover}{bvarldlt}(object, n_ahead = 10L, ...)
+
+\method{spillover}{bvharldlt}(object, n_ahead = 10L, ...)
 }
 \arguments{
 \item{object}{Model object}
