@@ -142,7 +142,7 @@ bvhar_sv <- function(y,
     intercept$mean_non <- rep(intercept$mean_non, dim_data)
   }
   prior_nm <- ifelse(
-    bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR" || bayes_spec$prior == "MN_SH",
+    bayes_spec$prior == "MN_VAR" || bayes_spec$prior == "MN_VHAR" || bayes_spec$prior == "MN_Hierarchical",
     "Minnesota",
     bayes_spec$prior
   )
