@@ -46,7 +46,8 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 						));
 					}
 					forecaster[i].reset(new bvhar::RegVarSelectForecaster(
-						*reg_record, level, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+						*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), response_mat.cols()),
+						step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
 					));
 				}
 				break;
@@ -209,7 +210,8 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 						));
 					}
 					forecaster[i].reset(new bvhar::RegVharSelectForecaster(
-						*reg_record, level, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+						*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), response_mat.cols()),
+						step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
 					));
 				}
 				break;
@@ -415,7 +417,8 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				switch (sparse_type) {
 					case 0: {
 						forecaster[0][i].reset(new bvhar::RegVarSelectForecaster(
-							*reg_record, level, step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+							*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), dim),
+							step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
 						));
 						break;
 					}
@@ -565,7 +568,8 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			switch (sparse_type) {
 				case 0: {
 					forecaster[window][chain].reset(new bvhar::RegVarSelectForecaster(
-						reg_record, level, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+						reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
+						step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 					));
 					break;
 				}
@@ -724,7 +728,8 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				switch (sparse_type) {
 					case 0: {
 						forecaster[0][i].reset(new bvhar::RegVharSelectForecaster(
-							*reg_record, level, step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+							*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), dim),
+							step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
 						));
 						break;
 					}
@@ -875,7 +880,8 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 			switch (sparse_type) {
 				case 0: {
 					forecaster[window][chain].reset(new bvhar::RegVharSelectForecaster(
-						reg_record, level, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+						reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
+						step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 					));
 					break;
 				}
@@ -1033,7 +1039,8 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				switch (sparse_type) {
 					case 0: {
 						forecaster[0][i].reset(new bvhar::RegVarSelectForecaster(
-							*reg_record, level, step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+							*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), dim),
+							step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
 						));
 						break;
 					}
@@ -1183,7 +1190,8 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 			switch (sparse_type) {
 				case 0: {
 					forecaster[window][chain].reset(new bvhar::RegVarSelectForecaster(
-						reg_record, level, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+						reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
+						step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 					));
 					break;
 				}
@@ -1339,7 +1347,8 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				switch (sparse_type) {
 					case 0: {
 						forecaster[0][i].reset(new bvhar::RegVharSelectForecaster(
-							*reg_record, level, step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+							*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), dim),
+							step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
 						));
 						break;
 					}
@@ -1489,7 +1498,8 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 			switch (sparse_type) {
 				case 0: {
 					forecaster[window][chain].reset(new bvhar::RegVharSelectForecaster(
-						reg_record, level, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+						reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
+						step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 					));
 					break;
 				}
