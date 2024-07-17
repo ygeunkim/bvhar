@@ -753,6 +753,27 @@ inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::
   latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
 }
 
+// Generating scaling factor psi of Dirichlet-Laplace prior
+// 
+// @param psi Scaling factor psi
+// @param local_param Local sparsity level
+// @param glob_param Global sparsity level
+// @param coef_vec Coefficients vector
+// @param rng boost rng
+inline void dl_psi(Eigen::VectorXd& psi,
+									 Eigen::VectorXd& local_param, Eigen::VectorXd& glob_param,
+									 Eigen::VectorXd& coef_vec, boost::random::mt19937& rng) {
+	int num_alpha = psi.size();
+	// Eigen::VectorXd chi = coef_vec.array().square() / (glob_param.array().square() * local_param.array().square());
+	for (int i = 0; i < num_alpha; ++i) {
+		// psi[i] = sim_gig(1, .5, 1, chi[i], rng)[0];
+		psi[i] = sim_gig(
+			1, .5,
+			1, coef_vec[i] * coef_vec[i] / (glob_param[i] * glob_param[i] * local_param[i] * local_param[i])
+		)[0];
+	}
+}
+
 // Generating lambda of Minnesota-SV
 // 
 // @param lambda lambda1 or lambda2
