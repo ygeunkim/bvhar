@@ -215,7 +215,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
-	x0 = beta / (1 - beta); // subdomain (0, x0)
+	x0 = beta / (1 - lambda); // subdomain (0, x0)
 	xstar = std::max(x0, 2 / beta);
 	k1 = exp(dgig_quasi(mode, lambda, beta));
 	A1 = k1 * x0;
@@ -270,7 +270,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
-	x0 = beta / (1 - beta); // subdomain (0, x0)
+	x0 = beta / (1 - lambda); // subdomain (0, x0)
 	xstar = std::max(x0, 2 / beta);
 	k1 = exp(dgig_quasi(mode, lambda, beta));
 	A1 = k1 * x0;
@@ -481,6 +481,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
+	// change to 1e-8?
 	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
