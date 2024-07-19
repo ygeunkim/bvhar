@@ -453,15 +453,14 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 		// Handle round-off error following GIGrvg
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = gamma_rand(lambda, 2 / chi);
+				res[i] = gamma_rand(lambda, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
 			}
 		} else {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = 1 / gamma_rand(-lambda, psi / 2);
+				res[i] = gamma_rand(-lambda, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale), but gamma because inverse later for lambda < 0
 			}
 		}
-	}
-	if (abs_lam > 2 || beta > 3) {
+	} else if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta); // with mode shift
 	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
 		rgig_without_mode(res, num_sim, abs_lam, beta); // without mode shift
@@ -481,19 +480,18 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	// change to 1e-8?
 	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
+		// Handle round-off error following GIGrvg
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = gamma_rand(lambda, 2 / chi, rng);
+				res[i] = gamma_rand(lambda, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
 			}
 		} else {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = 1 / gamma_rand(-lambda, psi / 2, rng);
+				res[i] = gamma_rand(-lambda, 2 / chi, rng); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale), but gamma because inverse later for lambda < 0
 			}
 		}
-	}
-	if (abs_lam > 2 || beta > 3) {
+	} else if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta, rng); // with mode shift
 	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
 		rgig_without_mode(res, num_sim, abs_lam, beta, rng); // without mode shift
