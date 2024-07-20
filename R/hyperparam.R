@@ -114,9 +114,10 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' Hyperpriors for Bayesian Models
 #'
 #' Set hyperpriors of Bayesian VAR and VHAR models.
-#'
+#' 
 #' @param mode Mode of Gamma distribution. By default, `.2`.
 #' @param sd Standard deviation of Gamma distribution. By default, `.4`.
+#' @param param Shape and rate of Gamma distribution, in the form of `c(shape, rate)`. If specified, ignore `mode` and `sd`.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound for [stats::optim()]. By default, `1e-5`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound for [stats::optim()]. By default, `3`.
 #' @details
@@ -136,15 +137,31 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @references Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' @order 1
 #' @export
-set_lambda <- function(mode = .2, sd = .4, lower = 1e-5, upper = 3) {
-  params <- get_gammaparam(mode, sd)
-  lam_prior <- list(
-    hyperparam = "lambda",
-    param = c(params$shape, params$rate),
-    mode = mode,
-    lower = lower,
-    upper = upper
-  )
+set_lambda <- function(mode = .2, sd = .4, param = NULL, lower = 1e-5, upper = 3) {
+  if (is.null(param)) {
+    params <- get_gammaparam(mode, sd)
+    # param <- c(params$shape, params$rate)
+    lam_prior <- list(
+      hyperparam = "lambda",
+      param = c(params$shape, params$rate),
+      mode = mode,
+      lower = lower,
+      upper = upper
+    )
+  } else {
+    mode <- ifelse(param[1] >= 1, (param[1] - 1) / param[2], 0)
+    lam_prior <- list(
+      hyperparam = "lambda",
+      param = param
+    )
+  }
+  # lam_prior <- list(
+  #   hyperparam = "lambda",
+  #   param = param,
+  #   mode = mode,
+  #   lower = lower,
+  #   upper = upper
+  # )
   class(lam_prior) <- "bvharpriorspec"
   lam_prior
 }
