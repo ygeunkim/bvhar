@@ -8,7 +8,7 @@
 \alias{knit_print.bvharpriorspec}
 \title{Hyperpriors for Bayesian Models}
 \usage{
-set_lambda(mode = 0.2, sd = 0.4, lower = 1e-05, upper = 3)
+set_lambda(mode = 0.2, sd = 0.4, param = NULL, lower = 1e-05, upper = 3)
 
 set_psi(shape = 4e-04, scale = 4e-04, lower = 1e-05, upper = 3)
 
@@ -22,6 +22,8 @@ is.bvharpriorspec(x)
 \item{mode}{Mode of Gamma distribution. By default, \code{.2}.}
 
 \item{sd}{Standard deviation of Gamma distribution. By default, \code{.4}.}
+
+\item{param}{Shape and rate of Gamma distribution, in the form of \code{c(shape, rate)}. If specified, ignore \code{mode} and \code{sd}.}
 
 \item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound for \code{\link[stats:optim]{stats::optim()}}. By default, \code{1e-5}.}
 
