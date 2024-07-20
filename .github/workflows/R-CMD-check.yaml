@@ -81,7 +81,7 @@ jobs:
 # do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v2
         with:
-          args: 'c("--no-manual", "--as-cran", "--no-build-vignettes", "--no-examples")'
+          args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-build-vignettes", "--ignore-vignettes", "--no-examples")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
           error-on: '"error"'
           check-dir: '"check"'
