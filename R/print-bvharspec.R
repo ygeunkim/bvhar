@@ -522,7 +522,7 @@ print.bvharpriorspec <- function(x, digits = max(3L, getOption("digits") - 3L), 
       )
     }
   )
-  cat(sprintf("with mode: %.3f", x$mode))
+  # cat(sprintf("with mode: %.3f", x$mode))
   invisible(x)
 }
 

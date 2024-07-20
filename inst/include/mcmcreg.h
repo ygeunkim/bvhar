@@ -40,9 +40,11 @@ struct MinnParams : public RegParams {
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			_lambda, _sigma, _eps, false
 		);
-		_prior_prec = (dummy_design.transpose() * dummy_design).inverse();
+		// _prior_prec = (dummy_design.transpose() * dummy_design).inverse();
+		_prior_prec = dummy_design.transpose() * dummy_design;
 		_prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
-		_prec_diag.diagonal() = _sigma;
+		// _prec_diag.diagonal() = _sigma;
+		_prec_diag.diagonal() = 1 / _sigma.array();
 	}
 };
 
@@ -88,9 +90,11 @@ struct HierminnParams : public RegParams {
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			1, _sigma, _eps, false
 		);
-		_prior_prec = (dummy_design.transpose() * dummy_design).inverse();
+		// _prior_prec = (dummy_design.transpose() * dummy_design).inverse();
+		_prior_prec = dummy_design.transpose() * dummy_design;
 		_prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
-		_prec_diag.diagonal() = _sigma;
+		// _prec_diag.diagonal() = _sigma;
+		_prec_diag.diagonal() = 1 / _sigma.array();
 		_grp_mat = grp_mat;
 		_minnesota = true;
 		if (own_id.size() == 1 && cross_id.size() == 1) {
@@ -370,7 +374,8 @@ class MinnReg : public McmcReg {
 public:
 	MinnReg(const MinnParams& params, const LdltInits& inits, unsigned int seed) : McmcReg(params, inits, seed) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 		}
@@ -423,7 +428,8 @@ public:
 		cross_shape(params.shape), cross_rate(params.rate),
 		contem_shape(params.shape), contem_rate(params.rate) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
