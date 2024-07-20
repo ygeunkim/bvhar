@@ -200,7 +200,7 @@ inline double dgig_quasi(double x, double lambda, double beta) {
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline double dgig_mode(double lambda, double beta) {
-	if (lambda <= 1) {
+	if (lambda < 1) {
 		return beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda);
 	}
 	return (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta;
@@ -208,11 +208,13 @@ inline double dgig_mode(double lambda, double beta) {
 
 // AR-Mehod for non-concave part
 // 
+// Algorithm 1 of Hormann and Leydold
+// 0 <= lambda < 1 and 0 < beta <= 2 / 3 * sqrt(1 - lambda)
+// 
 // @param num_sim Number to generate process
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
 	x0 = beta / (1 - lambda); // subdomain (0, x0)
@@ -238,7 +240,6 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
 		while (rejected) {
-			draw_unif = unif_rand(0, 1);
 			draw_prop = unif_rand(0, A);
 			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
@@ -253,21 +254,17 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 				ar_const = log(k2) + (lambda - 1) * log(cand);
 			} else { // subdomain (xstar, inf)
 				draw_prop -= (A1 + A2);
-				cand = -2 * log(exp(-xstar * beta / 2) / beta - draw_prop * beta / (2 * k3));
+				cand = -2 * log(exp(-xstar * beta / 2) - draw_prop * beta / (2 * k3)) / beta;
 				ar_const = log(k3) - cand * beta / 2;
 			}
-			if (cand > 0) {
-				rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
-			} else {
-				rejected = true;
-			}
+			draw_unif = unif_rand(0, 1);
+			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
 		}
 		res[i] = cand;
 	}
 }
 // overloading
 inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double x0, xstar, k1, k2, k3, A1, A2, A3;
 	x0 = beta / (1 - lambda); // subdomain (0, x0)
@@ -293,7 +290,6 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
 		while (rejected) {
-			draw_unif = unif_rand(0, 1, rng);
 			draw_prop = unif_rand(0, A, rng);
 			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
@@ -308,14 +304,11 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 				ar_const = log(k2) + (lambda - 1) * log(cand);
 			} else { // subdomain (xstar, inf)
 				draw_prop -= (A1 + A2);
-				cand = -2 * log(exp(-xstar * beta / 2) / beta - draw_prop * beta / (2 * k3));
+				cand = -2 * log(exp(-xstar * beta / 2) - draw_prop * beta / (2 * k3)) / beta;
 				ar_const = log(k3) - cand * beta / 2;
 			}
-			if (cand > 0) {
-				rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
-			} else {
-				rejected = true;
-			}
+			draw_unif = unif_rand(0, 1, rng);
+			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
 		}
 		res[i] = cand;
 	}
@@ -323,15 +316,17 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 
 // Ratio-of-Uniforms without Mode Shift
 // 
+// Algorithm 2 of Hormann and Leydold
+// 0 <= lambda <= 1 and min(1 / 2, 2 / 3 * sqrt(1 - lambda)) <= beta <= 1
+// 
 // @param num_sim Number to generate process
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double mode_x = (1 + lambda + sqrt((1 + lambda) * (1 + lambda) + beta * beta)) / beta; // argmax of x g(x)
 	double bound_y = dgig_quasi(mode, lambda, beta) / 2; // To normalize g
-	double bound_x = mode_x * exp(dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
+	double bound_x = exp(log(mode_x) + dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
 	bool rejected;
 	double draw_x, draw_y, cand; // bounded rectangle
 	for (int i = 0; i < num_sim; i++) {
@@ -347,11 +342,10 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 }
 // overloading
 inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	// double mode = beta / (sqrt((1 - lambda) * (1 - lambda) + beta * beta) + 1 - lambda); // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double mode_x = (1 + lambda + sqrt((1 + lambda) * (1 + lambda) + beta * beta)) / beta; // argmax of x g(x)
 	double bound_y = dgig_quasi(mode, lambda, beta) / 2; // To normalize g
-	double bound_x = mode_x * exp(dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
+	double bound_x = exp(log(mode_x) + dgig_quasi(mode_x, lambda, beta) / 2 - bound_y);
 	bool rejected;
 	double draw_x, draw_y, cand; // bounded rectangle
 	for (int i = 0; i < num_sim; i++) {
@@ -368,11 +362,13 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 
 // Ratio-of-Uniforms with Mode Shift
 // 
+// Algorithm 2 of Hormann and Leydold
+// lambda > 1 and beta > 1
+// 
 // @param num_sim Number to generate process
 // @param lambda Index of modified Bessel function of third kind.
 // @param beta Square of the multiplication of the other two parameters.
 inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta) {
-	// double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double quad_coef = -2 * (lambda + 1) / beta - mode;
 	double lin_coef = 2 * mode * (lambda - 1) / beta - 1;
@@ -403,7 +399,6 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 }
 // overloading
 inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, double beta, boost::random::mt19937& rng) {
-	// double mode = (sqrt((lambda - 1) * (lambda - 1) + beta * beta) - 1 + lambda) / beta; // argmax of g(x)
 	double mode = dgig_mode(lambda, beta); // argmax of g(x)
 	double quad_coef = -2 * (lambda + 1) / beta - mode;
 	double lin_coef = 2 * mode * (lambda - 1) / beta - 1;
@@ -436,6 +431,7 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 // Generate Generalized Inverse Gaussian Distribution
 // 
 // This function samples GIG(lambda, psi, chi) random variates.
+// Also, we follow boundaries chosen by GIGrvg package.
 // 
 // @param num_sim Number to generate process
 // @param lambda Index of modified Bessel function of third kind.
@@ -447,7 +443,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	// }
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
-	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
+	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
 		// Handle round-off error following GIGrvg
@@ -478,7 +474,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi, boost::random::mt19937& rng) {
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
-	double alpha = sqrt(psi / chi); // 1 / scaling parameter of quasi-density: scale the result
+	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
 		// Handle round-off error following GIGrvg
