@@ -166,6 +166,33 @@ struct HsSvParams : public SvParams {
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
 };
 
+struct NgSvParams : public SvParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXi _grp_mat;
+	Eigen::VectorXd _local_shape;
+	Eigen::VectorXd _contem_shape;
+	double _group_shape;
+	double _group_scl;
+	double _global_shape;
+	double _global_scl;
+	double _contem_global_shape;
+	double _contem_global_scl;
+
+	NgSvParams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		Rcpp::List& sv_spec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
+		Rcpp::List& ng_spec, Rcpp::List& intercept,
+		bool include_mean
+	)
+	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat),
+		_local_shape(Rcpp::as<Eigen::VectorXd>(ng_spec["local_shape"])),
+		_contem_shape(Rcpp::as<Eigen::VectorXd>(ng_spec["contem_shape"])),
+		_group_shape(ng_spec["group_shape"]), _group_scl(ng_spec["group_scale"]),
+		_global_shape(ng_spec["global_shape"]), _global_scl(ng_spec["global_scale"]),
+		_contem_global_shape(ng_spec["contem_global_shape"]), _contem_global_scl(ng_spec["contem_global_scale"]) {}
+};
+
 struct SvInits : public RegInits {
 	Eigen::VectorXd _lvol_init;
 	Eigen::MatrixXd _lvol;
