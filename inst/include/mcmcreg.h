@@ -823,7 +823,7 @@ public:
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		// shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
-		lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
+		// lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
@@ -841,10 +841,11 @@ public:
 		}
 		coef_var = coef_var_loc.reshaped();
 		local_fac.array() = coef_var.array() * local_lev.array();
-		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
+		// lambda_mat.setZero();
+		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array()).square();
 	}
 	void updateCoefShrink() override {
 		global_lev = ng_global_sparsity(local_fac, global_shape, global_scl, coef_vec.head(num_alpha), rng);
@@ -924,7 +925,7 @@ private:
 	double global_lev;
 	Eigen::VectorXd local_fac;
 	// Eigen::VectorXd shrink_fac;
-	Eigen::MatrixXd lambda_mat;
+	// Eigen::MatrixXd lambda_mat;
 	Eigen::VectorXd coef_var;
 	Eigen::MatrixXd coef_var_loc;
 	Eigen::VectorXd contem_local_lev;

@@ -851,9 +851,8 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param rng boost rng
 inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, double& scl,
 										 					 	 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	int num_coef = coef.size();
 	return sqrt(1 / gamma_rand(
-		shape + num_coef / 2,
+		shape + coef.size() / 2,
 		1 / ((coef.array().square() / (2 * local_param.array().square())).sum() + scl),
 		rng
 	));
