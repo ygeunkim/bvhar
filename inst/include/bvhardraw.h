@@ -802,6 +802,69 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 	coef_prec.diagonal() /= lambda;
 }
 
+// Generating local shrinkage of Normal-Gamma prior
+// 
+// @param local_param local shrinkage
+// @param shape Gamma prior shape
+// @param coef Coefficients vector
+// @param global_param Global shrinkage
+// @param rng boost rng
+inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
+										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<Eigen::VectorXd> global_param,
+										 					boost::random::mt19937& rng) {
+	for (int i = 0; i < coef.size(); ++i) {
+		local_param[i] = sqrt(sim_gig(
+			1,
+			shape[i] - .5,
+			shape[i],
+			coef[i] * coef[i] / (global_param[i] * global_param[i]),
+			rng
+		)[0]);
+	}
+}
+
+// Generating global shrinkage of Normal-Gamma prior
+// 
+// @param local_param local shrinkage
+// @param shape Gamma prior shape
+// @param rate Gamma prior rate
+// @param coef Coefficients vector
+// @param rng boost rng
+inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, double& rate,
+										 					 	 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	int num_coef = coef.size();
+	return sqrt(1 / gamma_rand(
+		shape + num_coef / 2,
+		1 / ((coef.array().square() / (2 * local_param.array().square())).sum() + rate),
+		rng
+	));
+}
+
+// For MN structure
+// @param grp_vec Group vector
+// @param grp_id Unique group id
+inline void ng_mn_sparsity(Eigen::VectorXd& global_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													 Eigen::VectorXd& local_param, double& shape, double& rate,
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+  int num_grp = grp_id.size();
+  int num_coef = coef_vec.size();
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < num_grp; i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_coef(mn_size);
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < num_coef; ++j) {
+			if (group_id[j]) {
+				mn_coef[k] = coef_vec[j];
+				mn_local[k++] = local_param[j];
+			}
+		}
+		global_param[i] = ng_global_sparsity(mn_local, shape, rate, mn_coef, rng);
+  }
+}
+
 // Draw d_i in D from cholesky decomposition of precision matrix
 // 
 // @param diag_vec d_i vector
