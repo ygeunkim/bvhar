@@ -128,6 +128,25 @@ struct HorseshoeRecords {
 	}
 };
 
+struct NgRecords {
+	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd group_record;
+	Eigen::VectorXd global_record;
+
+	NgRecords() : local_record(), group_record(), global_record() {}
+	NgRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
+		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
+		global_record(Eigen::VectorXd::Zero(num_iter + 1)) {}
+	NgRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record)
+	: local_record(local_record), group_record(group_record), global_record(global_record) {}
+	void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		local_record.row(id) = local_lev;
+		group_record.row(id) = group_lev;
+		global_record[id] = global_lev;
+	}
+};
+
 // Numerically Stable Log Marginal Likelihood Excluding Constant Term
 // 
 // This function computes log of ML stable,
@@ -810,7 +829,7 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 // @param global_param Global shrinkage
 // @param rng boost rng
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
-										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<Eigen::VectorXd> global_param,
+										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
@@ -826,25 +845,26 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // Generating global shrinkage of Normal-Gamma prior
 // 
 // @param local_param local shrinkage
-// @param shape Gamma prior shape
-// @param rate Gamma prior rate
+// @param shape Inverse Gamma prior shape
+// @param rate Inverse Gamma prior scale
 // @param coef Coefficients vector
 // @param rng boost rng
-inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, double& rate,
+inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, double& scl,
 										 					 	 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	int num_coef = coef.size();
 	return sqrt(1 / gamma_rand(
 		shape + num_coef / 2,
-		1 / ((coef.array().square() / (2 * local_param.array().square())).sum() + rate),
+		1 / ((coef.array().square() / (2 * local_param.array().square())).sum() + scl),
 		rng
 	));
 }
 
 // For MN structure
+// @param group_param Group shrinkage
 // @param grp_vec Group vector
 // @param grp_id Unique group id
-inline void ng_mn_sparsity(Eigen::VectorXd& global_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													 Eigen::VectorXd& local_param, double& shape, double& rate,
+inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& scl,
 													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
@@ -858,10 +878,10 @@ inline void ng_mn_sparsity(Eigen::VectorXd& global_param, Eigen::VectorXi& grp_v
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
 				mn_coef[k] = coef_vec[j];
-				mn_local[k++] = local_param[j];
+				mn_local[k++] = global_param * local_param[j];
 			}
 		}
-		global_param[i] = ng_global_sparsity(mn_local, shape, rate, mn_coef, rng);
+		group_param[i] = ng_global_sparsity(mn_local, shape, scl, mn_coef, rng);
   }
 }
 
