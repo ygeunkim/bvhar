@@ -308,9 +308,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       roll_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -347,9 +350,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       roll_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -853,9 +859,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       expand_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -892,9 +901,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       expand_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
