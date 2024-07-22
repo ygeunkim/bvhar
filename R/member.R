@@ -225,6 +225,12 @@ is.horseshoespec <- function(x) {
   inherits(x, "horseshoespec")
 }
 
+#' @rdname set_ng
+#' @export
+is.ngspec <- function(x) {
+  inherits(x, "ngspec")
+}
+
 #' @rdname set_ldlt
 #' @export
 is.covspec <- function(x) {
