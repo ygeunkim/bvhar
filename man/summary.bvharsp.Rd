@@ -6,6 +6,7 @@
 \alias{summary.bvharsp}
 \alias{summary.ssvsmod}
 \alias{summary.hsmod}
+\alias{summary.ngmod}
 \title{Summarizing BVAR and BVHAR with Shrinkage Priors}
 \usage{
 \method{print}{summary.bvharsp}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -15,6 +16,8 @@
 \method{summary}{ssvsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
 
 \method{summary}{hsmod}(object, method = c("pip", "ci"), threshold = 0.5, level = 0.05, ...)
+
+\method{summary}{ngmod}(object, level = 0.05, ...)
 }
 \arguments{
 \item{x}{\code{summary.bvharsp} object}
@@ -35,6 +38,8 @@
 \code{summary.ssvsmod} object
 
 \code{hsmod} object
+
+\code{ngmod} object
 }
 \description{
 Conduct variable selection.

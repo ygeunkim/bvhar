@@ -705,6 +705,64 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
   res
 }
 
+#' Normal-Gamma Hyperparameter for Coefficients and Contemporaneous Coefficients
+#'
+#' Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#'
+#' @param local_shape Gamma prior shape for coefficient local shrinkage
+#' @param group_shape Inverse gamma prior shape for coefficient group shrinkage
+#' @param group_scale Inverse gamma prior scale for coefficient group shrinkage
+#' @param global_shape Inverse gamma prior shape for coefficient global shrinkage
+#' @param global_scale Inverse gamma prior scale for coefficient global shrinkage
+#' @param contem_shape Gamma prior shape for contemporaneous coefficient local shrinkage
+#' @param contem_global_shape Inverse gamma prior shape for contemporaneous coefficient global shrinkage
+#' @param contem_global_scale Inverse gamma prior scale for contemporaneous coefficient global shrinkage
+#' @return `ngspec` object
+#' @references
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#'
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#'
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' @order 1
+#' @export
+set_ng <- function(local_shape = 1,
+                   group_shape = 1,
+                   group_scale = 1,
+                   global_shape = 1,
+                   global_scale = 1,
+                   contem_shape = 1,
+                   contem_global_shape = 1,
+                   contem_global_scale = 1) {
+  if (!(is.vector(local_shape) && is.vector(contem_shape))) {
+    stop("'local_shape' and 'contem_shape' should be a vector.")
+  }
+  if (!(
+    length(group_shape) == 1 &&
+      length(group_scale) == 1 &&
+      length(global_shape) == 1 &&
+      length(global_scale) == 1 &&
+      length(contem_global_shape) == 1 &&
+      length(contem_global_scale) == 1
+  )) {
+    stop("'group_shape', 'group_scale', 'global_shape', 'global_scale', 'contem_global_shape' and 'contem_global_scale' should be length 1 numeric.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "NG",
+    local_shape = local_shape,
+    group_shape = group_shape,
+    group_scale = group_scale,
+    global_shape = global_shape,
+    global_scale = global_scale,
+    contem_shape = contem_shape,
+    contem_global_shape = contem_global_shape,
+    contem_global_scale = contem_global_scale
+  )
+  class(res) <- "ngspec"
+  res
+}
+
 #' Covariance Matrix Prior Specification
 #'
 #' `r lifecycle::badge("experimental")` Set prior for covariance matrix.

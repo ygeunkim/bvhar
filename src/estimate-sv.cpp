@@ -100,6 +100,22 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			}
 			break;
 		}
+		case 5: {
+			bvhar::NgSvParams ng_params(
+				num_iter, x, y,
+				param_sv,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::HsSvInits ng_inits(init_spec);
+				sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
 	}
   // Start Gibbs sampling-----------------------------------
 	auto run_gibbs = [&](int chain) {

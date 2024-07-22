@@ -94,6 +94,22 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			}
 			break;
 		}
+		case 5: {
+			bvhar::NgParams ng_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::HsInits ng_inits(init_spec); // Use HsInits for NG
+				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
 	}
   // Start Gibbs sampling-----------------------------------
 	auto run_gibbs = [&](int chain) {
