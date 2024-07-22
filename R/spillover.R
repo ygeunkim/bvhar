@@ -368,14 +368,17 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, num_thread 
     }
   } else if (prior_nm == "SSVS") {
     param_prior <- object$spec
-  } else {
+  } else if (prior_nm == "Horseshoe") {
     param_prior <- list()
+  } else if (prior_nm == "NG") {
+    param_prior <- object$spec
   }
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
     "SSVS" = 2,
     "Horseshoe" = 3,
-    "MN_Hierarchical" = 4
+    "MN_Hierarchical" = 4,
+    "NG" = 5
   )
   grp_id <- unique(c(object$group))
   if (length(grp_id) > 1) {
