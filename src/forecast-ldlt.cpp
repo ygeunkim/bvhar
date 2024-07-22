@@ -553,6 +553,25 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			}
 			break;
 		}
+		case 5: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::NgParams ng_params(
+					num_iter, design, roll_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits ng_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -860,6 +879,25 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 					Rcpp::List init_spec = param_init[chain];
 					bvhar::HierminnInits minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		case 5: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::NgParams ng_params(
+					num_iter, design, roll_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits ng_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
 			}
@@ -1175,6 +1213,25 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 			}
 			break;
 		}
+		case 5: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
+				bvhar::NgParams ng_params(
+					num_iter, design, expand_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits ng_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		bvhar::bvharinterrupt();
@@ -1478,6 +1535,25 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 					Rcpp::List init_spec = param_init[chain];
 					bvhar::HierminnInits minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		case 5: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::NgParams ng_params(
+					num_iter, design, expand_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits ng_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
 			}
