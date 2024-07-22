@@ -46,7 +46,7 @@ summary.ssvsmod <- function(object, method = c("pip", "ci"), threshold = .5, lev
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
     selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m)
     if (object$type == "const") {
-      cred_int_const <- compute_ci(object$c_record, level = level)
+      cred_int_const <- compute_ci(subset_draws(object$param, variable = "c"), level = level)
       selection <- rbind(
         selection,
         cred_int_const$conf.low * cred_int_const$conf.high >= 0
@@ -92,7 +92,7 @@ summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level
     cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
     selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m) # TRUE when non-zero
     if (object$type == "const") {
-      cred_int_const <- compute_ci(object$c_record, level = level)
+      cred_int_const <- compute_ci(subset_draws(object$param, variable = "c"), level = level)
       selection <- rbind(
         selection,
         cred_int_const$conf.low * cred_int_const$conf.high >= 0
@@ -126,6 +126,43 @@ summary.hsmod <- function(object, method = c("pip", "ci"), threshold = .5, level
     res$threshold <- threshold
   }
   class(res) <- c("summary.hsmod", "summary.bvharsp")
+  res
+}
+
+#' @rdname summary.bvharsp
+#' @return `ngmod` object
+#' @export
+summary.ngmod <- function(object, level = .05, ...) {
+  cred_int <- compute_ci(subset_draws(object$param, variable = "alpha|phi", regex = TRUE), level = level)
+  selection <- matrix(cred_int$conf.low * cred_int$conf.high >= 0, ncol = object$m) # TRUE when non-zero
+  if (object$type == "const") {
+    cred_int_const <- compute_ci(subset_draws(object$param, variable = "c"), level = level)
+    selection <- rbind(
+      selection,
+      cred_int_const$conf.low * cred_int_const$conf.high >= 0
+    )
+    cred_int <- rbind(cred_int, cred_int_const)
+  }
+  rownames(selection) <- rownames(object$coefficients)
+  colnames(selection) <- colnames(object$coefficients)
+  coef_res <- selection * object$coefficients
+  rownames(coef_res) <- rownames(object$coefficients)
+  colnames(coef_res) <- colnames(object$coefficients)
+  # return S3 object---------------------------
+  res <- list(
+    call = object$call,
+    process = object$process,
+    p = object$p,
+    m = object$m,
+    type = object$type,
+    coefficients = coef_res,
+    posterior_mean = object$coefficients,
+    choose_coef = selection,
+    method = "ci"
+  )
+  res$interval <- cred_int
+  res$level <- level
+  class(res) <- c("summary.ngmod", "summary.bvharsp")
   res
 }
 
