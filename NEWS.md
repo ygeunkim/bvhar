@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
+
 * `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.
 
 * `bvar_ssvs()`, `bvar_horseshoe()`, `bvar_sv()`, `bvhar_ssvs()`, `bvhar_horseshoe()`, and `bvhar_sv()` are deprecated, and will be removed in v2.1.0 with their source functions.
