@@ -108,6 +108,18 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
+			case 5: {
+				bvhar::NgParams ng_params(
+					num_iter, roll_x0, roll_y0,
+					param_reg,
+					grp_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				bvhar::HsInits ng_inits(init_spec);
+				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
+				break;
+			}
 		}
 	}
 #ifdef _OPENMP
@@ -200,6 +212,18 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				bvhar::HierminnInits minn_inits(init_spec);
 				sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
+				break;
+			}
+			case 5: {
+				bvhar::NgParams ng_params(
+					num_iter, roll_x1, roll_y0,
+					param_reg,
+					grp_id, grp_mat,
+					param_prior,
+					param_intercept, include_mean
+				);
+				bvhar::HsInits ng_inits(init_spec);
+				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
 		}
