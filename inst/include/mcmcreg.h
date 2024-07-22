@@ -827,8 +827,7 @@ public:
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
-		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
-		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)), latent_contem_global(Eigen::VectorXd::Zero(1)) {
+		contem_var(Eigen::VectorXd::Zero(num_lowerchol)) {
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~NgReg() = default;
@@ -931,8 +930,6 @@ private:
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	Eigen::VectorXd contem_var;
-	Eigen::VectorXd latent_contem_local;
-	Eigen::VectorXd latent_contem_global;
 };
 
 }; // namespace bvhar
