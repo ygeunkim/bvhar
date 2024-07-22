@@ -16,7 +16,7 @@ test_that("MNIW parameterization", {
 
 test_that("GIG generation - with mode shift", {
   skip_if_not_installed("GIGrvg")
-  # |lambda| > 3 or beta > 3
+  skip_if(getRversion() < "4.0.0")
   lambda <- 3
   psi <- .2
   chi <- .5
@@ -37,6 +37,7 @@ test_that("GIG generation - with mode shift", {
 
 test_that("GIG generation - without mode shift", {
   skip_if_not_installed("GIGrvg")
+  skip_if(getRversion() < "4.0.0")
   lambda <- .8
   psi <- .3
   chi <- .5
@@ -49,6 +50,7 @@ test_that("GIG generation - without mode shift", {
 
 test_that("GIG generation - non-T_(-1/2)-concave part", {
   skip_if_not_installed("GIGrvg")
+  skip_if(getRversion() < "4.0.0")
   lambda <- .8
   psi <- .1
   chi <- .2
