@@ -495,9 +495,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       roll_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -534,9 +537,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       roll_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -1046,9 +1052,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       expand_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -1085,9 +1094,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
       } else if (is.ssvsinput(object$spec)) {
         param_prior <- object$spec
         prior_type <- 2
-      } else {
+      } else if (is.horseshoespec(object$spec)) {
         param_prior <- list()
         prior_type <- 3
+      } else if (is.ngspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 5
       }
       expand_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
