@@ -304,9 +304,6 @@ var_bayes <- function(y,
       }
     )
   } else if (prior_nm == "NG") {
-    if (is.svspec(cov_spec)) {
-      stop("NG-SV not yet defined - use later")
-    }
     if (length(bayes_spec$local_shape) == 1) {
       bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_alpha)
     }
