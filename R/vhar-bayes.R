@@ -119,9 +119,10 @@ vhar_bayes <- function(y,
   if (!(
     is.bvharspec(bayes_spec) ||
     is.ssvsinput(bayes_spec) ||
-    is.horseshoespec(bayes_spec)
+    is.horseshoespec(bayes_spec) ||
+    is.ngspec(bayes_spec)
   )) {
-    stop("Provide 'bvharspec' or 'horseshoespec' for 'bayes_spec'.")
+    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', or 'ngspec' for 'bayes_spec'.")
   }
   if (!is.covspec(cov_spec)) {
     stop("Provide 'covspec' for 'cov_spec'.")
@@ -224,8 +225,8 @@ vhar_bayes <- function(y,
       )
     }
   } else if (prior_nm == "SSVS") {
-    init_coef <- 1L
-    init_coef_dummy <- 1L
+    # init_coef <- 1L
+    # init_coef_dummy <- 1L
     if (length(bayes_spec$coef_spike) == 1) {
       bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_phi)
     }
@@ -308,7 +309,7 @@ vhar_bayes <- function(y,
         )
       }
     )
-  } else {
+  } else if (prior_nm == "Horseshoe") {
     if (length(bayes_spec$local_sparsity) != num_phi) { # -> change other files too: dim_har (dim_design) to num_restrict
       if (length(bayes_spec$local_sparsity) == 1) {
         bayes_spec$local_sparsity <- rep(bayes_spec$local_sparsity, num_phi)
@@ -338,12 +339,41 @@ vhar_bayes <- function(y,
         )
       }
     )
+  } else if (prior_nm == "NG") {
+    if (length(bayes_spec$local_shape) == 1) {
+      bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_phi)
+    }
+    if (length(bayes_spec$contem_shape) == 1) {
+      bayes_spec$contem_shape <- rep(bayes_spec$contem_shape, num_eta)
+    }
+    param_prior <- bayes_spec
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        local_sparsity <- exp(runif(num_phi, -1, 1))
+        global_sparsity <- exp(runif(1, -1, 1))
+        group_sparsity <- exp(runif(num_grp, -1, 1))
+        contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+        contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+        append(
+          init,
+          list(
+            local_sparsity = local_sparsity,
+            group_sparsity = group_sparsity,
+            global_sparsity = global_sparsity,
+            contem_local_sparsity = contem_local_sparsity,
+            contem_global_sparsity = contem_global_sparsity
+          )
+        )
+      }
+    )
   }
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
     "SSVS" = 2,
     "Horseshoe" = 3,
-    "MN_Hierarchical" = 4
+    "MN_Hierarchical" = 4,
+    "NG" = 5
   )
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
@@ -518,13 +548,20 @@ vhar_bayes <- function(y,
       res$param,
       res$gamma_record
     )
-  } else {
+  } else if (bayes_spec$prior == "Horseshoe") {
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
       res$eta_record,
       res$tau_record,
       res$kappa_record
+    )
+  } else if (bayes_spec$prior == "NG") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record
     )
   }
   res[rec_names] <- NULL
@@ -589,6 +626,8 @@ vhar_bayes <- function(y,
     class(res) <- c(class(res), "hsmod")
   } else if (bayes_spec$prior == "SSVS") {
     class(res) <- c(class(res), "ssvsmod")
+  } else if (bayes_spec$prior == "NG") {
+    class(res) <- c(class(res), "ngmod")
   }
   res
 }
