@@ -779,16 +779,15 @@ inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::
 // @param glob_param Global sparsity level
 // @param coef_vec Coefficients vector
 // @param rng boost rng
-inline void dl_latent(Eigen::VectorXd& latent_param,
-									 		Eigen::VectorXd& local_param, Eigen::VectorXd& glob_param,
-									 		Eigen::VectorXd& coef_vec, boost::random::mt19937& rng) {
+inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
+									 		Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
 	int num_alpha = latent_param.size();
 	// Eigen::VectorXd chi = coef_vec.array().square() / (glob_param.array().square() * local_param.array().square());
 	for (int i = 0; i < num_alpha; ++i) {
 		// psi[i] = sim_gig(1, .5, 1, chi[i], rng)[0];
 		latent_param[i] = sim_gig(
 			1, .5,
-			1, coef_vec[i] * coef_vec[i] / (glob_param[i] * glob_param[i] * local_param[i] * local_param[i])
+			1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
 		)[0];
 	}
 }
@@ -802,7 +801,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param,
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 										 					Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * coef[i])[0];
+		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]))[0];
 	}
 	local_param /= local_param.sum();
 }
