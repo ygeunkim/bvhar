@@ -57,7 +57,7 @@ jobs:
             echo "EVALUATE_PKG=evaluate" >> $Env:GITHUB_ENV
            }
         shell: pwsh
-        
+          
       - name: Determine evaluate package version on non-Windows
         if: runner.os != 'Windows'
         run: |
@@ -67,7 +67,7 @@ jobs:
             echo "EVALUATE_PKG=evaluate" >> $GITHUB_ENV
           fi
         shell: bash
-
+      
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck, ${{ env.EVALUATE_PKG }}

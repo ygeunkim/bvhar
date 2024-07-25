@@ -12,6 +12,12 @@ template:
     code-color: "#f8f8f2"
   theme: github-dark
 
+home:
+  links:
+  # see the configuration in .github/workflows/pkgdown.yaml
+  - text: VERSION_TEXT
+    href: VERSION_REF
+
 development:
   mode: auto
 
@@ -42,6 +48,8 @@ reference:
   - set_ssvs
   - set_lambda
   - set_horseshoe
+  - set_ng
+  - set_ldlt
   - set_sv
   - set_intercept
 
@@ -49,11 +57,11 @@ reference:
   desc: >
     Bayesian VAR and Bayesian VHAR models.
   contents:
+  - var_bayes
   - bvar_minnesota
   - bvar_flat
-  - var_bayes
-  - bvhar_minnesota
   - vhar_bayes
+  - bvhar_minnesota
   - summary.normaliw
   - summary.bvharsp
 
@@ -105,7 +113,6 @@ reference:
   - fromse
   - spne
   - relspne
-  - lpl
 
 - title: Tuning
   desc: ~
