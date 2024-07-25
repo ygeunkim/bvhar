@@ -39,7 +39,7 @@ jobs:
           if [ "$BRANCH" == "develop" ]; then
             sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|' _pkgdown.yml
           else
-            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/dev/bvhar/|' _pkgdown.yml
+            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|' _pkgdown.yml
           fi
         shell: bash
       
@@ -57,5 +57,5 @@ jobs:
           clean: false
           branch: master
           folder: docs
-          # target-folder: package/bvhar
-          target-folder: ${{ github.ref == 'refs/heads/develop' && 'package/dev/bvhar' || 'package/bvhar' }}
+          target-folder: package/bvhar
+          # target-folder: ${{ github.ref == 'refs/heads/develop' && 'package/dev/bvhar' || 'package/bvhar' }}
