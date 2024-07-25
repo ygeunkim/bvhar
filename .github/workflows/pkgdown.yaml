@@ -2,11 +2,9 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, develop]
   pull_request:
     branches: [main, master]
-  release:
-    types: [published]
   workflow_dispatch:
 
 name: pkgdown
@@ -34,11 +32,26 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
+      
+      - name: Choose between CRAN and dev
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [ "$BRANCH" == "develop" ]; then
+            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|' _pkgdown.yml
+          else
+            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/dev/bvhar/|' _pkgdown.yml
+          fi
+        shell: bash
+      
       - name: Build site
         # run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         run: pkgdown::build_site()
         shell: Rscript {0}
+      
+      - name: Clean up existing worktree
+        run: |
+          git worktree prune
+          git worktree list
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
@@ -49,4 +62,5 @@ jobs:
           clean: false
           branch: master
           folder: docs
-          target-folder: package/bvhar
+          # target-folder: package/bvhar
+          target-folder: ${{ github.ref == 'refs/heads/develop' && 'package/dev/bvhar' || 'package/bvhar' }}
