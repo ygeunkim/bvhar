@@ -113,7 +113,6 @@ reference:
   - fromse
   - spne
   - relspne
-  - lpl
 
 - title: Tuning
   desc: ~
