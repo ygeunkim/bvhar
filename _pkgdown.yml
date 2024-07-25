@@ -12,6 +12,12 @@ template:
     code-color: "#f8f8f2"
   theme: github-dark
 
+home:
+  links:
+  # see the configuration in .github/workflows/pkgdown.yaml
+  - text: VERSION_TEXT
+    href: VERSION_REF
+
 development:
   mode: auto
 
