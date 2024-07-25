@@ -2,11 +2,9 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, develop]
   pull_request:
     branches: [main, master]
-  release:
-    types: [published]
   workflow_dispatch:
 
 name: pkgdown
@@ -34,7 +32,17 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
+      
+      - name: Choose between CRAN and dev
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [ "$BRANCH" == "develop" ]; then
+            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|' _pkgdown.yml
+          else
+            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|' _pkgdown.yml
+          fi
+        shell: bash
+      
       - name: Build site
         # run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         run: pkgdown::build_site()
@@ -42,7 +50,7 @@ jobs:
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
           token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
           repository-name: ygeunkim/ygeunkim.github.io
@@ -50,3 +58,4 @@ jobs:
           branch: master
           folder: docs
           target-folder: package/bvhar
+          # target-folder: ${{ github.ref == 'refs/heads/develop' && 'package/dev/bvhar' || 'package/bvhar' }}
