@@ -48,6 +48,8 @@ reference:
   - set_ssvs
   - set_lambda
   - set_horseshoe
+  - set_ng
+  - set_ldlt
   - set_sv
   - set_intercept
 
@@ -55,11 +57,11 @@ reference:
   desc: >
     Bayesian VAR and Bayesian VHAR models.
   contents:
+  - var_bayes
   - bvar_minnesota
   - bvar_flat
-  - var_bayes
-  - bvhar_minnesota
   - vhar_bayes
+  - bvhar_minnesota
   - summary.normaliw
   - summary.bvharsp
 
