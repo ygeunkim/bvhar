@@ -115,9 +115,10 @@ var_bayes <- function(y,
     is.bvharspec(bayes_spec) ||
     is.ssvsinput(bayes_spec) ||
     is.horseshoespec(bayes_spec) ||
-    is.ngspec(bayes_spec)
+    is.ngspec(bayes_spec) ||
+    is.dlspec(bayes_spec)
   )) {
-    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', or 'ngspec' for 'bayes_spec'.")
+    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', or 'dlspec' for 'bayes_spec'.")
   }
   if (!is.covspec(cov_spec)) {
     stop("Provide 'covspec' for 'cov_spec'.")
@@ -331,13 +332,45 @@ var_bayes <- function(y,
         )
       }
     )
+  } else if (prior_nm == "DL") {
+    if (is.svspec(cov_spec)) {
+      stop("DL-SV is not defined yet")
+    }
+    if (length(bayes_spec$dirichlet) == 1) {
+      bayes_spec$dirichlet <- 1 / num_alpha^(1 + .01)
+    }
+    if (length(bayes_spec$contem_dirichlet) == 1) {
+      bayes_spec$contem_dirichlet <- 1 / num_eta^(1 + .01)
+    }
+    param_prior <- bayes_spec
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        local_sparsity <- exp(runif(num_alpha, -1, 1))
+        global_sparsity <- exp(runif(1, -1, 1))
+        group_sparsity <- exp(runif(num_grp, -1, 1))
+        contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+        contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+        append(
+          init,
+          list(
+            local_sparsity = local_sparsity,
+            global_sparsity = global_sparsity,
+            group_sparsity = group_sparsity,
+            contem_local_sparsity = contem_local_sparsity,
+            contem_global_sparsity = contem_global_sparsity
+          )
+        )
+      }
+    )
   }
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
     "SSVS" = 2,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
-    "NG" = 5
+    "NG" = 5,
+    "DL" = 6
   )
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
