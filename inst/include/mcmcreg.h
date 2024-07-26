@@ -965,7 +965,8 @@ public:
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
-		contem_var(Eigen::VectorXd::Zero(num_lowerchol)) {
+		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
+		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~DlReg() = default;
@@ -991,7 +992,7 @@ public:
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 	}
 	void updateImpactPrec() override {
-		// contem_latent_local
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_var, contem_dir_concen, contem_coef, rng);
@@ -1070,6 +1071,7 @@ private:
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	Eigen::VectorXd contem_var;
+	Eigen::VectorXd latent_contem_local;
 };
 
 }; // namespace bvhar
