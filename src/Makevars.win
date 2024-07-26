@@ -1,7 +1,8 @@
 # add -D EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS against pragma clang diagnostic pop warnings
+# Add -DBOOST_DISABLE_ASSERTS against assertion failures made by boost library
 # If -DEIGEN_DONT_PARALLELIZE added, multi-threading will be disabled related to OpenMP.
 # In this package we use the same number of threads specified in OpenMP
-PKG_CXXFLAGS = -I../inst/include -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS $(SHLIB_OPENMP_CXXFLAGS)
+PKG_CXXFLAGS = -I../inst/include -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS -DBOOST_DISABLE_ASSERTS $(SHLIB_OPENMP_CXXFLAGS)
 
 ## With Rcpp 0.11.0 and later, we no longer need to set PKG_LIBS as there is
 ## no user-facing library. The include path to headers is already set by R.
