@@ -1,5 +1,9 @@
 # bvhar (development version)
 
+* Added regularization step in internal Normal posterior generation function against non-existing LLT case.
+
+* Added `BOOST_DISABLE_ASSERTS` flag against `boost` asserts.
+
 * `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
 
 * `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.
