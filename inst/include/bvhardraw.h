@@ -443,7 +443,7 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
 inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
-														 Eigen::VectorXd prior_mean, Eigen::MatrixXd prior_prec, boost::random::mt19937& rng) {
+														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -451,6 +451,10 @@ inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& 
   }
   Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+	if (lltOfscale.info() == Eigen::NumericalIssue) {
+		post_sig.diagonal().array() += 1e-8;
+		lltOfscale.compute(post_sig);
+	}
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
 }
