@@ -719,11 +719,11 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 #' @param contem_global_scale Inverse gamma prior scale for contemporaneous coefficient global shrinkage
 #' @return `ngspec` object
 #' @references
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
-#'
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
-#'
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Chan, J. C. C. (2021). *Minnesota-type adaptive hierarchical priors for large Bayesian VARs*. International Journal of Forecasting, 37(3), 1212–1226.
+#' 
+#' Huber, F., & Feldkircher, M. (2019). *Adaptive Shrinkage in Bayesian Vector Autoregressive Models*. Journal of Business & Economic Statistics, 37(1), 27–39.
+#' 
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
 #' @order 1
 #' @export
 set_ng <- function(local_shape = 1,
@@ -760,6 +760,33 @@ set_ng <- function(local_shape = 1,
     contem_global_scale = contem_global_scale
   )
   class(res) <- "ngspec"
+  res
+}
+
+#' Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients
+#'
+#' Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#'
+#' @param dirichlet Dirichlet hyperparameter for coefficient local shrinkage
+#' @param contem_dirichlet Dirichlet hyperparameter for contemporaneous coefficient local shrinkage
+#' @return `dlspec` object
+#' @references
+#' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet–Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479–1490.
+#'
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
+#' @order 1
+#' @export
+set_dl <- function(dirichlet = .5, contem_dirichlet = .5) {
+  if (!(length(dirichlet) == 1 && length(contem_dirichlet) == 1)) {
+    stop("'dirichlet' and 'contem_dirichlet' should be length 1 numeric.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "DL",
+    dirichlet = dirichlet,
+    contem_dirichlet = contem_dirichlet
+  )
+  class(res) <- "dlspec"
   res
 }
 
