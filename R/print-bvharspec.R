@@ -444,6 +444,29 @@ print.ngspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   }
 }
 
+#' @rdname set_dl
+#' @param x `dlspec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.dlspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix and Contemporaneous coefficient\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    print.default(
+      param[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+  }
+}
+
 #' @rdname set_ldlt
 #' @param x `covspec`
 #' @param digits digit option to print

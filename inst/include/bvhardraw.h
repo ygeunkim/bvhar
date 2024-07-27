@@ -776,6 +776,78 @@ inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::
   latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
 }
 
+// Generating Latent Scaling Factor of Dirichlet-Laplace Prior
+// 
+// @param latent_param Scaling factor psi
+// @param local_param Local sparsity level
+// @param glob_param Global sparsity level
+// @param coef_vec Coefficients vector
+// @param rng boost rng
+inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
+									 		Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+	int num_alpha = latent_param.size();
+	// Eigen::VectorXd chi = coef_vec.array().square() / (glob_param.array().square() * local_param.array().square());
+	for (int i = 0; i < num_alpha; ++i) {
+		// psi[i] = sim_gig(1, .5, 1, chi[i], rng)[0];
+		latent_param[i] = sim_gig(
+			1, .5,
+			1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
+		)[0];
+	}
+}
+
+// Generating Local Parameter of Dirichlet-Laplace Prior
+// 
+// @param local_param Local sparsity level
+// @param dir_concent Hyperparameter of Dirichlet prior
+// @param coef Coefficients vector
+// @param rng boost rng
+inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
+										 					Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	for (int i = 0; i < coef.size(); ++i) {
+		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]))[0];
+	}
+	local_param /= local_param.sum();
+}
+
+// Generating Global Parameter of Dirichlet-Laplace Prior
+// 
+// @param local_param Local sparsity level
+// @param dir_concent Hyperparameter of Dirichlet prior
+// @param coef Coefficients vector
+// @param rng boost rng
+inline double dl_global_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
+										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum())[0];
+}
+
+// Generating Group Parameter of Dirichlet-Laplace Prior
+// 
+// @param group_param Group shrinkage
+// @param grp_vec Group vector
+// @param grp_id Unique group id
+// 
+// @param rng boost rng
+inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													 double& global_param, Eigen::VectorXd& local_param, double& dir_concen,
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < grp_id.size(); i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_coef(mn_size);
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
+			if (group_id[j]) {
+				mn_coef[k] = coef_vec[j];
+				mn_local[k++] = global_param * local_param[j];
+			}
+		}
+		group_param[i] = dl_global_sparsity(mn_local, dir_concen, mn_coef, rng);
+  }
+}
+
 // Generating lambda of Minnesota-SV
 // 
 // @param lambda lambda1 or lambda2

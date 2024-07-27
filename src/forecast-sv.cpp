@@ -478,7 +478,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -600,6 +600,28 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::DlSvParams dl_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsSvInits dl_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -816,7 +838,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 						break;
 					}
@@ -939,6 +961,28 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::DlSvParams dl_params(
+					num_iter, design, roll_y0[window],
+					param_sv,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsSvInits dl_inits(init_spec);
+					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -1154,7 +1198,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -1276,6 +1320,28 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
+				bvhar::DlSvParams dl_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsSvInits dl_inits(init_spec, expand_y0[window].rows());
+					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -1489,7 +1555,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -1611,6 +1677,28 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::DlSvParams dl_params(
+					num_iter, design, expand_y0[window],
+					param_sv,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsSvInits dl_inits(init_spec, expand_y0[window].rows());
+					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {

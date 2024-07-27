@@ -193,6 +193,24 @@ struct NgSvParams : public SvParams {
 		_contem_global_shape(ng_spec["contem_global_shape"]), _contem_global_scl(ng_spec["contem_global_scale"]) {}
 };
 
+struct DlSvParams : public SvParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXi _grp_mat;
+	double _dl_concen;
+	double _contem_dl_concen;
+
+	DlSvParams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		Rcpp::List& sv_spec,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
+		Rcpp::List& dl_spec, Rcpp::List& intercept,
+		bool include_mean
+	)
+	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
+		_grp_id(grp_id), _grp_mat(grp_mat),
+		_dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]) {}
+};
+
 struct SvInits : public RegInits {
 	Eigen::VectorXd _lvol_init;
 	Eigen::MatrixXd _lvol;
@@ -1029,6 +1047,132 @@ private:
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	Eigen::VectorXd contem_var;
+};
+
+class DirLaplaceSv : public McmcSv {
+public:
+	DirLaplaceSv(const DlSvParams& params, const HsSvInits& inits, unsigned int seed)
+	: McmcSv(params, inits, seed),
+		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
+		ng_record(num_iter, num_alpha, num_grp, num_lowerchol),
+		dir_concen(params._dl_concen), contem_dir_concen(params._contem_dl_concen),
+		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
+		local_fac(Eigen::VectorXd::Zero(num_alpha)),
+		latent_local(Eigen::VectorXd::Zero(num_alpha)),
+		// shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
+		// lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
+		coef_var(Eigen::VectorXd::Zero(num_alpha)),
+		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
+		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
+		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
+		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
+	}
+	virtual ~DirLaplaceSv() = default;
+	void updateCoefPrec() override {
+		for (int j = 0; j < num_grp; j++) {
+			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+				group_lev[j],
+				coef_var_loc
+			);
+		}
+		coef_var = coef_var_loc.reshaped();
+		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
+		local_fac.array() = coef_var.array() * local_lev.array();
+		dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
+		// lambda_mat.setZero();
+		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
+		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+	}
+	void updateCoefShrink() override {
+		global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+	}
+	void updateImpactPrec() override {
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
+		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_global_lev[0] * contem_local_lev.array().square() * latent_contem_local.array());
+	}
+	void updateRecords() override {
+		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+		ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+	}
+	void doPosteriorDraws() override {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateCoefPrec();
+		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
+		updateCoef();
+		updateCoefShrink();
+		updateImpactPrec();
+		latent_innov = y - x * coef_mat; // E_t before a
+		updateImpact();
+		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
+		updateState();
+		updateStateVar();
+		updateInitState();
+		updateRecords();
+	}
+	Rcpp::List returnRecords(int num_burn, int thin) const override {
+		Rcpp::List res = Rcpp::List::create(
+			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			Rcpp::Named("h_record") = sv_record.lvol_record,
+			Rcpp::Named("a_record") = sv_record.contem_coef_record,
+			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
+			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
+			Rcpp::Named("lambda_record") = ng_record.local_record,
+			Rcpp::Named("eta_record") = ng_record.group_record,
+			Rcpp::Named("tau_record") = ng_record.global_record
+		);
+		if (include_mean) {
+			res["c_record"] = sv_record.coef_record.rightCols(dim);
+		}
+		for (auto& record : res) {
+			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
+				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			} else {
+				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+			}
+		}
+		return res;
+	}
+	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
+		return SsvsRecords();
+	}
+	HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
+		return HorseshoeRecords();
+	}
+	NgRecords returnNgRecords(int num_burn, int thin) const override {
+		NgRecords res_record(
+			thin_record(ng_record.local_record, num_iter, num_burn, thin).derived(),
+			thin_record(ng_record.group_record, num_iter, num_burn, thin).derived(),
+			thin_record(ng_record.global_record, num_iter, num_burn, thin).derived()
+		);
+		return res_record;
+	}
+
+private:
+	Eigen::VectorXi grp_id;
+	Eigen::MatrixXi grp_mat;
+	Eigen::VectorXi grp_vec;
+	int num_grp;
+	NgRecords ng_record;
+	double dir_concen, contem_dir_concen;
+	Eigen::VectorXd local_lev;
+	Eigen::VectorXd group_lev;
+	double global_lev;
+	Eigen::VectorXd local_fac;
+	Eigen::VectorXd latent_local;
+	// Eigen::VectorXd shrink_fac;
+	// Eigen::MatrixXd lambda_mat;
+	Eigen::VectorXd coef_var;
+	Eigen::MatrixXd coef_var_loc;
+	Eigen::VectorXd contem_local_lev;
+	Eigen::VectorXd contem_global_lev;
+	Eigen::VectorXd latent_contem_local;
 };
 
 } // namespace bvhar
