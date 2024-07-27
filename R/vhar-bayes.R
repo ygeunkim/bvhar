@@ -593,6 +593,13 @@ vhar_bayes <- function(y,
       res$eta_record,
       res$tau_record
     )
+  } else if (bayes_spec$prior == "DL") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record
+    )
   }
   res[rec_names] <- NULL
   res$param_names <- param_names
