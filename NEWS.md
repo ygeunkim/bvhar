@@ -1,8 +1,6 @@
 # bvhar (development version)
 
-* Added regularization step in internal Normal posterior generation function against non-existing LLT case.
-
-* Added `BOOST_DISABLE_ASSERTS` flag against `boost` asserts.
+* `set_dl()` specifies Dirichlet-Laplace (DL) prior in `var_bayes()` and `vhar_bayes()`.
 
 * `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
 
@@ -12,13 +10,17 @@
 
 * `set_horseshoe()` has additional setting for `group_shrinkage`. Horseshoe sampling now has additional group shrinkage level parameters.
 
-* `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
-
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
 
 * MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
 
 * `bvar_sv()` and `bvhar_sv()` supports hierarchical Minnesota prior.
+
+## Internal changes
+
+* Added regularization step in internal Normal posterior generation function against non-existing LLT case.
+
+* Added `BOOST_DISABLE_ASSERTS` flag against `boost` asserts.
 
 ## Spillover effects
 
@@ -27,6 +29,8 @@
 * `dynamic_spillover()` computes dynamic spillover given model.
 
 ## Forecasting SV models
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
 
 * `predict()`, `forecast_roll()`, and `forecast_expand()` of `svmod` have `sparse` option to use sparsity.
 
