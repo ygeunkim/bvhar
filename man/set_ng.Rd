@@ -51,9 +51,9 @@ is.ngspec(x)
 Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 }
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
+Chan, J. C. C. (2021). \emph{Minnesota-type adaptive hierarchical priors for large Bayesian VARs}. International Journal of Forecasting, 37(3), 1212–1226.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+Huber, F., & Feldkircher, M. (2019). \emph{Adaptive Shrinkage in Bayesian Vector Autoregressive Models}. Journal of Business & Economic Statistics, 37(1), 27–39.
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
+Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230–354.
 }
