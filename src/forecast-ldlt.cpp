@@ -451,7 +451,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -571,6 +571,28 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
+				bvhar::DlParams dl_params(
+					num_iter, design, roll_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits dl_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -781,7 +803,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 						break;
 					}
@@ -902,6 +924,28 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				roll_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::DlParams dl_params(
+					num_iter, design, roll_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits dl_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				roll_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -1111,7 +1155,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -1231,6 +1275,28 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
+				bvhar::DlParams dl_params(
+					num_iter, design, expand_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits dl_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -1438,7 +1504,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 						));
 						break;
 					}
-					case 4: {
+					default: {
 						Rf_error("not specified");
 					}
 				}
@@ -1558,6 +1624,28 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				expand_mat[window].resize(0, 0); // free the memory
 			}
 			break;
+		}
+		case 6: {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
+				bvhar::DlParams dl_params(
+					num_iter, design, expand_y0[window],
+					param_reg,
+					grp_id, grp_mat,
+					param_prior, param_intercept,
+					include_mean
+				);
+				for (int chain = 0; chain < num_chains; chain++) {
+					Rcpp::List init_spec = param_init[chain];
+					bvhar::HsInits dl_inits(init_spec);
+					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
+				}
+				expand_mat[window].resize(0, 0); // free the memory
+			}
+			break;
+		}
+		default: {
+			Rf_error("not specified");
 		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
