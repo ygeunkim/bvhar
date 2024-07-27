@@ -708,7 +708,8 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, spars
     "SSVS" = 2,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
-    "NG" = 5
+    "NG" = 5,
+    "DL" = 6
   )
   pred_res <- forecast_bvarldlt(
     num_chains,
@@ -819,7 +820,8 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, spar
     "SSVS" = 2,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
-    "NG" = 5
+    "NG" = 5,
+    "DL" = 6
   )
   pred_res <- forecast_bvharldlt(
     num_chains,
@@ -933,7 +935,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv 
     "SSVS" = 2,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
-    "NG" = 5
+    "NG" = 5,
+    "DL" = 6
   )
   pred_res <- forecast_bvarsv(
     num_chains,
@@ -1047,7 +1050,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv
     "SSVS" = 2,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
-    "NG" = 5
+    "NG" = 5,
+    "DL" = 6
   )
   pred_res <- forecast_bvharsv(
     num_chains,
