@@ -314,6 +314,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       } else if (is.ngspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 5
+      } else if (is.dlspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 6
       }
       roll_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -356,6 +359,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       } else if (is.ngspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 5
+      } else if (is.dlspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 6
       }
       roll_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -871,6 +877,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       } else if (is.ngspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 5
+      } else if (is.dlspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 6
       }
       expand_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -913,6 +922,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       } else if (is.ngspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 5
+      } else if (is.dlspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 6
       }
       expand_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
