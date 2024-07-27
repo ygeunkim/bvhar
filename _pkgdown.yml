@@ -49,6 +49,7 @@ reference:
   - set_lambda
   - set_horseshoe
   - set_ng
+  - set_dl
   - set_ldlt
   - set_sv
   - set_intercept

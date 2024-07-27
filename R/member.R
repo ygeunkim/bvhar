@@ -231,6 +231,12 @@ is.ngspec <- function(x) {
   inherits(x, "ngspec")
 }
 
+#' @rdname set_dl
+#' @export
+is.dlspec <- function(x) {
+  inherits(x, "dlspec")
+}
+
 #' @rdname set_ldlt
 #' @export
 is.covspec <- function(x) {
