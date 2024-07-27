@@ -6,7 +6,7 @@
 \alias{is.dlspec}
 \title{Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients}
 \usage{
-set_dl(dirichlet = 1, contem_dirichlet = 1)
+set_dl(dirichlet = 0.5, contem_dirichlet = 0.5)
 
 \method{print}{dlspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

@@ -333,9 +333,6 @@ var_bayes <- function(y,
       }
     )
   } else if (prior_nm == "DL") {
-    if (is.svspec(cov_spec)) {
-      stop("DL-SV is not defined yet")
-    }
     if (length(bayes_spec$dirichlet) == 1) {
       bayes_spec$dirichlet <- 1 / num_alpha^(1 + .01)
     }
