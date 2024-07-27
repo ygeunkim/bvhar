@@ -965,7 +965,6 @@ public:
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
-		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
@@ -993,10 +992,9 @@ public:
 	}
 	void updateImpactPrec() override {
 		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
-		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		contem_global_lev[0] = dl_global_sparsity(contem_var, contem_dir_concen, contem_coef, rng);
-		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
+		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_global_lev[0] * contem_local_lev.array().square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
 		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
@@ -1070,7 +1068,6 @@ private:
 	Eigen::MatrixXd coef_var_loc;
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
-	Eigen::VectorXd contem_var;
 	Eigen::VectorXd latent_contem_local;
 };
 
