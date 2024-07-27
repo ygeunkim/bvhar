@@ -704,7 +704,7 @@ public:
 	HorseshoeReg(const HorseshoeParams& params, const HsInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
-		hs_record(num_iter, num_alpha, num_grp, num_lowerchol),
+		hs_record(num_iter, num_alpha, num_grp),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
@@ -833,7 +833,7 @@ public:
 	NgReg(const NgParams& params, const HsInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
-		ng_record(num_iter, num_alpha, num_grp, num_lowerchol),
+		ng_record(num_iter, num_alpha, num_grp),
 		local_shape(params._local_shape), contem_shape(params._contem_shape),
 		group_shape(params._group_shape), group_scl(params._global_scl),
 		global_shape(params._global_shape), global_scl(params._global_scl),
@@ -872,7 +872,7 @@ public:
 	void updateImpactPrec() override {
 		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		ng_local_sparsity(contem_local_lev, contem_shape, contem_coef, contem_var, rng);
-		contem_global_lev[0] = ng_global_sparsity(contem_var, contem_global_shape, contem_global_scl, contem_coef, rng);
+		contem_global_lev[0] = ng_global_sparsity(contem_local_lev, contem_global_shape, contem_global_scl, contem_coef, rng);
 		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
 	}
 	void updateRecords() override {
@@ -955,7 +955,7 @@ public:
 	DlReg(const DlParams& params, const HsInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
-		ng_record(num_iter, num_alpha, num_grp, num_lowerchol),
+		dl_record(num_iter, num_alpha, num_grp),
 		dir_concen(params._dl_concen), contem_dir_concen(params._contem_dl_concen),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		local_fac(Eigen::VectorXd::Zero(num_alpha)),
@@ -966,7 +966,7 @@ public:
 		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
-		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
+		dl_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~DlReg() = default;
 	void updateCoefPrec() override {
@@ -998,7 +998,7 @@ public:
 	}
 	void updateRecords() override {
 		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
-		ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+		dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -1019,9 +1019,9 @@ public:
 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
 			Rcpp::Named("d_record") = reg_record.fac_record,
-			Rcpp::Named("lambda_record") = ng_record.local_record,
-			Rcpp::Named("eta_record") = ng_record.group_record,
-			Rcpp::Named("tau_record") = ng_record.global_record
+			Rcpp::Named("lambda_record") = dl_record.local_record,
+			Rcpp::Named("eta_record") = dl_record.group_record,
+			Rcpp::Named("tau_record") = dl_record.global_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -1043,9 +1043,9 @@ public:
 	}
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		NgRecords res_record(
-			thin_record(ng_record.local_record, num_iter, num_burn, thin).derived(),
-			thin_record(ng_record.group_record, num_iter, num_burn, thin).derived(),
-			thin_record(ng_record.global_record, num_iter, num_burn, thin).derived()
+			thin_record(dl_record.local_record, num_iter, num_burn, thin).derived(),
+			thin_record(dl_record.group_record, num_iter, num_burn, thin).derived(),
+			thin_record(dl_record.global_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
 	}
@@ -1055,7 +1055,7 @@ private:
 	Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
-	NgRecords ng_record;
+	NgRecords dl_record;
 	double dir_concen, contem_dir_concen;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;

@@ -109,7 +109,7 @@ struct HorseshoeRecords {
 	Eigen::MatrixXd shrink_record;
 
 	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
-	HorseshoeRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+	HorseshoeRecords(int num_iter, int num_alpha, int num_grp)
 	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
 		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
 		// global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
@@ -134,7 +134,7 @@ struct NgRecords {
 	Eigen::VectorXd global_record;
 
 	NgRecords() : local_record(), group_record(), global_record() {}
-	NgRecords(int num_iter, int num_alpha, int num_grp, int num_lowerchol)
+	NgRecords(int num_iter, int num_alpha, int num_grp)
 	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
 		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
 		global_record(Eigen::VectorXd::Zero(num_iter + 1)) {}
