@@ -459,6 +459,26 @@ inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& 
 	coef = post_mean + lltOfscale.matrixU().solve(res);
 }
 
+// SAVS Algorithm for shirnkage prior
+// 
+// Conduct SAVS for each draw.
+// Use after varsv_regression() in the same loop.
+// 
+// @param coef non-zero coef
+// @param x design matrix
+inline void draw_savs(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x) {
+	for (int i = 0; i < coef.size(); ++i) {
+		double mu_i = 1 / (coef[i] * coef[i]);
+		double abs_fit = abs(coef[i]) * x.col(i).squaredNorm();
+		if (abs_fit <= mu_i) {
+			coef[i] = 0;
+		} else {
+			int alpha_sign = coef[i] > 0 ? 1 : -1;
+			coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
+		}
+	}
+}
+
 // Generating log-volatilities in MCMC
 // 
 // In MCMC, this function samples log-volatilities \eqn{h_{it}} vector using auxiliary mixture sampling
