@@ -433,6 +433,26 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
   }
 }
 
+// Generating SSVS Local Slab Parameter
+// 
+// @param slab_param Slab parameter
+// @param dummy_param Bernoulli parameter
+// @param coef_vec Coefficient
+// @param shp IG shape for slab parameter
+// @param scl IG scale for slab parameter
+// @param spike_scl scaling factor to make spike sd smaller than slab sd
+// @param rng boost rng
+inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_param, Eigen::Ref<Eigen::VectorXd> coef_vec,
+														double& shp, double& scl, double& spike_scl, boost::random::mt19937& rng) {
+	for (int i = 0; i < coef_vec.size(); ++i) {
+		slab_param[i] = 1 / gamma_rand(
+			shp + .5,
+			1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),
+			rng
+		);
+	}
+}
+
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 // 
 // This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
