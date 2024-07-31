@@ -469,8 +469,10 @@ var_bayes <- function(y,
   names(res) <- rec_names
   # summary across chains--------------------------------
   res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+  res$sparse_coef <- matrix(colMeans(res$alpha_sparse_record), ncol = dim_data)
   if (include_mean) {
     res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
+    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -478,24 +480,33 @@ var_bayes <- function(y,
   res$chol_posterior <- mat_lower
   colnames(res$coefficients) <- name_var
   rownames(res$coefficients) <- name_lag
+  colnames(res$sparse_coef) <- name_var
+  rownames(res$sparse_coef) <- name_lag
   colnames(res$chol_posterior) <- name_var
   rownames(res$chol_posterior) <- name_var
-  if (bayes_spec$prior == "SSVS") {
-    res$pip <- colMeans(res$gamma_record)
-    res$pip <- matrix(res$pip, ncol = dim_data)
-    if (include_mean) {
-      res$pip <- rbind(res$pip, rep(1L, dim_data))
-    }
-    colnames(res$pip) <- name_var
-    rownames(res$pip) <- name_lag
-  } else if (bayes_spec$prior == "Horseshoe") {
-    res$pip <- 1 - matrix(colMeans(res$kappa_record), ncol = dim_data)
-    if (include_mean) {
-      res$pip <- rbind(res$pip, rep(1L, dim_data))
-    }
-    colnames(res$pip) <- name_var
-    rownames(res$pip) <- name_lag
+  res$pip <- colMeans(res$alpha_sparse_record != 0)
+  res$pip <- matrix(res$pip, ncol = dim_data)
+  if (include_mean) {
+    res$pip <- rbind(res$pip, rep(1L, dim_data))
   }
+  colnames(res$pip) <- name_var
+  rownames(res$pip) <- name_lag
+  # if (bayes_spec$prior == "SSVS") {
+  #   res$pip <- colMeans(res$gamma_record)
+  #   res$pip <- matrix(res$pip, ncol = dim_data)
+  #   if (include_mean) {
+  #     res$pip <- rbind(res$pip, rep(1L, dim_data))
+  #   }
+  #   colnames(res$pip) <- name_var
+  #   rownames(res$pip) <- name_lag
+  # } else if (bayes_spec$prior == "Horseshoe") {
+  #   res$pip <- 1 - matrix(colMeans(res$kappa_record), ncol = dim_data)
+  #   if (include_mean) {
+  #     res$pip <- rbind(res$pip, rep(1L, dim_data))
+  #   }
+  #   colnames(res$pip) <- name_var
+  #   rownames(res$pip) <- name_lag
+  # }
   # Preprocess the results--------------------------------
   if (num_chains > 1) {
     res[rec_names] <- lapply(
@@ -517,7 +528,9 @@ var_bayes <- function(y,
   # rec$param <- bind_draws(res[rec_names])
   res$param <- bind_draws(
     res$alpha_record,
-    res$a_record
+    res$a_record,
+    res$alpha_sparse_record,
+    res$a_sparse_record
   )
   if (is.svspec(cov_spec)) {
     res$param <- bind_draws(

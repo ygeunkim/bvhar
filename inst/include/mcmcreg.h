@@ -284,6 +284,7 @@ public:
 		num_lowerchol(dim * (dim - 1) / 2), num_coef(dim * dim_design),
 		num_alpha(include_mean ? num_coef - dim : num_coef),
 		reg_record(num_iter, dim, num_design, num_coef, num_lowerchol),
+		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
 		mcmc_step(0), rng(seed),
 		prior_mean_non(params._mean_non),
 		prior_sd_non(params._sd_non * Eigen::VectorXd::Ones(dim)),
@@ -303,6 +304,7 @@ public:
 		coef_j(coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
+		sparse_coef(Eigen::MatrixXd::Zero(num_alpha / dim, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = prior_mean_non;
@@ -313,6 +315,7 @@ public:
 			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
 		reg_record.assignRecords(0, coef_vec, contem_coef, diag_vec);
+		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcReg() = default;
 	void updateCoef() {
@@ -331,6 +334,7 @@ public:
 				prior_mean_j, prior_prec_j,
 				rng
 			);
+			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
 		}
 		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
 		if (include_mean) {
@@ -354,6 +358,7 @@ public:
 				prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1),
 				rng
 			);
+			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
 		}
 	}
 	void addStep() { mcmc_step++; }
@@ -362,12 +367,23 @@ public:
 	virtual void updateImpactPrec() = 0;
 	virtual void updateRecords() = 0;
 	virtual void doPosteriorDraws() = 0;
+	void updateCoefRecords() {
+		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
+	}
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
 	LdltRecords returnLdltRecords(int num_burn, int thin) const {
 		LdltRecords res_record(
 			thin_record(reg_record.coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(reg_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(reg_record.fac_record, num_iter, num_burn, thin).derived()
+		);
+		return res_record;
+	}
+	SparseRecords returnSparseRecords(int num_burn, int thin) const {
+		SparseRecords res_record(
+			thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
 	}
@@ -389,6 +405,7 @@ protected:
 	int num_alpha;
 	// SvRecords sv_record;
 	LdltRecords reg_record;
+	SparseRecords sparse_record;
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd prior_mean_non; // prior mean of intercept term
@@ -410,6 +427,8 @@ protected:
   Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+	Eigen::MatrixXd sparse_coef;
+	Eigen::VectorXd sparse_contem;
 
 private:
 	Eigen::VectorXd prior_sig_shp;
@@ -430,7 +449,7 @@ public:
 	void updateCoefPrec() override {};
 	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
-	void updateRecords() override { reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec); }
+	void updateRecords() override { updateCoefRecords(); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -446,7 +465,9 @@ public:
 		Rcpp::List res = Rcpp::List::create(
 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-			Rcpp::Named("d_record") = reg_record.fac_record
+			Rcpp::Named("d_record") = reg_record.fac_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -524,7 +545,7 @@ public:
 			rng
 		);
 	};
-	void updateRecords() override { reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec); }
+	void updateRecords() override { updateCoefRecords(); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -543,7 +564,9 @@ public:
 		Rcpp::List res = Rcpp::List::create(
 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-			Rcpp::Named("d_record") = reg_record.fac_record
+			Rcpp::Named("d_record") = reg_record.fac_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -629,7 +652,7 @@ public:
 		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
 	}
 	void updateRecords() override {
-		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+		updateCoefRecords();
 		ssvs_record.assignRecords(mcmc_step, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	void doPosteriorDraws() override {
@@ -651,7 +674,9 @@ public:
 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
 			Rcpp::Named("d_record") = reg_record.fac_record,
-			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record
+			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -749,7 +774,7 @@ public:
 		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
 	}
 	void updateRecords() override {
-		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+		updateCoefRecords();
 		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
@@ -774,7 +799,9 @@ public:
 			Rcpp::Named("lambda_record") = hs_record.local_record,
 			Rcpp::Named("eta_record") = hs_record.group_record,
 			Rcpp::Named("tau_record") = hs_record.global_record,
-			Rcpp::Named("kappa_record") = hs_record.shrink_record
+			Rcpp::Named("kappa_record") = hs_record.shrink_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -876,7 +903,7 @@ public:
 		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
 	}
 	void updateRecords() override {
-		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+		updateCoefRecords();
 		ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
@@ -900,7 +927,9 @@ public:
 			Rcpp::Named("d_record") = reg_record.fac_record,
 			Rcpp::Named("lambda_record") = ng_record.local_record,
 			Rcpp::Named("eta_record") = ng_record.group_record,
-			Rcpp::Named("tau_record") = ng_record.global_record
+			Rcpp::Named("tau_record") = ng_record.global_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
@@ -997,7 +1026,7 @@ public:
 		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_global_lev[0] * contem_local_lev.array().square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
-		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+		updateCoefRecords();
 		dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
 	}
 	void doPosteriorDraws() override {
@@ -1021,7 +1050,9 @@ public:
 			Rcpp::Named("d_record") = reg_record.fac_record,
 			Rcpp::Named("lambda_record") = dl_record.local_record,
 			Rcpp::Named("eta_record") = dl_record.group_record,
-			Rcpp::Named("tau_record") = dl_record.global_record
+			Rcpp::Named("tau_record") = dl_record.global_record,
+			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
+			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
 			res["c_record"] = reg_record.coef_record.rightCols(dim);
