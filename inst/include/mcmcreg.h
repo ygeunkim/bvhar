@@ -372,18 +372,18 @@ public:
 		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
 	}
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
-	LdltRecords returnLdltRecords(int num_burn, int thin) const {
+	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
+		if (sparse) {
+			return LdltRecords(
+				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(reg_record.fac_record, num_iter, num_burn, thin).derived()
+			);
+		}
 		LdltRecords res_record(
 			thin_record(reg_record.coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(reg_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(reg_record.fac_record, num_iter, num_burn, thin).derived()
-		);
-		return res_record;
-	}
-	SparseRecords returnSparseRecords(int num_burn, int thin) const {
-		SparseRecords res_record(
-			thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
 	}

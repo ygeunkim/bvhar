@@ -435,20 +435,20 @@ public:
 		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
 	}
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
-	SvRecords returnSvRecords(int num_burn, int thin) const {
-		// For out-of-forecasting: Not return lvol_init_record
+	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
+		if (sparse) {
+			return SvRecords(
+				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(sv_record.lvol_record, num_iter, num_burn, thin).derived(),
+				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(sv_record.lvol_sig_record, num_iter, num_burn, thin).derived()
+			);
+		}
 		SvRecords res_record(
 			thin_record(sv_record.coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(sv_record.lvol_record, num_iter, num_burn, thin).derived(),
 			thin_record(sv_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 			thin_record(sv_record.lvol_sig_record, num_iter, num_burn, thin).derived()
-		);
-		return res_record;
-	}
-	SparseRecords returnSparseRecords(int num_burn, int thin) const {
-		SparseRecords res_record(
-			thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
 	}
