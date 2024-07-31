@@ -374,8 +374,14 @@ public:
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
+			Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
+			if (include_mean) {
+				coef_record << sparse_record.coef_record, reg_record.coef_record.rightCols(dim);
+			} else {
+				coef_record = sparse_record.coef_record;
+			}
 			return LdltRecords(
-				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(reg_record.fac_record, num_iter, num_burn, thin).derived()
 			);
