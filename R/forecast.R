@@ -877,7 +877,10 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, spar
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
-#' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
+#' @references
+#' Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
+#' 
+#' Huber, F., Koop, G., & Onorante, L. (2021). *Inducing Sparsity and Shrinkage in Time-Varying Parameter Models*. Journal of Business & Economic Statistics, 39(3), 669–683.
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export

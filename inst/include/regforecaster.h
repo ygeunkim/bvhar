@@ -161,57 +161,6 @@ private:
 	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
 
-class RegVarSparseForecaster : public RegVarForecaster {
-public:
-	RegVarSparseForecaster(const LdltRecords& records, const SsvsRecords& ssvs_record, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: RegVarForecaster(records, step, response_mat, lag, include_mean, seed),
-		shrink_record(ssvs_record.coef_dummy_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {}
-	RegVarSparseForecaster(const LdltRecords& records, const HorseshoeRecords& hs_record, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: RegVarForecaster(records, step, response_mat, lag, include_mean, seed),
-		shrink_record(hs_record.shrink_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {
-		shrink_record = shrink_record.unaryExpr([](double kappa) {
-			return kappa >= .5 ? 0.0 : 1.0; // use 1 - kappa
-		});
-	}
-	virtual ~RegVarSparseForecaster() = default;
-	void computeMean(int i) override {
-		activity_graph.topRows(nrow_coef) = unvectorize(shrink_record.row(i), dim);
-		for (int j = 0; j < var_lag; ++j) {
-			coef_mat.middleRows(j * dim, dim) = activity_graph.middleRows(j * dim, dim).transpose() * coef_mat.middleRows(j * dim, dim);
-		}
-		post_mean = last_pvec.transpose() * coef_mat;
-	}
-private:
-	Eigen::MatrixXd shrink_record; // 0 or 1
-	Eigen::MatrixXd activity_graph;
-};
-
-class RegVharSparseForecaster : public RegVharForecaster {
-public:
-	RegVharSparseForecaster(const LdltRecords& records, const SsvsRecords& ssvs_record, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
-		shrink_record(ssvs_record.coef_dummy_record), activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {}
-	RegVharSparseForecaster(const LdltRecords& records, const HorseshoeRecords& hs_record, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
-		shrink_record(hs_record.shrink_record),
-		activity_graph(Eigen::MatrixXd::Ones(num_coef / dim, dim)) {
-		shrink_record = shrink_record.unaryExpr([](double kappa) {
-			return kappa >= .5 ? 0.0 : 1.0; // use 1 - kappa
-		});
-	}
-	virtual ~RegVharSparseForecaster() = default;
-	void computeMean(int i) override {
-		activity_graph.topRows(nrow_coef) = unvectorize(shrink_record.row(i).transpose(), dim);
-		for (int j = 0; j < 3; ++j) {
-			coef_mat.middleRows(j * dim, dim) = activity_graph.middleRows(j * dim, dim).transpose() * coef_mat.middleRows(j * dim, dim);
-		}
-		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
-	}
-private:
-	Eigen::MatrixXd shrink_record; // 0 or 1
-	Eigen::MatrixXd activity_graph;
-};
-
 } // namespace bvhar
 
 #endif // REGFORECASTER_H
