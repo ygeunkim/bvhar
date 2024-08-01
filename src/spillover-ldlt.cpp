@@ -42,7 +42,7 @@ Rcpp::List compute_vharldlt_spillover(int week, int month, int step,
 }
 
 // [[Rcpp::export]]
-Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
+Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin, bool sparse,
 																			int lag, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
 																			int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
@@ -141,7 +141,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		for (int i = 0; i < num_iter; ++i) {
 			sur_objs[window]->doPosteriorDraws();
 		}
-		bvhar::LdltRecords reg_record = sur_objs[window]->returnLdltRecords(num_burn, thin);
+		bvhar::LdltRecords reg_record = sur_objs[window]->returnLdltRecords(num_burn, thin, sparse);
 		spillover[window].reset(new bvhar::RegSpillover(reg_record, step, lag));
 		spillover[window]->computeSpillover();
 		to_sp.row(window) = spillover[window]->returnTo();
@@ -159,7 +159,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 }
 
 // [[Rcpp::export]]
-Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin,
+Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_iter, int num_burn, int thin, bool sparse,
 																			 int week, int month, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
 																			 int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			 bool include_mean, Eigen::VectorXi seed_chain, int nthreads) {
@@ -259,7 +259,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		for (int i = 0; i < num_iter; ++i) {
 			sur_objs[window]->doPosteriorDraws();
 		}
-		bvhar::LdltRecords reg_record = sur_objs[window]->returnLdltRecords(num_burn, thin);
+		bvhar::LdltRecords reg_record = sur_objs[window]->returnLdltRecords(num_burn, thin, sparse);
 		spillover[window].reset(new bvhar::RegVharSpillover(reg_record, step, month, har_trans));
 		spillover[window]->computeSpillover();
 		to_sp.row(window) = spillover[window]->returnTo();
