@@ -246,4 +246,6 @@ George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VA
 Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2).
 
 Korobilis, D. (2013). \emph{VAR FORECASTING USING BAYESIAN VARIABLE SELECTION}. Journal of Applied Econometrics, 28(2).
+
+Huber, F., Koop, G., & Onorante, L. (2021). \emph{Inducing Sparsity and Shrinkage in Time-Varying Parameter Models}. Journal of Business & Economic Statistics, 39(3), 669–683.
 }
