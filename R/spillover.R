@@ -123,15 +123,22 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
 }
 
 #' @rdname spillover
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @export
-spillover.bvarldlt <- function(object, n_ahead = 10L, ...) {
+spillover.bvarldlt <- function(object, n_ahead = 10L, sparse = FALSE, ...) {
+  alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
+  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  if (sparse) {
+    alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
+    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  }
   res <- compute_varldlt_spillover(
     object$p,
     step = n_ahead,
-    alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+    alpha_record = alpha_record,
     d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = as_draws_matrix(subset_draws(object$param, variable = "a"))
+    a_record = a_record
   )
   colnames(res$connect) <- colnames(object$coefficients)
   rownames(res$connect) <- colnames(object$coefficients)
@@ -151,15 +158,22 @@ spillover.bvarldlt <- function(object, n_ahead = 10L, ...) {
 }
 
 #' @rdname spillover
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @export
-spillover.bvharldlt <- function(object, n_ahead = 10L, ...) {
+spillover.bvharldlt <- function(object, n_ahead = 10L, sparse = FALSE, ...) {
+  phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
+  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  if (sparse) {
+    phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
+    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  }
   res <- compute_vharldlt_spillover(
     object$week, object$month,
     step = n_ahead,
-    phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
+    phi_record = phi_record,
     d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = as_draws_matrix(subset_draws(object$param, variable = "a"))
+    a_record = a_record
   )
   colnames(res$connect) <- colnames(object$coefficients)
   rownames(res$connect) <- colnames(object$coefficients)
@@ -339,9 +353,10 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window,
 
 #' @rdname dynamic_spillover
 #' @param window Window size
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @export
-dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, num_thread = 1, ...) {
+dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FALSE, num_thread = 1, ...) {
   num_horizon <- nrow(object$y) - window + 1
   if (num_horizon < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -395,7 +410,8 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, num_thread 
     "bvarldlt" = {
       dynamic_bvarldlt_spillover(
         y = object$y, window = window, step = n_ahead,
-        num_iter = object$iter, num_burn = object$burn, thin = object$thin, lag = object$p,
+        num_iter = object$iter, num_burn = object$burn, thin = object$thin, sparse = sparse,
+        lag = object$p,
         param_reg = object$sv[c("shape", "scale")],
         param_prior = param_prior,
         param_intercept = object$intercept[c("mean_non", "sd_non")],
@@ -410,7 +426,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, num_thread 
     "bvharldlt" = {
       dynamic_bvharldlt_spillover(
         y = object$y, window = window, step = n_ahead,
-        num_iter = object$iter, num_burn = object$burn, thin = object$thin,
+        num_iter = object$iter, num_burn = object$burn, thin = object$thin, sparse = sparse,
         week = object$p, month = object$month,
         param_reg = object$sv[c("shape", "scale")],
         param_prior = param_prior,
@@ -445,10 +461,11 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, num_thread 
 }
 
 #' @rdname dynamic_spillover
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @export
-dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) {
+dynamic_spillover.svmod <- function(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...) {
   num_design <- nrow(object$y0)
   if (num_design < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -466,20 +483,32 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, num_thread = 1, ...) 
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
   sp_list <- switch(model_type,
     "bvarsv" = {
+      alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
+      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+      if (sparse) {
+        alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
+        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+      }
       dynamic_bvarsv_spillover(
         lag = object$p, step = n_ahead, num_design = num_design,
-        alpha_record = as_draws_matrix(subset_draws(object$param, variable = "alpha")),
+        alpha_record = alpha_record,
         h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = as_draws_matrix(subset_draws(object$param, variable = "a")),
+        a_record = a_record,
         nthreads = num_thread
       )
     },
     "bvharsv" = {
+      phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
+      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+      if (sparse) {
+        phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
+        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+      }
       dynamic_bvharsv_spillover(
         week = object$week, month = object$month, step = n_ahead, num_design = num_design,
-        phi_record = as_draws_matrix(subset_draws(object$param, variable = "phi")),
+        phi_record = phi_record,
         h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = as_draws_matrix(subset_draws(object$param, variable = "a")),
+        a_record = a_record,
         nthreads = num_thread
       )
     },
