@@ -22,126 +22,43 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 													 bool sv, bool sparse, double level, Rcpp::List fit_record, int prior_type,
 													 Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
-	if (sparse) {
-		switch (prior_type) {
-			case 0: {
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					Rcpp::List alpha_list = fit_record["alpha_record"];
-					Rcpp::List h_list = fit_record["h_record"];
-					Rcpp::List a_list = fit_record["a_record"];
-					Rcpp::List sigh_list = fit_record["sigh_record"];
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					forecaster[i].reset(new bvhar::SvVarSelectForecaster(
-						*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
-						step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			case 1: {
-				Rf_error("not specified");
-			}
-			case 2: {
-				Rcpp::List alpha_list = fit_record["alpha_record"];
-				Rcpp::List h_list = fit_record["h_record"];
-				Rcpp::List a_list = fit_record["a_record"];
-				Rcpp::List sigh_list = fit_record["sigh_record"];
-				Rcpp::List gamma_list = fit_record["gamma_record"];
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					bvhar::SsvsRecords ssvs_record(
-						Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd()
-					);
-					forecaster[i].reset(new bvhar::SvVarSparseForecaster(
-						*sv_record, ssvs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			case 3: {
-				Rcpp::List alpha_list = fit_record["alpha_record"];
-				Rcpp::List h_list = fit_record["h_record"];
-				Rcpp::List a_list = fit_record["a_record"];
-				Rcpp::List sigh_list = fit_record["sigh_record"];
-				Rcpp::List kappa_list = fit_record["kappa_record"];
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					bvhar::HorseshoeRecords hs_record(
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd(),
-						Eigen::VectorXd(),
-						Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-					);
-					forecaster[i].reset(new bvhar::SvVarSparseForecaster(
-						*sv_record, hs_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			default:
-				Rf_error("Not defined");
-				break;
-		}
-	} else {
-		for (int i = 0; i < num_chains; i++ ) {
+	if (sparse && prior_type == 0) {
+		for (int i = 0; i < num_chains; ++i) {
 			std::unique_ptr<bvhar::SvRecords> sv_record;
 			Rcpp::List alpha_list = fit_record["alpha_record"];
 			Rcpp::List h_list = fit_record["h_record"];
 			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			if (include_mean) {
+				Rcpp::List c_list = fit_record["c_record"];
+				sv_record.reset(new bvhar::SvRecords(
+					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+				));
+			} else {
+				sv_record.reset(new bvhar::SvRecords(
+					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+				));
+			}
+			forecaster[i].reset(new bvhar::SvVarSelectForecaster(
+				*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
+				step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+			));
+		}
+	} else {
+		for (int i = 0; i < num_chains; i++ ) {
+			std::unique_ptr<bvhar::SvRecords> sv_record;
+			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List alpha_list = fit_record[alpha_name];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record[a_name];
 			Rcpp::List sigh_list = fit_record["sigh_record"];
 			if (include_mean) {
 				Rcpp::List c_list = fit_record["c_record"];
@@ -198,126 +115,43 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 														bool sv, bool sparse, double level, Rcpp::List fit_record, int prior_type,
 														Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
 	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
-	if (sparse) {
-		switch (prior_type) {
-			case 0: {
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					Rcpp::List alpha_list = fit_record["phi_record"];
-					Rcpp::List h_list = fit_record["h_record"];
-					Rcpp::List a_list = fit_record["a_record"];
-					Rcpp::List sigh_list = fit_record["sigh_record"];
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					forecaster[i].reset(new bvhar::SvVharSelectForecaster(
-						*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
-						step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			case 1: {
-				Rf_error("not specified");
-			}
-			case 2: {
-				Rcpp::List alpha_list = fit_record["phi_record"];
-				Rcpp::List h_list = fit_record["h_record"];
-				Rcpp::List a_list = fit_record["a_record"];
-				Rcpp::List sigh_list = fit_record["sigh_record"];
-				Rcpp::List gamma_list = fit_record["gamma_record"];
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					bvhar::SsvsRecords ssvs_record(
-						Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd()
-					);
-					forecaster[i].reset(new bvhar::SvVharSparseForecaster(
-						*sv_record, ssvs_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			case 3: {
-				Rcpp::List alpha_list = fit_record["phi_record"];
-				Rcpp::List h_list = fit_record["h_record"];
-				Rcpp::List a_list = fit_record["a_record"];
-				Rcpp::List sigh_list = fit_record["sigh_record"];
-				Rcpp::List kappa_list = fit_record["kappa_record"];
-				for (int i = 0; i < num_chains; ++i) {
-					std::unique_ptr<bvhar::SvRecords> sv_record;
-					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					} else {
-						sv_record.reset(new bvhar::SvRecords(
-							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(h_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-							Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
-						));
-					}
-					bvhar::HorseshoeRecords hs_record(
-						Eigen::MatrixXd(),
-						Eigen::MatrixXd(),
-						Eigen::VectorXd(),
-						Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-					);
-					forecaster[i].reset(new bvhar::SvVharSparseForecaster(
-						*sv_record, hs_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
-					));
-				}
-				break;
-			}
-			default:
-				Rf_error("Not defined");
-				break;
-		}
-	} else {
-		for (int i = 0; i < num_chains; i++ ) {
+	if (sparse && prior_type == 0) {
+		for (int i = 0; i < num_chains; ++i) {
 			std::unique_ptr<bvhar::SvRecords> sv_record;
 			Rcpp::List alpha_list = fit_record["phi_record"];
 			Rcpp::List h_list = fit_record["h_record"];
 			Rcpp::List a_list = fit_record["a_record"];
+			Rcpp::List sigh_list = fit_record["sigh_record"];
+			if (include_mean) {
+				Rcpp::List c_list = fit_record["c_record"];
+				sv_record.reset(new bvhar::SvRecords(
+					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(c_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+				));
+			} else {
+				sv_record.reset(new bvhar::SvRecords(
+					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(h_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
+					Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
+				));
+			}
+			forecaster[i].reset(new bvhar::SvVharSelectForecaster(
+				*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
+				step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+			));
+		}
+	} else {
+		for (int i = 0; i < num_chains; i++ ) {
+			std::unique_ptr<bvhar::SvRecords> sv_record;
+			std::string alpha_name = sparse ? "phi_sparse_record" : "phi_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List alpha_list = fit_record[alpha_name];
+			Rcpp::List h_list = fit_record["h_record"];
+			Rcpp::List a_list = fit_record[a_name];
 			Rcpp::List sigh_list = fit_record["sigh_record"];
 			if (include_mean) {
 				Rcpp::List c_list = fit_record["c_record"];
@@ -418,11 +252,11 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 	bool use_fit = fit_record.size() > 0;
 	if (use_fit) {
 		std::unique_ptr<bvhar::SvRecords> sv_record;
-		Rcpp::List alpha_list = fit_record["alpha_record"];
 		Rcpp::List h_list = fit_record["h_record"];
-		Rcpp::List a_list = fit_record["a_record"];
 		Rcpp::List sigh_list = fit_record["sigh_record"];
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
+			Rcpp::List alpha_list = fit_record["alpha_record"];
+			Rcpp::List a_list = fit_record["a_record"];
 			for (int i = 0; i < num_chains; ++i) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -441,49 +275,16 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
 					));
 				}
-				switch (sparse_type) {
-					case 0: {
-						forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
-							*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-							step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 1: {
-						Rf_error("not specified");
-					}
-					case 2: {
-						Rcpp::List gamma_list = fit_record["gamma_record"];
-						bvhar::SsvsRecords ssvs_record(
-							Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd()
-						);
-						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
-							*sv_record, ssvs_record, step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 3: {
-						Rcpp::List kappa_list = fit_record["kappa_record"];
-						bvhar::HorseshoeRecords hs_record(
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::VectorXd(),
-							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-						);
-						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
-							*sv_record, hs_record, step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					default: {
-						Rf_error("not specified");
-					}
-				}
+				forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
+					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
+					step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				));
 			}
 		} else {
+			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List alpha_list = fit_record[alpha_name];
+			Rcpp::List a_list = fit_record[a_name];
 			for (int i = 0; i < num_chains; ++i) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -636,38 +437,15 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 			}
 			sv_objs[window][chain]->doPosteriorDraws();
 		}
-		bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
-		if (sparse) {
-			switch (sparse_type) {
-				case 0: {
-					forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
-						sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-						step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				// case 1: {
-				// 	break;
-				// }
-				case 2: {
-					bvhar::SsvsRecords ssvs_record = sv_objs[window][chain]->returnSsvsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVarSparseForecaster(
-						sv_record, ssvs_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 3: {
-					bvhar::HorseshoeRecords hs_record = sv_objs[window][chain]->returnHsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVarSparseForecaster(
-						sv_record, hs_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				// case 4: {
-				// 	break;
-				// }
-			}
+		// bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
+		if (sparse && sparse_type == 0) {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
+			forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
+				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
+				step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			));
 		} else {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVarForecaster(
 				sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 			));
@@ -778,11 +556,11 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 	bool use_fit = fit_record.size() > 0;
 	if (use_fit) {
 		std::unique_ptr<bvhar::SvRecords> sv_record;
-		Rcpp::List phi_list = fit_record["phi_record"];
 		Rcpp::List h_list = fit_record["h_record"];
-		Rcpp::List a_list = fit_record["a_record"];
 		Rcpp::List sigh_list = fit_record["sigh_record"];
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
+			Rcpp::List phi_list = fit_record["phi_record"];
+			Rcpp::List a_list = fit_record["a_record"];
 			for (int i = 0; i < num_chains; i++) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -801,50 +579,16 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
 					));
 				}
-				switch (sparse_type) {
-					case 0: {
-						forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
-							*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-							step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 1: {
-						Rf_error("not specified");
-					}
-					case 2: {
-						Rcpp::List gamma_list = fit_record["gamma_record"];
-						bvhar::SsvsRecords ssvs_record(
-							Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd()
-						);
-						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
-							*sv_record, ssvs_record, step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 3: {
-						Rcpp::List kappa_list = fit_record["kappa_record"];
-						bvhar::HorseshoeRecords hs_record(
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::VectorXd(),
-							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-						);
-						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
-							*sv_record, hs_record, step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					default: {
-						Rf_error("not specified");
-						break;
-					}
-				}
+				forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
+					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
+					step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				));
 			}
 		} else {
+			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List phi_list = fit_record[phi_name];
+			Rcpp::List a_list = fit_record[a_name];
 			for (int i = 0; i < num_chains; ++i) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -997,38 +741,15 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 			}
 			sv_objs[window][chain]->doPosteriorDraws();
 		}
-		bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
-		if (sparse) {
-			switch (sparse_type) {
-				case 0: {
-					forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
-						sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-						step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				// case 1: {
-				// 	break;
-				// }
-				case 2: {
-					bvhar::SsvsRecords ssvs_record = sv_objs[window][chain]->returnSsvsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVharSparseForecaster(
-						sv_record, ssvs_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 3: {
-					bvhar::HorseshoeRecords hs_record = sv_objs[window][chain]->returnHsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVharSparseForecaster(
-						sv_record, hs_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				// case 4: {
-				// 	break;
-				// }
-			}
+		// bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
+		if (sparse && sparse_type == 0) {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
+			forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
+				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
+				step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			));
 		} else {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVharForecaster(
 				sv_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 			));
@@ -1138,11 +859,11 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 	bool use_fit = fit_record.size() > 0;
 	if (use_fit) {
 		std::unique_ptr<bvhar::SvRecords> sv_record;
-		Rcpp::List alpha_list = fit_record["alpha_record"];
 		Rcpp::List h_list = fit_record["h_record"];
-		Rcpp::List a_list = fit_record["a_record"];
 		Rcpp::List sigh_list = fit_record["sigh_record"];
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
+			Rcpp::List alpha_list = fit_record["alpha_record"];
+			Rcpp::List a_list = fit_record["a_record"];
 			for (int i = 0; i < num_chains; ++i) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -1161,49 +882,16 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
 					));
 				}
-				switch (sparse_type) {
-					case 0: {
-						forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
-							*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-							step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 1: {
-						Rf_error("not specified");
-					}
-					case 2: {
-						Rcpp::List gamma_list = fit_record["gamma_record"];
-						bvhar::SsvsRecords ssvs_record(
-							Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd()
-						);
-						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
-							*sv_record, ssvs_record, step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 3: {
-						Rcpp::List kappa_list = fit_record["kappa_record"];
-						bvhar::HorseshoeRecords hs_record(
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::VectorXd(),
-							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-						);
-						forecaster[0][i].reset(new bvhar::SvVarSparseForecaster(
-							*sv_record, hs_record, step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					default: {
-						Rf_error("not specified");
-					}
-				}
+				forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
+					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
+					step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				));
 			}
 		} else {
+			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List alpha_list = fit_record[alpha_name];
+			Rcpp::List a_list = fit_record[a_name];
 			for (int i = 0; i < num_chains; i++) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -1356,32 +1044,15 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			}
 			sv_objs[window][chain]->doPosteriorDraws();
 		}
-		bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
-		if (sparse) {
-			switch (sparse_type) {
-				case 0: {
-					forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
-						sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-						step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 2: {
-					bvhar::SsvsRecords ssvs_record = sv_objs[window][chain]->returnSsvsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVarSparseForecaster(
-						sv_record, ssvs_record, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 3: {
-					bvhar::HorseshoeRecords hs_record = sv_objs[window][chain]->returnHsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVarSparseForecaster(
-						sv_record, hs_record, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-			}
+		// bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
+		if (sparse && sparse_type == 0) {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
+			forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
+				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
+				step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			));
 		} else {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVarForecaster(
 				sv_record, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 			));
@@ -1495,11 +1166,11 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 	bool use_fit = fit_record.size() > 0;
 	if (use_fit) {
 		std::unique_ptr<bvhar::SvRecords> sv_record;
-		Rcpp::List phi_list = fit_record["phi_record"];
 		Rcpp::List h_list = fit_record["h_record"];
-		Rcpp::List a_list = fit_record["a_record"];
 		Rcpp::List sigh_list = fit_record["sigh_record"];
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
+			Rcpp::List phi_list = fit_record["phi_record"];
+			Rcpp::List a_list = fit_record["a_record"];
 			for (int i = 0; i < num_chains; ++i) {
 				if (include_mean) {
 					Rcpp::List c_list = fit_record["c_record"];
@@ -1518,51 +1189,18 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 						Rcpp::as<Eigen::MatrixXd>(sigh_list[i])
 					));
 				}
-				switch (sparse_type) {
-					case 0: {
-						forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
-							*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-							step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 1: {
-						Rf_error("not specified");
-					}
-					case 2: {
-						Rcpp::List gamma_list = fit_record["gamma_record"];
-						bvhar::SsvsRecords ssvs_record(
-							Rcpp::as<Eigen::MatrixXd>(gamma_list[i]),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd()
-						);
-						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
-							*sv_record, ssvs_record, step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					case 3: {
-						Rcpp::List kappa_list = fit_record["kappa_record"];
-						bvhar::HorseshoeRecords hs_record(
-							Eigen::MatrixXd(),
-							Eigen::MatrixXd(),
-							Eigen::VectorXd(),
-							Rcpp::as<Eigen::MatrixXd>(kappa_list[i])
-						);
-						forecaster[0][i].reset(new bvhar::SvVharSparseForecaster(
-							*sv_record, hs_record, step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
-						));
-						break;
-					}
-					default: {
-						Rf_error("not specified");
-					}
-				}
+				forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
+					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
+					step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				));
 			}
 		} else {
+			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
+			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			Rcpp::List phi_list = fit_record[phi_name];
+			Rcpp::List a_list = fit_record[a_name];
 			for (int i = 0; i < num_chains; i++) {
-			if (include_mean) {
+				if (include_mean) {
 				Rcpp::List c_list = fit_record["c_record"];
 					sv_record.reset(new bvhar::SvRecords(
 						Rcpp::as<Eigen::MatrixXd>(phi_list[i]),
@@ -1713,32 +1351,15 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 			}
 			sv_objs[window][chain]->doPosteriorDraws();
 		}
-		bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
-		if (sparse) {
-			switch (sparse_type) {
-				case 0: {
-					forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
-						sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-						step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 2: {
-					bvhar::SsvsRecords ssvs_record = sv_objs[window][chain]->returnSsvsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVharSparseForecaster(
-						sv_record, ssvs_record, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-				case 3: {
-					bvhar::HorseshoeRecords hs_record = sv_objs[window][chain]->returnHsRecords(num_burn, thinning);
-					forecaster[window][chain].reset(new bvhar::SvVharSparseForecaster(
-						sv_record, hs_record, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
-					));
-					break;
-				}
-			}
+		// bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning);
+		if (sparse && sparse_type == 0) {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
+			forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
+				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
+				step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			));
 		} else {
+			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVharForecaster(
 				sv_record, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
 			));

@@ -3,6 +3,7 @@
 
 #include "bvharsim.h"
 #include <set>
+#include <string>
 
 namespace bvhar {
 
@@ -72,6 +73,23 @@ struct RegRecords {
 			selection[i] = quantile_lower(coef_record.col(i), level / 2) * quantile_upper(coef_record.col(i), 1 - level / 2) < 0 ? 0.0 : 1.1;
 		}
 		return selection;
+	}
+};
+
+struct SparseRecords {
+	Eigen::MatrixXd coef_record;
+	Eigen::MatrixXd contem_coef_record;
+
+	SparseRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
+	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
+		contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
+	
+	SparseRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record)
+	: coef_record(alpha_record), contem_coef_record(a_record) {}
+	
+	void assignRecords(int id, const Eigen::MatrixXd& coef_mat, const Eigen::VectorXd& contem_coef) {
+		coef_record.row(id) = coef_mat.reshaped();
+		contem_coef_record.row(id) = contem_coef;
 	}
 };
 
@@ -457,6 +475,25 @@ inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& 
 	}
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
+}
+
+// SAVS Algorithm for shirnkage prior
+// 
+// Conduct SAVS for each draw.
+// Use after varsv_regression() in the same loop.
+// 
+// @param coef non-zero coef
+// @param x design matrix
+inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x) {
+	sparse_coef.setZero();
+	for (int i = 0; i < coef.size(); ++i) {
+		double mu_i = 1 / (coef[i] * coef[i]);
+		double abs_fit = abs(coef[i]) * x.col(i).squaredNorm();
+		if (abs_fit > mu_i) {
+			int alpha_sign = coef[i] >= 0 ? 1 : -1;
+			sparse_coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
+		}
+	}
 }
 
 // Generating log-volatilities in MCMC
