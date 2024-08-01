@@ -1,8 +1,6 @@
 # bvhar (development version)
 
-* `set_dl()` specifies Dirichlet-Laplace (DL) prior in `var_bayes()` and `vhar_bayes()`.
-
-* `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
+* Use Signal Adaptive Variable Selector (SAVS) to generate sparse coefficient from shrinkage priors.
 
 * `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.
 
@@ -11,6 +9,12 @@
 * `set_horseshoe()` has additional setting for `group_shrinkage`. Horseshoe sampling now has additional group shrinkage level parameters.
 
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
+
+## New priors
+
+* `set_dl()` specifies Dirichlet-Laplace (DL) prior in `var_bayes()` and `vhar_bayes()`.
+
+* `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
 
 * MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
 

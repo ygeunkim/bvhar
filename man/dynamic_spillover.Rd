@@ -29,9 +29,16 @@ dynamic_spillover(object, n_ahead = 10L, ...)
   ...
 )
 
-\method{dynamic_spillover}{ldltmod}(object, n_ahead = 10L, window, num_thread = 1, ...)
+\method{dynamic_spillover}{ldltmod}(
+  object,
+  n_ahead = 10L,
+  window,
+  sparse = FALSE,
+  num_thread = 1,
+  ...
+)
 
-\method{dynamic_spillover}{svmod}(object, n_ahead = 10L, num_thread = 1, ...)
+\method{dynamic_spillover}{svmod}(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...)
 }
 \arguments{
 \item{object}{Model object}
@@ -53,6 +60,8 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 \item{num_burn}{Number of burn-in}
 
 \item{thinning}{Thinning every thinning-th iteration}
+
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 }
 \description{
 This function gives connectedness table with h-step ahead normalized spillover index (a.k.a. variance shares).
