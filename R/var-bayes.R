@@ -311,12 +311,12 @@ var_bayes <- function(y,
       }
     )
   } else if (prior_nm == "NG") {
-    if (length(bayes_spec$local_shape) == 1) {
-      bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_alpha)
-    }
-    if (length(bayes_spec$contem_shape) == 1) {
-      bayes_spec$contem_shape <- rep(bayes_spec$contem_shape, num_eta)
-    }
+    # if (length(bayes_spec$local_shape) == 1) {
+    #   bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_alpha)
+    # }
+    # if (length(bayes_spec$contem_shape) == 1) {
+    #   bayes_spec$contem_shape <- rep(bayes_spec$contem_shape, num_eta)
+    # }
     param_prior <- bayes_spec
     param_init <- lapply(
       param_init,
