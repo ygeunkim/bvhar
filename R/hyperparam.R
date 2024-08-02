@@ -709,12 +709,11 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 #'
 #' Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
-#' @param local_shape Gamma prior shape for coefficient local shrinkage
+#' @param shape_sd Standard deviation used in MH of Gamma shape
 #' @param group_shape Inverse gamma prior shape for coefficient group shrinkage
 #' @param group_scale Inverse gamma prior scale for coefficient group shrinkage
 #' @param global_shape Inverse gamma prior shape for coefficient global shrinkage
 #' @param global_scale Inverse gamma prior scale for coefficient global shrinkage
-#' @param contem_shape Gamma prior shape for contemporaneous coefficient local shrinkage
 #' @param contem_global_shape Inverse gamma prior shape for contemporaneous coefficient global shrinkage
 #' @param contem_global_scale Inverse gamma prior scale for contemporaneous coefficient global shrinkage
 #' @return `ngspec` object
@@ -726,19 +725,19 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 #' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
 #' @order 1
 #' @export
-set_ng <- function(local_shape = 1,
+set_ng <- function(shape_sd = .01,
                    group_shape = 1,
                    group_scale = 1,
                    global_shape = 1,
                    global_scale = 1,
-                   contem_shape = 1,
                    contem_global_shape = 1,
                    contem_global_scale = 1) {
-  if (!(is.vector(local_shape) && is.vector(contem_shape))) {
-    stop("'local_shape' and 'contem_shape' should be a vector.")
-  }
+  # if (!(is.vector(local_shape) && is.vector(contem_shape))) {
+  #   stop("'local_shape' and 'contem_shape' should be a vector.")
+  # }
   if (!(
-    length(group_shape) == 1 &&
+    length(shape_sd) == 1 &&
+      length(group_shape) == 1 &&
       length(group_scale) == 1 &&
       length(global_shape) == 1 &&
       length(global_scale) == 1 &&
@@ -750,12 +749,13 @@ set_ng <- function(local_shape = 1,
   res <- list(
     process = "VAR",
     prior = "NG",
-    local_shape = local_shape,
+    shape_sd = shape_sd,
+    # local_shape = local_shape,
     group_shape = group_shape,
     group_scale = group_scale,
     global_shape = global_shape,
     global_scale = global_scale,
-    contem_shape = contem_shape,
+    # contem_shape = contem_shape,
     contem_global_shape = contem_global_shape,
     contem_global_scale = contem_global_scale
   )

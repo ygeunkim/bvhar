@@ -7,12 +7,11 @@
 \title{Normal-Gamma Hyperparameter for Coefficients and Contemporaneous Coefficients}
 \usage{
 set_ng(
-  local_shape = 1,
+  shape_sd = 0.01,
   group_shape = 1,
   group_scale = 1,
   global_shape = 1,
   global_scale = 1,
-  contem_shape = 1,
   contem_global_shape = 1,
   contem_global_scale = 1
 )
@@ -22,7 +21,7 @@ set_ng(
 is.ngspec(x)
 }
 \arguments{
-\item{local_shape}{Gamma prior shape for coefficient local shrinkage}
+\item{shape_sd}{Standard deviation used in MH of Gamma shape}
 
 \item{group_shape}{Inverse gamma prior shape for coefficient group shrinkage}
 
@@ -31,8 +30,6 @@ is.ngspec(x)
 \item{global_shape}{Inverse gamma prior shape for coefficient global shrinkage}
 
 \item{global_scale}{Inverse gamma prior scale for coefficient global shrinkage}
-
-\item{contem_shape}{Gamma prior shape for contemporaneous coefficient local shrinkage}
 
 \item{contem_global_shape}{Inverse gamma prior shape for contemporaneous coefficient global shrinkage}
 
