@@ -904,14 +904,13 @@ public:
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
 	}
 	void updateCoefShrink() override {
-		double old_glob = global_lev;
-		local_fac.array() /= coef_var.array();
+		local_fac.array() = local_lev.array() / coef_var.array();
 		// global_lev = ng_global_sparsity(local_fac, local_shape, global_shape, global_scl, rng);
 		global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
-		local_fac.array() *= global_lev * coef_var.array() / old_glob;
+		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
 		// ng_local_sparsity(local_fac, local_shape, coef_vec.head(num_alpha), global_lev * coef_var, rng);
 		ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		local_lev.array() *= global_lev * coef_var.array() / local_fac.array();
+		local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
 	}
 	void updateImpactPrec() override {
