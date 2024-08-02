@@ -329,6 +329,8 @@ var_bayes <- function(y,
         append(
           init,
           list(
+            local_shape = runif(num_grp, 0, 1),
+            contem_shape = runif(1, 0, 1),
             local_sparsity = local_sparsity,
             global_sparsity = global_sparsity,
             group_sparsity = group_sparsity,

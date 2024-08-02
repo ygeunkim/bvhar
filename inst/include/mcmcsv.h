@@ -169,8 +169,9 @@ struct HsSvParams : public SvParams {
 struct NgSvParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
-	double _local_shape;
-	double _contem_shape;
+	double _mh_sd;
+	// double _local_shape;
+	// double _contem_shape;
 	double _group_shape;
 	double _group_scl;
 	double _global_shape;
@@ -186,8 +187,9 @@ struct NgSvParams : public SvParams {
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat),
-		_local_shape(ng_spec["local_shape"]),
-		_contem_shape(ng_spec["contem_shape"]),
+		// _local_shape(ng_spec["local_shape"]),
+		// _contem_shape(ng_spec["contem_shape"]),
+		_mh_sd(ng_spec["shape_sd"]),
 		_group_shape(ng_spec["group_shape"]), _group_scl(ng_spec["group_scale"]),
 		_global_shape(ng_spec["global_shape"]), _global_scl(ng_spec["global_scale"]),
 		_contem_global_shape(ng_spec["contem_global_shape"]), _contem_global_scl(ng_spec["contem_global_scale"]) {}
@@ -284,6 +286,21 @@ struct HsSvInits : public SvInits {
 		_init_global(init["global_sparsity"]),
 		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+};
+
+struct NgSvInits : public HsSvInits {
+	Eigen::VectorXd _init_local_shape;
+	double _init_contem_shape;
+
+	NgSvInits(Rcpp::List& init)
+	: HsSvInits(init),
+		_init_local_shape(Rcpp::as<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(init["contem_shape"]) {}
+	
+	NgSvInits(Rcpp::List& init, int num_design)
+	: HsSvInits(init, num_design),
+		_init_local_shape(Rcpp::as<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(init["contem_shape"]) {}
 };
 
 struct SvRecords : public RegRecords {
@@ -956,14 +973,15 @@ private:
 
 class NormalgammaSv : public McmcSv {
 public:
-	NormalgammaSv(const NgSvParams& params, const HsSvInits& inits, unsigned int seed)
+	NormalgammaSv(const NgSvParams& params, const NgSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
+		mh_sd(params._mh_sd),
 		// local_shape(params._local_shape), contem_shape(params._contem_shape),
-		local_shape(Eigen::VectorXd::Ones(num_grp)), local_shape_fac(Eigen::VectorXd::Ones(num_alpha)),
+		local_shape(inits._init_local_shape), local_shape_fac(Eigen::VectorXd::Ones(num_alpha)),
 		local_shape_loc(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
-		contem_shape(params._contem_shape),
+		contem_shape(inits._init_contem_shape),
 		group_shape(params._group_shape), group_scl(params._global_scl),
 		global_shape(params._global_shape), global_scl(params._global_scl),
 		contem_global_shape(params._contem_global_shape), contem_global_scl(params._contem_global_scl),
@@ -978,7 +996,7 @@ public:
 	}
 	virtual ~NormalgammaSv() = default;
 	void updateCoefPrec() override {
-		// ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, .01, rng);
+		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
 				group_lev[j],
@@ -1009,7 +1027,7 @@ public:
 	void updateImpactPrec() override {
 		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		contem_fac = contem_global_lev[0] * contem_local_lev;
-		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], .01, rng);
+		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
 		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
 		contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
 		double old_contem_global = contem_global_lev[0];
@@ -1084,6 +1102,7 @@ private:
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	NgRecords ng_record;
+	double mh_sd;
 	// double local_shape, contem_shape;
 	Eigen::VectorXd local_shape, local_shape_fac;
 	Eigen::MatrixXd local_shape_loc;

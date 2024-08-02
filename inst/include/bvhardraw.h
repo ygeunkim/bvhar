@@ -1065,38 +1065,19 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& local_param,
 														 Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 														 double& global_param, double lognormal_sd, boost::random::mt19937& rng) {
-  int num_grp = grp_id.size();
   int num_coef = local_param.size();
-	// double cand, acc_ratio;
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
-  for (int i = 0; i < num_grp; i++) {
-		// cand = exp(log(gamma_hyper[i]) + normal_rand(rng) * lognormal_sd);
+  for (int i = 0; i < grp_id.size(); i++) {
 		group_id = grp_vec.array() == grp_id[i];
-		// mn_size = group_id.count();
+		mn_size = group_id.count();
     Eigen::VectorXd mn_local(mn_size);
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
 				mn_local[k++] = local_param[j];
 			}
 		}
-		// acc_ratio = log(cand) - log(gamma_hyper[i]) + mn_size * (lgammafn(gamma_hyper[i]) - lgammafn(exp(cand)));
-		// acc_ratio += mn_size * cand * (log(cand) - 2 * log(global_param) - 2 * log(group_param[i]));
-		// acc_ratio -= mn_size * gamma_hyper[i] * (log(gamma_hyper[i]) - 2 * log(global_param) - 2 * log(group_param[i]));
-		// acc_ratio += (cand - gamma_hyper[i]) * mn_local.log().sum();
-		// acc_ratio += (gamma_hyper[i] - cand) * (mn_local.array().square() / (global_param * global_param * group_param.array().square())).sum();
-		// if (log(unif_rand(0, 1)) < std::min(acc_ratio, 1.0)) {
-		// 	gamma_hyper[i] = cand;
-		// }
 		gamma_hyper[i] = ng_shape_jump(gamma_hyper[i], mn_local, global_param * group_param[i], lognormal_sd, rng);
-		// acc_ratio = (cand / gamma_hyper[i]) * pow(gammafn(gamma_hyper[i]) / gammafn(cand), mn_size);
-		// acc_ratio *= pow(cand / (global_param * global_param), mn_size * cand);
-		// acc_ratio *= pow(global_param * global_param / gamma_hyper[i], mn_size * gamma_hyper[i]);
-		// acc_ratio *= pow(local_param.prod(), cand - gamma_hyper[i]);
-		// acc_ratio *= exp((gamma_hyper[i] - cand) * local_param.array().square().sum() / (global_param * global_param));
-		// if (unif_rand(0, 1, rng) < std::min(acc_ratio, 1.0)) {
-		// 	gamma_hyper[i] = cand;
-		// }
   }
 }
 
