@@ -116,7 +116,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 					param_prior,
 					param_intercept, include_mean
 				);
-				bvhar::HsInits ng_inits(init_spec);
+				bvhar::NgInits ng_inits(init_spec);
 				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
@@ -234,7 +234,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 					param_prior,
 					param_intercept, include_mean
 				);
-				bvhar::HsInits ng_inits(init_spec);
+				bvhar::NgInits ng_inits(init_spec);
 				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
