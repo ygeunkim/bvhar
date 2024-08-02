@@ -341,12 +341,12 @@ vhar_bayes <- function(y,
       }
     )
   } else if (prior_nm == "NG") {
-    if (length(bayes_spec$local_shape) == 1) {
-      bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_phi)
-    }
-    if (length(bayes_spec$contem_shape) == 1) {
-      bayes_spec$contem_shape <- rep(bayes_spec$contem_shape, num_eta)
-    }
+    # if (length(bayes_spec$local_shape) == 1) {
+    #   bayes_spec$local_shape <- rep(bayes_spec$local_shape, num_phi)
+    # }
+    # if (length(bayes_spec$contem_shape) == 1) {
+    #   bayes_spec$contem_shape <- rep(bayes_spec$contem_shape, num_eta)
+    # }
     param_prior <- bayes_spec
     param_init <- lapply(
       param_init,
@@ -359,6 +359,8 @@ vhar_bayes <- function(y,
         append(
           init,
           list(
+            local_shape = runif(num_grp, 0, 1),
+            contem_shape = runif(1, 0, 1),
             local_sparsity = local_sparsity,
             group_sparsity = group_sparsity,
             global_sparsity = global_sparsity,
