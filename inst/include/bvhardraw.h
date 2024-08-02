@@ -961,15 +961,38 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 // @param coef Coefficients vector
 // @param global_param Global shrinkage
 // @param rng boost rng
-inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
+inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
 			1,
+			shape - .5,
+			2 * shape / (global_param[i] * global_param[i]),
+			coef[i] * coef[i],
+			rng
+		)[0]);
+	}
+}
+// overloading
+inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
+										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
+										 					boost::random::mt19937& rng) {
+	// for (int i = 0; i < coef.size(); ++i) {
+	// 	local_param[i] = sqrt(sim_gig(
+	// 		1,
+	// 		shape - .5,
+	// 		2 * shape / (global_param[i] * global_param[i]),
+	// 		coef[i] * coef[i],
+	// 		rng
+	// 	)[0]);
+	// }
+	for (int i = 0; i < coef.size(); ++i) {
+		local_param[i] = sqrt(sim_gig(
+			1,
 			shape[i] - .5,
-			shape[i],
-			coef[i] * coef[i] / (global_param[i] * global_param[i]),
+			2 * shape[i] / (global_param[i] * global_param[i]),
+			coef[i] * coef[i],
 			rng
 		)[0]);
 	}
@@ -982,11 +1005,25 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param rate Inverse Gamma prior scale
 // @param coef Coefficients vector
 // @param rng boost rng
-inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, double& scl,
-										 					 	 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+inline double ng_global_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, double& hyper_gamma,
+																 double& shape, double& scl, boost::random::mt19937& rng) {
 	return sqrt(1 / gamma_rand(
-		shape + coef.size() / 2,
-		1 / ((coef.array().square() / (2 * local_param.array().square())).sum() + scl),
+		shape + local_param.size() * hyper_gamma,
+		1 / (2 * hyper_gamma * local_param.squaredNorm() + scl),
+		rng
+	));
+}
+// overloading
+inline double ng_global_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
+																 double& shape, double& scl, boost::random::mt19937& rng) {
+	// return sqrt(1 / gamma_rand(
+	// 	shape + local_param.size() * hyper_gamma,
+	// 	1 / (2 * hyper_gamma * local_param.squaredNorm() + scl),
+	// 	rng
+	// ));
+	return sqrt(1 / gamma_rand(
+		shape + hyper_gamma.sum(),
+		1 / (2 * (hyper_gamma.array() * local_param.array().square()).sum() + scl),
 		rng
 	));
 }
@@ -996,24 +1033,71 @@ inline double ng_global_sparsity(Eigen::VectorXd& local_param, double& shape, do
 // @param grp_vec Group vector
 // @param grp_id Unique group id
 inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& scl,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+													 Eigen::VectorXd& hyper_gamma, double& global_param, Eigen::VectorXd& local_param, double& shape, double& scl,
+													 boost::random::mt19937& rng) {
   int num_grp = grp_id.size();
-  int num_coef = coef_vec.size();
+  int num_coef = local_param.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
   for (int i = 0; i < num_grp; i++) {
 		group_id = grp_vec.array() == grp_id[i];
 		mn_size = group_id.count();
-    Eigen::VectorXd mn_coef(mn_size);
     Eigen::VectorXd mn_local(mn_size);
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
-				mn_coef[k] = coef_vec[j];
-				mn_local[k++] = global_param * local_param[j];
+				mn_local[k++] = local_param[j] / global_param;
 			}
 		}
-		group_param[i] = ng_global_sparsity(mn_local, shape, scl, mn_coef, rng);
+		// group_param[i] = ng_global_sparsity(mn_local, hyper_gamma, shape, scl, rng);
+		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
+		// group_param[i] = sqrt(1 / gamma_rand(
+		// 	shape + mn_local.size() * hyper_gamma[i],
+		// 	1 / (2 * hyper_gamma[i] * mn_local.squaredNorm() + scl),
+		// 	rng
+		// ));
+  }
+}
+
+// MH for shape parameter of Normal-Gamma Prior
+inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
+														double global_param, double lognormal_sd, boost::random::mt19937& rng) {
+  int num_coef = local_param.size();
+	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
+	// double acc_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(exp(cand)));
+	// acc_ratio += num_coef * cand * (log(cand) - 2 * log(global_param));
+	// acc_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
+	// acc_ratio += (cand - gamma_hyper) * local_param.log().sum();
+	// acc_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
+	// if (log(unif_rand(0, 1, rng)) < std::min(acc_ratio, 1.0)) {
+	// 	gamma_hyper = cand;
+	// }
+	double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);
+	acc_ratio *= pow(cand / (global_param * global_param), num_coef * cand);
+	acc_ratio *= pow(global_param * global_param / gamma_hyper, num_coef * gamma_hyper);
+	acc_ratio *= pow(local_param.prod(), cand - gamma_hyper);
+	acc_ratio *= exp((gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param));
+	if (unif_rand(0, 1, rng) < std::min(acc_ratio, 1.0)) {
+		return cand;
+	}
+	return gamma_hyper;
+}
+// 
+inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& local_param,
+														 Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+														 double& global_param, double lognormal_sd, boost::random::mt19937& rng) {
+  int num_coef = local_param.size();
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < grp_id.size(); i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < num_coef; ++j) {
+			if (group_id[j]) {
+				mn_local[k++] = local_param[j];
+			}
+		}
+		gamma_hyper[i] = ng_shape_jump(gamma_hyper[i], mn_local, global_param * group_param[i], lognormal_sd, rng);
   }
 }
 
