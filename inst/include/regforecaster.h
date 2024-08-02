@@ -5,6 +5,12 @@
 
 namespace bvhar {
 
+class RegForecaster;
+class RegVarForecaster;
+class RegVharForecaster;
+class RegVarSelectForecaster;
+class RegVharSelectForecaster;
+
 class RegForecaster {
 public:
 	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, unsigned int seed)

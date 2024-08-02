@@ -7,6 +7,9 @@
 
 namespace bvhar {
 
+class MinnSpillover;
+class BvharSpillover;
+
 class MinnSpillover {
 public:
 	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int thin, int ord, unsigned int seed)
