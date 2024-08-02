@@ -105,7 +105,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HsInits ng_inits(init_spec); // Use HsInits for NG
+				bvhar::NgInits ng_inits(init_spec);
 				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;

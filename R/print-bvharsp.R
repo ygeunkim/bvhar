@@ -159,7 +159,12 @@ print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     sep = ""
   )
   cat(sprintf("BVAR(%i) with Stochastic Volatility\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
@@ -197,7 +202,12 @@ print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     sep = ""
   )
   cat("BVHAR with Stochastic Volatility\n")
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
@@ -325,7 +335,12 @@ print.bvarldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     sep = ""
   )
   cat(sprintf("BVAR(%i) with %s prior\n", x$p, x$spec$prior))
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
@@ -363,7 +378,12 @@ print.bvharldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
     sep = ""
   )
   cat(sprintf("BVHAR with %s prior\n", x$spec$prior))
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
