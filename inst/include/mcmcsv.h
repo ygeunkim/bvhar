@@ -7,6 +7,31 @@
 
 namespace bvhar {
 
+// Parameters
+struct SvParams;
+struct MinnSvParams;
+struct HierMinnSvParams;
+struct SsvsSvParams;
+struct HsSvParams;
+struct NgSvParams;
+struct DlSvParams;
+// Initialization
+struct SvInits;
+struct HierminnSvInits;
+struct SsvsSvInits;
+struct HsSvInits;
+struct NgSvInits;
+// MCMC records
+struct SvRecords;
+// MCMC algorithms
+class McmcSv;
+class MinnSv;
+class HierminnSv;
+class SsvsSv;
+class HorseshoeSv;
+class NormalgammaSv;
+class DirLaplaceSv;
+
 struct SvParams : public RegParams {
 	Eigen::VectorXd _init_mean;
 	Eigen::MatrixXd _init_prec;

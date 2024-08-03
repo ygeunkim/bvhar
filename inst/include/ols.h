@@ -6,6 +6,14 @@
 
 namespace bvhar {
 
+struct OlsFit;
+struct StructuralFit;
+class MultiOls;
+class LltOls;
+class QrOls;
+class OlsVar;
+class OlsVhar;
+
 struct OlsFit {
 	Eigen::MatrixXd _coef;
 	int _ord; // p of VAR or month of VHAR

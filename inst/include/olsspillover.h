@@ -6,6 +6,8 @@
 
 namespace bvhar {
 
+class OlsSpillover;
+
 class OlsSpillover {
 public:
 	OlsSpillover(const StructuralFit& fit)
