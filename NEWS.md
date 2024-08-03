@@ -10,6 +10,8 @@
 
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
 
+* `sim_gig()` generates Generalized Inverse Gaussian (GIG) random numbers using the algorithm of R package `GIGrvg`.
+
 ## New priors
 
 * `set_dl()` specifies Dirichlet-Laplace (DL) prior in `var_bayes()` and `vhar_bayes()`.
@@ -55,10 +57,6 @@
 * Compute LPL inside `forecast_roll.svmod()` and `forecast_expand.svmod()` using `lpl` option.
 
 * Instead, `lpl` method is removed.
-
-## Others
-
-* `sim_gig()` generates Generalized Inverse Gaussian (GIG) random numbers using similar algorithm of R package `GIGrvg` but rounding-off error handling.
 
 # bvhar 2.0.1
 
