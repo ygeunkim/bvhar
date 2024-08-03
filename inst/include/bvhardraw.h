@@ -7,6 +7,14 @@
 
 namespace bvhar {
 
+struct RegParams;
+struct RegInits;
+struct RegRecords;
+struct SparseRecords;
+struct SsvsRecords;
+struct HorseshoeRecords;
+struct NgRecords;
+
 struct RegParams {
 	int _iter;
 	Eigen::MatrixXd _x;

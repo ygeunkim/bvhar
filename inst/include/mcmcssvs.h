@@ -6,6 +6,8 @@
 
 namespace bvhar {
 
+class McmcSsvs;
+
 class McmcSsvs {
 public:
 	McmcSsvs(

@@ -6,6 +6,10 @@
 
 namespace bvhar {
 
+class OlsForecaster;
+class VarForecaster;
+class VharForecaster;
+
 class OlsForecaster {
 public:
 	OlsForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean)

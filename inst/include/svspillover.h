@@ -6,6 +6,9 @@
 
 namespace bvhar {
 
+class SvSpillover;
+class SvVharSpillover;
+
 class SvSpillover {
 public:
 	SvSpillover(const SvRecords& records, int lag_max, int ord, int id)
