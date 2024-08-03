@@ -6,6 +6,9 @@
 
 namespace bvhar {
 
+class RegSpillover;
+class RegVharSpillover;
+
 class RegSpillover {
 public:
 	RegSpillover(const LdltRecords& records, int lag_max, int ord)

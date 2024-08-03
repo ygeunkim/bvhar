@@ -5,6 +5,12 @@
 
 namespace bvhar {
 
+class SvForecaster;
+class SvVarForecaster;
+class SvVharForecaster;
+class SvVarSelectForecaster;
+class SvVharSelectForecaster;
+
 class SvForecaster {
 public:
 	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, unsigned int seed)

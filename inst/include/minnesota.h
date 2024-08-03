@@ -9,6 +9,23 @@
 
 namespace bvhar {
 
+struct MinnSpec;
+struct BvarSpec;
+struct BvharSpec;
+struct MinnFit;
+struct MhMinnInits;
+struct MhMinnSpec;
+struct MinnRecords;
+struct MhMinnRecords;
+class Minnesota;
+class McmcMniw;
+class MinnBvar;
+class MinnBvhar;
+class MinnBvharS;
+class MinnBvharL;
+class MhMinnesota;
+class MinnFlat;
+
 struct MinnSpec {
 	Eigen::VectorXd _sigma;
 	double _lambda;
