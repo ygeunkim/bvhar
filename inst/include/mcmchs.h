@@ -6,6 +6,11 @@
 
 namespace bvhar {
 
+struct HsParams;
+class McmcHs;
+class BlockHs;
+class FastHs;
+
 struct HsParams {
 	int _iter;
 	Eigen::MatrixXd _x;
