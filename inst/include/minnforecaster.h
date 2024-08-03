@@ -6,6 +6,10 @@
 
 namespace bvhar {
 
+class MinnForecaster;
+class BvarForecaster;
+class BvharForecaster;
+
 class MinnForecaster {
 public:
 	MinnForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, int num_sim, bool include_mean)

@@ -6,6 +6,8 @@
 
 namespace bvhar {
 
+class bvharinterrupt;
+
 class bvharinterrupt {
 private:
 	static std::atomic<bool>& interrupted() {
