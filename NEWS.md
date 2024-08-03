@@ -56,6 +56,10 @@
 
 * Instead, `lpl` method is removed.
 
+## Others
+
+* `sim_gig()` generates Generalized Inverse Gaussian (GIG) random numbers using similar algorithm of R package `GIGrvg` but rounding-off error handling.
+
 # bvhar 2.0.1
 
 * Fix internal vectorization and unvectorization behavior.
