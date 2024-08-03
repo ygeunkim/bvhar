@@ -6,6 +6,8 @@
 
 namespace bvhar {
 
+class bvharprogress;
+
 class bvharprogress {
 public:
 	bvharprogress(int total, bool verbose) : _current(0), _total(total), _width(50), _verbose(verbose) {}

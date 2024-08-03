@@ -7,6 +7,30 @@
 
 namespace bvhar {
 
+// Parameters
+struct MinnParams;
+struct HierMinnParams;
+struct SsvsParams;
+struct HorseshoeParams;
+struct NgParams;
+struct DlParams;
+// Initialization
+struct LdltInits;
+struct HierminnInits;
+struct SsvsInits;
+struct HsInits;
+struct NgInits;
+// MCMC records
+struct LdltRecords;
+// MCMC algorithms
+class McmcReg;
+class MinnReg;
+class HierminnReg;
+class SsvsReg;
+class HorseshoeReg;
+class NgReg;
+class DlReg;
+
 struct MinnParams : public RegParams {
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
