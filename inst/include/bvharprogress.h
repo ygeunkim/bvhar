@@ -32,7 +32,7 @@ public:
 				Rcpp::Rcout << " ";
 			}
 		}
-		Rcpp::Rcout << " " << percent << "%";
+		Rcpp::Rcout << " " << percent << "% (" << _current << " / " << _total << ")";
 		Rcpp::Rcout.flush();
 		if (_current >= _total) {
 			Rcpp::Rcout << "\n";
