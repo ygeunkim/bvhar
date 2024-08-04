@@ -986,11 +986,10 @@ public:
 		contem_fac = contem_global_lev[0] * contem_local_lev;
 		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
 		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
-		contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
-		double old_contem_global = contem_global_lev[0];
+		contem_local_lev = contem_fac / contem_global_lev[0];
 		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
-		contem_fac.array() *= contem_global_lev[0] / old_contem_global;
-		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_local_lev.array()).square();
+		contem_fac = contem_global_lev[0] * contem_local_lev;
+		prior_chol_prec.diagonal() = 1 / contem_fac.array().square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
