@@ -62,14 +62,14 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-|  Model   |      function       |      prior      |
-|:--------:|:-------------------:|:---------------:|
-|   VAR    |     `var_lm()`      |                 |
-|   VHAR   |     `vhar_lm()`     |                 |
-|   BVAR   | `bvar_minnesota()`  |    Minnesota    |
-|  BVHAR   | `bvhar_minnesota()` |    Minnesota    |
-| BVAR-SV  |     `bvar_sv()`     | SSVS, Horseshoe |
-| BVHAR-SV |    `bvhar_sv()`     | SSVS, Horseshoe |
+| Model |      function       |                  prior                  |
+|:-----:|:-------------------:|:---------------------------------------:|
+|  VAR  |     `var_lm()`      |                                         |
+| VHAR  |     `vhar_lm()`     |                                         |
+| BVAR  | `bvar_minnesota()`  | Minnesota (will move to `var_bayes()`)  |
+| BVHAR | `bvhar_minnesota()` | Minnesota (will move to `vhar_bayes()`) |
+| BVAR  |    `var_bayes()`    |   SSVS, Horseshoe, Minnesota, NG, DL    |
+| BVHAR |   `vhar_bayes()`    |   SSVS, Horseshoe, Minnesota, NG, DL    |
 
 This readme document shows forecasting procedure briefly. Details about
 each function are in vignettes and help documents.
@@ -138,7 +138,6 @@ eps <- 1e-04
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: Minnesota
-#> # Type '?bvar_minnesota' in the console for some help.
 #> ========================================================
 #> 
 #> Setting for 'sigma':
@@ -155,6 +154,9 @@ eps <- 1e-04
 #> 
 #> Setting for 'eps':
 #> [1]  1e-04
+#> 
+#> Setting for 'hierarchical':
+#> [1]  FALSE
 ```
 
 ``` r
@@ -167,9 +169,9 @@ MSE:
 forecast_bvar <- predict(mod_bvar, h)
 (msebvar <- mse(forecast_bvar, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>    4.463   13.510    1.336   11.267    9.802    0.862   21.929    5.418 
+#>    4.651   13.248    1.845   10.356    9.894    0.667   21.040    6.262 
 #> VXEWZCLS 
-#>    7.362
+#>    8.864
 ```
 
 ### BVHAR
@@ -182,7 +184,6 @@ BVHAR-S:
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: MN_VAR
-#> # Type '?bvhar_minnesota' in the console for some help.
 #> ========================================================
 #> 
 #> Setting for 'sigma':
@@ -199,6 +200,9 @@ BVHAR-S:
 #> 
 #> Setting for 'eps':
 #> [1]  1e-04
+#> 
+#> Setting for 'hierarchical':
+#> [1]  FALSE
 ```
 
 ``` r
@@ -211,9 +215,9 @@ MSE:
 forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
 (msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>     3.58     4.76     1.32     5.71     6.29     1.15    14.03     2.52 
+#>    3.199    6.067    1.471    5.142    5.946    0.878   12.165    2.553 
 #> VXEWZCLS 
-#>     5.41
+#>    6.462
 ```
 
 BVHAR-L:
@@ -228,7 +232,6 @@ month <- rep(.1, ncol(etf_vix))
 #> 
 #> Parameters: Coefficent matrice and Covariance matrix
 #> Prior: MN_VHAR
-#> # Type '?bvhar_minnesota' in the console for some help.
 #> ========================================================
 #> 
 #> Setting for 'sigma':
@@ -251,6 +254,9 @@ month <- rep(.1, ncol(etf_vix))
 #> 
 #> Setting for 'monthly':
 #> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
+#> 
+#> Setting for 'hierarchical':
+#> [1]  FALSE
 ```
 
 ``` r
@@ -263,9 +269,9 @@ MSE:
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>     3.63     4.39     1.37     5.63     6.16     1.19    14.18     2.52 
+#>     3.63     3.85     1.64     5.12     5.75     1.08    13.60     2.58 
 #> VXEWZCLS 
-#>     5.23
+#>     5.54
 ```
 
 ## Plots
@@ -288,7 +294,7 @@ Please cite this package with following BibTeX:
       title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
-      note = {R package version 2.0.1},
+      note = {R package version 2.0.1.9014},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
