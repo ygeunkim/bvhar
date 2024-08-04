@@ -444,34 +444,40 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result
-	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
-		// Handle round-off error following GIGrvg
-		if (lambda > 0) {
-			for (int i = 0; i < num_sim; ++i) {
-				res[i] = gamma_rand(abs_lam, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
-			}
-		} else {
-			for (int i = 0; i < num_sim; ++i) {
-				res[i] = 1 / gamma_rand(abs_lam, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
-			}
+	// double beta = sqrt(psi * chi); // second parameter of quasi-density
+	// if (beta < 8 * std::numeric_limits<double>::epsilon()) {
+	// 	// Handle round-off error following GIGrvg
+	// 	if (lambda > 0) {
+	// 		for (int i = 0; i < num_sim; ++i) {
+	// 			res[i] = gamma_rand(abs_lam, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
+	// 		}
+	// 	} else {
+	// 		for (int i = 0; i < num_sim; ++i) {
+	// 			res[i] = 1 / gamma_rand(abs_lam, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
+	// 		}
+	// 	}
+	// 	return res;
+	// }
+	if (chi < 15 * std::numeric_limits<double>::epsilon()) {
+		for (int i = 0; i < num_sim; ++i) {
+			res[i] = gamma_rand(abs_lam, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
+		}
+		if (lambda < 0) {
+			return res.cwiseInverse();
 		}
 		return res;
 	}
-	// if (chi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = gamma_rand(abs_lam, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
-	// 	}
-	// 	return res;
-	// }
-	// if (psi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = 1 / gamma_rand(abs_lam, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
-	// 	}
-	// 	return res;
-	// }
+	if (psi < 15 * std::numeric_limits<double>::epsilon()) {
+		for (int i = 0; i < num_sim; ++i) {
+			res[i] = 1 / gamma_rand(abs_lam, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
+		}
+		if (lambda < 0) {
+			return res.cwiseInverse();
+		}
+		return res;
+	}
 	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result
-	// double beta = sqrt(psi * chi); // second parameter of quasi-density
+	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta); // with mode shift
 	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
@@ -479,7 +485,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	} else if (beta > 0) {
 		rgig_nonconcave(res, num_sim, abs_lam, beta); // non-T_(-1/2)-concave part
 	} else {
-		Rf_error("Wrong parameter ranges for quasi GIG density.");
+		Rcpp::stop("Wrong parameter ranges for quasi GIG density: lambda = %g, psi = %g, chi = %g", lambda, psi, chi);
 	}
 	if (lambda < 0) {
 		res = res.cwiseInverse();
@@ -491,34 +497,40 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	Eigen::VectorXd res(num_sim);
 	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
 	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
-	double beta = sqrt(psi * chi); // second parameter of quasi-density
-	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
-		// Handle round-off error following GIGrvg
-		if (lambda > 0) {
-			for (int i = 0; i < num_sim; ++i) {
-				res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
-			}
-		} else {
-			for (int i = 0; i < num_sim; ++i) {
-				res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale)
-			}
+	// double beta = sqrt(psi * chi); // second parameter of quasi-density
+	// if (beta < 8 * std::numeric_limits<double>::epsilon()) {
+	// 	// Handle round-off error following GIGrvg
+	// 	if (lambda > 0) {
+	// 		for (int i = 0; i < num_sim; ++i) {
+	// 			res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
+	// 		}
+	// 	} else {
+	// 		for (int i = 0; i < num_sim; ++i) {
+	// 			res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale)
+	// 		}
+	// 	}
+	// 	return res;
+	// }
+	if (chi < 8 * std::numeric_limits<double>::epsilon()) {
+		for (int i = 0; i < num_sim; ++i) {
+			res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
+		}
+		if (lambda < 0) {
+			return res.cwiseInverse();
 		}
 		return res;
 	}
-	// if (chi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
-	// 	}
-	// 	return res;
-	// }
-	// if (psi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
-	// 	}
-	// 	return res;
-	// }
+	if (psi < 8 * std::numeric_limits<double>::epsilon()) {
+		for (int i = 0; i < num_sim; ++i) {
+			res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
+		}
+		if (lambda < 0) {
+			return res.cwiseInverse();
+		}
+		return res;
+	}
 	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
-	// double beta = sqrt(psi * chi); // second parameter of quasi-density
+	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta, rng); // with mode shift
 	} else if (abs_lam >= 1 - 9 * beta * beta / 4 || beta > .2) {
@@ -526,7 +538,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	} else if (beta > 0) {
 		rgig_nonconcave(res, num_sim, abs_lam, beta, rng); // non-T_(-1/2)-concave part
 	} else {
-		Rf_error("Wrong parameter ranges for quasi GIG density.");
+		Rcpp::stop("Wrong parameter ranges for quasi GIG density: lambda = %g, psi = %g, chi = %g", lambda, psi, chi);
 	}
 	if (lambda < 0) {
 		res = res.cwiseInverse();
