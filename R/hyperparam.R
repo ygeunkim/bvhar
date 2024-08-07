@@ -726,12 +726,12 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 #' @order 1
 #' @export
 set_ng <- function(shape_sd = .01,
-                   group_shape = 1,
-                   group_scale = 1,
-                   global_shape = 1,
-                   global_scale = 1,
-                   contem_global_shape = 1,
-                   contem_global_scale = 1) {
+                   group_shape = .01,
+                   group_scale = .01,
+                   global_shape = .01,
+                   global_scale = .01,
+                   contem_global_shape = .01,
+                   contem_global_scale = .01) {
   # if (!(is.vector(local_shape) && is.vector(contem_shape))) {
   #   stop("'local_shape' and 'contem_shape' should be a vector.")
   # }
