@@ -2,7 +2,6 @@
 #define BVHARDRAW_H
 
 #include "bvharsim.h"
-#include <cmath>
 #include <set>
 #include <string>
 
@@ -835,11 +834,10 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 	// Eigen::VectorXd chi = coef_vec.array().square() / (glob_param.array().square() * local_param.array().square());
 	for (int i = 0; i < num_alpha; ++i) {
 		// psi[i] = sim_gig(1, .5, 1, chi[i], rng)[0];
-		double chi = coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]);
-		if (std::isnan(chi)) {
-			chi = coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i] + 1e-5);
-		}
-		latent_param[i] = sim_gig(1, .5, 1, chi)[0];
+		latent_param[i] = sim_gig(
+			1, .5,
+			1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
+		)[0];
 	}
 }
 
@@ -955,32 +953,23 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		double psi = 2 * shape / (global_param[i] * global_param[i]);
-		if (std::isnan(psi)) {
-			psi = 2 * shape / (global_param[i] * global_param[i] + 1e-5);
-		}
-		local_param[i] = sqrt(sim_gig(1, shape - .5, psi, coef[i] * coef[i], rng)[0]);
+		local_param[i] = sqrt(sim_gig(
+			1, shape - .5,
+			2 * shape / (global_param[i] * global_param[i]),
+			coef[i] * coef[i], rng
+		)[0]);
 	}
 }
 // overloading
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					boost::random::mt19937& rng) {
-	// for (int i = 0; i < coef.size(); ++i) {
-	// 	local_param[i] = sqrt(sim_gig(
-	// 		1,
-	// 		shape - .5,
-	// 		2 * shape / (global_param[i] * global_param[i]),
-	// 		coef[i] * coef[i],
-	// 		rng
-	// 	)[0]);
-	// }
 	for (int i = 0; i < coef.size(); ++i) {
-		double psi = 2 * shape[i] / (global_param[i] * global_param[i]);
-		if (std::isnan(psi)) {
-			psi = 2 * shape[i] / (global_param[i] * global_param[i] + 1e-5);
-		}
-		local_param[i] = sqrt(sim_gig(1, shape[i] - .5, psi, coef[i] * coef[i], rng)[0]);
+		local_param[i] = sqrt(sim_gig(
+			1, shape[i] - .5,
+			2 * shape[i] / (global_param[i] * global_param[i]),
+			coef[i] * coef[i], rng
+		)[0]);
 	}
 }
 
