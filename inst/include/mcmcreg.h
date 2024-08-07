@@ -362,8 +362,8 @@ public:
 			coef_j.col(j).setZero();
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
-			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			varsv_regression(
 				coef_mat.col(j),
 				design_coef, response_j,
@@ -384,8 +384,8 @@ public:
 	}
 	void updateImpact() {
 		for (int j = 2; j < dim + 1; j++) {
-			response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
-			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
+			response_contem = latent_innov.col(j - 2).array() / sqrt_sv.col(j - 2).array(); // n-dim
+			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() / sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
 			contem_id = (j - 1) * (j - 2) / 2;
 			varsv_regression(
 				contem_coef.segment(contem_id, j - 1),
