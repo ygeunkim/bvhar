@@ -1016,11 +1016,9 @@ class NormalgammaSv : public McmcSv {
 public:
 	NormalgammaSv(const NgSvParams& params, const NgSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
-		// grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
 		mh_sd(params._mh_sd),
-		// local_shape(params._local_shape), contem_shape(params._contem_shape),
 		local_shape(inits._init_local_shape), local_shape_fac(Eigen::VectorXd::Ones(num_alpha)),
 		// local_shape_loc(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
 		contem_shape(inits._init_contem_shape),
@@ -1028,11 +1026,12 @@ public:
 		global_shape(params._global_shape), global_scl(params._global_scl),
 		contem_global_shape(params._contem_global_shape), contem_global_scl(params._contem_global_scl),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
-		local_fac(Eigen::VectorXd::Zero(num_alpha)),
+		// local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		// coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
-		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
-		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
+		// contem_local_lev(inits._init_contem_local),
+		contem_global_lev(inits._init_conetm_global),
+		// contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 		contem_fac(Eigen::VectorXd::Zero(num_lowerchol)) {
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
@@ -1098,14 +1097,6 @@ protected:
 	void updateCoefPrec() override {
 		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
 		for (int j = 0; j < num_grp; j++) {
-			// coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-			// 	group_lev[j],
-			// 	coef_var_loc
-			// );
-			// local_shape_loc = (grp_mat.array() == grp_id[j]).select(
-			// 	local_shape[j],
-			// 	local_shape_loc
-			// );
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
 				coef_var
@@ -1115,29 +1106,33 @@ protected:
 				local_shape_fac
 			);
 		}
-		// coef_var = coef_var_loc.reshaped();
-		// local_shape_fac = local_shape_loc.reshaped();
-		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
+		// local_fac.array() = global_lev * coef_var.array() * local_lev.array();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
 	}
 	void updateCoefShrink() override {
-		local_fac.array() /= coef_var.array();
-		global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
-		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
-		ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
-		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
+		// local_fac.array() /= coef_var.array();
+		// global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
+		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
+		// local_fac.array() = global_lev * coef_var.array() * local_lev.array();
+		// ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
+		// local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
+		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
+		// ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
+		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 	}
 	void updateImpactPrec() override {
-		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
-		contem_fac = contem_global_lev[0] * contem_local_lev;
+		// contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
+		// contem_fac = contem_global_lev[0] * contem_local_lev;
 		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
-		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
-		contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
-		double old_contem_global = contem_global_lev[0];
+		// ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
+		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
+		// contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
+		// double old_contem_global = contem_global_lev[0];
 		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
-		contem_fac.array() *= contem_global_lev[0] / old_contem_global;
-		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_local_lev.array()).square();
+		// contem_fac.array() *= contem_global_lev[0] / old_contem_global;
+		// prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_local_lev.array()).square();
+		prior_chol_prec.diagonal() = 1 / contem_fac.array().square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
@@ -1146,12 +1141,10 @@ protected:
 
 private:
 	Eigen::VectorXi grp_id;
-	// Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	NgRecords ng_record;
 	double mh_sd;
-	// double local_shape, contem_shape;
 	Eigen::VectorXd local_shape, local_shape_fac;
 	// Eigen::MatrixXd local_shape_loc;
 	double contem_shape;
@@ -1159,12 +1152,12 @@ private:
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
 	double global_lev;
-	Eigen::VectorXd local_fac;
+	// Eigen::VectorXd local_fac;
 	Eigen::VectorXd coef_var;
 	// Eigen::MatrixXd coef_var_loc;
-	Eigen::VectorXd contem_local_lev;
+	// Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
-	Eigen::VectorXd contem_var;
+	// Eigen::VectorXd contem_var;
 	Eigen::VectorXd contem_fac;
 };
 
