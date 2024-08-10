@@ -413,69 +413,7 @@ public:
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcSv() = default;
-	void updateCoef() {
-		for (int j = 0; j < dim; j++) {
-			prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
-			prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
-			coef_j = coef_mat;
-			coef_j.col(j).setZero();
-			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
-			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
-			// Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			// Eigen::VectorXd response_j = vectorize_eigen(
-			// 	(((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).matrix().eval() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
-			// ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
-			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
-			varsv_regression(
-				coef_mat.col(j),
-				design_coef, response_j,
-				prior_mean_j, prior_prec_j,
-				rng
-			);
-			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
-		}
-		// coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
-		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
-		if (include_mean) {
-			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
-		}
-	}
-	void updateState() {
-		ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
-		ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
-		for (int t = 0; t < dim; t++) {
-			varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t), rng);
-		}
-	}
-	void updateImpact() {
-		for (int j = 2; j < dim + 1; j++) {
-			response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
-			// Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2).eval()).array(); // n x (j - 1)
-			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
-			contem_id = (j - 1) * (j - 2) / 2;
-			varsv_regression(
-				contem_coef.segment(contem_id, j - 1),
-				design_contem, response_contem,
-				prior_chol_mean.segment(contem_id, j - 1),
-				prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1),
-				rng
-			);
-			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
-		}
-	}
-	void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
-	void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
-	void addStep() { mcmc_step++; }
-	virtual void updateCoefPrec() = 0;
-	virtual void updateCoefShrink() = 0;
-	virtual void updateImpactPrec() = 0;
-	virtual void updateRecords() = 0;
 	virtual void doPosteriorDraws() = 0;
-	void updateCoefRecords() {
-		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
-	}
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
@@ -543,6 +481,68 @@ protected:
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
+	void updateCoef() {
+		for (int j = 0; j < dim; j++) {
+			prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
+			prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
+			coef_j = coef_mat;
+			coef_j.col(j).setZero();
+			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
+			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
+			// Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * vectorize_eigen(sqrt_sv_j).array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
+			// Eigen::VectorXd response_j = vectorize_eigen(
+			// 	(((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).matrix().eval() // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			// ); // Response vector of j-th column coef equation: n(k - j + 1)-dim
+			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			varsv_regression(
+				coef_mat.col(j),
+				design_coef, response_j,
+				prior_mean_j, prior_prec_j,
+				rng
+			);
+			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
+		}
+		// coef_vec.head(num_alpha) = vectorize_eigen(coef_mat.topRows(num_alpha / dim).eval());
+		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+		if (include_mean) {
+			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
+		}
+	}
+	void updateState() {
+		ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
+		ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
+		for (int t = 0; t < dim; t++) {
+			varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t), rng);
+		}
+	}
+	void updateImpact() {
+		for (int j = 2; j < dim + 1; j++) {
+			response_contem = latent_innov.col(j - 2).array() * sqrt_sv.col(j - 2).array(); // n-dim
+			// Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * vectorize_eigen(sqrt_sv.col(j - 2).eval()).array(); // n x (j - 1)
+			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() * sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
+			contem_id = (j - 1) * (j - 2) / 2;
+			varsv_regression(
+				contem_coef.segment(contem_id, j - 1),
+				design_contem, response_contem,
+				prior_chol_mean.segment(contem_id, j - 1),
+				prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1),
+				rng
+			);
+			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+		}
+	}
+	void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
+	void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
+	void addStep() { mcmc_step++; }
+	virtual void updateCoefPrec() = 0;
+	virtual void updateCoefShrink() = 0;
+	virtual void updateImpactPrec() = 0;
+	virtual void updateRecords() = 0;
+	void updateCoefRecords() {
+		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
+	}
 
 private:
 	Eigen::VectorXd prior_sig_shp;
@@ -562,10 +562,6 @@ public:
 		}
 	}
 	virtual ~MinnSv() = default;
-	void updateCoefPrec() override {}
-	void updateCoefShrink() override {};
-	void updateImpactPrec() override {};
-	void updateRecords() override { updateCoefRecords(); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -606,6 +602,12 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+
+protected:
+	void updateCoefPrec() override {}
+	void updateCoefShrink() override {};
+	void updateImpactPrec() override {};
+	void updateRecords() override { updateCoefRecords(); }
 };
 
 class HierminnSv : public McmcSv {
@@ -633,38 +635,6 @@ public:
 		prior_chol_prec.diagonal() /= contem_lambda; // divide because it is precision
 	}
 	virtual ~HierminnSv() = default;
-	void updateCoefPrec() override {
-		minnesota_lambda(
-			own_lambda, own_shape, own_rate,
-			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-			grp_vec, own_id, rng
-		);
-		if (coef_minnesota) {
-			minnesota_lambda(
-				cross_lambda, cross_shape, cross_rate,
-				coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-				grp_vec, cross_id, rng
-			);
-		}
-	}
-	void updateCoefShrink() override {
-		for (int i = 0; i < num_alpha; ++i) {
-			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-			}
-			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-			}
-		}
-	};
-	void updateImpactPrec() override {
-		minnesota_contem_lambda(
-			contem_lambda, contem_shape, contem_rate,
-			contem_coef, prior_chol_mean, prior_chol_prec,
-			rng
-		);
-	};
-	void updateRecords() override { updateCoefRecords(); }
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -708,6 +678,41 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+
+protected:
+	void updateCoefPrec() override {
+		minnesota_lambda(
+			own_lambda, own_shape, own_rate,
+			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+			grp_vec, own_id, rng
+		);
+		if (coef_minnesota) {
+			minnesota_lambda(
+				cross_lambda, cross_shape, cross_rate,
+				coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+				grp_vec, cross_id, rng
+			);
+		}
+	}
+	void updateCoefShrink() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+			}
+		}
+	};
+	void updateImpactPrec() override {
+		minnesota_contem_lambda(
+			contem_lambda, contem_shape, contem_rate,
+			contem_coef, prior_chol_mean, prior_chol_prec,
+			rng
+		);
+	};
+	void updateRecords() override { updateCoefRecords(); }
+
 private:
 	std::set<int> own_id;
 	std::set<int> cross_id;
@@ -747,38 +752,6 @@ public:
 		ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	virtual ~SsvsSv() = default;
-	void updateCoefPrec() override {
-		coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
-		prior_sd.head(num_alpha) = coef_mixture_mat;
-		prior_alpha_prec.setZero();
-		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
-	}
-	void updateCoefShrink() override {
-		for (int j = 0; j < num_grp; j++) {
-			slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
-				coef_weight[j],
-				slab_weight_mat
-			);
-		}
-		// slab_weight = vectorize_eigen(slab_weight_mat);
-		slab_weight = slab_weight_mat.reshaped();
-		ssvs_dummy(
-			coef_dummy,
-			coef_vec.head(num_alpha),
-			coef_slab, coef_spike, slab_weight,
-			rng
-		);
-		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
-	}
-	void updateImpactPrec() override {
-		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight, rng);
-		ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
-		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
-	}
-	void updateRecords() override {
-		updateCoefRecords();
-		ssvs_record.assignRecords(mcmc_step, coef_dummy, coef_weight, contem_dummy, contem_weight);
-	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -830,6 +803,40 @@ public:
 		return NgRecords();
 	}
 
+protected:
+	void updateCoefPrec() override {
+		coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+		prior_sd.head(num_alpha) = coef_mixture_mat;
+		prior_alpha_prec.setZero();
+		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
+	}
+	void updateCoefShrink() override {
+		for (int j = 0; j < num_grp; j++) {
+			slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
+				coef_weight[j],
+				slab_weight_mat
+			);
+		}
+		// slab_weight = vectorize_eigen(slab_weight_mat);
+		slab_weight = slab_weight_mat.reshaped();
+		ssvs_dummy(
+			coef_dummy,
+			coef_vec.head(num_alpha),
+			coef_slab, coef_spike, slab_weight,
+			rng
+		);
+		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
+	}
+	void updateImpactPrec() override {
+		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight, rng);
+		ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
+		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
+	}
+	void updateRecords() override {
+		updateCoefRecords();
+		ssvs_record.assignRecords(mcmc_step, coef_dummy, coef_weight, contem_dummy, contem_weight);
+	}
+
 private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXi grp_mat;
@@ -872,45 +879,6 @@ public:
 		hs_record.assignRecords(0, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	virtual ~HorseshoeSv() = default;
-	void updateCoefPrec() override {
-		for (int j = 0; j < num_grp; j++) {
-			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-				// global_lev[j],
-				// global_lev * group_lev[j],
-				group_lev[j],
-				coef_var_loc
-			);
-		}
-		coef_var = coef_var_loc.reshaped();
-		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
-		local_fac.array() = coef_var.array() * local_lev.array();
-		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
-		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
-	}
-	void updateCoefShrink() override {
-		horseshoe_latent(latent_local, local_lev, rng);
-		// horseshoe_latent(latent_global, global_lev, rng);
-		horseshoe_latent(latent_group, group_lev, rng);
-		horseshoe_latent(latent_global, global_lev, rng);
-		global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
-		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
-		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev, rng);
-		// horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
-	}
-	void updateImpactPrec() override {
-		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
-		horseshoe_latent(latent_contem_global, contem_global_lev, rng);
-		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
-		horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
-		contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
-		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
-	}
-	void updateRecords() override {
-		updateCoefRecords();
-		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
-	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -970,6 +938,47 @@ public:
 		return NgRecords();
 	}
 
+protected:
+	void updateCoefPrec() override {
+		for (int j = 0; j < num_grp; j++) {
+			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+				// global_lev[j],
+				// global_lev * group_lev[j],
+				group_lev[j],
+				coef_var_loc
+			);
+		}
+		coef_var = coef_var_loc.reshaped();
+		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
+		local_fac.array() = coef_var.array() * local_lev.array();
+		lambda_mat.setZero();
+		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
+		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+	}
+	void updateCoefShrink() override {
+		horseshoe_latent(latent_local, local_lev, rng);
+		// horseshoe_latent(latent_global, global_lev, rng);
+		horseshoe_latent(latent_group, group_lev, rng);
+		horseshoe_latent(latent_global, global_lev, rng);
+		global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
+		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
+		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev, rng);
+		// horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
+	}
+	void updateImpactPrec() override {
+		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
+		horseshoe_latent(latent_contem_global, contem_global_lev, rng);
+		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
+		horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
+		contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
+		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
+	}
+	void updateRecords() override {
+		updateCoefRecords();
+		hs_record.assignRecords(mcmc_step, shrink_fac, local_lev, group_lev, global_lev);
+	}
+
 private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXi grp_mat;
@@ -1020,46 +1029,6 @@ public:
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~NormalgammaSv() = default;
-	void updateCoefPrec() override {
-		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
-		for (int j = 0; j < num_grp; j++) {
-			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-				group_lev[j],
-				coef_var_loc
-			);
-			local_shape_loc = (grp_mat.array() == grp_id[j]).select(
-				local_shape[j],
-				local_shape_loc
-			);
-		}
-		coef_var = coef_var_loc.reshaped();
-		local_shape_fac = local_shape_loc.reshaped();
-		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
-	}
-	void updateCoefShrink() override {
-		local_fac.array() /= coef_var.array();
-		global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
-		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
-		ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
-		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
-	}
-	void updateImpactPrec() override {
-		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
-		contem_fac = contem_global_lev[0] * contem_local_lev;
-		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
-		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
-		contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
-		double old_contem_global = contem_global_lev[0];
-		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
-		contem_fac.array() *= contem_global_lev[0] / old_contem_global;
-		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_local_lev.array()).square();
-	}
-	void updateRecords() override {
-		updateCoefRecords();
-		ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
-	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -1117,6 +1086,48 @@ public:
 		return res_record;
 	}
 
+protected:
+	void updateCoefPrec() override {
+		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
+		for (int j = 0; j < num_grp; j++) {
+			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+				group_lev[j],
+				coef_var_loc
+			);
+			local_shape_loc = (grp_mat.array() == grp_id[j]).select(
+				local_shape[j],
+				local_shape_loc
+			);
+		}
+		coef_var = coef_var_loc.reshaped();
+		local_shape_fac = local_shape_loc.reshaped();
+		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
+	}
+	void updateCoefShrink() override {
+		local_fac.array() /= coef_var.array();
+		global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
+		local_fac.array() = global_lev * coef_var.array() * local_lev.array();
+		ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
+		local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
+		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
+	}
+	void updateImpactPrec() override {
+		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
+		contem_fac = contem_global_lev[0] * contem_local_lev;
+		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
+		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_var, rng);
+		contem_local_lev.array() *= contem_global_lev[0] / contem_fac.array();
+		double old_contem_global = contem_global_lev[0];
+		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
+		contem_fac.array() *= contem_global_lev[0] / old_contem_global;
+		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_local_lev.array()).square();
+	}
+	void updateRecords() override {
+		updateCoefRecords();
+		ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+	}
+
 private:
 	Eigen::VectorXi grp_id;
 	Eigen::MatrixXi grp_mat;
@@ -1160,38 +1171,6 @@ public:
 		dl_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~DirLaplaceSv() = default;
-	void updateCoefPrec() override {
-		for (int j = 0; j < num_grp; j++) {
-			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-				group_lev[j],
-				coef_var_loc
-			);
-		}
-		coef_var = coef_var_loc.reshaped();
-		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
-		local_fac.array() = coef_var.array() * local_lev.array();
-		dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
-		// lambda_mat.setZero();
-		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
-		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
-	}
-	void updateCoefShrink() override {
-		global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
-		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
-		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
-	}
-	void updateImpactPrec() override {
-		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
-		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_global_lev[0] * contem_local_lev.array().square() * latent_contem_local.array());
-	}
-	void updateRecords() override {
-		updateCoefRecords();
-		dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
-	}
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -1246,6 +1225,40 @@ public:
 			thin_record(dl_record.global_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
+	}
+
+protected:
+	void updateCoefPrec() override {
+		for (int j = 0; j < num_grp; j++) {
+			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+				group_lev[j],
+				coef_var_loc
+			);
+		}
+		coef_var = coef_var_loc.reshaped();
+		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
+		local_fac.array() = coef_var.array() * local_lev.array();
+		dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
+		// lambda_mat.setZero();
+		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
+		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+	}
+	void updateCoefShrink() override {
+		global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+	}
+	void updateImpactPrec() override {
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
+		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		prior_chol_prec.diagonal() = 1 / (contem_global_lev[0] * contem_global_lev[0] * contem_local_lev.array().square() * latent_contem_local.array());
+	}
+	void updateRecords() override {
+		updateCoefRecords();
+		dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
 	}
 
 private:
