@@ -945,7 +945,7 @@ public:
 		updateCoefPrec();
 		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
-		// updateCoefShrink();
+		updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -1007,22 +1007,11 @@ protected:
 		}
 		// local_fac.array() = global_lev * coef_var.array() * local_lev.array(); // tilde_lambda
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
-		// 
-		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
-		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
-		// 
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
 	}
 	void updateCoefShrink() override {
-		// local_fac.array() /= coef_var.array(); // tilde_lambda / group_lev
-		// global_lev = ng_global_sparsity(local_fac, local_shape_fac, global_shape, global_scl, rng);
 		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
-		// local_fac.array() = global_lev * coef_var.array() * local_lev.array();
-		// ng_local_sparsity(local_fac, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		// local_lev.array() = local_fac.array() / (global_lev * coef_var.array());
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		// ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_fac, group_shape, group_scl, rng);
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 	}
 	void updateImpactPrec() override {

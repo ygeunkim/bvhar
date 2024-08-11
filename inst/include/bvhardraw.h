@@ -475,11 +475,13 @@ inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& 
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+  // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
 	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		post_sig.diagonal().array() += 1e-8;
-		lltOfscale.compute(post_sig);
+		// post_sig.diagonal().array() += 1e-8;
+		// lltOfscale.compute(post_sig);
+		Rcpp::stop("LLT error");
 	}
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
