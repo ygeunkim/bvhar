@@ -225,6 +225,8 @@ struct DlSvParams : public SvParams {
 	Eigen::MatrixXi _grp_mat;
 	double _dl_concen;
 	double _contem_dl_concen;
+	double _shape;
+	double _rate;
 
 	DlSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -235,7 +237,8 @@ struct DlSvParams : public SvParams {
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
-		_dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]) {}
+		_dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]),
+		_shape(dl_spec["shape"]), _rate(dl_spec["rate"]) {}
 };
 
 struct SvInits : public RegInits {
@@ -441,6 +444,7 @@ public:
 	virtual SsvsRecords returnSsvsRecords(int num_burn, int thin) const = 0;
 	virtual HorseshoeRecords returnHsRecords(int num_burn, int thin) const = 0;
 	virtual NgRecords returnNgRecords(int num_burn, int thin) const = 0;
+	virtual GlobalLocalRecords returnGlRecords(int num_burn, int thin) const = 0;
 
 protected:
 	bool include_mean;
@@ -602,6 +606,9 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		return GlobalLocalRecords();
+	}
 
 protected:
 	void updateCoefPrec() override {}
@@ -678,6 +685,9 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		return GlobalLocalRecords();
+	}
 
 protected:
 	void updateCoefPrec() override {
@@ -746,7 +756,6 @@ public:
 		contem_s1(params._contem_s1), contem_s2(params._contem_s2),
 		prior_sd(Eigen::VectorXd::Zero(num_coef)),
 		slab_weight(Eigen::VectorXd::Ones(num_alpha)),
-		// slab_weight_mat(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
 		coef_mixture_mat(Eigen::VectorXd::Zero(num_alpha)) {
 		if (include_mean) {
 			prior_sd.tail(dim) = prior_sd_non;
@@ -804,6 +813,9 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		return GlobalLocalRecords();
+	}
 
 protected:
 	void updateCoefPrec() override {
@@ -814,16 +826,11 @@ protected:
 	}
 	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
-			// slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
-			// 	coef_weight[j],
-			// 	slab_weight_mat
-			// );
 			slab_weight = (grp_vec.array() == grp_id[j]).select(
 				coef_weight[j],
 				slab_weight
 			);
 		}
-		// slab_weight = slab_weight_mat.reshaped();
 		ssvs_dummy(
 			coef_dummy,
 			coef_vec.head(num_alpha),
@@ -943,22 +950,18 @@ public:
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
 		return NgRecords();
 	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		return GlobalLocalRecords();
+	}
 
 protected:
 	void updateCoefPrec() override {
 		for (int j = 0; j < num_grp; j++) {
-			// coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-			// 	// global_lev[j],
-			// 	// global_lev * group_lev[j],
-			// 	group_lev[j],
-			// 	coef_var_loc
-			// );
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
 				coef_var
 			);
 		}
-		// coef_var = coef_var_loc.reshaped();
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
 		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
@@ -1092,6 +1095,9 @@ public:
 		);
 		return res_record;
 	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		return GlobalLocalRecords();
+	}
 
 protected:
 	void updateCoefPrec() override {
@@ -1160,18 +1166,18 @@ public:
 	DirLaplaceSv(const DlSvParams& params, const HsSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
-		dl_record(num_iter, num_alpha, num_grp),
+		// dl_record(num_iter, num_alpha, num_grp),
+		dl_record(num_iter, num_alpha),
 		dir_concen(params._dl_concen), contem_dir_concen(params._contem_dl_concen),
+		shape(params._shape), rate(params._rate),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
-		local_fac(Eigen::VectorXd::Zero(num_alpha)),
+		// local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
-		// shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
-		// lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
-		coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
-		dl_record.assignRecords(0, local_lev, group_lev, global_lev);
+		// dl_record.assignRecords(0, local_lev, group_lev, global_lev);
+		dl_record.assignRecords(0, local_lev, global_lev);
 	}
 	virtual ~DirLaplaceSv() = default;
 	void doPosteriorDraws() override {
@@ -1198,7 +1204,7 @@ public:
 			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
 			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
 			Rcpp::Named("lambda_record") = dl_record.local_record,
-			Rcpp::Named("eta_record") = dl_record.group_record,
+			// Rcpp::Named("eta_record") = dl_record.group_record,
 			Rcpp::Named("tau_record") = dl_record.global_record,
 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
@@ -1222,9 +1228,17 @@ public:
 		return HorseshoeRecords();
 	}
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
-		NgRecords res_record(
+		// NgRecords res_record(
+		// 	thin_record(dl_record.local_record, num_iter, num_burn, thin).derived(),
+		// 	thin_record(dl_record.group_record, num_iter, num_burn, thin).derived(),
+		// 	thin_record(dl_record.global_record, num_iter, num_burn, thin).derived()
+		// );
+		// return res_record;
+		return NgRecords();
+	}
+	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
+		GlobalLocalRecords res_record(
 			thin_record(dl_record.local_record, num_iter, num_burn, thin).derived(),
-			thin_record(dl_record.group_record, num_iter, num_burn, thin).derived(),
 			thin_record(dl_record.global_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
@@ -1232,25 +1246,24 @@ public:
 
 protected:
 	void updateCoefPrec() override {
+		dl_group_latent(group_lev, shape, rate, grp_vec, grp_id, local_lev, rng);
 		for (int j = 0; j < num_grp; j++) {
-			coef_var_loc = (grp_mat.array() == grp_id[j]).select(
+			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
-				coef_var_loc
+				coef_var
 			);
 		}
-		coef_var = coef_var_loc.reshaped();
-		// build_shrink_mat(lambda_mat, coef_var, global_lev * local_lev);
-		local_fac.array() = coef_var.array() * local_lev.array();
-		dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
-		// lambda_mat.setZero();
-		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
-		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+		// local_fac.array() = coef_var.array() * local_lev.array();
+		// dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
+		dl_latent(latent_local, global_lev * local_lev, coef_var, coef_vec.head(num_alpha), rng);
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_lev.array() * latent_local.array()).square();
 	}
 	void updateCoefShrink() override {
-		global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
-		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		// global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
+		// dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		// dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 	}
 	void updateImpactPrec() override {
@@ -1261,7 +1274,8 @@ protected:
 	}
 	void updateRecords() override {
 		updateCoefRecords();
-		dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+		// dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+		dl_record.assignRecords(mcmc_step, local_lev, global_lev);
 	}
 
 private:
@@ -1269,17 +1283,15 @@ private:
 	Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
-	NgRecords dl_record;
-	double dir_concen, contem_dir_concen;
+	// NgRecords dl_record;
+	GlobalLocalRecords dl_record;
+	double dir_concen, contem_dir_concen, shape, rate;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
 	double global_lev;
-	Eigen::VectorXd local_fac;
+	// Eigen::VectorXd local_fac;
 	Eigen::VectorXd latent_local;
-	// Eigen::VectorXd shrink_fac;
-	// Eigen::MatrixXd lambda_mat;
 	Eigen::VectorXd coef_var;
-	Eigen::MatrixXd coef_var_loc;
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	Eigen::VectorXd latent_contem_local;

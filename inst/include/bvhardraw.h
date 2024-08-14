@@ -145,8 +145,12 @@ struct GlobalLocalRecords {
 		local_record.row(id) = local_lev;
 		global_record[id] = global_lev;
 	}
-	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) = 0;
-	virtual void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) = 0;
+	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		assignRecords(id, local_lev, global_lev);
+	}
+	virtual void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		assignRecords(id, local_lev, global_lev);
+	}
 };
 
 struct HorseshoeRecords : public GlobalLocalRecords {
@@ -868,7 +872,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 	int num_alpha = latent_param.size();
 	for (int i = 0; i < num_alpha; ++i) {
 		latent_param[i] = sim_gig(
-			1, .5, group_rate[i],
+			1, .5, group_rate[i] * group_rate[i],
 			coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
 		)[0];
 	}
@@ -897,7 +901,7 @@ inline void dl_group_latent(Eigen::VectorXd& group_latent, double& shape, double
 				mn_local[k++] = local_param[j];
 			}
 		}
-		group_latent[i] = gamma_rand(mn_size + shape, mn_local.sum() / 2 + rate);
+		group_latent[i] = sqrt(gamma_rand(mn_size + shape, mn_local.sum() / 2 + rate));
   }
 }
 
