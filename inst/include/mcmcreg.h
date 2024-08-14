@@ -1063,10 +1063,7 @@ public:
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
-		// shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
-		// lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
-		// coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
 		dl_record.assignRecords(0, local_lev, group_lev, global_lev);
@@ -1159,7 +1156,6 @@ protected:
 
 private:
 	Eigen::VectorXi grp_id;
-	// Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	NgRecords dl_record;
