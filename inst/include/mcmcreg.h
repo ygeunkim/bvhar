@@ -18,6 +18,7 @@ struct DlParams;
 struct LdltInits;
 struct HierminnInits;
 struct SsvsInits;
+struct GlInits;
 struct HsInits;
 struct NgInits;
 // MCMC records
@@ -259,7 +260,21 @@ struct SsvsInits : public LdltInits {
 		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
 };
 
-struct HsInits : public LdltInits {
+struct GlInits : public LdltInits {
+	Eigen::VectorXd _init_local;
+	double _init_global;
+	Eigen::VectorXd _init_contem_local;
+	Eigen::VectorXd _init_conetm_global;
+	
+	GlInits(Rcpp::List& init)
+	: LdltInits(init),
+		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(init["global_sparsity"]),
+		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+};
+
+struct HsInits : public GlInits {
 	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_group;
 	double _init_global;
@@ -267,12 +282,8 @@ struct HsInits : public LdltInits {
 	Eigen::VectorXd _init_conetm_global;
 	
 	HsInits(Rcpp::List& init)
-	: LdltInits(init),
-		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])),
-		_init_global(init["global_sparsity"]),
-		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+	: GlInits(init),
+		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])) {}
 };
 
 struct NgInits : public HsInits {
@@ -1073,20 +1084,17 @@ private:
 
 class DlReg : public McmcReg {
 public:
-	DlReg(const DlParams& params, const HsInits& inits, unsigned int seed)
+	DlReg(const DlParams& params, const GlInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
-		// dl_record(num_iter, num_alpha, num_grp),
 		dl_record(num_iter, num_alpha),
 		dir_concen(params._dl_concen), contem_dir_concen(params._contem_dl_concen),
 		shape(params._shape), rate(params._rate),
-		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
-		// local_fac(Eigen::VectorXd::Zero(num_alpha)),
+		local_lev(inits._init_local), group_lev(Eigen::VectorXd::Zero(num_grp)), global_lev(inits._init_global),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
-		// dl_record.assignRecords(0, local_lev, group_lev, global_lev);
 		dl_record.assignRecords(0, local_lev, global_lev);
 	}
 	virtual ~DlReg() = default;
@@ -1110,7 +1118,6 @@ public:
 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
 			Rcpp::Named("d_record") = reg_record.fac_record,
 			Rcpp::Named("lambda_record") = dl_record.local_record,
-			// Rcpp::Named("eta_record") = dl_record.group_record,
 			Rcpp::Named("tau_record") = dl_record.global_record,
 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
@@ -1134,12 +1141,6 @@ public:
 		return HorseshoeRecords();
 	}
 	NgRecords returnNgRecords(int num_burn, int thin) const override {
-		// NgRecords res_record(
-		// 	thin_record(dl_record.local_record, num_iter, num_burn, thin).derived(),
-		// 	thin_record(dl_record.group_record, num_iter, num_burn, thin).derived(),
-		// 	thin_record(dl_record.global_record, num_iter, num_burn, thin).derived()
-		// );
-		// return res_record;
 		return NgRecords();
 	}
 	GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
@@ -1159,18 +1160,10 @@ protected:
 				coef_var
 			);
 		}
-		// local_fac.array() = coef_var.array() * local_lev.array();
-		// dl_latent(latent_local, global_lev * local_fac, coef_vec.head(num_alpha), rng);
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_fac.array() * latent_local.array()).square();
-		// dl_latent(latent_local, global_lev * local_lev, coef_vec.head(num_alpha), rng);
-
 		dl_latent(latent_local, global_lev * local_lev, coef_var, coef_vec.head(num_alpha), rng);
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_lev.array() * latent_local.array()).square();
 	}
 	void updateCoefShrink() override {
-		// global_lev = dl_global_sparsity(local_fac, dir_concen, coef_vec.head(num_alpha), rng);
-		// dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
-		// dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 	}
@@ -1182,7 +1175,6 @@ protected:
 	}
 	void updateRecords() override {
 		updateCoefRecords();
-		// dl_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
 		dl_record.assignRecords(mcmc_step, local_lev, global_lev);
 	}
 
@@ -1190,13 +1182,11 @@ private:
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
-	// NgRecords dl_record;
 	GlobalLocalRecords dl_record;
 	double dir_concen, contem_dir_concen, shape, rate;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
 	double global_lev;
-	// Eigen::VectorXd local_fac;
 	Eigen::VectorXd latent_local;
 	Eigen::VectorXd coef_var;
 	Eigen::VectorXd contem_local_lev;
