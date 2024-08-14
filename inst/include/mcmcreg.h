@@ -968,7 +968,7 @@ public:
 		updateCoefPrec();
 		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
-		updateCoefShrink();
+		// updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -1033,11 +1033,12 @@ protected:
 		}
 		// local_fac.array() = global_lev * coef_var.array() * local_lev.array(); // tilde_lambda
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
+		updateCoefShrink();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
 	}
 	void updateCoefShrink() override {
-		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
+		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 	}
 	void updateImpactPrec() override {
@@ -1100,7 +1101,7 @@ public:
 		updateCoefPrec();
 		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
-		updateCoefShrink();
+		// updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -1157,11 +1158,12 @@ protected:
 			);
 		}
 		dl_latent(latent_local, global_lev * local_lev, coef_var, coef_vec.head(num_alpha), rng);
+		updateCoefShrink();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / (global_lev * local_lev.array() * latent_local.array()).square();
 	}
 	void updateCoefShrink() override {
-		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 	}
 	void updateImpactPrec() override {
 		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
