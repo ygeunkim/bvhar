@@ -16,7 +16,7 @@ test_that("MNIW parameterization", {
 
 test_that("GIG generation - with mode shift", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- 3
   psi <- .2
   chi <- .5
@@ -37,7 +37,7 @@ test_that("GIG generation - with mode shift", {
 
 test_that("GIG generation - without mode shift", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- .8
   psi <- .3
   chi <- .5
@@ -50,7 +50,7 @@ test_that("GIG generation - without mode shift", {
 
 test_that("GIG generation - non-T_(-1/2)-concave part", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- .8
   psi <- .1
   chi <- .2
@@ -63,7 +63,7 @@ test_that("GIG generation - non-T_(-1/2)-concave part", {
 
 test_that("GIG generation - Round-off handling (small chi)", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- 3
   psi <- .5
   chi <- 1e-50
@@ -76,7 +76,7 @@ test_that("GIG generation - Round-off handling (small chi)", {
 
 test_that("GIG generation - Round-off handling (small psi)", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- -3
   psi <- 1e-50
   chi <- .5
@@ -89,7 +89,7 @@ test_that("GIG generation - Round-off handling (small psi)", {
 
 test_that("GIG generation - Round-off handling (both small)", {
   skip_if_not_installed("GIGrvg")
-  # skip_if(getRversion() < "4.0.0")
+  skip_if(getRversion() < "4.0.0")
   lambda <- 3
   psi <- 1e-50
   chi <- 1e-50
