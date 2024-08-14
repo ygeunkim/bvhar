@@ -77,13 +77,13 @@ test_that("GIG generation - Round-off handling (small chi)", {
 test_that("GIG generation - Round-off handling (small psi)", {
   skip_if_not_installed("GIGrvg")
   # skip_if(getRversion() < "4.0.0")
-  lambda <- 3
+  lambda <- -3
   psi <- 1e-50
   chi <- .5
   set.seed(1)
   my_draw <- sim_gig(10, lambda = lambda, psi = psi, chi = chi)
   set.seed(1)
-  orig_draw <- GIGrvg::rgig(10, lambda = -lambda, chi = chi, psi = psi) # GIGrvg handling is different from bvhar
+  orig_draw <- GIGrvg::rgig(10, lambda = lambda, chi = chi, psi = psi) # GIGrvg handling is different from bvhar
   expect_equal(my_draw, orig_draw)
 })
 

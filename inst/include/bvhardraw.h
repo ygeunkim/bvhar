@@ -12,6 +12,7 @@ struct RegInits;
 struct RegRecords;
 struct SparseRecords;
 struct SsvsRecords;
+struct GlobalLocalRecords;
 struct HorseshoeRecords;
 struct NgRecords;
 
@@ -127,46 +128,69 @@ struct SsvsRecords {
 	}
 };
 
-struct HorseshoeRecords {
+struct GlobalLocalRecords {
 	Eigen::MatrixXd local_record;
-	Eigen::MatrixXd group_record;
-	// Eigen::MatrixXd global_record;
 	Eigen::VectorXd global_record;
-	Eigen::MatrixXd shrink_record;
 
-	HorseshoeRecords() : local_record(), global_record(), shrink_record() {}
-	HorseshoeRecords(int num_iter, int num_alpha, int num_grp)
+	GlobalLocalRecords() : local_record(), global_record() {}
+	
+	GlobalLocalRecords(int num_iter, int num_alpha)
 	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
-		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		// global_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		global_record(Eigen::VectorXd::Zero(num_iter + 1)),
-		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
-	// HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& global_record, const Eigen::MatrixXd& shrink_record)
-	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record, const Eigen::MatrixXd& shrink_record)
-	: local_record(local_record), group_record(group_record), global_record(global_record), shrink_record(shrink_record) {}
-	// void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& global_lev) {
-	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
-		shrink_record.row(id) = shrink_fac;
+		global_record(Eigen::VectorXd::Zero(num_iter + 1)) {}
+	
+	GlobalLocalRecords(const Eigen::MatrixXd& local_record, const Eigen::VectorXd& global_record)
+	: local_record(local_record), global_record(global_record) {}
+	
+	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const double global_lev) {
 		local_record.row(id) = local_lev;
-		// global_record.row(id) = global_lev;
-		group_record.row(id) = group_lev;
 		global_record[id] = global_lev;
+	}
+	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		assignRecords(id, local_lev, global_lev);
+	}
+	virtual void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+		assignRecords(id, local_lev, global_lev);
 	}
 };
 
-struct NgRecords {
-	Eigen::MatrixXd local_record;
+struct HorseshoeRecords : public GlobalLocalRecords {
 	Eigen::MatrixXd group_record;
-	Eigen::VectorXd global_record;
+	Eigen::MatrixXd shrink_record;
 
-	NgRecords() : local_record(), group_record(), global_record() {}
-	NgRecords(int num_iter, int num_alpha, int num_grp)
-	: local_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)),
+	HorseshoeRecords() : GlobalLocalRecords(), group_record(), shrink_record() {}
+	
+	HorseshoeRecords(int num_iter, int num_alpha, int num_grp)
+	: GlobalLocalRecords(num_iter, num_alpha),
 		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)),
-		global_record(Eigen::VectorXd::Zero(num_iter + 1)) {}
+		shrink_record(Eigen::MatrixXd::Zero(num_iter + 1, num_alpha)) {}
+	
+	HorseshoeRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record, const Eigen::MatrixXd& shrink_record)
+	: GlobalLocalRecords(local_record, global_record),
+		group_record(group_record), shrink_record(shrink_record) {}
+	
+	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) override {
+		shrink_record.row(id) = shrink_fac;
+		local_record.row(id) = local_lev;
+		group_record.row(id) = group_lev;
+		global_record[id] = global_lev;
+	}
+	void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) override {}
+};
+
+struct NgRecords : public GlobalLocalRecords {
+	Eigen::MatrixXd group_record;
+
+	NgRecords() : GlobalLocalRecords(), group_record() {}
+	
+	NgRecords(int num_iter, int num_alpha, int num_grp)
+	: GlobalLocalRecords(num_iter, num_alpha),
+		group_record(Eigen::MatrixXd::Zero(num_iter + 1, num_grp)) {}
+	
 	NgRecords(const Eigen::MatrixXd& local_record, const Eigen::MatrixXd& group_record, const Eigen::VectorXd& global_record)
-	: local_record(local_record), group_record(group_record), global_record(global_record) {}
-	void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
+	: GlobalLocalRecords(local_record, global_record), group_record(group_record) {}
+	
+	void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) override {}
+	void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) override {
 		local_record.row(id) = local_lev;
 		group_record.row(id) = group_lev;
 		global_record[id] = global_lev;
@@ -475,11 +499,13 @@ inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& 
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-  Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+  // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
 	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		post_sig.diagonal().array() += 1e-8;
-		lltOfscale.compute(post_sig);
+		// post_sig.diagonal().array() += 1e-8;
+		// lltOfscale.compute(post_sig);
+		Rcpp::stop("LLT error");
 	}
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
@@ -840,6 +866,44 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		)[0];
 	}
 }
+// Change prior specification
+inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
+											Eigen::Ref<Eigen::VectorXd> group_rate, Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+	int num_alpha = latent_param.size();
+	for (int i = 0; i < num_alpha; ++i) {
+		latent_param[i] = sim_gig(
+			1, .5, group_rate[i] * group_rate[i],
+			coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
+		)[0];
+	}
+}
+
+// Generating Group Latent Parameter of Dirichlet-Laplace Prior
+// 
+// @param group_latent Group shrinkage
+// @param shape Shape for Gamma prior
+// @param rate Rate for Gamma prior
+// @param grp_vec Group vector
+// @param grp_id Unique group id
+// @param local_param Local sparsity level
+// @param rng boost rng
+inline void dl_group_latent(Eigen::VectorXd& group_latent, double& shape, double& rate,
+														Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													  Eigen::VectorXd& local_param, boost::random::mt19937& rng) {
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < grp_id.size(); i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < local_param.size(); ++j) {
+			if (group_id[j]) {
+				mn_local[k++] = local_param[j];
+			}
+		}
+		group_latent[i] = sqrt(gamma_rand(mn_size + shape, mn_local.sum() / 2 + rate));
+  }
+}
 
 // Generating Local Parameter of Dirichlet-Laplace Prior
 // 
@@ -980,25 +1044,20 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param rate Inverse Gamma prior scale
 // @param coef Coefficients vector
 // @param rng boost rng
-inline double ng_global_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, double& hyper_gamma,
+inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& hyper_gamma,
 																 double& shape, double& scl, boost::random::mt19937& rng) {
 	return sqrt(1 / gamma_rand(
 		shape + local_param.size() * hyper_gamma,
-		1 / (2 * hyper_gamma * local_param.squaredNorm() + scl),
+		1 / (hyper_gamma * local_param.squaredNorm() + scl),
 		rng
 	));
 }
 // overloading
-inline double ng_global_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
+inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
 																 double& shape, double& scl, boost::random::mt19937& rng) {
-	// return sqrt(1 / gamma_rand(
-	// 	shape + local_param.size() * hyper_gamma,
-	// 	1 / (2 * hyper_gamma * local_param.squaredNorm() + scl),
-	// 	rng
-	// ));
 	return sqrt(1 / gamma_rand(
 		shape + hyper_gamma.sum(),
-		1 / (2 * (hyper_gamma.array() * local_param.array().square()).sum() + scl),
+		1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
 		rng
 	));
 }
@@ -1023,13 +1082,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_local[k++] = local_param[j] / global_param;
 			}
 		}
-		// group_param[i] = ng_global_sparsity(mn_local, hyper_gamma, shape, scl, rng);
 		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
-		// group_param[i] = sqrt(1 / gamma_rand(
-		// 	shape + mn_local.size() * hyper_gamma[i],
-		// 	1 / (2 * hyper_gamma[i] * mn_local.squaredNorm() + scl),
-		// 	rng
-		// ));
   }
 }
 
@@ -1070,6 +1123,7 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
 				mn_local[k++] = local_param[j];
+				// mn_local[k++] = local_param[j] * group_param[i] * global_param;
 			}
 		}
 		gamma_hyper[i] = ng_shape_jump(gamma_hyper[i], mn_local, global_param * group_param[i], lognormal_sd, rng);

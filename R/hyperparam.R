@@ -769,6 +769,8 @@ set_ng <- function(shape_sd = .01,
 #'
 #' @param dirichlet Dirichlet hyperparameter for coefficient local shrinkage
 #' @param contem_dirichlet Dirichlet hyperparameter for contemporaneous coefficient local shrinkage
+#' @param shape Gamma shape
+#' @param rate Gamma rate
 #' @return `dlspec` object
 #' @references
 #' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet–Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479–1490.
@@ -776,15 +778,17 @@ set_ng <- function(shape_sd = .01,
 #' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
 #' @order 1
 #' @export
-set_dl <- function(dirichlet = .5, contem_dirichlet = .5) {
-  if (!(length(dirichlet) == 1 && length(contem_dirichlet) == 1)) {
-    stop("'dirichlet' and 'contem_dirichlet' should be length 1 numeric.")
+set_dl <- function(dirichlet = .5, contem_dirichlet = .5, shape = .01, rate = .01) {
+  if (!(length(dirichlet) == 1 && length(contem_dirichlet) == 1 && length(shape) == 1 && length(rate) == 1)) {
+    stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
   }
   res <- list(
     process = "VAR",
     prior = "DL",
     dirichlet = dirichlet,
-    contem_dirichlet = contem_dirichlet
+    contem_dirichlet = contem_dirichlet,
+    shape = shape,
+    rate = rate
   )
   class(res) <- "dlspec"
   res
