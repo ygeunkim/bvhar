@@ -640,6 +640,8 @@ var_bayes <- function(y,
     class(res) <- c(class(res), "ssvsmod")
   } else if (bayes_spec$prior == "NG") {
     class(res) <- c(class(res), "ngmod")
+  } else if (bayes_spec$prior == "DL") {
+    class(res) <- c(class(res), "dlmod")
   }
   res
 }

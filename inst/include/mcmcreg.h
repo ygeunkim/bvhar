@@ -275,11 +275,7 @@ struct GlInits : public LdltInits {
 };
 
 struct HsInits : public GlInits {
-	Eigen::VectorXd _init_local;
 	Eigen::VectorXd _init_group;
-	double _init_global;
-	Eigen::VectorXd _init_contem_local;
-	Eigen::VectorXd _init_conetm_global;
 	
 	HsInits(Rcpp::List& init)
 	: GlInits(init),
