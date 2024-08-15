@@ -8,12 +8,12 @@
 \usage{
 set_ng(
   shape_sd = 0.01,
-  group_shape = 1,
-  group_scale = 1,
-  global_shape = 1,
-  global_scale = 1,
-  contem_global_shape = 1,
-  contem_global_scale = 1
+  group_shape = 0.01,
+  group_scale = 0.01,
+  global_shape = 0.01,
+  global_scale = 0.01,
+  contem_global_shape = 0.01,
+  contem_global_scale = 0.01
 )
 
 \method{print}{ngspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
