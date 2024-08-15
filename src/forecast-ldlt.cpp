@@ -397,7 +397,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits dl_inits(init_spec);
+					bvhar::GlInits dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -693,7 +693,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits dl_inits(init_spec);
+					bvhar::GlInits dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -988,7 +988,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits dl_inits(init_spec);
+					bvhar::GlInits dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1287,7 +1287,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits dl_inits(init_spec);
+					bvhar::GlInits dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory

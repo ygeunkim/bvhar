@@ -127,7 +127,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HsSvInits dl_inits(init_spec); // Use HsInits for DL
+				bvhar::GlSvInits dl_inits(init_spec); // Use HsInits for DL
 				sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;

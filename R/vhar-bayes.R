@@ -383,14 +383,14 @@ vhar_bayes <- function(y,
       function(init) {
         local_sparsity <- exp(runif(num_phi, -1, 1))
         global_sparsity <- exp(runif(1, -1, 1))
-        group_sparsity <- exp(runif(num_grp, -1, 1))
+        # group_sparsity <- exp(runif(num_grp, -1, 1))
         contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
         contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
         append(
           init,
           list(
             local_sparsity = local_sparsity,
-            group_sparsity = group_sparsity,
+            # group_sparsity = group_sparsity,
             global_sparsity = global_sparsity,
             contem_local_sparsity = contem_local_sparsity,
             contem_global_sparsity = contem_global_sparsity
@@ -612,7 +612,6 @@ vhar_bayes <- function(y,
     res$param <- bind_draws(
       res$param,
       res$lambda_record,
-      res$eta_record,
       res$tau_record
     )
   }
@@ -680,6 +679,8 @@ vhar_bayes <- function(y,
     class(res) <- c(class(res), "ssvsmod")
   } else if (bayes_spec$prior == "NG") {
     class(res) <- c(class(res), "ngmod")
+  } else if (bayes_spec$prior == "DL") {
+    class(res) <- c(class(res), "dlmod")
   }
   res
 }
