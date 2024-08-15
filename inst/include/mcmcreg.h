@@ -669,18 +669,18 @@ class SsvsReg : public McmcReg {
 public:
 	SsvsReg(const SsvsParams& params, const SsvsInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
-		// grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 		coef_dummy(inits._coef_dummy), coef_weight(inits._coef_weight),
 		contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)), contem_weight(inits._contem_weight),
 		coef_spike(params._coef_spike), coef_slab(params._coef_slab),
+		spike_scl(.01), contem_spike_scl(.01),
+		ig_shape(.01), ig_scl(.01), contem_ig_shape(.01), contem_ig_scl(.01),
 		contem_spike(params._contem_spike), contem_slab(params._contem_slab),
 		coef_s1(params._coef_s1), coef_s2(params._coef_s2),
 		contem_s1(params._contem_s1), contem_s2(params._contem_s2),
 		prior_sd(Eigen::VectorXd::Zero(num_coef)),
 		slab_weight(Eigen::VectorXd::Ones(num_alpha)),
-		// slab_weight_mat(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
 		coef_mixture_mat(Eigen::VectorXd::Zero(num_alpha)) {
 		if (include_mean) {
 			prior_sd.tail(dim) = prior_sd_non;
@@ -740,23 +740,21 @@ public:
 
 protected:
 	void updateCoefPrec() override {
-		coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+		// coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+		ssvs_local_slab(coef_slab, coef_dummy, coef_vec.head(num_alpha), ig_shape, ig_scl, spike_scl, rng);
+		coef_spike = spike_scl * coef_slab; // remove coef_spike later
+		coef_mixture_mat.array() = spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array();
 		prior_sd.head(num_alpha) = coef_mixture_mat;
 		prior_alpha_prec.setZero();
 		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
 	}
 	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
-			// slab_weight_mat = (grp_mat.array() == grp_id[j]).select(
-			// 	coef_weight[j],
-			// 	slab_weight_mat
-			// );
 			slab_weight = (grp_vec.array() == grp_id[j]).select(
 				coef_weight[j],
 				slab_weight
 			);
 		}
-		// slab_weight = slab_weight_mat.reshaped();
 		ssvs_dummy(
 			coef_dummy,
 			coef_vec.head(num_alpha),
@@ -766,6 +764,8 @@ protected:
 		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
 	}
 	void updateImpactPrec() override {
+		ssvs_local_slab(contem_slab, contem_dummy, contem_coef, contem_ig_shape, contem_ig_scl, contem_spike_scl, rng);
+		contem_spike = contem_spike_scl * contem_slab; // remove contem_spike later
 		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight, rng);
 		ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
 		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
@@ -777,7 +777,6 @@ protected:
 
 private:
 	Eigen::VectorXi grp_id;
-	// Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	SsvsRecords ssvs_record;
@@ -785,15 +784,16 @@ private:
 	Eigen::VectorXd coef_weight;
 	Eigen::VectorXd contem_dummy;
 	Eigen::VectorXd contem_weight;
-	Eigen::VectorXd coef_spike;
+	Eigen::VectorXd coef_spike; // remove later? coef_spike = spike_scl * coef_slab
 	Eigen::VectorXd coef_slab;
-	Eigen::VectorXd contem_spike;
+	double spike_scl, contem_spike_scl; // scaling factor between 0 and 1: spike_sd = c * slab_sd
+	double ig_shape, ig_scl, contem_ig_shape, contem_ig_scl; // IG hyperparameter for spike sd
+	Eigen::VectorXd contem_spike; // remove later? contem_spike = contem_spike_scl * contem_slab
 	Eigen::VectorXd contem_slab;
 	Eigen::VectorXd coef_s1, coef_s2;
 	double contem_s1, contem_s2;
 	Eigen::VectorXd prior_sd;
 	Eigen::VectorXd slab_weight; // pij vector
-	// Eigen::MatrixXd slab_weight_mat; // pij matrix: (dim*p) x dim
 	Eigen::VectorXd coef_mixture_mat;
 };
 
