@@ -128,7 +128,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 					param_prior,
 					param_intercept, include_mean
 				);
-				bvhar::HsInits dl_inits(init_spec);
+				bvhar::GlInits dl_inits(init_spec);
 				sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
@@ -246,7 +246,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 					param_prior,
 					param_intercept, include_mean
 				);
-				bvhar::HsInits dl_inits(init_spec);
+				bvhar::GlInits dl_inits(init_spec);
 				sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				break;
 			}
