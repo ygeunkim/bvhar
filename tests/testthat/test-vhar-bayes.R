@@ -1,5 +1,6 @@
 # vhar_bayes()-------------------------
 test_that("VHAR-Minn-LDLT", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -12,6 +13,7 @@ test_that("VHAR-Minn-LDLT", {
 })
 
 test_that("VHAR-HS-LDLT", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -25,6 +27,7 @@ test_that("VHAR-HS-LDLT", {
 })
 
 test_that("VHAR-SSVS-LDLT", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -38,6 +41,7 @@ test_that("VHAR-SSVS-LDLT", {
 })
 
 test_that("VHAR-Hierminn-LDLT", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -50,6 +54,7 @@ test_that("VHAR-Hierminn-LDLT", {
 })
 
 test_that("VHAR-NG-LDLT", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -62,7 +67,22 @@ test_that("VHAR-NG-LDLT", {
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
+test_that("VHAR-DL-LDLT", {
+  set.seed(1)
+  fit_test <- vhar_bayes(
+    etf_vix[1:50, 1:2],
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_dl(),
+    cov_spec = set_ldlt(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "dlmod")
+  expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
 test_that("Members - VHAR-Minn-SV", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -75,6 +95,7 @@ test_that("Members - VHAR-Minn-SV", {
 })
 
 test_that("Members - VHAR-HS-SV", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -88,6 +109,7 @@ test_that("Members - VHAR-HS-SV", {
 })
 
 test_that("Members - VHAR-SSVS-SV", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -101,6 +123,7 @@ test_that("Members - VHAR-SSVS-SV", {
 })
 
 test_that("Members - VHAR-Hierminn-SV", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -113,6 +136,7 @@ test_that("Members - VHAR-Hierminn-SV", {
 })
 
 test_that("Members - VHAR-NG-SV", {
+  set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
     num_iter = 5,
@@ -125,7 +149,22 @@ test_that("Members - VHAR-NG-SV", {
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
+test_that("Members - VHAR-DL-SV", {
+  set.seed(1)
+  fit_test <- vhar_bayes(
+    etf_vix[1:50, 1:2],
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_dl(),
+    cov_spec = set_sv(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "dlmod")
+  expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
 test_that("Multi chain", {
+  set.seed(1)
   iter_test <- 5
   chain_test <- 2
   fit_test <- vhar_bayes(
