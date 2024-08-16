@@ -578,7 +578,7 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
 
 #' Choose the Hyperparameters Set of SSVS-VAR using a Default Semiautomatic Approach
 #' 
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #' This function chooses \eqn{(\tau_{0i}, \tau_{1i})} and \eqn{(\kappa_{0i}, \kappa_{1i})}
 #' using a default semiautomatic approach.
 #' 
@@ -614,6 +614,7 @@ choose_ssvs <- function(y,
                         gamma_param = c(.01, .01),
                         mean_non = 0,
                         sd_non = .1) {
+  deprecate_warn("2.0.1", "choose_ssvs()", details = "'var_bayes()' and 'vhar_bayes()' do full bayesian approaches instead of semi-automatic.")
   type <- match.arg(type)
   if (param[1] >= param[2]) {
     stop("'param[2]' should be larger than 'param[1]'.")
