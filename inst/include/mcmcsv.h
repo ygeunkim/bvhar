@@ -149,16 +149,16 @@ struct HierminnSvParams : public SvParams {
 struct SsvsSvParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
-	Eigen::VectorXd _coef_spike;
-	Eigen::VectorXd _coef_slab;
-	Eigen::VectorXd _coef_weight;
-	Eigen::VectorXd _contem_spike;
-	Eigen::VectorXd _contem_slab;
-	Eigen::VectorXd _contem_weight;
-	Eigen::VectorXd _coef_s1;
-	Eigen::VectorXd _coef_s2;
-	double _contem_s1;
-	double _contem_s2;
+	// Eigen::VectorXd _coef_spike;
+	// Eigen::VectorXd _coef_slab;
+	// Eigen::VectorXd _coef_weight;
+	// Eigen::VectorXd _contem_spike;
+	// Eigen::VectorXd _contem_slab;
+	// Eigen::VectorXd _contem_weight;
+	Eigen::VectorXd _coef_s1, _coef_s2;
+	double _contem_s1, _contem_s2;
+	double _coef_spike_scl, _contem_spike_scl;
+	double _coef_slab_shape, _coef_slab_scl, _contem_slab_shape, _contem_slab_scl;
 
 	SsvsSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -169,14 +169,17 @@ struct SsvsSvParams : public SvParams {
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
-		_coef_spike(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_spike"])),
-		_coef_slab(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_slab"])),
-		_coef_weight(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_mixture"])),
-		_contem_spike(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_spike"])),
-		_contem_slab(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_slab"])),
-		_contem_weight(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_mixture"])),
+		// _coef_spike(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_spike"])),
+		// _coef_slab(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_slab"])),
+		// _coef_weight(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_mixture"])),
+		// _contem_spike(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_spike"])),
+		// _contem_slab(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_slab"])),
+		// _contem_weight(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_mixture"])),
 		_coef_s1(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
-		_contem_s1(ssvs_spec["chol_s1"]), _contem_s2(ssvs_spec["chol_s2"]) {}
+		_contem_s1(ssvs_spec["chol_s1"]), _contem_s2(ssvs_spec["chol_s2"]),
+		_coef_spike_scl(ssvs_spec["coef_spike_scl"]), _contem_spike_scl(ssvs_spec["chol_spike_scl"]),
+		_coef_slab_shape(ssvs_spec["coef_slab_shape"]), _coef_slab_scl(ssvs_spec["coef_slab_scl"]),
+		_contem_slab_shape(ssvs_spec["chol_slab_shape"]), _contem_slab_scl(ssvs_spec["chol_slab_scl"]) {}
 };
 
 struct HsSvParams : public SvParams {
@@ -281,17 +284,24 @@ struct SsvsSvInits : public SvInits {
 	Eigen::VectorXd _coef_dummy;
 	Eigen::VectorXd _coef_weight; // in SsvsSvParams: move coef_mixture and chol_mixture in set_ssvs()?
 	Eigen::VectorXd _contem_weight; // in SsvsSvParams
+	Eigen::VectorXd _coef_slab;
+	Eigen::VectorXd _contem_slab;
 	
 	SsvsSvInits(Rcpp::List& init)
 	: SvInits(init),
 		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
 		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
+		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(Rcpp::as<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(Rcpp::as<Eigen::VectorXd>(init["contem_slab"])) {}
+	
 	SsvsSvInits(Rcpp::List& init, int num_design)
 	: SvInits(init, num_design),
 		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
 		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])) {}
+		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(Rcpp::as<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(Rcpp::as<Eigen::VectorXd>(init["contem_slab"])) {}
 };
 
 struct GlSvInits : public SvInits {
@@ -756,13 +766,17 @@ class SsvsSv : public McmcSv {
 public:
 	SsvsSv(const SsvsSvParams& params, const SsvsSvInits& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
-		// grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 		coef_dummy(inits._coef_dummy), coef_weight(inits._coef_weight),
 		contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)), contem_weight(inits._contem_weight),
-		coef_spike(params._coef_spike), coef_slab(params._coef_slab),
-		contem_spike(params._contem_spike), contem_slab(params._contem_slab),
+		// coef_spike(params._coef_spike), coef_slab(params._coef_slab),
+		coef_slab(inits._coef_slab),
+		spike_scl(params._coef_spike_scl), contem_spike_scl(params._coef_spike_scl),
+		ig_shape(params._coef_slab_shape), ig_scl(params._coef_slab_scl),
+		contem_ig_shape(params._contem_slab_shape), contem_ig_scl(params._contem_slab_scl),
+		// contem_spike(params._contem_spike), contem_slab(params._contem_slab),
+		contem_slab(inits._contem_slab),
 		coef_s1(params._coef_s1), coef_s2(params._coef_s2),
 		contem_s1(params._contem_s1), contem_s2(params._contem_s2),
 		prior_sd(Eigen::VectorXd::Zero(num_coef)),
@@ -830,7 +844,9 @@ public:
 
 protected:
 	void updateCoefPrec() override {
-		coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+		// coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
+		ssvs_local_slab(coef_slab, coef_dummy, coef_vec.head(num_alpha), ig_shape, ig_scl, spike_scl, rng);
+		coef_mixture_mat.array() = spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array();
 		prior_sd.head(num_alpha) = coef_mixture_mat;
 		prior_alpha_prec.setZero();
 		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
@@ -845,15 +861,16 @@ protected:
 		ssvs_dummy(
 			coef_dummy,
 			coef_vec.head(num_alpha),
-			coef_slab, coef_spike, slab_weight,
+			coef_slab, spike_scl * coef_slab, slab_weight,
 			rng
 		);
 		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
 	}
 	void updateImpactPrec() override {
-		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike, contem_weight, rng);
+		ssvs_local_slab(contem_slab, contem_dummy, contem_coef, contem_ig_shape, contem_ig_scl, contem_spike_scl, rng);
+		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike_scl * contem_slab, contem_weight, rng);
 		ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
-		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike, contem_slab, contem_dummy).array().square();
+		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike_scl * contem_slab, contem_slab, contem_dummy).array().square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
@@ -862,7 +879,6 @@ protected:
 
 private:
 	Eigen::VectorXi grp_id;
-	// Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	SsvsRecords ssvs_record;
@@ -870,15 +886,16 @@ private:
 	Eigen::VectorXd coef_weight;
 	Eigen::VectorXd contem_dummy;
 	Eigen::VectorXd contem_weight;
-	Eigen::VectorXd coef_spike;
+	// Eigen::VectorXd coef_spike;
 	Eigen::VectorXd coef_slab;
-	Eigen::VectorXd contem_spike;
+	double spike_scl, contem_spike_scl; // scaling factor between 0 and 1: spike_sd = c * slab_sd
+	double ig_shape, ig_scl, contem_ig_shape, contem_ig_scl; // IG hyperparameter for spike sd
+	// Eigen::VectorXd contem_spike;
 	Eigen::VectorXd contem_slab;
 	Eigen::VectorXd coef_s1, coef_s2;
 	double contem_s1, contem_s2;
 	Eigen::VectorXd prior_sd;
 	Eigen::VectorXd slab_weight; // pij vector
-	// Eigen::MatrixXd slab_weight_mat; // pij matrix: (dim*p) x dim
 	Eigen::VectorXd coef_mixture_mat;
 };
 
