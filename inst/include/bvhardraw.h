@@ -423,11 +423,9 @@ inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen:
 // @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
 // @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 // @param slab_weight Proportion of nonzero coefficients
-inline void ssvs_dummy(
-	Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
-	Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight,
-	boost::random::mt19937& rng
-) {
+inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
+											 Eigen::VectorXd& sd_numer, Eigen::Ref<const Eigen::VectorXd> sd_denom,
+											 Eigen::VectorXd& slab_weight, boost::random::mt19937& rng) {
   int num_latent = slab_weight.size();
 	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
 	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());

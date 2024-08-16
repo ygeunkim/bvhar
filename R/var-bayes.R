@@ -215,17 +215,15 @@ var_bayes <- function(y,
       )
     }
   } else if (prior_nm == "SSVS") {
-    init_coef <- 1L
-    init_coef_dummy <- 1L
-    if (length(bayes_spec$coef_spike) == 1) {
-      bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
-    }
-    if (length(bayes_spec$coef_slab) == 1) {
-      bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_alpha)
-    }
-    if (length(bayes_spec$coef_mixture) == 1) {
-      bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
-    }
+    # if (length(bayes_spec$coef_spike) == 1) {
+    #   bayes_spec$coef_spike <- rep(bayes_spec$coef_spike, num_alpha)
+    # }
+    # if (length(bayes_spec$coef_slab) == 1) {
+    #   bayes_spec$coef_slab <- rep(bayes_spec$coef_slab, num_alpha)
+    # }
+    # if (length(bayes_spec$coef_mixture) == 1) {
+    #   bayes_spec$coef_mixture <- rep(bayes_spec$coef_mixture, num_grp)
+    # }
     if (length(bayes_spec$coef_s1) == 2) {
       coef_s1 <- numeric(num_grp)
       coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
@@ -238,26 +236,26 @@ var_bayes <- function(y,
       coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
       bayes_spec$coef_s2 <- coef_s2
     }
-    if (length(bayes_spec$chol_spike) == 1) {
-      bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
-    }
-    if (length(bayes_spec$chol_slab) == 1) {
-      bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
-    }
-    if (length(bayes_spec$chol_mixture) == 1) {
-      bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
-    }
-    if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
-      # Conduct semiautomatic function using var_lm()
-      stop("Specify spike-and-slab of coefficients.")
-    }
-    if (!(
-      length(bayes_spec$coef_spike) == num_alpha &&
-        length(bayes_spec$coef_slab) == num_alpha &&
-        length(bayes_spec$coef_mixture) == num_grp
-    )) {
-      stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
-    }
+    # if (length(bayes_spec$chol_spike) == 1) {
+    #   bayes_spec$chol_spike <- rep(bayes_spec$chol_spike, num_eta)
+    # }
+    # if (length(bayes_spec$chol_slab) == 1) {
+    #   bayes_spec$chol_slab <- rep(bayes_spec$chol_slab, num_eta)
+    # }
+    # if (length(bayes_spec$chol_mixture) == 1) {
+    #   bayes_spec$chol_mixture <- rep(bayes_spec$chol_mixture, num_eta)
+    # }
+    # if (all(is.na(bayes_spec$coef_spike)) || all(is.na(bayes_spec$coef_slab))) {
+    #   # Conduct semiautomatic function using var_lm()
+    #   stop("Specify spike-and-slab of coefficients.")
+    # }
+    # if (!(
+    #   length(bayes_spec$coef_spike) == num_alpha &&
+    #     length(bayes_spec$coef_slab) == num_alpha &&
+    #     length(bayes_spec$coef_mixture) == num_grp
+    # )) {
+    #   stop("Invalid 'coef_spike', 'coef_slab', and 'coef_mixture' size.")
+    # }
     param_prior <- bayes_spec
     param_init <- lapply(
       param_init,
@@ -267,13 +265,17 @@ var_bayes <- function(y,
         init_coef_dummy <- rbinom(num_alpha, 1, .5) # minnesota structure?
         chol_mixture <- runif(num_eta, -1, 1)
         chol_mixture <- exp(chol_mixture) / (1 + exp(chol_mixture))
-        init_chol_dummy <- rbinom(num_eta, 1, .5)
+        # init_chol_dummy <- rbinom(num_eta, 1, .5)
+        init_coef_slab <- exp(runif(num_alpha, -1, 1))
+        init_contem_slab <- exp(runif(num_eta, -1, 1))
         append(
           init,
           list(
             init_coef_dummy = init_coef_dummy,
             coef_mixture = coef_mixture,
-            chol_mixture = chol_mixture
+            coef_slab = init_coef_slab,
+            chol_mixture = chol_mixture,
+            contem_slab = init_contem_slab
           )
         )
       }

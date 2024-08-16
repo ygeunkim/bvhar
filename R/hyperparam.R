@@ -370,12 +370,12 @@ set_weight_bvhar <- function(sigma,
 }
 
 #' Prior for Constant Term
-#' 
+#'
 #' Set Normal prior hyperparameters for constant term
-#' 
+#'
 #' @param mean Normal mean of constant term
 #' @param sd Normal standard deviance for constant term
-#' 
+#'
 #' @order 1
 #' @export
 set_intercept <- function(mean = 0, sd = .1) {
@@ -399,21 +399,35 @@ set_intercept <- function(mean = 0, sd = .1) {
 }
 
 #' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
-#' 
+#'
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
-#' 
-#' @param coef_spike Standard deviance for Spike normal distribution (See Details).
-#' @param coef_slab Standard deviance for Slab normal distribution (See Details).
-#' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
+#'
+#' @param coef_spike `r lifecycle::badge("deprecated")` Standard deviance for Spike normal distribution.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param coef_slab `r lifecycle::badge("deprecated")` Standard deviance for Slab normal distribution.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param coef_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd
+#' @param coef_slab_shape Inverse gamma shape for slab sd
+#' @param coef_slab_scl Inverse gamma scale for slab sd
+#' @param coef_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param coef_s1 First shape of coefficients prior beta distribution
 #' @param coef_s2 Second shape of coefficients prior beta distribution
-#' @param mean_non Prior mean of unrestricted coefficients
-#' @param sd_non Standard deviance for unrestricted coefficients
+#' @param mean_non `r lifecycle::badge("deprecated")` Prior mean of unrestricted coefficients
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param sd_non `r lifecycle::badge("deprecated")` Standard deviance for unrestricted coefficients
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
-#' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
-#' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor (See Details).
-#' @param chol_mixture Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
+#' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param chol_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor
+#' @param chol_slab_shape Inverse gamma shape for slab sd in the cholesky factor
+#' @param chol_slab_scl Inverse gamma scale for slab sd in the cholesky factor
+#' @param chol_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param chol_s1 First shape of cholesky factor prior beta distribution
 #' @param chol_s2 Second shape of cholesky factor prior beta distribution
 #' @details 
@@ -457,11 +471,16 @@ set_intercept <- function(mean = 0, sd = .1) {
 #' 
 #' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
 #' 
+#' Ishwaran, H., & Rao, J. S. (2005). *Spike and slab variable selection: Frequentist and Bayesian strategies*. The Annals of Statistics, 33(2).
+#' 
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
 #' @order 1
 #' @export
-set_ssvs <- function(coef_spike = .1, 
-                     coef_slab = 5, 
+set_ssvs <- function(coef_spike = .1,
+                     coef_slab = 5,
+                     coef_spike_scl = .01,
+                     coef_slab_shape = .01,
+                     coef_slab_scl = .01,
                      coef_mixture = .5,
                      coef_s1 = c(1, 1),
                      coef_s2 = c(1, 1),
@@ -471,6 +490,9 @@ set_ssvs <- function(coef_spike = .1,
                      rate = .01,
                      chol_spike = .1,
                      chol_slab = 5,
+                     chol_spike_scl = .01,
+                     chol_slab_shape = .01,
+                     chol_slab_scl = .01,
                      chol_mixture = .5,
                      chol_s1 = 1,
                      chol_s2 = 1) {
@@ -482,9 +504,14 @@ set_ssvs <- function(coef_spike = .1,
     is.vector(mean_non))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
   }
-  if (!(length(chol_s1) == 1 &&
-    length(chol_s2 == 1))) {
+  if (!(length(chol_s1) == 1 && length(chol_s2 == 1))) {
     stop("'chol_s1' and 'chol_s2' should be length 1 numeric.")
+  }
+  if (!(length(coef_spike_scl) == 1 && length(chol_spike_scl) == 1)) {
+    stop("'*_spike_scl' should be length 1 numeric.")
+  }
+  if (!(length(coef_slab_shape) == 1 && length(coef_slab_scl) == 1 && length(chol_slab_shape) == 1 && length(chol_slab_scl) == 1)) {
+    stop("'*_slab_*' should be length 1 numeric.")
   }
   # if (length(coef_s1) != length(coef_s2)) {
   #   stop("'coef_s1' and 'coef_s2' should have the same length.")
@@ -521,6 +548,9 @@ set_ssvs <- function(coef_spike = .1,
     coef_spike = coef_spike,
     coef_slab = coef_slab,
     coef_mixture = coef_mixture,
+    coef_spike_scl = coef_spike_scl,
+    coef_slab_shape = coef_slab_shape,
+    coef_slab_scl = coef_slab_scl,
     coef_s1 = coef_s1,
     coef_s2 = coef_s2
   )
@@ -558,6 +588,9 @@ set_ssvs <- function(coef_spike = .1,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
     chol_mixture = chol_mixture,
+    chol_spike_scl = chol_spike_scl,
+    chol_slab_shape = chol_slab_shape,
+    chol_slab_scl = chol_slab_scl,
     chol_s1 = chol_s1,
     chol_s2 = chol_s2,
     process = "VAR",
