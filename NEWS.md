@@ -10,6 +10,10 @@
 
 * `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
 
+* `set_ssvs()` sets scaling factor and inverse-gamma hyperparameters for coefficients and cholesky factor slab sd.
+
+* Use full bayesian approach to SSVS spike and slab sd's instead of semi-automatic approach, in `var_bayes()` and `vhar_bayes()`.
+
 * MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
 
 * `sim_gig()` generates Generalized Inverse Gaussian (GIG) random numbers using the algorithm of R package `GIGrvg`.

@@ -423,11 +423,9 @@ inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen:
 // @param sd_numer Standard deviance for Slab normal distribution, which will be used for numerator.
 // @param sd_denom Standard deviance for Spike normal distribution, which will be used for denominator.
 // @param slab_weight Proportion of nonzero coefficients
-inline void ssvs_dummy(
-	Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
-	Eigen::VectorXd& sd_numer, Eigen::VectorXd& sd_denom, Eigen::VectorXd& slab_weight,
-	boost::random::mt19937& rng
-) {
+inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
+											 Eigen::VectorXd& sd_numer, Eigen::Ref<const Eigen::VectorXd> sd_denom,
+											 Eigen::VectorXd& slab_weight, boost::random::mt19937& rng) {
   int num_latent = slab_weight.size();
 	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
 	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());
@@ -481,6 +479,26 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 		}
     weight[i] = beta_rand(prior_s1[i] + mn_param.sum(), prior_s2[i] + mn_size - mn_param.sum(), rng);
   }
+}
+
+// Generating SSVS Local Slab Parameter
+// 
+// @param slab_param Slab parameter
+// @param dummy_param Bernoulli parameter
+// @param coef_vec Coefficient
+// @param shp IG shape for slab parameter
+// @param scl IG scale for slab parameter
+// @param spike_scl scaling factor to make spike sd smaller than slab sd (spike_sd = spike_scl * slab_sd)
+// @param rng boost rng
+inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_param, Eigen::Ref<Eigen::VectorXd> coef_vec,
+														double& shp, double& scl, double& spike_scl, boost::random::mt19937& rng) {
+	for (int i = 0; i < coef_vec.size(); ++i) {
+		slab_param[i] = sqrt(1 / gamma_rand(
+			shp + .5,
+			1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),
+			rng
+		));
+	}
 }
 
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients

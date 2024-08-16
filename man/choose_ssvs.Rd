@@ -36,7 +36,7 @@ choose_ssvs(
 \code{ssvsinput} object
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 This function chooses \eqn{(\tau_{0i}, \tau_{1i})} and \eqn{(\kappa_{0i}, \kappa_{1i})}
 using a default semiautomatic approach.
 }
