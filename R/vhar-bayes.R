@@ -373,12 +373,12 @@ vhar_bayes <- function(y,
       }
     )
   } else if (prior_nm == "DL") {
-    if (length(bayes_spec$dirichlet) == 1) {
-      bayes_spec$dirichlet <- 1 / num_phi^(1 + .01)
-    }
-    if (length(bayes_spec$contem_dirichlet) == 1) {
-      bayes_spec$contem_dirichlet <- 1 / num_eta^(1 + .01)
-    }
+    # if (length(bayes_spec$dirichlet) == 1) {
+    #   bayes_spec$dirichlet <- 1 / num_phi^(1 + .01)
+    # }
+    # if (length(bayes_spec$contem_dirichlet) == 1) {
+    #   bayes_spec$contem_dirichlet <- 1 / num_eta^(1 + .01)
+    # }
     param_prior <- bayes_spec
     param_init <- lapply(
       param_init,

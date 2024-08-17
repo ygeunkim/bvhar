@@ -227,8 +227,9 @@ struct NgSvParams : public SvParams {
 struct DlSvParams : public SvParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
-	double _dl_concen;
-	double _contem_dl_concen;
+	// double _dl_concen;
+	// double _contem_dl_concen;
+	int _grid_size;
 	double _shape;
 	double _rate;
 
@@ -241,8 +242,8 @@ struct DlSvParams : public SvParams {
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
-		_dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]),
-		_shape(dl_spec["shape"]), _rate(dl_spec["rate"]) {}
+		// _dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]),
+		_grid_size(dl_spec["grid_size"]), _shape(dl_spec["shape"]), _rate(dl_spec["rate"]) {}
 };
 
 struct SvInits : public RegInits {
@@ -1196,8 +1197,9 @@ public:
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),
-		dir_concen(params._dl_concen), contem_dir_concen(params._contem_dl_concen),
+		dir_concen(0.0), contem_dir_concen(0.0),
 		shape(params._shape), rate(params._rate),
+		grid_size(params._grid_size),
 		local_lev(inits._init_local), group_lev(Eigen::VectorXd::Zero(num_grp)), global_lev(inits._init_global),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
@@ -1277,12 +1279,12 @@ protected:
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array()).square() * latent_local.array());
 	}
 	void updateCoefShrink() override {
-		dl_dir_griddy(dir_concen, 100, local_lev, global_lev, rng);
+		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 	}
 	void updateImpactPrec() override {
-		dl_dir_griddy(contem_dir_concen, 100, contem_local_lev, contem_global_lev[0], rng);
+		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
@@ -1302,6 +1304,7 @@ private:
 	int num_grp;
 	GlobalLocalRecords dl_record;
 	double dir_concen, contem_dir_concen, shape, rate;
+	int grid_size;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
 	double global_lev;
