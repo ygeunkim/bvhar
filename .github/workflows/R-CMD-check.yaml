@@ -19,7 +19,6 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest,   r: 'release'}
-          - {os: macOS-latest,   r: '3.6', arch: 'x86_64'}
 
           - {os: windows-latest, r: 'release'}
           # Use 3.6 to trigger usage of RTools35
