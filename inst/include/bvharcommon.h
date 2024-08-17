@@ -9,6 +9,7 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
+#include <boost/random/discrete_distribution.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
@@ -173,6 +174,11 @@ inline double beta_rand(double s1, double s2) {
 
 inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
+	return rdist(rng);
+}
+
+inline double cat_rand(const Eigen::VectorXd& probabilities, boost::random::mt19937& rng) {
+	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
 	return rdist(rng);
 }
 
