@@ -6,16 +6,14 @@
 \alias{is.dlspec}
 \title{Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients}
 \usage{
-set_dl(dirichlet = 0.5, contem_dirichlet = 0.5, shape = 0.01, rate = 0.01)
+set_dl(dir_grid = 100L, shape = 0.01, rate = 0.01)
 
 \method{print}{dlspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
 is.dlspec(x)
 }
 \arguments{
-\item{dirichlet}{Dirichlet hyperparameter for coefficient local shrinkage}
-
-\item{contem_dirichlet}{Dirichlet hyperparameter for contemporaneous coefficient local shrinkage}
+\item{dir_grid}{Griddy gibbs grid size for Dirichlet hyperparameter}
 
 \item{shape}{Gamma shape}
 

@@ -803,8 +803,7 @@ set_ng <- function(shape_sd = .01,
 #'
 #' Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
-#' @param dirichlet Dirichlet hyperparameter for coefficient local shrinkage
-#' @param contem_dirichlet Dirichlet hyperparameter for contemporaneous coefficient local shrinkage
+#' @param dir_grid Griddy gibbs grid size for Dirichlet hyperparameter
 #' @param shape Gamma shape
 #' @param rate Gamma rate
 #' @return `dlspec` object
@@ -814,15 +813,19 @@ set_ng <- function(shape_sd = .01,
 #' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
 #' @order 1
 #' @export
-set_dl <- function(dirichlet = .5, contem_dirichlet = .5, shape = .01, rate = .01) {
-  if (!(length(dirichlet) == 1 && length(contem_dirichlet) == 1 && length(shape) == 1 && length(rate) == 1)) {
+set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
+  if (!(length(dir_grid) == 1 && length(shape) == 1 && length(rate) == 1)) {
     stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
+  }
+  if (dir_grid %% 1 != 0) {
+    stop("Provide integer for 'dir_grid'.")
   }
   res <- list(
     process = "VAR",
     prior = "DL",
-    dirichlet = dirichlet,
-    contem_dirichlet = contem_dirichlet,
+    # dirichlet = dirichlet,
+    # contem_dirichlet = contem_dirichlet,
+    grid_size = dir_grid,
     shape = shape,
     rate = rate
   )
