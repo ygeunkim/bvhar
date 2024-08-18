@@ -257,7 +257,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
       stop("Invalid hierarchical setting.")
     }
   } else {
-    if (length(sigma) > 0 & length(delta) > 0) {
+    if (length(sigma) > 0 && length(delta) > 0) {
       if (length(sigma) != length(delta)) {
         stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
       }

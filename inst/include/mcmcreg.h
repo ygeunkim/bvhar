@@ -65,10 +65,9 @@ struct MinnParams : public RegParams {
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			_lambda, _sigma, _eps, false
 		);
-		// _prior_prec = (dummy_design.transpose() * dummy_design).inverse();
 		_prior_prec = dummy_design.transpose() * dummy_design;
-		_prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
-		// _prec_diag.diagonal() = _sigma;
+		// _prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
+		_prior_mean = _prior_prec.llt().solve(dummy_design.transpose() * dummy_response);
 		_prec_diag.diagonal() = 1 / _sigma.array();
 	}
 };
@@ -115,14 +114,17 @@ struct HierminnParams : public RegParams {
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			1, _sigma, _eps, false
 		);
-		// _prior_prec = (dummy_design.transpose() * dummy_design).inverse();
 		_prior_prec = dummy_design.transpose() * dummy_design;
-		_prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
-		// _prec_diag.diagonal() = _sigma;
+		// _prior_mean = _prior_prec * dummy_design.transpose() * dummy_response;
+		_prior_mean = _prior_prec.llt().solve(dummy_design.transpose() * dummy_response);
 		_prec_diag.diagonal() = 1 / _sigma.array();
 		_grp_mat = grp_mat;
 		_minnesota = true;
-		if (own_id.size() == 1 && cross_id.size() == 1) {
+		// if (own_id.size() == 1 && cross_id.size() == 1) {
+		// 	_minnesota = false;
+		// }
+		std::set<int> unique_grp(_grp_mat.data(), _grp_mat.data() + _grp_mat.size());
+		if (unique_grp.size() == 1) {
 			_minnesota = false;
 		}
 		for (int i = 0; i < own_id.size(); ++i) {
@@ -499,7 +501,6 @@ class MinnReg : public McmcReg {
 public:
 	MinnReg(const MinnParams& params, const LdltInits& inits, unsigned int seed) : McmcReg(params, inits, seed) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
@@ -563,7 +564,6 @@ public:
 		cross_shape(params.shape), cross_rate(params.rate),
 		contem_shape(params.shape), contem_rate(params.rate) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / kronecker_eigen(params._prec_diag, params._prior_prec).diagonal().array();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
@@ -582,10 +582,11 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
+		updateCoefShrink();
 		updateCoefPrec();
 		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
-		updateCoefShrink();
+		// updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -624,6 +625,28 @@ public:
 
 protected:
 	void updateCoefPrec() override {
+		// minnesota_lambda(
+		// 	own_lambda, own_shape, own_rate,
+		// 	coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 	grp_vec, own_id, rng
+		// );
+		// if (coef_minnesota) {
+		// 	minnesota_lambda(
+		// 		cross_lambda, cross_shape, cross_rate,
+		// 		coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 		grp_vec, cross_id, rng
+		// 	);
+		// }
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+			}
+		}
+	}
+	void updateCoefShrink() override {
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
 			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
@@ -636,16 +659,14 @@ protected:
 				grp_vec, cross_id, rng
 			);
 		}
-	}
-	void updateCoefShrink() override {
-		for (int i = 0; i < num_alpha; ++i) {
-			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-			}
-			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-			}
-		}
+		// for (int i = 0; i < num_alpha; ++i) {
+		// 	if (own_id.find(grp_vec[i]) != own_id.end()) {
+		// 		prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+		// 	}
+		// 	if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+		// 		prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+		// 	}
+		// }
 	};
 	void updateImpactPrec() override {
 		minnesota_contem_lambda(
