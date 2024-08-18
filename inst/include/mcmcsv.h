@@ -134,7 +134,11 @@ struct HierminnSvParams : public SvParams {
 		_prec_diag.diagonal() = _sigma;
 		_grp_mat = grp_mat;
 		_minnesota = true;
-		if (own_id.size() == 1 && cross_id.size() == 1) {
+		// if (own_id.size() == 1 && cross_id.size() == 1) {
+		// 	_minnesota = false;
+		// }
+		std::set<int> unique_grp(_grp_mat.data(), _grp_mat.data() + _grp_mat.size());
+		if (unique_grp.size() == 1) {
 			_minnesota = false;
 		}
 		for (int i = 0; i < own_id.size(); ++i) {
@@ -667,10 +671,11 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
+		updateCoefShrink();
 		updateCoefPrec();
 		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 		updateCoef();
-		updateCoefShrink();
+		// updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -713,6 +718,28 @@ public:
 
 protected:
 	void updateCoefPrec() override {
+		// minnesota_lambda(
+		// 	own_lambda, own_shape, own_rate,
+		// 	coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 	grp_vec, own_id, rng
+		// );
+		// if (coef_minnesota) {
+		// 	minnesota_lambda(
+		// 		cross_lambda, cross_shape, cross_rate,
+		// 		coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 		grp_vec, cross_id, rng
+		// 	);
+		// }
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+			}
+		}
+	}
+	void updateCoefShrink() override {
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
 			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
@@ -725,16 +752,14 @@ protected:
 				grp_vec, cross_id, rng
 			);
 		}
-	}
-	void updateCoefShrink() override {
-		for (int i = 0; i < num_alpha; ++i) {
-			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-			}
-			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-			}
-		}
+		// for (int i = 0; i < num_alpha; ++i) {
+		// 	if (own_id.find(grp_vec[i]) != own_id.end()) {
+		// 		prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+		// 	}
+		// 	if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+		// 		prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+		// 	}
+		// }
 	};
 	void updateImpactPrec() override {
 		minnesota_contem_lambda(

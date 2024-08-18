@@ -187,23 +187,23 @@ vhar_bayes <- function(y,
     if (har[1] > har[2]) {
       stop("'har[1]' should be smaller than 'har[2]'.")
     }
-    minnesota_type <- bayes_spec$prior
+    # minnesota_type <- bayes_spec$prior
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
-    if (minnesota_type == "MN_VAR") {
+    if ("delta" %in% names(bayes_spec)) {
       if (is.null(bayes_spec$delta)) {
-        bayes_spec$delta <- rep(1, dim_data)
+        bayes_spec$delta <- rep(0, dim_data)
       }
     } else {
       if (is.null(bayes_spec$daily)) {
-        bayes_spec$daily <- rep(1, dim_data)
+        bayes_spec$daily <- rep(0, dim_data)
       }
       if (is.null(bayes_spec$weekly)) {
-        bayes_spec$weekly <- rep(1, dim_data)
+        bayes_spec$weekly <- rep(0, dim_data)
       }
       if (is.null(bayes_spec$monthly)) {
-        bayes_spec$monthly <- rep(1, dim_data)
+        bayes_spec$monthly <- rep(0, dim_data)
       }
     }
     param_prior <- append(bayes_spec, list(p = 3))
