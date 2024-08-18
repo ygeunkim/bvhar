@@ -193,7 +193,7 @@ var_bayes <- function(y,
       bayes_spec$sigma <- apply(y, 2, sd)
     }
     if (is.null(bayes_spec$delta)) {
-      bayes_spec$delta <- rep(1, dim_data)
+      bayes_spec$delta <- rep(0, dim_data)
     }
     param_prior <- append(bayes_spec, list(p = p))
     if (bayes_spec$hierarchical) {
