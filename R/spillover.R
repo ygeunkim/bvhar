@@ -373,7 +373,12 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
   model_type <- class(object)[1]
   # num_chains <- object$chain
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
-  prior_nm <- object$spec$prior
+  # prior_nm <- object$spec$prior
+  prior_nm <- ifelse(
+    object$spec$prior == "MN_VAR" || object$spec$prior == "MN_VHAR" || object$spec$prior == "MN_Hierarchical",
+    "Minnesota",
+    object$spec$prior
+  )
   if (prior_nm == "Minnesota") {
     param_prior <- append(object$spec, list(p = object$p))
     if (object$spec$hierarchical) {
