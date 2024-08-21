@@ -1240,11 +1240,10 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
-		updateCoefShrink();
 		updateCoefPrec();
 		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
 		updateCoef();
-		// updateCoefShrink();
+		updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -1297,28 +1296,28 @@ public:
 
 protected:
 	void updateCoefPrec() override {
-		dl_group_latent(group_lev, shape, rate, grp_vec, grp_id, local_lev, rng);
+		// dl_group_latent(group_lev, shape, rate, grp_vec, grp_id, local_lev, rng);
+		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, rate, coef_vec.head(num_alpha), rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
 				coef_var
 			);
 		}
-		dl_latent(latent_local, global_lev * local_lev, coef_var, coef_vec.head(num_alpha), rng);
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array()).square() * latent_local.array());
+		dl_latent(latent_local, global_lev * local_lev, coef_vec.head(num_alpha), rng);
+		updateCoefShrink();
+		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updateCoefShrink() override {
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
-		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
-		global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
+		global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
 	}
 	void updateImpactPrec() override {
 		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
-		// dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		// contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		prior_chol_prec.diagonal() = 1 / ((contem_global_lev[0] * contem_local_lev.array()).square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
