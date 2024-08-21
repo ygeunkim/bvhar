@@ -1298,7 +1298,7 @@ public:
 protected:
 	void updateCoefPrec() override {
 		// dl_group_latent(group_lev, shape, rate, grp_vec, grp_id, local_lev, rng);
-		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, dir_concen, coef_vec.head(num_alpha), rng);
+		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, rate, coef_vec.head(num_alpha), rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
