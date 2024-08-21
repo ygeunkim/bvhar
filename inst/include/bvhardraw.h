@@ -875,58 +875,13 @@ inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::
 inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
 									 		Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
 	int num_alpha = latent_param.size();
-	// Eigen::VectorXd chi = coef_vec.array().square() / (glob_param.array().square() * local_param.array().square());
 	for (int i = 0; i < num_alpha; ++i) {
-		// psi[i] = sim_gig(1, .5, 1, chi[i], rng)[0];
 		latent_param[i] = sim_gig(
 			1, .5,
 			1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
 		)[0];
+		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 	}
-}
-// Change prior specification
-inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
-											Eigen::Ref<Eigen::VectorXd> group_rate, Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
-	int num_alpha = latent_param.size();
-	for (int i = 0; i < num_alpha; ++i) {
-		// latent_param[i] = sim_gig(
-		// 	1, .5, group_rate[i] * group_rate[i],
-		// 	coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
-		// )[0];
-		latent_param[i] = sim_gig(
-			1, .5, 1 / (group_rate[i] * group_rate[i]),
-			coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i])
-		)[0];
-	}
-}
-
-// Generating Group Latent Parameter of Dirichlet-Laplace Prior
-// 
-// @param group_latent Group shrinkage
-// @param shape Shape for Gamma prior
-// @param rate Rate for Gamma prior
-// @param grp_vec Group vector
-// @param grp_id Unique group id
-// @param local_param Local sparsity level
-// @param rng boost rng
-inline void dl_group_latent(Eigen::VectorXd& group_latent, double& shape, double& rate,
-														Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													  Eigen::VectorXd& local_param, boost::random::mt19937& rng) {
-	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
-  int mn_size = 0;
-  for (int i = 0; i < grp_id.size(); i++) {
-		group_id = grp_vec.array() == grp_id[i];
-		mn_size = group_id.count();
-    Eigen::VectorXd mn_local(mn_size);
-		for (int j = 0, k = 0; j < local_param.size(); ++j) {
-			if (group_id[j]) {
-				mn_local[k++] = local_param[j];
-			}
-		}
-		// group_latent[i] = sqrt(gamma_rand(mn_size + shape, mn_local.sum() / 2 + rate));
-		// group_latent[i] = sqrt(sim_gig(1, shape - mn_size, rate, mn_local.sum() / 2)[0]);
-		group_latent[i] = sqrt(1 / gamma_rand(mn_size + shape, 1 / (mn_local.sum() / 2 + rate)));
-  }
 }
 
 // Generating Local Parameter of Dirichlet-Laplace Prior
@@ -961,26 +916,6 @@ inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 // @param grp_id Unique group id
 // 
 // @param rng boost rng
-inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													 double& global_param, Eigen::VectorXd& local_param, double& dir_concen,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
-	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
-  int mn_size = 0;
-  for (int i = 0; i < grp_id.size(); i++) {
-		group_id = grp_vec.array() == grp_id[i];
-		mn_size = group_id.count();
-    Eigen::VectorXd mn_coef(mn_size);
-    Eigen::VectorXd mn_local(mn_size);
-		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
-			if (group_id[j]) {
-				mn_coef[k] = coef_vec[j];
-				mn_local[k++] = global_param * local_param[j];
-			}
-		}
-		group_param[i] = dl_global_sparsity(mn_local, dir_concen, mn_coef, rng);
-  }
-}
-// Gamma
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& rate,
 													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
@@ -1020,7 +955,6 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
-	// int grid_size = grid.size();
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
