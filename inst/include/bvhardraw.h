@@ -980,9 +980,9 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 		group_param[i] = dl_global_sparsity(mn_local, dir_concen, mn_coef, rng);
   }
 }
-// Inverse Gamma
+// Gamma
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													 double& global_param, Eigen::VectorXd& local_param, double& shp, double& scl,
+													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& rate,
 													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
@@ -997,7 +997,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_local[k++] = global_param * local_param[j];
 			}
 		}
-		group_param[i] = sqrt(1 / gamma_rand(mn_size + shp, 1 / ((mn_coef.cwiseAbs().array() / mn_local.array()).sum() + scl)));
+		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum())[0];
   }
 }
 
