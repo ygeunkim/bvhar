@@ -283,6 +283,10 @@ struct HierminnSvInits : public SvInits {
 	HierminnSvInits(Rcpp::List& init)
 	: SvInits(init),
 		_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
+	
+	HierminnSvInits(Rcpp::List& init, int num_design)
+	: SvInits(init, num_design),
+		_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
 };
 
 struct SsvsSvInits : public SvInits {
