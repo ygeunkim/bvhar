@@ -1074,7 +1074,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -1290,7 +1290,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnSvInits minn_inits(init_spec);
+					bvhar::HierminnSvInits minn_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1381,7 +1381,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {

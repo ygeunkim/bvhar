@@ -714,7 +714,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 			reg_objs[window][chain]->doPosteriorDraws();
 		}
 		// bvhar::LdltRecords reg_record = reg_objs[window][chain]->returnLdltRecords(num_burn, thinning);
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
 			bvhar::LdltRecords reg_record = reg_objs[window][chain]->returnLdltRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::RegVharSelectForecaster(
 				reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
@@ -1038,7 +1038,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -1308,7 +1308,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 			reg_objs[window][chain]->doPosteriorDraws();
 		}
 		// bvhar::LdltRecords reg_record = reg_objs[window][chain]->returnLdltRecords(num_burn, thinning);
-		if (sparse) {
+		if (sparse && sparse_type == 0) {
 			bvhar::LdltRecords reg_record = reg_objs[window][chain]->returnLdltRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::RegVharSelectForecaster(
 				reg_record, bvhar::unvectorize(reg_record.computeActivity(level), dim),
@@ -1337,7 +1337,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {

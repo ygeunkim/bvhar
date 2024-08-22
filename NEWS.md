@@ -38,7 +38,11 @@
 
 * `dynamic_spillover()` computes dynamic spillover given model.
 
-## Forecasting SV models
+## Forecasting
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` with LDLT models can use CI level when adding sparsity.
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` of `ldltmod` have `sparse` option to use sparsity.
 
 * `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
 
@@ -46,13 +50,19 @@
 
 * Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
 
+* Add Rolling-window forecasting for LDLT models (`forecast_roll.ldltmod()`).
+
+* Add Expanding-window forecasting for LDLT models (`forecast_expand.ldltmod()`).
+
 * Add Rolling-window forecasting for SV models (`forecast_roll.svmod()`).
 
 * Add Expanding-window forecasting for SV models (`forecast_expand.svmod()`).
 
-* When forecasting SV models, it is available to choose whether to use time-varying covariance (`innovation` option, which is `TRUE` by default).
+* When forecasting SV models, it is available to choose whether to use time-varying covariance (`use_sv` option, which is `TRUE` by default).
 
 * `forecast_roll()` and `forecast_expand()` can implement OpenMP multithreading, except in `bvarflat` class.
+
+* If the model uses multiple chain MCMC, static schedule is used in `forecast_roll()` and dynamic schedule in `forecast_expand()`.
 
 * `sim_mniw()` output format has been changed into list of lists.
 
