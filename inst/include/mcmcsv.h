@@ -1304,7 +1304,7 @@ protected:
 				coef_var
 			);
 		}
-		dl_latent(latent_local, global_lev * local_lev, coef_vec.head(num_alpha), rng);
+		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		updateCoefShrink();
 		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
