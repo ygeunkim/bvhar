@@ -546,6 +546,18 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	return res / alpha;
 }
 
+// Generate Inverse Gaussian Distribution
+// This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
+inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
+	double y = normal_rand(rng);
+	y *= y; // chi^2(1)
+	double cand = mean + mean * mean * y / (2 * shape) - mean * sqrt(4 * mean * shape * y + mean * mean * y * y) / (2 * shape);
+	if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
+		return cand;
+	}
+	return mean * mean / cand;
+}
+
 } //namespace bvhar
 
 #endif // BVHARSIM_H
