@@ -417,17 +417,21 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
     "bvarldlt" = {
       dynamic_bvarldlt_spillover(
         y = object$y, window = window, step = n_ahead,
+        num_chains = num_chains,
         num_iter = object$iter, num_burn = object$burn, thin = object$thin, sparse = sparse,
         lag = object$p,
         param_reg = object$sv[c("shape", "scale")],
         param_prior = param_prior,
         param_intercept = object$intercept[c("mean_non", "sd_non")],
-        param_init = object$init[[1]], # should add multiple chain later
+        # param_init = object$init[[1]], # should add multiple chain later
+        param_init = object$init,
         prior_type = prior_type,
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
-        seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
-        nthreads = num_thread
+        # seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
+        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        nthreads = num_thread,
+        chunk_size = chunk_size
       )
     },
     "bvharldlt" = {
@@ -450,14 +454,12 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
     },
     stop("Not supported model.")
   )
-  if (num_chains > 1) {
-    sp_list <- lapply(sp_list, function(x) {
-      if (is.matrix(x)) {
-        return(apply(x, 1, mean))
-      }
-      Reduce("+", x) / length(x)
-    })
-  }
+  sp_list <- lapply(sp_list, function(x) {
+    if (is.matrix(x)) {
+      return(apply(x, 1, mean))
+    }
+    Reduce("+", x) / length(x)
+  })
   # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
   colnames(sp_list$to) <- colnames(object$y)
