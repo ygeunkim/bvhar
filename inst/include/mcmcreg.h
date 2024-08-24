@@ -4,6 +4,9 @@
 #include "bvhardesign.h"
 #include "bvhardraw.h"
 #include "bvharprogress.h"
+#if !defined(USE_RCPP)
+	#include <map>
+#endif
 
 namespace bvhar {
 
@@ -375,7 +378,11 @@ public:
 	}
 	virtual ~McmcReg() = default;
 	virtual void doPosteriorDraws() = 0;
+#ifdef USE_RCPP
 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
+#else
+	virtual std::map<std::string, Eigen::MatrixXd> returnRecords(int num_burn, int thin) const = 0;
+#endif
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
 			Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
@@ -518,6 +525,7 @@ public:
 		updateDiag();
 		updateRecords();
 	}
+#ifdef USE_RCPP
 	Rcpp::List returnRecords(int num_burn, int thin) const override {
 		Rcpp::List res = Rcpp::List::create(
 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -534,6 +542,23 @@ public:
 		}
 		return res;
 	}
+#else
+	std::map<std::string, Eigen::MatrixXd> returnRecords(int num_burn, int thin) const override {
+		std::map<std::string, Eigen::MatrixXd> res;
+		res["alpha_record"] = reg_record.coef_record.leftCols(num_alpha);
+		res["a_record"] = reg_record.contem_coef_record;
+		res["d_record"] = reg_record.fac_record;
+		res["alpha_sparse_record"] = sparse_record.coef_record;
+		res["a_sparse_record"] = sparse_record.contem_coef_record;
+		if (include_mean) {
+			res["c_record"] = reg_record.coef_record.rightCols(dim);
+		}
+		for (auto& record : res) {
+			record.second = thin_record(record.second, num_iter, num_burn, thin);
+		}
+		return res;
+	}
+#endif
 	SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
 		return SsvsRecords();
 	}

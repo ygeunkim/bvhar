@@ -1,7 +1,12 @@
 #ifndef BVHARCOMMON_H
 #define BVHARCOMMON_H
 
-#include <RcppEigen.h>
+#ifdef USE_RCPP
+	#include <RcppEigen.h>
+#else
+	#include <Eigen/Dense>
+	#include <Eigen/Cholesky>
+#endif
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
