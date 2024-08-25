@@ -2,13 +2,15 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 import sys
 import os
-import glob
+# import glob
+import subprocess
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-cpp_sources = glob.glob(os.path.join('src', '**', '*.cpp'), recursive=True)
+# cpp_sources = glob.glob(os.path.join('bvhar', '**', '*.cpp'), recursive=True)
 include_path = os.path.abspath('../inst/include')
+# r_include = subprocess.check_output(["R", "RHOME"]).decode("utf-8").strip() + "/include"
 
 class PybindInclude(object):
     def __init__(self, user):
@@ -46,32 +48,55 @@ class BuildExt(_build_ext):
 def find_module(base_dir):
     extensions = []
     for root, dirs, files in os.walk(base_dir):
-        cpp_files = [os.path.join(root, f) for f in files if f.endswith('.cpp')]
-        if cpp_files:
-            # module_name = root.replace(os.path.sep, '.')
-            # module_name = os.path.relpath(root, base_dir).replace(os.path.sep, '.')
-            rel_path = os.path.relpath(root, base_dir)
-            if rel_path == ".":
-                module_name = "bvhar"
-            else:
-                module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}'
-            extensions.append(
-                Extension(
-                    module_name,
-                    sources=cpp_sources,
-                    include_dirs=[
-                        include_path,
-                        str(PybindInclude(user=False)),
-                        str(EigenInclude())
-                    ],
-                    extra_compile_args=[
-                        '-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS',
-                        '-DBOOST_DISABLE_ASSERTS',
-                        '-std=c++11'
-                    ]
+        for cpp_file in files:
+            if cpp_file.endswith('.cpp'):
+                rel_path = os.path.relpath(root, base_dir)
+                module_name = os.path.splitext(cpp_file)[0]
+                print(f"Spilit filename: {module_name}")
+                # module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else base_dir
+                module_name = f"{base_dir}.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "." else f"{base_dir}.{module_name}"
+                print(f"Creating module: {module_name}, with source: {os.path.join(root, cpp_file)}")
+                extensions.append(
+                    Extension(
+                        module_name,
+                        sources=[os.path.join(root, cpp_file)],
+                        include_dirs=[
+                            include_path,
+                            str(PybindInclude(user=False)),
+                            str(EigenInclude())
+                        ],
+                        extra_compile_args=[
+                            '-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS',
+                            '-DBOOST_DISABLE_ASSERTS',
+                            '-std=c++11'
+                        ]
+                    )
                 )
-            )
+
+        # cpp_files = [os.path.join(root, f) for f in files if f.endswith('.cpp')]
+        # if cpp_files:
+        #     rel_path = os.path.relpath(root, base_dir)
+        #     module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else "bvhar"
+        #     extensions.append(
+        #         Extension(
+        #             module_name,
+        #             # sources=cpp_sources,
+        #             sources=cpp_files,
+        #             include_dirs=[
+        #                 include_path,
+        #                 str(PybindInclude(user=False)),
+        #                 str(EigenInclude())
+        #             ],
+        #             extra_compile_args=[
+        #                 '-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS',
+        #                 '-DBOOST_DISABLE_ASSERTS',
+        #                 '-std=c++11'
+        #             ]
+        #         )
+        #     )
     return extensions
+
+print(f'print(find_module("bvhar")): {find_module("bvhar")}')
 
 setup(
     name='bvhar',
@@ -86,8 +111,6 @@ setup(
     keywords=['bayesian', 'time series'],
     install_requires=[
         'pybind11',
-        'eigen',
-        'boost-cpp',
         'numpy'
     ],
     ext_modules=find_module('bvhar'),

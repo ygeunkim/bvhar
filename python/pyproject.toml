@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "pybind11>=2.6"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bvhar"
+version = "0.0.0.9000"
+description = "Bayesian multivariate time series modeling"
+readme = "README.md"
+authors = [
+    { name = "Young Geun Kim", email = "ygeunkimstat@gmail.com" },
+]
+keywords = ["bayesian", "time series"]
+dependencies = [
+    "pybind11",
+    "numpy"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bvhar", "bvhar.*"]
+
+[tool.setuptools.package-data]
+bvhar = ["**/*.cpp"]
