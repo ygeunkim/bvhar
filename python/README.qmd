@@ -1,3 +1,6 @@
+---
+format: gfm
+---
 
 <!-- badges: start -->
 <!-- badges: end -->
