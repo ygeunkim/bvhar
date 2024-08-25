@@ -8,3 +8,11 @@ format: gfm
 # bvhar <img src='../man/figures/logo.png' align="right" height="139" />
 
 Started to develop `bvhar` in Python!
+
+## Installation
+
+In `python` directory:
+
+```shell
+pip install -e .
+```
