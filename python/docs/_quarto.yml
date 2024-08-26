@@ -1,0 +1,31 @@
+project:
+  type: website
+  # output_dir: _site
+
+website:
+  title: "bvhar for Python"
+  description: "Bayesian multivariate time series modeling"
+  page-navigation: true
+  favicon: "../pkgdown/favicon/favicon.ico"
+  # navbar: 
+  # sidebar: 
+
+quartodoc:
+  title: Reference
+  package: bvhar
+  # sections:
+  #   - title: Blah
+  #     desc: "blah"
+  #     contents:
+  #       - function
+  #   - title: Blah
+  #     desc: "blah"
+  #     package: bvhar.design
+  #     contents:
+  #       - function
+
+filters:
+  - interlinks
+
+interlinks:
+  sources: {}
