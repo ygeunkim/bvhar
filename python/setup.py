@@ -60,10 +60,8 @@ def find_module(base_dir):
             if cpp_file.endswith('.cpp'):
                 rel_path = os.path.relpath(root, base_dir)
                 module_name = os.path.splitext(cpp_file)[0]
-                print(f"Spilit filename: {module_name}")
                 # module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else base_dir
                 module_name = f"{base_dir}.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "." else f"{base_dir}.{module_name}"
-                print(f"Creating module: {module_name}, with source: {os.path.join(root, cpp_file)}")
                 extensions.append(
                     Extension(
                         module_name,
@@ -104,8 +102,6 @@ def find_module(base_dir):
         #         )
         #     )
     return extensions
-
-print(f'print(find_module("bvhar")): {find_module("bvhar")}')
 
 setup(
     name='bvhar',

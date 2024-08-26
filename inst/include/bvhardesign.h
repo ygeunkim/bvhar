@@ -5,7 +5,7 @@
 	#include <RcppEigen.h>
 #else
 	#include <Eigen/Dense>
-	#include <Eigen/Cholesky>
+	#include <unsupported/Eigen/KroneckerProduct>
 #endif
 
 namespace bvhar {
