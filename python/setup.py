@@ -12,6 +12,14 @@ with open("README.md", "r") as fh:
 include_path = os.path.abspath('../inst/include')
 # r_include = subprocess.check_output(["R", "RHOME"]).decode("utf-8").strip() + "/include"
 
+class PythonInclude(object):
+    def __init__(self, user):
+        self.user = user
+    
+    def __str__(self):
+        import distutils.sysconfig as ds
+        return ds.get_python_inc(self.user)
+
 class PybindInclude(object):
     def __init__(self, user):
         self.user = user
@@ -62,6 +70,7 @@ def find_module(base_dir):
                         sources=[os.path.join(root, cpp_file)],
                         include_dirs=[
                             include_path,
+                            str(PythonInclude(user=False)),
                             str(PybindInclude(user=False)),
                             str(EigenInclude())
                         ],
