@@ -17,8 +17,8 @@ website:
     left:
       - text: "Get started"
         file: intro.qmd
-      # - text: "Reference"
-      #   file: reference/index.qmd
+      - text: "Reference"
+        file: reference/index.qmd
       - text: Vignettes
         menu:
           - text: "bvhar"
