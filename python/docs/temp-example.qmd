@@ -5,7 +5,7 @@ jupyter: python3
 
 
 ```{python setup}
-from bvhar.model import design
+from bvhar.model import _design
 import numpy as np
 ```
 
@@ -15,6 +15,6 @@ print(y)
 ```
 
 ```{python}
-design.build_response(y, 2, 3)
+_design.build_response(y, 2, 3)
 ```
 

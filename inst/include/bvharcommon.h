@@ -5,8 +5,10 @@
 	#include <RcppEigen.h>
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 #else
+	#include <pybind11/pybind11.h>
 	#include <iostream>
 	#include <cmath>
+	#include <string>
 	#include <stdexcept>
 	#include <Eigen/Dense>
 	#include <Eigen/Cholesky>
@@ -15,7 +17,20 @@
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
 	#define Rf_dgamma(x, shp, scl, lg) (lg ? log((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)) : exp((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)))
-	#define STOP(...) throw std::runtime_error(__VA_ARGS__)
+	// #define STOP(...) throw std::runtime_error(__VA_ARGS__)
+	
+	namespace py = pybind11;
+
+	void stop_fmt(const std::string& msg) {
+		throw py::value_error(msg);
+	}
+	
+	template<typename... Args>
+	void stop_fmt(const std::string& msg, Args&&... args) {
+		throw py::value_error(py::str(msg).format(std::forward<Args>(args)...));
+	}
+
+	#define STOP(...) stop_fmt(__VA_ARGS__)
 #endif
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>

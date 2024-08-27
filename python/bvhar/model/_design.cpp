@@ -8,7 +8,6 @@ Eigen::MatrixXd build_response(Eigen::Ref<Eigen::MatrixXd> y, int var_lag, int i
 	return bvhar::build_y0(y, var_lag, index);
 }
 
-PYBIND11_MODULE(design, m) {
-	m.doc() = "Build Response Matrix";
+PYBIND11_MODULE(_design, m) {
 	m.def("build_response", &build_response, "Build Response Matrix");
 }
