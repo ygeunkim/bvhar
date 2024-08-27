@@ -1,8 +1,7 @@
+# bvhar <img src='../man/figures/logo.png' align="right" height="139" />
 
 <!-- badges: start -->
 <!-- badges: end -->
-
-# bvhar <img src='../man/figures/logo.png' align="right" height="139" />
 
 Started to develop `bvhar` in Python!
 
@@ -10,6 +9,15 @@ Started to develop `bvhar` in Python!
 
 In `python` directory:
 
-``` shell
+``` bash
 pip install -e .
 ```
+
+Check OpenMP:
+
+``` python
+from bvhar.utils import checkomp
+checkomp.check_omp()
+```
+
+    OpenMP threads:  16

@@ -1,5 +1,6 @@
 ---
 format: gfm
+keep-ipynb: false
 ---
 
 <!-- badges: start -->
@@ -13,6 +14,13 @@ Started to develop `bvhar` in Python!
 
 In `python` directory:
 
-```shell
+```bash
 pip install -e .
+```
+
+Check OpenMP:
+
+```{python}
+from bvhar.utils import checkomp
+checkomp.check_omp()
 ```
