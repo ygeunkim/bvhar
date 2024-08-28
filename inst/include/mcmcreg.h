@@ -347,16 +347,16 @@ public:
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
 		contem_coef(inits._contem), diag_vec(inits._diag),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
-		prior_alpha_prec(Eigen::MatrixXd::Zero(num_coef, num_coef)),
+		prior_alpha_prec(Eigen::VectorXd::Zero(num_coef)),
 		prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
-		prior_chol_prec(Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol)),
+		prior_chol_prec(Eigen::VectorXd::Ones(num_lowerchol)),
 		coef_mat(inits._coef),
 		contem_id(0),
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 		prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
-		prior_prec_j(Eigen::MatrixXd::Identity(dim_design, dim_design)),
+		prior_prec_j(Eigen::VectorXd::Ones(dim_design)),
 		coef_j(coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
@@ -364,7 +364,7 @@ public:
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
-			prior_alpha_prec.bottomRightCorner(dim, dim).diagonal() = 1 / prior_sd_non.array().square();
+			prior_alpha_prec.tail(dim) = 1 / prior_sd_non.array().square();
 		}
 		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
 		if (include_mean) {
@@ -424,16 +424,16 @@ protected:
 	Eigen::VectorXd contem_coef;
 	Eigen::VectorXd diag_vec; // inverse of d_i
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
-	Eigen::MatrixXd prior_alpha_prec; // prior precision of alpha
+	Eigen::VectorXd prior_alpha_prec; // Diagonal of alpha prior precision
 	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
-	Eigen::MatrixXd prior_chol_prec; // prior precision of a = I
+	Eigen::VectorXd prior_chol_prec; // Diagonal of prior precision of a = I
 	Eigen::MatrixXd coef_mat;
 	int contem_id;
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent; // orthogonalized Z0
 	Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
-  Eigen::MatrixXd prior_prec_j; // Prior precision of j-th column of A
+	Eigen::VectorXd prior_prec_j; // Prior precision of j-th column of A
   Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
@@ -442,14 +442,14 @@ protected:
 	void updateCoef() {
 		for (int j = 0; j < dim; j++) {
 			prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
-			prior_prec_j = prior_alpha_prec.block(dim_design * j, dim_design * j, dim_design, dim_design);
+			prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
 			coef_j = coef_mat;
 			coef_j.col(j).setZero();
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
 			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
-			varsv_regression(
+			draw_coef(
 				coef_mat.col(j),
 				design_coef, response_j,
 				prior_mean_j, prior_prec_j,
@@ -472,11 +472,11 @@ protected:
 			response_contem = latent_innov.col(j - 2).array() / sqrt_sv.col(j - 2).array(); // n-dim
 			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() / sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
 			contem_id = (j - 1) * (j - 2) / 2;
-			varsv_regression(
+			draw_coef(
 				contem_coef.segment(contem_id, j - 1),
 				design_contem, response_contem,
 				prior_chol_mean.segment(contem_id, j - 1),
-				prior_chol_prec.block(contem_id, contem_id, j - 1, j - 1),
+				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
 			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
@@ -501,7 +501,7 @@ class MinnReg : public McmcReg {
 public:
 	MinnReg(const MinnParams& params, const LdltInits& inits, unsigned int seed) : McmcReg(params, inits, seed) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
+		prior_alpha_prec.head(num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 		}
@@ -564,19 +564,19 @@ public:
 		cross_shape(params.shape), cross_rate(params.rate),
 		contem_shape(params.shape), contem_rate(params.rate) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
+		prior_alpha_prec.head(num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
 			}
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
 			}
 		}
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 		}
-		prior_chol_prec.diagonal() /= contem_lambda; // divide because it is precision
+		prior_chol_prec.array() /= contem_lambda; // divide because it is precision
 	}
 	virtual ~HierminnReg() = default;
 	void doPosteriorDraws() override {
@@ -639,10 +639,10 @@ protected:
 		// }
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
 			}
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
 			}
 		}
 	}
@@ -775,7 +775,7 @@ protected:
 		coef_mixture_mat.array() = spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array();
 		prior_sd.head(num_alpha) = coef_mixture_mat;
 		prior_alpha_prec.setZero();
-		prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
+		prior_alpha_prec = 1 / prior_sd.array().square();
 	}
 	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
@@ -796,7 +796,7 @@ protected:
 		ssvs_local_slab(contem_slab, contem_dummy, contem_coef, contem_ig_shape, contem_ig_scl, contem_spike_scl, rng);
 		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike_scl * contem_slab, contem_weight, rng);
 		ssvs_weight(contem_weight, contem_dummy, contem_s1, contem_s2, rng);
-		prior_chol_prec.diagonal() = 1 / build_ssvs_sd(contem_spike_scl * contem_slab, contem_slab, contem_dummy).array().square();
+		prior_chol_prec = 1 / build_ssvs_sd(contem_spike_scl * contem_slab, contem_slab, contem_dummy).array().square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
@@ -918,7 +918,7 @@ protected:
 		local_fac.array() = coef_var.array() * local_lev.array();
 		lambda_mat.setZero();
 		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
+		prior_alpha_prec.head(num_alpha) = lambda_mat.diagonal();
 		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
 	}
 	void updateCoefShrink() override {
@@ -935,7 +935,8 @@ protected:
 		contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
 		horseshoe_local_sparsity(contem_local_lev, latent_contem_local, contem_var, contem_coef, 1, rng);
 		contem_global_lev[0] = horseshoe_global_sparsity(latent_contem_global[0], latent_contem_local, contem_coef, 1, rng);
-		build_shrink_mat(prior_chol_prec, contem_var, contem_local_lev);
+		prior_chol_prec.setZero();
+		prior_chol_prec = 1 / (contem_var.array() * contem_local_lev.array()).square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
@@ -1062,7 +1063,7 @@ protected:
 		// local_fac.array() = global_lev * coef_var.array() * local_lev.array(); // tilde_lambda
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
 		updateCoefShrink();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
+		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
 	void updateCoefShrink() override {
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
@@ -1078,7 +1079,7 @@ protected:
 		// contem_local_lev = contem_fac / contem_global_lev[0];
 		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
 		// contem_fac = contem_global_lev[0] * contem_local_lev;
-		prior_chol_prec.diagonal() = 1 / contem_fac.array().square();
+		prior_chol_prec = 1 / contem_fac.array().square();
 	}
 	void updateRecords() override {
 		updateCoefRecords();
@@ -1188,7 +1189,7 @@ protected:
 		}
 		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		updateCoefShrink();
-		prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updateCoefShrink() override {
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
@@ -1200,7 +1201,7 @@ protected:
 		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
-		prior_chol_prec.diagonal() = 1 / ((contem_global_lev[0] * contem_local_lev.array()).square() * latent_contem_local.array());
+		prior_chol_prec = 1 / ((contem_global_lev[0] * contem_local_lev.array()).square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
 		updateCoefRecords();
