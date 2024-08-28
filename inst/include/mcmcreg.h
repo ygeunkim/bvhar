@@ -817,16 +817,12 @@ class HorseshoeReg : public McmcReg {
 public:
 	HorseshoeReg(const HorseshoeParams& params, const HsInits& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
-		// grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
-		local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)), latent_group(Eigen::VectorXd::Zero(num_grp)), latent_global(0.0),
-		lambda_mat(Eigen::MatrixXd::Zero(num_alpha, num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
-		// coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)), latent_contem_global(Eigen::VectorXd::Zero(1)) {
@@ -893,29 +889,21 @@ public:
 protected:
 	void updateCoefPrec() override {
 		for (int j = 0; j < num_grp; j++) {
-			// coef_var_loc = (grp_mat.array() == grp_id[j]).select(
-			// 	group_lev[j],
-			// 	coef_var_loc
-			// );
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
 				coef_var
 			);
 		}
-		// coef_var = coef_var_loc.reshaped();
-		local_fac.array() = coef_var.array() * local_lev.array();
-		lambda_mat.setZero();
-		lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
-		prior_alpha_prec.head(num_alpha) = lambda_mat.diagonal();
-		shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
+		prior_alpha_prec.head(num_alpha) = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
+		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
 	}
 	void updateCoefShrink() override {
 		horseshoe_latent(latent_local, local_lev, rng);
 		horseshoe_latent(latent_group, group_lev, rng);
 		horseshoe_latent(latent_global, global_lev, rng);
-		global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
+		global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec.head(num_alpha), 1, rng);
 		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
-		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev, rng);
+		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev * global_lev, rng);
 	}
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
@@ -933,21 +921,17 @@ protected:
 
 private:
 	Eigen::VectorXi grp_id;
-	// Eigen::MatrixXi grp_mat;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	HorseshoeRecords hs_record;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
 	double global_lev;
-	Eigen::VectorXd local_fac;
 	Eigen::VectorXd shrink_fac;
 	Eigen::VectorXd latent_local;
 	Eigen::VectorXd latent_group;
 	double latent_global;
-	Eigen::MatrixXd lambda_mat;
 	Eigen::VectorXd coef_var;
-	// Eigen::MatrixXd coef_var_loc;
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev; // -> double
 	Eigen::VectorXd contem_var;

@@ -797,7 +797,7 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 // @param local_hyperparam Squared local sparsity hyperparameters vector
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
-inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<Eigen::VectorXd> local_hyperparam,
+inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const Eigen::VectorXd> local_hyperparam,
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
 	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
