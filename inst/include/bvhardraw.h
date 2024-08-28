@@ -510,22 +510,38 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 // @param prior_mean Prior mean vector
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
-inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
-														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
+// inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
+// 														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
+//   int dim = prior_mean.size();
+//   Eigen::VectorXd res(dim);
+//   for (int i = 0; i < dim; i++) {
+// 		res[i] = normal_rand(rng);
+//   }
+//   // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+// 	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
+//   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+// 	if (lltOfscale.info() == Eigen::NumericalIssue) {
+// 		// post_sig.diagonal().array() += 1e-8;
+// 		// lltOfscale.compute(post_sig);
+// 		Rcpp::stop("LLT error");
+// 	}
+//   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
+// 	coef = post_mean + lltOfscale.matrixU().solve(res);
+// }
+inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::VectorXd> y,
+											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, boost::random::mt19937& rng) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-  // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
-	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+	Eigen::LLT<Eigen::MatrixXd> lltOfscale(
+		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
+	);
 	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		// post_sig.diagonal().array() += 1e-8;
-		// lltOfscale.compute(post_sig);
 		Rcpp::stop("LLT error");
 	}
-  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
+  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
 }
 
@@ -780,7 +796,7 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 // @param local_hyperparam Squared local sparsity hyperparameters vector
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
-inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<Eigen::VectorXd> local_hyperparam,
+inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const Eigen::VectorXd> local_hyperparam,
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
   int dim = coef_vec.size();
 	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
@@ -994,6 +1010,22 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
 }
 
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+	int num_alpha = coef.size();
+	int mn_size = 0;
+	double gig_chi = 0;
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			coef_prec[i] *= lambda;
+			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
+			mn_size++;
+		}
+	}
+	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+}
+
 // Generating contemporaneous lambda of Minnesota-SV
 // 
 // @param lambda lambda1 or lambda2
@@ -1012,6 +1044,15 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 	double gig_chi = (coef - coef_mean).squaredNorm();
 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
 	coef_prec.diagonal() /= lambda;
+}
+
+inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 				Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+														 				boost::random::mt19937& rng) {
+	coef_prec.array() *= lambda;
+	double gig_chi = (coef - coef_mean).squaredNorm();
+	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+	coef_prec.array() /= lambda;
 }
 
 // Generating local shrinkage of Normal-Gamma prior
@@ -1146,7 +1187,7 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 // @param ortho_latent Residual matrix of triangular equation
 // @param rng boost rng
 inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
-													Eigen::MatrixXd& ortho_latent, boost::random::mt19937& rng) {
+													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, boost::random::mt19937& rng) {
 	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		// diag_vec[i] = 1 / gamma_rand(
