@@ -353,10 +353,10 @@ public:
 		contem_id(0),
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
-		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
-		prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
-		prior_prec_j(Eigen::VectorXd::Ones(dim_design)),
-		coef_j(coef_mat),
+		// ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
+		// prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
+		// prior_prec_j(Eigen::VectorXd::Ones(dim_design)),
+		// coef_j(coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		sparse_coef(Eigen::MatrixXd::Zero(num_alpha / dim, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
@@ -417,7 +417,6 @@ protected:
 	SparseRecords sparse_record;
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
-	// Eigen::VectorXd prior_mean_non; // prior mean of intercept term
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::VectorXd diag_vec; // inverse of d_i
@@ -429,28 +428,23 @@ protected:
 	int contem_id;
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
-  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
-	Eigen::VectorXd prior_prec_j; // Prior precision of j-th column of A
-  Eigen::MatrixXd coef_j; // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
+  // Eigen::MatrixXd ortho_latent; // orthogonalized Z0
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
 	void updateCoef() {
 		for (int j = 0; j < dim; j++) {
-			prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
-			prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
-			coef_j = coef_mat;
-			coef_j.col(j).setZero();
+			coef_mat.col(j).setZero(); // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::VectorXd response_j = (((y - x * coef_j) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			draw_coef(
 				coef_mat.col(j),
 				design_coef, response_j,
-				prior_mean_j, prior_prec_j,
+				prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
+				prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
 				rng
 			);
 			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
@@ -461,9 +455,9 @@ protected:
 		}
 	}
 	void updateDiag() {
-		ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
-		// ortho_latent = (ortho_latent.array().square() + .0001).array().log(); // adjustment log(e^2 + c) for some c = 10^(-4) against numerical problems
-		reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, ortho_latent, rng);
+		// ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
+		// reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, ortho_latent, rng);
+		reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, latent_innov * chol_lower.transpose(), rng);
 	}
 	void updateImpact() {
 		for (int j = 2; j < dim + 1; j++) {

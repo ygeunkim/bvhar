@@ -510,26 +510,25 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 // @param prior_mean Prior mean vector
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
-inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
-														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
-  int dim = prior_mean.size();
-  Eigen::VectorXd res(dim);
-  for (int i = 0; i < dim; i++) {
-		res[i] = normal_rand(rng);
-  }
-  // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
-	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
-  Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
-	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		// post_sig.diagonal().array() += 1e-8;
-		// lltOfscale.compute(post_sig);
-		Rcpp::stop("LLT error");
-	}
-  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
-	coef = post_mean + lltOfscale.matrixU().solve(res);
-}
-
-inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
+// inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
+// 														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
+//   int dim = prior_mean.size();
+//   Eigen::VectorXd res(dim);
+//   for (int i = 0; i < dim; i++) {
+// 		res[i] = normal_rand(rng);
+//   }
+//   // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
+// 	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
+//   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
+// 	if (lltOfscale.info() == Eigen::NumericalIssue) {
+// 		// post_sig.diagonal().array() += 1e-8;
+// 		// lltOfscale.compute(post_sig);
+// 		Rcpp::stop("LLT error");
+// 	}
+//   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
+// 	coef = post_mean + lltOfscale.matrixU().solve(res);
+// }
+inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::VectorXd> y,
 											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, boost::random::mt19937& rng) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
@@ -1188,7 +1187,7 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 // @param ortho_latent Residual matrix of triangular equation
 // @param rng boost rng
 inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
-													Eigen::MatrixXd& ortho_latent, boost::random::mt19937& rng) {
+													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, boost::random::mt19937& rng) {
 	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		// diag_vec[i] = 1 / gamma_rand(
