@@ -343,7 +343,6 @@ public:
 		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
 		mcmc_step(0), rng(seed),
 		// prior_mean_non(params._mean_non),
-		prior_sd_non(params._sd_non * Eigen::VectorXd::Ones(dim)),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
 		contem_coef(inits._contem), diag_vec(inits._diag),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
@@ -364,7 +363,7 @@ public:
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
-			prior_alpha_prec.tail(dim) = 1 / prior_sd_non.array().square();
+			prior_alpha_prec.tail(dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
 		}
 		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
 		if (include_mean) {
@@ -419,7 +418,6 @@ protected:
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
 	// Eigen::VectorXd prior_mean_non; // prior mean of intercept term
-	Eigen::VectorXd prior_sd_non; // prior sd of intercept term: c^2 I
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::VectorXd diag_vec; // inverse of d_i
@@ -709,12 +707,7 @@ public:
 		contem_slab(inits._contem_slab),
 		coef_s1(params._coef_s1), coef_s2(params._coef_s2),
 		contem_s1(params._contem_s1), contem_s2(params._contem_s2),
-		prior_sd(Eigen::VectorXd::Zero(num_coef)),
-		slab_weight(Eigen::VectorXd::Ones(num_alpha)),
-		coef_mixture_mat(Eigen::VectorXd::Zero(num_alpha)) {
-		if (include_mean) {
-			prior_sd.tail(dim) = prior_sd_non;
-		}
+		slab_weight(Eigen::VectorXd::Ones(num_alpha)) {
 		ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	virtual ~SsvsReg() = default;
@@ -772,10 +765,7 @@ protected:
 	void updateCoefPrec() override {
 		// coef_mixture_mat = build_ssvs_sd(coef_spike, coef_slab, coef_dummy);
 		ssvs_local_slab(coef_slab, coef_dummy, coef_vec.head(num_alpha), ig_shape, ig_scl, spike_scl, rng);
-		coef_mixture_mat.array() = spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array();
-		prior_sd.head(num_alpha) = coef_mixture_mat;
-		prior_alpha_prec.setZero();
-		prior_alpha_prec = 1 / prior_sd.array().square();
+		prior_alpha_prec.head(num_alpha).array() = 1 / (spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array());
 	}
 	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
@@ -820,9 +810,7 @@ private:
 	Eigen::VectorXd contem_slab;
 	Eigen::VectorXd coef_s1, coef_s2;
 	double contem_s1, contem_s2;
-	Eigen::VectorXd prior_sd;
 	Eigen::VectorXd slab_weight; // pij vector
-	Eigen::VectorXd coef_mixture_mat;
 };
 
 class HorseshoeReg : public McmcReg {
