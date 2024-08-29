@@ -415,25 +415,18 @@ public:
 		sv_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
 		mcmc_step(0), rng(seed),
-		// prior_mean_non(params._mean_non),
-		// prior_sd_non(params._sd_non * Eigen::VectorXd::Ones(dim)),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
 		contem_coef(inits._contem),
 		lvol_draw(inits._lvol), lvol_init(inits._lvol_init), lvol_sig(inits._lvol_sig),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
-		// prior_alpha_prec(Eigen::MatrixXd::Zero(num_coef, num_coef)),
 		prior_alpha_prec(Eigen::VectorXd::Zero(num_coef)),
 		prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
-		// prior_chol_prec(Eigen::MatrixXd::Identity(num_lowerchol, num_lowerchol)),
 		prior_chol_prec(Eigen::VectorXd::Ones(num_lowerchol)),
 		coef_mat(inits._coef),
 		contem_id(0),
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
-		// prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
-		// prior_prec_j(Eigen::VectorXd::Ones(dim_design)),
-		// coef_j(coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		sparse_coef(Eigen::MatrixXd::Zero(num_alpha / dim, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
@@ -511,24 +504,21 @@ protected:
 	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
 	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	// Eigen::VectorXd prior_mean_j; // Prior mean vector of j-th column of A
-	// Eigen::VectorXd prior_prec_j; // Prior precision of j-th column of A
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
 	void updateCoef() {
 		for (int j = 0; j < dim; j++) {
-			// prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
-			// prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
 			coef_mat.col(j).setZero(); // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() * sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			// Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			draw_coef(
 				coef_mat.col(j),
-				design_coef, response_j,
+				design_coef,
+				(((y - x * coef_mat) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(),
 				prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
 				prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
 				rng
