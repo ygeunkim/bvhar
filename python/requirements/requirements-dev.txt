@@ -107,6 +107,7 @@ numpy=2.1.0=py311hc11d9cb_0
 openssl=3.3.1=hd23fc13_3
 overrides=7.7.0=pyhd8ed1ab_0
 packaging=24.1=pyhd8ed1ab_0
+pandas=2.2.2=py311hfdcbad3_1
 pandoc=3.3=h694c41f_0
 pandocfilters=1.5.0=pyhd8ed1ab_0
 parso=0.8.4=pyhd8ed1ab_0
@@ -137,6 +138,7 @@ python=3.11.9=h657bba9_0_cpython
 python-dateutil=2.9.0=pyhd8ed1ab_0
 python-fastjsonschema=2.20.0=pyhd8ed1ab_0
 python-json-logger=2.0.7=pyhd8ed1ab_0
+python-tzdata=2024.1=pyhd8ed1ab_0
 python_abi=3.11=5_cp311
 pytz=2024.1=pyhd8ed1ab_0
 pyyaml=6.0.2=py311h72ae277_0
