@@ -3,7 +3,7 @@ from setuptools.command.build_ext import build_ext as _build_ext
 import sys
 import os
 # import glob
-import subprocess
+# import subprocess
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
