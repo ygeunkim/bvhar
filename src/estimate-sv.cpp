@@ -36,9 +36,6 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            bool include_mean,
 													 Eigen::VectorXi seed_chain,
                            bool display_progress, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
 	std::vector<std::unique_ptr<bvhar::McmcSv>> sv_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
@@ -148,10 +145,11 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				break;
 			}
 			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
+			// if (display_progress) {
+			// 	bar.update();
+			// }
 			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+			bar.update();
 		}
 	#ifdef _OPENMP
 		#pragma omp critical

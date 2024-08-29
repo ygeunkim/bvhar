@@ -342,7 +342,6 @@ public:
 		reg_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
 		mcmc_step(0), rng(seed),
-		// prior_mean_non(params._mean_non),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
 		contem_coef(inits._contem), diag_vec(inits._diag),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
@@ -354,10 +353,8 @@ public:
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
 		// ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
-		// prior_mean_j(Eigen::VectorXd::Zero(dim_design)),
-		// prior_prec_j(Eigen::VectorXd::Ones(dim_design)),
-		// coef_j(coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
+		// response_contem(Eigen::MatrixXd::Zero(num_design, dim)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		sparse_coef(Eigen::MatrixXd::Zero(num_alpha / dim, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
@@ -430,6 +427,7 @@ protected:
 	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
   // Eigen::MatrixXd ortho_latent; // orthogonalized Z0
 	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	// Eigen::MatrixXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
@@ -439,10 +437,11 @@ protected:
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			// Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			draw_coef(
 				coef_mat.col(j),
-				design_coef, response_j,
+				design_coef,
+				(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
 				prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
 				prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
 				rng
@@ -460,6 +459,7 @@ protected:
 		reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, latent_innov * chol_lower.transpose(), rng);
 	}
 	void updateImpact() {
+		// response_contem.array() = latent_innov.array() / sqrt_sv.array();
 		for (int j = 2; j < dim + 1; j++) {
 			response_contem = latent_innov.col(j - 2).array() / sqrt_sv.col(j - 2).array(); // n-dim
 			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() / sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
@@ -574,11 +574,10 @@ public:
 	void doPosteriorDraws() override {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
-		updateCoefShrink();
+		// updateCoefShrink();
 		updateCoefPrec();
 		sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1);
 		updateCoef();
-		// updateCoefShrink();
 		updateImpactPrec();
 		latent_innov = y - x * coef_mat; // E_t before a
 		updateImpact();
@@ -617,18 +616,7 @@ public:
 
 protected:
 	void updateCoefPrec() override {
-		// minnesota_lambda(
-		// 	own_lambda, own_shape, own_rate,
-		// 	coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-		// 	grp_vec, own_id, rng
-		// );
-		// if (coef_minnesota) {
-		// 	minnesota_lambda(
-		// 		cross_lambda, cross_shape, cross_rate,
-		// 		coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-		// 		grp_vec, cross_id, rng
-		// 	);
-		// }
+		updateCoefShrink();
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
@@ -651,14 +639,6 @@ protected:
 				grp_vec, cross_id, rng
 			);
 		}
-		// for (int i = 0; i < num_alpha; ++i) {
-		// 	if (own_id.find(grp_vec[i]) != own_id.end()) {
-		// 		prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-		// 	}
-		// 	if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-		// 		prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-		// 	}
-		// }
 	};
 	void updateImpactPrec() override {
 		minnesota_contem_lambda(
@@ -941,7 +921,6 @@ public:
 		ng_record(num_iter, num_alpha, num_grp),
 		mh_sd(params._mh_sd),
 		local_shape(inits._init_local_shape), local_shape_fac(Eigen::VectorXd::Ones(num_alpha)),
-		// local_shape_loc(Eigen::MatrixXd::Ones(num_alpha / dim, dim)),
 		contem_shape(inits._init_contem_shape),
 		group_shape(params._group_shape), group_scl(params._global_scl),
 		global_shape(params._global_shape), global_scl(params._global_scl),
@@ -949,7 +928,6 @@ public:
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		// local_fac(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
-		// coef_var_loc(Eigen::MatrixXd::Zero(num_alpha / dim, dim)),
 		// contem_local_lev(inits._init_contem_local),
 		contem_global_lev(inits._init_conetm_global),
 		// contem_var(Eigen::VectorXd::Zero(num_lowerchol)),
@@ -1059,7 +1037,6 @@ private:
 	NgRecords ng_record;
 	double mh_sd;
 	Eigen::VectorXd local_shape, local_shape_fac;
-	// Eigen::MatrixXd local_shape_loc;
 	double contem_shape;
 	double group_shape, group_scl, global_shape, global_scl, contem_global_shape, contem_global_scl;
 	Eigen::VectorXd local_lev;
@@ -1067,7 +1044,6 @@ private:
 	double global_lev;
 	// Eigen::VectorXd local_fac;
 	Eigen::VectorXd coef_var;
-	// Eigen::MatrixXd coef_var_loc;
 	// Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	// Eigen::VectorXd contem_var;
