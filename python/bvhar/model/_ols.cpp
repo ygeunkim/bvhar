@@ -3,6 +3,16 @@
 
 py::dict bvhar::MultiOls::returnOlsRes() {
 	this->fit();
+	// py::dict res;
+	// res["coefficients"] = this->coef;
+	// res["fitted.values"] = this->yhat;
+	// res["residuals"] = this->resid;
+	// res["covmat"] = this->cov;
+	// res["df"] = this->dim_design;
+	// res["m"] = this->dim;
+	// res["obs"] = this->num_design;
+	// res["y0"] = this->response;
+	// return res;
 	return py::dict(
 		py::arg("coefficients") = this->coef,
 		py::arg("fitted.values") = this->yhat,
@@ -17,6 +27,7 @@ py::dict bvhar::MultiOls::returnOlsRes() {
 
 py::dict bvhar::OlsVar::returnOlsRes() {
 	py::dict ols_res = this->_ols->returnOlsRes();
+	// py::dict ols_res;
 	ols_res["p"] = this->lag;
 	ols_res["totobs"] = this->data.rows();
 	ols_res["process"] = "VAR";
@@ -40,11 +51,14 @@ py::dict bvhar::OlsVhar::returnOlsRes() {
 	return ols_res;
 }
 
-PYBIND11_MODULE(ols, m) {
+PYBIND11_MODULE(_ols, m) {
 	m.doc() = "OLS for VAR and VHAR";
 
   py::class_<bvhar::MultiOls>(m, "MultiOls")
     .def(py::init<const Eigen::MatrixXd&, const Eigen::MatrixXd&>())
+		.def("estimateCoef", &bvhar::MultiOls::estimateCoef)
+		.def("fitObs", &bvhar::MultiOls::fitObs)
+		.def("estimateCov", &bvhar::MultiOls::estimateCov)
 		.def("fit", &bvhar::MultiOls::fit)
     .def("return_ols_res", &bvhar::MultiOls::returnOlsRes);
 	
