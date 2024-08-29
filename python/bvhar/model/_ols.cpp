@@ -3,16 +3,6 @@
 
 py::dict bvhar::MultiOls::returnOlsRes() {
 	this->fit();
-	// py::dict res;
-	// res["coefficients"] = this->coef;
-	// res["fitted.values"] = this->yhat;
-	// res["residuals"] = this->resid;
-	// res["covmat"] = this->cov;
-	// res["df"] = this->dim_design;
-	// res["m"] = this->dim;
-	// res["obs"] = this->num_design;
-	// res["y0"] = this->response;
-	// return res;
 	return py::dict(
 		py::arg("coefficients") = this->coef,
 		py::arg("fitted.values") = this->yhat,
@@ -27,7 +17,6 @@ py::dict bvhar::MultiOls::returnOlsRes() {
 
 py::dict bvhar::OlsVar::returnOlsRes() {
 	py::dict ols_res = this->_ols->returnOlsRes();
-	// py::dict ols_res;
 	ols_res["p"] = this->lag;
 	ols_res["totobs"] = this->data.rows();
 	ols_res["process"] = "VAR";
@@ -71,14 +60,14 @@ PYBIND11_MODULE(_ols, m) {
 	py::class_<bvhar::OlsVar>(m, "OlsVar")
 		.def(
 			py::init<const Eigen::MatrixXd&, int, const bool, int>(),
-			py::arg("y"), py::arg("lag"), py::arg("include_mean"), py::arg("method")
+			py::arg("y"), py::arg("lag") = 1, py::arg("include_mean") = true, py::arg("method") = 1
 		)
 		.def("return_ols_res", &bvhar::OlsVar::returnOlsRes);
 	
 	py::class_<bvhar::OlsVhar>(m, "OlsVhar")
 		.def(
 			py::init<const Eigen::MatrixXd&, int, int, const bool, int>(),
-			py::arg("y"), py::arg("week"), py::arg("month"), py::arg("include_mean"), py::arg("method")
+			py::arg("y"), py::arg("week") = 5, py::arg("month") = 22, py::arg("include_mean") = true, py::arg("method") = 1
 		)
 		.def("return_ols_res", &bvhar::OlsVhar::returnOlsRes);
 }
