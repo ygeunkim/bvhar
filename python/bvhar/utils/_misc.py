@@ -40,3 +40,11 @@ def check_np(data):
             pass
         # Add polars?
         raise ValueError("Unsupported data type.")
+
+def get_var_intercept(coef : np.array, lag: int, fit_intercept : bool):
+    dim_design, dim_data = coef.shape
+    if not fit_intercept:
+        return np.repeat(0, dim_data)
+    if dim_design != dim_data * lag + 1:
+        ValueError()
+    return coef[-1]
