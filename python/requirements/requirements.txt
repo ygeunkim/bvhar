@@ -6,7 +6,7 @@ attrs=24.2.0=pypi_0
 beartype=0.18.5=pypi_0
 boost-cpp=1.85.0=hfcd56d9_4
 bzip2=1.0.8=hfdf4475_7
-ca-certificates=2024.7.4=h8857fd0_0
+ca-certificates=2024.8.30=h8857fd0_0
 certifi=2024.7.4=pypi_0
 charset-normalizer=3.3.2=pypi_0
 click=8.1.7=pypi_0
@@ -38,10 +38,11 @@ libzlib=1.3.1=h87427d6_1
 llvm-openmp=18.1.8=h15ab845_1
 markdown-it-py=3.0.0=pypi_0
 mdurl=0.1.2=pypi_0
-ncurses=6.5=h5846eda_0
+ncurses=6.5=hf036a51_1
 numpy=2.1.0=py311hc11d9cb_0
-openssl=3.3.1=h87427d6_2
+openssl=3.3.1=hd23fc13_3
 packaging=24.1=pyhd8ed1ab_0
+pandas=2.2.2=py311hfdcbad3_1
 pip=24.2=pyhd8ed1ab_0
 pluggy=1.5.0=pyhd8ed1ab_0
 plum-dispatch=2.5.2=pypi_0
@@ -52,7 +53,10 @@ pydantic-core=2.20.1=pypi_0
 pygments=2.18.0=pypi_0
 pytest=8.3.2=pyhd8ed1ab_0
 python=3.11.9=h657bba9_0_cpython
+python-dateutil=2.9.0=pyhd8ed1ab_0
+python-tzdata=2024.1=pyhd8ed1ab_0
 python_abi=3.11=5_cp311
+pytz=2024.1=pyhd8ed1ab_0
 pyyaml=6.0.2=pypi_0
 quartodoc=0.7.6=pypi_0
 readline=8.2=h9e318b2_1
@@ -61,6 +65,7 @@ requests=2.32.3=pypi_0
 rich=13.7.1=pypi_0
 rpds-py=0.20.0=pypi_0
 setuptools=72.2.0=pyhd8ed1ab_0
+six=1.16.0=pyh6c4a22f_0
 sphobjinv=2.3.1.1=pypi_0
 tabulate=0.9.0=pypi_0
 tk=8.6.13=h1abcd95_1

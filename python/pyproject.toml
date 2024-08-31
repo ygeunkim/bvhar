@@ -13,7 +13,8 @@ authors = [
 keywords = ["bayesian", "time series"]
 dependencies = [
     "pybind11",
-    "numpy"
+    "numpy",
+    "pandas"
 ]
 
 [tool.setuptools.packages.find]

@@ -116,7 +116,8 @@ setup(
     keywords=['bayesian', 'time series'],
     install_requires=[
         'pybind11',
-        'numpy'
+        'numpy',
+        'pandas'
     ],
     ext_modules=find_module('bvhar'),
     cmdclass={'build_ext': BuildExt}

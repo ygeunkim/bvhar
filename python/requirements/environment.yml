@@ -4,7 +4,7 @@ channels:
 dependencies:
   - boost-cpp=1.85.0
   - bzip2=1.0.8
-  - ca-certificates=2024.7.4
+  - ca-certificates=2024.8.30
   - colorama=0.4.6
   - eigen=3.4.0
   - exceptiongroup=1.2.2
@@ -29,15 +29,20 @@ dependencies:
   - numpy=2.1.0
   - openssl=3.3.1
   - packaging=24.1
+  - pandas=2.2.2
   - pip=24.2
   - pluggy=1.5.0
   - pybind11=2.13.5
   - pybind11-global=2.13.5
   - pytest=8.3.2
   - python=3.11.9
+  - python-dateutil=2.9.0
+  - python-tzdata=2024.1
   - python_abi=3.11
+  - pytz=2024.1
   - readline=8.2
   - setuptools=72.2.0
+  - six=1.16.0
   - tk=8.6.13
   - tomli=2.0.1
   - tzdata=2024a

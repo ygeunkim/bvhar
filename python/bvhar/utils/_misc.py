@@ -48,3 +48,17 @@ def get_var_intercept(coef : np.array, lag: int, fit_intercept : bool):
     if dim_design != dim_data * lag + 1:
         ValueError()
     return coef[-1]
+
+def build_grpmat(p, dim_data, minnesota = "longrun"):
+    if minnesota not in ["longrun", "short", "no"]:
+        raise ValueError(f"Argument ('minnesota')={method} is not valid: Choose between {['longrun', 'short', 'no']}")
+    if minnesota == "no":
+        return np.full((p * dim_data, dim_data), 1)
+    res = [np.identity(dim_data) + 1]
+    for i in range(1, p):
+        if minnesota == "longrun":
+            lag_grp = np.identity(dim_data) + (i * 2 + 1)
+        else:
+            lag_grp = np.full((dim_data, dim_data), i + 2)
+        res.append(lag_grp)
+    return np.vstack(res)
