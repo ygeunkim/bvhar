@@ -9,6 +9,8 @@
 	#define FLUSH Rcpp::Rcout.flush()
 #else
 	#include <iostream>
+	#define COUT std::cout
+	#define ENDL std::endl
 	#define FLUSH std::cout.flush()
 #endif
 

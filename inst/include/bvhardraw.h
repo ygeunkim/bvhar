@@ -4,6 +4,25 @@
 #include "bvharsim.h"
 #include <set>
 #include <string>
+#ifdef USE_RCPP
+	#define LIST Rcpp::List
+	#define CAST Rcpp::as
+	#define CAST_DOUBLE(value) value
+	#define CONTAINS(container, key) container.containsElementNamed(key)
+	#define CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
+	#define NAMED Rcpp::Named
+	#define ACCESS_AUTO(iterator) iterator
+	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
+#else
+	#define LIST py::dict
+  #define CAST py::cast
+	#define CAST_DOUBLE(value) py::cast<double>(value)
+	#define CONTAINS(container, key) container.contains(key)
+	#define CREATE_LIST(...) py::dict(__VA_ARGS__)
+	#define NAMED py::arg
+	#define ACCESS_AUTO(iterator) iterator.second
+	#define IS_MATRIX(element) py::isinstance<py::array_t<double>>(element)
+#endif
 
 namespace bvhar {
 
@@ -28,14 +47,14 @@ struct RegParams {
 
 	RegParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& spec, Rcpp::List& intercept,
+		LIST& spec, LIST& intercept,
 		bool include_mean
 	)
 	: _iter(num_iter), _x(x), _y(y),
-		_sig_shp(Rcpp::as<Eigen::VectorXd>(spec["shape"])),
-		_sig_scl(Rcpp::as<Eigen::VectorXd>(spec["scale"])),
-		_mean_non(Rcpp::as<Eigen::VectorXd>(intercept["mean_non"])),
-		_sd_non(intercept["sd_non"]), _mean(include_mean) {}
+		_sig_shp(CAST<Eigen::VectorXd>(spec["shape"])),
+		_sig_scl(CAST<Eigen::VectorXd>(spec["scale"])),
+		_mean_non(CAST<Eigen::VectorXd>(intercept["mean_non"])),
+		_sd_non(CAST_DOUBLE(intercept["sd_non"])), _mean(include_mean) {}
 };
 
 struct RegInits {
@@ -48,9 +67,10 @@ struct RegInits {
 		int num_lowerchol = dim * (dim - 1) / 2;
 		_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	}
-	RegInits(Rcpp::List& init)
-	: _coef(Rcpp::as<Eigen::MatrixXd>(init["init_coef"])),
-		_contem(Rcpp::as<Eigen::VectorXd>(init["init_contem"])) {}
+
+	RegInits(LIST& init)
+	: _coef(CAST<Eigen::MatrixXd>(init["init_coef"])),
+		_contem(CAST<Eigen::VectorXd>(init["init_contem"])) {}
 };
 
 struct RegRecords {
@@ -539,7 +559,7 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
 	);
 	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		Rcpp::stop("LLT error");
+		STOP("LLT error");
 	}
   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
 	coef = post_mean + lltOfscale.matrixU().solve(res);
