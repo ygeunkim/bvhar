@@ -1,0 +1,40 @@
+on:
+  push:
+    branches: [feature/python] # change to [main, master, 'hotfix/*', 'release/*', develop] after finishing the branch
+  pull_request:
+    branches: [feature/python] # change to [main, master, 'hotfix/*', 'release/*', develop] after finishing the branch
+
+name: Python pip installation
+
+jobs:
+  test-pip:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    defaults:
+      run:
+        working-directory: python
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+      
+      - name: Install requirements
+        run: pip install -r requirements/requirements.txt
+      
+      - name: Install via pip
+        run: pip install .
+      
+      - name: Run tests
+        run: pytest tests
