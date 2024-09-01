@@ -65,52 +65,39 @@ public:
 	void estimateCov() {
 		cov = resid.transpose() * resid / (num_design - dim_design);
 	}
-	void fit() {
+	LIST returnOlsRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-	}
-#ifdef USE_RCPP
-	Rcpp::List returnOlsRes() {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
-		fit();
-		return Rcpp::List::create(
-			Rcpp::Named("coefficients") = coef,
-			Rcpp::Named("fitted.values") = yhat,
-			Rcpp::Named("residuals") = resid,
-			Rcpp::Named("covmat") = cov,
-			Rcpp::Named("df") = dim_design,
-			Rcpp::Named("m") = dim,
-			Rcpp::Named("obs") = num_design,
-			Rcpp::Named("y0") = response
+		return CREATE_LIST(
+			NAMED("coefficients") = coef,
+			NAMED("fitted.values") = yhat,
+			NAMED("residuals") = resid,
+			NAMED("covmat") = cov,
+			NAMED("df") = dim_design,
+			NAMED("m") = dim,
+			NAMED("obs") = num_design,
+			NAMED("y0") = response
 		);
 	}
-#else
-	py::dict returnOlsRes();
-#endif
 	OlsFit returnOlsFit(int ord) {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
-		fit();
+		estimateCoef();
+		fitObs();
+		estimateCov();
 		OlsFit res(coef, ord);
 		return res;
 	}
 	StructuralFit returnStructuralFit(int ord, int lag_max) {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
-		fit();
+		estimateCoef();
+		fitObs();
+		estimateCov();
 		StructuralFit res(coef, ord, lag_max, cov);
 		return res;
 	}
 	StructuralFit returnStructuralFit(const Eigen::MatrixXd& trans_mat, int ord, int lag_max) {
-		// estimateCoef();
-		// fitObs();
-		// estimateCov();
-		fit();
+		estimateCoef();
+		fitObs();
+		estimateCov();
 		StructuralFit res(trans_mat.transpose() * coef, ord, lag_max, cov);
 		return res;
 	}
@@ -171,9 +158,8 @@ public:
 		}
 	}
 	virtual ~OlsVar() = default;
-#ifdef USE_RCPP
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = lag;
 		ols_res["totobs"] = data.rows();
 		ols_res["process"] = "VAR";
@@ -182,9 +168,6 @@ public:
 		ols_res["y"] = data;
 		return ols_res;
 	}
-#else
-	py::dict returnOlsRes();
-#endif
 	OlsFit returnOlsFit() {
 		OlsFit res = _ols->returnOlsFit(lag);
 		return res;
@@ -223,9 +206,8 @@ public:
 		}
 	}
 	virtual ~OlsVhar() = default;
-#ifdef USE_RCPP
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = 3;
 		ols_res["week"] = week;
 		ols_res["month"] = month;
@@ -237,9 +219,6 @@ public:
 		ols_res["y"] = data;
 		return ols_res;
 	}
-#else
-	py::dict returnOlsRes();
-#endif
 	OlsFit returnOlsFit() {
 		OlsFit res = _ols->returnOlsFit(month);
 		res._ord = month;

@@ -1,16 +1,7 @@
 #ifndef BVHARDESIGN_H
 #define BVHARDESIGN_H
 
-#ifdef USE_RCPP
-	#include <RcppEigen.h>
-#else
-	#include <Eigen/Dense>
-	#include <Eigen/Cholesky>
-	#include <Eigen/QR>
-	#include <unsupported/Eigen/KroneckerProduct>
-	#include <pybind11/pybind11.h>
-	namespace py = pybind11;
-#endif
+#include "commondefs.h"
 
 namespace bvhar {
 
