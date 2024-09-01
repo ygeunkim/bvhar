@@ -4,34 +4,6 @@
 #include "bvharsim.h"
 #include <set>
 #include <string>
-#ifdef USE_RCPP
-	#define LIST Rcpp::List
-	#define CAST Rcpp::as
-	#define CAST_DOUBLE(value) value
-	#define CONTAINS(container, key) container.containsElementNamed(key)
-	#define CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
-	#define NAMED Rcpp::Named
-	#define ACCESS_LIST(iterator, list) iterator
-	// #define ACCESS_LIST(list, i) list[i]
-	// #define ACCESS_AUTO(iterator) iterator
-	// #define CAST_THIN_RESULT(value) value
-	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
-	#define CAST_MATRIX(element) element
-#else
-	#define LIST py::dict
-  #define CAST py::cast
-	#define CAST_DOUBLE(value) py::cast<double>(value)
-	#define CONTAINS(container, key) container.contains(key)
-	#define CREATE_LIST(...) py::dict(__VA_ARGS__)
-	#define NAMED py::arg
-	#define ACCESS_LIST(iterator, list) list[iterator.first]
-	// #define ACCESS_LIST(list, i) list[list.first[i]]
-	// #define ACCESS_AUTO(iterator) iterator.second
-	// #define CAST_THIN_RESULT(value) py::cast(value)
-	// #define IS_MATRIX(element) py::isinstance<Eigen::MatrixXd>(element)
-	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
-	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
-#endif
 
 namespace bvhar {
 
