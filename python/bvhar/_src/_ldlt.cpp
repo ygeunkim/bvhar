@@ -1,3 +1,5 @@
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include <pybind11/eigen.h>
 #include <mcmcreg.h>
 
@@ -13,10 +15,8 @@ public:
 		bool include_mean, const Eigen::VectorXi& seed_chain,
 		bool display_progress, int nthreads
 	)
-	: prior(prior_type),
-		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
-		display_progress(display_progress),
-		sur_objs(num_chains, nullptr), res(num_chains) {
+	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
+		display_progress(display_progress), sur_objs(num_chains), res(num_chains) {
 		switch (prior_type) {
 			case 1: {
 				bvhar::MinnParams minn_params(
@@ -113,9 +113,11 @@ public:
 protected:
 	void runGibbs(int chain) {
 		bvhar::bvharprogress bar(num_iter, display_progress);
-		bar.increment();
-		sur_objs[chain]->doPosteriorDraws();
-		bar.update();
+		for (int i = 0; i < num_iter; ++i) {
+			bar.increment();
+			sur_objs[chain]->doPosteriorDraws();
+			bar.update();
+		}
 	#ifdef _OPENMP
 		#pragma omp critical
 	#endif
@@ -137,42 +139,18 @@ protected:
 	}
 
 private:
-	int prior;
 	int num_chains;
 	int num_iter;
 	int num_burn;
 	int thin;
+	int nthreads;
 	bool display_progress;
 	std::vector<std::unique_ptr<bvhar::McmcReg>> sur_objs;
 	std::vector<py::dict> res;
 };
 
-
 PYBIND11_MODULE(_ldlt, m) {
 	m.doc() = "MCMC for VAR-LDLT and VHAR-LDLT";
-
-	// py::class_<bvhar::RegParams>(m, "RegParams")
-	// 	.def(py::init<int, const Eigen::MatrixXd&, const Eigen::MatrixXd&, py::dict&, py::dict&, bool>())
-	// 	.def_readwrite("_iter", &bvhar::RegParams::_iter)
-	// 	.def_readwrite("_x", &bvhar::RegParams::_x)
-	// 	.def_readwrite("_y", &bvhar::RegParams::_y)
-	// 	.def_readwrite("_sig_shp", &bvhar::RegParams::_sig_shp)
-	// 	.def_readwrite("_sig_scl", &bvhar::RegParams::_sig_scl)
-	// 	.def_readwrite("_sd_non", &bvhar::RegParams::_sd_non)
-	// 	.def_readwrite("_mean", &bvhar::RegParams::_mean);
-	
-	// py::class_<bvhar::RegInits>(m, "RegInits")
-	// 	.def(py::init<py::dict&>())
-	// 	.def_readwrite("_coef", &bvhar::RegInits::_coef)
-	// 	.def_readwrite("_contem", &bvhar::RegInits::_contem);
-
-	// py::class_<bvhar::LdltInits, bvhar::RegInits>(m, "LdldInits")
-	// 	.def(py::init<py::dict&>())
-	// 	.def_readwrite("_diag", &bvhar::LdltInits::_diag);
-
-  // py::class_<bvhar::McmcReg>(m, "McmcReg")
-  //   .def(py::init<const bvhar::RegParams&, const bvhar::LdltInits&, unsigned int>())
-	// 	.def("returnRecords", &bvhar::McmcReg::returnRecords);
 
 	py::class_<McmcLdlt>(m, "McmcLdlt")
 		.def(
@@ -181,6 +159,5 @@ PYBIND11_MODULE(_ldlt, m) {
 			std::vector<py::dict>&, int, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&,
 			const Eigen::MatrixXi&, bool, const Eigen::VectorXi&, bool, int>()
 		)
-		.def("fit", &McmcLdlt::fit)
 		.def("returnRecords", &McmcLdlt::returnRecords);
 }

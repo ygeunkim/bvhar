@@ -11,8 +11,12 @@
 	#define CONTAINS(container, key) container.containsElementNamed(key)
 	#define CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
 	#define NAMED Rcpp::Named
-	#define ACCESS_AUTO(iterator) iterator
+	#define ACCESS_LIST(iterator, list) iterator
+	// #define ACCESS_LIST(list, i) list[i]
+	// #define ACCESS_AUTO(iterator) iterator
+	// #define CAST_THIN_RESULT(value) value
 	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
+	#define CAST_MATRIX(element) element
 #else
 	#define LIST py::dict
   #define CAST py::cast
@@ -20,8 +24,13 @@
 	#define CONTAINS(container, key) container.contains(key)
 	#define CREATE_LIST(...) py::dict(__VA_ARGS__)
 	#define NAMED py::arg
-	#define ACCESS_AUTO(iterator) iterator.second
-	#define IS_MATRIX(element) py::isinstance<py::array_t<double>>(element)
+	#define ACCESS_LIST(iterator, list) list[iterator.first]
+	// #define ACCESS_LIST(list, i) list[list.first[i]]
+	// #define ACCESS_AUTO(iterator) iterator.second
+	// #define CAST_THIN_RESULT(value) py::cast(value)
+	// #define IS_MATRIX(element) py::isinstance<Eigen::MatrixXd>(element)
+	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
+	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
 #endif
 
 namespace bvhar {
@@ -310,6 +319,7 @@ inline Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
   return res;
 }
 
+#ifdef USE_RCPP
 // Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 // 
 // In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
@@ -434,6 +444,7 @@ inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen:
 	Eigen::MatrixXd normal_mean = llt_sig.solve(scaled_xtx * coef_ols + prior_prec * prior_mean);
 	coef = normal_mean + llt_sig.matrixU().solve(standard_normal);
 }
+#endif
 
 // Generating Dummy Vector for Parameters in SSVS Gibbs Sampler
 // 
@@ -691,6 +702,7 @@ inline void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::Ma
 	h0 = post_mean + lltOfscale.matrixU().solve(res);
 }
 
+#ifdef USE_RCPP
 // Building a Inverse Diagonal Matrix by Global and Local Hyperparameters
 // 
 // In MCMC process of Horseshoe, this function computes diagonal matrix \eqn{\Lambda_\ast^{-1}} defined by
@@ -790,6 +802,7 @@ inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& desi
 		2 / ((response_vec - design_mat * coef_vec).squaredNorm() + coef_vec.transpose() * shrink_mat * coef_vec), rng
 	);
 }
+#endif
 
 // Generating the Squared Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
 // 

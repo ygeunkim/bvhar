@@ -1,10 +1,12 @@
-from ..utils._misc import check_np, get_var_intercept, build_grpmat
-from ..src._design import build_response, build_design
+from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain
+from ..utils.checkomp import get_maxomp
+from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
 import pandas as pd
+import warnings
 from math import floor
 
 class VarBayes:
@@ -26,44 +28,51 @@ class VarBayes:
     ):
         self.y = check_np(data)
         self.n_features_in_ = self.y.shape[1]
-        # if self.y.shape[0] <= lag:
-        #     raise ValueError(f"'data' rows must be larger than `lag` = {lag}")
+        if self.y.shape[0] <= lag:
+            raise ValueError(f"'data' rows must be larger than `lag` = {lag}")
         design = build_design(self.y, lag, fit_intercept)
         response = build_response(self.y, lag, lag + 1)
         self.p_ = lag
-        self.chains_ = n_chain
-        self.iter_ = n_iter
-        self.burn_ = n_burn
-        self.thin_ = n_thin
+        self.chains_ = int(n_chain)
+        self.iter_ = int(n_iter)
+        self.burn_ = int(n_burn)
+        self.thin_ = int(n_thin)
         self.fit_intercept = fit_intercept
         minnesota = "short" if minnesota else "no"
         self.group_ = build_grpmat(self.p_, self.n_features_in_, minnesota)
         # self.__group_id = np.unique(self.group.flatten(order='F'))
-        self.__group_id = pd.unique(self.group_.flatten(order='F'))
+        self.__group_id = pd.unique(self.group_.flatten(order='F')).astype(np.int32)
         self.__own_id = None
         self.__cross_id = None
         n_grp = len(self.__group_id)
         n_alpha = self.n_features_in_ * self.n_features_in_ * self.p_
         n_design = design.shape[1]
-        n_eta = self.n_features_in_ * (self.n_features_in_ - 1) / 2
+        n_eta = int(self.n_features_in_ * (self.n_features_in_ - 1) / 2)
         if minnesota:
-            self.__own_id = np.array([2])
-            self.__cross_id = np.arange(1, self.p_ + 2)
+            self.__own_id = np.array([2], dtype=np.int32)
+            self.__cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
             self.__cross_id = np.delete(self.__cross_id, 1)
         else:
-            self.__own_id = np.array([2])
-            self.__cross_id = np.array([2])
+            self.__own_id = np.array([2], dtype=np.int32)
+            self.__cross_id = np.array([2], dtype=np.int32)
         self.cov_spec_ = cov_config
         self.spec_ = bayes_config
         self.intercept_spec_ = intercept_config
-        self.validate()
+        self.__validate()
         self.init_ = [
             {
-                'init_coef': np.random.uniform(-1, 1, (self.n_features_in_, n_design)),
+                'init_coef': np.random.uniform(-1, 1, (n_design, self.n_features_in_)),
                 'init_contem': np.exp(np.random.uniform(-1, 0, n_eta))
             }
-            for _ in range(num_chains)
+            for _ in range(self.chains_)
         ]
+        if type(self.cov_spec_) == LdltConfig:
+            for init in self.init_:
+                init.update({
+                    'init_diag': np.exp(np.random.uniform(-1, 1, self.n_features_in_))
+                })
+        elif type(self.cov_spec_) == SvConfig:
+            pass
         if type(self.spec_) == SsvsConfig:
             for init in self.init_:
                 coef_mixture = np.random.uniform(-1, 1, n_grp)
@@ -92,7 +101,7 @@ class VarBayes:
                     'global_sparsity': global_sparsity,
                     'group_sparsity': group_sparsity,
                     'contem_local_sparsity': contem_local_sparsity,
-                    'contem_global_sparsity': contem_global_sparsity
+                    'contem_global_sparsity': np.array([contem_global_sparsity]) # used as VectorXd in C++
                 })
         elif type(self.spec_) == MinnesotaConfig:
             for init in self.init_:
@@ -131,11 +140,24 @@ class VarBayes:
                     'contem_local_sparsity': contem_local_sparsity,
                     'contem_global_sparsity': contem_global_sparsity
                 })
+        self.init_ = make_fortran_array(self.init_)
+        prior_type = {
+            "Minnesota": 1,
+            "SSVS": 2,
+            "Horseshoe": 3,
+            "MN_Hierarchical": 4,
+            "NG": 5,
+            "DL": 6
+        }.get(self.spec_.prior)
+        if n_thread > get_maxomp():
+            warnings.warn(f"'n_thread' = {n_thread} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
+        if n_thread > n_chain and n_chain != 1:
+            warnings.warn(f"'n_thread = {n_thread} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         self.__model = McmcLdlt(
             self.chains_, self.iter_, self.burn_, self.thin_,
             design, response,
             self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-            self.init_, 1,
+            self.init_, int(prior_type),
             self.__group_id, self.__own_id, self.__cross_id, self.group_,
             self.fit_intercept,
             np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
@@ -143,15 +165,17 @@ class VarBayes:
         )
         self.coef_ = None
         self.intercept_ = None
+        self.param_names_ = None
+        self.param_ = None
         # self.cov_ = None
     
-    def validate(self):
+    def __validate(self):
         if self.y.shape[0] <= self.p_:
             raise ValueError(f"'data' rows must be larger than `lag` = {self.p_}")
         if not isinstance(self.cov_spec_, LdltConfig):
             raise TypeError("`cov_config` should be `LdltConfig` or `SvConfig`.")
         if not isinstance(self.intercept_spec_, InterceptConfig):
-            raise TypeError("`intercept_config` should be `InterceptConfig`.")
+            raise TypeError("`intercept_config` should be `InterceptConfig` when 'fit_intercept' is True.")
         if not isinstance(self.spec_, BayesConfig):
             raise TypeError("`bayes_spec` should be the derived class of `BayesConfig`.")
         self.cov_spec_.update(self.n_features_in_)
@@ -168,8 +192,14 @@ class VarBayes:
             pass
 
     def fit(self):
-        fit = self.__model.returnRecords()
-        self.coef_ = fit[0].get("d_record") # temporary
+        res = self.__model.returnRecords()
+        self.param_names_ = process_record(res)
+        self.param_ = concat_chain(res)
+        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T
+        if self.fit_intercept:
+            self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T
+            self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
+            self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
 
     def predict(self):
         pass

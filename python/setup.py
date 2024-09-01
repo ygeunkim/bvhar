@@ -74,8 +74,7 @@ def find_module(base_dir):
                         ],
                         extra_compile_args=[
                             '-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS',
-                            '-DBOOST_DISABLE_ASSERTS',
-                            '-std=c++11'
+                            '-DBOOST_DISABLE_ASSERTS'
                         ]
                     )
                 )

@@ -544,12 +544,11 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-			ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -641,12 +640,11 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-			ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -779,12 +777,11 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-			ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -930,17 +927,14 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// if (IS_MATRIX(value)) {
-			if (IS_MATRIX(ACCESS_AUTO(record))) {
-				// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				// value = thin_record(CAST<Eigen::VectorXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::VectorXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -1092,17 +1086,14 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// if (IS_MATRIX(value)) {
-			if (IS_MATRIX(ACCESS_AUTO(record))) {
-				// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				// value = thin_record(CAST<Eigen::VectorXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::VectorXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -1253,17 +1244,14 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = reg_record.coef_record.rightCols(dim);
+			// res["c_record"] = reg_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			// auto& value = ACCESS_AUTO(record);
-			// if (IS_MATRIX(value)) {
-			if (IS_MATRIX(ACCESS_AUTO(record))) {
-				// value = thin_record(CAST<Eigen::MatrixXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				// value = thin_record(CAST<Eigen::VectorXd>(value), num_iter, num_burn, thin);
-				ACCESS_AUTO(record) = thin_record(CAST<Eigen::VectorXd>(ACCESS_AUTO(record)), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;

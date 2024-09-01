@@ -8,7 +8,9 @@ class LdltConfig:
         self.scale = self.validate(ig_scale, "ig_scale")
     
     def validate(self, value, member):
-        if isinstance(value, (int, float, np.number)):
+        if isinstance(value, int):
+            return [float(value)]
+        elif isinstance(value, (float, np.number)):
             return [value]
         elif isinstance(value, (list, tuple, np.ndarray)):
             if len(value) == 0:
@@ -18,7 +20,7 @@ class LdltConfig:
             raise TypeError(f"'{member}' should be a number or a numeric array.")
     
     def update(self, n_dim: int):
-        if len(self.shape == 1):
+        if len(self.shape) == 1:
             self.shape = np.repeat(self.shape, n_dim)
         if len(self.scale) == 1:
             self.scale = np.repeat(self.scale, n_dim)
@@ -55,9 +57,9 @@ class SvConfig(LdltConfig):
     
     def update(self, n_dim: int):
         super().update(n_dim)
-        if len(self.initial_mean) == 1:
+        if isinstance(self.initial_mean, (int, float, np.number)) or (hasattr(self.initial_mean, '__len__') and len(self.initial_mean) == 1):
             self.initial_mean = np.repeat(self.initial_mean, n_dim)
-        if len(self.initial_prec) == 1:
+        if isinstance(self.initial_prec, (int, float, np.number)) or (hasattr(self.initial_prec, '__len__') and len(self.initial_prec) == 1):
             self.initial_prec = self.initial_prec[0] * np.identity(n_dim)
 
     def to_dict(self):
@@ -75,8 +77,14 @@ class InterceptConfig:
         self.sd_non = self.validate(sd, "sd")
     
     def validate(self, value, member):
-        if isinstance(value, (int, float, np.number)):
-            return [value]
+        # if isinstance(value, int):
+        #     return [float(value)]
+        # elif isinstance(value, (float, np.number)):
+        #     return [value]
+        if isinstance(value, int):
+            return float(value)
+        if isinstance(value, (float, np.number)):
+            return value
         elif isinstance(value, (list, tuple, np.ndarray)):
             if len(value) == 0:
                 raise ValueError(f"'{member}' cannot be empty.")
@@ -85,9 +93,9 @@ class InterceptConfig:
             raise TypeError(f"'{member}' should be a number or a numeric array.")
     
     def update(self, n_dim: int):
-        if len(self.mean_non == 1):
+        if isinstance(self.mean_non, (int, float, np.number)) or (hasattr(self.mean_non, '__len__') and len(self.mean_non) == 1):
             self.mean_non = np.repeat(self.mean_non, n_dim)
-        if len(self.sd_non) > 1:
+        if not isinstance(self.sd_non, (int, float, np.number)) or (hasattr(self.sd_non, '__len__') and len(self.sd_non) > 1):
             raise ValueError("'sd_non' should be a number.")
 
     def to_dict(self):
@@ -131,8 +139,12 @@ class SsvsConfig(BayesConfig):
         self.chol_s2 = self.validate(chol_s2, "chol_s1")
 
     def validate(self, value, member, n_size = None):
+        # if isinstance(value, int):
+        #     return [float(value)]
+        # elif isinstance(value, (float, np.number)):
+        #     return [value]
         if isinstance(value, (int, float, np.number)):
-            return [value]
+            return value
         elif isinstance(value, (list, tuple, np.ndarray)):
             if len(value) == 0:
                 raise ValueError(f"'{member}' cannot be empty.")
@@ -140,7 +152,7 @@ class SsvsConfig(BayesConfig):
                 raise ValueError(f"'{member}' length must be {n_size}.")
             value_array = np.array(value)
             if value_array.ndim > 2:
-                raise ValueError(f"'{member} has wrong dim = {n_dim}.")
+                raise ValueError(f"'{member} has wrong dim = {value_array.ndim}.")
             return value_array
         else:
             raise TypeError(f"'{member}' should be a number or a numeric array.")
@@ -183,7 +195,7 @@ class HorseshoeConfig(BayesConfig):
 
     def to_dict(self):
         # return {"prior": self.prior}
-        pass
+        return dict()
 
 class MinnesotaConfig(BayesConfig):
     def __init__(self):
