@@ -4,10 +4,10 @@ class LdltConfig:
     def __init__(self, ig_shape = 3, ig_scale = .01):
         self.process = "Homoskedastic"
         self.prior = "Cholesky"
-        self.shape = self.validate(ig_shape, "ig_shape")
-        self.scale = self.validate(ig_scale, "ig_scale")
+        self.shape = self._validate(ig_shape, "ig_shape")
+        self.scale = self._validate(ig_scale, "ig_scale")
     
-    def validate(self, value, member):
+    def _validate(self, value, member):
         if isinstance(value, int):
             return [float(value)]
         elif isinstance(value, (float, np.number)):
@@ -19,6 +19,9 @@ class LdltConfig:
         else:
             raise TypeError(f"'{member}' should be a number or a numeric array.")
     
+    def validate(self, value, member):
+        self._validate(self, value, member)
+    
     def update(self, n_dim: int):
         if len(self.shape) == 1:
             self.shape = np.repeat(self.shape, n_dim)
@@ -27,8 +30,6 @@ class LdltConfig:
 
     def to_dict(self):
         return {
-            # "process": self.process,
-            # "prior": self.prior,
             "shape": self.shape,
             "scale": self.scale
         }
@@ -63,11 +64,12 @@ class SvConfig(LdltConfig):
             self.initial_prec = self.initial_prec[0] * np.identity(n_dim)
 
     def to_dict(self):
-        res = super().to_dict()
-        # res["process"] = self.process
-        res["initial_mean"] = self.initial_mean
-        res["initial_prec"] = self.initial_prec
-        return res
+        return {
+            "shape": self.shape,
+            "scale": self.scale,
+            "initial_mean": self.initial_mean,
+            "initial_prec": self.initial_prec
+        }
 
 class InterceptConfig:
     def __init__(self, mean = 0, sd = .1):
@@ -100,8 +102,6 @@ class InterceptConfig:
 
     def to_dict(self):
         return {
-            # "process": self.process,
-            # "prior": self.prior,
             "mean_non": self.mean_non,
             "sd_non": self.sd_non
         }
@@ -110,14 +110,29 @@ class BayesConfig:
     def __init__(self, prior):
         self.prior = prior
     
-    def validate(self):
-        pass
+    def validate(self, value, member, n_size = None):
+        # if isinstance(value, int):
+        #     return [float(value)]
+        # elif isinstance(value, (float, np.number)):
+        #     return [value]
+        if isinstance(value, (int, float, np.number)):
+            return value
+        elif isinstance(value, (list, tuple, np.ndarray)):
+            if len(value) == 0:
+                raise ValueError(f"'{member}' cannot be empty.")
+            elif n_size is not None and len(value) != n_size:
+                raise ValueError(f"'{member}' length must be {n_size}.")
+            value_array = np.array(value)
+            if value_array.ndim > 2:
+                raise ValueError(f"'{member} has wrong dim = {value_array.ndim}.")
+            return value_array
+        else:
+            raise TypeError(f"'{member}' should be a number or a numeric array.")
 
     def update(self):
         pass
 
     def to_dict(self):
-        # return {"prior": self.prior}
         pass
 
 class SsvsConfig(BayesConfig):
@@ -137,25 +152,6 @@ class SsvsConfig(BayesConfig):
         self.chol_slab_scl = self.validate(chol_slab_scl, "chol_slab_scl")
         self.chol_s1 = self.validate(chol_s1, "chol_s1")
         self.chol_s2 = self.validate(chol_s2, "chol_s1")
-
-    def validate(self, value, member, n_size = None):
-        # if isinstance(value, int):
-        #     return [float(value)]
-        # elif isinstance(value, (float, np.number)):
-        #     return [value]
-        if isinstance(value, (int, float, np.number)):
-            return value
-        elif isinstance(value, (list, tuple, np.ndarray)):
-            if len(value) == 0:
-                raise ValueError(f"'{member}' cannot be empty.")
-            elif n_size is not None and len(value) != n_size:
-                raise ValueError(f"'{member}' length must be {n_size}.")
-            value_array = np.array(value)
-            if value_array.ndim > 2:
-                raise ValueError(f"'{member} has wrong dim = {value_array.ndim}.")
-            return value_array
-        else:
-            raise TypeError(f"'{member}' should be a number or a numeric array.")
 
     def update(self, grp_id: np.array, own_id: np.array, cross_id: np.array):
         if len(self.coef_s1) == 2:
@@ -186,55 +182,70 @@ class SsvsConfig(BayesConfig):
 class HorseshoeConfig(BayesConfig):
     def __init__(self):
         super().__init__("Horseshoe")
-    
-    def validate(self):
-        pass
-
-    def update(self):
-        pass
 
     def to_dict(self):
-        # return {"prior": self.prior}
         return dict()
 
 class MinnesotaConfig(BayesConfig):
     def __init__(self):
         super().__init__("Minnesota")
     
-    def validate(self):
+    def update(self):
         pass
 
+    def set_long(self):
+        # change delta to daily-weekly-monthly
+        pass
+
+    def to_dict(self):
+        pass
+
+class LambdaConfig:
+    def __init__(self, shape = .01, rate = .01, eps = 1e-04):
+        pass
+    
     def update(self):
         pass
 
     def to_dict(self):
-        # return {"prior": self.prior}
         pass
 
 class DlConfig(BayesConfig):
-    def __init__(self):
+    def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
         super().__init__("DL")
-    
-    def validate(self):
-        pass
-
-    def update(self):
-        pass
+        self.grid_size = self.validate(dir_grid, "dir_grid")
+        self.shape = self.validate(shape, "shape")
+        self.rate = self.validate(rate, "rate")
 
     def to_dict(self):
-        # return {"prior": self.prior}
-        pass
+        return {
+            "grid_size": self.grid_size,
+            "shape": self.shape,
+            "rate": self.rate
+        }
 
 class NgConfig(BayesConfig):
-    def __init__(self):
+    def __init__(
+        self, shape_sd = .01, group_shape = .01, group_scale = .01,
+        global_shape = .01, global_scale = .01,
+        contem_global_shape = .01, contem_global_scale = .01
+    ):
         super().__init__("NG")
-    
-    def validate(self):
-        pass
-
-    def update(self):
-        pass
+        self.shape_sd = self.validate(shape_sd, "shape_sd")
+        self.group_shape = self.validate(group_shape, "group_shape")
+        self.group_scale = self.validate(group_scale, "group_scale")
+        self.global_shape = self.validate(global_shape, "global_shape")
+        self.global_scale = self.validate(global_scale, "global_scale")
+        self.contem_global_shape = self.validate(contem_global_shape, "contem_global_shape")
+        self.contem_global_scale = self.validate(contem_global_scale, "contem_global_scale")
 
     def to_dict(self):
-        # return {"prior": self.prior}
-        pass
+        return {
+            "shape_sd": self.shape_sd,
+            "group_shape": self.group_shape,
+            "group_scale": self.group_scale,
+            "global_shape": self.global_shape,
+            "global_scale": self.global_scale,
+            "contem_global_shape": self.contem_global_shape,
+            "contem_global_scale": self.contem_global_scale
+        }

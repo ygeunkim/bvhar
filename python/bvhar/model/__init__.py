@@ -1,7 +1,7 @@
 from ._ols import VarOls, VharOls
 from ._bayes import VarBayes, VharBayes
-from ._spec import LdltConfig, SvConfig, InterceptConfig
-from ._spec import SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
+from ._spec import LdltConfig, InterceptConfig
+from ._spec import SsvsConfig, HorseshoeConfig, DlConfig, NgConfig
 
 __all__ = [
     "VarOls",
@@ -9,6 +9,9 @@ __all__ = [
     "VarBayes",
     "VharBayes",
     "SsvsConfig",
+    "HorseshoeConfig",
+    "NgConfig",
+    "DlConfig",
     "LdltConfig",
     "InterceptConfig"
 ]

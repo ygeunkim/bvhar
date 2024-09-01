@@ -104,7 +104,7 @@ class AutoregBayes:
                     'local_sparsity': local_sparsity,
                     'global_sparsity': global_sparsity,
                     'contem_local_sparsity': contem_local_sparsity,
-                    'contem_global_sparsity': contem_global_sparsity
+                    'contem_global_sparsity': np.array([contem_global_sparsity]) # used as VectorXd in C++
                 })
         elif type(self.spec_) == NgConfig:
             for init in self.init_:
@@ -122,14 +122,14 @@ class AutoregBayes:
                     'global_sparsity': global_sparsity,
                     'group_sparsity': group_sparsity,
                     'contem_local_sparsity': contem_local_sparsity,
-                    'contem_global_sparsity': contem_global_sparsity
+                    'contem_global_sparsity': np.array([contem_global_sparsity]) # used as VectorXd in C++
                 })
         self.init_ = make_fortran_array(self.init_)
         self._prior_type = {
             "Minnesota": 1,
             "SSVS": 2,
             "Horseshoe": 3,
-            "MN_Hierarchical": 4,
+            "HMN": 4,
             "NG": 5,
             "DL": 6
         }.get(self.spec_.prior)

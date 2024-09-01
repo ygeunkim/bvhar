@@ -1,5 +1,7 @@
 import pytest
-from bvhar.model import VarBayes, VharBayes, LdltConfig, InterceptConfig, SsvsConfig, HorseshoeConfig
+from bvhar.model import VarBayes, VharBayes, LdltConfig, InterceptConfig
+from bvhar.model import LdltConfig, InterceptConfig
+from bvhar.model import SsvsConfig, HorseshoeConfig, NgConfig, DlConfig
 import numpy as np
 
 def test_var_bayes():
@@ -15,7 +17,7 @@ def test_var_bayes():
     thin = 1
     intercept = True
     minnesota = True
-
+    
     np.random.seed(1)
     fit_var_ssvs = VarBayes(
         data, var_lag,
@@ -50,6 +52,40 @@ def test_var_bayes():
     )
     fit_var_hs.fit()
 
+    np.random.seed(1)
+    fit_var_ng = VarBayes(
+        data, var_lag,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        NgConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_var_ng.fit()
+
+    np.random.seed(1)
+    fit_var_dl = VarBayes(
+        data, var_lag,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        DlConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_var_dl.fit()
+
     assert fit_var_ssvs.n_features_in_ == dim_data
     assert fit_var_ssvs.coef_.shape == (dim_data * var_lag + 1, dim_data)
     assert fit_var_ssvs.intercept_.shape == (dim_data,)
@@ -57,6 +93,14 @@ def test_var_bayes():
     assert fit_var_hs.n_features_in_ == dim_data
     assert fit_var_hs.coef_.shape == (dim_data * var_lag + 1, dim_data)
     assert fit_var_hs.intercept_.shape == (dim_data,)
+
+    assert fit_var_ng.n_features_in_ == dim_data
+    assert fit_var_ng.coef_.shape == (dim_data * var_lag + 1, dim_data)
+    assert fit_var_ng.intercept_.shape == (dim_data,)
+
+    assert fit_var_dl.n_features_in_ == dim_data
+    assert fit_var_dl.coef_.shape == (dim_data * var_lag + 1, dim_data)
+    assert fit_var_dl.intercept_.shape == (dim_data,)
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VarBayes(
@@ -122,6 +166,40 @@ def test_vhar_bayes():
     )
     fit_vhar_hs.fit()
 
+    np.random.seed(1)
+    fit_vhar_ng = VharBayes(
+        data, week, month,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        NgConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_vhar_ng.fit()
+
+    np.random.seed(1)
+    fit_vhar_dl = VharBayes(
+        data, week, month,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        DlConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_vhar_dl.fit()
+
     assert fit_vhar_ssvs.n_features_in_ == dim_data
     assert fit_vhar_ssvs.coef_.shape == (dim_data * 3 + 1, dim_data)
     assert fit_vhar_ssvs.intercept_.shape == (dim_data,)
@@ -129,6 +207,14 @@ def test_vhar_bayes():
     assert fit_vhar_hs.n_features_in_ == dim_data
     assert fit_vhar_hs.coef_.shape == (dim_data * 3 + 1, dim_data)
     assert fit_vhar_hs.intercept_.shape == (dim_data,)
+
+    assert fit_vhar_ng.n_features_in_ == dim_data
+    assert fit_vhar_ng.coef_.shape == (dim_data * 3 + 1, dim_data)
+    assert fit_vhar_ng.intercept_.shape == (dim_data,)
+
+    assert fit_vhar_dl.n_features_in_ == dim_data
+    assert fit_vhar_dl.coef_.shape == (dim_data * 3 + 1, dim_data)
+    assert fit_vhar_dl.intercept_.shape == (dim_data,)
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VharBayes(

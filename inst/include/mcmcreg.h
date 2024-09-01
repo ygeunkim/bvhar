@@ -233,7 +233,7 @@ struct DlParams : public RegParams {
 	: RegParams(num_iter, x, y, reg_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
 		// _dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]),
-		_grid_size(CAST_DOUBLE(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
+		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
 };
 
 struct LdltInits : public RegInits {
