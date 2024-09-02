@@ -1,13 +1,41 @@
 import pytest
-from bvhar.model import VarBayes, VharBayes, LdltConfig, InterceptConfig
-from bvhar.model import LdltConfig, InterceptConfig
+from bvhar.model import VarBayes, VharBayes
+from bvhar.model import LdltConfig, SvConfig, InterceptConfig
 from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig
 import numpy as np
+
+def help_var_bayes(
+    dim_data, var_lag, data,
+    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    bayes_config, cov_config
+):
+    np.random.seed(1)
+    fit_bayes = VarBayes(
+        data, var_lag,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        bayes_config,
+        cov_config,
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_bayes.fit()
+
+    assert fit_bayes.n_features_in_ == dim_data
+    assert fit_bayes.coef_.shape == (dim_data * var_lag + 1, dim_data)
+    assert fit_bayes.intercept_.shape == (dim_data,)
 
 def test_var_bayes():
     num_data = 30
     dim_data = 3
     var_lag = 3
+
+    np.random.seed(1)
     data = np.random.randn(num_data, dim_data)
 
     num_chains = 2
@@ -17,132 +45,32 @@ def test_var_bayes():
     thin = 1
     intercept = True
     minnesota = True
-    
-    np.random.seed(1)
-    fit_var_ssvs = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        SsvsConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        SsvsConfig(), LdltConfig()
     )
-    fit_var_ssvs.fit()
-
-    np.random.seed(1)
-    fit_var_hs = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        HorseshoeConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        HorseshoeConfig(), LdltConfig()
     )
-    fit_var_hs.fit()
-
-    np.random.seed(1)
-    fit_var_mn = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        MinnesotaConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        MinnesotaConfig(lam=LambdaConfig()), LdltConfig()
     )
-    fit_var_mn.fit()
-
-    np.random.seed(1)
-    fit_var_hmn = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        MinnesotaConfig(lam = LambdaConfig()),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        NgConfig(), LdltConfig()
     )
-    fit_var_hmn.fit()
-
-    np.random.seed(1)
-    fit_var_ng = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        NgConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        DlConfig(), LdltConfig()
     )
-    fit_var_ng.fit()
 
-    np.random.seed(1)
-    fit_var_dl = VarBayes(
-        data, var_lag,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        DlConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        SsvsConfig(), SvConfig()
     )
-    fit_var_dl.fit()
-
-    assert fit_var_ssvs.n_features_in_ == dim_data
-    assert fit_var_ssvs.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_ssvs.intercept_.shape == (dim_data,)
-
-    assert fit_var_hs.n_features_in_ == dim_data
-    assert fit_var_hs.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_hs.intercept_.shape == (dim_data,)
-
-    assert fit_var_mn.n_features_in_ == dim_data
-    assert fit_var_mn.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_mn.intercept_.shape == (dim_data,)
-
-    assert fit_var_hmn.n_features_in_ == dim_data
-    assert fit_var_hmn.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_hmn.intercept_.shape == (dim_data,)
-
-    assert fit_var_ng.n_features_in_ == dim_data
-    assert fit_var_ng.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_ng.intercept_.shape == (dim_data,)
-
-    assert fit_var_dl.n_features_in_ == dim_data
-    assert fit_var_dl.coef_.shape == (dim_data * var_lag + 1, dim_data)
-    assert fit_var_dl.intercept_.shape == (dim_data,)
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VarBayes(
@@ -159,11 +87,39 @@ def test_var_bayes():
             intercept, minnesota, False, num_threads
         )
 
+def help_vhar_bayes(
+    dim_data, week, month, data,
+    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    bayes_config, cov_config
+):
+    np.random.seed(1)
+    fit_bayes = VharBayes(
+        data, week, month,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        bayes_config,
+        cov_config,
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_bayes.fit()
+
+    assert fit_bayes.n_features_in_ == dim_data
+    assert fit_bayes.coef_.shape == (dim_data * 3 + 1, dim_data)
+    assert fit_bayes.intercept_.shape == (dim_data,)
+
 def test_vhar_bayes():
     num_data = 30
     dim_data = 3
     week = 5
     month = 22
+
+    np.random.seed(1)
     data = np.random.randn(num_data, dim_data)
 
     num_chains = 2
@@ -174,131 +130,31 @@ def test_vhar_bayes():
     intercept = True
     minnesota = "longrun"
 
-    np.random.seed(1)
-    fit_vhar_ssvs = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        SsvsConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        SsvsConfig(), LdltConfig()
     )
-    fit_vhar_ssvs.fit()
-
-    np.random.seed(1)
-    fit_vhar_hs = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        HorseshoeConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        HorseshoeConfig(), LdltConfig()
     )
-    fit_vhar_hs.fit()
-
-    np.random.seed(1)
-    fit_vhar_mn = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        MinnesotaConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        MinnesotaConfig(lam=LambdaConfig()), LdltConfig()
     )
-    fit_vhar_mn.fit()
-
-    np.random.seed(1)
-    fit_vhar_hmn = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        MinnesotaConfig(lam=LambdaConfig()),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        NgConfig(), LdltConfig()
     )
-    fit_vhar_hmn.fit()
-
-    np.random.seed(1)
-    fit_vhar_ng = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        NgConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        DlConfig(), LdltConfig()
     )
-    fit_vhar_ng.fit()
 
-    np.random.seed(1)
-    fit_vhar_dl = VharBayes(
-        data, week, month,
-        num_chains,
-        num_iter,
-        num_burn,
-        thin,
-        DlConfig(),
-        LdltConfig(),
-        InterceptConfig(),
-        intercept,
-        minnesota,
-        False,
-        num_threads
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        SsvsConfig(), SvConfig()
     )
-    fit_vhar_dl.fit()
-
-    assert fit_vhar_ssvs.n_features_in_ == dim_data
-    assert fit_vhar_ssvs.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_ssvs.intercept_.shape == (dim_data,)
-
-    assert fit_vhar_hs.n_features_in_ == dim_data
-    assert fit_vhar_hs.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_hs.intercept_.shape == (dim_data,)
-
-    assert fit_vhar_mn.n_features_in_ == dim_data
-    assert fit_vhar_mn.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_mn.intercept_.shape == (dim_data,)
-
-    assert fit_vhar_hmn.n_features_in_ == dim_data
-    assert fit_vhar_hmn.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_hmn.intercept_.shape == (dim_data,)
-
-    assert fit_vhar_ng.n_features_in_ == dim_data
-    assert fit_vhar_ng.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_ng.intercept_.shape == (dim_data,)
-
-    assert fit_vhar_dl.n_features_in_ == dim_data
-    assert fit_vhar_dl.coef_.shape == (dim_data * 3 + 1, dim_data)
-    assert fit_vhar_dl.intercept_.shape == (dim_data,)
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VharBayes(

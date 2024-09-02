@@ -2,6 +2,7 @@ from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_re
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt
+from .._src._sv import McmcSv
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
@@ -56,7 +57,12 @@ class AutoregBayes:
                     'init_diag': np.exp(np.random.uniform(-1, 1, self.n_features_in_))
                 })
         elif type(self.cov_spec_) == SvConfig:
-            pass
+            for init in self.init_:
+                init.update({
+                    'lvol_init': np.random.uniform(-1, 1, self.n_features_in_),
+                    'lvol': np.exp(np.random.uniform(-1, 1, self.n_features_in_ * n_design)).reshape(self.n_features_in_, -1).T,
+                    'lvol_sig': [np.exp(np.random.uniform(-1, 1))]
+                })
         if type(self.spec_) == SsvsConfig:
             for init in self.init_:
                 coef_mixture = np.random.uniform(-1, 1, n_grp)
@@ -209,24 +215,36 @@ class VarBayes(AutoregBayes):
             warnings.warn(f"'n_thread' = {n_thread} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
         if n_thread > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {n_thread} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
-        self.__model = McmcLdlt(
-            self.chains_, self.iter_, self.burn_, self.thin_,
-            design, response,
-            self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-            self.init_, int(self._prior_type),
-            self._group_id, self._own_id, self._cross_id, self.group_,
-            self.fit_intercept,
-            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-            verbose, n_thread
-        )
+        if type(self.cov_spec_) == LdltConfig:
+            self.__model = McmcLdlt(
+                self.chains_, self.iter_, self.burn_, self.thin_,
+                design, response,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, int(self._prior_type),
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                verbose, n_thread
+            )
+        else:
+            self.__model = McmcSv(
+                self.chains_, self.iter_, self.burn_, self.thin_,
+                design, response,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, int(self._prior_type),
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                verbose, n_thread
+            )
 
     def fit(self):
         res = self.__model.returnRecords()
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
-        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T
+        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
         if self.fit_intercept:
-            self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T
+            self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
 
@@ -280,24 +298,36 @@ class VharBayes(AutoregBayes):
             warnings.warn(f"'n_thread' = {n_thread} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
         if n_thread > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {n_thread} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
-        self.__model = McmcLdlt(
-            self.chains_, self.iter_, self.burn_, self.thin_,
-            design, response,
-            self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-            self.init_, int(self._prior_type),
-            self._group_id, self._own_id, self._cross_id, self.group_,
-            self.fit_intercept,
-            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-            verbose, n_thread
-        )
+        if type(self.cov_spec_) == LdltConfig:
+            self.__model = McmcLdlt(
+                self.chains_, self.iter_, self.burn_, self.thin_,
+                design, response,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, int(self._prior_type),
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                verbose, n_thread
+            )
+        else:
+            self.__model = McmcSv(
+                self.chains_, self.iter_, self.burn_, self.thin_,
+                design, response,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, int(self._prior_type),
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                verbose, n_thread
+            )
 
     def fit(self):
         res = self.__model.returnRecords()
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
-        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T # -> change name: alpha -> phi
+        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
         if self.fit_intercept:
-            self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(3, -1).T
+            self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
 

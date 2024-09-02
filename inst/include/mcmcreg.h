@@ -43,7 +43,7 @@ struct MinnParams : public RegParams {
 	)
 	: RegParams(num_iter, x, y, reg_spec, intercept, include_mean),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = CAST_DOUBLE(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
 		double _lambda = CAST_DOUBLE(priors["lambda"]);
 		double _eps = CAST_DOUBLE(priors["eps"]);
@@ -93,7 +93,7 @@ struct HierminnParams : public RegParams {
 	: RegParams(num_iter, x, y, reg_spec, intercept, include_mean),
 		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = CAST_DOUBLE(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
 		double _eps = CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
