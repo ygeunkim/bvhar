@@ -20,7 +20,7 @@ def test_var():
     assert fit_var.intercept_.shape == (dim_data,)
 
     data = np.random.randn(var_lag - 1, dim_data)
-    with pytest.raises(ValueError, match=f"'data' rows must be larger than `lag` = {var_lag}"):
+    with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {var_lag}"):
         fit_var = VarOls(data, var_lag, True, "nor")
 
 def test_vhar():
@@ -42,5 +42,5 @@ def test_vhar():
     assert fit_vhar.intercept_.shape == (dim_data,)
 
     data = np.random.randn(month - 1, dim_data)
-    with pytest.raises(ValueError, match=f"'data' rows must be larger than `lag` = {month}"):
+    with pytest.raises(ValueError, match=f"'data' rows must be larger than 'month' = {month}"):
         fit_vhar = VharOls(data, week, month, True, "nor")

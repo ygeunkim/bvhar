@@ -5,6 +5,10 @@ class Vectorautoreg:
     def __init__(self, data, lag, p, fit_intercept = True, method = "nor"):
         if method not in ["nor", "chol", "qr"]:
             raise ValueError(f"Argument ('method') '{method}' is not valid: Choose between {['nor', 'chol', 'qr']}")
+        if lag == p:
+            lag_name = "lag"
+        else:
+            lag_name = "month"
         self.method = {
             "nor": 1,
             "chol": 2,
@@ -12,13 +16,13 @@ class Vectorautoreg:
         }.get(method, None)
         self.y = check_np(data)
         self.n_features_in_ = self.y.shape[1]
-        if self.y.shape[0] <= lag:
-            raise ValueError(f"'data' rows must be larger than `lag` = {lag}")
+        # if self.y.shape[0] <= lag:
+        #     raise ValueError(f"'data' rows must be larger than '{lag_name}' = {lag}")
         # self.p = lag
         self.p_ = p # 3 in VHAR
         self.lag_ = lag # month in VHAR
         if self.y.shape[0] <= self.lag_:
-            raise ValueError(f"'data' rows must be larger than 'lag' = {self.lag_}")
+            raise ValueError(f"'data' rows must be larger than '{lag_name}' = {self.lag_}")
         self.fit_intercept = fit_intercept
         self._model = None
         self.coef_ = None
