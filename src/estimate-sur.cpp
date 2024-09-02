@@ -30,9 +30,6 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 												Rcpp::List param_init, int prior_type,
                         Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
                         bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
 	std::vector<std::unique_ptr<bvhar::McmcReg>> sur_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
@@ -142,10 +139,11 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 				break;
 			}
 			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
+			// if (display_progress) {
+			// 	bar.update();
+			// }
 			sur_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+			bar.update();
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
