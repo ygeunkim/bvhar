@@ -153,7 +153,7 @@ class AutoregBayes:
         elif type(self.spec_) == HorseshoeConfig:
             pass
         elif type(self.spec_) == MinnesotaConfig:
-            pass
+            self.spec_.update(self.y, self.p_, self.n_features_in_)
         elif type(self.spec_) == DlConfig:
             pass
         elif type(self.spec_) == NgConfig:

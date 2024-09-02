@@ -1,4 +1,5 @@
 import numpy as np
+from math import sqrt
 
 class LdltConfig:
     def __init__(self, ig_shape = 3, ig_scale = .01):
@@ -187,28 +188,95 @@ class HorseshoeConfig(BayesConfig):
         return dict()
 
 class MinnesotaConfig(BayesConfig):
-    def __init__(self):
+    def __init__(self, sig = None, lam = .1, delt = None, is_long = False, eps = 1e-04):
         super().__init__("Minnesota")
+        self.sig = None
+        if sig is not None:
+            self.sig = self.validate(sig, "sig")
+        # self.lam = self.validate(lam, "lam")
+        self.lam = lam
+        if type(self.lam) == LambdaConfig:
+            self.lam = [lam.shape_, lam.rate_] # shape and rate
+            self.prior = "HMN"
+        self.delt = None
+        if delt is not None or isinstance(delt, np.ndarray):
+            self.delt = self.validate(delt, "delt")
+        self.eps = self.validate(eps, "eps")
+        self.p = None
+        if is_long:
+            self.weekly = None
+            self.monthly = None
     
-    def update(self):
-        pass
-
-    def set_long(self):
-        # change delta to daily-weekly-monthly
-        pass
+    def update(self, y: np.array, p, n_dim: int):
+        self.p = p
+        if self.sig is None:
+            self.sig = np.apply_along_axis(np.std, 0, y)
+        if self.delt is None:
+            self.delt = np.repeat(0, n_dim)
+        if hasattr(self, "weekly"):
+            self.weekly = np.repeat(0, n_dim)
+            self.monthly = np.repeat(0, n_dim)
 
     def to_dict(self):
-        pass
+        if hasattr(self, "weekly"):
+            if isinstance(self.lam, list):
+                return {
+                    "shape": self.lam[0],
+                    "rate": self.lam[1],
+                    "p": self.p,
+                    "sigma": self.sig,
+                    "eps": self.eps,
+                    "daily": self.delt,
+                    "weekly": self.weekly,
+                    "monthly": self.monthly
+                }
+            else:
+                return {
+                    "lambda": self.lam,
+                    "p": self.p,
+                    "sigma": self.sig,
+                    "eps": self.eps,
+                    "daily": self.delt,
+                    "weekly": self.weekly,
+                    "monthly": self.monthly
+                }
+        if isinstance(self.lam, list):
+            return {
+                "shape": self.lam[0],
+                "rate": self.lam[1],
+                "p": self.p,
+                "sigma": self.sig,
+                "eps": self.eps,
+                "delta": self.delt
+            }
+        return {
+                "lambda": self.lam,
+                "p": self.p,
+                "sigma": self.sig,
+                "eps": self.eps,
+                "delta": self.delt
+            }
 
 class LambdaConfig:
     def __init__(self, shape = .01, rate = .01, eps = 1e-04):
-        pass
+        self.shape_ = self.validate(shape, "shape")
+        self.rate_ = self.validate(rate, "rate")
     
-    def update(self):
-        pass
-
-    def to_dict(self):
-        pass
+    def validate(self, value, member):
+        if isinstance(value, int):
+            return float(value)
+        if isinstance(value, (float, np.number)):
+            return value
+        elif isinstance(value, (list, tuple, np.ndarray)):
+            if len(value) == 0:
+                raise ValueError(f"'{member}' cannot be empty.")
+            return np.array(value)
+        else:
+            raise TypeError(f"'{member}' should be a number or a numeric array.")
+    
+    def update(self, mode, sd):
+        self.shape_ = (2 + mode ** 2 / (sd ** 2) + sqrt((2 + mode ** 2 / (sd ** 2)) ** 2 - 4)) / 2
+        self.rate_ = sqrt(self.shape_) / sd
 
 class DlConfig(BayesConfig):
     def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):

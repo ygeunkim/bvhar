@@ -1,7 +1,7 @@
 import pytest
 from bvhar.model import VarBayes, VharBayes, LdltConfig, InterceptConfig
 from bvhar.model import LdltConfig, InterceptConfig
-from bvhar.model import SsvsConfig, HorseshoeConfig, NgConfig, DlConfig
+from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig
 import numpy as np
 
 def test_var_bayes():
@@ -53,6 +53,40 @@ def test_var_bayes():
     fit_var_hs.fit()
 
     np.random.seed(1)
+    fit_var_mn = VarBayes(
+        data, var_lag,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        MinnesotaConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_var_mn.fit()
+
+    np.random.seed(1)
+    fit_var_hmn = VarBayes(
+        data, var_lag,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        MinnesotaConfig(lam = LambdaConfig()),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_var_hmn.fit()
+
+    np.random.seed(1)
     fit_var_ng = VarBayes(
         data, var_lag,
         num_chains,
@@ -93,6 +127,14 @@ def test_var_bayes():
     assert fit_var_hs.n_features_in_ == dim_data
     assert fit_var_hs.coef_.shape == (dim_data * var_lag + 1, dim_data)
     assert fit_var_hs.intercept_.shape == (dim_data,)
+
+    assert fit_var_mn.n_features_in_ == dim_data
+    assert fit_var_mn.coef_.shape == (dim_data * var_lag + 1, dim_data)
+    assert fit_var_mn.intercept_.shape == (dim_data,)
+
+    assert fit_var_hmn.n_features_in_ == dim_data
+    assert fit_var_hmn.coef_.shape == (dim_data * var_lag + 1, dim_data)
+    assert fit_var_hmn.intercept_.shape == (dim_data,)
 
     assert fit_var_ng.n_features_in_ == dim_data
     assert fit_var_ng.coef_.shape == (dim_data * var_lag + 1, dim_data)
@@ -167,6 +209,40 @@ def test_vhar_bayes():
     fit_vhar_hs.fit()
 
     np.random.seed(1)
+    fit_vhar_mn = VharBayes(
+        data, week, month,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        MinnesotaConfig(),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_vhar_mn.fit()
+
+    np.random.seed(1)
+    fit_vhar_hmn = VharBayes(
+        data, week, month,
+        num_chains,
+        num_iter,
+        num_burn,
+        thin,
+        MinnesotaConfig(lam=LambdaConfig()),
+        LdltConfig(),
+        InterceptConfig(),
+        intercept,
+        minnesota,
+        False,
+        num_threads
+    )
+    fit_vhar_hmn.fit()
+
+    np.random.seed(1)
     fit_vhar_ng = VharBayes(
         data, week, month,
         num_chains,
@@ -207,6 +283,14 @@ def test_vhar_bayes():
     assert fit_vhar_hs.n_features_in_ == dim_data
     assert fit_vhar_hs.coef_.shape == (dim_data * 3 + 1, dim_data)
     assert fit_vhar_hs.intercept_.shape == (dim_data,)
+
+    assert fit_vhar_mn.n_features_in_ == dim_data
+    assert fit_vhar_mn.coef_.shape == (dim_data * 3 + 1, dim_data)
+    assert fit_vhar_mn.intercept_.shape == (dim_data,)
+
+    assert fit_vhar_hmn.n_features_in_ == dim_data
+    assert fit_vhar_hmn.coef_.shape == (dim_data * 3 + 1, dim_data)
+    assert fit_vhar_hmn.intercept_.shape == (dim_data,)
 
     assert fit_vhar_ng.n_features_in_ == dim_data
     assert fit_vhar_ng.coef_.shape == (dim_data * 3 + 1, dim_data)
