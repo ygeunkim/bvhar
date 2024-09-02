@@ -559,19 +559,19 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 
 // Generate Inverse Gaussian Distribution
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
-inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
-	// double y = normal_rand(rng);
-	// y *= y; // chi^2(1)
-	// double cand = mean + mean * mean * y / (2 * shape) - mean * sqrt(4 * mean * shape * y + mean * mean * y * y) / (2 * shape);
-	// double y = mean * chisq_rand(1, rng);
-	// double cand = mean + mean * y / (2 * shape) - mean * sqrt(4 * shape * y + y * y) / (2 * shape);
-	double y = mean * chisq_rand(1, rng) / (2 * shape);
-	double cand = mean + mean * y - mean * sqrt(2 * y + y * y);
-	if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
-		return cand;
-	}
-	return mean * mean / cand;
-}
+// inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
+// 	// double y = normal_rand(rng);
+// 	// y *= y; // chi^2(1)
+// 	// double cand = mean + mean * mean * y / (2 * shape) - mean * sqrt(4 * mean * shape * y + mean * mean * y * y) / (2 * shape);
+// 	// double y = mean * chisq_rand(1, rng);
+// 	// double cand = mean + mean * y / (2 * shape) - mean * sqrt(4 * shape * y + y * y) / (2 * shape);
+// 	double y = mean * chisq_rand(1, rng) / (2 * shape);
+// 	double cand = mean + mean * y - mean * sqrt(2 * y + y * y);
+// 	if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
+// 		return cand;
+// 	}
+// 	return mean * mean / cand;
+// }
 
 } //namespace bvhar
 
