@@ -30,15 +30,34 @@ class PybindInclude(object):
 
 class EigenInclude(object):
     def __str__(self):
-        try:
-            conda_prefix = os.environ['CONDA_PREFIX']
+        conda_prefix = os.environ.get('CONDA_PREFIX')
+        if conda_prefix:
             eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
             if os.path.exists(eigen_path):
                 return eigen_path
             else:
-                raise RuntimeError('No eigen3 in conda environment')
-        except KeyError:
-            raise RuntimeError('Set CONDA_PREFIX environment variable')
+                # raise RuntimeError('No eigen3 in conda environment')
+                print('No eigen3 in conda environment')
+        # else:
+        eigen_dir = os.environ.get('EIGEN3_INCLUDE_DIR')
+        if eigen_dir:
+            eigen_path = os.path.join(eigen_dir, 'include', 'eigen3')
+            if os.path.exists(eigen_path):
+                return eigen_path
+            else:
+                raise RuntimeError('No eigen3 found in EIGEN3_INCLUDE_DIR')
+        else:
+            # raise RuntimeError('Set EIGEN3_INCLUDE_DIR environment variable for eigen directory')
+            raise RuntimeError('Set CONDA_PREFIX or EIGEN3_INCLUDE_DIR environment variable')
+        # try:
+        #     conda_prefix = os.environ['CONDA_PREFIX']
+        #     eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
+        #     if os.path.exists(eigen_path):
+        #         return eigen_path
+        #     else:
+        #         raise RuntimeError('No eigen3 in conda environment')
+        # except KeyError:
+        #     raise RuntimeError('Set CONDA_PREFIX environment variable')
 
 class BuildExt(_build_ext):
     def build_extensions(self):
