@@ -42,5 +42,5 @@ def test_vhar():
     assert fit_vhar.intercept_.shape == (dim_data,)
 
     data = np.random.randn(month - 1, dim_data)
-    with pytest.raises(ValueError, match=f"'data' rows must be larger than `month` = {month}"):
+    with pytest.raises(ValueError, match=f"'data' rows must be larger than `lag` = {month}"):
         fit_vhar = VharOls(data, week, month, True, "nor")
