@@ -1,7 +1,7 @@
-from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain
+from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
-from .._src._ldlt import McmcLdlt
+from .._src._ldlt import McmcLdlt, LdltForecaster
 from .._src._sv import McmcSv
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
@@ -29,6 +29,7 @@ class AutoregBayes:
         # self.design_ = build_design(self.y, self.lag_, fit_intercept)
         # self.response_ = build_response(self.y, self.lag_, self.lag_ + 1)
         self.chains_ = int(n_chain)
+        # self.thread_ = n_thread
         self.iter_ = int(n_iter)
         self.burn_ = int(n_burn)
         self.thin_ = int(n_thin)
@@ -139,6 +140,7 @@ class AutoregBayes:
             "NG": 5,
             "DL": 6
         }.get(self.spec_.prior)
+        self.is_fitted_ = False
         self.coef_ = None
         self.intercept_ = None
         self.param_names_ = None
@@ -201,8 +203,8 @@ class VarBayes(AutoregBayes):
         n_thread = 1
     ):
         super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no")
-        design = build_design(self.y, lag, fit_intercept)
-        response = build_response(self.y, lag, lag + 1)
+        self.design_ = build_design(self.y, lag, fit_intercept)
+        self.response_ = build_response(self.y, lag, lag + 1)
         if minnesota:
             self._own_id = np.array([2], dtype=np.int32)
             self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
@@ -211,31 +213,32 @@ class VarBayes(AutoregBayes):
             self._own_id = np.array([2], dtype=np.int32)
             self._cross_id = np.array([2], dtype=np.int32)
         self._validate()
-        if n_thread > get_maxomp():
-            warnings.warn(f"'n_thread' = {n_thread} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
-        if n_thread > n_chain and n_chain != 1:
-            warnings.warn(f"'n_thread = {n_thread} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
+        self.thread_ = n_thread
+        if self.thread_ > get_maxomp():
+            warnings.warn(f"'n_thread' = {self.thread_} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
+        if self.thread_ > n_chain and n_chain != 1:
+            warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
             self.__model = McmcLdlt(
                 self.chains_, self.iter_, self.burn_, self.thin_,
-                design, response,
+                self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, int(self._prior_type),
                 self._group_id, self._own_id, self._cross_id, self.group_,
                 self.fit_intercept,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, n_thread
+                verbose, self.thread_
             )
         else:
             self.__model = McmcSv(
                 self.chains_, self.iter_, self.burn_, self.thin_,
-                design, response,
+                self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, int(self._prior_type),
                 self._group_id, self._own_id, self._cross_id, self.group_,
                 self.fit_intercept,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, n_thread
+                verbose, self.thread_
             )
 
     def fit(self):
@@ -247,9 +250,23 @@ class VarBayes(AutoregBayes):
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
+        self.is_fitted_ = True
 
-    def predict(self):
-        pass
+    def predict(self, n_ahead: int, level = .05, sparse = False):
+        fit_record = concat_params(self.param_, self.param_names_)
+        forecaster = LdltForecaster(
+            self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
+            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+            self.fit_intercept, self.thread_
+        )
+        y_distn = forecaster.returnForecast()
+        y_distn = process_dens_forecast(y_distn, self.n_features_in_)
+        return {
+            "forecast": np.mean(y_distn, axis=0),
+            "se": np.std(y_distn, axis=0, ddof=1),
+            "lower": np.quantile(y_distn, level / 2, axis=0),
+            "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
+        }
 
     def roll_forecast(self):
         pass
@@ -282,8 +299,10 @@ class VharBayes(AutoregBayes):
         n_thread = 1
     ):
         super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota)
-        design = build_design(self.y, week, month, fit_intercept)
-        response = build_response(self.y, month, month + 1)
+        self.design_ = build_design(self.y, week, month, fit_intercept)
+        self.response_ = build_response(self.y, month, month + 1)
+        self.week_ = week
+        self.month_ = month
         if minnesota == "longrun":
             self._own_id = np.array([2, 4, 6], dtype=np.int32)
             self._cross_id = np.array([1, 3, 5], dtype=np.int32)
@@ -294,31 +313,32 @@ class VharBayes(AutoregBayes):
             self._own_id = np.array([1], dtype=np.int32)
             self._cross_id = np.array([2], dtype=np.int32)
         self._validate()
-        if n_thread > get_maxomp():
-            warnings.warn(f"'n_thread' = {n_thread} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
-        if n_thread > n_chain and n_chain != 1:
-            warnings.warn(f"'n_thread = {n_thread} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
+        self.thread_ = n_thread
+        if self.thread_ > get_maxomp():
+            warnings.warn(f"'n_thread' = {self.thread_} is greather than 'omp_get_max_threads()' = {get_maxomp()}. Check with utils.checkomp.get_maxomp(). Check OpenMP support of your machine with utils.checkomp.is_omp().")
+        if self.thread_ > n_chain and n_chain != 1:
+            warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
             self.__model = McmcLdlt(
                 self.chains_, self.iter_, self.burn_, self.thin_,
-                design, response,
+                self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, int(self._prior_type),
                 self._group_id, self._own_id, self._cross_id, self.group_,
                 self.fit_intercept,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, n_thread
+                verbose, self.thread_
             )
         else:
             self.__model = McmcSv(
                 self.chains_, self.iter_, self.burn_, self.thin_,
-                design, response,
+                self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, int(self._prior_type),
                 self._group_id, self._own_id, self._cross_id, self.group_,
                 self.fit_intercept,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, n_thread
+                verbose, self.thread_
             )
 
     def fit(self):
@@ -330,9 +350,23 @@ class VharBayes(AutoregBayes):
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
+        self.is_fitted_ = True
 
-    def predict(self):
-        pass
+    def predict(self, n_ahead: int, level = .05, sparse = False):
+        fit_record = concat_params(self.param_, self.param_names_)
+        forecaster = LdltForecaster(
+            self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
+            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+            self.fit_intercept, self.thread_
+        )
+        y_distn = forecaster.returnForecast()
+        y_distn = process_dens_forecast(y_distn, self.n_features_in_)
+        return {
+            "forecast": np.mean(y_distn, axis=0),
+            "se": np.std(y_distn, axis=0, ddof=1),
+            "lower": np.quantile(y_distn, level / 2, axis=0),
+            "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
+        }
 
     def roll_forecast(self):
         pass

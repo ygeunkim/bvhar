@@ -32,14 +32,14 @@ def help_var_bayes(
 
 def test_var_bayes():
     num_data = 30
-    dim_data = 3
+    dim_data = 2
     var_lag = 3
 
     np.random.seed(1)
     data = np.random.randn(num_data, dim_data)
 
     num_chains = 2
-    num_threads = 2
+    num_threads = 1
     num_iter = 5
     num_burn = 2
     thin = 1

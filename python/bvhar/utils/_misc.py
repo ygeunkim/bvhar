@@ -106,3 +106,23 @@ def concat_chain(record_list: list):
         tot_draw_n += n_draw
         record_concat = pd.concat([record_concat, param_record], axis=0)
     return record_concat
+
+def concat_params(record: pd.DataFrame, param_names: str):
+    res = {}
+    # n_chains = record['_chain'].nunique()
+    for _name in param_names:
+        param_columns = [col for col in record.columns if col.startswith(_name)]
+        param_record = record[param_columns + ['_chain']]
+        param_record_chain = [df for _, df in param_record.groupby('_chain')]
+        array_chain = [df.drop('_chain', axis=1).values for df in param_record_chain]
+        res[f"{_name}_record"] = array_chain
+    return res
+
+def process_dens_forecast(pred_list: list, n_dim: int):
+    shape_pred = pred_list[0].shape # (step, dim * draw)
+    n_ahead = shape_pred[0]
+    n_draw = int(shape_pred[1] / n_dim)
+    res = []
+    for arr in pred_list:
+        res.append([arr[:, range(id * n_dim, id * n_dim + n_dim)] for id in range(n_draw)])
+    return np.concatenate(res, axis=0)
