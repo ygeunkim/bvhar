@@ -2,10 +2,11 @@
 #include <pybind11/numpy.h>
 #include <pybind11/eigen.h>
 #include <mcmcsv.h>
+// #include <svforecaster.h>
 
-class McmcSv {
+class SvMcmc {
 public:
-	McmcSv(
+	SvMcmc(
 		int num_chains, int num_iter, int num_burn, int thin,
 		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept,
@@ -104,7 +105,7 @@ public:
 			}
 		}
 	}
-	virtual ~McmcSv() = default;
+	virtual ~SvMcmc() = default;
 	std::vector<py::dict> returnRecords() {
 		fit();
 		return res;
@@ -150,12 +151,12 @@ private:
 };
 
 PYBIND11_MODULE(_sv, m) {
-	py::class_<McmcSv>(m, "McmcSv")
+	py::class_<SvMcmc>(m, "SvMcmc")
 		.def(
 			py::init<int, int, int, int, const Eigen::MatrixXd&, const Eigen::MatrixXd&,
 			py::dict&, py::dict&, py::dict&,
 			std::vector<py::dict>&, int, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&,
 			const Eigen::MatrixXi&, bool, const Eigen::VectorXi&, bool, int>()
 		)
-		.def("returnRecords", &McmcSv::returnRecords);
+		.def("returnRecords", &SvMcmc::returnRecords);
 }

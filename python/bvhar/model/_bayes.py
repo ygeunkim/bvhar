@@ -2,7 +2,7 @@ from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_re
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt, LdltForecaster
-from .._src._sv import McmcSv
+from .._src._sv import SvMcmc
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
@@ -230,7 +230,7 @@ class VarBayes(AutoregBayes):
                 verbose, self.thread_
             )
         else:
-            self.__model = McmcSv(
+            self.__model = SvMcmc(
                 self.chains_, self.iter_, self.burn_, self.thin_,
                 self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
@@ -330,7 +330,7 @@ class VharBayes(AutoregBayes):
                 verbose, self.thread_
             )
         else:
-            self.__model = McmcSv(
+            self.__model = SvMcmc(
                 self.chains_, self.iter_, self.burn_, self.thin_,
                 self.design_, self.response_,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
