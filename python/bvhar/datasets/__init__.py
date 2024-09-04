@@ -1,8 +1,9 @@
-import os
-import pickle
-import pkg_resources
+from importlib import resources
+import pandas as pd
 
-_data_path = pkg_resources.resource_filename(__name__, 'data/etf_vix.pkl')
+_data_path = resources.files('bvhar.datasets.data') / 'etf_vix.csv'
+etf_vix = pd.read_csv(_data_path)
 
-with open(_data_path, 'rb') as f:
-    etf_vix = pickle.load(f)
+__all__ = [
+    "etf_vix"
+]

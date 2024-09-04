@@ -2,6 +2,7 @@ import pytest
 from bvhar.model import VarBayes, VharBayes
 from bvhar.model import LdltConfig, SvConfig, InterceptConfig
 from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig
+from bvhar.datasets import etf_vix
 import numpy as np
 
 def help_var_bayes(
@@ -34,12 +35,10 @@ def test_var_bayes():
     num_data = 30
     dim_data = 2
     var_lag = 3
-
-    np.random.seed(1)
-    data = np.random.randn(num_data, dim_data)
+    data = etf_vix.to_numpy()[:num_data, :dim_data]
 
     num_chains = 2
-    num_threads = 1
+    num_threads = 2
     num_iter = 5
     num_burn = 2
     thin = 1
@@ -80,7 +79,7 @@ def test_var_bayes():
         )
     
     with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {var_lag}"):
-        data = np.random.randn(var_lag - 1, dim_data)
+        data = etf_vix.iloc[:(var_lag - 1), :dim_data]
         VarBayes(
             data, var_lag, num_chains, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
@@ -118,9 +117,8 @@ def test_vhar_bayes():
     dim_data = 3
     week = 5
     month = 22
-
-    np.random.seed(1)
-    data = np.random.randn(num_data, dim_data)
+    # data = etf_vix.to_numpy()[:num_data, :dim_data]
+    data = etf_vix.iloc[:num_data, :dim_data]
 
     num_chains = 2
     num_threads = 2
@@ -164,7 +162,7 @@ def test_vhar_bayes():
         )
     
     with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {month}"):
-        data = np.random.randn(month - 1, dim_data)
+        data = etf_vix.iloc[:(month - 1), :dim_data]
         VharBayes(
             data, week, month, num_chains, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
