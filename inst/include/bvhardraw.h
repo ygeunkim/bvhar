@@ -892,11 +892,11 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 									 		Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
 	// int num_alpha = latent_param.size();
 	for (int i = 0; i < latent_param.size(); ++i) {
-		latent_param[i] = sim_gig(
-			1, .5,
-			1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
-		)[0];
-		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		// latent_param[i] = sim_gig(
+		// 	1, .5,
+		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
+		// )[0];
+		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 	}
 }
 
