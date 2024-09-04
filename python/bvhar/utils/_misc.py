@@ -4,19 +4,38 @@ import pandas as pd
 def check_numeric(data : np.array):
     """Check if the array consists of numeric
 
-    :param data: 2-dim array
-    :type data: boolean
+    Parameters
+    ----------
+    data : np.array
+        2-dim array
+
+    Raises
+    ------
+    ValueError
+        If the array does not consists of only numeric values.
     """
     if not np.issubdtype(data.dtype, np.number) or np.issubdtype(data.dtype, np.bool_):
         raise ValueError("All elements should be numeric.")
-    # return True
 
-# def __make_fortran_array(arr: np.array):
-#     if not arr.flags.f_contiguous or arr.dtype != np.float64:
-#         return np.asfortranarray(arr, dtype=np.float64)
-#     return arr
+# """Check if the array consists of numeric
+
+#     :param data: 2-dim array
+#     :type data: boolean
+#     """
 
 def make_fortran_array(object):
+    """Make the array for Eigen input
+
+    Parameters
+    ----------
+    object : np.array
+        Array to be used as a input for Eigen::Matrix
+
+    Returns
+    -------
+    array
+        Array available for Eigen::Matrix input
+    """
     # if not arr.flags.f_contiguous or arr.dtype != np.float64:
     #     return np.asfortranarray(arr, dtype=np.float64)
     # return arr
@@ -32,8 +51,24 @@ def make_fortran_array(object):
 def check_np(data):
     """Check if the dataset is numpy array for Eigen
 
-    :param data: Table-format data
-    :type data: Non
+    Parameters
+    ----------
+    data : None
+        Table-format data
+
+    Returns
+    -------
+    array
+        Result of :func:`make_fortran_array`
+
+    Raises
+    ------
+    ValueError
+        If the array.ndim is not 2.
+    ValueError
+        If the list.ndim is not 2.
+    ValueError
+        If the data is not array, list, nor pd.DataFrame.
     """
     if isinstance(data, np.ndarray):
         if data.ndim == 2:
@@ -49,14 +84,10 @@ def check_np(data):
         else:
             raise ValueError("np.array(list) should give 2-dim array.")
     else:
-        try:
-            import pandas as pd
-            if isinstance(data, pd.DataFrame):
-                array_data = data.values
-                check_numeric(array_data)
-                return make_fortran_array(array_data)
-        except ImportError:
-            pass
+        if isinstance(data, pd.DataFrame):
+            array_data = data.values
+            check_numeric(array_data)
+            return make_fortran_array(array_data)
         # Add polars?
         raise ValueError("Unsupported data type.")
 
@@ -119,9 +150,10 @@ def concat_params(record: pd.DataFrame, param_names: str):
     return res
 
 def process_dens_forecast(pred_list: list, n_dim: int):
-    shape_pred = pred_list[0].shape # (step, dim * draw)
-    n_ahead = shape_pred[0]
-    n_draw = int(shape_pred[1] / n_dim)
+    # shape_pred = pred_list[0].shape # (step, dim * draw)
+    # n_ahead = shape_pred[0]
+    # n_draw = int(shape_pred[1] / n_dim)
+    n_draw = int(pred_list[0].shape[1] / n_dim)
     res = []
     for arr in pred_list:
         res.append([arr[:, range(id * n_dim, id * n_dim + n_dim)] for id in range(n_draw)])
