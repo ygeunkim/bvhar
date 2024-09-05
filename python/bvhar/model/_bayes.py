@@ -1,8 +1,8 @@
 from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
-from .._src._ldlt import McmcLdlt, LdltForecaster
-from .._src._sv import SvMcmc
+from .._src._ldlt import McmcLdlt, LdltForecast, LdltRoll
+from .._src._sv import SvMcmc, SvForecast
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
@@ -252,13 +252,20 @@ class VarBayes(AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False):
+    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
         fit_record = concat_params(self.param_, self.param_names_)
-        forecaster = LdltForecaster(
-            self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
-            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-            self.fit_intercept, self.thread_
-        )
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltForecast(
+                self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.fit_intercept, self.thread_
+            )
+        else:
+            forecaster = SvForecast(
+                self.chains_, self.p_, n_ahead, self.response_, sv, sparse, fit_record,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.fit_intercept, self.thread_
+            )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
@@ -268,8 +275,28 @@ class VarBayes(AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self):
-        pass
+    def roll_forecast(self, n_ahead: int, test, sparse = False):
+        fit_record = concat_params(self.param_, self.param_names_)
+        test = check_np(test)
+        n_horizon = test.shape[0] - n_ahead + 1
+        chunk_size = n_horizon * self.chains_ // self.thread_
+        # Check threads and chunk size
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltRoll(
+                self.response_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
+        else:
+            pass
+        # Not work yet -> check src
+        out_forecast = forecaster.returnForecast()
 
     def expand_forecast(self):
         pass
@@ -352,13 +379,20 @@ class VharBayes(AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False):
+    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
         fit_record = concat_params(self.param_, self.param_names_)
-        forecaster = LdltForecaster(
-            self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
-            np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-            self.fit_intercept, self.thread_
-        )
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltForecast(
+                self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.fit_intercept, self.thread_
+            )
+        else:
+            forecaster = SvForecast(
+                self.chains_, self.week_, self.month_, n_ahead, self.response_, sv, sparse, fit_record,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.fit_intercept, self.thread_
+            )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
