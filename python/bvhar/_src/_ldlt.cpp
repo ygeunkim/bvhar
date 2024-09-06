@@ -416,7 +416,6 @@ public:
 				break;
 			}
 		}
-		// 
 	}
 	virtual ~LdltRoll() = default;
 	py::dict returnForecast() {

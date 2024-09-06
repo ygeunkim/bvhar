@@ -8,7 +8,8 @@ import numpy as np
 def help_var_bayes(
     dim_data, var_lag, data,
     num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
-    bayes_config, cov_config
+    bayes_config, cov_config,
+    test_y = None, pred = False, roll = False, expand = False, spillover = False
 ):
     np.random.seed(1)
     fit_bayes = VarBayes(
@@ -31,11 +32,18 @@ def help_var_bayes(
     assert fit_bayes.coef_.shape == (dim_data * var_lag + 1, dim_data)
     assert fit_bayes.intercept_.shape == (dim_data,)
 
+    if pred:
+        pred_out = fit_bayes.predict(5, sparse = True)
+    if roll:
+        roll_out = fit_bayes.roll_forecast(1, test_y, True)
+
 def test_var_bayes():
     num_data = 30
     dim_data = 2
     var_lag = 3
     data = etf_vix.to_numpy()[:num_data, :dim_data]
+    n_ahead = 5
+    data_out = etf_vix.to_numpy()[num_data:(num_data + n_ahead), :dim_data]
 
     num_chains = 2
     num_threads = 2
@@ -47,7 +55,8 @@ def test_var_bayes():
 
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
-        SsvsConfig(), LdltConfig()
+        SsvsConfig(), LdltConfig(),
+        data_out, True, False
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
