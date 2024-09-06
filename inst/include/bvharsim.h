@@ -476,7 +476,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	// 	}
 	// 	return res;
 	// }
-	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result
+	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result
 	// double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta); // with mode shift
@@ -490,7 +490,8 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	if (lambda < 0) {
 		res = res.cwiseInverse();
 	}
-	return res / alpha; // alpha: reciprocal of scale parameter
+	// return res / alpha; // alpha: reciprocal of scale parameter
+	return res * sqrt(chi / psi);
 }
 // overloading
 inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi, boost::random::mt19937& rng) {
@@ -529,7 +530,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	// 	}
 	// 	return res;
 	// }
-	double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
+	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
 	// double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (abs_lam > 2 || beta > 3) {
 		rgig_with_mode(res, num_sim, abs_lam, beta, rng); // with mode shift
@@ -543,24 +544,25 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	if (lambda < 0) {
 		res = res.cwiseInverse();
 	}
-	return res / alpha;
+	// return res / alpha
+	return res * sqrt(chi / psi);
 }
 
 // Generate Inverse Gaussian Distribution
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
-// inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
-// 	// double y = normal_rand(rng);
-// 	// y *= y; // chi^2(1)
-// 	// double cand = mean + mean * mean * y / (2 * shape) - mean * sqrt(4 * mean * shape * y + mean * mean * y * y) / (2 * shape);
-// 	// double y = mean * chisq_rand(1, rng);
-// 	// double cand = mean + mean * y / (2 * shape) - mean * sqrt(4 * shape * y + y * y) / (2 * shape);
-// 	double y = mean * chisq_rand(1, rng) / (2 * shape);
-// 	double cand = mean + mean * y - mean * sqrt(2 * y + y * y);
-// 	if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
-// 		return cand;
-// 	}
-// 	return mean * mean / cand;
-// }
+inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
+	double y = mean * chisq_rand(1, rng) / (2 * shape);
+	// double cand = mean + mean * y - mean * sqrt(2 * y + y * y);
+	double cand_fac = 1 + y - sqrt(2 * y + y * y);
+	// double cand = mean * (1 + y - sqrt(2 * y + y * y));
+	// if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
+	if (unif_rand(0, 1, rng) <= 1 / (1 + cand_fac)) {
+		// return cand;
+		return mean * cand_fac;
+	}
+	// return mean * mean / cand;
+	return mean / cand_fac;
+}
 
 } //namespace bvhar
 
