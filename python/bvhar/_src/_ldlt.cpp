@@ -458,7 +458,7 @@ protected:
 			for (int window = 0; window < num_horizon; ++window) {
 				for (int chain = 0; chain < num_chains; ++chain) {
 					if (window != 0) {
-						runGibbs(window, 0);
+						runGibbs(window, chain);
 					}
 					Eigen::VectorXd valid_vec = y_test.row(step);
 					out_forecast[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);

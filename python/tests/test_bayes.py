@@ -9,7 +9,7 @@ def help_var_bayes(
     dim_data, var_lag, data,
     num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
     bayes_config, cov_config,
-    test_y = None, pred = False, roll = False, expand = False, spillover = False
+    test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False
 ):
     np.random.seed(1)
     fit_bayes = VarBayes(
@@ -33,9 +33,17 @@ def help_var_bayes(
     assert fit_bayes.intercept_.shape == (dim_data,)
 
     if pred:
-        pred_out = fit_bayes.predict(5, sparse = True)
+        pred_out = fit_bayes.predict(n_ahead, sparse = True)
+        assert pred_out['forecast'].shape == (n_ahead, dim_data)
+        assert pred_out['se'].shape == (n_ahead, dim_data)
+        assert pred_out['lower'].shape == (n_ahead, dim_data)
+        assert pred_out['upper'].shape == (n_ahead, dim_data)
     if roll:
-        roll_out = fit_bayes.roll_forecast(1, test_y, True)
+        roll_out = fit_bayes.roll_forecast(1, test_y, sparse = True)
+        assert roll_out['forecast'].shape == (n_ahead, dim_data)
+        assert roll_out['se'].shape == (n_ahead, dim_data)
+        assert roll_out['lower'].shape == (n_ahead, dim_data)
+        assert roll_out['upper'].shape == (n_ahead, dim_data)
 
 def test_var_bayes():
     num_data = 30
@@ -56,11 +64,12 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, True, False
+        data_out, n_ahead, True, True
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
-        HorseshoeConfig(), LdltConfig()
+        HorseshoeConfig(), LdltConfig(),
+        data_out, n_ahead, True, True
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
@@ -80,9 +89,9 @@ def test_var_bayes():
         SsvsConfig(), SvConfig()
     )
 
-    with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
+    with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = 2' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VarBayes(
-            data, var_lag, num_chains, num_iter, num_burn, thin,
+            data, var_lag, 2, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
             intercept, minnesota, False, 3
         )

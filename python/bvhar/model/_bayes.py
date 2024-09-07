@@ -275,7 +275,7 @@ class VarBayes(AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, sparse = False):
+    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
@@ -295,8 +295,15 @@ class VarBayes(AutoregBayes):
             )
         else:
             pass
-        # Not work yet -> check src
         out_forecast = forecaster.returnForecast()
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        return {
+            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
+            "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
+            "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
+            "lpl": out_forecast.get('lpl')
+        }
 
     def expand_forecast(self):
         pass
