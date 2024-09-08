@@ -36,20 +36,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
       
-      - name: Initialize conda on non-windows
-        if: runner.os != 'Windows'
-        run: conda init
-        shell: bash
-      
-      - name: Initialize conda on Windows
-        if: runner.os == 'Windows'
-        run: call C:\Users\runneradmin\miniconda3\condabin\conda.bat init
-      
       - name: Verify conda
         run: conda info
 
-      - name: Install and test
-        run: |
-          conda activate bvhar-env
-          pip install -e .
-          pytest
+      - name: Install
+        run: conda run -n bvhar-env pip install -e .
+      
+      - name: Test
+        run: conda run -n bvhar-env pytest
