@@ -31,6 +31,7 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
+          miniforge-variant: Miniforge3
           environment-file: python/requirements/environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
