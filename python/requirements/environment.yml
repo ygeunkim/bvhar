@@ -8,7 +8,6 @@ dependencies:
   - pandas
   - pip
   - pybind11
-  - llvm-openmp
   - pytest
   - python>=3.10
   - pip:

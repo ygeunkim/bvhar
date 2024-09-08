@@ -37,11 +37,33 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
       
+      - name: Set LLVM on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install llvm libomp
+          echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
+          echo "LIBOMP_PREFIX=$(brew --prefix libomp)" >> $GITHUB_ENV
+          echo "CC=${LLVM_PREFIX}/bin/clang" >> $GITHUB_ENV
+          echo "CXX=${LLVM_PREFIX}/bin/clang++" >> $GITHUB_ENV
+          echo "CPPFLAGS=-L${LLVM_PREFIX}/include -L${LIBOMP_PREFIX}/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L${LLVM_PREFIX}/lib -L${LIBOMP_PREFIX}/lib" >> $GITHUB_ENV
+      
       - name: Verify conda
+        if: runner.os != 'macOS'
         run: |
           conda info
           conda list
           conda env list
+      
+      - name: Verify conda
+        if: runner.os == 'macOS'
+        run: |
+          conda info
+          conda list
+          conda env list
+          echo "CC: $CC"
+          echo "CXX: $CXX"
 
       - name: Install
         run: conda run -n bvhar-env pip install -e .

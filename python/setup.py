@@ -10,57 +10,76 @@ with open("README.md", "r") as fh:
 
 include_path = os.path.abspath('../inst/include')
 
-class EigenInclude(object):
+# class EigenInclude(object):
+#     def __str__(self):
+#         # conda_prefix = os.environ.get('CONDA_PREFIX')
+#         conda_prefix = sys.prefix
+#         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
+#             if sys.platform.startswith('win'):
+#                 eigen_path = os.path.join(conda_prefix, 'Library', 'include', 'eigen3')
+#             else:
+#                 eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
+#             if os.path.exists(eigen_path):
+#                 return eigen_path
+#             else:
+#                 print('No eigen3 in conda environment')
+#         eigen_dir = os.environ.get('EIGEN3_INCLUDE_DIR')
+#         if eigen_dir:
+#             eigen_path = os.path.join(eigen_dir, 'include', 'eigen3')
+#             if os.path.exists(eigen_path):
+#                 return eigen_path
+#             else:
+#                 raise RuntimeError('No eigen3 found in EIGEN3_INCLUDE_DIR')
+#         else:
+#             raise RuntimeError('Set CONDA_PREFIX or EIGEN3_INCLUDE_DIR environment variable')
+
+class HeaderInclude(object):
+    def __init__(self, lib: str):
+        self.lib = lib
+
     def __str__(self):
-        # conda_prefix = os.environ.get('CONDA_PREFIX')
         conda_prefix = sys.prefix
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
-            # if sys.platform.startswith('win'):
-            #     eigen_path = os.path.join(conda_prefix, 'Library', 'include', 'eigen3')
-            # else:
-            #     eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
-            # if os.path.exists(eigen_path):
-            #     return eigen_path
-            # else:
-            #     print('No eigen3 in conda environment')
-            cand_path = [
-                os.path.join(conda_prefix, 'include', 'eigen3'),
-                os.path.join(conda_prefix, 'Library', 'include', 'eigen3'),
-                os.path.join(conda_prefix, 'Lib', 'include', 'eigen3')
-            ]
-            for eigen_path in cand_path:
-                if os.path.exists(eigen_path):
-                    return eigen_path
-            print('No eigen3 in conda environment')
-        eigen_dir = os.environ.get('EIGEN3_INCLUDE_DIR')
-        if eigen_dir:
-            eigen_path = os.path.join(eigen_dir, 'include', 'eigen3')
-            if os.path.exists(eigen_path):
-                return eigen_path
+            if sys.platform.startswith('win'):
+                lib_path = os.path.join(conda_prefix, 'Library', 'include', self.lib)
             else:
-                raise RuntimeError('No eigen3 found in EIGEN3_INCLUDE_DIR')
+                lib_path = os.path.join(conda_prefix, 'include', self.lib)
+            if os.path.exists(lib_path):
+                return lib_path
+            else:
+                print(f"No {self.lib} in conda environment")
+        lib_dir = os.environ.get(f"{self.lib.upper()}_INCLUDE_DIR")
+        if lib_dir:
+            lib_path = os.path.join(lib_dir, 'include', self.lib)
+            if os.path.exists(lib_path):
+                return lib_path
+            else:
+                raise RuntimeError(f"No {self.lib} found in {self.lib.upper}_INCLUDE_DIR")
         else:
-            raise RuntimeError('Set CONDA_PREFIX or EIGEN3_INCLUDE_DIR environment variable')
+            raise RuntimeError(f"Set CONDA_PREFIX or {self.lib.upper}_INCLUDE_DIR environment variable")
 
 class BuildExt(_build_ext):
-    def has_flags(self, compiler, flags):
+    def has_flags(self, compiler, flag):
         with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
             f.write("int main() { return 0; }")
             try:
-                compiler.compile([f.name], extra_postargs=[flags])
-            except:
+                compiler.compile([f.name], extra_postargs=[flag])
+            except Exception as e:
+                print(f"Flag {flag} not supported by the compiler: {e}")
                 return False
         return True
 
     def build_extensions(self):
+        compile_args = []
+        link_args = []
         if sys.platform.startswith('win'):
-            compile_args = ['/openmp'] if self.has_flags(self.compiler, '/openmp') else []
-            link_args = []
+            # compile_args = ['/openmp'] if self.has_flags(self.compiler, '/openmp') else []
+            # link_args = []
+            if self.has_flags(self.compiler, '/openmp'):
+                compile_args.append('/openmp')
         else:
             # compile_args = ['-fopenmp', '-Wall']
             # link_args = ['-fopenmp']
-            compile_args = []
-            link_args = []
             if self.has_flags(self.compiler, '-fopenmp'):
                 compile_args.append('-fopenmp')
                 link_args.append('-fopenmp')
@@ -96,13 +115,15 @@ def find_module(base_dir):
                     Pybind11Extension(
                         module_name,
                         sources=[os.path.join(root, cpp_file)],
-                        macros=[
+                        define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
                             ('BOOST_DISABLE_ASSERTS', None)
                         ],
                         include_dirs=[
                             include_path,
-                            str(EigenInclude())
+                            # str(EigenInclude())
+                            str(HeaderInclude('eigen3')),
+                            str(HeaderInclude('boost'))
                         ]
                     )
                 )
