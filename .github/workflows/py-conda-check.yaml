@@ -32,12 +32,16 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
+          activate-environment: bvhar-env
           environment-file: python/requirements/environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
       
       - name: Verify conda
-        run: conda info
+        run: |
+          conda info
+          conda list
+          conda env list
 
       - name: Install
         run: conda run -n bvhar-env pip install -e .
