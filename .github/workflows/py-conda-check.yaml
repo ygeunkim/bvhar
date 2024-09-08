@@ -1,0 +1,53 @@
+on:
+  push:
+    branches: ['feature/python'] # change to [main, master, 'hotfix/*', 'release/*', develop] after finish
+#   pull_request:
+#     branches: [main, master, 'hotfix/*', 'release/*', develop]
+
+name: py-conda-check
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    defaults:
+      run:
+        working-directory: python
+    
+    name: ${{ matrix.os }} (${{ matrix.python-version }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: requirements/environment.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+      
+      - name: Initialize conda
+        if: runner.os == 'Windows'
+        run: |
+          source $CONDA/condabin/conda.bash hook
+          conda init bash
+        shell: bash
+
+      - name: Install
+        run: |
+          conda activate bvhar-env
+          pip install -e .
+    
+      - name: Test
+        run: |
+          conda activate bvhar-env
+          pytest
