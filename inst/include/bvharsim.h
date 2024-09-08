@@ -451,12 +451,13 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = gamma_rand(abs_lam, 2 / psi); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
 			}
-		} else {
+			return res;
+		} else if (lambda < 0) {
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = 1 / gamma_rand(abs_lam, 2 / chi); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
 			}
+			return res;
 		}
-		return res;
 	}
 	// if (chi < 15 * std::numeric_limits<double>::epsilon()) {
 	// 	for (int i = 0; i < num_sim; ++i) {
@@ -505,12 +506,13 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
 			}
-		} else {
+			return res;
+		} else if (lambda < 0) {
 			for (int i = 0; i < num_sim; ++i) {
 				res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale)
 			}
+			return res;
 		}
-		return res;
 	}
 	// if (chi < 8 * std::numeric_limits<double>::epsilon()) {
 	// 	for (int i = 0; i < num_sim; ++i) {
