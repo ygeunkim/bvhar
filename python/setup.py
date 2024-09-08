@@ -32,15 +32,14 @@ include_path = os.path.abspath('../inst/include')
 
 class EigenInclude(object):
     def __str__(self):
-        conda_prefix = os.environ.get('CONDA_PREFIX')
-        if conda_prefix:
+        # conda_prefix = os.environ.get('CONDA_PREFIX')
+        conda_prefix = sys.prefix
+        if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
             if os.path.exists(eigen_path):
                 return eigen_path
             else:
-                # raise RuntimeError('No eigen3 in conda environment')
                 print('No eigen3 in conda environment')
-        # else:
         eigen_dir = os.environ.get('EIGEN3_INCLUDE_DIR')
         if eigen_dir:
             eigen_path = os.path.join(eigen_dir, 'include', 'eigen3')
