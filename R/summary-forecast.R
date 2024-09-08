@@ -256,7 +256,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread != 0) {
+  if (num_horizon * num_chains %/% num_thread == 0) {
     warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   }
   chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
@@ -375,12 +375,13 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  res_mat <-
+  pred_mean <-
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
@@ -388,10 +389,42 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
-  colnames(res_mat) <- name_var
+  colnames(pred_mean) <- name_var
+  est_se <- 
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), sd)
+    }) %>%
+    do.call(rbind, .)
+  colnames(est_se) <- name_var
+  lower_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(lower_quantile) <- name_var
+  upper_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(upper_quantile) <- name_var
   res <- list(
     process = object$process,
-    forecast = res_mat,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -440,7 +473,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread != 0) {
+  if (num_horizon * num_chains %/% num_thread == 0) {
     warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   }
   chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
@@ -560,12 +593,13 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  res_mat <-
+  pred_mean <-
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
@@ -573,10 +607,42 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
-  colnames(res_mat) <- name_var
+  colnames(pred_mean) <- name_var
+  est_se <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), sd)
+    }) %>%
+    do.call(rbind, .)
+  colnames(est_se) <- name_var
+  lower_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(lower_quantile) <- name_var
+  upper_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(upper_quantile) <- name_var
   res <- list(
     process = object$process,
-    forecast = res_mat,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -786,7 +852,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread != 0) {
+  if (num_horizon * num_chains %/% num_thread == 0) {
     warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
@@ -907,12 +973,22 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  res_mat <-
+  # res_mat <-
+  #   res_mat %>%
+  #   lapply(function(res) {
+  #     unlist(res) %>%
+  #       array(dim = c(1, object$m, num_draw)) %>%
+  #       apply(c(1, 2), mean)
+  #   }) %>%
+  #   do.call(rbind, .)
+  # colnames(res_mat) <- name_var
+  pred_mean <-
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
@@ -920,10 +996,42 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
-  colnames(res_mat) <- name_var
+  colnames(pred_mean) <- name_var
+  est_se <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), sd)
+    }) %>%
+    do.call(rbind, .)
+  colnames(est_se) <- name_var
+  lower_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(lower_quantile) <- name_var
+  upper_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(upper_quantile) <- name_var
   res <- list(
     process = object$process,
-    forecast = res_mat,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -972,7 +1080,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread != 0) {
+  if (num_horizon * num_chains %/% num_thread == 0) {
     warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
@@ -1093,23 +1201,65 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  res_mat <- 
-    res_mat %>% 
+  # res_mat <- 
+  #   res_mat %>% 
+  #   lapply(function(res) {
+  #     unlist(res) %>% 
+  #       array(dim = c(1, object$m, num_draw)) %>% 
+  #       apply(c(1, 2), mean)
+  #   }) %>% 
+  #   do.call(rbind, .)
+  # colnames(res_mat) <- name_var
+  pred_mean <-
+    res_mat %>%
     lapply(function(res) {
-      unlist(res) %>% 
-        array(dim = c(1, object$m, num_draw)) %>% 
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
         apply(c(1, 2), mean)
-    }) %>% 
+    }) %>%
     do.call(rbind, .)
-  colnames(res_mat) <- name_var
+  colnames(pred_mean) <- name_var
+  est_se <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), sd)
+    }) %>%
+    do.call(rbind, .)
+  colnames(est_se) <- name_var
+  lower_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(lower_quantile) <- name_var
+  upper_quantile <-
+    res_mat %>%
+    lapply(function(res) {
+      unlist(res) %>%
+        array(dim = c(1, object$m, num_draw)) %>%
+        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+    }) %>%
+    do.call(rbind, .)
+  colnames(upper_quantile) <- name_var
   res <- list(
     process = object$process,
-    forecast = res_mat,
+    forecast = pred_mean,
+    se = est_se,
+    lower = lower_quantile,
+    upper = upper_quantile,
+    lower_joint = lower_quantile,
+    upper_joint = upper_quantile,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
