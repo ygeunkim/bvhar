@@ -39,7 +39,8 @@ class HeaderInclude(object):
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
-        with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
+        # with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
+        with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
             f.write("int main() { return 0; }")
             temp_file = f.name
             try:
@@ -47,9 +48,9 @@ class BuildExt(_build_ext):
             except Exception as e:
                 print(f"Flag {flag} not supported by the compiler: {e}")
                 return False
-            finally:
-                if os.path.exists(temp_file):
-                    os.remove(temp_file)
+            # finally:
+            #     if os.path.exists(temp_file):
+            #         os.remove(temp_file)
             print(f"Use {flag} flag")
         return True
 

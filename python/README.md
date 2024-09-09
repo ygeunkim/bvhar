@@ -1,16 +1,20 @@
-# bvhar <img src='../man/figures/logo.png' align="right" height="139" />
+# bvhar <img src="docs/logo.png" align="right" height="138" />
 
+<!-- README.md is generated from README.qmd. Please edit that file -->
 <!-- badges: start -->
+
+[![Experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature/python.png)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature/python)
 <!-- badges: end -->
 
 Started to develop `bvhar` in Python!
 
 ## Installation
 
-In `python` directory:
+In this `python` directory:
 
 ``` bash
-pip install -e .
+pip install .
 ```
 
 Check OpenMP:
