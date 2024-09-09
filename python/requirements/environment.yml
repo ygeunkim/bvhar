@@ -2,13 +2,13 @@ name: bvhar-env
 channels:
   - conda-forge
 dependencies:
+  - python>=3.10
   - boost-cpp>=1.84.0
   - eigen>=3.4.0
+  - pybind11
   - numpy
   - pandas
   - pip
-  - pybind11
   - pytest
-  - python>=3.10
   - pip:
       - quartodoc

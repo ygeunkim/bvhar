@@ -42,12 +42,12 @@ jobs:
         run: |
           brew update
           brew install llvm libomp
-          echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
-          echo "LIBOMP_PREFIX=$(brew --prefix libomp)" >> $GITHUB_ENV
-          echo "CC=${LLVM_PREFIX}/bin/clang" >> $GITHUB_ENV
-          echo "CXX=${LLVM_PREFIX}/bin/clang++" >> $GITHUB_ENV
-          echo "CPPFLAGS=-L${LLVM_PREFIX}/include -L${LIBOMP_PREFIX}/include" >> $GITHUB_ENV
-          echo "LDFLAGS=-L${LLVM_PREFIX}/lib -L${LIBOMP_PREFIX}/lib" >> $GITHUB_ENV
+          echo "LLVM_LOC=$(brew --prefix llvm)" >> $GITHUB_ENV
+          echo "OMP_LOC=$(brew --prefix libomp)" >> $GITHUB_ENV
+          echo "CC=$(LLVM_LOC)/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$(LLVM_LOC)/bin/clang++" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$(LLVM_LOC)/include -I$(OMP_LOC)/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(LLVM_LOC)/lib -L$(OMP_LOC)/lib" >> $GITHUB_ENV
       
       - name: Verify conda
         if: runner.os != 'macOS'
@@ -64,9 +64,14 @@ jobs:
           conda env list
           echo "CC: $CC"
           echo "CXX: $CXX"
+          echo "CPPFLAGS: $CPPFLAGS"
+          echo "LDFLAGS: $LDFLAGS"
 
       - name: Install
         run: conda run -n bvhar-env pip install -e .
+      
+      - name: OpenMP check
+        run: conda run -n bvhar-env python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
       
       - name: Test
         run: conda run -n bvhar-env pytest

@@ -10,29 +10,6 @@ with open("README.md", "r") as fh:
 
 include_path = os.path.abspath('../inst/include')
 
-# class EigenInclude(object):
-#     def __str__(self):
-#         # conda_prefix = os.environ.get('CONDA_PREFIX')
-#         conda_prefix = sys.prefix
-#         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
-#             if sys.platform.startswith('win'):
-#                 eigen_path = os.path.join(conda_prefix, 'Library', 'include', 'eigen3')
-#             else:
-#                 eigen_path = os.path.join(conda_prefix, 'include', 'eigen3')
-#             if os.path.exists(eigen_path):
-#                 return eigen_path
-#             else:
-#                 print('No eigen3 in conda environment')
-#         eigen_dir = os.environ.get('EIGEN3_INCLUDE_DIR')
-#         if eigen_dir:
-#             eigen_path = os.path.join(eigen_dir, 'include', 'eigen3')
-#             if os.path.exists(eigen_path):
-#                 return eigen_path
-#             else:
-#                 raise RuntimeError('No eigen3 found in EIGEN3_INCLUDE_DIR')
-#         else:
-#             raise RuntimeError('Set CONDA_PREFIX or EIGEN3_INCLUDE_DIR environment variable')
-
 class HeaderInclude(object):
     def __init__(self, lib: str):
         self.lib = lib
@@ -73,13 +50,9 @@ class BuildExt(_build_ext):
         compile_args = []
         link_args = []
         if sys.platform.startswith('win'):
-            # compile_args = ['/openmp'] if self.has_flags(self.compiler, '/openmp') else []
-            # link_args = []
             if self.has_flags(self.compiler, '/openmp'):
                 compile_args.append('/openmp')
         else:
-            # compile_args = ['-fopenmp', '-Wall']
-            # link_args = ['-fopenmp']
             if self.has_flags(self.compiler, '-fopenmp'):
                 compile_args.append('-fopenmp')
                 link_args.append('-fopenmp')
@@ -98,20 +71,6 @@ def find_module(base_dir):
                 # module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else base_dir
                 module_name = f"{base_dir}.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "." else f"{base_dir}.{module_name}"
                 extensions.append(
-                    # Extension(
-                    #     module_name,
-                    #     sources=[os.path.join(root, cpp_file)],
-                    #     include_dirs=[
-                    #         include_path,
-                    #         str(PythonInclude(user=False)),
-                    #         str(PybindInclude(user=False)),
-                    #         str(EigenInclude())
-                    #     ],
-                    #     extra_compile_args=[
-                    #         '-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS',
-                    #         '-DBOOST_DISABLE_ASSERTS'
-                    #     ]
-                    # )
                     Pybind11Extension(
                         module_name,
                         sources=[os.path.join(root, cpp_file)],
