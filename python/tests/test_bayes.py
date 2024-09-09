@@ -54,7 +54,7 @@ def test_var_bayes():
     data_out = etf_vix.to_numpy()[num_data:(num_data + n_ahead), :dim_data]
 
     num_chains = 2
-    num_threads = 2
+    num_threads = 1
     num_iter = 5
     num_burn = 2
     thin = 1
@@ -139,7 +139,7 @@ def test_vhar_bayes():
     data = etf_vix.iloc[:num_data, :dim_data]
 
     num_chains = 2
-    num_threads = 2
+    num_threads = 1
     num_iter = 5
     num_burn = 2
     thin = 1
