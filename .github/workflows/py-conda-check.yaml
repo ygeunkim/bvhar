@@ -58,8 +58,10 @@ jobs:
           conda env list
 
       - name: Install
+        run: conda run -n bvhar-env pip install . -v
+      
+      - name: Verify installation
         run: |
-          conda run -n bvhar-env pip install .
           conda run -n bvhar-env pip list
           conda run -n bvhar-env conda list
       
