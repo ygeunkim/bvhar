@@ -41,8 +41,8 @@ class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
         with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
             f.write("int main() { return 0; }")
-            f.flush()
             temp_file = f.name
+            f.close()
             try:
                 compiler.compile([temp_file], extra_postargs=[flag])
                 print(f"Use {flag} flag")
