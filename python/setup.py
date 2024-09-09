@@ -16,12 +16,14 @@ class HeaderInclude(object):
 
     def __str__(self):
         conda_prefix = sys.prefix
+        print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
                 lib_path = os.path.join(conda_prefix, 'Library', 'include', self.lib)
             else:
                 lib_path = os.path.join(conda_prefix, 'include', self.lib)
             if os.path.exists(lib_path):
+                print(f"Use {lib_path} for {self.lib} header")
                 return lib_path
             else:
                 print(f"No {self.lib} in conda environment")
@@ -39,11 +41,14 @@ class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
         with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
             f.write("int main() { return 0; }")
+            temp_file = f.name
             try:
-                compiler.compile([f.name], extra_postargs=[flag])
+                os.chmod(temp_file, 0o666)
+                compiler.compile([temp_file], extra_postargs=[flag])
             except Exception as e:
                 print(f"Flag {flag} not supported by the compiler: {e}")
                 return False
+            print(f"Use {flag} flag")
         return True
 
     def build_extensions(self):
