@@ -52,6 +52,11 @@
 	#define ACCESS_LIST(iterator, list) list[iterator.first]
 	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
 	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
+
+	#ifndef M_PI
+		// Some platform does not have M_PI defined - to the same value as in Rmath.h
+		#define M_PI 3.141592653589793238462643383280
+	#endif
 #endif
 
 #endif // COMMONDEFS_H

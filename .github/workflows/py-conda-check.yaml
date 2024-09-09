@@ -58,12 +58,15 @@ jobs:
           conda env list
 
       - name: Install
-        run: conda run -n bvhar-env pip install . -v
+        run: conda run -n bvhar-env pip install -e . -v
       
       - name: Verify installation
         run: |
           conda run -n bvhar-env pip list
           conda run -n bvhar-env conda list
+      
+      - name: OpenMP check
+        run: conda run -n bvhar-env python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
       
       - name: Test
         run: conda run -n bvhar-env pytest
