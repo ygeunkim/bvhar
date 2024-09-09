@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools", "wheel", "pybind11"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "bvhar"
 version = "0.0.0.9000"
@@ -10,16 +6,69 @@ readme = "README.md"
 authors = [
     { name = "Young Geun Kim", email = "ygeunkimstat@gmail.com" }
 ]
-keywords = ["bayesian", "time series"]
+keywords = [
+    "bayesian",
+    "time series"
+]
 dependencies = [
     "pybind11",
     "numpy",
     "pandas"
 ]
+classifiers=[
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: C++",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Scientific/Engineering :: Mathematics"
+]
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+
+[project.urls]
+homepage = "https://github.com/ygeunkim/bvhar/tree/feature/python"
+source = "https://github.com/ygeunkim/bvhar/tree/feature/python"
+tracker = "https://github.com/ygeunkim/bvhar/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["bvhar", "bvhar.*"]
 
 [tool.setuptools.package-data]
-bvhar = ["**/*.cpp"]
+bvhar = [
+    "**/*.cpp",
+    "datasets/data/*.csv"
+]
+
+[tool.setuptools_scm]
+
+[project.optional-dependencies]
+doc = [
+    "ipykernel",
+    "ipython<=8.12",
+    "nbclient",
+    "nbformat",
+    "quartodoc",
+]
+test = [
+    "pytest"
+]
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "pybind11"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["bvhar"]

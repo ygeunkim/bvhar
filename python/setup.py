@@ -39,20 +39,20 @@ class HeaderInclude(object):
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
-        # with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
-        with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
+        with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
             f.write("int main() { return 0; }")
+            f.flush()
             temp_file = f.name
             try:
                 compiler.compile([temp_file], extra_postargs=[flag])
+                print(f"Use {flag} flag")
+                return True
             except Exception as e:
                 print(f"Flag {flag} not supported by the compiler: {e}")
                 return False
-            # finally:
-            #     if os.path.exists(temp_file):
-            #         os.remove(temp_file)
-            print(f"Use {flag} flag")
-        return True
+            finally:
+                if os.path.exists(temp_file):
+                    os.unlink(temp_file)
 
     def build_extensions(self):
         compile_args = []
@@ -106,7 +106,24 @@ setup(
     long_description=long_description,
     author='Young Geun Kim',
     author_email='ygeunkimstat@gmail.com',
-    keywords=['bayesian', 'time series'],
+    keywords=[
+        'bayesian',
+        'time series'
+    ],
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: C++',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Scientific/Engineering :: Mathematics'
+    ],
     install_requires=[
         'pybind11',
         'numpy',
