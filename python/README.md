@@ -11,10 +11,17 @@ Started to develop `bvhar` in Python!
 
 ## Installation
 
+Requirements:
+
+``` bash
+conda env create -f requirements/environment.yml
+conda activate bvhar-env
+```
+
 In this `python` directory:
 
 ``` bash
-pip install .
+pip install -e .
 ```
 
 Check OpenMP:
