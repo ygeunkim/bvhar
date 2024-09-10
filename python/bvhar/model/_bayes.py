@@ -15,8 +15,7 @@ from math import floor
 class AutoregBayes:
     def __init__(
         self, data, lag, p, n_chain = 1, n_iter = 1000,
-        n_burn = lambda n_iter: floor(n_iter / 2),
-        n_thin = 1,
+        n_burn = None, n_thin = 1,
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),
         intercept_config = InterceptConfig(), fit_intercept = True,
@@ -33,6 +32,8 @@ class AutoregBayes:
         self.chains_ = int(n_chain)
         # self.thread_ = n_thread
         self.iter_ = int(n_iter)
+        if n_burn is None:
+            n_burn = floor(n_iter / 2)
         self.burn_ = int(n_burn)
         self.thin_ = int(n_thin)
         self.fit_intercept = fit_intercept
@@ -194,7 +195,7 @@ class VarBayes(AutoregBayes):
         lag = 1,
         n_chain = 1,
         n_iter = 1000,
-        n_burn = lambda n_iter: floor(n_iter / 2),
+        n_burn = None,
         n_thin = 1,
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),
@@ -324,7 +325,7 @@ class VharBayes(AutoregBayes):
         month = 22,
         n_chain = 1,
         n_iter = 1000,
-        n_burn = lambda n_iter: floor(n_iter / 2),
+        n_burn = None,
         n_thin = 1,
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),

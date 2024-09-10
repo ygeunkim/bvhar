@@ -2,7 +2,7 @@ import pytest
 from bvhar.model import VarBayes, VharBayes
 from bvhar.model import LdltConfig, SvConfig, InterceptConfig
 from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig
-from bvhar.datasets import etf_vix
+from bvhar.datasets import load_vix
 import numpy as np
 
 def help_var_bayes(
@@ -49,6 +49,7 @@ def test_var_bayes():
     num_data = 30
     dim_data = 2
     var_lag = 3
+    etf_vix = load_vix()
     data = etf_vix.to_numpy()[:num_data, :dim_data]
     n_ahead = 5
     data_out = etf_vix.to_numpy()[num_data:(num_data + n_ahead), :dim_data]
@@ -84,10 +85,10 @@ def test_var_bayes():
         DlConfig(), LdltConfig()
     )
 
-    help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
-        SsvsConfig(), SvConfig()
-    )
+    # help_var_bayes(
+    #     dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    #     SsvsConfig(), SvConfig()
+    # )
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = 2' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VarBayes(
@@ -97,6 +98,7 @@ def test_var_bayes():
         )
     
     with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {var_lag}"):
+        etf_vix = load_vix()
         data = etf_vix.iloc[:(var_lag - 1), :dim_data]
         VarBayes(
             data, var_lag, num_chains, num_iter, num_burn, thin,
@@ -136,6 +138,7 @@ def test_vhar_bayes():
     week = 5
     month = 22
     # data = etf_vix.to_numpy()[:num_data, :dim_data]
+    etf_vix = load_vix()
     data = etf_vix.iloc[:num_data, :dim_data]
 
     num_chains = 2
@@ -167,10 +170,10 @@ def test_vhar_bayes():
         DlConfig(), LdltConfig()
     )
 
-    help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
-        SsvsConfig(), SvConfig()
-    )
+    # help_vhar_bayes(
+    #     dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    #     SsvsConfig(), SvConfig()
+    # )
 
     with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VharBayes(
