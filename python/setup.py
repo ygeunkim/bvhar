@@ -27,7 +27,7 @@ class HeaderInclude(object):
                 return lib_path
             else:
                 print(f"No {self.lib} in conda environment")
-        lib_dir = os.environ.get(f"{self.lib.upper()}_INCLUDE_DIR")
+        lib_dir = os.environ.get(f"{self.lib.rstrip('0123456789').upper()}_INCLUDE_DIR")
         if lib_dir:
             lib_path = os.path.join(lib_dir, 'include', self.lib)
             if os.path.exists(lib_path):

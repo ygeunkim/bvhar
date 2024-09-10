@@ -59,21 +59,47 @@ jobs:
       - name: Set system dependencies on Windows
         if: runner.os == 'Windows'
         run: |
-          choco install eigen -y
-          choco install boost-msvc-14.3 -y
-          $eigenPath = (Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\eigen" -Recurse -Filter "Eigen" | Where-Object { $_.PSIsContainer } | Select-Object -First 1).Parent.FullName
-          if (-not $eigenPath) {
-              Write-Error "Wrong eigen path"
-              exit 1
+          choco install eigen -y --no-progress
+          choco install boost-msvc-14.3 -y --no-progress
+          $eigenPath = (
+            Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\eigen" -Recurse -Filter "Eigen" |
+            Select-Object -First 1
+          ).Parent.FullName
+          if ($eigenPath) {
+            echo "eigen is installed in $eigenPath:"
+            Get-ChildItem $eigenPath
+          } else {
+            Write-Error "Wrong eigen path"
+            exit 1
           }
-          $boostPath = (Get-ChildItem -Path "C:\local" -Directory | Where-Object { $_.Name -like "boost_*_msvc-*" } | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
-          if (-not (Test-Path $boostPath)) {
-              Write-Error "Wrong boost path"
-              exit 1
+          $boostPath = $null
+          $boostCand = @("C:\local", "C:\ProgramData\chocolatey\lib")
+          foreach ($cand in $boostCand) {
+            $isPath = (
+                Get-ChildItem -Path $cand -Directory |
+                Where-Object { $_.Name -match  "boost[-_]\d+[-_]\d+[-_]\d+[-_]?msvc[-_]14\.3" } |
+                Sort-Object LastWriteTime -Descending |
+                Select-Object -First 1
+            ).FullName
+            if ($isPath) {
+                $boostPath = $isPath
+                break
+            }
+          }
+          if ($boostPath) {
+            echo "boost is installed in $boostPath:"
+            Get-ChildItem $boostPath
+          } else {
+            Write-Error "Wrong boost path"
+            exit 1
           }
           echo "EIGEN_INCLUDE_PATH=$eigenPath" >> $Env:GITHUB_ENV
           echo "BOOST_INCLUDE_PATH=$boostPath" >> $Env:GITHUB_ENV
       
+      - name: Set system dependencies on Windows
+        if: failure() && runner.os == 'Windows'
+        run: type C:\ProgramData\chocolatey\logs\chocolatey.log
+
       - name: Install requirements
         run: |
           pip install --upgrade pip
