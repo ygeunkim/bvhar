@@ -1,19 +1,29 @@
-# bvhar
-<a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="logo.png" align="right" height="138" /></a>
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="logo.png" align="right" height="138" /></a>
 
-<!-- badges: start -->
-<!-- badges: end -->
+This is a python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
 
-## Overview
+The package implements C++ headers made in R package.
+Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.html).
 
-`bvhar` provides functions to analyze multivariate time series time series using
+## Eigen and boost setting
 
-- VAR
-- VHAR (Vector HAR)
-- BVAR (Bayesian VAR)
-- **BVHAR (Bayesian VHAR)**
+`bvhar` C++ sources uses
 
-Basically, the package focuses on the research with forecasting.
+- [`Eigen`](https://eigen.tuxfamily.org/index.php?title=Main_Page) library: for matrix computation
+- [`boost`](https://www.boost.org) library: for random generation.
+
+If you use `conda`, you can avoid manual installation using `requirements/environment.yml` in our repo. Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install the package with conda environment:
+
+```bash
+conda env create -f requirements/environment.yml
+conda activate bvhar-env
+pip install -e .
+```
+
+Otherwise, you should set their paths by yourself; at this stage.
+
+- `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
+- `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
 
 ## Installation
 

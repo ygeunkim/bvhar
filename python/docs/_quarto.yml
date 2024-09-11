@@ -38,7 +38,7 @@ website:
 
 format:
   html:
-    # sidebar: false
+    sidebar: false
     theme: 
       light: [journal, mypkgdown.scss]
     highlight-style: github-dark
@@ -46,7 +46,7 @@ format:
     code-background: true
     code-copy: true
     code-overflow: wrap
-    toc: true
+    toc: false
 
 include-in-header: 
   - text: |
@@ -55,16 +55,49 @@ include-in-header:
 quartodoc:
   title: Reference
   package: bvhar
-  # sections:
-  #   - title: Bayesian
-  #     desc: "blah"
-  #     contents:
-  #       - function
-  #   - title: Utility functions
-  #     desc: "Related to configuration"
-  #     package: bvhar.utils
-  #     contents:
-  #       - function
+  sections:
+    - title: VAR
+      desc: "Vector autoregressive model"
+      package: bvhar.model
+      contents:
+        - VarOls
+        - VarBayes
+    - title: VHAR
+      desc: "Vector heterogeneous autoregressive model"
+      package: bvhar.model
+      contents:
+        - VharOls
+        - VharBayes
+    - title: Priors
+      desc: "Prior configuration"
+      package: bvhar.model
+      contents:
+        - SsvsConfig
+        - HorseshoeConfig
+        - MinnesotaConfig
+        - LambdaConfig
+        - NgConfig
+        - DlConfig
+        - LdltConfig
+        - SvConfig
+        - InterceptConfig
+    - title: Random
+      desc: "Random generation functions"
+      package: bvhar.random
+      contents:
+        - normal.generate_mnormal
+        - normal.generate_gig
+    - title: Datasets
+      desc: "Datasets"
+      package: bvhar.datasets
+      contents:
+        - load_vix
+    - title: Utility functions
+      desc: "Related to configuration"
+      package: bvhar.utils
+      contents:
+        - checkomp.is_omp
+        - checkomp.check_omp
 
 # filters:
 #   - interlinks
