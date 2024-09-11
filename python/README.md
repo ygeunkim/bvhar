@@ -1,22 +1,18 @@
-# bvhar <img src="docs/logo.png" align="right" height="138" />
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
+
+# bvhar <img src="docs/logo.png" align="right" height="138" />
+
 <!-- badges: start -->
 
 [![Experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature/python.png)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature/python)
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature%2Fpython)
+[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Afeature%2Fpython)
 <!-- badges: end -->
 
 Started to develop `bvhar` in Python!
 
 ## Installation
-
-Requirements:
-
-``` bash
-conda env create -f requirements/environment.yml
-conda activate bvhar-env
-```
 
 In this `python` directory:
 
@@ -24,11 +20,18 @@ In this `python` directory:
 pip install -e .
 ```
 
-Check OpenMP:
+### Eigen and boost usage
 
-``` python
-from bvhar.utils import checkomp
-checkomp.check_omp()
+`bvhar` uses Eigen and boost headers in C++ sources. If you use `eigen`
+and `boost-cpp` in conda with the conda environment, you don’t have to
+take care of them.
+
+``` bash
+conda env create -f requirements/environment.yml
+conda activate bvhar-env
 ```
 
-    OpenMP threads:  16
+Otherwise, you should set their paths by yourself; at this stage.
+
+- `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
+- `BOOST_INCLUDE_DIR`: boost path that includes the boost headers

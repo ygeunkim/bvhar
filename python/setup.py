@@ -92,7 +92,8 @@ def find_module(base_dir):
                             include_path,
                             # str(EigenInclude())
                             str(HeaderInclude('eigen3')),
-                            str(HeaderInclude('')) if sys.platform.startswith('win') else str(HeaderInclude('boost'))
+                            # str(HeaderInclude('')) if sys.platform.startswith('win') else str(HeaderInclude('boost'))
+                            str(HeaderInclude('boost'))
                         ]
                     )
                 )
