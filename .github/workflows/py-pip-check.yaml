@@ -81,7 +81,7 @@ jobs:
           foreach ($cand in $boostCand) {
             $isPath = (
                 Get-ChildItem -Path $cand -Directory |
-                Where-Object { $_.Name -match  "boost[-_]\d+[-_]\d+[-_]\d+[-_]?msvc[-_]14\.3" } |
+                Where-Object { $_.Name -match  "boost" } |
                 Sort-Object LastWriteTime -Descending |
                 Select-Object -First 1
             ).FullName
