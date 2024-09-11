@@ -1,0 +1,105 @@
+# bvhar Getting Started
+
+To install `bvhar` in non-conda environment, you should have Eigen and boost libraries in system.
+
+## Installing
+
+### Eigen and boost
+
+In Linux,
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libboost-all-dev libeigen3-dev
+echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> ~/.bashrc
+echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> ~/.bashrc
+source ~/.bashrc
+```
+
+In macOS,
+
+```zsh
+brew update
+brew install boost eigen
+EIGEN_LOC=$(brew --prefix eigen)
+BOOST_LOC=$(brew --prefix boost)
+echo "EIGEN_INCLUDE_DIR=$(brew --prefix eigen)/include/eigen3" >> ~/.zshrc
+echo "BOOST_INCLUDE_DIR=$(brew --prefix boost)/include" >> ~/.zshrc
+source ~/.zshrc
+```
+
+In both Linux and macOS, verify the installation with
+
+```bash
+ls $EIGEN_INCLUDE_DIR
+ls $BOOST_INCLUDE_DIR
+```
+
+For Windows, you can easily install both libraries using Chocolatey:
+
+```powershell
+choco install eigen -y
+choco install boost-msvc-14.3 -y
+```
+
+Set the environment variables:
+
+```powershell
+$eigenPath = (
+  Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\eigen" -Recurse -Filter "Eigen" |
+  Select-Object -First 1
+).Parent.FullName
+$boostPath = $null
+$boostCand = @("C:\local", "C:\ProgramData\chocolatey\lib")
+foreach ($cand in $boostCand) {
+  $isPath = (
+      Get-ChildItem -Path $cand -Directory |
+      Where-Object { $_.Name -match  "boost" } |
+      Sort-Object LastWriteTime -Descending |
+      Select-Object -First 1
+  ).FullName
+  if ($isPath) {
+      $boostPath = $isPath
+      break
+  }
+}
+[System.Environment]::SetEnvironmentVariable("EIGEN_INCLUDE_DIR", $eigenPath, [System.EnvironmentVariableTarget]::Machine)
+[System.Environment]::SetEnvironmentVariable("BOOST_INCLUDE_DIR", $boostPath, [System.EnvironmentVariableTarget]::Machine)
+```
+
+Verify the environment variables and installation:
+
+```powershell
+$env:EIGEN_INCLUDE_DIR
+Get-ChildItem $env:EIGEN_INCLUDE_DIR
+$env:BOOST_INCLUDE_DIR
+Get-ChildItem $env:BOOST_INCLUDE_DIR
+```
+
+## OpenMP
+
+OpenMP multithreading is used when conducting parallel chains MCMC. If OpenMP is not enabled, the chains are run sequentially. `bvhar` provides OpenMP checking functions.
+
+```{python}
+from bvhar.utils import checkomp
+checkomp.check_omp()
+```
+
+`True` if enabled, `False` if not:
+
+```{python}
+checkomp.is_omp()
+```
+
+In macOS, you need additional step to enable OpenMP.
+There are many options you can consider.
+Here is an example with LLVM.
+
+```zsh
+brew update
+brew install llvm libomp
+echo "CC=$(brew --prefix llvm)/bin/clang" >> ~/.zshrc
+echo "CXX=$(brew --prefix llvm)/bin/clang++" >> ~/.zshrc
+echo "CPPFLAGS=-I$(brew --prefix llvm)/include -I$(brew --prefix libomp)/include" >> ~/.zshrc
+echo "LDFLAGS=-L$(brew --prefix llvm)/lib -L$(brew --prefix libomp)/lib" >> ~/.zshrc
+```

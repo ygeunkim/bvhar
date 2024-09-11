@@ -25,12 +25,6 @@ This is `bvhar` package for python. We aims to add every feature in R package.
 
 ## Installation
 
-In this `python` directory:
-
-```bash
-pip install -e .
-```
-
 ### Eigen and boost usage
 
 `bvhar` uses Eigen and boost headers in C++ sources.
@@ -45,3 +39,14 @@ Otherwise, you should set their paths by yourself; at this stage.
 
 - `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
 - `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
+
+### Developement version
+
+In this `python` directory:
+
+```bash
+git clone -b feature/python https://github.com/ygeunkim/bvhar.git
+cd python
+# use conda script abvoe if you use conda
+pip install -e .
+```

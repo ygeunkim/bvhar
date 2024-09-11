@@ -6,13 +6,14 @@ from .._src._ldltforecast import LdltForecast, LdltRoll
 from .._src._sv import SvMcmc
 from .._src._svforecast import SvForecast
 from ._spec import LdltConfig, SvConfig, InterceptConfig
-from ._spec import BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
+from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
 import pandas as pd
 import warnings
 from math import floor
 
-class AutoregBayes:
+class _AutoregBayes:
+    """Base class for Bayesian estimation"""
     def __init__(
         self, data, lag, p, n_chain = 1, n_iter = 1000,
         n_burn = None, n_thin = 1,
@@ -155,8 +156,8 @@ class AutoregBayes:
             raise TypeError("`cov_config` should be `LdltConfig` or `SvConfig`.")
         if not isinstance(self.intercept_spec_, InterceptConfig):
             raise TypeError("`intercept_config` should be `InterceptConfig` when 'fit_intercept' is True.")
-        if not isinstance(self.spec_, BayesConfig):
-            raise TypeError("`bayes_spec` should be the derived class of `BayesConfig`.")
+        if not isinstance(self.spec_, _BayesConfig):
+            raise TypeError("`bayes_spec` should be the derived class of `_BayesConfig`.")
         self.cov_spec_.update(self.n_features_in_)
         self.intercept_spec_.update(self.n_features_in_)
         if type(self.spec_) == SsvsConfig:
@@ -188,7 +189,59 @@ class AutoregBayes:
     def dynamic_spillover(self):
         pass
 
-class VarBayes(AutoregBayes):
+class VarBayes(_AutoregBayes):
+    """Bayesian Vector Autoregressive Model
+
+    Fits Bayesian VAR model.
+
+    Parameters
+    ----------
+    data : array-like
+        Time series data of which columns indicate the variables
+    lag : int
+        VAR lag, by default 1
+    n_chain : int
+        Number of MCMC chains, by default 1
+    n_iter : int
+        Number of MCMC total iterations, by default 1000
+    n_burn : int
+        MCMC burn-in (warm-up), by default `floor(n_iter / 2)`
+    n_thin : int
+        Thinning every `n_thin`-th iteration, by default 1
+    bayes_config : '_BayesConfig'
+        Prior configuration, by default SsvsConfig()
+    cov_config : {'LdltConfig', 'SvConfig'}
+        Prior configuration for covariance matrix, by default LdltConfig()
+    intercept_config : 'InterceptConfig'
+        Prior configuration for constant term, by default InterceptConfig()
+    fit_intercept : bool
+        Include constant term in the model, by default True
+    minnesota : bool
+        If `True`, apply Minnesota-type group structure, by default True
+    verbose : bool
+        If `True`, print progress bar for MCMC, by default False
+    n_thread : int
+        Number of OpenMP threads, by default 1
+    
+    Attributes
+    ----------
+    coef_ : ndarray
+        VHAR coefficient matrix.
+    intercept_ : ndarray
+        VHAR model constant vector.
+    n_features_in_ : int
+        Number of variables.
+    
+    References
+    ----------
+    .. [1] Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+    .. [2] Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
+    .. [3] Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
+    .. [4] Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
+    .. [5] Huber, F., Koop, G., & Onorante, L. (2021). *Inducing Sparsity and Shrinkage in Time-Varying Parameter Models*. Journal of Business & Economic Statistics, 39(3), 669–683.
+    .. [6] Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
+    .. [7] Ray, P., & Bhattacharya, A. (2018). *Signal Adaptive Variable Selector for the Horseshoe Prior*. arXiv.
+    """
     def __init__(
         self,
         data,
@@ -245,6 +298,12 @@ class VarBayes(AutoregBayes):
             )
 
     def fit(self):
+        """Conduct MCMC and compute posterior mean
+        Returns
+        -------
+        self : object
+            An instance of the estimator.
+        """
         res = self.__model.returnRecords()
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
@@ -256,6 +315,28 @@ class VarBayes(AutoregBayes):
         self.is_fitted_ = True
 
     def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+        """'n_ahead'-step ahead forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast until next `n_ahead` time point.
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+        """
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
@@ -279,6 +360,29 @@ class VarBayes(AutoregBayes):
         }
 
     def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+        """Rolling-window forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast next `n_ahead` time point.
+        test : array-like
+            Test set to forecast
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+            - "lpl" (float): Average log-predictive likelihood
+        """
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
@@ -317,7 +421,56 @@ class VarBayes(AutoregBayes):
     def dynamic_spillover(self):
         pass
 
-class VharBayes(AutoregBayes):
+class VharBayes(_AutoregBayes):
+    """Bayesian Vector Autoregressive Model
+
+    Fits Bayesian VAR model.
+
+    Parameters
+    ----------
+    data : array-like
+        Time series data of which columns indicate the variables
+    week : int
+        VHAR weekly order, by default 5
+    month : int
+        VHAR monthly order, by default 22
+    n_chain : int
+        Number of MCMC chains, by default 1
+    n_iter : int
+        Number of MCMC total iterations, by default 1000
+    n_burn : int
+        MCMC burn-in (warm-up), by default `floor(n_iter / 2)`
+    n_thin : int
+        Thinning every `n_thin`-th iteration, by default 1
+    bayes_config : '_BayesConfig'
+        Prior configuration, by default SsvsConfig()
+    cov_config : {'LdltConfig', 'SvConfig'}
+        Prior configuration for covariance matrix, by default LdltConfig()
+    intercept_config : 'InterceptConfig'
+        Prior configuration for constant term, by default InterceptConfig()
+    fit_intercept : bool
+        Include constant term in the model, by default True
+    minnesota : str
+        Minnesota-type group structure
+        - "no": Not use the group structure
+        - "short": BVAR-minnesota structure
+        - "longrun": BVHAR-minnesota structure
+    verbose : bool
+        If `True`, print progress bar for MCMC, by default False
+    n_thread : int
+        Number of OpenMP threads, by default 1
+    
+    Attributes
+    ----------
+    coef_ : ndarray
+        VHAR coefficient matrix.
+
+    intercept_ : ndarray
+        VHAR model constant vector.
+
+    n_features_in_ : int
+        Number of variables.
+    """
     def __init__(
         self,
         data,
@@ -379,6 +532,12 @@ class VharBayes(AutoregBayes):
             )
 
     def fit(self):
+        """Conduct MCMC and compute posterior mean
+        Returns
+        -------
+        self : object
+            An instance of the estimator.
+        """
         res = self.__model.returnRecords()
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
@@ -390,6 +549,28 @@ class VharBayes(AutoregBayes):
         self.is_fitted_ = True
 
     def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+        """'n_ahead'-step ahead forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast until next `n_ahead` time point.
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+        """
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(

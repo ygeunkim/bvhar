@@ -107,7 +107,7 @@ class InterceptConfig:
             "sd_non": self.sd_non
         }
 
-class BayesConfig:
+class _BayesConfig:
     def __init__(self, prior):
         self.prior = prior
     
@@ -136,7 +136,7 @@ class BayesConfig:
     def to_dict(self):
         pass
 
-class SsvsConfig(BayesConfig):
+class SsvsConfig(_BayesConfig):
     def __init__(
         self, coef_spike_scl = .01, coef_slab_shape = .01, coef_slab_scl = .01, coef_s1 = [1, 1], coef_s2 = [1, 1],
         chol_spike_scl = .01, chol_slab_shape = .01, chol_slab_scl = .01,
@@ -180,14 +180,14 @@ class SsvsConfig(BayesConfig):
             "chol_s2": self.chol_s2
         }
 
-class HorseshoeConfig(BayesConfig):
+class HorseshoeConfig(_BayesConfig):
     def __init__(self):
         super().__init__("Horseshoe")
 
     def to_dict(self):
         return dict()
 
-class MinnesotaConfig(BayesConfig):
+class MinnesotaConfig(_BayesConfig):
     def __init__(self, sig = None, lam = .1, delt = None, is_long = False, eps = 1e-04):
         super().__init__("Minnesota")
         self.sig = None
@@ -278,7 +278,7 @@ class LambdaConfig:
         self.shape_ = (2 + mode ** 2 / (sd ** 2) + sqrt((2 + mode ** 2 / (sd ** 2)) ** 2 - 4)) / 2
         self.rate_ = sqrt(self.shape_) / sd
 
-class DlConfig(BayesConfig):
+class DlConfig(_BayesConfig):
     def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
         super().__init__("DL")
         self.grid_size = self.validate(dir_grid, "dir_grid")
@@ -292,7 +292,7 @@ class DlConfig(BayesConfig):
             "rate": self.rate
         }
 
-class NgConfig(BayesConfig):
+class NgConfig(_BayesConfig):
     def __init__(
         self, shape_sd = .01, group_shape = .01, group_scale = .01,
         global_shape = .01, global_scale = .01,

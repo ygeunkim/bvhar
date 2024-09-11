@@ -15,6 +15,8 @@ Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.
 If you use `conda`, you can avoid manual installation using `requirements/environment.yml` in our repo. Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install the package with conda environment:
 
 ```bash
+git clone -b feature/python https://github.com/ygeunkim/bvhar.git
+cd python
 conda env create -f requirements/environment.yml
 conda activate bvhar-env
 pip install -e .
@@ -25,15 +27,18 @@ Otherwise, you should set their paths by yourself; at this stage.
 - `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
 - `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
 
-## Installation
+## Installation (development version)
 
 In `python` directory:
 
 ```bash
+git clone -b feature/python https://github.com/ygeunkim/bvhar.git
+cd python
+# conda or system install for eigen and boost
 pip install -e .
 ```
 
 ## Usage
 
-
+`bvhar` for python is not ready to use.
 
