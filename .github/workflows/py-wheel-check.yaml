@@ -3,9 +3,9 @@ on:
     branches: ['feature/python', 'feature/py-*'] # change to [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*'] after finish
   #   pull_request:
   #     branches: [main, master, 'hotfix/*', 'release/*', develop]
-  
-name: py-pip-check
-  
+
+name: py-wheel-check
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -105,7 +105,7 @@ jobs:
         run: |
           dir ${{ env.EIGEN_INCLUDE_DIR }}
           dir ${{ env.BOOST_INCLUDE_DIR }}
-
+          
       - name: Install requirements
         run: |
           pip install --upgrade pip
@@ -114,8 +114,11 @@ jobs:
       - name: Verify pip
         run: pip list
 
-      - name: Install
-        run: pip install -e . -v
+      - name: Build and install wheel
+        run: |
+          pip install build
+          python -m build --wheel .
+          pip install dist/*.whl
       
       - name: Verify installation
         run: pip list

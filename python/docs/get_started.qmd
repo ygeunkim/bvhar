@@ -70,10 +70,8 @@ foreach ($cand in $boostCand) {
 Verify the environment variables and installation:
 
 ```powershell
-$env:EIGEN_INCLUDE_DIR
-Get-ChildItem $env:EIGEN_INCLUDE_DIR
-$env:BOOST_INCLUDE_DIR
-Get-ChildItem $env:BOOST_INCLUDE_DIR
+dir $env:EIGEN_INCLUDE_DIR
+dir $env:BOOST_INCLUDE_DIR
 ```
 
 ## OpenMP
