@@ -4,7 +4,7 @@ on:
   #   pull_request:
   #     branches: [main, master, 'hotfix/*', 'release/*', develop]
 
-name: py-wheel-check
+name: py-sdist-check
 
 jobs:
   build:
@@ -114,20 +114,20 @@ jobs:
       - name: Verify pip
         run: pip list
 
-      - name: Build wheel
+      - name: Build sdist
         run: |
           pip install build
-          python -m build --wheel .
+          python -m build --sdist .
 
-      - name: Install wheel on non-Windows
+      - name: Install sdist on non-Windows
         if: runner.os != 'Windows'
-        run: pip install dist/*.whl
+        run: pip install dist/*.tar.gz
       
-      - name: Install wheel on Windows
+      - name: Install sdist on Windows
         if: runner.os == 'Windows'
         run: |
-          $whl = (Get-ChildItem -Path dist -Filter "*.whl" | Select-Object -First 1).FullName
-          pip install $whl
+          $dist = (Get-ChildItem -Path dist -Filter "*.tar.gz" | Select-Object -First 1).FullName
+          pip install $dist
       
       - name: Verify installation
         run: pip list
