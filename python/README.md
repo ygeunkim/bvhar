@@ -5,14 +5,23 @@
 
 <!-- badges: start -->
 
-[![Experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature%2Fpython)
 [![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Afeature%2Fpython)
+[![Codecov test
+coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/feature%2Fpython/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
 ![Python
-Versions](https://img.shields.io/badge/python-3.10C%203.11C%203.12-blue)
+Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 <!-- badges: end -->
 
-Started to develop `bvhar` in Python!
+This is `bvhar` package for python. We aims to add every feature in R
+package.
+
+| Model |    Class    |               prior                |
+|:-----:|:-----------:|:----------------------------------:|
+|  VAR  |  `VarOls`   |                                    |
+| VHAR  |  `VharOls`  |                                    |
+| BVAR  | `VarBayes`  | SSVS, Horseshoe, Minnesota, NG, DL |
+| BVHAR | `VharBayes` | SSVS, Horseshoe, Minnesota, NG, DL |
 
 ## Installation
 

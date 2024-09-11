@@ -47,5 +47,5 @@ jobs:
         if: always()
         run: |
           ## --------------------------------------------------------------------
-          find ${{ runner.temp }}/package -name 'pytest_output.txt' -exec cat '{}' \; || true
+          find . -name 'pytest_output.txt' -exec cat '{}' \; || true
         shell: bash
