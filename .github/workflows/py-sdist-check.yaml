@@ -126,7 +126,7 @@ jobs:
       - name: Install sdist on Windows
         if: runner.os == 'Windows'
         run: |
-          $dist = (Get-ChildItem -Path dist -Filter "*.tar.gz" | Select-Object -First 1).FullName
+          $dist = (Get-ChildItem -Path dist -Filter "*.zip" | Select-Object -First 1).FullName
           pip install $dist
       
       - name: Verify installation
