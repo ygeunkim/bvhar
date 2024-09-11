@@ -95,11 +95,11 @@ quartodoc:
         - checkomp.is_omp
         - checkomp.check_omp
 
-# filters:
-#   - interlinks
+filters:
+  - interlinks
 
-# interlinks:
-#   sources: {}
+interlinks:
+  sources: {}
 
 jupyter: python3
 execute: 
