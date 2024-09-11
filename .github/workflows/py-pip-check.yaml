@@ -35,6 +35,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libboost-all-dev libeigen3-dev
           echo $(sudo apt list --installed)
+          ls /usr/include/eigen3
+          ls /usr/include/boost
           echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> $GITHUB_ENV
       
@@ -44,7 +46,9 @@ jobs:
           brew update
           brew install llvm libomp boost eigen
           EIGEN_LOC=$(brew --prefix eigen)
+          ls $EIGEN_LOC
           BOOST_LOC=$(brew --prefix boost)
+          ls $BOOST_LOC
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
           echo "EIGEN_INCLUDE_DIR=$EIGEN_LOC/include/eigen3" >> $GITHUB_ENV
@@ -66,7 +70,7 @@ jobs:
             Select-Object -First 1
           ).Parent.FullName
           if ($eigenPath) {
-            echo "eigen is installed in $eigenPath:"
+            echo "eigen is installed in $eigenPath"
             Get-ChildItem $eigenPath
           } else {
             Write-Error "Wrong eigen path"
@@ -87,18 +91,14 @@ jobs:
             }
           }
           if ($boostPath) {
-            echo "boost is installed in $boostPath:"
+            echo "boost is installed in $boostPath"
             Get-ChildItem $boostPath
           } else {
             Write-Error "Wrong boost path"
             exit 1
           }
-          echo "EIGEN_INCLUDE_PATH=$eigenPath" >> $Env:GITHUB_ENV
-          echo "BOOST_INCLUDE_PATH=$boostPath" >> $Env:GITHUB_ENV
-      
-      - name: Set system dependencies on Windows
-        if: failure() && runner.os == 'Windows'
-        run: type C:\ProgramData\chocolatey\logs\chocolatey.log
+          echo "EIGEN_INCLUDE_DIR=$eigenPath" >> $Env:GITHUB_ENV
+          echo "BOOST_INCLUDE_DIR=$boostPath" >> $Env:GITHUB_ENV
 
       - name: Install requirements
         run: |

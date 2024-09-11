@@ -27,15 +27,17 @@ class HeaderInclude(object):
                 return lib_path
             else:
                 print(f"No {self.lib} in conda environment")
-        lib_dir = os.environ.get(f"{self.lib.rstrip('0123456789').upper()}_INCLUDE_DIR")
+        _lib = self.lib.rstrip('0123456789$').upper()
+        lib_dir = os.environ.get(f"{_lib}_INCLUDE_DIR")
         if lib_dir:
-            lib_path = os.path.join(lib_dir, 'include', self.lib)
+            # lib_path = os.path.join(lib_dir, 'include', self.lib)
+            lib_path = lib_dir
             if os.path.exists(lib_path):
                 return lib_path
             else:
-                raise RuntimeError(f"No {self.lib} found in {self.lib.upper}_INCLUDE_DIR")
+                raise RuntimeError(f"No {self.lib} found in {_lib}_INCLUDE_DIR")
         else:
-            raise RuntimeError(f"Set CONDA_PREFIX or {self.lib.upper}_INCLUDE_DIR environment variable")
+            raise RuntimeError(f"Set CONDA_PREFIX or {_lib}_INCLUDE_DIR environment variable")
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
