@@ -114,11 +114,13 @@ jobs:
       - name: Verify pip
         run: pip list
 
-      - name: Build and install wheel
+      - name: Build wheel
         run: |
           pip install build
           python -m build --wheel .
-          pip install dist/*.whl
+
+      - name: Install wheel
+        run: pip install dist/*.whl
       
       - name: Verify installation
         run: pip list
