@@ -119,8 +119,13 @@ jobs:
           pip install build
           python -m build --wheel .
 
-      - name: Install wheel
+      - name: Install wheel on non-Windows
+        if: runner.os != 'Windows'
         run: pip install dist/*.whl
+      
+      - name: Install wheel on Windows
+        if: runner.os == 'Windows'
+        run: pip install dist\*.whl
       
       - name: Verify installation
         run: pip list
