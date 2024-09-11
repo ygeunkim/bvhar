@@ -19,6 +19,7 @@ class HeaderInclude(object):
         print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
+                self.lib = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
                 lib_path = os.path.join(conda_prefix, 'Library', 'include', self.lib)
             else:
                 lib_path = os.path.join(conda_prefix, 'include', self.lib)
@@ -73,13 +74,18 @@ class BuildExt(_build_ext):
 
 def find_module(base_dir):
     extensions = []
+    is_src = os.path.basename(base_dir) == 'src'
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:
             if cpp_file.endswith('.cpp'):
                 rel_path = os.path.relpath(root, base_dir)
                 module_name = os.path.splitext(cpp_file)[0]
-                # module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else base_dir
-                module_name = f"{base_dir}.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "." else f"{base_dir}.{module_name}"
+                if is_src:
+                    rel_path = rel_path.replace('bvhar', '').strip(os.path.sep)
+                    # module_name = f'bvhar.{rel_path.replace(os.path.sep, ".")}' if rel_path != "." else base_dir
+                    module_name = f"bvhar.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "" else f"{base_dir}.{module_name}"
+                else:
+                    module_name = f"{base_dir}.{rel_path.replace(os.path.sep, '.')}.{module_name}" if rel_path != "." else f"{base_dir}.{module_name}"
                 extensions.append(
                     Pybind11Extension(
                         module_name,
@@ -102,9 +108,9 @@ def find_module(base_dir):
 setup(
     name='bvhar',
     version='0.0.0.9000',
-    packages=find_packages(include=['bvhar', 'bvhar.*']),
-    # packages=find_packages(where='src'),
-    # package_dir={'': 'src'},
+    # packages=find_packages(include=['bvhar', 'bvhar.*']),
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
     description='Bayesian multivariate time series modeling',
     url='https://github.com/ygeunkim/bvhar/tree/feature/python',
     long_description=long_description,
@@ -133,6 +139,7 @@ setup(
         'numpy',
         'pandas'
     ],
-    ext_modules=find_module('bvhar'),
+    # ext_modules=find_module('bvhar'),
+    ext_modules=find_module('src'),
     cmdclass={'build_ext': BuildExt}
 )

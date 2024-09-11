@@ -5,12 +5,13 @@ keep-ipynb: false
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
-# bvhar <img src="docs/logo.png" align="right" height="138" />
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="docs/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 [![Experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature%2Fpython)
 [![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Afeature%2Fpython)
+![Python Versions](https://img.shields.io/badge/python-3.10C%203.11C%203.12-blue)
 <!-- badges: end -->
 
 Started to develop `bvhar` in Python!
