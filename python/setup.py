@@ -10,7 +10,13 @@ import tempfile
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-include_path = os.path.abspath('../inst/include')
+# include_path = os.path.abspath('../inst/include')
+include_path = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '..', 'inst', 'include'
+    )
+)
 
 class HeaderInclude(object):
     def __init__(self, lib: str):
@@ -76,7 +82,8 @@ class BuildExt(_build_ext):
 
 class SdistInclude(sdist):
     def run(self):
-        shutil.copytree('../inst/include', './include', dirs_exist_ok=True)
+        # shutil.copytree('../inst/include', './include', dirs_exist_ok=True)
+        shutil.copytree(include_path, './include', dirs_exist_ok=True)
         super().run()
 
 def find_module(base_dir):
