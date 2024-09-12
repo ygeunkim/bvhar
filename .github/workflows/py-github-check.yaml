@@ -113,7 +113,7 @@ jobs:
         # change branch after finishing the feature
         run: |
           pip install --upgrade pip
-          python -m pip install git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python[test]
+          python -m pip install git+https://github.com/ygeunkim/bvhar.git@feature/python#subdirectory=python[test]
       
       - name: Verify installation
         run: pip list
