@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext as _build_ext
-import shutil
-from distutils.command.sdist import sdist
+# import shutil
+# from distutils.command.sdist import sdist
 import sys
 import os
 from pybind11.setup_helpers import Pybind11Extension
@@ -113,12 +113,12 @@ def find_module(base_dir):
                 )
     return extensions
 
-class SdistInclude(sdist):
-    def run(self):
-        if os.path.exists(include_path):
-            print(f"Copy headers from {include_path} to include")
-            shutil.copytree(include_path, 'include', dirs_exist_ok=True)
-        super().run()
+# class SdistInclude(sdist):
+#     def run(self):
+#         if os.path.exists(include_path):
+#             print(f"Copy headers from {include_path} to include")
+#             shutil.copytree(include_path, 'include', dirs_exist_ok=True)
+#         super().run()
 
 setup(
     name='bvhar',
@@ -127,11 +127,13 @@ setup(
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     package_data={
-        'bvhar': ['include/*.h']
+        # 'bvhar': ['include/*.h']
+        'bvhar': [os.path.join(include_path, '*.h')]
     },
     description='Bayesian multivariate time series modeling',
     url='https://github.com/ygeunkim/bvhar/tree/feature/python',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Young Geun Kim',
     author_email='ygeunkimstat@gmail.com',
     keywords=[
@@ -159,8 +161,9 @@ setup(
     ],
     # ext_modules=find_module('bvhar'),
     ext_modules=find_module('src'),
-    cmdclass={
-        'build_ext': BuildExt,
-        'sdist': SdistInclude
-    }
+    # cmdclass={
+    #     'build_ext': BuildExt,
+    #     'sdist': SdistInclude
+    # }
+    cmdclass={'build_ext': BuildExt}
 )

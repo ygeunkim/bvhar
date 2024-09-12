@@ -46,7 +46,7 @@ include = ["bvhar", "bvhar.*"]
 bvhar = [
     "**/*.cpp",
     "datasets/data/*.csv",
-    "include/*.h"
+    "../inst/include/*.h"
 ]
 
 [tool.setuptools_scm]
@@ -71,6 +71,7 @@ dev = [
 [build-system]
 requires = [
     "setuptools>=42",
+    "wheel",
     "pybind11"
 ]
 build-backend = "setuptools.build_meta"
