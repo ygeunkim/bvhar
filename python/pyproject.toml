@@ -61,6 +61,11 @@ doc = [
 test = [
     "pytest"
 ]
+dev = [
+    "pytest",
+    "jupyter",
+    "quartodoc"
+]
 
 [build-system]
 requires = [
