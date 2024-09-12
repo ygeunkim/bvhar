@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext as _build_ext
-import shutil
-from distutils.command.sdist import sdist
 import sys
 import os
 from pybind11.setup_helpers import Pybind11Extension
@@ -80,12 +78,6 @@ class BuildExt(_build_ext):
             ext.extra_link_args += link_args
         _build_ext.build_extensions(self)
 
-class SdistInclude(sdist):
-    def run(self):
-        # shutil.copytree('../inst/include', './include', dirs_exist_ok=True)
-        shutil.copytree(include_path, './include', dirs_exist_ok=True)
-        super().run()
-
 def find_module(base_dir):
     extensions = []
     is_src = os.path.basename(base_dir) == 'src'
@@ -155,8 +147,5 @@ setup(
     ],
     # ext_modules=find_module('bvhar'),
     ext_modules=find_module('src'),
-    cmdclass={
-        'build_ext': BuildExt,
-        'sdist': SdistInclude
-    }
+    cmdclass={'build_ext': BuildExt}
 )

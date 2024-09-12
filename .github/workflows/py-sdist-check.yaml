@@ -119,6 +119,23 @@ jobs:
           pip install build
           python -m build --sdist .
 
+      - name: Verify sdist on non-Windows
+        if: runner.os != 'Windows'
+        run: tar -tf dist/*.tar.gz
+      
+      - name: Verify sdist on Windows
+        if: runner.os == 'Windows'
+        run: |
+          $distPath = Get-ChildItem -Path dist |
+            Where-Object { $_.Name -like "*.zip" -or $_.Name -like "*.tar.gz" } |
+            Select-Object -First 1
+          if ($distPath.Name -like "*.zip") {
+            Expand-Archive $distPath.FullName -DestinationPath temp_dest
+            Get-ChildItem -Recurse temp_dest
+          } else {
+            tar -tf $distPath.FullName
+          }
+
       - name: Install sdist on non-Windows
         if: runner.os != 'Windows'
         run: pip install dist/*.tar.gz

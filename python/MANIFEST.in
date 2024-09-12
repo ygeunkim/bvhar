@@ -2,3 +2,4 @@ include setup.py
 include pyproject.toml
 include README.md
 include LICENSE
+recursive-include ../inst/include *.h
