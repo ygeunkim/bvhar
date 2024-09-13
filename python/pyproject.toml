@@ -45,8 +45,7 @@ include = ["bvhar", "bvhar.*"]
 [tool.setuptools.package-data]
 bvhar = [
     "**/*.cpp",
-    "datasets/data/*.csv",
-    "../inst/include/*.h"
+    "datasets/data/*.csv"
 ]
 
 [tool.setuptools_scm]

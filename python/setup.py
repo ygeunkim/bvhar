@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext as _build_ext
-# import shutil
-# from distutils.command.sdist import sdist
 import sys
 import os
 from pybind11.setup_helpers import Pybind11Extension
@@ -46,7 +44,7 @@ class HeaderInclude(object):
             else:
                 raise RuntimeError(f"No {self.lib} found in {_lib}_INCLUDE_DIR")
         else:
-            raise RuntimeError(f"Set CONDA_PREFIX or {_lib}_INCLUDE_DIR environment variable")
+            raise RuntimeError(f"Use conda or set {_lib}_INCLUDE_DIR environment variable")
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
@@ -104,32 +102,18 @@ def find_module(base_dir):
                         ],
                         include_dirs=[
                             include_path,
-                            # str(EigenInclude())
                             str(HeaderInclude('eigen3')),
-                            # str(HeaderInclude('')) if sys.platform.startswith('win') else str(HeaderInclude('boost'))
                             str(HeaderInclude('boost'))
                         ]
                     )
                 )
     return extensions
 
-# class SdistInclude(sdist):
-#     def run(self):
-#         if os.path.exists(include_path):
-#             print(f"Copy headers from {include_path} to include")
-#             shutil.copytree(include_path, 'include', dirs_exist_ok=True)
-#         super().run()
-
 setup(
     name='bvhar',
     version='0.0.0.9000',
-    # packages=find_packages(include=['bvhar', 'bvhar.*']),
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
-    package_data={
-        # 'bvhar': ['include/*.h']
-        'bvhar': [os.path.join(include_path, '*.h')]
-    },
     description='Bayesian multivariate time series modeling',
     url='https://github.com/ygeunkim/bvhar/tree/feature/python',
     long_description=long_description,
@@ -159,11 +143,6 @@ setup(
         'numpy',
         'pandas'
     ],
-    # ext_modules=find_module('bvhar'),
     ext_modules=find_module('src'),
-    # cmdclass={
-    #     'build_ext': BuildExt,
-    #     'sdist': SdistInclude
-    # }
     cmdclass={'build_ext': BuildExt}
 )
