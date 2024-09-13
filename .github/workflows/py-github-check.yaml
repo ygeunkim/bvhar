@@ -16,10 +16,6 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.10', '3.11', '3.12']
     
-    defaults:
-      run:
-        working-directory: python
-    
     name: ${{ matrix.os }} (${{ matrix.python-version }})
 
     steps:
@@ -102,24 +98,26 @@ jobs:
         run: |
           ls ${{ env.EIGEN_INCLUDE_DIR }}
           ls ${{ env.BOOST_INCLUDE_DIR }}
+          mkdir temp-dir
       
       - name: Verify Eigen and boost on Windows
         if: runner.os == 'Windows'
         run: |
           dir ${{ env.EIGEN_INCLUDE_DIR }}
           dir ${{ env.BOOST_INCLUDE_DIR }}
+          New-Item -ItemType Directory -Force -Path temp-dir
 
       - name: Install package from github
         # change branch after finishing the feature
         run: |
           pip install --upgrade pip
-          python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python&extras=test'
+          python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
+        working-directory: temp-dir
       
       - name: Verify installation
         run: pip list
+        working-directory: temp-dir
       
       - name: OpenMP check
         run: python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
-      
-      - name: Test
-        run: pytest
+        working-directory: temp-dir

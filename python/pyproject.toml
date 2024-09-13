@@ -56,10 +56,7 @@ doc = [
     "ipython<=8.12",
     "nbclient",
     "nbformat",
-    "quartodoc",
-]
-test = [
-    "pytest"
+    "quartodoc"
 ]
 dev = [
     "pytest",

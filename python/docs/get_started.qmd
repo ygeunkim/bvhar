@@ -11,8 +11,8 @@ In Linux,
 ```bash
 sudo apt-get update
 sudo apt-get install -y libboost-all-dev libeigen3-dev
-echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> ~/.bashrc
-echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> ~/.bashrc
+echo "export EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> ~/.bashrc
+echo "export BOOST_INCLUDE_DIR=/usr/include/boost" >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -23,8 +23,8 @@ brew update
 brew install boost eigen
 EIGEN_LOC=$(brew --prefix eigen)
 BOOST_LOC=$(brew --prefix boost)
-echo 'export EIGEN_INCLUDE_DIR=$(brew --prefix eigen)/include/eigen3' >> ~/.zshrc
-echo 'export BOOST_INCLUDE_DIR=$(brew --prefix boost)/include' >> ~/.zshrc
+echo "export EIGEN_INCLUDE_DIR=$(brew --prefix eigen)/include/eigen3" >> ~/.zshrc
+echo "export BOOST_INCLUDE_DIR=$(brew --prefix boost)/include" >> ~/.zshrc
 source ~/.zshrc
 ```
 

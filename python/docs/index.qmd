@@ -16,30 +16,21 @@ Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.
 - [`Eigen`](https://eigen.tuxfamily.org/index.php?title=Main_Page) library: for matrix computation
 - [`boost`](https://www.boost.org) library: for random generation.
 
-If you use `conda`, you can avoid manual installation using `requirements/environment.yml` in our repo. Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install the package with conda environment:
-
-```bash
-git clone -b feature/python https://github.com/ygeunkim/bvhar.git
-cd python
-conda env create -f requirements/environment.yml
-conda activate bvhar-env
-pip install -e .
-```
+If you use `conda`, you can avoid manual setting of these libraries.
+Check `requirements/environment.yml` in our repo.
+Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install them.
 
 Otherwise, you should set their paths by yourself; at this stage.
 
 - `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
 - `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
 
-## Installation (development version)
+## Installation
 
-In `python` directory:
+From GitHub:
 
 ```bash
-git clone -b feature/python https://github.com/ygeunkim/bvhar.git
-cd python
-# conda or system install for eigen and boost
-pip install -e .
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
 ```
 
 ## Usage
