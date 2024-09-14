@@ -4,7 +4,7 @@ from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt
 from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand
 from .._src._sv import SvMcmc
-from .._src._svforecast import SvForecast
+from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
@@ -359,7 +359,7 @@ class VarBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -372,6 +372,8 @@ class VarBayes(_AutoregBayes):
             Level for credible interval, by default .05
         sparse : bool
             Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
 
         Returns
         -------
@@ -401,7 +403,17 @@ class VarBayes(_AutoregBayes):
                 self.thread_, chunk_size
             )
         else:
-            pass
+            forecaster = SvVarRoll(
+                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sv, sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         return {
@@ -412,7 +424,7 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -425,6 +437,8 @@ class VarBayes(_AutoregBayes):
             Level for credible interval, by default .05
         sparse : bool
             Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
 
         Returns
         -------
@@ -454,7 +468,17 @@ class VarBayes(_AutoregBayes):
                 self.thread_, chunk_size
             )
         else:
-            pass
+            forecaster = SvVarExpand(
+                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sv, sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         return {
@@ -643,7 +667,7 @@ class VharBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -656,6 +680,8 @@ class VharBayes(_AutoregBayes):
             Level for credible interval, by default .05
         sparse : bool
             Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
 
         Returns
         -------
@@ -685,7 +711,17 @@ class VharBayes(_AutoregBayes):
                 self.thread_, chunk_size
             )
         else:
-            pass
+            forecaster = SvVharRoll(
+                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sv, sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         return {
@@ -696,7 +732,7 @@ class VharBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -709,6 +745,8 @@ class VharBayes(_AutoregBayes):
             Level for credible interval, by default .05
         sparse : bool
             Apply restriction to forecasting, by default False
+        sv : bool
+            Use SV term in case of SV model, by default True
 
         Returns
         -------
@@ -738,7 +776,17 @@ class VharBayes(_AutoregBayes):
                 self.thread_, chunk_size
             )
         else:
-            pass
+            forecaster = SvVharExpand(
+                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sv, sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         return {
