@@ -1,0 +1,34 @@
+/*-- scss:defaults --*/
+$font-family-sans-serif: "Noto Sans", sans-serif !default;
+$font-family-monospace: "Anonymous Pro", monospace !default;
+
+$body-bg: #272935 !default;
+$body-color: #f8f8f2 !default;
+$link-color: #ff3860 !default;
+
+$navbar-bg: #23252f !default;
+$navbar-fg: #f8f8f2 !default;
+
+$code-block-bg: #44475a !default;
+$code-color: #f8f8f2 !default;
+
+/*-- scss:rules --*/
+body {
+  background-color: $body-bg;
+  color: $body-color;
+}
+
+.navbar {
+  background-color: $navbar-bg;
+  color: $navbar-fg;
+}
+
+pre {
+  background-color: $code-block-bg;
+  color: $code-color;
+}
+
+code {
+  color: $code-color;
+  background-color: $code-block-bg;
+}

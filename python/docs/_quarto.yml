@@ -1,0 +1,107 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "bvhar for Python"
+  description: "Bayesian multivariate time series modeling"
+  page-navigation: true
+  favicon: "favicon.ico"
+  # page-footer:
+  navbar:
+    background: light
+    pinned: true
+    logo: "logo.png"
+    left:
+      - text: "Get started"
+        file: get_started.qmd
+      - text: "Reference"
+        file: reference/index.qmd
+      - text: Vignettes
+        menu:
+          - text: "bvhar"
+            file: intro.qmd
+          - text: "bvhar in R"
+            href: https://ygeunkim.github.io/package/bvhar/
+            target: _blank
+    right:
+      - icon: github
+        href: https://github.com/ygeunkim/bvhar/tree/feature/python/python
+        aria-label: bvhar-python github
+  sidebar:
+    style: floating
+    collapse-level: 1
+
+format:
+  html:
+    sidebar: false
+    theme: 
+      light: [journal, mypkgdown.scss]
+    highlight-style: github-dark
+    css: mypkgdown.css
+    code-background: true
+    code-copy: true
+    code-overflow: wrap
+    toc: true
+
+include-in-header: 
+  - text: |
+      <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Anonymous+Pro" rel="stylesheet">
+
+quartodoc:
+  title: Reference
+  package: bvhar
+  sections:
+    - title: VAR
+      desc: "Vector autoregressive model"
+      package: bvhar.model
+      contents:
+        - VarOls
+        - VarBayes
+    - title: VHAR
+      desc: "Vector heterogeneous autoregressive model"
+      package: bvhar.model
+      contents:
+        - VharOls
+        - VharBayes
+    - title: Priors
+      desc: "Prior configuration"
+      package: bvhar.model
+      contents:
+        - SsvsConfig
+        - HorseshoeConfig
+        - MinnesotaConfig
+        - LambdaConfig
+        - NgConfig
+        - DlConfig
+        - LdltConfig
+        - SvConfig
+        - InterceptConfig
+    - title: Random
+      desc: "Random generation functions"
+      package: bvhar.random
+      contents:
+        - normal.generate_mnormal
+        - normal.generate_gig
+    - title: Datasets
+      desc: "Datasets"
+      package: bvhar.datasets
+      contents:
+        - load_vix
+    - title: Utility functions
+      desc: "Related to configuration"
+      package: bvhar.utils
+      contents:
+        - checkomp.is_omp
+        - checkomp.check_omp
+
+filters:
+  - interlinks
+
+interlinks:
+  sources: {}
+
+jupyter: python3
+execute: 
+  keep-ipynb: false
+  # execute-dir: project

@@ -1,0 +1,72 @@
+on:
+  push:
+    branches: ['feature/python', 'feature/py-*'] # change to [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*'] after finish
+#   pull_request:
+#     branches: [main, master, 'hotfix/*', 'release/*', develop]
+
+name: py-conda-check
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+    
+    defaults:
+      run:
+        working-directory: python
+    
+    name: ${{ matrix.os }} (${{ matrix.python-version }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Set LLVM on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install llvm libomp
+          LLVM_LOC=$(brew --prefix llvm)
+          OMP_LOC=$(brew --prefix libomp)
+          echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
+          echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
+          echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib" >> $GITHUB_ENV
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          activate-environment: bvhar-env
+          environment-file: python/requirements/environment.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+      
+      - name: Verify conda
+        run: |
+          conda info
+          conda list
+          conda env list
+
+      - name: Install
+        run: conda run -n bvhar-env pip install -e . -v
+      
+      - name: Verify installation
+        run: |
+          conda run -n bvhar-env pip list
+          conda run -n bvhar-env conda list
+      
+      - name: OpenMP check
+        run: conda run -n bvhar-env python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
+      
+      - name: Test
+        run: conda run -n bvhar-env pytest

@@ -65,19 +65,19 @@ public:
 	void estimateCov() {
 		cov = resid.transpose() * resid / (num_design - dim_design);
 	}
-	Rcpp::List returnOlsRes() {
+	LIST returnOlsRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return Rcpp::List::create(
-			Rcpp::Named("coefficients") = coef,
-			Rcpp::Named("fitted.values") = yhat,
-			Rcpp::Named("residuals") = resid,
-			Rcpp::Named("covmat") = cov,
-			Rcpp::Named("df") = dim_design,
-			Rcpp::Named("m") = dim,
-			Rcpp::Named("obs") = num_design,
-			Rcpp::Named("y0") = response
+		return CREATE_LIST(
+			NAMED("coefficients") = coef,
+			NAMED("fitted.values") = yhat,
+			NAMED("residuals") = resid,
+			NAMED("covmat") = cov,
+			NAMED("df") = dim_design,
+			NAMED("m") = dim,
+			NAMED("obs") = num_design,
+			NAMED("y0") = response
 		);
 	}
 	OlsFit returnOlsFit(int ord) {
@@ -158,8 +158,8 @@ public:
 		}
 	}
 	virtual ~OlsVar() = default;
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = lag;
 		ols_res["totobs"] = data.rows();
 		ols_res["process"] = "VAR";
@@ -206,8 +206,8 @@ public:
 		}
 	}
 	virtual ~OlsVhar() = default;
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = 3;
 		ols_res["week"] = week;
 		ols_res["month"] = month;

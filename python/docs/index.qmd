@@ -1,0 +1,44 @@
+---
+toc: false
+---
+
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="logo.png" align="right" height="138" /></a>
+
+This is a Python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
+
+The package implements C++ headers made in R package.
+Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.html).
+
+::: {.callout-note}
+`bvhar` for Python is not ready to use. This page is rendered just for testing.
+:::
+
+## Eigen and boost setting
+
+`bvhar` C++ sources uses
+
+- [`Eigen`](https://eigen.tuxfamily.org/index.php?title=Main_Page) library: for matrix computation
+- [`boost`](https://www.boost.org) library: for random generation.
+
+If you use `conda`, you can avoid manual setting of these libraries.
+Check `requirements/environment.yml` in our repo.
+Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install them.
+
+Otherwise, you should set their paths by yourself; at this stage.
+
+- `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
+- `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
+
+## Installation
+
+From GitHub:
+
+```bash
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
+```
+
+## Usage
+
+You can see the development status in PR [#10](https://github.com/ygeunkim/bvhar/pull/10).
+
+

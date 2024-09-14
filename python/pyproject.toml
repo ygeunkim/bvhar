@@ -1,0 +1,76 @@
+[project]
+name = "bvhar"
+version = "0.0.0.9000"
+description = "Bayesian multivariate time series modeling"
+readme = "README.md"
+authors = [
+    { name = "Young Geun Kim", email = "ygeunkimstat@gmail.com" }
+]
+keywords = [
+    "bayesian",
+    "time series"
+]
+dependencies = [
+    "pybind11",
+    "numpy",
+    "pandas"
+]
+classifiers=[
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: C++",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Scientific/Engineering :: Mathematics"
+]
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+
+[project.urls]
+"Homepage" = "https://github.com/ygeunkim/bvhar/tree/feature/python"
+"Bug Reports" = "https://github.com/ygeunkim/bvhar/issues"
+"Source" = "https://github.com/ygeunkim/bvhar/tree/feature/python"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bvhar", "bvhar.*"]
+
+[tool.setuptools.package-data]
+bvhar = [
+    "**/*.cpp",
+    "datasets/data/*.csv"
+]
+
+[tool.setuptools_scm]
+
+[project.optional-dependencies]
+doc = [
+    "ipykernel",
+    "ipython<=8.12",
+    "nbclient",
+    "nbformat",
+    "quartodoc"
+]
+dev = [
+    "pytest",
+    "jupyter",
+    "quartodoc"
+]
+
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "pybind11"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
