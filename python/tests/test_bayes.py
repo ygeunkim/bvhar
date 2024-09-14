@@ -44,6 +44,12 @@ def help_var_bayes(
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
+    if expand:
+        roll_out = fit_bayes.expand_forecast(1, test_y, sparse = True)
+        assert roll_out['forecast'].shape == (n_ahead, dim_data)
+        assert roll_out['se'].shape == (n_ahead, dim_data)
+        assert roll_out['lower'].shape == (n_ahead, dim_data)
+        assert roll_out['upper'].shape == (n_ahead, dim_data)
 
 def test_var_bayes():
     num_data = 30
@@ -65,7 +71,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True
+        data_out, n_ahead, True, True, True
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
@@ -145,6 +151,12 @@ def help_vhar_bayes(
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
+    if expand:
+        roll_out = fit_bayes.expand_forecast(1, test_y, sparse = True)
+        assert roll_out['forecast'].shape == (n_ahead, dim_data)
+        assert roll_out['se'].shape == (n_ahead, dim_data)
+        assert roll_out['lower'].shape == (n_ahead, dim_data)
+        assert roll_out['upper'].shape == (n_ahead, dim_data)
 
 def test_vhar_bayes():
     num_data = 30
@@ -167,7 +179,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True
+        data_out, n_ahead, True, True, True
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,

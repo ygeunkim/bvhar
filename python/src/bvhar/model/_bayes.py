@@ -2,7 +2,7 @@ from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_re
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt
-from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll
+from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand
 from .._src._sv import SvMcmc
 from .._src._svforecast import SvForecast
 from ._spec import LdltConfig, SvConfig, InterceptConfig
@@ -412,8 +412,58 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self):
-        pass
+    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+        """Expanding-window forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast next `n_ahead` time point.
+        test : array-like
+            Test set to forecast
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+            - "lpl" (float): Average log-predictive likelihood
+        """
+        fit_record = concat_params(self.param_, self.param_names_)
+        test = check_np(test)
+        n_horizon = test.shape[0] - n_ahead + 1
+        chunk_size = n_horizon * self.chains_ // self.thread_
+        # Check threads and chunk size
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltVarExpand(
+                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
+        else:
+            pass
+        out_forecast = forecaster.returnForecast()
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        return {
+            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
+            "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
+            "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
+            "lpl": out_forecast.get('lpl')
+        }
 
     def spillover(self):
         pass
@@ -646,8 +696,58 @@ class VharBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self):
-        pass
+    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+        """Expanding-window forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast next `n_ahead` time point.
+        test : array-like
+            Test set to forecast
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+            - "lpl" (float): Average log-predictive likelihood
+        """
+        fit_record = concat_params(self.param_, self.param_names_)
+        test = check_np(test)
+        n_horizon = test.shape[0] - n_ahead + 1
+        chunk_size = n_horizon * self.chains_ // self.thread_
+        # Check threads and chunk size
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltVharExpand(
+                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
+        else:
+            pass
+        out_forecast = forecaster.returnForecast()
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        return {
+            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
+            "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
+            "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
+            "lpl": out_forecast.get('lpl')
+        }
 
     def spillover(self):
         pass
