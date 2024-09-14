@@ -1,0 +1,57 @@
+on:
+  push:
+    branches: ['feature/python'] # change to [main, master, develop] after finish
+#   pull_request:
+#     branches: [main, master]
+#   workflow_dispatch:
+
+name: quartodoc
+
+jobs:
+  quartodoc:
+    runs-on: ubuntu-latest
+    
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          activate-environment: bvhar-dev
+          environment-file: python/requirements/environment-dev.yml
+          python-version: '3.11'
+          auto-activate-base: false
+
+      - name: Install
+        run: conda run -n bvhar-dev pip install -e . -v
+        working-directory: python
+      
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+    
+      - name: Build site
+        run: |
+            conda run -n bvhar-dev quartodoc build
+            conda run -n bvhar-dev quarto render .
+        working-directory: python/docs
+
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4.6.1
+        with:
+          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          repository-name: ygeunkim/ygeunkim.github.io
+          clean: false
+          branch: master
+          folder: python/docs/_site
+          target-folder: package/bvhar/python

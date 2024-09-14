@@ -42,7 +42,7 @@ format:
     code-background: true
     code-copy: true
     code-overflow: wrap
-    toc: false
+    toc: true
 
 include-in-header: 
   - text: |

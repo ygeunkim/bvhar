@@ -1,3 +1,7 @@
+---
+toc: false
+---
+
 # bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="logo.png" align="right" height="138" /></a>
 
 This is a Python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
@@ -6,7 +10,7 @@ The package implements C++ headers made in R package.
 Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.html).
 
 ::: {.callout-note}
-`bvhar` for Python is not ready to use. This page is rendered just for testing; yet.
+`bvhar` for Python is not ready to use. This page is rendered just for testing.
 :::
 
 ## Eigen and boost setting
