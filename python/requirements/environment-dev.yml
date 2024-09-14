@@ -1,0 +1,16 @@
+name: bvhar-dev
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - boost-cpp>=1.84.0
+  - eigen>=3.4.0
+  - pybind11
+  - numpy
+  - pandas
+  - pip
+  - pytest
+  - pytest-cov
+  - jupyter
+  - pip:
+      - quartodoc

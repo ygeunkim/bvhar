@@ -1,0 +1,51 @@
+on:
+  push:
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*']
+  pull_request:
+    branches: [main, master, 'hotfix/*', 'release/*', develop]
+  
+name: py-test-coverage
+
+jobs:
+  py-test-coverage:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: python
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          activate-environment: bvhar-dev
+          environment-file: python/requirements/environment-dev.yml
+          python-version: '3.11'
+          auto-activate-base: false
+    
+      - name: Install dependencies
+        run: conda run -n bvhar-dev pip install -e . -v
+      
+      - name: Test coverage
+        run: conda run -n bvhar-dev pytest --cov=./ --cov-report=xml | tee pytest_output.txt
+    
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: python
+          codecov_yml_path: ../codecov.yml
+          flags: python
+    
+      - name: Show pytest output
+        if: always()
+        run: |
+          ## --------------------------------------------------------------------
+          find . -name 'pytest_output.txt' -exec cat '{}' \; || true
+        shell: bash
