@@ -2,7 +2,7 @@ from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_re
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt
-from .._src._ldltforecast import LdltForecast, LdltRoll
+from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll
 from .._src._sv import SvMcmc
 from .._src._svforecast import SvForecast
 from ._spec import LdltConfig, SvConfig, InterceptConfig
@@ -22,11 +22,11 @@ class _AutoregBayes:
         intercept_config = InterceptConfig(), fit_intercept = True,
         minnesota = "longrun"
     ):
-        self.y = check_np(data)
-        self.n_features_in_ = self.y.shape[1]
+        self.y_ = check_np(data)
+        self.n_features_in_ = self.y_.shape[1]
         self.p_ = p # 3 in VHAR
         self.lag_ = lag # month in VHAR
-        if self.y.shape[0] <= self.lag_:
+        if self.y_.shape[0] <= self.lag_:
             raise ValueError(f"'data' rows must be larger than 'lag' = {self.lag_}")
         # self.design_ = build_design(self.y, self.lag_, fit_intercept)
         # self.response_ = build_response(self.y, self.lag_, self.lag_ + 1)
@@ -165,7 +165,7 @@ class _AutoregBayes:
         elif type(self.spec_) == HorseshoeConfig:
             pass
         elif type(self.spec_) == MinnesotaConfig:
-            self.spec_.update(self.y, self.p_, self.n_features_in_)
+            self.spec_.update(self.y_, self.p_, self.n_features_in_)
         elif type(self.spec_) == DlConfig:
             pass
         elif type(self.spec_) == NgConfig:
@@ -259,8 +259,8 @@ class VarBayes(_AutoregBayes):
         n_thread = 1
     ):
         super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no")
-        self.design_ = build_design(self.y, lag, fit_intercept)
-        self.response_ = build_response(self.y, lag, lag + 1)
+        self.design_ = build_design(self.y_, lag, fit_intercept)
+        self.response_ = build_response(self.y_, lag, lag + 1)
         if minnesota:
             self._own_id = np.array([2], dtype=np.int32)
             self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
@@ -389,8 +389,8 @@ class VarBayes(_AutoregBayes):
         chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltRoll(
-                self.response_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+            forecaster = LdltVarRoll(
+                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
                 sparse, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
@@ -489,8 +489,8 @@ class VharBayes(_AutoregBayes):
         n_thread = 1
     ):
         super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota)
-        self.design_ = build_design(self.y, week, month, fit_intercept)
-        self.response_ = build_response(self.y, month, month + 1)
+        self.design_ = build_design(self.y_, week, month, fit_intercept)
+        self.response_ = build_response(self.y_, month, month + 1)
         self.week_ = week
         self.month_ = month
         if minnesota == "longrun":
@@ -593,8 +593,58 @@ class VharBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self):
-        pass
+    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False):
+        """Rolling-window forecasting
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast next `n_ahead` time point.
+        test : array-like
+            Test set to forecast
+        level : float
+            Level for credible interval, by default .05
+        sparse : bool
+            Apply restriction to forecasting, by default False
+
+        Returns
+        -------
+        dict
+            Density forecasting results
+            - "forecast" (ndarray): Posterior mean of forecasting
+            - "se" (ndarray): Standard error of forecasting
+            - "lower" (ndarray): Lower quantile of forecasting
+            - "upper" (ndarray): Upper quantile of forecasting
+            - "lpl" (float): Average log-predictive likelihood
+        """
+        fit_record = concat_params(self.param_, self.param_names_)
+        test = check_np(test)
+        n_horizon = test.shape[0] - n_ahead + 1
+        chunk_size = n_horizon * self.chains_ // self.thread_
+        # Check threads and chunk size
+        if type(self.cov_spec_) == LdltConfig:
+            forecaster = LdltVharRoll(
+                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                sparse, fit_record,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept, n_ahead, test,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                self.thread_, chunk_size
+            )
+        else:
+            pass
+        out_forecast = forecaster.returnForecast()
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        return {
+            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
+            "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
+            "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
+            "lpl": out_forecast.get('lpl')
+        }
 
     def expand_forecast(self):
         pass
