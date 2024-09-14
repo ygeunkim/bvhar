@@ -2,6 +2,24 @@ import numpy as np
 from math import sqrt
 
 class LdltConfig:
+    """Prior for Covariance Matrix
+
+    Specifies inverse-gamma prior for cholesky diagonal vector.
+
+    Parameters
+    ----------
+    ig_shape : float
+        Inverse-Gamma shape of Cholesky diagonal vector, by default 3
+    ig_scale : float
+        Inverse-Gamma scale of Cholesky diagonal vector, by default .01
+    
+    Attributes
+    ----------
+    shape : float
+        Inverse-Gamma shape
+    scale : float
+        Inverse-Gamma scale
+    """
     def __init__(self, ig_shape = 3, ig_scale = .01):
         self.process = "Homoskedastic"
         self.prior = "Cholesky"
@@ -73,6 +91,10 @@ class SvConfig(LdltConfig):
         }
 
 class InterceptConfig:
+    """Prior for Constant term
+
+    Specifies normal prior for constant term.
+    """
     def __init__(self, mean = 0, sd = .1):
         self.process = "Intercept"
         self.prior = "Normal"
@@ -108,6 +130,7 @@ class InterceptConfig:
         }
 
 class _BayesConfig:
+    """Base class for coefficient prior configuration"""
     def __init__(self, prior):
         self.prior = prior
     
@@ -137,6 +160,10 @@ class _BayesConfig:
         pass
 
 class SsvsConfig(_BayesConfig):
+    """SSVS prior configuration
+
+    Specifies SSVS prior for coefficient.
+    """
     def __init__(
         self, coef_spike_scl = .01, coef_slab_shape = .01, coef_slab_scl = .01, coef_s1 = [1, 1], coef_s2 = [1, 1],
         chol_spike_scl = .01, chol_slab_shape = .01, chol_slab_scl = .01,
@@ -181,6 +208,10 @@ class SsvsConfig(_BayesConfig):
         }
 
 class HorseshoeConfig(_BayesConfig):
+    """Horseshoe prior configuration
+
+    Specifies Horseshoe prior for coefficient.
+    """
     def __init__(self):
         super().__init__("Horseshoe")
 
@@ -188,6 +219,10 @@ class HorseshoeConfig(_BayesConfig):
         return dict()
 
 class MinnesotaConfig(_BayesConfig):
+    """Minnesota prior configuration
+
+    Specifies Minnesota prior for coefficient.
+    """
     def __init__(self, sig = None, lam = .1, delt = None, is_long = False, eps = 1e-04):
         super().__init__("Minnesota")
         self.sig = None
@@ -258,6 +293,10 @@ class MinnesotaConfig(_BayesConfig):
             }
 
 class LambdaConfig:
+    """Hierarchical structure of Minnesota prior
+
+    Specifies prior for :math:`\lambda` in Minnesota prior.
+    """
     def __init__(self, shape = .01, rate = .01, eps = 1e-04):
         self.shape_ = self.validate(shape, "shape")
         self.rate_ = self.validate(rate, "rate")
@@ -279,6 +318,10 @@ class LambdaConfig:
         self.rate_ = sqrt(self.shape_) / sd
 
 class DlConfig(_BayesConfig):
+    """Dirichlet-Laplace prior configuration
+
+    Specifies Dirichlet-Laplace prior for coefficient.
+    """
     def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
         super().__init__("DL")
         self.grid_size = self.validate(dir_grid, "dir_grid")
@@ -293,6 +336,10 @@ class DlConfig(_BayesConfig):
         }
 
 class NgConfig(_BayesConfig):
+    """Normal-Gamma prior configuration
+
+    Specifies Normal-Gamma prior for coefficient.
+    """
     def __init__(
         self, shape_sd = .01, group_shape = .01, group_scale = .01,
         global_shape = .01, global_scale = .01,

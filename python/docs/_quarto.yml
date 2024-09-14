@@ -7,7 +7,9 @@ website:
   description: "Bayesian multivariate time series modeling"
   page-navigation: true
   favicon: "favicon.ico"
-  # page-footer:
+  page-footer:
+    left: Developed by Young Geun Kim
+    right: Site built with [quartodoc](https://machow.github.io/quartodoc/get-started/overview.html)
   navbar:
     background: light
     pinned: true
@@ -26,7 +28,7 @@ website:
             target: _blank
     right:
       - icon: github
-        href: https://github.com/ygeunkim/bvhar/tree/feature/python/python
+        href: https://github.com/ygeunkim/bvhar/tree/develop/python
         aria-label: bvhar-python github
   sidebar:
     style: floating
@@ -35,14 +37,20 @@ website:
 format:
   html:
     sidebar: false
-    theme: 
-      light: [journal, mypkgdown.scss]
-    highlight-style: github-dark
-    css: mypkgdown.css
+    # theme: slate
+    theme: superhero
+    highlight-style: github
+    # css: styles.css
     code-background: true
-    code-copy: true
-    code-overflow: wrap
+    code-copy: hover
+    code-overflow: scroll
     toc: true
+    # page-layout: full
+    grid:
+      sidebar-width: 10px
+      body-width: 1040px
+      margin-width: 250px
+      gutter-width: 1.5em
 
 include-in-header: 
   - text: |

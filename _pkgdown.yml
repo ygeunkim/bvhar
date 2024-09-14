@@ -17,6 +17,8 @@ home:
   # see the configuration in .github/workflows/pkgdown.yaml
   - text: VERSION_TEXT
     href: VERSION_REF
+  - text: bvhar in Python
+    href: https://ygeunkim.github.io/package/bvhar/python/
 
 development:
   mode: auto

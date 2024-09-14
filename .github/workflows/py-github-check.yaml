@@ -1,8 +1,8 @@
 on:
   push:
-    branches: ['feature/python', 'feature/py-*'] # change to [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*'] after finish
-  #   pull_request:
-  #     branches: [main, master, 'hotfix/*', 'release/*', develop]
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*']
+  pull_request:
+    branches: [main, master, 'hotfix/*', 'release/*', develop]
 
 name: py-github-check
 
@@ -108,10 +108,10 @@ jobs:
           New-Item -ItemType Directory -Force -Path temp-dir
 
       - name: Install package from github
-        # change branch after finishing the feature
+        # remove @develop after merging into master
         run: |
           pip install --upgrade pip
-          python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
+          python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
         working-directory: temp-dir
       
       - name: Verify installation

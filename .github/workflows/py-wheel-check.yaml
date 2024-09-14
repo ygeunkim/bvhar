@@ -1,8 +1,8 @@
 on:
   push:
-    branches: ['feature/python', 'feature/py-*'] # change to [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*'] after finish
-  #   pull_request:
-  #     branches: [main, master, 'hotfix/*', 'release/*', develop]
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*']
+  pull_request:
+    branches: [main, master, 'hotfix/*', 'release/*', develop]
 
 name: py-wheel-check
 

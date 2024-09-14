@@ -2,7 +2,10 @@
 toc: false
 ---
 
-# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="logo.png" align="right" height="138" /></a>
+:::: {.columns}
+
+::: {.column width="70%"}
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/develop/python/"><img src="logo.png" align="right" height="138" /></a>
 
 This is a Python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
 
@@ -34,11 +37,40 @@ Otherwise, you should set their paths by yourself; at this stage.
 From GitHub:
 
 ```bash
-python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
 ```
 
 ## Usage
 
-You can see the development status in PR [#10](https://github.com/ygeunkim/bvhar/pull/10).
+:::
 
+::: {.column width="10%"}
 
+:::
+
+::: {.column width="20%"}
+## Links
+
+[Browse source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
+
+[Report a bug](https://github.com/ygeunkim/bvhar/issues)
+
+[bvhar in R](https://ygeunkim.github.io/package/bvhar/index.html)
+
+## License
+
+[Full License](https://github.com/ygeunkim/bvhar/blob/develop/python/LICENSE)
+
+GPL (>= 3)
+
+## Community
+
+[Code of conduct](https://github.com/ygeunkim/bvhar/blob/develop/python/CODE_OF_CONDUCT.md)
+
+## Developers
+
+Young Geun Kim
+
+:::
+
+::::

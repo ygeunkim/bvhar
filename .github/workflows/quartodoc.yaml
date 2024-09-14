@@ -1,9 +1,8 @@
 on:
   push:
-    branches: ['feature/python'] # change to [main, master, develop] after finish
-#   pull_request:
-#     branches: [main, master]
-#   workflow_dispatch:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
 
 name: quartodoc
 

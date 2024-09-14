@@ -1,15 +1,15 @@
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
-# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/feature/python/python/"><img src="docs/logo.png" align="right" height="138" /></a>
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/develop/python/"><img src="docs/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
-[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Afeature%2Fpython)
-[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Afeature%2Fpython)
-[![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=feature%2Fpython)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Afeature%2Fpython)
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Adevelop)
+[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Adevelop)
+[![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Adevelop)
 [![Codecov test
-coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/feature%2Fpython/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
+coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/develop/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
 ![Python
 Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 <!-- badges: end -->
@@ -26,10 +26,18 @@ package.
 
 ## Installation
 
-From GitHub (`feature/python` branch at this stage):
+From GitHub (`develop` branch at this stage):
 
 ``` bash
-python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@feature/python#egg=bvhar&subdirectory=python'
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
+```
+
+### Development version
+
+Develop branch:
+
+``` bash
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
 ```
 
 ### Eigen and boost usage
