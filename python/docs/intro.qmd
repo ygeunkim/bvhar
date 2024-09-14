@@ -1,0 +1,41 @@
+# Introduction to bvhar
+
+```{python}
+#| include: false
+import pandas as pd
+pd.options.display.max_rows = 25
+```
+
+## Data
+
+This package includes the same CBOE ETF volatility index series.
+
+```{python}
+from bvhar.datasets import load_vix
+etf_vix = load_vix()
+```
+
+```{python}
+#| echo: false
+etf_vix
+```
+
+# Models
+
+```{python}
+from bvhar.model import VarOls, VharOls
+```
+
+## VAR
+
+```{python}
+fit_var = VarOls(etf_vix, 1, True)
+fit_var.fit()
+```
+
+## VHAR
+
+## BVAR
+
+## BVHAR
+

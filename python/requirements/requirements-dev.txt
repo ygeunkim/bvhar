@@ -1,0 +1,6 @@
+pybind11
+numpy
+pandas
+pytest
+jupyter
+quartodoc

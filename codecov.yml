@@ -15,3 +15,12 @@ coverage:
 
 codecov:
   token: token
+
+flags:
+  r-package:
+    default: true
+    paths:
+      - .
+  python:
+    paths:
+      - python

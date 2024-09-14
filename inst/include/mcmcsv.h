@@ -39,12 +39,12 @@ struct SvParams : public RegParams {
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& spec, Rcpp::List& intercept,
+		LIST& spec, LIST& intercept,
 		bool include_mean
 	)
 	: RegParams(num_iter, x, y, spec, intercept, include_mean),
-		_init_mean(Rcpp::as<Eigen::VectorXd>(spec["initial_mean"])),
-		_init_prec(Rcpp::as<Eigen::MatrixXd>(spec["initial_prec"])) {}
+		_init_mean(CAST<Eigen::VectorXd>(spec["initial_mean"])),
+		_init_prec(CAST<Eigen::MatrixXd>(spec["initial_prec"])) {}
 };
 
 struct MinnSvParams : public SvParams {
@@ -54,27 +54,27 @@ struct MinnSvParams : public SvParams {
 
 	MinnSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec, Rcpp::List& priors, Rcpp::List& intercept,
+		LIST& sv_spec, LIST& priors, LIST& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
-		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
-		double _lambda = priors["lambda"];
-		double _eps = priors["eps"];
+		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
+		double _lambda = CAST_DOUBLE(priors["lambda"]);
+		double _eps = CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
 		Eigen::VectorXd _weekly(dim);
 		Eigen::VectorXd _monthly(dim);
-		if (priors.containsElementNamed("delta")) {
-			_daily = Rcpp::as<Eigen::VectorXd>(priors["delta"]);
+		if (CONTAINS(priors, "delta")) {
+			_daily = CAST<Eigen::VectorXd>(priors["delta"]);
 			_weekly.setZero();
 			_monthly.setZero();
 		} else {
-			_daily = Rcpp::as<Eigen::VectorXd>(priors["daily"]);
-			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
-			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
+			_daily = CAST<Eigen::VectorXd>(priors["daily"]);
+			_weekly = CAST<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = CAST<Eigen::VectorXd>(priors["monthly"]);
 		}
 		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, _lambda, _daily, _weekly, _monthly, false);
 		Eigen::MatrixXd dummy_design = build_xdummy(
@@ -102,29 +102,29 @@ struct HierminnSvParams : public SvParams {
 
 	HierminnSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec,
+		LIST& sv_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		Rcpp::List& priors, Rcpp::List& intercept,
+		LIST& priors, LIST& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
-		shape(priors["shape"]), rate(priors["rate"]),
+		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = priors["p"]; // append to bayes_spec, p = 3 in VHAR
-		Eigen::VectorXd _sigma = Rcpp::as<Eigen::VectorXd>(priors["sigma"]);
-		double _eps = priors["eps"];
+		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
+		double _eps = CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
 		Eigen::VectorXd _weekly(dim);
 		Eigen::VectorXd _monthly(dim);
-		if (priors.containsElementNamed("delta")) {
-			_daily = Rcpp::as<Eigen::VectorXd>(priors["delta"]);
+		if (CONTAINS(priors, "delta")) {
+			_daily = CAST<Eigen::VectorXd>(priors["delta"]);
 			_weekly.setZero();
 			_monthly.setZero();
 		} else {
-			_daily = Rcpp::as<Eigen::VectorXd>(priors["daily"]);
-			_weekly = Rcpp::as<Eigen::VectorXd>(priors["weekly"]);
-			_monthly = Rcpp::as<Eigen::VectorXd>(priors["monthly"]);
+			_daily = CAST<Eigen::VectorXd>(priors["daily"]);
+			_weekly = CAST<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = CAST<Eigen::VectorXd>(priors["monthly"]);
 		}
 		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, 1, _daily, _weekly, _monthly, false);
 		Eigen::MatrixXd dummy_design = build_xdummy(
@@ -170,9 +170,9 @@ struct SsvsSvParams : public SvParams {
 
 	SsvsSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec,
+		LIST& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		Rcpp::List& ssvs_spec, Rcpp::List& intercept,
+		LIST& ssvs_spec, LIST& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
@@ -183,11 +183,11 @@ struct SsvsSvParams : public SvParams {
 		// _contem_spike(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_spike"])),
 		// _contem_slab(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_slab"])),
 		// _contem_weight(Rcpp::as<Eigen::VectorXd>(ssvs_spec["chol_mixture"])),
-		_coef_s1(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(Rcpp::as<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
-		_contem_s1(ssvs_spec["chol_s1"]), _contem_s2(ssvs_spec["chol_s2"]),
-		_coef_spike_scl(ssvs_spec["coef_spike_scl"]), _contem_spike_scl(ssvs_spec["chol_spike_scl"]),
-		_coef_slab_shape(ssvs_spec["coef_slab_shape"]), _coef_slab_scl(ssvs_spec["coef_slab_scl"]),
-		_contem_slab_shape(ssvs_spec["chol_slab_shape"]), _contem_slab_scl(ssvs_spec["chol_slab_scl"]) {}
+		_coef_s1(CAST<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(CAST<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
+		_contem_s1(CAST_DOUBLE(ssvs_spec["chol_s1"])), _contem_s2(CAST_DOUBLE(ssvs_spec["chol_s2"])),
+		_coef_spike_scl(CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
+		_coef_slab_shape(CAST_DOUBLE(ssvs_spec["coef_slab_shape"])), _coef_slab_scl(CAST_DOUBLE(ssvs_spec["coef_slab_scl"])),
+		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])) {}
 };
 
 struct HsSvParams : public SvParams {
@@ -196,9 +196,9 @@ struct HsSvParams : public SvParams {
 
 	HsSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec,
+		LIST& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		Rcpp::List& intercept, bool include_mean
+		LIST& intercept, bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
 };
@@ -218,18 +218,18 @@ struct NgSvParams : public SvParams {
 
 	NgSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec,
+		LIST& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		Rcpp::List& ng_spec, Rcpp::List& intercept,
+		LIST& ng_spec, LIST& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat),
 		// _local_shape(ng_spec["local_shape"]),
 		// _contem_shape(ng_spec["contem_shape"]),
-		_mh_sd(ng_spec["shape_sd"]),
-		_group_shape(ng_spec["group_shape"]), _group_scl(ng_spec["group_scale"]),
-		_global_shape(ng_spec["global_shape"]), _global_scl(ng_spec["global_scale"]),
-		_contem_global_shape(ng_spec["contem_global_shape"]), _contem_global_scl(ng_spec["contem_global_scale"]) {}
+		_mh_sd(CAST_DOUBLE(ng_spec["shape_sd"])),
+		_group_shape(CAST_DOUBLE(ng_spec["group_shape"])), _group_scl(CAST_DOUBLE(ng_spec["group_scale"])),
+		_global_shape(CAST_DOUBLE(ng_spec["global_shape"])), _global_scl(CAST_DOUBLE(ng_spec["global_scale"])),
+		_contem_global_shape(CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(CAST_DOUBLE(ng_spec["contem_global_scale"])) {}
 };
 
 struct DlSvParams : public SvParams {
@@ -243,15 +243,15 @@ struct DlSvParams : public SvParams {
 
 	DlSvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		Rcpp::List& sv_spec,
+		LIST& sv_spec,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		Rcpp::List& dl_spec, Rcpp::List& intercept,
+		LIST& dl_spec, LIST& intercept,
 		bool include_mean
 	)
 	: SvParams(num_iter, x, y, sv_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
 		// _dl_concen(dl_spec["dirichlet"]), _contem_dl_concen(dl_spec["contem_dirichlet"]),
-		_grid_size(dl_spec["grid_size"]), _shape(dl_spec["shape"]), _rate(dl_spec["rate"]) {}
+		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
 };
 
 struct SvInits : public RegInits {
@@ -267,16 +267,16 @@ struct SvInits : public RegInits {
 		_lvol = _lvol_init.transpose().replicate(num_design, 1);
 		_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	}
-	SvInits(Rcpp::List& init)
+	SvInits(LIST& init)
 	: RegInits(init),
-		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
-		_lvol(Rcpp::as<Eigen::MatrixXd>(init["lvol"])),
-		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
-	SvInits(Rcpp::List& init, int num_design)
+		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
+		_lvol(CAST<Eigen::MatrixXd>(init["lvol"])),
+		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+	SvInits(LIST& init, int num_design)
 	: RegInits(init),
-		_lvol_init(Rcpp::as<Eigen::VectorXd>(init["lvol_init"])),
+		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
-		_lvol_sig(Rcpp::as<Eigen::VectorXd>(init["lvol_sig"])) {}
+		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
 };
 
 struct HierminnSvInits : public SvInits {
@@ -284,13 +284,13 @@ struct HierminnSvInits : public SvInits {
 	double _cross_lambda;
 	double _contem_lambda;
 
-	HierminnSvInits(Rcpp::List& init)
+	HierminnSvInits(LIST& init)
 	: SvInits(init),
-		_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
+		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
 	
-	HierminnSvInits(Rcpp::List& init, int num_design)
+	HierminnSvInits(LIST& init, int num_design)
 	: SvInits(init, num_design),
-		_own_lambda(init["own_lambda"]), _cross_lambda(init["cross_lambda"]), _contem_lambda(init["contem_lambda"]) {}
+		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
 };
 
 struct SsvsSvInits : public SvInits {
@@ -300,21 +300,21 @@ struct SsvsSvInits : public SvInits {
 	Eigen::VectorXd _coef_slab;
 	Eigen::VectorXd _contem_slab;
 	
-	SsvsSvInits(Rcpp::List& init)
+	SsvsSvInits(LIST& init)
 	: SvInits(init),
-		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
-		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])),
-		_coef_slab(Rcpp::as<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(Rcpp::as<Eigen::VectorXd>(init["contem_slab"])) {}
+		_coef_dummy(CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
+		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
+		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])) {}
 	
-	SsvsSvInits(Rcpp::List& init, int num_design)
+	SsvsSvInits(LIST& init, int num_design)
 	: SvInits(init, num_design),
-		_coef_dummy(Rcpp::as<Eigen::VectorXd>(init["init_coef_dummy"])),
-		_coef_weight(Rcpp::as<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(Rcpp::as<Eigen::VectorXd>(init["chol_mixture"])),
-		_coef_slab(Rcpp::as<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(Rcpp::as<Eigen::VectorXd>(init["contem_slab"])) {}
+		_coef_dummy(CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
+		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
+		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])) {}
 };
 
 struct GlSvInits : public SvInits {
@@ -323,46 +323,46 @@ struct GlSvInits : public SvInits {
 	Eigen::VectorXd _init_contem_local;
 	Eigen::VectorXd _init_conetm_global;
 	
-	GlSvInits(Rcpp::List& init)
+	GlSvInits(LIST& init)
 	: SvInits(init),
-		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(init["global_sparsity"]),
-		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(CAST_DOUBLE(init["global_sparsity"])),
+		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 	
-	GlSvInits(Rcpp::List& init, int num_design)
+	GlSvInits(LIST& init, int num_design)
 	: SvInits(init, num_design),
-		_init_local(Rcpp::as<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(init["global_sparsity"]),
-		_init_contem_local(Rcpp::as<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(Rcpp::as<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(CAST_DOUBLE(init["global_sparsity"])),
+		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 };
 
 struct HsSvInits : public GlSvInits {
 	Eigen::VectorXd _init_group;
 	
-	HsSvInits(Rcpp::List& init)
+	HsSvInits(LIST& init)
 	: GlSvInits(init),
-		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])) {}
+		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
 	
-	HsSvInits(Rcpp::List& init, int num_design)
+	HsSvInits(LIST& init, int num_design)
 	: GlSvInits(init, num_design),
-		_init_group(Rcpp::as<Eigen::VectorXd>(init["group_sparsity"])) {}
+		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
 };
 
 struct NgSvInits : public HsSvInits {
 	Eigen::VectorXd _init_local_shape;
 	double _init_contem_shape;
 
-	NgSvInits(Rcpp::List& init)
+	NgSvInits(LIST& init)
 	: HsSvInits(init),
-		_init_local_shape(Rcpp::as<Eigen::VectorXd>(init["local_shape"])),
-		_init_contem_shape(init["contem_shape"]) {}
+		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
 	
-	NgSvInits(Rcpp::List& init, int num_design)
+	NgSvInits(LIST& init, int num_design)
 	: HsSvInits(init, num_design),
-		_init_local_shape(Rcpp::as<Eigen::VectorXd>(init["local_shape"])),
-		_init_contem_shape(init["contem_shape"]) {}
+		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
 };
 
 struct SvRecords : public RegRecords {
@@ -445,7 +445,7 @@ public:
 	}
 	virtual ~McmcSv() = default;
 	virtual void doPosteriorDraws() = 0;
-	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
+	virtual LIST returnRecords(int num_burn, int thin) const = 0;
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
 			Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
@@ -596,21 +596,21 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -679,21 +679,21 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -824,22 +824,22 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("gamma_record") = ssvs_record.coef_dummy_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -955,28 +955,28 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("lambda_record") = hs_record.local_record,
-			Rcpp::Named("eta_record") = hs_record.group_record,
-			Rcpp::Named("tau_record") = hs_record.global_record,
-			Rcpp::Named("kappa_record") = hs_record.shrink_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("lambda_record") = hs_record.local_record,
+			NAMED("eta_record") = hs_record.group_record,
+			NAMED("tau_record") = hs_record.global_record,
+			NAMED("kappa_record") = hs_record.shrink_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 			// record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
@@ -1105,27 +1105,27 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("lambda_record") = ng_record.local_record,
-			Rcpp::Named("eta_record") = ng_record.group_record,
-			Rcpp::Named("tau_record") = ng_record.global_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("lambda_record") = ng_record.local_record,
+			NAMED("eta_record") = ng_record.group_record,
+			NAMED("tau_record") = ng_record.global_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 			// record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 		}
@@ -1247,26 +1247,26 @@ public:
 		updateInitState();
 		updateRecords();
 	}
-	Rcpp::List returnRecords(int num_burn, int thin) const override {
-		Rcpp::List res = Rcpp::List::create(
-			Rcpp::Named("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			Rcpp::Named("h_record") = sv_record.lvol_record,
-			Rcpp::Named("a_record") = sv_record.contem_coef_record,
-			Rcpp::Named("h0_record") = sv_record.lvol_init_record,
-			Rcpp::Named("sigh_record") = sv_record.lvol_sig_record,
-			Rcpp::Named("lambda_record") = dl_record.local_record,
-			Rcpp::Named("tau_record") = dl_record.global_record,
-			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
+	LIST returnRecords(int num_burn, int thin) const override {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
+			NAMED("h_record") = sv_record.lvol_record,
+			NAMED("a_record") = sv_record.contem_coef_record,
+			NAMED("h0_record") = sv_record.lvol_init_record,
+			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("lambda_record") = dl_record.local_record,
+			NAMED("tau_record") = dl_record.global_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = sv_record.coef_record.rightCols(dim);
+			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
-			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
