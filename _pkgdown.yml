@@ -168,7 +168,6 @@ reference:
   desc: ~
   contents:
   - etf_vix
-  - oxfordman
 
 - title: Other generic functions
   desc: ~
