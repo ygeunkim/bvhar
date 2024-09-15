@@ -9,7 +9,7 @@ website:
   favicon: "favicon.ico"
   page-footer:
     left: Developed by Young Geun Kim
-    right: Site built with [quartodoc](https://machow.github.io/quartodoc/get-started/overview.html)
+    right: Site built with [quartodoc](https://machow.github.io/quartodoc/get-started/overview.html) {{< var version >}}
   navbar:
     background: light
     pinned: true
@@ -45,6 +45,7 @@ format:
     code-copy: hover
     code-overflow: scroll
     toc: true
+    toc-depth: 2
     # page-layout: full
     grid:
       sidebar-width: 10px
@@ -52,9 +53,9 @@ format:
       margin-width: 250px
       gutter-width: 1.5em
 
-include-in-header: 
-  - text: |
-      <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Anonymous+Pro" rel="stylesheet">
+# include-in-header: 
+#   - text: |
+#       <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Anonymous+Pro" rel="stylesheet">
 
 quartodoc:
   title: Reference

@@ -37,6 +37,10 @@ jobs:
       
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+      
+      - name: Check quartodoc version
+        run: sed -i "s|QUARTODOC_VERSION|$(python -c 'import importlib.metadata; print(importlib.metadata.version("quartodoc"))')|" _variables.yml
+        working-directory: python/docs
     
       - name: Build site
         run: |

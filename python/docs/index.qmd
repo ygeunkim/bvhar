@@ -49,7 +49,7 @@ python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvh
 :::
 
 ::: {.column width="20%"}
-## Links
+### Links
 
 [Browse source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
 
@@ -57,19 +57,31 @@ python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvh
 
 [bvhar in R](https://ygeunkim.github.io/package/bvhar/index.html)
 
-## License
+### License
 
 [Full License](https://github.com/ygeunkim/bvhar/blob/develop/python/LICENSE)
 
 GPL (>= 3)
 
-## Community
+### Community
 
 [Code of conduct](https://github.com/ygeunkim/bvhar/blob/develop/python/CODE_OF_CONDUCT.md)
 
-## Developers
+### Developers
 
 Young Geun Kim
+
+[More about authors...](authors.html)
+
+### Dev status
+
+<!-- badges: start -->
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Adevelop)
+[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Adevelop)
+[![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Adevelop)
+[![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/develop/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
+![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
+<!-- badges: end -->
 
 :::
 

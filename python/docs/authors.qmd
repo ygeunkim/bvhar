@@ -1,0 +1,7 @@
+# Authors and Citation <a href="https://github.com/ygeunkim/bvhar/tree/develop/python/"><img src="logo.png" align="right" height="138" /></a>
+
+## Authors
+
+**Young Geun Kim**. Author, maintainer, copyright holder.
+
+## Citation

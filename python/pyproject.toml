@@ -34,9 +34,9 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 
 [project.urls]
-"Homepage" = "https://github.com/ygeunkim/bvhar/tree/develop"
+"Homepage" = "https://ygeunkim.github.io/package/bvhar/python/"
 "Bug Reports" = "https://github.com/ygeunkim/bvhar/issues"
-"Source" = "https://github.com/ygeunkim/bvhar/tree/develop"
+"Source" = "https://github.com/ygeunkim/bvhar/tree/develop/python"
 
 [tool.setuptools.packages.find]
 where = ["src"]
