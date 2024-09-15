@@ -1,4 +1,3 @@
-#include <pybind11/eigen.h>
 #include <ols.h>
 
 PYBIND11_MODULE(_ols, m) {
