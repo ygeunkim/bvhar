@@ -280,7 +280,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' @importFrom stats optim
 #' @importFrom optimParallel optimParallel
 #' @order 1
@@ -524,7 +524,7 @@ bound_bvhar <- function(init_spec = set_bvhar(),
 #' @references 
 #' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' 
-#' Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' @order 1
 #' @export
 choose_bayes <- function(bayes_bound = bound_bvhar(),

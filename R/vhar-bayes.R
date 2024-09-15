@@ -62,7 +62,7 @@
 #'   \item{pip}{Posterior inclusion probabilities.}
 #' }
 #' @references
-#' Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws summarise_draws

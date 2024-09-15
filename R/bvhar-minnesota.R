@@ -121,7 +121,7 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 #'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
-#' @references Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of BVHAR-S
 #' * [set_weight_bvhar()] to specify the hyperparameters of BVHAR-L

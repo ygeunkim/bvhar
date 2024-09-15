@@ -44,7 +44,7 @@ choose_bayes(
 \references{
 Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).
 
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 }
 \seealso{
 \itemize{

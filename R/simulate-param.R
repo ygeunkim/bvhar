@@ -119,7 +119,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
 #'   \item{coefficients}{BVHAR coefficient (MN)}
 #'   \item{covmat}{BVHAR variance (IW or diagonal matrix of `sigma` of `bayes_spec`)}
 #' }
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
 #' @examples 
 #' # Generate (Phi, Sigma)
 #' # BVHAR-S

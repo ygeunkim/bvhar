@@ -115,7 +115,7 @@ Cholesky stochastic volatility modeling for VHAR based on
 \deqn{\Sigma_t = L^T D_t^{-1} L}
 }
 \references{
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
 
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }
