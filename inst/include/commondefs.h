@@ -5,6 +5,10 @@
 	#include <RcppEigen.h>
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
+	#define COUT Rcpp::Rcout
+	#define ENDL "\n"
+	#define FLUSH Rcpp::Rcout.flush()
+
 	#define LIST Rcpp::List
 	#define CAST Rcpp::as
 	#define CAST_DOUBLE(value) value
@@ -20,10 +24,13 @@
 	#include <cmath>
 	#include <string>
 	#include <stdexcept>
+	#include <iostream>
 	#include <Eigen/Dense>
 	#include <Eigen/Cholesky>
 	#include <Eigen/QR>
 	#include <unsupported/Eigen/KroneckerProduct>
+	#include <pybind11/stl.h>
+	#include <pybind11/eigen.h>
 
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
@@ -41,6 +48,10 @@
 	}
 
 	#define STOP(...) stop_fmt(__VA_ARGS__)
+
+	#define COUT std::cout
+	#define ENDL std::endl
+	#define FLUSH std::cout.flush()
 
 	#define LIST py::dict
   #define CAST py::cast

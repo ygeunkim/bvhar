@@ -115,7 +115,7 @@ setup(
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     description='Bayesian multivariate time series modeling',
-    url='https://github.com/ygeunkim/bvhar/tree/develop',
+    url='https://ygeunkim.github.io/package/bvhar/python/',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Young Geun Kim',

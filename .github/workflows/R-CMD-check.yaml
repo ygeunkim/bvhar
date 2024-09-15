@@ -81,7 +81,7 @@ jobs:
         with:
           args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-build-vignettes", "--ignore-vignettes", "--no-examples")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
-          error-on: '"error"'
+          error-on: '"warning"'
           check-dir: '"check"'
           upload-snapshots: false
           upload-results: false
