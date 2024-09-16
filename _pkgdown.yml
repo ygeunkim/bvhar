@@ -17,7 +17,7 @@ home:
   # see the configuration in .github/workflows/pkgdown.yaml
   - text: VERSION_TEXT
     href: VERSION_REF
-  - text: bvhar in Python
+  - text: bvhar for Python
     href: https://ygeunkim.github.io/package/bvhar/python/
 
 development:
@@ -46,7 +46,6 @@ reference:
     Prior settings for Bayesian models.
   contents:
   - set_bvar
-  - init_ssvs
   - set_ssvs
   - set_lambda
   - set_horseshoe
@@ -70,7 +69,7 @@ reference:
 
 - title: Deprecated
   desc: >
-    Deprecated modeling functions that will be removed soon
+    Deprecated functions that will be removed soon
   contents:
   - bvar_sv
   - bvar_ssvs
@@ -78,6 +77,10 @@ reference:
   - bvhar_sv
   - bvhar_ssvs
   - bvhar_horseshoe
+  - init_ssvs
+  - choose_ssvs
+  - sim_ssvs_var
+  - sim_horseshoe_var
 
 - title: Forecasting
   desc: ~
@@ -125,7 +128,6 @@ reference:
   - choose_bvhar
   - bound_bvhar
   - choose_bayes
-  - choose_ssvs
 
 - title: Information criteria
   desc: ~
@@ -161,8 +163,6 @@ reference:
   - sim_mniw
   - sim_mvt
   - sim_gig
-  - sim_ssvs_var
-  - sim_horseshoe_var
 
 - title: Data
   desc: ~
@@ -178,13 +178,16 @@ reference:
   - residuals
   - fitted
 
-# destination: '../../myprofile/young-blogdown/static/package/bvhar'
-
 navbar:
   structure:
-    left: [intro, reference, articles, tutorials, news, research, accepted]
+    left: [intro, reference, articles, tutorials, news, publication, research, accepted]
     right: [github, goback]
   components:
+    publication:
+      icon: fa-newspaper
+      href: https://www.tandfonline.com/eprint/ZIRSC2CDJ9JM9FK2E3WD/full?target=10.1080/00949655.2023.2281644
+      aria-label: Published
+      text: Published
     research:
       icon: fa-laptop-code
       href: https://github.com/ygeunkim/paper-bvhar
@@ -204,15 +207,17 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v0.12.0
   # - text: "Version 1.0.0"
   #   href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.0
-  # - text: "Version 1.0.1"
-  #   href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.1
-  # - text: "Version 1.0.2"
-  #   href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.2
-  # - text: "Version 1.1.0"
-  #   href: https://github.com/ygeunkim/bvhar/releases/tag/v1.1.0
+  - text: "Version 1.0.1"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.1
+  - text: "Version 1.0.2"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.0.2
+  - text: "Version 1.1.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v1.1.0
   - text: "Version 1.2.0"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v1.2.0
-  # - text: "Version 2.0.0"
-  #   href: https://github.com/ygeunkim/bvhar/releases/tag/v2.0.0
+  - text: "Version 2.0.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.0.0
   - text: "Version 2.0.1"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.0.1
+  - text: "Version 2.1.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.1.0
