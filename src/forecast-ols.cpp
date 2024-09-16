@@ -2,7 +2,7 @@
 
 //' Forecasting Vector Autoregression
 //' 
-//' @param object `varlse` object
+//' @param object A `varlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
@@ -25,7 +25,7 @@ Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
 
 //' Forecasting Vector HAR
 //' 
-//' @param object `vharlse` object
+//' @param object A `vharlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' n-step ahead forecasting using VHAR recursively.

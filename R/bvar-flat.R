@@ -36,9 +36,9 @@
 #'   \item{m}{Dimension of the time series}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Flat"`}
+#'   \item{process}{Process string in the `bayes_spec`: `BVAR_Flat`}
 #'   \item{spec}{Model specification (`bvharspec`)}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{call}{Matched call}
 #'   \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: zero matrix}
 #'   \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{U^{-1}}}

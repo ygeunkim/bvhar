@@ -36,15 +36,15 @@ is.bvharmod(x)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{method}{Method to solve linear equation system.
-(\code{"nor"}: normal equation (default), \code{"chol"}: Cholesky, and \code{"qr"}: HouseholderQR)}
+(\code{nor}: normal equation (default), \code{chol}: Cholesky, and \code{qr}: HouseholderQR)}
 
-\item{x}{\code{varlse} object}
+\item{x}{A \code{varlse} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 
-\item{object}{\code{varlse} object}
+\item{object}{A \code{varlse} object}
 }
 \value{
 \code{var_lm()} returns an object named \code{varlse} \link{class}.
@@ -55,17 +55,17 @@ It is a list with the following components:
 \item{fitted.values}{Fitted response values}
 \item{residuals}{Residuals}
 \item{covmat}{LS estimate for covariance matrix}
-\item{df}{Numer of Coefficients: mp + 1 or mp}
+\item{df}{Numer of Coefficients}
 \item{p}{Lag of VAR}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
 \item{process}{Process: VAR}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{design}{\eqn{X_0}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{design}{Design matrix}
 \item{y}{Raw input}
-\item{y0}{\eqn{Y_0}}
+\item{y0}{Multivariate response matrix}
 \item{method}{Solving method}
 \item{call}{Matched call}
 }
@@ -76,23 +76,11 @@ This function fits VAR(p) using OLS method.
 }
 \details{
 This package specifies VAR(p) model as
+
 \deqn{Y_{t} = A_1 Y_{t - 1} + \cdots + A_p Y_{t - p} + c + \epsilon_t}
 
-If \code{include_type = TRUE}, there is \eqn{c} term.
-Otherwise (\code{include_type = FALSE}), there is no \eqn{c} term.
-The function estimates every coefficient matrix \eqn{A_1, \ldots, A_p, c}.
-\itemize{
-\item Response matrix, \eqn{Y_0}
-\item Design matrix, \eqn{X_0}
-\item Coefficient matrix is the form of \eqn{A = [A_1, A_2, \ldots, A_p, c]^T}.
-}
-
-Then perform least squares to the following multivariate regression model
-\deqn{Y_0 = X_0 A + error}
-
-which gives
-
-\deqn{\hat{A} = (X_0^T X_0)^{-1} X_0^T Y_0}
+If \code{include_type = TRUE}, there is constant term.
+The function estimates every coefficient matrix.
 
 Consider the response matrix \eqn{Y_0}.
 Let \eqn{T} be the total number of sample,
@@ -155,9 +143,9 @@ head(fitted(fit))
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 
-Akaike, H. (1969). \emph{Fitting autoregressive models for prediction}. Ann Inst Stat Math 21, 243–247.
+Akaike, H. (1969). \emph{Fitting autoregressive models for prediction}. Ann Inst Stat Math 21, 243-247.
 
-Akaike, H. (1971). \emph{Autoregressive model fitting for control}. Ann Inst Stat Math 23, 163–180.
+Akaike, H. (1971). \emph{Autoregressive model fitting for control}. Ann Inst Stat Math 23, 163-180.
 
 Akaike H. (1974). \emph{A new look at the statistical model identification}. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723.
 

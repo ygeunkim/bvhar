@@ -75,7 +75,7 @@ is.bvarmn(x)
 
 \item{...}{not used}
 
-\item{object}{\code{bvarmn} object}
+\item{object}{A \code{bvarmn} object}
 }
 \value{
 \code{bvar_minnesota()} returns an object \code{bvarmn} \link{class}.
@@ -100,10 +100,10 @@ It is a list with the following components:
 \item{design}{\eqn{X_0}}
 \item{p}{Lag of VAR}
 \item{totobs}{Total number of the observation}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{y}{Raw input (\code{matrix})}
 \item{call}{Matched call}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVAR_Minnesota"}}
+\item{process}{Process string in the \code{bayes_spec}: \code{BVAR_Minnesota}}
 \item{spec}{Model specification (\code{bvharspec})}
 }
 It is also \code{normaliw} and \code{bvharmod} class.
@@ -137,9 +137,9 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 
 KADIYALA, K.R. and KARLSSON, S. (1997), \emph{NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS}. J. Appl. Econ., 12: 99-132.
 
-Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791–897.
+Karlsson, S. (2013). \emph{Chapter 15 Forecasting with Bayesian Vector Autoregression}. Handbook of Economic Forecasting, 2, 791-897.
 
-Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949–968.
+Sims, C. A., & Zha, T. (1998). \emph{Bayesian Methods for Dynamic Multivariate Models}. International Economic Review, 39(4), 949-968.
 }
 \seealso{
 \itemize{

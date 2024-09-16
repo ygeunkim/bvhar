@@ -96,7 +96,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @details 
 #' Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
-#' These functions implement `"L-BFGS-B"` method of [stats::optim()] to find the maximum of marginal likelihood.
+#' These functions implement `L-BFGS-B` method of [stats::optim()] to find the maximum of marginal likelihood.
 #' 
 #' If you want to set `lower` and `upper` option more carefully,
 #' deal with them like as in [stats::optim()] in order of [set_bvar()], [set_bvhar()], or [set_weight_bvhar()]'s argument (except `eps`).
@@ -280,7 +280,7 @@ logml_bvhar_vhar <- function(param, eps = 1e-04, y, har = c(5, 22), include_mean
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
-#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @importFrom stats optim
 #' @importFrom optimParallel optimParallel
 #' @order 1
@@ -524,7 +524,7 @@ bound_bvhar <- function(init_spec = set_bvhar(),
 #' @references 
 #' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' 
-#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @order 1
 #' @export
 choose_bayes <- function(bayes_bound = bound_bvhar(),
@@ -584,7 +584,7 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
 #' 
 #' @param y Time series data of which columns indicate the variables.
 #' @param ord Order for VAR or VHAR.
-#' @param type Model type (Default: `"VAR"` or `"VHAR"`).
+#' @param type Model type (Default: `VAR` or `VHAR`).
 #' @param param Preselected constants \eqn{c_0 << c_1}. By default, `0.1` and `10` (See Details).
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`).
 #' @param gamma_param Parameters (shape, rate) for Gamma distribution. This is for the output.
@@ -600,11 +600,11 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
 #' similarly.
 #' @return `ssvsinput` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @export
 choose_ssvs <- function(y, 
                         ord, 

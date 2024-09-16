@@ -44,7 +44,7 @@ bvhar_horseshoe(
 
 \item{minnesota}{Minnesota type}
 
-\item{algo}{Ordinary gibbs sampling (\code{"gibbs"}) or blocked gibbs (Default: \code{"block"}).}
+\item{algo}{Ordinary gibbs sampling (\code{gibbs}) or blocked gibbs (Default: \code{block}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -74,9 +74,9 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VHAR_Horseshoe"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{algo}{Usual Gibbs sampling (\code{"gibbs"}) or fast sampling (\code{"fast"})}
+\item{process}{Description of the model, e.g. \code{VHAR_Horseshoe}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{algo}{Usual Gibbs sampling (\code{gibbs}) or fast sampling (\code{fast})}
 \item{spec}{Horseshoe specification defined by \code{\link[=set_horseshoe]{set_horseshoe()}}}
 \item{chain}{The numer of chains}
 \item{iter}{Total iterations}

@@ -15,8 +15,8 @@
 #' @param cov_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` (default) type.
-#' You can also set `"no"`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `short` type and `longrun` (default) type.
+#' You can also set `no`.
 #' @param save_init Save every record starting from the initial values (`TRUE`).
 #' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
 #' If `num_burn > 0` or `thinning != 1`, this option is ignored.
@@ -42,8 +42,8 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VHAR_SSVS_SV", `"VHAR_Horseshoe_SV", or `"VHAR_minnesota-part_SV"}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{process}{Description of the model, e.g. `VHAR_SSVS_SV`, `VHAR_Horseshoe_SV`, or `VHAR_minnesota-part_SV`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{spec}{Coefficients prior specification}
 #'   \item{sv}{log volatility prior specification}
 #'   \item{init}{Initial values}
@@ -62,7 +62,7 @@
 #'   \item{pip}{Posterior inclusion probabilities.}
 #' }
 #' @references
-#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws summarise_draws

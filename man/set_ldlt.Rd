@@ -49,7 +49,7 @@ For SV (\code{\link[=set_sv]{set_sv()}}), this is for state variance.}
 \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L}
 }
 \references{
-Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137–154]}. Journal of Econometrics, 227(2), 506-512.
+Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137-154]}. Journal of Econometrics, 227(2), 506-512.
 
 Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press.
 }

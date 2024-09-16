@@ -82,7 +82,7 @@ Instead of these functions, you can use \code{\link[=choose_bayes]{choose_bayes(
 }
 \details{
 Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.
-These functions implement \code{"L-BFGS-B"} method of \code{\link[stats:optim]{stats::optim()}} to find the maximum of marginal likelihood.
+These functions implement \code{L-BFGS-B} method of \code{\link[stats:optim]{stats::optim()}} to find the maximum of marginal likelihood.
 
 If you want to set \code{lower} and \code{upper} option more carefully,
 deal with them like as in \code{\link[stats:optim]{stats::optim()}} in order of \code{\link[=set_bvar]{set_bvar()}}, \code{\link[=set_bvhar]{set_bvhar()}}, or \code{\link[=set_weight_bvhar]{set_weight_bvhar()}}'s argument (except \code{eps}).
@@ -95,5 +95,5 @@ Gelman, A., Carlin, J. B., Stern, H. S., & Rubin, D. B. (2013). \emph{Bayesian d
 
 Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).
 
-Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 }

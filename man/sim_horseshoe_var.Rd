@@ -30,7 +30,7 @@ sim_horseshoe_vhar(
 
 \item{minnesota}{Only use off-diagonal terms of each coefficient matrices for restriction.
 In \code{sim_horseshoe_var()} function, use \code{TRUE} or \code{FALSE} (default).
-In \code{sim_horseshoe_vhar()} function, \code{"no"} (default), \code{"short"} type, or \code{"longrun"} type.}
+In \code{sim_horseshoe_vhar()} function, \code{no} (default), \code{short} type, or \code{longrun} type.}
 
 \item{method}{Method to compute \eqn{\Sigma^{1/2}}.}
 

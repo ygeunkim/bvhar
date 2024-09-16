@@ -75,8 +75,8 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VAR_SSVS"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{process}{Description of the model, e.g. \code{VAR_SSVS}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
 \item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
 \item{chain}{The numer of chains}
@@ -106,9 +106,9 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 }
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881-889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553-580.
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267-358.
 }

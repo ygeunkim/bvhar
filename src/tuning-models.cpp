@@ -44,7 +44,7 @@ double logml_stable(Rcpp::List object) {
 //' 
 //' Compute AIC using RSS
 //' 
-//' @param object `varlse` or `vharlse` object
+//' @param object A `varlse` or `vharlse` object
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -65,7 +65,7 @@ double compute_aic(Rcpp::List object) {
 //' 
 //' Compute BIC using RSS
 //' 
-//' @param object `varlse` or `vharlse` object
+//' @param object A `varlse` or `vharlse` object
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -86,7 +86,7 @@ double compute_bic(Rcpp::List object) {
 //' 
 //' Compute HQ using RSS
 //' 
-//' @param object `varlse` or `vharlse` object
+//' @param object A `varlse` or `vharlse` object
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -107,7 +107,7 @@ double compute_hq(Rcpp::List object) {
 //' 
 //' Compute FPE using RSS
 //' 
-//' @param object `varlse` or `vharlse` object
+//' @param object A `varlse` or `vharlse` object
 //' 
 //' @noRd
 // [[Rcpp::export]]

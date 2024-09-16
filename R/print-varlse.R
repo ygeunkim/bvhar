@@ -1,5 +1,5 @@
 #' @rdname var_lm
-#' @param x `varlse` object
+#' @param x A `varlse` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2

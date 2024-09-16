@@ -44,7 +44,7 @@ bvar_horseshoe(
 
 \item{minnesota}{Minnesota type}
 
-\item{algo}{Ordinary gibbs sampling (\code{"gibbs"}) or blocked gibbs (Default: \code{"block"}).}
+\item{algo}{Ordinary gibbs sampling (\code{gibbs}) or blocked gibbs (Default: \code{block}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -73,9 +73,9 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VAR_Horseshoe"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{algo}{Usual Gibbs sampling (\code{"gibbs"}) or fast sampling (\code{"fast"})}
+\item{process}{Description of the model, e.g. \code{VAR_Horseshoe}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{algo}{Usual Gibbs sampling (\code{gibbs}) or fast sampling (\code{fast})}
 \item{spec}{Horseshoe specification defined by \code{\link[=set_horseshoe]{set_horseshoe()}}}
 \item{chain}{The numer of chains}
 \item{iter}{Total iterations}
@@ -92,7 +92,7 @@ It is a list with the following components:
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function fits BVAR(p) with horseshoe prior.
 }
 \references{
-Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465–480.
+Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465-480.
 
-Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179–182.
+Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179-182.
 }

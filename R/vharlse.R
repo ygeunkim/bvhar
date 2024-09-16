@@ -6,10 +6,12 @@
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param method Method to solve linear equation system.
-#' (`"nor"`: normal equation (default), `"chol"`: Cholesky, and `"qr"`: HouseholderQR)
+#' (`nor`: normal equation (default), `chol`: Cholesky, and `qr`: HouseholderQR)
 #' @details 
 #' For VHAR model
+#' 
 #' \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
+#' 
 #' the function gives basic values.
 #' @return `vhar_lm()` returns an object named `vharlse` [class].
 #' It is a list with the following components:
@@ -19,29 +21,29 @@
 #'   \item{fitted.values}{Fitted response values}
 #'   \item{residuals}{Residuals}
 #'   \item{covmat}{LS estimate for covariance matrix}
-#'   \item{df}{Numer of Coefficients: 3m + 1 or 3m}
+#'   \item{df}{Numer of Coefficients}
 #'   \item{m}{Dimension of the data}
-#'   \item{obs}{Sample size used when training = `totobs` - 22}
-#'   \item{y0}{\eqn{Y_0}}
+#'   \item{obs}{Sample size used when training = `totobs` - `month`}
+#'   \item{y0}{Multivariate response matrix}
 #'   \item{p}{3 (The number of terms. `vharlse` contains this element for usage in other functions.)}
 #'   \item{week}{Order for weekly term}
 #'   \item{month}{Order for monthly term}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{process}{Process: VHAR}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
-#'   \item{design}{\eqn{X_0}}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
+#'   \item{HARtrans}{VHAR linear transformation matrix}
+#'   \item{design}{Design matrix of VAR(`month`)}
 #'   \item{y}{Raw input}
 #'   \item{method}{Solving method}
 #'   \item{call}{Matched call}
 #' }
 #' It is also a `bvharmod` class.
 #' @references 
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510.
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495-510.
 #' 
-#' Bubák, V., Kočenda, E., & Žikeš, F. (2011). *Volatility transmission in emerging European foreign exchange markets*. Journal of Banking & Finance, 35(11), 2829–2841.
+#' Bubák, V., Kočenda, E., & Žikeš, F. (2011). *Volatility transmission in emerging European foreign exchange markets*. Journal of Banking & Finance, 35(11), 2829-2841.
 #' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196.
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174-196.
 #' @seealso 
 #' * [coef.vharlse()], [residuals.vharlse()], and [fitted.vharlse()]
 #' * [summary.vharlse()] to summarize VHAR model

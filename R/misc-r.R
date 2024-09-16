@@ -16,7 +16,7 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
 #' 
 #' Split `coefficients` into matrix list.
 #' 
-#' @param object `bvharmod` object
+#' @param object A `bvharmod` object
 #' @param ... not used
 #' @details 
 #' Each result of [var_lm()], [vhar_lm()], [bvar_minnesota()], [bvar_flat()], and [bvhar_minnesota()] is a subclass of `bvharmod`.
@@ -76,7 +76,7 @@ change_to_list <- function(init_array) {
 #' This function checks if the list of parallel initial matrices are identical.
 #' 
 #' @param init_list List of parallel initial matrix
-#' @param case Check dimension (`"dim"`) or values (`"values"`).
+#' @param case Check dimension (`dim`) or values (`values`).
 #' 
 #' @noRd
 isnot_identical <- function(init_list, case = c("dim", "values")) {

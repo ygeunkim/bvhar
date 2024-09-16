@@ -82,7 +82,8 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS_SV}, \code{VHAR_Horseshoe_SV}, or \code{VHAR_minnesota-part_SV}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{Coefficients prior specification}
 \item{sv}{log volatility prior specification}
 \item{intercept}{Intercept prior specification}
@@ -112,17 +113,17 @@ Cholesky stochastic volatility modeling for VAR based on
 and implements corrected triangular algorithm for Gibbs sampler.
 }
 \references{
-Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137–154]}. Journal of Econometrics, 227(2), 506-512.
+Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137-154]}. Journal of Econometrics, 227(2), 506-512.
 
 Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press.
 
-Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302.
+Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262-302.
 
 Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!} arXiv.
 
-Huber, F., Koop, G., & Onorante, L. (2021). \emph{Inducing Sparsity and Shrinkage in Time-Varying Parameter Models}. Journal of Business & Economic Statistics, 39(3), 669–683.
+Huber, F., Koop, G., & Onorante, L. (2021). \emph{Inducing Sparsity and Shrinkage in Time-Varying Parameter Models}. Journal of Business & Economic Statistics, 39(3), 669-683.
 
-Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230–354.
+Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230-354.
 
 Ray, P., & Bhattacharya, A. (2018). \emph{Signal Adaptive Variable Selector for the Horseshoe Prior}. arXiv.
 }

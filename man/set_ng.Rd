@@ -45,12 +45,12 @@ is.ngspec(x)
 \code{ngspec} object
 }
 \description{
-Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 }
 \references{
-Chan, J. C. C. (2021). \emph{Minnesota-type adaptive hierarchical priors for large Bayesian VARs}. International Journal of Forecasting, 37(3), 1212–1226.
+Chan, J. C. C. (2021). \emph{Minnesota-type adaptive hierarchical priors for large Bayesian VARs}. International Journal of Forecasting, 37(3), 1212-1226.
 
-Huber, F., & Feldkircher, M. (2019). \emph{Adaptive Shrinkage in Bayesian Vector Autoregressive Models}. Journal of Business & Economic Statistics, 37(1), 27–39.
+Huber, F., & Feldkircher, M. (2019). \emph{Adaptive Shrinkage in Bayesian Vector Autoregressive Models}. Journal of Business & Economic Statistics, 37(1), 27-39.
 
-Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230–354.
+Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230-354.
 }

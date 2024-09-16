@@ -7,7 +7,7 @@
 \method{autoplot}{summary.bvharsp}(object, point = FALSE, ...)
 }
 \arguments{
-\item{object}{\code{summary.bvharsp} object}
+\item{object}{A \code{summary.bvharsp} object}
 
 \item{point}{Use point for sparsity representation}
 

@@ -21,7 +21,7 @@
 #' @references 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897.
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897.
 #' 
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25.
 #' @examples 
@@ -119,7 +119,7 @@ sim_mncoef <- function(p, bayes_spec = set_bvar(), full = TRUE) {
 #'   \item{coefficients}{BVHAR coefficient (MN)}
 #'   \item{covmat}{BVHAR variance (IW or diagonal matrix of `sigma` of `bayes_spec`)}
 #' }
-#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @examples 
 #' # Generate (Phi, Sigma)
 #' # BVHAR-S
@@ -233,7 +233,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Only use off-diagonal terms of each coefficient matrices for restriction.
 #' In `sim_ssvs_var()` function, use `TRUE` or `FALSE` (default).
-#' In `sim_ssvs_vhar()` function, `"no"` (default), `"short"` type, or `"longrun"` type.
+#' In `sim_ssvs_vhar()` function, `no` (default), `short` type, or `longrun` type.
 #' @param mn_prob Probability for own-lags.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' @section VAR(p) with SSVS prior:
@@ -245,13 +245,13 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 #' \deqn{(\psi_{ii}^2)}
 #' @return List including coefficients.
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526).
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @importFrom stats rbinom rnorm rgamma
 #' @export
 sim_ssvs_var <- function(bayes_spec,
@@ -501,7 +501,7 @@ sim_ssvs_vhar <- function(bayes_spec,
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Only use off-diagonal terms of each coefficient matrices for restriction.
 #' In `sim_horseshoe_var()` function, use `TRUE` or `FALSE` (default).
-#' In `sim_horseshoe_vhar()` function, `"no"` (default), `"short"` type, or `"longrun"` type.
+#' In `sim_horseshoe_vhar()` function, `no` (default), `short` type, or `longrun` type.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
 #' @importFrom stats rbinom rnorm rgamma
 #' @export

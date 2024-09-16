@@ -75,7 +75,7 @@ is.bvharmn(x)
 
 \item{...}{not used}
 
-\item{object}{\code{bvharmn} object}
+\item{object}{A \code{bvharmn} object}
 }
 \value{
 \code{bvhar_minnesota()} returns an object \code{bvharmn} \link{class}.
@@ -102,11 +102,11 @@ It is a list with the following components:
 \item{week}{Order for weekly term}
 \item{month}{Order for monthly term}
 \item{totobs}{Total number of the observation}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 \item{y}{Raw input (\code{matrix})}
 \item{call}{Matched call}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVHAR_MN_VAR"} (BVHAR-S) or \code{"BVHAR_MN_VHAR"} (BVHAR-L)}
+\item{process}{Process string in the \code{bayes_spec}: \code{BVHAR_MN_VAR} (BVHAR-S) or \code{BVHAR_MN_VHAR} (BVHAR-L)}
 \item{spec}{Model specification (\code{bvharspec})}
 }
 It is also \code{normaliw} and \code{bvharmod} class.
@@ -138,7 +138,7 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 }
 \seealso{
 \itemize{
