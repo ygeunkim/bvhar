@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of SSVS Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+#' `r lifecycle::badge("deprecated")` This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
@@ -11,7 +11,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()]. By default, use a default semiautomatic approach [choose_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()]. By default, use OLS for coefficient and cholesky factor while 1 for dummies.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `short` type and `longrun` type. By default, `no`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details 
@@ -27,25 +27,17 @@
 #' \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 #' 
 #' Gibbs sampler is used for the estimation.
-#' See [ssvs_bvar_algo] how it works.
 #' @return `bvhar_ssvs` returns an object named `bvharssvs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with [posterior::draws_df] format.}
-#'   \item{eta_record}{MCMC trace for upper triangular element of cholesky factor (eta \eqn{\eta}) with [posterior::draws_df] format.}
-#'   \item{psi_record}{MCMC trace for diagonal element of cholesky factor (psi \eqn{\psi}) with [posterior::draws_df] format.}
-#'   \item{omega_record}{MCMC trace for indicator variable for \eqn{eta} (omega \eqn{\omega}) with [posterior::draws_df] format.}
-#'   \item{gamma_record}{MCMC trace for indicator variable for \eqn{alpha} (gamma \eqn{\gamma}) with [posterior::draws_df] format.}
-#'   \item{chol_record}{MCMC trace for cholesky factor matrix \eqn{\Psi} with [list] format.}
-#'   \item{ols_coef}{OLS estimates for VAR coefficients.}
-#'   \item{ols_cholesky}{OLS estimates for cholesky factor}
 #'   \item{coefficients}{Posterior mean of VAR coefficients.}
+#'   \item{chol_posterior}{Posterior mean of cholesky factor matrix}
+#'   \item{covmat}{Posterior mean of covariance matrix}
 #'   \item{omega_posterior}{Posterior mean of omega}
 #'   \item{pip}{Posterior inclusion probability}
 #'   \item{param}{[posterior::draws_df] with every variable: alpha, eta, psi, omega, and gamma}
-#'   \item{chol_posterior}{Posterior mean of cholesky factor matrix}
-#'   \item{covmat}{Posterior mean of covariance matrix}
+#'   \item{param_names}{Name of every parameter.}
 #'   \item{df}{Numer of Coefficients: `3m + 1` or `3m`}
 #'   \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 #'   \item{week}{Order for weekly term}
@@ -54,26 +46,23 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VHAR_SSVS"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{process}{Description of the model, e.g. `VHAR_SSVS`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{spec}{SSVS specification defined by [set_ssvs()]}
 #'   \item{init}{Initial specification defined by [init_ssvs()]}
+#'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
 #'   \item{burn}{Burn-in}
 #'   \item{thin}{Thinning}
-#'   \item{chain}{The numer of chains}
+#'   \item{group}{Indicators for group.}
+#'   \item{num_group}{Number of groups.}
 #'   \item{HARtrans}{VHAR linear transformation matrix}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
-#'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
-#' @seealso 
-#' * Vectorization formulation [var_vec_formulation]
-#' * Gibbs sampler algorithm [ssvs_bvar_algo]
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
@@ -89,6 +78,7 @@ bvhar_ssvs <- function(y,
                        minnesota = c("no", "short", "longrun"),
                        verbose = FALSE,
                        num_thread = 1) {
+  deprecate_warn("2.0.1", "bvhar_ssvs()", "vhar_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -145,6 +135,16 @@ bvhar_ssvs <- function(y,
   )
   grp_id <- unique(c(glob_idmat))
   num_grp <- length(grp_id)
+  if (minnesota == "longrun") {
+    own_id <- c(2, 4, 6)
+    cross_id <- c(1, 3, 5)
+  } else if (minnesota == "short") {
+    own_id <- 2
+    cross_id <- c(1, 3, 4)
+  } else {
+    own_id <- 1
+    cross_id <- 2
+  }
   # length 1 of bayes_spec--------------
   num_eta <- dim_data * (dim_data - 1) / 2 # number of upper element of Psi
   if (length(bayes_spec$coef_spike) == 1) {
@@ -159,6 +159,20 @@ bvhar_ssvs <- function(y,
   # if (length(bayes_spec$mean_coef) == 1) {
   #   bayes_spec$mean_coef <- rep(bayes_spec$mean_coef, num_restrict)
   # }
+  if (length(bayes_spec$coef_s1) == 2) {
+    # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+    coef_s1 <- numeric(num_grp)
+    coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
+    coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
+    bayes_spec$coef_s1 <- coef_s1
+  }
+  if (length(bayes_spec$coef_s2) == 2) {
+    # bayes_spec$coef_s1 <- rep(bayes_spec$coef_s1, num_grp)
+    coef_s2 <- numeric(num_grp)
+    coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
+    coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
+    bayes_spec$coef_s2 <- coef_s2
+  }
   if (length(bayes_spec$mean_non) == 1) {
     bayes_spec$mean_non <- rep(bayes_spec$mean_non, dim_data)
   }
@@ -322,26 +336,6 @@ bvhar_ssvs <- function(y,
     )
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
-  # names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
-  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  # res$phi_record <- res$phi_record[thin_id,]
-  # res$eta_record <- res$eta_record[thin_id,]
-  # res$psi_record <- res$psi_record[thin_id,]
-  # res$omega_record <- res$omega_record[thin_id,]
-  # res$gamma_record <- res$gamma_record[thin_id,]
-  # res$coefficients <- colMeans(res$phi_record)
-  # res$omega_posterior <- colMeans(res$omega_record)
-  # res$pip <- colMeans(res$gamma_record)
-  # colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-  # colnames(res$gamma_record) <- paste0("gamma[", 1:num_restrict, "]")
-  # colnames(res$psi_record) <- paste0("psi[", 1:dim_data, "]")
-  # colnames(res$eta_record) <- paste0("eta[", 1:num_eta, "]")
-  # colnames(res$omega_record) <- paste0("omega[", 1:num_eta, "]")
-  # res$phi_record <- as_draws_df(res$phi_record)
-  # res$gamma_record <- as_draws_df(res$gamma_record)
-  # res$psi_record <- as_draws_df(res$psi_record)
-  # res$eta_record <- as_draws_df(res$eta_record)
-  # res$omega_record <- as_draws_df(res$omega_record)
   res$param <- bind_draws(
     res$phi_record,
     res$gamma_record,
@@ -349,30 +343,8 @@ bvhar_ssvs <- function(y,
     res$eta_record,
     res$omega_record
   )
-  # # Cholesky factor 3d array---------------
-  # res$chol_record <- split_psirecord(res$chol_record, 1, "cholesky")
-  # res$chol_record <- res$chol_record[thin_id] # burn in
-  # # Posterior mean-------------------------
-  # res$coefficients <- matrix(res$coefficients, ncol = dim_data)
-  # mat_upper <- matrix(0L, nrow = dim_data, ncol = dim_data)
-  # diag(mat_upper) <- rep(1L, dim_data)
-  # mat_upper[upper.tri(mat_upper, diag = FALSE)] <- res$omega_posterior
-  # res$omega_posterior <- mat_upper
-  # res$pip <- matrix(res$pip, ncol = dim_data)
-  # if (include_mean) {
-  #   res$pip <- rbind(res$pip, rep(1L, dim_data))
-  # }
-  # res$chol_posterior <- Reduce("+", res$chol_record) / length(res$chol_record)
-  # # names of posterior mean-----------------
-  # colnames(res$coefficients) <- name_var
-  # rownames(res$coefficients) <- name_har
-  # colnames(res$omega_posterior) <- name_var
-  # rownames(res$omega_posterior) <- name_var
-  # colnames(res$pip) <- name_var
-  # rownames(res$pip) <- name_har
-  # colnames(res$chol_posterior) <- name_var
-  # rownames(res$chol_posterior) <- name_var
-  # res$covmat <- solve(res$chol_posterior %*% t(res$chol_posterior))
+  res[rec_names] <- NULL
+  res$param_names <- param_names
   # variables------------
   res$df <- dim_har
   res$p <- 3
@@ -388,9 +360,9 @@ bvhar_ssvs <- function(y,
   res$spec <- bayes_spec
   res$init <- init_spec
   if (!init_gibbs) {
-    res$init$init_coef <- res$ols_coef
+    # res$init$init_coef <- res$ols_coef # fix this line -> Get OLS
     res$init$init_coef_dummy <- matrix(1L, nrow = dim_har, ncol = dim_data)
-    res$init$init_chol <- res$ols_cholesky
+    # res$init$init_chol <- res$ols_cholesky # fix this line -> Get OLS
     res$init$init_chol_dummy <- matrix(0L, nrow = dim_data, ncol = dim_data)
     res$init$init_chol_dummy[upper.tri(res$init$init_chol_dummy, diag = FALSE)] <- rep(1L, num_eta)
   }

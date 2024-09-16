@@ -8,16 +8,16 @@ print.bvharspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) 
   cat(paste0("Model Specification for ", x$process, "\n\n"))
   cat("Parameters: Coefficent matrice and Covariance matrix\n")
   cat(paste0("Prior: ", x$prior, "\n"))
-  fit_func <- switch(
-    x$prior,
-    "Minnesota" = "?bvar_minnesota",
-    "Flat" = "?bvar_flat",
-    "MN_VAR" = "?bvhar_minnesota",
-    "MN_VHAR" = "?bvhar_minnesota",
-    "MN_Hierarchical" = "?bvar_",
-    stop("Invalid 'x$prior' element")
-  )
-  cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
+  # fit_func <- switch(
+  #   x$prior,
+  #   "Minnesota" = "?bvar_minnesota",
+  #   "Flat" = "?bvar_flat",
+  #   "MN_VAR" = "?bvhar_minnesota",
+  #   "MN_VHAR" = "?bvhar_minnesota",
+  #   "MN_Hierarchical" = "?bvar_",
+  #   stop("Invalid 'x$prior' element")
+  # )
+  # cat(paste0("# Type '", fit_func, "' in the console for some help.", "\n"))
   cat("========================================================\n\n")
   param <- x[!(names(x) %in% c("process", "prior"))]
   for (i in seq_along(param)) {
@@ -421,13 +421,59 @@ knit_print.horseshoespec <- function(x, ...) {
   print(x)
 }
 
-#' @rdname set_sv
-#' @param x `svspec`
+#' @rdname set_ng
+#' @param x `ngspec`
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
 #' @export
-print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.ngspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix and Contemporaneous coefficient\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    print.default(
+      param[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+  }
+}
+
+#' @rdname set_dl
+#' @param x `dlspec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.dlspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
+  cat("Parameters: Coefficent matrix and Contemporaneous coefficient\n")
+  cat(paste0("Prior: ", x$prior, "\n"))
+  cat("========================================================\n")
+  param <- x[!(names(x) %in% c("process", "prior"))]
+  for (i in seq_along(param)) {
+    cat(paste0("Setting for '", names(param)[i], "':\n"))
+    print.default(
+      param[[i]],
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+  }
+}
+
+#' @rdname set_ldlt
+#' @param x `covspec`
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.covspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste0("Model Specification for ", x$process, " with ", x$prior, " Prior", "\n\n"))
   cat("Parameters: Contemporaneous coefficients, State variance, Initial state\n")
   cat(paste0("Prior: ", x$prior, "\n"))
@@ -475,4 +521,59 @@ print.svspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     )
     cat("\n")
   }
+}
+
+#' @rdname set_lambda
+#' @param x `bvharpriorspec` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharpriorspec <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste0("Hyperprior specification for ", x$hyperparam, "\n\n"))
+  hyper_prior <- ifelse(x$hyperparam == "lambda", "Gamma", "Inv-Gamma")
+  switch(hyper_prior,
+    "Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", rate =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    },
+    "Inv-Gamma" = {
+      print.default(
+        paste0(
+          x$hyperparam,
+          " ~ ",
+          hyper_prior,
+          "(shape = ",
+          x$param[1],
+          ", scale =",
+          x$param[2],
+          ")"
+        ),
+        digits = digits,
+        print.gap = 2L,
+        quote = FALSE
+      )
+    }
+  )
+  # cat(sprintf("with mode: %.3f", x$mode))
+  invisible(x)
+}
+
+#' @rdname set_lambda
+#' @exportS3Method knitr::knit_print
+knit_print.bvharpriorspec <- function(x, ...) {
+  print(x)
 }

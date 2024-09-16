@@ -1,7 +1,7 @@
 Package: bvhar
 Type: Package
 Title: Bayesian Vector Heterogeneous Autoregressive Modeling
-Version: 2.0.1
+Version: 2.1.0
 Authors@R: 
     c(person(given = "Young Geun",
              family = "Kim",
@@ -11,14 +11,16 @@ Authors@R:
       person(given = "Changryong",
              family = "Baek",
              role = "ctb"))
-Description: Tools to research Bayesian Vector heterogeneous autoregressive (VHAR) model,
-    referring to Kim & Baek (2023) (<doi:10.1080/00949655.2023.2281644>).
+Description: Tools to model and forecast multivariate time series
+    including Bayesian Vector heterogeneous autoregressive (VHAR) model
+    by Kim & Baek (2023) (<doi:10.1080/00949655.2023.2281644>).
     'bvhar' can model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
 License: GPL (>= 3)
 URL: https://ygeunkim.github.io/package/bvhar/, https://github.com/ygeunkim/bvhar
 BugReports: https://github.com/ygeunkim/bvhar/issues
 Suggests: 
     covr,
+    GIGrvg,
     knitr,
     parallel,
     rmarkdown,
@@ -41,7 +43,7 @@ Imports:
     posterior,
     bayesplot
 LinkingTo: 
-    BH,
+    BH (>= 1.84.0-0),
     Rcpp,
     RcppEigen(>= 0.3.4.0.0)
 VignetteBuilder: knitr

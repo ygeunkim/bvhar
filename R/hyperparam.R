@@ -68,12 +68,19 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(delta)) {
     delta <- NULL
   }
-  hiearchical <- is.bvharpriorspec(sigma)
-  if (hiearchical) {
-    if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
-      stop("When using hiearchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    # if (!all(is.bvharpriorspec(sigma) & is.bvharpriorspec(lambda))) {
+    #   stop("When using hierarchical model, each 'sigma' and 'lambda' should be 'bvharpriorspec'.")
+    # }
+    # prior_type <- "MN_Hierarchical"
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "Minnesota"
+    } else {
+      stop("Invalid hierarchical setting.")
     }
-    prior_type <- "MN_Hierarchical"
   } else {
     if (lambda <= 0) {
       stop("'lambda' should be larger than 0.")
@@ -97,10 +104,92 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     sigma = sigma,
     lambda = lambda,
     delta = delta,
-    eps = eps
+    eps = eps,
+    hierarchical = hierarchical
   )
   class(bvar_param) <- "bvharspec"
   bvar_param
+}
+
+#' Hyperpriors for Bayesian Models
+#'
+#' Set hyperpriors of Bayesian VAR and VHAR models.
+#' 
+#' @param mode Mode of Gamma distribution. By default, `.2`.
+#' @param sd Standard deviation of Gamma distribution. By default, `.4`.
+#' @param param Shape and rate of Gamma distribution, in the form of `c(shape, rate)`. If specified, ignore `mode` and `sd`.
+#' @param lower `r lifecycle::badge("experimental")` Lower bound for [stats::optim()]. By default, `1e-5`.
+#' @param upper `r lifecycle::badge("experimental")` Upper bound for [stats::optim()]. By default, `3`.
+#' @details
+#' In addition to Normal-IW priors [set_bvar()], [set_bvhar()], and [set_weight_bvhar()],
+#' these functions give hierarchical structure to the model.
+#' * `set_lambda()` specifies hyperprior for \eqn{\lambda} (`lambda`), which is Gamma distribution.
+#' * `set_psi()` specifies hyperprior for \eqn{\psi / (\nu_0 - k - 1) = \sigma^2} (`sigma`), which is Inverse gamma distribution.
+#' @examples
+#' # Hirearchical BVAR specification------------------------
+#' set_bvar(
+#'   sigma = set_psi(shape = 4e-4, scale = 4e-4),
+#'   lambda = set_lambda(mode = .2, sd = .4),
+#'   delta = rep(1, 3),
+#'   eps = 1e-04 # eps = 1e-04
+#' )
+#' @return `bvharpriorspec` object
+#' @references Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
+#' @order 1
+#' @export
+set_lambda <- function(mode = .2, sd = .4, param = NULL, lower = 1e-5, upper = 3) {
+  if (is.null(param)) {
+    params <- get_gammaparam(mode, sd)
+    # param <- c(params$shape, params$rate)
+    lam_prior <- list(
+      hyperparam = "lambda",
+      param = c(params$shape, params$rate),
+      mode = mode,
+      lower = lower,
+      upper = upper
+    )
+  } else {
+    mode <- ifelse(param[1] >= 1, (param[1] - 1) / param[2], 0)
+    lam_prior <- list(
+      hyperparam = "lambda",
+      param = param
+    )
+  }
+  # lam_prior <- list(
+  #   hyperparam = "lambda",
+  #   param = param,
+  #   mode = mode,
+  #   lower = lower,
+  #   upper = upper
+  # )
+  class(lam_prior) <- "bvharpriorspec"
+  lam_prior
+}
+
+#' @rdname set_lambda
+#' @param shape Shape of Inverse Gamma distribution. By default, `(.02)^2`.
+#' @param scale Scale of Inverse Gamma distribution. By default, `(.02)^2`.
+#' @param lower `r lifecycle::badge("experimental")` Lower bound for [stats::optim()]. By default, `1e-5`.
+#' @param upper `r lifecycle::badge("experimental")` Upper bound for [stats::optim()]. By default, `3`.
+#' @details
+#' The following set of `(mode, sd)` are recommended by Sims and Zha (1998) for `set_lambda()`.
+#' * `(mode = .2, sd = .4)`: default
+#' * `(mode = 1, sd = 1)`
+#'
+#' Giannone et al. (2015) suggested data-based selection for `set_psi()`.
+#' It chooses (0.02)^2 based on its empirical data set.
+#' @order 1
+#' @export
+set_psi <- function(shape = 4e-4, scale = 4e-4, lower = 1e-5, upper = 3) {
+  psi_prior <- list(
+    hyperparam = "psi",
+    param = c(shape, scale),
+    mode = scale / (shape + 1),
+    lower = lower,
+    upper = upper
+  )
+  class(psi_prior) <- "bvharpriorspec"
+  psi_prior
 }
 
 #' @rdname set_bvar
@@ -148,7 +237,7 @@ set_bvar_flat <- function(U) {
 #' )
 #' class(bvhar_var_spec)
 #' str(bvhar_var_spec)
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @order 1
 #' @export
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
@@ -158,18 +247,31 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
   if (missing(delta)) {
     delta <- NULL
   }
-  if (length(sigma) > 0 & length(delta) > 0) {
-    if (length(sigma) != length(delta)) {
-      stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "MN_VAR"
+    } else {
+      stop("Invalid hierarchical setting.")
     }
+  } else {
+    if (length(sigma) > 0 && length(delta) > 0) {
+      if (length(sigma) != length(delta)) {
+        stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
+      }
+    }
+    prior_type <- "MN_VAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     delta = delta,
-    eps = eps
+    eps = eps,
+    hierarchical = hierarchical
   )
   class(bvhar_param) <- "bvharspec"
   bvhar_param
@@ -190,7 +292,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #'   \item{weekly}{Vector value assigned for weekly weight}
 #'   \item{monthly}{Vector value assigned for monthly weight}
 #' }
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @examples 
 #' # BVHAR-L specification---------------------------
 #' bvhar_vhar_spec <- set_weight_bvhar(
@@ -223,44 +325,57 @@ set_weight_bvhar <- function(sigma,
   if (missing(monthly)) {
     monthly <- NULL
   }
-  if (length(sigma) > 0) {
-    if (length(daily) > 0) {
-      if (length(sigma) != length(daily)) {
-        stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+  hierarchical <- is.bvharpriorspec(lambda)
+  if (hierarchical) {
+    if (all(is.bvharpriorspec(sigma) | is.bvharpriorspec(lambda))) {
+      prior_type <- "MN_Hierarchical"
+    } else if (is.bvharpriorspec(lambda)) {
+      prior_type <- "MN_VHAR"
+    } else {
+      stop("Invalid hierarchical setting.")
+    }
+  } else {
+    if (length(sigma) > 0) {
+      if (length(daily) > 0) {
+        if (length(sigma) != length(daily)) {
+          stop("Length of 'sigma' and 'daily' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(weekly) > 0) {
+        if (length(sigma) != length(weekly)) {
+          stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
+        }
+      }
+      if (length(monthly) > 0) {
+        if (length(sigma) != length(monthly)) {
+          stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
+        }
       }
     }
-    if (length(weekly) > 0) {
-      if (length(sigma) != length(weekly)) {
-        stop("Length of 'sigma' and 'weekly' must be the same as the dimension of the time series.")
-      }
-    }
-    if (length(monthly) > 0) {
-      if (length(sigma) != length(monthly)) {
-        stop("Length of 'sigma' and 'monthly' must be the same as the dimension of the time series.")
-      }
-    }
+    prior_type <- "MN_VHAR"
   }
   bvhar_param <- list(
     process = "BVHAR",
-    prior = "MN_VHAR",
+    prior = prior_type,
     sigma = sigma,
     lambda = lambda,
     eps = eps,
     daily = daily,
     weekly = weekly,
-    monthly = monthly
+    monthly = monthly,
+    hierarchical = hierarchical
   )
   class(bvhar_param) <- "bvharspec"
   bvhar_param
 }
 
 #' Prior for Constant Term
-#' 
+#'
 #' Set Normal prior hyperparameters for constant term
-#' 
+#'
 #' @param mean Normal mean of constant term
 #' @param sd Normal standard deviance for constant term
-#' 
+#'
 #' @order 1
 #' @export
 set_intercept <- function(mean = 0, sd = .1) {
@@ -284,21 +399,35 @@ set_intercept <- function(mean = 0, sd = .1) {
 }
 
 #' Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor
-#' 
+#'
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
-#' 
-#' @param coef_spike Standard deviance for Spike normal distribution (See Details).
-#' @param coef_slab Standard deviance for Slab normal distribution (See Details).
-#' @param coef_mixture Bernoulli parameter for sparsity proportion (See Details).
+#'
+#' @param coef_spike `r lifecycle::badge("deprecated")` Standard deviance for Spike normal distribution.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param coef_slab `r lifecycle::badge("deprecated")` Standard deviance for Slab normal distribution.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param coef_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd
+#' @param coef_slab_shape Inverse gamma shape for slab sd
+#' @param coef_slab_scl Inverse gamma scale for slab sd
+#' @param coef_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param coef_s1 First shape of coefficients prior beta distribution
 #' @param coef_s2 Second shape of coefficients prior beta distribution
-#' @param mean_non Prior mean of unrestricted coefficients
-#' @param sd_non Standard deviance for unrestricted coefficients
+#' @param mean_non `r lifecycle::badge("deprecated")` Prior mean of unrestricted coefficients
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param sd_non `r lifecycle::badge("deprecated")` Standard deviance for unrestricted coefficients
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
-#' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor (See Details).
-#' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor (See Details).
-#' @param chol_mixture Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
+#' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor.
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
+#' @param chol_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor
+#' @param chol_slab_shape Inverse gamma shape for slab sd in the cholesky factor
+#' @param chol_slab_scl Inverse gamma scale for slab sd in the cholesky factor
+#' @param chol_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
+#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param chol_s1 First shape of cholesky factor prior beta distribution
 #' @param chol_s2 Second shape of cholesky factor prior beta distribution
 #' @details 
@@ -338,24 +467,32 @@ set_intercept <- function(mean = 0, sd = .1) {
 #' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
 #' @return `ssvsinput` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Ishwaran, H., & Rao, J. S. (2005). *Spike and slab variable selection: Frequentist and Bayesian strategies*. The Annals of Statistics, 33(2).
+#' 
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
-set_ssvs <- function(coef_spike = .1, 
-                     coef_slab = 5, 
+set_ssvs <- function(coef_spike = .1,
+                     coef_slab = 5,
+                     coef_spike_scl = .01,
+                     coef_slab_shape = .01,
+                     coef_slab_scl = .01,
                      coef_mixture = .5,
-                     coef_s1 = 1,
-                     coef_s2 = 1,
+                     coef_s1 = c(1, 1),
+                     coef_s2 = c(1, 1),
                      mean_non = 0,
                      sd_non = .1,
                      shape = .01,
                      rate = .01,
                      chol_spike = .1,
                      chol_slab = 5,
+                     chol_spike_scl = .01,
+                     chol_slab_shape = .01,
+                     chol_slab_scl = .01,
                      chol_mixture = .5,
                      chol_s1 = 1,
                      chol_s2 = 1) {
@@ -367,11 +504,30 @@ set_ssvs <- function(coef_spike = .1,
     is.vector(mean_non))) {
     stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
   }
-  if (!(length(coef_s1) == 1 &&
-    length(coef_s2) == 1 &&
-    length(chol_s1) == 1 &&
-    length(chol_s2 == 1))) {
-    stop("'coef_s1', 'coef_s2', 'chol_s1', and 'chol_s2' should be length 1 numeric.")
+  if (!(length(chol_s1) == 1 && length(chol_s2 == 1))) {
+    stop("'chol_s1' and 'chol_s2' should be length 1 numeric.")
+  }
+  if (!(length(coef_spike_scl) == 1 && length(chol_spike_scl) == 1)) {
+    stop("'*_spike_scl' should be length 1 numeric.")
+  }
+  if (!(coef_spike_scl > 0 && coef_spike_scl < 1 && chol_spike_scl > 0 && chol_spike_scl < 1)) {
+    stop("'*_spike_scl' should be between 0 and 1.")
+  }
+  if (!(length(coef_slab_shape) == 1 && length(coef_slab_scl) == 1 && length(chol_slab_shape) == 1 && length(chol_slab_scl) == 1)) {
+    stop("'*_slab_*' should be length 1 numeric.")
+  }
+  # if (length(coef_s1) != length(coef_s2)) {
+  #   stop("'coef_s1' and 'coef_s2' should have the same length.")
+  # }
+  if (!(length(coef_s1) == 2 &&
+    length(coef_s2 == 2))) {
+    stop("'coef_s1' and 'coef_s2' should be length 2 numeric, each indicating own and cross lag.")
+  }
+  if (coef_s1[1] < coef_s2[1]) {
+    stop("'coef_s1[1]' should be same or larger than 'coef_s2[1]'.") # own-lag
+  }
+  if (coef_s1[2] > coef_s2[2]) {
+    stop("'coef_s1[2]' should be same or smaller than 'coef_s2[2]'.") # cross-lag
   }
   if (length(sd_non) != 1) {
     stop("'sd_non' should be length 1 numeric.")
@@ -395,6 +551,9 @@ set_ssvs <- function(coef_spike = .1,
     coef_spike = coef_spike,
     coef_slab = coef_slab,
     coef_mixture = coef_mixture,
+    coef_spike_scl = coef_spike_scl,
+    coef_slab_shape = coef_slab_shape,
+    coef_slab_scl = coef_slab_scl,
     coef_s1 = coef_s1,
     coef_s2 = coef_s2
   )
@@ -432,6 +591,9 @@ set_ssvs <- function(coef_spike = .1,
     chol_spike = chol_spike, 
     chol_slab = chol_slab,
     chol_mixture = chol_mixture,
+    chol_spike_scl = chol_spike_scl,
+    chol_slab_shape = chol_slab_shape,
+    chol_slab_scl = chol_slab_scl,
     chol_s1 = chol_s1,
     chol_s2 = chol_s2,
     process = "VAR",
@@ -453,13 +615,13 @@ set_ssvs <- function(coef_spike = .1,
 
 #' Initial Parameters of Stochastic Search Variable Selection (SSVS) Model
 #' 
-#' Set initial parameters before starting Gibbs sampler for SSVS.
+#' `r lifecycle::badge("deprecated")` Set initial parameters before starting Gibbs sampler for SSVS.
 #' 
 #' @param init_coef Initial coefficient matrix. Initialize with an array or list for multiple chains.
 #' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
 #' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
 #' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
-#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `"user"` (User-given) and `"auto"` (OLS for coefficients and 1 for dummy).
+#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `user` (User-given) and `auto` (OLS for coefficients and 1 for dummy).
 #' @details 
 #' Set SSVS initialization for the VAR model.
 #' 
@@ -473,11 +635,11 @@ set_ssvs <- function(coef_spike = .1,
 #' For parallel chain initialization, assign three-dimensional array or three-length list.
 #' @return `ssvsinit` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
 init_ssvs <- function(init_coef,
@@ -485,6 +647,7 @@ init_ssvs <- function(init_coef,
                       init_chol,
                       init_chol_dummy,
                       type = c("user", "auto")) {
+  deprecate_warn("2.0.1", "init_ssvs()", details = "'bvar_ssvs()' and 'bvhar_ssvs()' are deprecated. 'var_bayes()' and 'vhar_bayes()' initialize gibbs sampler in random.")
   type <- match.arg(type)
   if (type == "auto") {
     init_coef <- NULL
@@ -531,27 +694,28 @@ init_ssvs <- function(init_coef,
 }
 
 #' Horseshoe Prior Specification
-#' 
+#'
 #' Set initial hyperparameters and parameter before starting Gibbs sampler for Horseshoe prior.
-#' 
+#'
 #' @param local_sparsity Initial local shrinkage hyperparameters
+#' @param group_sparsity Initial group shrinkage hyperparameters
 #' @param global_sparsity Initial global shrinkage hyperparameter
-#' @details 
+#' @details
 #' Set horseshoe prior initialization for VAR family.
-#' 
-#' * `local_sparsity`: Local shrinkage for each row of coefficients matrix.
-#' * `global_sparsity`: (Initial) global shrinkage.
-#' * `init_cov`: Initial covariance matrix.
-#' 
+#'
+#' * `local_sparsity`: Initial local shrinkage
+#' * `group_sparsity`: Initial group shrinkage
+#' * `global_sparsity`: Initial global shrinkage
+#'
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.
-#' @references 
-#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480.
-#' 
-#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
+#' @references
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465-480.
+#'
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179-182.
 #' @order 1
 #' @export
-set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
+set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsity = 1) {
   if (!is.vector(local_sparsity)) {
     stop("'local_sparsity' should be a vector.")
   }
@@ -571,22 +735,144 @@ set_horseshoe <- function(local_sparsity = 1, global_sparsity = 1) {
     process = "VAR",
     prior = "Horseshoe",
     local_sparsity = local_sparsity,
-    global_sparsity = global_sparsity#,init_cov = init_cov
+    group_sparsity = group_sparsity,
+    global_sparsity = global_sparsity # ,init_cov = init_cov
   )
   class(res) <- "horseshoespec"
   res
 }
 
-#' Stochastic Volatility Specification
+#' Normal-Gamma Hyperparameter for Coefficients and Contemporaneous Coefficients
+#'
+#' `r lifecycle::badge("experimental")` Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#'
+#' @param shape_sd Standard deviation used in MH of Gamma shape
+#' @param group_shape Inverse gamma prior shape for coefficient group shrinkage
+#' @param group_scale Inverse gamma prior scale for coefficient group shrinkage
+#' @param global_shape Inverse gamma prior shape for coefficient global shrinkage
+#' @param global_scale Inverse gamma prior scale for coefficient global shrinkage
+#' @param contem_global_shape Inverse gamma prior shape for contemporaneous coefficient global shrinkage
+#' @param contem_global_scale Inverse gamma prior scale for contemporaneous coefficient global shrinkage
+#' @return `ngspec` object
+#' @references
+#' Chan, J. C. C. (2021). *Minnesota-type adaptive hierarchical priors for large Bayesian VARs*. International Journal of Forecasting, 37(3), 1212-1226.
 #' 
-#' `r lifecycle::badge("experimental")` Set SV hyperparameters.
+#' Huber, F., & Feldkircher, M. (2019). *Adaptive Shrinkage in Bayesian Vector Autoregressive Models*. Journal of Business & Economic Statistics, 37(1), 27-39.
 #' 
-#' @param ig_shape Inverse-Gamma shape of state variance.
-#' @param ig_scl Inverse-Gamma scale of state variance.
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
+#' @order 1
+#' @export
+set_ng <- function(shape_sd = .01,
+                   group_shape = .01,
+                   group_scale = .01,
+                   global_shape = .01,
+                   global_scale = .01,
+                   contem_global_shape = .01,
+                   contem_global_scale = .01) {
+  # if (!(is.vector(local_shape) && is.vector(contem_shape))) {
+  #   stop("'local_shape' and 'contem_shape' should be a vector.")
+  # }
+  if (!(
+    length(shape_sd) == 1 &&
+      length(group_shape) == 1 &&
+      length(group_scale) == 1 &&
+      length(global_shape) == 1 &&
+      length(global_scale) == 1 &&
+      length(contem_global_shape) == 1 &&
+      length(contem_global_scale) == 1
+  )) {
+    stop("'group_shape', 'group_scale', 'global_shape', 'global_scale', 'contem_global_shape' and 'contem_global_scale' should be length 1 numeric.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "NG",
+    shape_sd = shape_sd,
+    # local_shape = local_shape,
+    group_shape = group_shape,
+    group_scale = group_scale,
+    global_shape = global_shape,
+    global_scale = global_scale,
+    # contem_shape = contem_shape,
+    contem_global_shape = contem_global_shape,
+    contem_global_scale = contem_global_scale
+  )
+  class(res) <- "ngspec"
+  res
+}
+
+#' Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients
+#'
+#' `r lifecycle::badge("experimental")` Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#'
+#' @param dir_grid Griddy gibbs grid size for Dirichlet hyperparameter
+#' @param shape Gamma shape
+#' @param rate Gamma rate
+#' @return `dlspec` object
+#' @references
+#' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet-Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479-1490.
+#'
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
+#' @order 1
+#' @export
+set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
+  if (!(length(dir_grid) == 1 && length(shape) == 1 && length(rate) == 1)) {
+    stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
+  }
+  if (dir_grid %% 1 != 0) {
+    stop("Provide integer for 'dir_grid'.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "DL",
+    # dirichlet = dirichlet,
+    # contem_dirichlet = contem_dirichlet,
+    grid_size = dir_grid,
+    shape = shape,
+    rate = rate
+  )
+  class(res) <- "dlspec"
+  res
+}
+
+#' Covariance Matrix Prior Specification
+#'
+#' `r lifecycle::badge("experimental")` Set prior for covariance matrix.
+#'
+#' @param ig_shape Inverse-Gamma shape of Cholesky diagonal vector.
+#' For SV ([set_sv()]), this is for state variance.
+#' @param ig_scl Inverse-Gamma scale of Cholesky diagonal vector.
+#' For SV ([set_sv()]), this is for state variance.
+#' @details
+#' [set_ldlt()] specifies LDLT of precision matrix,
+#' \deqn{\Sigma^{-1} = L^T D^{-1} L}
+#' @order 1
+#' @export
+set_ldlt <- function(ig_shape = 3, ig_scl = .01) {
+  if (!is.vector(ig_shape) ||
+    !is.vector(ig_scl)) {
+    stop("'ig_shape' and 'ig_scl' should be a vector.")
+  }
+  if ((length(ig_shape) != length(ig_scl))) {
+    stop("'ig_shape' and 'ig_scl' should have same length.")
+  }
+  res <- list(
+    process = "Homoskedastic",
+    prior = "Cholesky",
+    shape = ig_shape,
+    scale = ig_scl
+  )
+  class(res) <- c("ldltspec", "covspec")
+  res
+}
+
+#' @rdname set_ldlt
 #' @param initial_mean Prior mean of initial state.
 #' @param initial_prec Prior precision of initial state.
+#' @details
+#' [set_sv()] specifices time varying precision matrix under stochastic volatility framework based on
+#' \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L}
 #' @references
-#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137-154\]*. Journal of Econometrics, 227(2), 506-512.
 #'
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' @order 1
@@ -618,6 +904,6 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
     initial_mean = initial_mean,
     initial_prec = initial_prec
   )
-  class(res) <- "svspec"
+  class(res) <- c("svspec", "covspec")
   res
 }

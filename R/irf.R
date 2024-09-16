@@ -10,11 +10,11 @@
 #' @param ... not used
 #' @return `bvharirf` [class]
 #' @export
-analyze_ir <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
-  UseMethod("analyze_ir", object)
+irf <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
+  UseMethod("irf", object)
 }
 
-#' @rdname analyze_ir
+#' @rdname irf
 #' @section Responses to forecast errors:
 #' If `orthogonal = FALSE`, the function gives \eqn{W_j} VMA representation of the process such that
 #' \deqn{Y_t = \sum_{j = 0}^\infty W_j \epsilon_{t - j}}
@@ -34,12 +34,12 @@ analyze_ir <- function(object, lag_max, orthogonal, impulse_var, response_var, .
 #' @importFrom tidyr pivot_longer
 #' @order 1
 #' @export
-analyze_ir.varlse <- function(object, 
-                              lag_max = 10, 
-                              orthogonal = TRUE, 
-                              impulse_var, 
-                              response_var,
-                              ...) {
+irf.varlse <- function(object,
+                       lag_max = 10,
+                       orthogonal = TRUE,
+                       impulse_var,
+                       response_var,
+                       ...) {
   mat_coef <- object$coefficients
   mat_irf <- matrix()
   if (orthogonal) {
@@ -95,18 +95,18 @@ analyze_ir.varlse <- function(object,
   res
 }
 
-#' @rdname analyze_ir
+#' @rdname irf
 #' @seealso [VHARtoVMA()]
 #' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
 #' @order 1
 #' @export
-analyze_ir.vharlse <- function(object, 
-                               lag_max = 10, 
-                               orthogonal = TRUE, 
-                               impulse_var, 
-                               response_var,
-                               ...) {
+irf.vharlse <- function(object, 
+                        lag_max = 10,
+                        orthogonal = TRUE,
+                        impulse_var,
+                        response_var,
+                        ...) {
   mat_coef <- object$coefficients
   mat_irf <- matrix()
   if (orthogonal) {

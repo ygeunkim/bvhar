@@ -6,8 +6,8 @@
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @details
 #' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
 #' 
@@ -37,8 +37,8 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' @param mu Location vector
 #' @param sig Scale matrix.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @return T x k matrix
 #' @export
 sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
@@ -58,15 +58,15 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @param process Process to generate error term.
-#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' `gaussian`: Normal distribution (default) or `student`: Multivariate t-distribution.
 #' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' @details 
 #' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
@@ -112,22 +112,83 @@ sim_var <- function(num_sim,
   sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param)
 }
 
+#' Generate Normal-IW Random Family
+#'
+#' This function samples normal inverse-wishart matrices.
+#'
+#' @param num_sim Number to generate
+#' @param mat_mean Mean matrix of MN
+#' @param mat_scale_u First scale matrix of MN
+#' @param mat_scale Scale matrix of IW
+#' @param shape Shape of IW
+#' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse. By default, `FALSE`.
+#' @details
+#' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
+#'
+#' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
+#' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
+#' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
+#' 4. \eqn{A_i = M + P Z_i C_i^T}
+#' @export
+sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = FALSE) {
+  res <-
+    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) %>%
+    simplify2array() %>%
+    apply(1, function(x) x)
+  names(res) <- c("mn", "iw")
+  res
+}
+
+#' Generate Generalized Inverse Gaussian Distribution
+#' 
+#' This function samples \eqn{GIG(\lambda, \psi, \chi)} random variates.
+#' 
+#' @param num_sim Number to generate
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param psi Second parameter of GIG. Should be positive.
+#' @param chi Third parameter of GIG. Should be positive.
+#' @details
+#' The density of \eqn{GIG(\lambda, \psi, \chi)} considered here is as follows.
+#' \deqn{f(x) = \frac{(\psi / \chi)^(\lambda / 2)}{2 K_{\lambda}(\sqrt{\psi \chi})} x^{\lambda - 1} \exp(-\frac{1}{2} (\frac{\chi}{x} + \psi x))}
+#' where \eqn{x > 0}.
+#' @references
+#' Hörmann, W., Leydold, J. *Generating generalized inverse Gaussian random variates*. Stat Comput 24, 547-557 (2014).
+#' 
+#' Leydold, J, Hörmann, W.. *GIGrvg: Random Variate Generator for the GIG Distribution*. R package version 0.8 (2023).
+#' @export
+sim_gig <- function(num_sim, lambda, psi, chi) {
+  if (lambda > 0) {
+    if (psi <= 0 || chi < 0) {
+      stop("When lambda > 0, it should be 'psi' > 0 and 'chi' >= 0.")
+    }
+  } else if (lambda == 0) {
+    if (psi <= 0 || chi <= 0) {
+      stop("When lambda == 0, it should be 'psi' > 0 and 'chi' > 0.")
+    }
+  } else {
+    if (psi < 0 || chi <= 0) {
+      stop("When lambda < 0, it should be 'psi' >= 0 and 'chi' > 0.")
+    }
+  }
+  sim_gig_export(num_sim, lambda, psi, chi)
+}
+
 #' Generate Multivariate Time Series Process Following VAR(p)
 #' 
 #' This function generates multivariate time series dataset that follows VAR(p).
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param vhar_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param vhar_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param week Weekly order of VHAR. By default, `5`.
 #' @param month Weekly order of VHAR. By default, `22`.
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @param process Process to generate error term.
-#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' `gaussian`: Normal distribution (default) or `student`: Multivariate t-distribution.
 #' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' @details 
 #' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.

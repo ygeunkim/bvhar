@@ -1,0 +1,88 @@
+---
+toc: false
+---
+
+:::: {.columns}
+
+::: {.column width="70%"}
+# bvhar <a href="https://github.com/ygeunkim/bvhar/tree/develop/python/"><img src="logo.png" align="right" height="138" /></a>
+
+This is a Python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
+
+The package implements C++ headers made in R package.
+Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.html).
+
+::: {.callout-note}
+`bvhar` for Python is not ready to use. This page is rendered just for testing.
+:::
+
+## Eigen and boost setting
+
+`bvhar` C++ sources uses
+
+- [`Eigen`](https://eigen.tuxfamily.org/index.php?title=Main_Page) library: for matrix computation
+- [`boost`](https://www.boost.org) library: for random generation.
+
+If you use `conda`, you can avoid manual setting of these libraries.
+Check `requirements/environment.yml` in our repo.
+Since conda provides [`eigen`](https://anaconda.org/conda-forge/eigen) and [`boost-cpp`](https://anaconda.org/conda-forge/boost-cpp), you can easily install them.
+
+Otherwise, you should set their paths by yourself; at this stage.
+
+- `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
+- `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
+
+## Installation
+
+From GitHub:
+
+```bash
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
+```
+
+## Usage
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="20%"}
+### Links
+
+[Browse source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
+
+[Report a bug](https://github.com/ygeunkim/bvhar/issues)
+
+[bvhar in R](https://ygeunkim.github.io/package/bvhar/index.html)
+
+### License
+
+[Full License](https://github.com/ygeunkim/bvhar/blob/develop/python/LICENSE)
+
+GPL (>= 3)
+
+### Community
+
+[Code of conduct](https://github.com/ygeunkim/bvhar/blob/develop/python/CODE_OF_CONDUCT.md)
+
+### Developers
+
+Young Geun Kim
+
+[More about authors...](authors.html)
+
+### Dev status
+
+<!-- badges: start -->
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Adevelop)
+[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Adevelop)
+[![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Adevelop)
+[![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/develop/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
+![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
+<!-- badges: end -->
+
+:::
+
+::::

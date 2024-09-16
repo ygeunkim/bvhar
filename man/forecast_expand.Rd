@@ -2,9 +2,40 @@
 % Please edit documentation in R/summary-forecast.R
 \name{forecast_expand}
 \alias{forecast_expand}
+\alias{forecast_expand.olsmod}
+\alias{forecast_expand.normaliw}
+\alias{forecast_expand.ldltmod}
+\alias{forecast_expand.svmod}
 \title{Out-of-sample Forecasting based on Expanding Window}
 \usage{
-forecast_expand(object, n_ahead, y_test)
+forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
+
+\method{forecast_expand}{olsmod}(object, n_ahead, y_test, num_thread = 1, ...)
+
+\method{forecast_expand}{normaliw}(object, n_ahead, y_test, num_thread = 1, use_fit = TRUE, ...)
+
+\method{forecast_expand}{ldltmod}(
+  object,
+  n_ahead,
+  y_test,
+  num_thread = 1,
+  sparse = FALSE,
+  lpl = FALSE,
+  use_fit = TRUE,
+  ...
+)
+
+\method{forecast_expand}{svmod}(
+  object,
+  n_ahead,
+  y_test,
+  num_thread = 1,
+  use_sv = TRUE,
+  sparse = FALSE,
+  lpl = FALSE,
+  use_fit = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{Model object}
@@ -12,6 +43,18 @@ forecast_expand(object, n_ahead, y_test)
 \item{n_ahead}{Step to forecast in rolling window scheme}
 
 \item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
+
+\item{num_thread}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Number of threads}
+
+\item{...}{Additional arguments.}
+
+\item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
+
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
+
+\item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
+
+\item{use_sv}{Use SV term}
 }
 \value{
 \code{predbvhar_expand} \link{class}
@@ -25,7 +68,4 @@ It moves the window ahead and forecast h-ahead in \code{y_test} set.
 }
 \references{
 Hyndman, R. J., & Athanasopoulos, G. (2021). \emph{Forecasting: Principles and practice} (3rd ed.). OTEXTS. \url{https://otexts.com/fpp3/}
-}
-\seealso{
-See \link{ts_forecasting_cv} for out-of-sample forecasting methods.
 }

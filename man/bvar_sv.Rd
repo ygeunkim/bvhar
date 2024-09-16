@@ -19,6 +19,7 @@ bvar_sv(
   include_mean = TRUE,
   minnesota = TRUE,
   save_init = FALSE,
+  convergence = NULL,
   verbose = FALSE,
   num_thread = 1
 )
@@ -54,6 +55,8 @@ bvar_sv(
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
 If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 
+\item{convergence}{Convergence threshold for rhat < convergence. By default, \code{NULL} which means no warning.}
+
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{num_thread}{Number of threads}
@@ -67,25 +70,24 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \value{
 \code{bvar_sv()} returns an object named \code{bvarsv} \link{class}.
 \describe{
-\item{alpha_record}{MCMC trace for vectorized coefficients (\eqn{\alpha}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{h_record}{MCMC trace for log-volatilities.}
-\item{a_record}{MCMC trace for contemporaneous coefficients.}
-\item{h0_record}{MCMC trace for initial log-volatilities.}
-\item{sigh_record}{MCMC trace for log-volatilities variance.}
 \item{coefficients}{Posterior mean of coefficients.}
 \item{chol_posterior}{Posterior mean of contemporaneous effects.}
-\item{pip}{Posterior inclusion probabilities.}
 \item{param}{Every set of MCMC trace.}
+\item{param_names}{Name of every parameter.}
 \item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
 \item{p}{VAR lag}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS_SV}, \code{VHAR_Horseshoe_SV}, or \code{VHAR_minnesota-part_SV}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{Coefficients prior specification}
 \item{sv}{log volatility prior specification}
+\item{intercept}{Intercept prior specification}
+\item{init}{Initial values}
 \item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
@@ -94,31 +96,27 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
-Different members are added according to priors. If it is SSVS:
+If it is SSVS or Horseshoe:
 \describe{
-\item{gamma_record}{MCMC trace for dummy variable.}
-}
-Horseshoe:
-\describe{
-\item{lambda_record}{MCMC trace for local shrinkage level.}
-\item{tau_record}{MCMC trace for global shrinkage level.}
-\item{kappa_record}{MCMC trace for shrinkage factor.}
+\item{pip}{Posterior inclusion probabilities.}
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 This function fits VAR-SV.
 It can have Minnesota, SSVS, and Horseshoe prior.
 }
 \details{
 Cholesky stochastic volatility modeling for VAR based on
-\deqn{\Sigma_t = L^T D_t^{-1} L}
+\deqn{\Sigma_t^{-1} = L^T D_t^{-1} L},
+and implements corrected triangular algorithm for Gibbs sampler.
 }
 \references{
-Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137–154]}. Journal of Econometrics, 227(2), 506-512.
+Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). \emph{Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137-154]}. Journal of Econometrics, 227(2), 506-512.
 
 Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). \emph{Bayesian Econometric Methods (2nd ed., Econometric Exercises)}. Cambridge: Cambridge University Press.
 
-Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262–302.
+Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary policies and outcomes in the post WWII US}. Review of Economic Dynamics, 8(2), 262-302.
 
 Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!} arXiv.
 }

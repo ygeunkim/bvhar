@@ -44,7 +44,7 @@ test_that("BVAR evaluation", {
     lambda = .2,
     delta = rep(.1, etf_ncol)
   )
-  fit_test_bvar <- bvar_minnesota(etf_vix, test_lag, bvar_spec)
+  fit_test_bvar <- bvar_minnesota(etf_vix, test_lag, bayes_spec = bvar_spec)
   expect_s3_class(fit_test_bvar, "bvarmn")
   
   expect_s3_class(logLik(fit_test_bvar), "logLik")

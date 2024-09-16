@@ -13,7 +13,7 @@ bibentry(
   #volume   = {},
   #number   = {},
   #pages    = {},
-  #doi = {},
+  doi = "10.32614/CRAN.package.bvhar",
   note = note,
   url = "https://cran.r-project.org/package=bvhar"
 )
@@ -26,9 +26,9 @@ bibentry(
     person(given = "Changryong", family = "Baek")
   ),
   journal = "Journal of Statistical Computation and Simulation",
-  year     = "2023",
-  #volume   = {},
-  #number   = {},
-  #pages    = {},
+  year     = "2024",
+  volume   = "94",
+  number   = "6",
+  pages    = "1139--1157",
   doi = "10.1080/00949655.2023.2281644"
 )

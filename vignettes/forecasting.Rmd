@@ -118,7 +118,7 @@ y_delta <- rep(.2, m) # delta vector (0 vector since RV stationary)
 eps <- 1e-04 # very small number
 spec_bvar <- set_bvar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
-model_bvar <- bvar_minnesota(y_train, 5, spec_bvar)
+model_bvar <- bvar_minnesota(y_train, p = 5, bayes_spec = spec_bvar)
 ```
 
 ## BVHAR

@@ -32,5 +32,5 @@ Percentage error is defined by \eqn{p_t = 100 e_t / Y_t} (100 can be omitted sin
 \deqn{MAPE = mean(\lvert p_t \rvert)}
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679-688.
 }

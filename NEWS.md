@@ -1,3 +1,77 @@
+# bvhar 2.1.0
+
+* Use Signal Adaptive Variable Selector (SAVS) to generate sparse coefficient from shrinkage priors.
+
+* `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.
+
+* `bvar_ssvs()`, `bvar_horseshoe()`, `bvar_sv()`, `bvhar_ssvs()`, `bvhar_horseshoe()`, and `bvhar_sv()` are deprecated, and will be removed in v2.1.0 with their source functions.
+
+* `set_horseshoe()` has additional setting for `group_shrinkage`. Horseshoe sampling now has additional group shrinkage level parameters.
+
+* `set_ssvs()` now additionally should specify different Beta hyperparameters for each own-lag and cross-lag.
+
+* `set_ssvs()` sets scaling factor and inverse-gamma hyperparameters for coefficients and cholesky factor slab sd.
+
+* Use full bayesian approach to SSVS spike and slab sd's instead of semi-automatic approach, in `var_bayes()` and `vhar_bayes()`.
+
+* MCMC functions return give `$param` and `$param_names`, not individual `$*_record` members.
+
+* `sim_gig()` generates Generalized Inverse Gaussian (GIG) random numbers using the algorithm of R package `GIGrvg`.
+
+## New priors
+
+* `set_dl()` specifies Dirichlet-Laplace (DL) prior in `var_bayes()` and `vhar_bayes()`.
+
+* `set_ng()` specifies Normal-Gamma (NG) prior in `var_bayes()` and `vhar_bayes()`.
+
+* `bvar_sv()` and `bvhar_sv()` supports hierarchical Minnesota prior.
+
+## Internal changes
+
+* Added regularization step in internal Normal posterior generation function against non-existing LLT case.
+
+* Added `BOOST_DISABLE_ASSERTS` flag against `boost` asserts.
+
+## Spillover effects
+
+* `spillover()` computes static spillover given model.
+
+* `dynamic_spillover()` computes dynamic spillover given model.
+
+## Forecasting
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` with LDLT models can use CI level when adding sparsity.
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` of `ldltmod` have `sparse` option to use sparsity.
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` with SV models can use CI level when adding sparsity.
+
+* `predict()`, `forecast_roll()`, and `forecast_expand()` of `svmod` have `sparse` option to use sparsity.
+
+* Out-of-sample forecasting functions are now S3 generics (`forecast_roll()` and `forecast_expand()`).
+
+* Add Rolling-window forecasting for LDLT models (`forecast_roll.ldltmod()`).
+
+* Add Expanding-window forecasting for LDLT models (`forecast_expand.ldltmod()`).
+
+* Add Rolling-window forecasting for SV models (`forecast_roll.svmod()`).
+
+* Add Expanding-window forecasting for SV models (`forecast_expand.svmod()`).
+
+* When forecasting SV models, it is available to choose whether to use time-varying covariance (`use_sv` option, which is `TRUE` by default).
+
+* `forecast_roll()` and `forecast_expand()` can implement OpenMP multithreading, except in `bvarflat` class.
+
+* If the model uses multiple chain MCMC, static schedule is used in `forecast_roll()` and dynamic schedule in `forecast_expand()`.
+
+* `sim_mniw()` output format has been changed into list of lists.
+
+* Now can use MNIW generation by including header (`std::vector<Eigen::MatrixXd> sim_mn_iw(...)`).
+
+* Compute LPL inside `forecast_roll.svmod()` and `forecast_expand.svmod()` using `lpl` option.
+
+* Instead, `lpl` method is removed.
+
 # bvhar 2.0.1
 
 * Fix internal vectorization and unvectorization behavior.

@@ -19,6 +19,7 @@ bvhar_sv(
   include_mean = TRUE,
   minnesota = c("longrun", "short", "no"),
   save_init = FALSE,
+  convergence = NULL,
   verbose = FALSE,
   num_thread = 1
 )
@@ -48,12 +49,14 @@ bvhar_sv(
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} (default) type.
-You can also set \code{"no"}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{short} type and \code{longrun} (default) type.
+You can also set \code{no}.}
 
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
 If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
+
+\item{convergence}{Convergence threshold for rhat < convergence. By default, \code{NULL} which means no warning.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -68,16 +71,12 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \value{
 \code{bvhar_sv()} returns an object named \code{bvharsv} \link{class}. It is a list with the following components:
 \describe{
-\item{phi_record}{MCMC trace for vectorized coefficients (\eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{h_record}{MCMC trace for log-volatilities.}
-\item{a_record}{MCMC trace for contemporaneous coefficients.}
-\item{h0_record}{MCMC trace for initial log-volatilities.}
-\item{sigh_record}{MCMC trace for log-volatilities variance.}
 \item{coefficients}{Posterior mean of coefficients.}
 \item{chol_posterior}{Posterior mean of contemporaneous effects.}
-\item{pip}{Posterior inclusion probabilities.}
 \item{param}{Every set of MCMC trace.}
+\item{param_names}{Name of every parameter.}
 \item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
 \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
@@ -86,9 +85,12 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS_SV}, \code{VHAR_Horseshoe_SV}, or \code{VHAR_minnesota-part_SV}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{Coefficients prior specification}
 \item{sv}{log volatility prior specification}
+\item{init}{Initial values}
+\item{intercept}{Intercept prior specification}
 \item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
@@ -98,27 +100,21 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
-Different members are added according to priors. If it is SSVS:
+If it is SSVS or Horseshoe:
 \describe{
-\item{gamma_record}{MCMC trace for dummy variable.}
-}
-Horseshoe:
-\describe{
-\item{lambda_record}{MCMC trace for local shrinkage level.}
-\item{tau_record}{MCMC trace for global shrinkage level.}
-\item{kappa_record}{MCMC trace for shrinkage factor.}
+\item{pip}{Posterior inclusion probabilities.}
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 This function fits VHAR-SV.
 It can have Minnesota, SSVS, and Horseshoe prior.
+This function is deprecated. Use \code{\link[=vhar_bayes]{vhar_bayes()}} with \code{cov_spec = set_sv()} option.
 }
 \details{
 Cholesky stochastic volatility modeling for VHAR based on
 \deqn{\Sigma_t = L^T D_t^{-1} L}
 }
 \references{
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
-
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }

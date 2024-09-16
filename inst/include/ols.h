@@ -6,6 +6,44 @@
 
 namespace bvhar {
 
+struct OlsFit;
+struct StructuralFit;
+class MultiOls;
+class LltOls;
+class QrOls;
+class OlsVar;
+class OlsVhar;
+
+struct OlsFit {
+	Eigen::MatrixXd _coef;
+	int _ord; // p of VAR or month of VHAR
+
+	OlsFit(const Eigen::MatrixXd& coef_mat, int ord) : _coef(coef_mat), _ord(ord) {}
+};
+
+struct StructuralFit : public OlsFit {
+	int _lag_max;
+	int dim;
+	int ma_rows;
+	Eigen::MatrixXd _vma; // VMA [W1^T, W2^T, ..., W(lag_max)^T]^T, ma_rows = m * lag_max
+	Eigen::MatrixXd _cov;
+	
+	StructuralFit(const Eigen::MatrixXd& coef_mat, int ord, int lag_max, const Eigen::MatrixXd& cov_mat)
+	: OlsFit(coef_mat, ord), _lag_max(lag_max),
+		dim(coef_mat.cols()), ma_rows(dim * (_lag_max + 1)),
+		_vma(Eigen::MatrixXd::Zero(ma_rows, dim)), _cov(cov_mat) {
+		int num_full_rows = _lag_max < _ord ? dim * _ord : ma_rows;
+		Eigen::MatrixXd full_coef = Eigen::MatrixXd::Zero(num_full_rows, dim); // same size with VMA coefficient matrix
+		full_coef.topRows(dim * _ord) = _coef.topRows(dim * _ord); // fill first mp row with VAR coefficient matrix
+		_vma.topRows(dim) = Eigen::MatrixXd::Identity(dim, dim); // W0 = I_k
+		for (int i = 1; i < (_lag_max + 1); ++i) {
+			for (int j = 0; j < i; ++j) {
+				_vma.middleRows(i * dim, dim) += full_coef.middleRows(j * dim, dim) * _vma.middleRows((i - j - 1) * dim, dim); // Wi = sum(W(i - k)^T * Bk^T)
+			}
+		}
+	}
+};
+
 class MultiOls {
 public:
 	MultiOls(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y)
@@ -27,20 +65,41 @@ public:
 	void estimateCov() {
 		cov = resid.transpose() * resid / (num_design - dim_design);
 	}
-	Rcpp::List returnOlsRes() {
+	LIST returnOlsRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return Rcpp::List::create(
-			Rcpp::Named("coefficients") = coef,
-			Rcpp::Named("fitted.values") = yhat,
-			Rcpp::Named("residuals") = resid,
-			Rcpp::Named("covmat") = cov,
-			Rcpp::Named("df") = dim_design,
-			Rcpp::Named("m") = dim,
-			Rcpp::Named("obs") = num_design,
-			Rcpp::Named("y0") = response
+		return CREATE_LIST(
+			NAMED("coefficients") = coef,
+			NAMED("fitted.values") = yhat,
+			NAMED("residuals") = resid,
+			NAMED("covmat") = cov,
+			NAMED("df") = dim_design,
+			NAMED("m") = dim,
+			NAMED("obs") = num_design,
+			NAMED("y0") = response
 		);
+	}
+	OlsFit returnOlsFit(int ord) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		OlsFit res(coef, ord);
+		return res;
+	}
+	StructuralFit returnStructuralFit(int ord, int lag_max) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		StructuralFit res(coef, ord, lag_max, cov);
+		return res;
+	}
+	StructuralFit returnStructuralFit(const Eigen::MatrixXd& trans_mat, int ord, int lag_max) {
+		estimateCoef();
+		fitObs();
+		estimateCov();
+		StructuralFit res(trans_mat.transpose() * coef, ord, lag_max, cov);
+		return res;
 	}
 protected:
 	Eigen::MatrixXd design;
@@ -99,8 +158,8 @@ public:
 		}
 	}
 	virtual ~OlsVar() = default;
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = lag;
 		ols_res["totobs"] = data.rows();
 		ols_res["process"] = "VAR";
@@ -108,6 +167,14 @@ public:
 		ols_res["design"] = design;
 		ols_res["y"] = data;
 		return ols_res;
+	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(lag);
+		return res;
+	}
+	StructuralFit returnStructuralFit(int lag_max) {
+		StructuralFit res = _ols->returnStructuralFit(lag, lag_max);
+		return res;
 	}
 protected:
 	int lag;
@@ -139,8 +206,8 @@ public:
 		}
 	}
 	virtual ~OlsVhar() = default;
-	Rcpp::List returnOlsRes() {
-		Rcpp::List ols_res = _ols->returnOlsRes();
+	LIST returnOlsRes() {
+		LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = 3;
 		ols_res["week"] = week;
 		ols_res["month"] = month;
@@ -151,6 +218,15 @@ public:
 		ols_res["design"] = var_design;
 		ols_res["y"] = data;
 		return ols_res;
+	}
+	OlsFit returnOlsFit() {
+		OlsFit res = _ols->returnOlsFit(month);
+		res._ord = month;
+		return res;
+	}
+	StructuralFit returnStructuralFit(int lag_max) {
+		StructuralFit res = _ols->returnStructuralFit(har_trans, month, lag_max);
+		return res;
 	}
 protected:
 	int week;

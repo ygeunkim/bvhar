@@ -1,10 +1,12 @@
 #ifndef BVHARPROGRESS_H
 #define BVHARPROGRESS_H
 
+#include "commondefs.h"
 #include "bvharomp.h"
-#include <Rcpp.h>
 
 namespace bvhar {
+
+class bvharprogress;
 
 class bvharprogress {
 public:
@@ -22,18 +24,18 @@ public:
 			return; // not display when verbose is false
 		}
 		int percent = _current * 100 / _total;
-		Rcpp::Rcout << "\r";
+		COUT << "\r";
 		for (int i = 0; i < _width; i++) {
 			if (i < (percent * _width / 100)) {
-				Rcpp::Rcout << "#";
+				COUT << "#";
 			} else {
-				Rcpp::Rcout << " ";
+				COUT << " ";
 			}
 		}
-		Rcpp::Rcout << " " << percent << "%";
-		Rcpp::Rcout.flush();
+		COUT << " " << percent << "%";
+		FLUSH;
 		if (_current >= _total) {
-			Rcpp::Rcout << "\n";
+			COUT << ENDL;
 		}
 	}
 private:

@@ -31,19 +31,16 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 													 Rcpp::List param_intercept,
 													 Rcpp::List param_init,
                            int prior_type,
-                           Eigen::VectorXi grp_id,
+                           Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id,
                            Eigen::MatrixXi grp_mat,
                            bool include_mean,
 													 Eigen::VectorXi seed_chain,
                            bool display_progress, int nthreads) {
-#ifdef _OPENMP
-  Eigen::setNbThreads(nthreads);
-#endif
 	std::vector<std::unique_ptr<bvhar::McmcSv>> sv_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
 		case 1: {
-			bvhar::MinnParams minn_params(
+			bvhar::MinnSvParams minn_params(
 				num_iter, x, y,
 				param_sv, param_prior,
 				param_intercept, include_mean
@@ -51,12 +48,12 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
 				bvhar::SvInits sv_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
+				sv_objs[i].reset(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 2: {
-			bvhar::SsvsParams ssvs_params(
+			bvhar::SsvsSvParams ssvs_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -66,13 +63,13 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SsvsInits ssvs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::SsvsSvInits ssvs_inits(init_spec);
+				sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
 		case 3: {
-			bvhar::HorseshoeParams horseshoe_params(
+			bvhar::HsSvParams horseshoe_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -80,8 +77,55 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HorseshoeInits hs_inits(init_spec);
-				sv_objs[i] = std::unique_ptr<bvhar::McmcSv>(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+				bvhar::HsSvInits hs_inits(init_spec);
+				sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 4: {
+			bvhar::HierminnSvParams minn_params(
+				num_iter, x, y,
+				param_sv,
+				own_id, cross_id, grp_mat,
+				param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::HierminnSvInits minn_inits(init_spec);
+				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 5: {
+			bvhar::NgSvParams ng_params(
+				num_iter, x, y,
+				param_sv,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::NgSvInits ng_inits(init_spec);
+				sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 6: {
+			bvhar::DlSvParams dl_params(
+				num_iter, x, y,
+				param_sv,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				Rcpp::List init_spec = param_init[i];
+				bvhar::GlSvInits dl_inits(init_spec); // Use HsInits for DL
+				sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
 		}
@@ -101,10 +145,11 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 				break;
 			}
 			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
+			// if (display_progress) {
+			// 	bar.update();
+			// }
 			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
+			bar.update();
 		}
 	#ifdef _OPENMP
 		#pragma omp critical

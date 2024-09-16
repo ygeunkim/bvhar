@@ -199,6 +199,7 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' @param mat_mean Mean matrix
 #' @param mat_scale_u First scale matrix
 #' @param mat_scale_v Second scale matrix
+#' @param u_prec If `TRUE`, use `mat_scale_u` as its inverse.
 #' @details
 #' Consider n x k matrix \eqn{Y_1, \ldots, Y_n \sim MN(M, U, V)} where M is n x k, U is n x n, and V is k x k.
 #' 
@@ -209,22 +210,8 @@ sim_mstudent <- function(num_sim, df, mu, sig, method) {
 #' This function only generates one matrix, i.e. \eqn{Y_1}.
 #' @return One n x k matrix following MN distribution.
 #' @export
-sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v) {
-    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v)
-}
-
-#' Generate Lower Triangular Matrix of IW
-#' 
-#' This function generates \eqn{A = L (Q^{-1})^T}.
-#' 
-#' @param mat_scale Scale matrix of IW
-#' @param shape Shape of IW
-#' @details
-#' This function is the internal function for IW sampling and MNIW sampling functions.
-#' 
-#' @noRd
-sim_iw_tri <- function(mat_scale, shape) {
-    .Call(`_bvhar_sim_iw_tri`, mat_scale, shape)
+sim_matgaussian <- function(mat_mean, mat_scale_u, mat_scale_v, u_prec) {
+    .Call(`_bvhar_sim_matgaussian`, mat_mean, mat_scale_u, mat_scale_v, u_prec)
 }
 
 #' Generate Inverse-Wishart Random Matrix
@@ -257,18 +244,201 @@ sim_iw <- function(mat_scale, shape) {
 #' @param mat_scale_u First scale matrix of MN
 #' @param mat_scale Scale matrix of IW
 #' @param shape Shape of IW
-#' @details
-#' Consider \eqn{(Y_i, \Sigma_i) \sim MIW(M, U, \Psi, \nu)}.
+#' @param prec If true, use mat_scale_u as its inverse
+#' @noRd
+sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec) {
+    .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec)
+}
+
+#' Generate Generalized Inverse Gaussian
 #' 
-#' 1. Generate upper triangular factor of \eqn{\Sigma_i = C_i C_i^T} in the upper triangular Bartlett decomposition.
-#' 2. Standard normal generation: n x k matrix \eqn{Z_i = [z_{ij} \sim N(0, 1)]} in row-wise direction.
-#' 3. Lower triangular Cholesky decomposition: \eqn{U = P P^T}
-#' 4. \eqn{A_i = M + P Z_i C_i^T}
-#' @return List of MN and IW matrices.
-#' Multiple samples are column-stacked.
+#' This function samples GIG(lambda, psi, chi) random variates.
+#' 
+#' @param num_sim Number to generate process
+#' @param lambda Index of modified Bessel function of third kind.
+#' @param psi Second parameter of GIG
+#' @param chi Third parameter of GIG
+#' @noRd
+sim_gig_export <- function(num_sim, lambda, psi, chi) {
+    .Call(`_bvhar_sim_gig_export`, num_sim, lambda, psi, chi)
+}
+
+#' @noRd
+VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
+}
+
+#' Convert VAR to VMA(infinite)
+#' 
+#' Convert VAR process to infinite vector MA process
+#' 
+#' @param object A `varlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Let VAR(p) be stable.
+#' \deqn{Y_t = c + \sum_{j = 0} W_j Z_{t - j}}
+#' For VAR coefficient \eqn{B_1, B_2, \ldots, B_p},
+#' \deqn{I = (W_0 + W_1 L + W_2 L^2 + \cdots + ) (I - B_1 L - B_2 L^2 - \cdots - B_p L^p)}
+#' Recursively,
+#' \deqn{W_0 = I}
+#' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
+#' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
+#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' @export
-sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape) {
-    .Call(`_bvhar_sim_mniw`, num_sim, mat_mean, mat_scale_u, mat_scale, shape)
+VARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VARtoVMA`, object, lag_max)
+}
+
+#' @noRd
+compute_var_mse <- function(cov_mat, var_coef, var_lag, step) {
+    .Call(`_bvhar_compute_var_mse`, cov_mat, var_coef, var_lag, step)
+}
+
+#' Compute Forecast MSE Matrices
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object A `varlse` object
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+compute_covmse <- function(object, step) {
+    .Call(`_bvhar_compute_covmse`, object, step)
+}
+
+#' Convert VAR to Orthogonalized VMA(infinite)
+#' 
+#' Convert VAR process to infinite orthogonalized vector MA process
+#' 
+#' @param var_coef VAR coefficient matrix
+#' @param var_covmat VAR covariance matrix
+#' @param var_lag VAR order
+#' @param lag_max Maximum lag for VMA
+#' @noRd
+VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
+    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
+}
+
+#' @noRd
+VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max, month)
+}
+
+#' Convert VHAR to VMA(infinite)
+#' 
+#' Convert VHAR process to infinite vector MA process
+#' 
+#' @param object A `vharlse` object
+#' @param lag_max Maximum lag for VMA
+#' @details
+#' Let VAR(p) be stable
+#' and let VAR(p) be
+#' \eqn{Y_0 = X_0 B + Z}
+#' 
+#' VHAR is VAR(22) with
+#' \deqn{Y_0 = X_1 B + Z = ((X_0 \tilde{T}^T)) \Phi + Z}
+#' 
+#' Observe that
+#' \deqn{B = \tilde{T}^T \Phi}
+#' @return VMA coefficient of k(lag-max + 1) x k dimension
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
+#' @export
+VHARtoVMA <- function(object, lag_max) {
+    .Call(`_bvhar_VHARtoVMA`, object, lag_max)
+}
+
+#' @noRd
+compute_vhar_mse <- function(cov_mat, vhar_coef, har_trans, month, step) {
+    .Call(`_bvhar_compute_vhar_mse`, cov_mat, vhar_coef, har_trans, month, step)
+}
+
+#' Compute Forecast MSE Matrices for VHAR
+#' 
+#' Compute the forecast MSE matrices using VMA coefficients
+#' 
+#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param step Integer, Step to forecast
+#' @details
+#' See pp38 of Lütkepohl (2007).
+#' Let \eqn{\Sigma} be the covariance matrix of VHAR and let \eqn{W_j} be the VMA coefficients.
+#' Recursively,
+#' \deqn{\Sigma_y(1) = \Sigma}
+#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
+#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' 
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+compute_covmse_har <- function(object, step) {
+    .Call(`_bvhar_compute_covmse_har`, object, step)
+}
+
+#' Orthogonal Impulse Response Functions of VHAR
+#' 
+#' Compute orthogonal impulse responses of VHAR
+#' 
+#' @param vhar_coef VHAR coefficient
+#' @param vhar_covmat VHAR covariance matrix
+#' @param HARtrans_mat HAR linear transformation matrix
+#' @param lag_max Maximum lag for VMA
+#' @param month Order for monthly term
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
+    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
+}
+
+#' h-step ahead Forecast Error Variance Decomposition
+#' 
+#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+#'
+#' @noRd
+compute_fevd <- function(vma_coef, cov_mat, normalize) {
+    .Call(`_bvhar_compute_fevd`, vma_coef, cov_mat, normalize)
+}
+
+#' h-step ahead Normalized Spillover
+#'
+#' @noRd
+compute_spillover <- function(fevd) {
+    .Call(`_bvhar_compute_spillover`, fevd)
+}
+
+#' To-others Spillovers
+#' 
+#' @noRd
+compute_to_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_to_spillover`, spillover)
+}
+
+#' From-others Spillovers
+#' 
+#' @noRd
+compute_from_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_from_spillover`, spillover)
+}
+
+#' Total Spillovers
+#' 
+#' @noRd
+compute_tot_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_tot_spillover`, spillover)
+}
+
+#' Net Pairwise Spillovers
+#' 
+#' @noRd
+compute_net_spillover <- function(spillover) {
+    .Call(`_bvhar_compute_net_spillover`, spillover)
 }
 
 #' BVAR(p) Point Estimates based on Minnesota Prior
@@ -296,8 +466,13 @@ estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
 #' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean, minn_short) {
-    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean, minn_short)
+estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean) {
+    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean)
+}
+
+#' @noRd
+estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
@@ -320,27 +495,9 @@ estimate_mn_flat <- function(x, y, U) {
     .Call(`_bvhar_estimate_mn_flat`, x, y, U)
 }
 
-#' Log of Joint Posterior Density of Hyperparameters
-#' 
-#' This function computes the log of joint posterior density of hyperparameters.
-#' 
-#' @param cand_gamma Candidate value of hyperparameters following Gamma distribution
-#' @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution
-#' @param dim Dimension of the time series
-#' @param num_design The number of the data matrix, \eqn{n = T - p}
-#' @param prior_prec Prior precision of Matrix Normal distribution
-#' @param prior_scale Prior scale of Inverse-Wishart distribution
-#' @param mn_prec Posterior precision of Matrix Normal distribution
-#' @param iw_scale Posterior scale of Inverse-Wishart distribution
-#' @param posterior_shape Posterior shape of Inverse-Wishart distribution
-#' @param gamma_shape Shape of hyperprior Gamma distribution
-#' @param gamma_rate Rate of hyperprior Gamma distribution
-#' @param invgam_shape Shape of hyperprior Inverse gamma distribution
-#' @param invgam_scl Scale of hyperprior Inverse gamma distribution
-#' 
 #' @noRd
-jointdens_hyperparam <- function(cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl) {
-    .Call(`_bvhar_jointdens_hyperparam`, cand_gamma, cand_invgam, dim, num_design, prior_prec, prior_scale, prior_shape, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl)
+estimate_mniw <- function(num_chains, num_iter, num_burn, thin, mn_mean, mn_prec, iw_scale, iw_shape, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_mniw`, num_chains, num_iter, num_burn, thin, mn_mean, mn_prec, iw_scale, iw_shape, seed_chain, display_progress, nthreads)
 }
 
 #' Metropolis Algorithm for Normal-IW Hierarchical Model
@@ -396,8 +553,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param display_progress Progress bar
 #' @param nthreads Number of threads for openmp
 #' @noRd
-estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
+estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) SSVS by Gibbs Sampler
@@ -441,6 +598,32 @@ estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_
     .Call(`_bvhar_estimate_bvar_ssvs`, num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads)
 }
 
+#' VAR with Shrinkage Priors
+#' 
+#' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
+#' 
+#' @param num_chain Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thin Thinning
+#' @param x Design matrix X0
+#' @param y Response matrix Y0
+#' @param param_reg Regression specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param seed_chain Seed for each chain
+#' @param display_progress Progress bar
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
+}
+
 #' VAR-SV by Gibbs Sampler
 #' 
 #' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
@@ -463,8 +646,8 @@ estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_var_sv <- function(num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
+estimate_var_sv <- function(num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_var_sv`, num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -511,7 +694,7 @@ compute_cov <- function(z, num_design, dim_design) {
 #' 
 #' Compute partial t-statistics for inference in VAR model.
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @details
 #' Partial t-statistic for H0: aij = 0
 #' 
@@ -522,67 +705,6 @@ compute_cov <- function(z, num_design, dim_design) {
 #' @noRd
 infer_var <- function(object) {
     .Call(`_bvhar_infer_var`, object)
-}
-
-#' @noRd
-VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
-    .Call(`_bvhar_VARcoeftoVMA`, var_coef, var_lag, lag_max)
-}
-
-#' Convert VAR to VMA(infinite)
-#' 
-#' Convert VAR process to infinite vector MA process
-#' 
-#' @param object `varlse` object
-#' @param lag_max Maximum lag for VMA
-#' @details
-#' Let VAR(p) be stable.
-#' \deqn{Y_t = c + \sum_{j = 0} W_j Z_{t - j}}
-#' For VAR coefficient \eqn{B_1, B_2, \ldots, B_p},
-#' \deqn{I = (W_0 + W_1 L + W_2 L^2 + \cdots + ) (I - B_1 L - B_2 L^2 - \cdots - B_p L^p)}
-#' Recursively,
-#' \deqn{W_0 = I}
-#' \deqn{W_1 = W_0 B_1 (W_1^T = B_1^T W_0^T)}
-#' \deqn{W_2 = W_1 B_1 + W_0 B_2 (W_2^T = B_1^T W_1^T + B_2^T W_0^T)}
-#' \deqn{W_j = \sum_{j = 1}^k W_{k - j} B_j (W_j^T = \sum_{j = 1}^k B_j^T W_{k - j}^T)}
-#' @return VMA coefficient of k(lag-max + 1) x k dimension
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @export
-VARtoVMA <- function(object, lag_max) {
-    .Call(`_bvhar_VARtoVMA`, object, lag_max)
-}
-
-#' Compute Forecast MSE Matrices
-#' 
-#' Compute the forecast MSE matrices using VMA coefficients
-#' 
-#' @param object `varlse` object
-#' @param step Integer, Step to forecast
-#' @details
-#' See pp38 of Lütkepohl (2007).
-#' Let \eqn{\Sigma} be the covariance matrix of VAR and let \eqn{W_j} be the VMA coefficients.
-#' Recursively,
-#' \deqn{\Sigma_y(1) = \Sigma}
-#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
-#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-compute_covmse <- function(object, step) {
-    .Call(`_bvhar_compute_covmse`, object, step)
-}
-
-#' Convert VAR to Orthogonalized VMA(infinite)
-#' 
-#' Convert VAR process to infinite orthogonalized vector MA process
-#' 
-#' @param var_coef VAR coefficient matrix
-#' @param var_covmat VAR covariance matrix
-#' @param var_lag VAR order
-#' @param lag_max Maximum lag for VMA
-#' @noRd
-VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
-    .Call(`_bvhar_VARcoeftoVMA_ortho`, var_coef, var_covmat, var_lag, lag_max)
 }
 
 #' Compute Vector HAR Coefficient Matrices and Fitted Values
@@ -600,9 +722,9 @@ VARcoeftoVMA_ortho <- function(var_coef, var_covmat, var_lag, lag_max) {
 #' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495-510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174-196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @noRd
 estimate_har <- function(y, week, month, include_mean, method) {
     .Call(`_bvhar_estimate_har`, y, week, month, include_mean, method)
@@ -612,7 +734,7 @@ estimate_har <- function(y, week, month, include_mean, method) {
 #' 
 #' Compute partial t-statistics for inference in VHAR model.
 #' 
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @details
 #' Partial t-statistic for H0: \eqn{\phi_{ij} = 0}
 #' 
@@ -623,72 +745,232 @@ infer_vhar <- function(object) {
     .Call(`_bvhar_infer_vhar`, object)
 }
 
+#' Forecasting VAR(p) with SSVS
+#' 
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
 #' @noRd
-VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
-    .Call(`_bvhar_VHARcoeftoVMA`, vhar_coef, HARtrans_mat, lag_max, month)
+forecast_bvarssvs_deprecate <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvarssvs_deprecate`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
 }
 
-#' Convert VHAR to VMA(infinite)
+#' Forecasting VAR(p) with Horseshoe Prior
 #' 
-#' Convert VHAR process to infinite vector MA process
-#' 
-#' @param object `vharlse` object
-#' @param lag_max Maximum lag for VMA
-#' @details
-#' Let VAR(p) be stable
-#' and let VAR(p) be
-#' \eqn{Y_0 = X_0 B + Z}
-#' 
-#' VHAR is VAR(22) with
-#' \deqn{Y_0 = X_1 B + Z = ((X_0 \tilde{T}^T)) \Phi + Z}
-#' 
-#' Observe that
-#' \deqn{B = \tilde{T}^T \Phi}
-#' @return VMA coefficient of k(lag-max + 1) x k dimension
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @export
-VHARtoVMA <- function(object, lag_max) {
-    .Call(`_bvhar_VHARtoVMA`, object, lag_max)
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param alpha_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvarhs_deprecate <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvarhs_deprecate`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
 }
 
-#' Compute Forecast MSE Matrices for VHAR
+#' Forecasting VHAR with SSVS
 #' 
-#' Compute the forecast MSE matrices using VMA coefficients
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of alpha.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param psi_record Matrix, MCMC trace of psi.
+#' @noRd
+forecast_bvharssvs_deprecate <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
+    .Call(`_bvhar_forecast_bvharssvs_deprecate`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
+}
+
+#' Forecasting VHAR with Horseshoe Prior
 #' 
-#' @param object \code{varlse} object by \code{\link{var_lm}}
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param coef_mat Posterior mean of SSVS.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Matrix, MCMC trace of phi.
+#' @param eta_record Matrix, MCMC trace of eta.
+#' @param omega_record Matrix, MCMC trace of omega.
+#' @noRd
+forecast_bvharhs_deprecate <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
+    .Call(`_bvhar_forecast_bvharhs_deprecate`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
+}
+
+#' Forecasting predictive density of BVAR
+#' 
+#' @param num_chains Number of chains
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads
+#' 
+#' @noRd
+forecast_bvarldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvarldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+}
+
+#' Forecasting Predictive Density of BVHAR
+#' 
+#' @param num_chains Number of MCMC chains
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads 
+#'
+#' @noRd
+forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_reg SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
 #' @param step Integer, Step to forecast
-#' @details
-#' See pp38 of Lütkepohl (2007).
-#' Let \eqn{\Sigma} be the covariance matrix of VHAR and let \eqn{W_j} be the VMA coefficients.
-#' Recursively,
-#' \deqn{\Sigma_y(1) = \Sigma}
-#' \deqn{\Sigma_y(2) = \Sigma + W_1 \Sigma W_1^T}
-#' \deqn{\Sigma_y(3) = \Sigma_y(2) + W_2 \Sigma W_2^T}
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
 #' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
 #' @noRd
-compute_covmse_har <- function(object, step) {
-    .Call(`_bvhar_compute_covmse_har`, object, step)
+roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
-#' Orthogonal Impulse Response Functions of VHAR
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
 #' 
-#' Compute orthogonal impulse responses of VHAR
+#' This function conducts an rolling window forecasting of BVAR-SV.
 #' 
-#' @param vhar_coef VHAR coefficient
-#' @param vhar_covmat VHAR covariance matrix
-#' @param HARtrans_mat HAR linear transformation matrix
-#' @param lag_max Maximum lag for VMA
-#' @param month Order for monthly term
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. [https://doi.org/10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
 #' @noRd
-VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month) {
-    .Call(`_bvhar_VHARcoeftoVMA_ortho`, vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month)
+roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' Forecasting BVAR(p)
 #' 
-#' @param object `bvarmn` or `bvarflat` object
+#' @param object A `bvarmn` or `bvarflat` object
 #' @param step Integer, Step to forecast
 #' @param num_sim Integer, number to simulate parameters from posterior distribution
 #' @details
@@ -711,67 +993,33 @@ VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, m
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' 
 #' @noRd
 forecast_bvar <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvar`, object, step, num_sim)
 }
 
-#' Forecasting VAR(p) with SSVS
+#' Forecasting Bayesian VHAR
 #' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
+#' @param object A `bvharmn` object
+#' @param step Integer, Step to forecast
+#' @param num_sim Integer, number to simulate parameters from posterior distribution
+#' @details
+#' n-step ahead forecasting using VHAR recursively.
+#' 
+#' For given number of simulation (`num_sim`),
+#' 
+#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
+#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
+#'     - Point forecast: Use \eqn{\hat\Phi}
+#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
+#'     - tilde notation indicates simulated ones
+#' 
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @noRd
-forecast_bvarssvs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvarssvs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
-}
-
-#' Forecasting VAR(p) with Horseshoe Prior
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvarhs <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvarhs`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
-}
-
-#' Forecasting VAR-SV
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
-#' 
-#' @noRd
-forecast_bvarsv <- function(var_lag, step, response_mat, coef_mat) {
-    .Call(`_bvhar_forecast_bvarsv`, var_lag, step, response_mat, coef_mat)
-}
-
-#' Forecasting predictive density of VAR-SV
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
-#' @param alpha_record MCMC record of coefficients
-#' @param h_last_record MCMC record of log-volatilities in last time
-#' @param a_record MCMC record of contemporaneous coefficients
-#' @param sigh_record MCMC record of variance of log-volatilities
-#' 
-#' @noRd
-forecast_bvarsv_density <- function(num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean) {
-    .Call(`_bvhar_forecast_bvarsv_density`, num_chains, var_lag, step, response_mat, alpha_record, h_last_record, a_record, sigh_record, include_mean)
+forecast_bvharmn <- function(object, step, num_sim) {
+    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -786,8 +1034,8 @@ forecast_bvarsv_density <- function(num_chains, var_lag, step, response_mat, alp
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, y_test)
+roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_roll_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVAR based on Rolling Window
@@ -802,136 +1050,8 @@ roll_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
-}
-
-#' Out-of-Sample Forecasting of BVAR based on Expanding Window
-#' 
-#' This function conducts an expanding window forecasting of BVAR with Minnesota prior.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param lag BVAR order
-#' @param bayes_spec List, BVAR specification
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' 
-#' @noRd
-expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvar`, y, lag, bayes_spec, include_mean, step, y_test)
-}
-
-#' Out-of-Sample Forecasting of BVAR based on Expanding Window
-#' 
-#' This function conducts an expanding window forecasting of BVAR with Flat prior.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param lag BVAR order
-#' @param bayes_spec List, BVAR specification
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' 
-#' @noRd
-expand_bvarflat <- function(y, lag, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvarflat`, y, lag, bayes_spec, include_mean, step, y_test)
-}
-
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-#' @param bayes_spec List, BVHAR specification
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' @param nthreads_roll Number of threads when rolling windows
-#' @param nthreads_mod Number of threads when fitting models
-#' 
-#' @noRd
-roll_bvarsv <- function(y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
-}
-
-#' Forecasting Bayesian VHAR
-#' 
-#' @param object `bvharmn` object
-#' @param step Integer, Step to forecast
-#' @param num_sim Integer, number to simulate parameters from posterior distribution
-#' @details
-#' n-step ahead forecasting using VHAR recursively.
-#' 
-#' For given number of simulation (`num_sim`),
-#' 
-#' 1. Generate \eqn{(\Phi^{(b)}, \Sigma_e^{(b)}) \sim MIW} (posterior)
-#' 2. Recursively, \eqn{j = 1, \ldots, h} (`step`)
-#'     - Point forecast: Use \eqn{\hat\Phi}
-#'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
-#'     - tilde notation indicates simulated ones
-#' 
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
-#' @noRd
-forecast_bvharmn <- function(object, step, num_sim) {
-    .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
-}
-
-#' Forecasting VHAR with SSVS
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
-#' @noRd
-forecast_bvharssvs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvharssvs`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
-}
-
-#' Forecasting VHAR with Horseshoe Prior
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of phi.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvharhs <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvharhs`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
-}
-
-#' Forecasting VHAR-SV
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
-#' @param HARtrans VHAR linear transformation matrix
-#' 
-#' @noRd
-forecast_bvharsv <- function(month, step, response_mat, coef_mat, HARtrans) {
-    .Call(`_bvhar_forecast_bvharsv`, month, step, response_mat, coef_mat, HARtrans)
-}
-
-#' Forecasting Predictive Density of VHAR-SV
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean.
-#' @param HARtrans VHAR linear transformation matrix
-#' 
-#' @noRd
-forecast_bvharsv_density <- function(num_chains, month, step, response_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean) {
-    .Call(`_bvhar_forecast_bvharsv_density`, num_chains, month, step, response_mat, HARtrans, phi_record, h_last_record, a_record, sigh_record, include_mean)
+roll_bvarflat <- function(y, lag, U, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_roll_bvarflat`, y, lag, U, include_mean, step, y_test, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Rolling Window
@@ -946,26 +1066,40 @@ forecast_bvharsv_density <- function(num_chains, month, step, response_mat, HARt
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-roll_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
+roll_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_roll_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
-#' Out-of-Sample Forecasting of VHAR-SV based on Rolling Window
+#' Out-of-Sample Forecasting of BVAR based on Expanding Window
 #' 
-#' This function conducts an rolling window forecasting of BVHAR with Minnesota prior.
+#' This function conducts an expanding window forecasting of BVAR with Minnesota prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-#' @param bayes_spec List, BVHAR specification
+#' @param lag BVAR order
+#' @param bayes_spec List, BVAR specification
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
-#' @param nthreads_roll Number of threads when rolling windows
-#' @param nthreads_mod Number of threads when fitting models
 #' 
 #' @noRd
-roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod) {
-    .Call(`_bvhar_roll_bvharsv`, y, har, num_iter, num_burn, thinning, bayes_spec, include_mean, step, y_test, nthreads_roll, nthreads_mod)
+expand_bvar <- function(y, lag, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_expand_bvar`, y, lag, bayes_spec, include_mean, step, y_test, nthreads)
+}
+
+#' Out-of-Sample Forecasting of BVAR based on Expanding Window
+#' 
+#' This function conducts an expanding window forecasting of BVAR with Flat prior.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag BVAR order
+#' @param bayes_spec List, BVAR specification
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' 
+#' @noRd
+expand_bvarflat <- function(y, lag, U, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_expand_bvarflat`, y, lag, U, include_mean, step, y_test, nthreads)
 }
 
 #' Out-of-Sample Forecasting of BVHAR based on Expanding Window
@@ -980,13 +1114,13 @@ roll_bvharsv <- function(y, har, num_iter, num_burn, thinning, bayes_spec, inclu
 #' @param y_test Evaluation time series data period after `y`
 #' 
 #' @noRd
-expand_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_bvhar`, y, har, bayes_spec, include_mean, step, y_test)
+expand_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test, nthreads) {
+    .Call(`_bvhar_expand_bvhar`, y, week, month, bayes_spec, include_mean, step, y_test, nthreads)
 }
 
 #' Forecasting Vector Autoregression
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
@@ -995,6 +1129,18 @@ expand_bvhar <- function(y, har, bayes_spec, include_mean, step, y_test) {
 #' @noRd
 forecast_var <- function(object, step) {
     .Call(`_bvhar_forecast_var`, object, step)
+}
+
+#' Forecasting Vector HAR
+#' 
+#' @param object A `vharlse` object
+#' @param step Integer, Step to forecast
+#' @details
+#' n-step ahead forecasting using VHAR recursively.
+#' 
+#' @noRd
+forecast_vhar <- function(object, step) {
+    .Call(`_bvhar_forecast_vhar`, object, step)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Rolling Window
@@ -1006,10 +1152,30 @@ forecast_var <- function(object, step) {
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-roll_var <- function(y, lag, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_var`, y, lag, include_mean, step, y_test)
+roll_var <- function(y, lag, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_roll_var`, y, lag, include_mean, step, y_test, method, nthreads)
+}
+
+#' Out-of-Sample Forecasting of VHAR based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of VHAR.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
+#' @param include_mean Add constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+roll_vhar <- function(y, week, month, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_roll_vhar`, y, week, month, include_mean, step, y_test, method, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR based on Expanding Window
@@ -1021,37 +1187,12 @@ roll_var <- function(y, lag, include_mean, step, y_test) {
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-expand_var <- function(y, lag, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_var`, y, lag, include_mean, step, y_test)
-}
-
-#' Forecasting Vector HAR
-#' 
-#' @param object `vharlse` object
-#' @param step Integer, Step to forecast
-#' @details
-#' n-step ahead forecasting using VHAR recursively.
-#' 
-#' @noRd
-forecast_vhar <- function(object, step) {
-    .Call(`_bvhar_forecast_vhar`, object, step)
-}
-
-#' Out-of-Sample Forecasting of VHAR based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of VHAR.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
-#' @param include_mean Add constant term
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' 
-#' @noRd
-roll_vhar <- function(y, har, include_mean, step, y_test) {
-    .Call(`_bvhar_roll_vhar`, y, har, include_mean, step, y_test)
+expand_var <- function(y, lag, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_expand_var`, y, lag, include_mean, step, y_test, method, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VHAR based on Expanding Window
@@ -1059,14 +1200,182 @@ roll_vhar <- function(y, har, include_mean, step, y_test) {
 #' This function conducts an expanding window forecasting of VHAR.
 #' 
 #' @param y Time series data of which columns indicate the variables
-#' @param har `r lifecycle::badge("experimental")` Numeric vector for weekly and monthly order.
+#' @param week Integer, order for weekly term
+#' @param month Integer, order for monthly term
 #' @param include_mean Add constant term
 #' @param step Integer, Step to forecast
 #' @param y_test Evaluation time series data period after `y`
+#' @param method Method to solve linear equation system. 1: normal equation, 2: cholesky, 3: HouseholderQR.
+#' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-expand_vhar <- function(y, har, include_mean, step, y_test) {
-    .Call(`_bvhar_expand_vhar`, y, har, include_mean, step, y_test)
+expand_vhar <- function(y, week, month, include_mean, step, y_test, method, nthreads) {
+    .Call(`_bvhar_expand_vhar`, y, week, month, include_mean, step, y_test, method, nthreads)
+}
+
+#' Forecasting predictive density of VAR-SV
+#' 
+#' @param num_chains Number of chains
+#' @param var_lag VAR order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads
+#' 
+#' @noRd
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+}
+
+#' Forecasting Predictive Density of VHAR-SV
+#' 
+#' @param num_chains Number of MCMC chains
+#' @param month VHAR month order.
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads 
+#'
+#' @noRd
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' @param chunk_size Chunk size for OpenMP static scheduling
+#' 
+#' @noRd
+expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size) {
+    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
 #' VAR(1) Representation Given VAR Coefficient Matrix
@@ -1136,7 +1445,7 @@ compute_vhar_stablemat <- function(object) {
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -1154,7 +1463,7 @@ sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init,
 #' 
 #' @param num_sim Number to generated process
 #' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef.varlse()] from [var_lm()]
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
 #' @param var_lag Lag of VAR
 #' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
@@ -1212,6 +1521,142 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
+compute_varldlt_spillover <- function(lag, step, alpha_record, d_record, a_record) {
+    .Call(`_bvhar_compute_varldlt_spillover`, lag, step, alpha_record, d_record, a_record)
+}
+
+compute_vharldlt_spillover <- function(week, month, step, phi_record, d_record, a_record) {
+    .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, phi_record, d_record, a_record)
+}
+
+dynamic_bvarldlt_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, sparse, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_dynamic_bvarldlt_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, sparse, lag, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads, chunk_size)
+}
+
+dynamic_bvharldlt_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, sparse, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads, chunk_size) {
+    .Call(`_bvhar_dynamic_bvharldlt_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, sparse, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads, chunk_size)
+}
+
+#' Generalized Spillover of Minnesota prior
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param seed Random seed for boost library
+#' 
+#' @noRd
+compute_mn_spillover <- function(object, step, num_iter, num_burn, thin, seed) {
+    .Call(`_bvhar_compute_mn_spillover`, object, step, num_iter, num_burn, thin, seed)
+}
+
+#' Rolling-sample Total Spillover Index of BVAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param lag BVAR order
+#' @param bayes_spec BVAR specification
+#' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+dynamic_bvar_spillover <- function(y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvar_spillover`, y, window, step, num_iter, num_burn, thin, lag, bayes_spec, include_mean, seed_chain, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of BVHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param num_iter Number to sample MNIW distribution
+#' @param num_burn Number of burn-in
+#' @param thin Thinning
+#' @param week Week order
+#' @param month Month order
+#' @param bayes_spec BVHAR specification
+#' @param include_mean Add constant term
+#' @param seed_chain Random seed for each window
+#' @param nthreads Number of threads for openmp
+#' 
+#' @noRd
+dynamic_bvhar_spillover <- function(y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads) {
+    .Call(`_bvhar_dynamic_bvhar_spillover`, y, window, step, num_iter, num_burn, thin, week, month, bayes_spec, include_mean, seed_chain, nthreads)
+}
+
+#' Generalized Spillover of VAR
+#' 
+#' @param object varlse or vharlse object.
+#' @param step Step to forecast.
+#' 
+#' @noRd
+compute_ols_spillover <- function(object, step) {
+    .Call(`_bvhar_compute_ols_spillover`, object, step)
+}
+
+#' Rolling-sample Total Spillover Index of VAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param lag VAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_var_spillover <- function(y, window, step, lag, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_var_spillover`, y, window, step, lag, include_mean, method, nthreads)
+}
+
+#' Rolling-sample Total Spillover Index of VHAR
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param har VHAR order
+#' @param include_mean Add constant term
+#' 
+#' @noRd
+dynamic_vhar_spillover <- function(y, window, step, week, month, include_mean, method, nthreads) {
+    .Call(`_bvhar_dynamic_vhar_spillover`, y, window, step, week, month, include_mean, method, nthreads)
+}
+
+#' Dynamic Total Spillover Index of BVAR-SV
+#' 
+#' @param lag VAR lag.
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param response_mat Response matrix.
+#' @param phi_record Coefficients MCMC record
+#' @param h_record log volatility MCMC record
+#' @param a_record Contemporaneous coefficients MCMC record
+#' 
+#' @noRd
+dynamic_bvarsv_spillover <- function(lag, step, num_design, alpha_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvarsv_spillover`, lag, step, num_design, alpha_record, h_record, a_record, nthreads)
+}
+
+#' Dynamic Total Spillover Index of BVHAR-SV
+#' 
+#' @param month VHAR month order.
+#' @param window Rolling window size
+#' @param step forecast horizon for FEVD
+#' @param response_mat Response matrix.
+#' @param HARtrans VHAR linear transformation matrix
+#' @param phi_record Coefficients MCMC record
+#' @param h_record log volatility MCMC record
+#' @param a_record Contemporaneous coefficients MCMC record
+#' 
+#' @noRd
+dynamic_bvharsv_spillover <- function(week, month, step, num_design, phi_record, h_record, a_record, nthreads) {
+    .Call(`_bvhar_dynamic_bvharsv_spillover`, week, month, step, num_design, phi_record, h_record, a_record, nthreads)
+}
+
 #' Log of Multivariate Gamma Function
 #' 
 #' Compute log of multivariate gamma function numerically
@@ -1239,7 +1684,7 @@ logml_stable <- function(object) {
 #' 
 #' Compute AIC using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_aic <- function(object) {
@@ -1250,7 +1695,7 @@ compute_aic <- function(object) {
 #' 
 #' Compute BIC using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_bic <- function(object) {
@@ -1261,7 +1706,7 @@ compute_bic <- function(object) {
 #' 
 #' Compute HQ using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_hq <- function(object) {
@@ -1272,7 +1717,7 @@ compute_hq <- function(object) {
 #' 
 #' Compute FPE using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_fpe <- function(object) {
@@ -1290,34 +1735,5 @@ compute_fpe <- function(object) {
 #' @noRd
 tune_var <- function(y, lag_max, include_mean) {
     .Call(`_bvhar_tune_var`, y, lag_max, include_mean)
-}
-
-#' log Density of Multivariate Normal with LDLT Precision Matrix
-#' 
-#' Compute log density of multivariate normal with LDLT precision matrix decomposition.
-#' 
-#' @param x Point
-#' @param mean_vec Mean
-#' @param lower_vec row of a_record
-#' @param diag_vec row of h_record
-#' 
-#' @noRd
-compute_log_dmgaussian <- function(x, mean_vec, lower_vec, diag_vec) {
-    .Call(`_bvhar_compute_log_dmgaussian`, x, mean_vec, lower_vec, diag_vec)
-}
-
-#' Compute Log Predictive Likelihood
-#' 
-#' This function computes log-predictive likelihood (LPL).
-#' 
-#' @param True value
-#' @param Predicted value
-#' @param h_last_record MCMC record of log-volatilities in last time
-#' @param a_record MCMC record of contemporaneous coefficients
-#' @param sigh_record MCMC record of variance of log-volatilities
-#' 
-#' @noRd
-compute_lpl <- function(y, posterior_mean, h_last_record, a_record, sigh_record) {
-    .Call(`_bvhar_compute_lpl`, y, posterior_mean, h_last_record, a_record, sigh_record)
 }
 

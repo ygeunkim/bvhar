@@ -45,12 +45,11 @@ sim_mnvhar_coef(
 )
 }
 \references{
-Kim, Y. G., and Baek, C. (n.d.). \emph{Bayesian vector heterogeneous autoregressive modeling}. submitted.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 }
 \seealso{
 \itemize{
 \item \code{\link[=set_bvhar]{set_bvhar()}} to specify the hyperparameters of VAR-type Minnesota prior.
 \item \code{\link[=set_weight_bvhar]{set_weight_bvhar()}} to specify the hyperparameters of HAR-type Minnesota prior.
-\item \link{bvar_adding_dummy} for dummy observations definition.
 }
 }

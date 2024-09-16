@@ -1,0 +1,38 @@
+body {
+  background-color: #272935;
+  color: #f8f8f2;
+}
+
+a {
+  color: #ff3860;
+}
+
+.navbar {
+  background-color: #23252f;
+}
+
+code {
+  color: #f8f8f2;
+  background-color: #44475a;
+}
+
+/* Ensure other elements follow the dark theme */
+.sidebar, .toc-content {
+  background-color: #272935;
+  color: #f8f8f2;
+}
+
+/* Adjust link colors for better visibility in dark mode */
+a:hover {
+  color: #ff6b8b;
+}
+
+/* .title-block {
+  display: inline-block;
+}
+
+.title-logo {
+  float: right;
+  height: 138px;
+  margin-top: -60px;
+} */

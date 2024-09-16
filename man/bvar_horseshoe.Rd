@@ -44,7 +44,7 @@ bvar_horseshoe(
 
 \item{minnesota}{Minnesota type}
 
-\item{algo}{Ordinary gibbs sampling (\code{"gibbs"}) or blocked gibbs (Default: \code{"block"}).}
+\item{algo}{Ordinary gibbs sampling (\code{gibbs}) or blocked gibbs (Default: \code{block}).}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -61,40 +61,38 @@ bvar_horseshoe(
 It is a list with the following components:
 
 \describe{
-\item{alpha_record}{MCMC trace for vectorized coefficients (alpha \eqn{\alpha}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{lambda_record}{MCMC trace for local shrinkage level (lambda \eqn{\lambda}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{tau_record}{MCMC trace for global shrinkage level (tau \eqn{\tau}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{psi_record}{MCMC trace for precision matrix (psi \eqn{\Psi}) with \link{list} format.}
-\item{chain}{The numer of chains}
 \item{coefficients}{Posterior mean of VAR coefficients.}
-\item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
 \item{covmat}{Posterior mean of covariance matrix}
-\item{omega_record}{MCMC trace for diagonal element of \eqn{\Psi} (omega) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{eta_record}{MCMC trace for upper triangular element of \eqn{\Psi} (eta) with \link[posterior:draws_df]{posterior::draws_df} format.}
+\item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
+\item{pip}{Posterior inclusion probabilities.}
 \item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, lambda, tau, omega, and eta}
+\item{param_names}{Name of every parameter.}
 \item{df}{Numer of Coefficients: \code{mp + 1} or \code{mp}}
 \item{p}{Lag of VAR}
 \item{m}{Dimension of the data}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VAR_Horseshoe"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{algo}{Usual Gibbs sampling (\code{"gibbs"}) or fast sampling (\code{"fast"})}
+\item{process}{Description of the model, e.g. \code{VAR_Horseshoe}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{algo}{Usual Gibbs sampling (\code{gibbs}) or fast sampling (\code{fast})}
 \item{spec}{Horseshoe specification defined by \code{\link[=set_horseshoe]{set_horseshoe()}}}
+\item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
 \item{thin}{Thinning}
+\item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
 \item{y}{Raw input}
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits BVAR(p) with horseshoe prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function fits BVAR(p) with horseshoe prior.
 }
 \references{
-Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465–480.
+Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). \emph{The horseshoe estimator for sparse signals}. Biometrika, 97(2), 465-480.
 
-Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179–182.
+Makalic, E., & Schmidt, D. F. (2016). \emph{A Simple Sampler for the Horseshoe Estimator}. IEEE Signal Processing Letters, 23(1), 179-182.
 }

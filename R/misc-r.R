@@ -16,39 +16,41 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
 #' 
 #' Split `coefficients` into matrix list.
 #' 
-#' @param object `bvharmod` object
+#' @param object A `bvharmod` object
 #' @param ... not used
 #' @details 
 #' Each result of [var_lm()], [vhar_lm()], [bvar_minnesota()], [bvar_flat()], and [bvhar_minnesota()] is a subclass of `bvharmod`.
 #' For example,
 #' `c("varlse", "bvharmod")`.
 #' @return A `list` object
-#' @export
+#' @keywords internal
+#' @noRd
 split_coef <- function(object, ...) {
-  UseMethod("split_coef", object)
-}
-
-#' @rdname split_coef
-#' @export
-split_coef.bvharmod <- function(object, ...) {
-  switch(
-    object$type,
-    "const" = {
-      split.data.frame(object$coefficients[-object$df,], gl(object$p, object$m)) %>% 
-        lapply(t)
-    },
-    "none" = {
-      split.data.frame(object$coefficients, gl(object$p, object$m)) %>% 
-        lapply(t)
-    }
-  )
-}
-
-#' @rdname split_coef
-#' @export
-split_coef.bvharirf <- function(object, ...) {
-  irf_mat <- object$coefficients
-  split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
+  if (!(is.bvharmod(object) || is.bvharirf(object))) {
+    stop("Not valid method")
+  }
+  if (is.bvharmod(object)) {
+    return(
+      switch(object$type,
+        "const" = {
+          split.data.frame(object$coefficients[-object$df, ], gl(object$p, object$m)) %>%
+            lapply(t)
+        },
+        "none" = {
+          split.data.frame(object$coefficients, gl(object$p, object$m)) %>%
+            lapply(t)
+        }
+      )
+    )
+  } else if (is.bvharirf(object)) {
+    # 
+    irf_mat <- object$coefficients
+    return(
+      split.data.frame(irf_mat, gl(object$lag_max + 1, ncol(irf_mat)))
+    )
+  } else {
+    stop("Not valid method")
+  }
 }
 
 #' Changing 3d initial array Input to List
@@ -74,7 +76,7 @@ change_to_list <- function(init_array) {
 #' This function checks if the list of parallel initial matrices are identical.
 #' 
 #' @param init_list List of parallel initial matrix
-#' @param case Check dimension (`"dim"`) or values (`"values"`).
+#' @param case Check dimension (`dim`) or values (`values`).
 #' 
 #' @noRd
 isnot_identical <- function(init_list, case = c("dim", "values")) {

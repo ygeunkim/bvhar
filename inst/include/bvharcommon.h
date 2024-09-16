@@ -1,7 +1,7 @@
 #ifndef BVHARCOMMON_H
 #define BVHARCOMMON_H
 
-#include <RcppEigen.h>
+#include "commondefs.h"
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
@@ -9,10 +9,16 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
+#include <boost/random/discrete_distribution.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/tail_quantile.hpp>
 
 namespace bvhar {
 
 typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
+
+typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
 
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
@@ -42,16 +48,16 @@ inline double gammafn(double x) {
 
 inline double mgammafn(double x, int p) {
   if (p < 1) {
-    Rcpp::stop("'p' should be larger than or same as 1.");
+    STOP("'p' should be larger than or same as 1.");
   }
   if (x <= 0) {
-    Rcpp::stop("'x' should be larger than 0.");
+    STOP("'x' should be larger than 0.");
   }
   if (p == 1) {
     return gammafn(x);
   }
   if (2 * x < p) {
-    Rcpp::stop("'x / 2' should be larger than 'p'.");
+    STOP("'x / 2' should be larger than 'p'.");
   }
   double res = pow(M_PI, p * (p - 1) / 4.0);
   for (int i = 0; i < p; i++) {
@@ -105,13 +111,13 @@ inline double lmgammafn(double x, int p) {
 // @param lg If true, return log(f)
 inline double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (x < 0 ) {
-    Rcpp::stop("'x' should be larger than 0.");
+    STOP("'x' should be larger than 0.");
   }
   if (shp <= 0 ) {
-    Rcpp::stop("'shp' should be larger than 0.");
+    STOP("'shp' should be larger than 0.");
   }
   if (scl <= 0 ) {
-    Rcpp::stop("'scl' should be larger than 0.");
+    STOP("'scl' should be larger than 0.");
   }
   double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
   if (lg) {
@@ -121,13 +127,9 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
 }
 
 // RNG----------------------------------------
+#ifdef USE_RCPP
 inline double bindom_rand(int n, double prob) {
 	return Rf_rbinom(n, prob);
-}
-
-inline double normal_rand(boost::random::mt19937& rng) {
-	boost::random::normal_distribution<> rdist(0.0, 1.0);
-	return rdist(rng);
 }
 
 inline double chisq_rand(double df) {
@@ -136,6 +138,25 @@ inline double chisq_rand(double df) {
 
 inline double gamma_rand(double shp, double scl) {
 	return Rf_rgamma(shp, scl); // 2nd: scale
+}
+
+inline double unif_rand(double min, double max) {
+	return Rf_runif(min, max);
+}
+
+inline double beta_rand(double s1, double s2) {
+	return Rf_rbeta(s1, s2);
+}
+#endif
+
+inline double normal_rand(boost::random::mt19937& rng) {
+	boost::random::normal_distribution<> rdist(0.0, 1.0);
+	return rdist(rng);
+}
+
+inline double chisq_rand(double df, boost::random::mt19937& rng) {
+	boost::random::chi_squared_distribution<> rdist(df);
+	return rdist(rng);
 }
 
 inline double gamma_rand(double shp, double scl, boost::random::mt19937& rng) {
@@ -148,22 +169,39 @@ inline double ber_rand(double prob, boost::random::mt19937& rng) {
 	return rdist(rng) * 1.0; // change to int later: now just use double to match Rf_rbinom
 }
 
-inline double unif_rand(double min, double max) {
-	return Rf_runif(min, max);
-}
-
 inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
 
-inline double beta_rand(double s1, double s2) {
-	return Rf_rbeta(s1, s2);
-}
-
 inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
+}
+
+inline double cat_rand(const Eigen::VectorXd& probabilities, boost::random::mt19937& rng) {
+	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
+	return rdist(rng);
+}
+
+inline double quantile_lower(const Eigen::Ref<Eigen::VectorXd>& x, double prob) {
+	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::tail_quantile<boost::accumulators::left>>> acc(
+		boost::accumulators::tag::tail<boost::accumulators::left>::cache_size = x.size()
+	);
+	for (const auto &val : x) {
+		acc(val);
+	}
+	return boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);
+}
+
+inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) {
+	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::tail_quantile<boost::accumulators::right>>> acc(
+		boost::accumulators::tag::tail<boost::accumulators::right>::cache_size = x.size()
+	);
+	for (const auto &val : x) {
+		acc(val);
+	}
+	return boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);
 }
 
 } // namespace bvhar

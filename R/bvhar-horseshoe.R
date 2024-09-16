@@ -1,6 +1,6 @@
 #' Fitting Bayesian VHAR of Horseshoe Prior
 #' 
-#' `r lifecycle::badge("experimental")` This function fits VHAR with horseshoe prior.
+#' `r lifecycle::badge("deprecated")` This function fits VHAR with horseshoe prior.
 #' 
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
@@ -11,45 +11,42 @@
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Minnesota type
-#' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
+#' @param algo Ordinary gibbs sampling (`gibbs`) or blocked gibbs (Default: `block`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
 #' It is a list with the following components:
 #' 
 #' \describe{
-#'   \item{phi_record}{MCMC trace for vectorized coefficients (alpha \eqn{\phi}) with [posterior::draws_df] format.}
-#'   \item{lambda_record}{MCMC trace for local shrinkage level (lambda \eqn{\lambda}) with [posterior::draws_df] format.}
-#'   \item{tau_record}{MCMC trace for global shrinkage level (tau \eqn{\tau}) with [posterior::draws_df] format.}
-#'   \item{psi_record}{MCMC trace for precision matrix (psi \eqn{\Psi}) with [list] format.}
-#'   \item{chain}{The numer of chains}
 #'   \item{coefficients}{Posterior mean of VHAR coefficients.}
-#'   \item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
 #'   \item{covmat}{Posterior mean of covariance matrix}
-#'   \item{omega_record}{MCMC trace for diagonal element of \eqn{\Psi} (omega) with [posterior::draws_df] format.}
-#'   \item{eta_record}{MCMC trace for upper triangular element of \eqn{\Psi} (eta) with [posterior::draws_df] format.}
+#'   \item{psi_posterior}{Posterior mean of precision matrix \eqn{\Psi}}
 #'   \item{param}{[posterior::draws_df] with every variable: alpha, lambda, tau, omega, and eta}
+#'   \item{param_names}{Name of every parameter.}
 #'   \item{df}{Numer of Coefficients: `3m + 1` or `3m`}
 #'   \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
+#'   \item{week}{Order for weekly term}
+#'   \item{month}{Order for monthly term}
 #'   \item{m}{Dimension of the data}
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VHAR_Horseshoe"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{algo}{Usual Gibbs sampling (`"gibbs"`) or fast sampling (`"fast"`)}
+#'   \item{process}{Description of the model, e.g. `VHAR_Horseshoe`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
+#'   \item{algo}{Usual Gibbs sampling (`gibbs`) or fast sampling (`fast`)}
 #'   \item{spec}{Horseshoe specification defined by [set_horseshoe()]}
+#'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
 #'   \item{burn}{Burn-in}
 #'   \item{thin}{Thinning}
+#'   \item{group}{Indicators for group.}
+#'   \item{num_group}{Number of groups.}
 #'   \item{HARtrans}{VHAR linear transformation matrix}
 #'   \item{y0}{\eqn{Y_0}}
 #'   \item{design}{\eqn{X_0}}
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
-#'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws
 #' @importFrom stats cov
@@ -67,6 +64,7 @@ bvhar_horseshoe <- function(y,
                             algo = c("block", "gibbs"),
                             verbose = FALSE,
                             num_thread = 1) {
+  deprecate_warn("2.0.1", "bvhar_horseshoe()", "vhar_bayes()")
   if (!all(apply(y, 2, is.numeric))) {
     stop("Every column must be numeric class.")
   }
@@ -134,7 +132,8 @@ bvhar_horseshoe <- function(y,
     include_mean = include_mean
   )
   grp_id <- unique(c(glob_idmat))
-  global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+  # global_sparsity <- rep(bayes_spec$global_sparsity, length(grp_id))
+  bayes_spec$group_sparsity <- rep(bayes_spec$group_sparsity, length(grp_id))
   # MCMC-----------------------------
   num_design <- nrow(Y0)
   fast <- FALSE
@@ -155,7 +154,8 @@ bvhar_horseshoe <- function(y,
     x = X1,
     y = Y0,
     init_local = bayes_spec$local_sparsity,
-    init_global = global_sparsity,
+    init_group = bayes_spec$group_sparsity,
+    init_global = bayes_spec$global_sparsity,
     init_sigma = 1,
     grp_id = grp_id,
     grp_mat = glob_idmat,
@@ -210,61 +210,17 @@ bvhar_horseshoe <- function(y,
     )
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
-  # names(res) <- gsub(pattern = "^alpha", replacement = "phi", x = names(res))
-  # thin_id <- seq(from = 1, to = num_iter - num_burn, by = thinning)
-  # res$phi_record <- res$phi_record[thin_id,]
-  # colnames(res$phi_record) <- paste0("phi[", seq_len(ncol(res$phi_record)), "]")
-  # res$coefficients <- 
-  #   colMeans(res$phi_record) %>% 
-  #   matrix(ncol = dim_data)
-  # colnames(res$coefficients) <- name_var
-  # rownames(res$coefficients) <- name_har
-  # res$phi_record <- as_draws_df(res$phi_record)
-  # if (minnesota == "no") {
-  #   res$tau_record <- as.matrix(res$tau_record[thin_id])
-  #   colnames(res$tau_record) <- "tau"
-  # } else {
-  #   res$tau_record <- res$tau_record[thin_id,]
-  #   colnames(res$tau_record) <- paste0(
-  #     "tau[",
-  #     seq_len(ncol(res$tau_record)),
-  #     "]"
-  #   )
-  # }
-  # res$tau_record <- as_draws_df(res$tau_record)
-  # res$lambda_record <- res$lambda_record[thin_id,]
-  # colnames(res$lambda_record) <- paste0(
-  #   "lambda[",
-  #   seq_len(ncol(res$lambda_record)),
-  #   "]"
-  # )
-  # res$lambda_record <- as_draws_df(res$lambda_record)
-  # res$covmat <- mean(res$sigma) * diag(dim_data)
-  # res$psi_posterior <- diag(dim_data) / mean(res$sigma)
-  # colnames(res$covmat) <- name_var
-  # rownames(res$covmat) <- name_var
-  # colnames(res$psi_posterior) <- name_var
-  # rownames(res$psi_posterior) <- name_var
-  # res$sigma_record <- as.matrix(res$sigma_record[thin_id])
-  # colnames(res$sigma_record) <- "sigma"
-  # res$sigma_record <- as_draws_df(res$sigma_record)
-  # res$kappa_record <- res$kappa_record[thin_id,]
-  # colnames(res$kappa_record) <- paste0(
-  #   "kappa[",
-  #   seq_len(ncol(res$kappa_record)),
-  #   "]"
-  # )
-  # res$pip <- matrix(colMeans(res$kappa_record), ncol = dim_data)
-  # colnames(res$pip) <- name_var
-  # rownames(res$pip) <- name_har
-  # res$kappa_record <- as_draws_df(res$kappa_record)
   # Parameters-----------------
   res$param <- bind_draws(
     res$phi_record,
     res$lambda_record,
+    res$eta_record,
     res$tau_record,
-    res$sigma_record
+    res$sigma_record,
+    res$kappa_record
   )
+  res[rec_names] <- NULL
+  res$param_names <- param_names
   # variables------------
   res$df <- ncol(X0)
   res$p <- 3

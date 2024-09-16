@@ -9,7 +9,7 @@ geom_eval(data, colour = "red", ...)
 \arguments{
 \item{data}{Test data to draw, which has the same format with the train data.}
 
-\item{colour}{Color of the line (By default, \code{"red"}).}
+\item{colour}{Color of the line (By default, \code{red}).}
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
 }

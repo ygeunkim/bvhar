@@ -8,9 +8,12 @@
 \usage{
 \method{summary}{normaliw}(
   object,
-  num_iter = 10000L,
+  num_chains = 1,
+  num_iter = 1000,
   num_burn = floor(num_iter/2),
-  thinning = 1L,
+  thinning = 1,
+  verbose = FALSE,
+  num_thread = 1,
   ...
 )
 
@@ -19,13 +22,19 @@
 \method{knit_print}{summary.normaliw}(x, ...)
 }
 \arguments{
-\item{object}{\code{normaliw} object}
+\item{object}{A \code{normaliw} object}
 
-\item{num_iter}{Number to sample MNIW distribution}
+\item{num_chains}{Number of MCMC chains}
 
-\item{num_burn}{Number of burn-in}
+\item{num_iter}{MCMC iteration number}
+
+\item{num_burn}{Number of burn-in (warm-up). Half of the iteration is the default choice.}
 
 \item{thinning}{Thinning every thinning-th iteration}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
+
+\item{num_thread}{Number of threads}
 
 \item{...}{not used}
 

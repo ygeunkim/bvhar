@@ -159,7 +159,12 @@ print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     sep = ""
   )
   cat(sprintf("BVAR(%i) with Stochastic Volatility\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
@@ -197,7 +202,12 @@ print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
     sep = ""
   )
   cat("BVHAR with Stochastic Volatility\n")
-  cat("Fitted by Gibbs sampling\n")
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
   if (x$chain > 1) {
     cat(paste0("Number of chains: ", x$chain, "\n"))
   }
@@ -222,8 +232,8 @@ knit_print.bvharsv <- function(x, ...) {
   print(x)
 }
 
-#' @rdname summary.ssvsmod
-#' @param x `summary.ssvsmod` object
+#' @rdname summary.bvharsp
+#' @param x `summary.bvharsp` object
 #' @param digits digit option to print
 #' @param ... not used
 #' @order 2
@@ -240,12 +250,10 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
   selection_method <- x$method
   coef_list <- switch(x$type,
     "const" = {
-      split.data.frame(x$coefficients[-(x$p * x$m + 1), ], gl(x$p, x$m)) %>%
-        lapply(t)
+      split.data.frame(x$coefficients[-(x$p * x$m + 1), ], gl(x$p, x$m))
     },
     "none" = {
-      split.data.frame(x$coefficients, gl(x$p, x$m)) %>%
-        lapply(t)
+      split.data.frame(x$coefficients, gl(x$p, x$m))
     }
   )
   # cat(paste0("Variable Selection for ", mod_type, "(", sprintf("%i", x$p), ") using SSVS\n"))
@@ -281,6 +289,17 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
     )
     cat("\n")
   }
+  if (x$type == "const") {
+    intercept <- x$coefficients[x$p * x$m + 1,]
+    cat("Constant term:\n")
+    print.default(
+      intercept,
+      digits = digits,
+      print.gap = 2L,
+      quote = FALSE
+    )
+    cat("\n")
+  }
   cat("--------------------------------------------------\n")
   if (selection_method == "ci") {
     cat(
@@ -297,8 +316,94 @@ print.summary.bvharsp <- function(x, digits = max(3L, getOption("digits") - 3L),
   }
 }
 
-#' @rdname summary.ssvsmod
+#' @rdname summary.bvharsp
 #' @exportS3Method knitr::knit_print
-knit_print.summary.ssvsmod <- function(x, ...) {
+knit_print.summary.bvharsp <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname var_bayes
+#' @param x `bvarldlt` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvarldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat(sprintf("BVAR(%i) with %s prior\n", x$p, x$spec$prior))
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname var_bayes
+#' @exportS3Method knitr::knit_print
+knit_print.bvarldlt <- function(x, ...) {
+  print(x)
+}
+
+#' @rdname vhar_bayes
+#' @param x `bvharldlt` object
+#' @param digits digit option to print
+#' @param ... not used
+#' @order 2
+#' @export
+print.bvharldlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(
+    "Call:\n",
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
+  )
+  cat(sprintf("BVHAR with %s prior\n", x$spec$prior))
+  # cat("Fitted by Gibbs sampling\n")
+  if (x$spec$prior == "NG") {
+    cat("Fitted by Metropolis-within-Gibbs\n")
+  } else {
+    cat("Fitted by Gibbs sampling\n")
+  }
+  if (x$chain > 1) {
+    cat(paste0("Number of chains: ", x$chain, "\n"))
+  }
+  cat(paste0("Total number of iteration: ", x$iter, "\n"))
+  cat(paste0("Number of burn-in: ", x$burn, "\n"))
+  if (x$thin > 1) {
+    cat(paste0("Thinning: ", x$thin, "\n"))
+  }
+  cat("====================================================\n\n")
+  cat("Parameter Record:\n")
+  print(
+    x$param,
+    digits = digits,
+    print.gap = 2L,
+    quote = FALSE
+  )
+}
+
+#' @rdname vhar_bayes
+#' @exportS3Method knitr::knit_print
+knit_print.bvharldlt <- function(x, ...) {
   print(x)
 }

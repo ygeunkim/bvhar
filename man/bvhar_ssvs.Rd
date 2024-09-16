@@ -45,7 +45,7 @@ bvhar_ssvs(
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} type. By default, \code{"no"}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{short} type and \code{longrun} type. By default, \code{no}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -62,20 +62,13 @@ bvhar_ssvs(
 It is a list with the following components:
 
 \describe{
-\item{phi_record}{MCMC trace for vectorized coefficients (phi \eqn{\phi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{eta_record}{MCMC trace for upper triangular element of cholesky factor (eta \eqn{\eta}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{psi_record}{MCMC trace for diagonal element of cholesky factor (psi \eqn{\psi}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{omega_record}{MCMC trace for indicator variable for \eqn{eta} (omega \eqn{\omega}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{gamma_record}{MCMC trace for indicator variable for \eqn{alpha} (gamma \eqn{\gamma}) with \link[posterior:draws_df]{posterior::draws_df} format.}
-\item{chol_record}{MCMC trace for cholesky factor matrix \eqn{\Psi} with \link{list} format.}
-\item{ols_coef}{OLS estimates for VAR coefficients.}
-\item{ols_cholesky}{OLS estimates for cholesky factor}
 \item{coefficients}{Posterior mean of VAR coefficients.}
+\item{chol_posterior}{Posterior mean of cholesky factor matrix}
+\item{covmat}{Posterior mean of covariance matrix}
 \item{omega_posterior}{Posterior mean of omega}
 \item{pip}{Posterior inclusion probability}
 \item{param}{\link[posterior:draws_df]{posterior::draws_df} with every variable: alpha, eta, psi, omega, and gamma}
-\item{chol_posterior}{Posterior mean of cholesky factor matrix}
-\item{covmat}{Posterior mean of covariance matrix}
+\item{param_names}{Name of every parameter.}
 \item{df}{Numer of Coefficients: \verb{3m + 1} or \verb{3m}}
 \item{p}{3 (The number of terms. It contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
@@ -84,14 +77,16 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VHAR_SSVS"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
 \item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
+\item{chain}{The numer of chains}
 \item{iter}{Total iterations}
 \item{burn}{Burn-in}
 \item{thin}{Thinning}
-\item{chain}{The numer of chains}
+\item{group}{Indicators for group.}
+\item{num_group}{Number of groups.}
 \item{HARtrans}{VHAR linear transformation matrix}
 \item{y0}{\eqn{Y_0}}
 \item{design}{\eqn{X_0}}
@@ -99,7 +94,7 @@ It is a list with the following components:
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function fits BVAR(p) with stochastic search variable selection (SSVS) prior.
 }
 \details{
 SSVS prior gives prior to parameters \eqn{\alpha = vec(A)} (VAR coefficient) and \eqn{\Sigma_e^{-1} = \Psi \Psi^T} (residual covariance).
@@ -114,16 +109,7 @@ and for upper triangular matrix \eqn{\Psi},
 \deqn{w_{ij} \sim Bernoulli(q_{ij})}
 
 Gibbs sampler is used for the estimation.
-See \link{ssvs_bvar_algo} how it works.
 }
 \references{
-Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
-
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
-}
-\seealso{
-\itemize{
-\item Vectorization formulation \link{var_vec_formulation}
-\item Gibbs sampler algorithm \link{ssvs_bvar_algo}
-}
 }

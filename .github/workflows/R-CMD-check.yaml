@@ -21,10 +21,7 @@ jobs:
           - {os: macOS-latest,   r: 'release'}
 
           - {os: windows-latest, r: 'release'}
-          # Use 3.6 to trigger usage of RTools35
-          - {os: windows-latest, r: '3.6'}
-          # use 4.1 to check with rtools40's older compiler
-          - {os: windows-latest, r: '4.1'}
+          - {os: windows-latest, r: 'oldrel-4'}
 
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
@@ -32,6 +29,7 @@ jobs:
           - {os: ubuntu-latest,  r: 'oldrel-2'}
           - {os: ubuntu-latest,  r: 'oldrel-3'}
           - {os: ubuntu-latest,  r: 'oldrel-4'}
+          - {os: ubuntu-latest,  r: '3.6'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -80,13 +78,28 @@ jobs:
 
 # do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v2
+        if: "!startsWith(github.ref, 'refs/heads/release/')"
         with:
           args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-build-vignettes", "--ignore-vignettes", "--no-examples")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
-          error-on: '"error"'
+          error-on: '"warning"'
           check-dir: '"check"'
           upload-snapshots: false
           upload-results: false
+      
+      - name: Run check for CRAN
+        uses: r-lib/actions/check-r-package@v2
+        if: startsWith(github.ref, 'refs/heads/release/')
+        with:
+          args: 'c("--no-manual", "--as-cran")'
+          build_args: 'c("--no-manual")'
+          error-on: '"warning"'
+          check-dir: '"check"'
+          upload-snapshots: false
+          upload-results: false
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: true
+          _R_CHECK_CRAN_INCOMING_: true
 
 # do not upload artifact until changing to public repo
 # When public repo -> uncomment below

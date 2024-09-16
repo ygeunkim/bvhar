@@ -19,8 +19,8 @@ sim_mnormal(
 \item{sig}{Variance matrix}
 
 \item{method}{Method to compute \eqn{\Sigma^{1/2}}.
-Choose between \code{"eigen"} (spectral decomposition) and \code{"chol"} (cholesky decomposition).
-By default, \code{"eigen"}.}
+Choose between \code{eigen} (spectral decomposition) and \code{chol} (cholesky decomposition).
+By default, \code{eigen}.}
 }
 \value{
 T x k matrix

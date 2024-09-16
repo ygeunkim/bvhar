@@ -7,12 +7,12 @@
 print.summary.normaliw <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(
     "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
+    paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n",
+    sep = ""
   )
   # Model description----------------
   process_type <- ifelse(x$spec$process == "BVAR", "BVAR", "BVHAR")
-  prior_type <- switch(
-    process_type,
+  prior_type <- switch(process_type,
     "BVAR" = {
       x$spec$prior
     },
