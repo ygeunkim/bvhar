@@ -45,7 +45,7 @@ bvhar_ssvs(
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} type. By default, \code{"no"}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{short} type and \code{longrun} type. By default, \code{no}.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -77,8 +77,8 @@ It is a list with the following components:
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \code{"VHAR_SSVS"}}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{SSVS specification defined by \code{\link[=set_ssvs]{set_ssvs()}}}
 \item{init}{Initial specification defined by \code{\link[=init_ssvs]{init_ssvs()}}}
 \item{chain}{The numer of chains}
@@ -111,7 +111,5 @@ and for upper triangular matrix \eqn{\Psi},
 Gibbs sampler is used for the estimation.
 }
 \references{
-Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
-
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }

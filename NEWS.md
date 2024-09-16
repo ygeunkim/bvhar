@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+# bvhar 2.1.0
+
 * Use Signal Adaptive Variable Selector (SAVS) to generate sparse coefficient from shrinkage priors.
 
 * `var_bayes()` and `vhar_bayes()` now handle both shrinkage priors and stochastic volatility.

@@ -238,7 +238,8 @@ names(fit_har)
 
 ## BVAR
 
-`bvhar` package provides two prior framework - Minnesota prior and flat prior.
+This page provides deprecated two functions examples.
+Both `bvar_minnesota()` and `bvar_flat()` will be integrated into `var_bayes()` and removed in the next version.
 
 ### Minnesota prior
 
@@ -348,6 +349,7 @@ We call this VAR-type Minnesota prior or BVHAR-S.
 
 `bvhar_minnesota(y, har = c(5, 22), bayes_spec, include_mean = TRUE)` can fit BVHAR with this prior.
 This is the default prior setting.
+Similar to above functions, this function will be also integrated into `vhar_bayes()` and removed in the next version.
 
 ```{r}
 (fit_bvhar_v1 <- bvhar_minnesota(etf_train, num_iter = 10, bayes_spec = bvhar_spec_v1))

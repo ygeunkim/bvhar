@@ -237,7 +237,7 @@ set_bvar_flat <- function(U) {
 #' )
 #' class(bvhar_var_spec)
 #' str(bvhar_var_spec)
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @order 1
 #' @export
 set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
@@ -292,7 +292,7 @@ set_bvhar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #'   \item{weekly}{Vector value assigned for weekly weight}
 #'   \item{monthly}{Vector value assigned for monthly weight}
 #' }
-#' @references Kim, Y. G., and Baek, C. (2023+). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @examples 
 #' # BVHAR-L specification---------------------------
 #' bvhar_vhar_spec <- set_weight_bvhar(
@@ -467,13 +467,13 @@ set_intercept <- function(mean = 0, sd = .1) {
 #' * `chol_` arguments can be one value for replication, vector, or upper triangular matrix.
 #' @return `ssvsinput` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
 #' Ishwaran, H., & Rao, J. S. (2005). *Spike and slab variable selection: Frequentist and Bayesian strategies*. The Annals of Statistics, 33(2).
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
 set_ssvs <- function(coef_spike = .1,
@@ -615,13 +615,13 @@ set_ssvs <- function(coef_spike = .1,
 
 #' Initial Parameters of Stochastic Search Variable Selection (SSVS) Model
 #' 
-#' Set initial parameters before starting Gibbs sampler for SSVS.
+#' `r lifecycle::badge("deprecated")` Set initial parameters before starting Gibbs sampler for SSVS.
 #' 
 #' @param init_coef Initial coefficient matrix. Initialize with an array or list for multiple chains.
 #' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
 #' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
 #' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
-#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `"user"` (User-given) and `"auto"` (OLS for coefficients and 1 for dummy).
+#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `user` (User-given) and `auto` (OLS for coefficients and 1 for dummy).
 #' @details 
 #' Set SSVS initialization for the VAR model.
 #' 
@@ -635,11 +635,11 @@ set_ssvs <- function(coef_spike = .1,
 #' For parallel chain initialization, assign three-dimensional array or three-length list.
 #' @return `ssvsinit` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
 init_ssvs <- function(init_coef,
@@ -647,6 +647,7 @@ init_ssvs <- function(init_coef,
                       init_chol,
                       init_chol_dummy,
                       type = c("user", "auto")) {
+  deprecate_warn("2.0.1", "init_ssvs()", details = "'bvar_ssvs()' and 'bvhar_ssvs()' are deprecated. 'var_bayes()' and 'vhar_bayes()' initialize gibbs sampler in random.")
   type <- match.arg(type)
   if (type == "auto") {
     init_coef <- NULL
@@ -709,9 +710,9 @@ init_ssvs <- function(init_coef,
 #' In this package, horseshoe prior model is estimated by Gibbs sampling,
 #' initial means initial values for that gibbs sampler.
 #' @references
-#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465–480.
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2), 465-480.
 #'
-#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179-182.
 #' @order 1
 #' @export
 set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsity = 1) {
@@ -743,7 +744,7 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 
 #' Normal-Gamma Hyperparameter for Coefficients and Contemporaneous Coefficients
 #'
-#' Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#' `r lifecycle::badge("experimental")` Set NG hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
 #' @param shape_sd Standard deviation used in MH of Gamma shape
 #' @param group_shape Inverse gamma prior shape for coefficient group shrinkage
@@ -754,11 +755,11 @@ set_horseshoe <- function(local_sparsity = 1, group_sparsity = 1, global_sparsit
 #' @param contem_global_scale Inverse gamma prior scale for contemporaneous coefficient global shrinkage
 #' @return `ngspec` object
 #' @references
-#' Chan, J. C. C. (2021). *Minnesota-type adaptive hierarchical priors for large Bayesian VARs*. International Journal of Forecasting, 37(3), 1212–1226.
+#' Chan, J. C. C. (2021). *Minnesota-type adaptive hierarchical priors for large Bayesian VARs*. International Journal of Forecasting, 37(3), 1212-1226.
 #' 
-#' Huber, F., & Feldkircher, M. (2019). *Adaptive Shrinkage in Bayesian Vector Autoregressive Models*. Journal of Business & Economic Statistics, 37(1), 27–39.
+#' Huber, F., & Feldkircher, M. (2019). *Adaptive Shrinkage in Bayesian Vector Autoregressive Models*. Journal of Business & Economic Statistics, 37(1), 27-39.
 #' 
-#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
 #' @order 1
 #' @export
 set_ng <- function(shape_sd = .01,
@@ -801,16 +802,16 @@ set_ng <- function(shape_sd = .01,
 
 #' Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients
 #'
-#' Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#' `r lifecycle::badge("experimental")` Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
 #' @param dir_grid Griddy gibbs grid size for Dirichlet hyperparameter
 #' @param shape Gamma shape
 #' @param rate Gamma rate
 #' @return `dlspec` object
 #' @references
-#' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet–Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479–1490.
+#' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet-Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479-1490.
 #'
-#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
 #' @order 1
 #' @export
 set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
@@ -871,7 +872,7 @@ set_ldlt <- function(ig_shape = 3, ig_scl = .01) {
 #' [set_sv()] specifices time varying precision matrix under stochastic volatility framework based on
 #' \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L}
 #' @references
-#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137–154\]*. Journal of Econometrics, 227(2), 506-512.
+#' Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” \[J. Econometrics 212 (1)(2019) 137-154\]*. Journal of Econometrics, 227(2), 506-512.
 #'
 #' Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
 #' @order 1

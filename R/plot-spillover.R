@@ -2,7 +2,7 @@
 #' 
 #' Draws dynamic directional spillover plot.
 #'
-#' @param object `bvhardynsp` object
+#' @param object A `bvhardynsp` object
 #' @param type Index to draw
 #' @param hcol color of horizontal line = 0 (By default, grey)
 #' @param hsize size of horizontal line = 0 (By default, 1.5)

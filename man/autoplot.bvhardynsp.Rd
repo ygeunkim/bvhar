@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{object}{\code{bvhardynsp} object}
+\item{object}{A \code{bvhardynsp} object}
 
 \item{type}{Index to draw}
 

@@ -1,5 +1,5 @@
 #' @rdname var_lm
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param ... not used
 #' @details 
 #' Consider the response matrix \eqn{Y_0}.
@@ -47,7 +47,7 @@ logLik.varlse <- function(object, ...) {
 }
 
 #' @rdname vhar_lm
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @param ... not used
 #' @export
 logLik.vharlse <- function(object, ...) {
@@ -71,7 +71,7 @@ logLik.vharlse <- function(object, ...) {
 }
 
 #' @rdname bvar_minnesota
-#' @param object `bvarmn` object
+#' @param object A `bvarmn` object
 #' @param ... not used
 #' @export
 logLik.bvarmn <- function(object, ...) {
@@ -95,7 +95,7 @@ logLik.bvarmn <- function(object, ...) {
 }
 
 #' @rdname bvar_flat
-#' @param object `bvarflat` object
+#' @param object A `bvarflat` object
 #' @param ... not used
 #' @export
 logLik.bvarflat <- function(object, ...) {
@@ -119,7 +119,7 @@ logLik.bvarflat <- function(object, ...) {
 }
 
 #' @rdname bvhar_minnesota
-#' @param object `bvharmn` object
+#' @param object A `bvharmn` object
 #' @param ... not used
 #' @export
 logLik.bvharmn <- function(object, ...) {
@@ -143,7 +143,7 @@ logLik.bvharmn <- function(object, ...) {
 }
 
 #' @rdname var_lm
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param ... not used
 #' @details 
 #' Let \eqn{\tilde{\Sigma}_e} be the MLE
@@ -158,9 +158,9 @@ logLik.bvharmn <- function(object, ...) {
 #' 
 #' where the number of freely estimated parameters is \eqn{mk}, i.e. \eqn{pm^2} or \eqn{pm^2 + m}.
 #' @references
-#' Akaike, H. (1969). *Fitting autoregressive models for prediction*. Ann Inst Stat Math 21, 243–247.
+#' Akaike, H. (1969). *Fitting autoregressive models for prediction*. Ann Inst Stat Math 21, 243-247.
 #' 
-#' Akaike, H. (1971). *Autoregressive model fitting for control*. Ann Inst Stat Math 23, 163–180.
+#' Akaike, H. (1971). *Autoregressive model fitting for control*. Ann Inst Stat Math 23, 163-180.
 #' 
 #' Akaike H. (1974). *A new look at the statistical model identification*. IEEE Transactions on Automatic Control, vol. 19, no. 6, pp. 716-723.
 #' 
@@ -174,7 +174,7 @@ AIC.varlse <- function(object, ...) {
 }
 
 #' @rdname vhar_lm
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @param ... not used
 #' @export
 AIC.vharlse <- function(object, ...) {
@@ -184,7 +184,7 @@ AIC.vharlse <- function(object, ...) {
 }
 
 #' @rdname bvar_minnesota
-#' @param object `bvarmn` object
+#' @param object A `bvarmn` object
 #' @param ... not used
 #' @export
 AIC.bvarmn <- function(object, ...) {
@@ -194,7 +194,7 @@ AIC.bvarmn <- function(object, ...) {
 }
 
 #' @rdname bvar_flat
-#' @param object `bvarflat` object
+#' @param object A `bvarflat` object
 #' @param ... not used
 #' @export
 AIC.bvarflat <- function(object, ...) {
@@ -204,7 +204,7 @@ AIC.bvarflat <- function(object, ...) {
 }
 
 #' @rdname bvhar_minnesota
-#' @param object `bvharmn` object
+#' @param object A `bvharmn` object
 #' @param ... not used
 #' @export
 AIC.bvharmn <- function(object, ...) {
@@ -306,7 +306,7 @@ BIC.bvharmn <- function(object, ...) {
 #' 
 #' Compute HQ of VAR(p), VHAR, BVAR(p), and BVHAR
 #' 
-#' @param object `logLik` object or Model fit
+#' @param object A `logLik` object or Model fit
 #' @param ... not used
 #' @return HQ value.
 #' @export

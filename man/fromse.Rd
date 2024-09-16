@@ -30,5 +30,5 @@ Then the function computes estimation error by
 \deqn{MSE = 100 \frac{\lVert \hat{\Phi} - \Phi \rVert_F}{nrow \times k}}
 }
 \references{
-Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 }

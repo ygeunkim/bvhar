@@ -36,7 +36,7 @@ RMAFE is the ratio of L1 norm of \eqn{e_t} from forecasting object and from benc
 where \eqn{e_t^{(b)}} is the error from the benchmark model.
 }
 \references{
-Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679–688.
+Hyndman, R. J., & Koehler, A. B. (2006). \emph{Another look at measures of forecast accuracy}. International Journal of Forecasting, 22(4), 679-688.
 
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).
 

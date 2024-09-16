@@ -6,8 +6,8 @@
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @details
 #' Consider \eqn{x_1, \ldots, x_n \sim N_m (\mu, \Sigma)}.
 #' 
@@ -37,8 +37,8 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
 #' @param mu Location vector
 #' @param sig Scale matrix.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @return T x k matrix
 #' @export
 sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
@@ -63,10 +63,10 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @param process Process to generate error term.
-#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' `gaussian`: Normal distribution (default) or `student`: Multivariate t-distribution.
 #' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' @details 
 #' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
@@ -152,7 +152,7 @@ sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = 
 #' \deqn{f(x) = \frac{(\psi / \chi)^(\lambda / 2)}{2 K_{\lambda}(\sqrt{\psi \chi})} x^{\lambda - 1} \exp(-\frac{1}{2} (\frac{\chi}{x} + \psi x))}
 #' where \eqn{x > 0}.
 #' @references
-#' Hörmann, W., Leydold, J. *Generating generalized inverse Gaussian random variates*. Stat Comput 24, 547–557 (2014).
+#' Hörmann, W., Leydold, J. *Generating generalized inverse Gaussian random variates*. Stat Comput 24, 547-557 (2014).
 #' 
 #' Leydold, J, Hörmann, W.. *GIGrvg: Random Variate Generator for the GIG Distribution*. R package version 0.8 (2023).
 #' @export
@@ -185,10 +185,10 @@ sim_gig <- function(num_sim, lambda, psi, chi) {
 #' @param sig_error Variance matrix of the error term. By default, `diag(dim)`.
 #' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
 #' @param method Method to compute \eqn{\Sigma^{1/2}}.
-#' Choose between `"eigen"` (spectral decomposition) and `"chol"` (cholesky decomposition).
-#' By default, `"eigen"`.
+#' Choose between `eigen` (spectral decomposition) and `chol` (cholesky decomposition).
+#' By default, `eigen`.
 #' @param process Process to generate error term.
-#' `"gaussian"`: Normal distribution (default) or `"student"`: Multivariate t-distribution.
+#' `gaussian`: Normal distribution (default) or `student`: Multivariate t-distribution.
 #' @param t_param `r lifecycle::badge("experimental")` argument for MVT, e.g. DF: 5.
 #' @details 
 #' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.

@@ -13,7 +13,7 @@
 \method{knit_print}{summary.varlse}(x, ...)
 }
 \arguments{
-\item{object}{\code{varlse} object}
+\item{object}{A \code{varlse} object}
 
 \item{...}{not used}
 

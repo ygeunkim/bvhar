@@ -24,19 +24,19 @@ compute_ci <- function(draws, level = .05) {
 #' Conduct variable selection.
 #' 
 #' @param object Model fit
-#' @param method Use PIP (`"pip"`) or credible interval (`"ci"`).
+#' @param method Use PIP (`pip`) or credible interval (`ci`).
 #' @param threshold Threshold for posterior inclusion probability
 #' @param level Specify alpha of credible interval level 100(1 - alpha) percentage. By default, `.05`.
 #' @param ... not used
 #' @return `summary.ssvsmod` object
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' 
-#' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85–117.
+#' O’Hara, R. B., & Sillanpää, M. J. (2009). *A review of Bayesian variable selection methods: what, how and which*. Bayesian Analysis, 4(1), 85-117.
 #' @name summary.bvharsp
 #' @importFrom posterior subset_draws
 #' @export
@@ -189,7 +189,7 @@ fromse <- function(x, y, ...) {
 #' and let \eqn{\Phi} be the true coefficients matrix.
 #' Then the function computes estimation error by
 #' \deqn{MSE = 100 \frac{\lVert \hat{\Phi} - \Phi \rVert_F}{nrow \times k}}
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 fromse.bvharsp <- function(x, y, ...) {
   100 * norm(x$coefficients - y, type = "F") / (x$df * x$m)
@@ -282,7 +282,7 @@ confusion <- function(x, y, ...) {
 #' In this confusion matrix, positive (0) means sparsity.
 #' FP is false positive, and TP is true positive.
 #' FN is false negative, and FN is false negative.
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   est <- factor(c(x$choose_coef * 1), levels = c(0L, 1L))
@@ -314,7 +314,7 @@ conf_fdr <- function(x, y, ...) {
 #' \deqn{FDR = \frac{FP}{TP + FP}}
 #' where TP is true positive, and FP is false positive.
 #' @seealso [confusion()]
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 conf_fdr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
@@ -346,7 +346,7 @@ conf_prec <- function(x, y, ...) {
 #' \deqn{precision = \frac{TP}{TP + FP}}
 #' where TP is true positive, and FP is false positive.
 #' @seealso [confusion()]
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 conf_prec.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
@@ -376,7 +376,7 @@ conf_fnr <- function(x, y, ...) {
 #' \deqn{FNR = \frac{FN}{TP + FN}}
 #' where TP is true positive, and FN is false negative.
 #' @seealso [confusion()]
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 conf_fnr.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)
@@ -406,7 +406,7 @@ conf_recall <- function(x, y, ...) {
 #' \deqn{recall = \frac{TP}{TP + FN}}
 #' where TP is true positive, and FN is false negative.
 #' @seealso [confusion()]
-#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+#' @references Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 #' @export
 conf_recall.summary.bvharsp <- function(x, y, truth_thr = 0L, ...) {
   conftab <- confusion(x, y, truth_thr = truth_thr)

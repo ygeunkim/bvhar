@@ -7,7 +7,7 @@
 VARtoVMA(object, lag_max)
 }
 \arguments{
-\item{object}{\code{varlse} object}
+\item{object}{A \code{varlse} object}
 
 \item{lag_max}{Maximum lag for VMA}
 }

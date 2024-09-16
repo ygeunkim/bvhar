@@ -49,7 +49,7 @@ install.packages("bvhar")
 
 <!-- dev badges: start -->
 [![dev-r-cmd-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Adevelop)
-[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg)](https://codecov.io/github/ygeunkim/bvhar)
+[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar/tree/develop)
 [![Development version updated](https://img.shields.io/github/last-commit/ygeunkim/bvhar/develop?label=dev%20updated)](https://github.com/ygeunkim/bvhar/tree/develop)
 <!-- dev badges: end -->
 
@@ -59,6 +59,11 @@ You can install the development version from [develop branch](https://github.com
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar@develop")
 ```
+
+We started to develop a Python version in python directory.
+
+- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [Source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
 
 ## Models
 
@@ -80,6 +85,7 @@ Repeatedly, `bvhar` is a research tool to analyze multivariate time series model
 
 This readme document shows forecasting procedure briefly.
 Details about each function are in vignettes and help documents.
+Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the next version.
 
 h-step ahead forecasting:
 
@@ -184,16 +190,6 @@ MSE:
 ```{r predbvharl}
 forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 (msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
-```
-
-## Plots
-
-```{r predfig}
-autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
-  autolayer(forecast_vhar, ci_alpha = .6) +
-  autolayer(forecast_bvar, ci_alpha = .4) +
-  autolayer(forecast_bvhar_v1, ci_alpha = .2) +
-  autolayer(forecast_bvhar_v2, ci_alpha = .1)
 ```
 
 ## Citation

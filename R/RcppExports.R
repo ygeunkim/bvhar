@@ -272,7 +272,7 @@ VARcoeftoVMA <- function(var_coef, var_lag, lag_max) {
 #' 
 #' Convert VAR process to infinite vector MA process
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param lag_max Maximum lag for VMA
 #' @details
 #' Let VAR(p) be stable.
@@ -300,7 +300,7 @@ compute_var_mse <- function(cov_mat, var_coef, var_lag, step) {
 #' 
 #' Compute the forecast MSE matrices using VMA coefficients
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' See pp38 of Lütkepohl (2007).
@@ -338,7 +338,7 @@ VHARcoeftoVMA <- function(vhar_coef, HARtrans_mat, lag_max, month) {
 #' 
 #' Convert VHAR process to infinite vector MA process
 #' 
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @param lag_max Maximum lag for VMA
 #' @details
 #' Let VAR(p) be stable
@@ -694,7 +694,7 @@ compute_cov <- function(z, num_design, dim_design) {
 #' 
 #' Compute partial t-statistics for inference in VAR model.
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @details
 #' Partial t-statistic for H0: aij = 0
 #' 
@@ -722,9 +722,9 @@ infer_var <- function(object) {
 #' \deqn{Y_0 = X_1 \Phi + Z}
 #' 
 #' @references
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495-510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 #' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174-196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 #' @noRd
 estimate_har <- function(y, week, month, include_mean, method) {
     .Call(`_bvhar_estimate_har`, y, week, month, include_mean, method)
@@ -734,7 +734,7 @@ estimate_har <- function(y, week, month, include_mean, method) {
 #' 
 #' Compute partial t-statistics for inference in VHAR model.
 #' 
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @details
 #' Partial t-statistic for H0: \eqn{\phi_{ij} = 0}
 #' 
@@ -970,7 +970,7 @@ expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thi
 
 #' Forecasting BVAR(p)
 #' 
-#' @param object `bvarmn` or `bvarflat` object
+#' @param object A `bvarmn` or `bvarflat` object
 #' @param step Integer, Step to forecast
 #' @param num_sim Integer, number to simulate parameters from posterior distribution
 #' @details
@@ -993,7 +993,7 @@ expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thi
 #' 
 #' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 #' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 #' 
 #' @noRd
 forecast_bvar <- function(object, step, num_sim) {
@@ -1002,7 +1002,7 @@ forecast_bvar <- function(object, step, num_sim) {
 
 #' Forecasting Bayesian VHAR
 #' 
-#' @param object `bvharmn` object
+#' @param object A `bvharmn` object
 #' @param step Integer, Step to forecast
 #' @param num_sim Integer, number to simulate parameters from posterior distribution
 #' @details
@@ -1016,7 +1016,7 @@ forecast_bvar <- function(object, step, num_sim) {
 #'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 #'     - tilde notation indicates simulated ones
 #' 
-#' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @noRd
 forecast_bvharmn <- function(object, step, num_sim) {
     .Call(`_bvhar_forecast_bvharmn`, object, step, num_sim)
@@ -1120,7 +1120,7 @@ expand_bvhar <- function(y, week, month, bayes_spec, include_mean, step, y_test,
 
 #' Forecasting Vector Autoregression
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' n-step ahead forecasting using VAR(p) recursively, based on pp35 of Lütkepohl (2007).
@@ -1133,7 +1133,7 @@ forecast_var <- function(object, step) {
 
 #' Forecasting Vector HAR
 #' 
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @param step Integer, Step to forecast
 #' @details
 #' n-step ahead forecasting using VHAR recursively.
@@ -1684,7 +1684,7 @@ logml_stable <- function(object) {
 #' 
 #' Compute AIC using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_aic <- function(object) {
@@ -1695,7 +1695,7 @@ compute_aic <- function(object) {
 #' 
 #' Compute BIC using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_bic <- function(object) {
@@ -1706,7 +1706,7 @@ compute_bic <- function(object) {
 #' 
 #' Compute HQ using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_hq <- function(object) {
@@ -1717,7 +1717,7 @@ compute_hq <- function(object) {
 #' 
 #' Compute FPE using RSS
 #' 
-#' @param object `varlse` or `vharlse` object
+#' @param object A `varlse` or `vharlse` object
 #' 
 #' @noRd
 compute_fpe <- function(object) {

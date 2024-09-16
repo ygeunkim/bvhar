@@ -28,7 +28,7 @@
 
 \item{object}{Model fit}
 
-\item{method}{Use PIP (\code{"pip"}) or credible interval (\code{"ci"}).}
+\item{method}{Use PIP (\code{pip}) or credible interval (\code{ci}).}
 
 \item{threshold}{Threshold for posterior inclusion probability}
 
@@ -45,11 +45,11 @@
 Conduct variable selection.
 }
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881-889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553-580.
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267-358.
 
-O’Hara, R. B., & Sillanpää, M. J. (2009). \emph{A review of Bayesian variable selection methods: what, how and which}. Bayesian Analysis, 4(1), 85–117.
+O’Hara, R. B., & Sillanpää, M. J. (2009). \emph{A review of Bayesian variable selection methods: what, how and which}. Bayesian Analysis, 4(1), 85-117.
 }

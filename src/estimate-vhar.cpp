@@ -15,9 +15,9 @@
 //' \deqn{Y_0 = X_1 \Phi + Z}
 //' 
 //' @references
-//' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
+//' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495-510. doi:[10.1007/s42952-020-00090-5](https://doi.org/10.1007/s42952-020-00090-5)
 //' 
-//' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
+//' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174-196. doi:[10.1093/jjfinec/nbp001](https://doi.org/10.1093/jjfinec/nbp001)
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_har(Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
@@ -29,7 +29,7 @@ Rcpp::List estimate_har(Eigen::MatrixXd y, int week, int month, bool include_mea
 //' 
 //' Compute partial t-statistics for inference in VHAR model.
 //' 
-//' @param object `vharlse` object
+//' @param object A `vharlse` object
 //' @details
 //' Partial t-statistic for H0: \eqn{\phi_{ij} = 0}
 //' 
