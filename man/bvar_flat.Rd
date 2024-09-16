@@ -63,7 +63,7 @@ is.bvarflat(x)
 
 \item{...}{not used}
 
-\item{object}{\code{bvarflat} object}
+\item{object}{A \code{bvarflat} object}
 }
 \value{
 \code{bvar_flat()} returns an object \code{bvarflat} \link{class}.
@@ -81,9 +81,9 @@ It is a list with the following components:
 \item{m}{Dimension of the time series}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
-\item{process}{Process string in the \code{bayes_spec}: \code{"BVAR_Flat"}}
+\item{process}{Process string in the \code{bayes_spec}: \code{BVAR_Flat}}
 \item{spec}{Model specification (\code{bvharspec})}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{call}{Matched call}
 \item{prior_mean}{Prior mean matrix of Matrix Normal distribution: zero matrix}
 \item{prior_precision}{Prior precision matrix of Matrix Normal distribution: \eqn{U^{-1}}}

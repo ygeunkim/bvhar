@@ -158,9 +158,9 @@ Litterman, R. B. (1986). \emph{Forecasting with Bayesian Vector Autoregressions:
 
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 }
 \seealso{
 \itemize{

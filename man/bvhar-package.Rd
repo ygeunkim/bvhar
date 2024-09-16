@@ -8,20 +8,22 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Tools to research Bayesian Vector heterogeneous autoregressive (VHAR) model, referring to Kim & Baek (2023) (\doi{10.1080/00949655.2023.2281644}). 'bvhar' can model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
+Tools to model and forecast multivariate time series including Bayesian Vector heterogeneous autoregressive (VHAR) model by Kim & Baek (2023) (\doi{10.1080/00949655.2023.2281644}). 'bvhar' can model Vector Autoregressive (VAR), VHAR, Bayesian VAR (BVAR), and Bayesian VHAR (BVHAR) models.
 }
 \details{
-The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modelling.
+The bvhar package provides function to analyze and forecast multivariate time series data via vector autoregressive modeling.
 Here, vector autoregressive modelling includes:
 \itemize{
 \item Vector autoregressive (VAR) model: \code{\link[=var_lm]{var_lm()}}
 \item Vector heterogeneous autoregressive (VHAR) model: \code{\link[=vhar_lm]{vhar_lm()}}
-\item Bayesian VAR (BVAR) model: \code{\link[=bvar_minnesota]{bvar_minnesota()}}, \code{\link[=bvar_flat]{bvar_flat()}}
-\item Bayesian VHAR (BVHAR) model: \code{\link[=bvhar_minnesota]{bvhar_minnesota()}}
+\item Bayesian VAR (BVAR) model: \code{\link[=var_bayes]{var_bayes()}}
+\item Bayesian VHAR (BVHAR) model: \code{\link[=vhar_bayes]{vhar_bayes()}}
 }
 }
 \references{
-Kim, Y. G., and Baek, C. (2023). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
+
+Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }
 \seealso{
 Useful links:

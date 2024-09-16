@@ -1291,7 +1291,7 @@ mse <- function(x, y, ...) {
 #' Let \eqn{e_t = y_t - \hat{y}_t}. Then
 #' \deqn{MSE = mean(e_t^2)}
 #' MSE is the most used accuracy measure.
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mse.predbvhar <- function(x, y, ...) {
   (y - x$forecast)^2 %>% 
@@ -1333,7 +1333,7 @@ mae <- function(x, y, ...) {
 #' \deqn{MSE = mean(\lvert e_t \rvert)}
 #' 
 #' Some researchers prefer MAE to MSE because it is less sensitive to outliers.
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mae.predbvhar <- function(x, y, ...) {
   apply(
@@ -1383,7 +1383,7 @@ mape <- function(x, y, ...) {
 #' Percentage error is defined by \eqn{p_t = 100 e_t / Y_t} (100 can be omitted since comparison is the focus).
 #' 
 #' \deqn{MAPE = mean(\lvert p_t \rvert)}
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mape.predbvhar <- function(x, y, ...) {
   apply(
@@ -1439,7 +1439,7 @@ mase <- function(x, y, ...) {
 #' 
 #' Here, \eqn{Y_i} are the points in the sample, i.e. errors are scaled by the in-sample mean absolute error (\eqn{mean(\lvert e_t \rvert)}) from the naive random walk forecasting.
 #' 
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mase.predbvhar <- function(x, y, ...) {
   scaled_err <- 
@@ -1506,7 +1506,7 @@ mrae <- function(x, pred_bench, y, ...) {
 #' 
 #' \deqn{MRAE = mean(\lvert r_t \rvert)}
 #' 
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mrae.predbvhar <- function(x, pred_bench, y, ...) {
   if (!is.predbvhar(pred_bench)) {
@@ -1569,7 +1569,7 @@ relmae <- function(x, pred_bench, y, ...) {
 #' \deqn{RelMAE = \frac{MAE}{MAE_b}}
 #' 
 #' where \eqn{MAE} is the MAE of our model.
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 relmae.predbvhar <- function(x, pred_bench, y, ...) {
   mae(x, y) / mae(pred_bench, y)
@@ -1612,7 +1612,7 @@ rmape <- function(x, pred_bench, y, ...) {
 #' \deqn{RMAPE = \frac{mean(MAPE)}{mean(MAPE_b)}}
 #' 
 #' where \eqn{MAPE} is the MAPE of our model.
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 rmape.predbvhar <- function(x, pred_bench, y, ...) {
   mean(mape(x, y)) / mean(mape(pred_bench, y))
@@ -1655,7 +1655,7 @@ rmase <- function(x, pred_bench, y, ...) {
 #' \deqn{RMASE = \frac{mean(MASE)}{mean(MASE_b)}}
 #' 
 #' where \eqn{MASE} is the MASE of our model.
-#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 rmase.predbvhar <- function(x, pred_bench, y, ...) {
   mean(mase(x, y)) / mean(mase(pred_bench, y))
@@ -1698,7 +1698,7 @@ rmsfe <- function(x, pred_bench, y, ...) {
 #' 
 #' where \eqn{e_t^{(b)}} is the error from the benchmark model.
 #' @references 
-#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 
@@ -1746,7 +1746,7 @@ rmafe <- function(x, pred_bench, y, ...) {
 #' where \eqn{e_t^{(b)}} is the error from the benchmark model.
 #' 
 #' @references 
-#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679–688.
+#' Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' 
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
 #' 

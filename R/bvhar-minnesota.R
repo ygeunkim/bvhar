@@ -113,15 +113,15 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 #'   \item{week}{Order for weekly term}
 #'   \item{month}{Order for monthly term}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
 #'   \item{y}{Raw input (`matrix`)}
 #'   \item{call}{Matched call}
-#'   \item{process}{Process string in the `bayes_spec`: `"BVHAR_MN_VAR"` (BVHAR-S) or `"BVHAR_MN_VHAR"` (BVHAR-L)}
+#'   \item{process}{Process string in the `bayes_spec`: `BVHAR_MN_VAR` (BVHAR-S) or `BVHAR_MN_VHAR` (BVHAR-L)}
 #'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
-#' @references Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
+#' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 #' @seealso 
 #' * [set_bvhar()] to specify the hyperparameters of BVHAR-S
 #' * [set_weight_bvhar()] to specify the hyperparameters of BVHAR-L

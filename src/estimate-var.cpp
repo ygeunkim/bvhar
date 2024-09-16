@@ -49,7 +49,7 @@ Eigen::MatrixXd compute_cov(Eigen::MatrixXd z, int num_design, int dim_design) {
 //' 
 //' Compute partial t-statistics for inference in VAR model.
 //' 
-//' @param object `varlse` object
+//' @param object A `varlse` object
 //' @details
 //' Partial t-statistic for H0: aij = 0
 //' 

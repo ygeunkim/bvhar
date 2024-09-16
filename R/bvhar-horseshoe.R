@@ -11,7 +11,7 @@
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Minnesota type
-#' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
+#' @param algo Ordinary gibbs sampling (`gibbs`) or blocked gibbs (Default: `block`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @return `bvhar_horseshoe` returns an object named `bvarhs` [class].
@@ -31,9 +31,9 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VHAR_Horseshoe"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{algo}{Usual Gibbs sampling (`"gibbs"`) or fast sampling (`"fast"`)}
+#'   \item{process}{Description of the model, e.g. `VHAR_Horseshoe`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
+#'   \item{algo}{Usual Gibbs sampling (`gibbs`) or fast sampling (`fast`)}
 #'   \item{spec}{Horseshoe specification defined by [set_horseshoe()]}
 #'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
@@ -47,8 +47,6 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
-#'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws
 #' @importFrom stats cov

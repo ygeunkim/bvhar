@@ -2,7 +2,7 @@
 #' 
 #' `summary` method for `varlse` class.
 #' 
-#' @param object `varlse` object
+#' @param object A `varlse` object
 #' @param ... not used
 #' 
 #' @return `summary.varlse` [class] additionally computes the following

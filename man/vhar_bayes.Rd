@@ -49,8 +49,8 @@ vhar_bayes(
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
-\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{"short"} type and \code{"longrun"} (default) type.
-You can also set \code{"no"}.}
+\item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{short} type and \code{longrun} (default) type.
+You can also set \code{no}.}
 
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.
@@ -85,7 +85,8 @@ If \code{num_burn > 0} or \code{thinning != 1}, this option is ignored.}
 \item{obs}{Sample size used when training = \code{totobs} - \code{p}}
 \item{totobs}{Total number of the observation}
 \item{call}{Matched call}
-\item{process}{Description of the model, e.g. \verb{"VHAR_SSVS_SV", }"VHAR_Horseshoe_SV", or \verb{"VHAR_minnesota-part_SV"\} \\item\{type\}\{include constant term (}"const"\verb{) or not (}"none"`)}
+\item{process}{Description of the model, e.g. \code{VHAR_SSVS_SV}, \code{VHAR_Horseshoe_SV}, or \code{VHAR_minnesota-part_SV}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
 \item{spec}{Coefficients prior specification}
 \item{sv}{log volatility prior specification}
 \item{init}{Initial values}
@@ -115,7 +116,7 @@ Cholesky stochastic volatility modeling for VHAR based on
 \deqn{\Sigma_t^{-1} = L^T D_t^{-1} L}
 }
 \references{
-Kim, Y. G., and Baek, C. (2023+). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation.
+Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 
 Kim, Y. G., and Baek, C. (n.d.). Working paper.
 }

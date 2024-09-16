@@ -42,8 +42,8 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VAR_SSVS"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{process}{Description of the model, e.g. `VAR_SSVS`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{spec}{SSVS specification defined by [set_ssvs()]}
 #'   \item{init}{Initial specification defined by [init_ssvs()]}
 #'   \item{chain}{The numer of chains}
@@ -57,11 +57,11 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881–889.
+#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
 #' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553–580.
+#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
 #' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267–358.
+#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export

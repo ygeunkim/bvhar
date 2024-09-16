@@ -73,10 +73,10 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #'   \item{design}{\eqn{X_0}}
 #'   \item{p}{Lag of VAR}
 #'   \item{totobs}{Total number of the observation}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{y}{Raw input (`matrix`)}
 #'   \item{call}{Matched call}
-#'   \item{process}{Process string in the `bayes_spec`: `"BVAR_Minnesota"`}
+#'   \item{process}{Process string in the `bayes_spec`: `BVAR_Minnesota`}
 #'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
@@ -89,9 +89,9 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' 
 #' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132.
 #' 
-#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897.
+#' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897.
 #' 
-#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949–968.
+#' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949-968.
 #' @seealso 
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [summary.normaliw()] to summarize BVAR model

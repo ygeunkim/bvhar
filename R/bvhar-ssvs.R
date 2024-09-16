@@ -11,7 +11,7 @@
 #' @param bayes_spec A SSVS model specification by [set_ssvs()]. By default, use a default semiautomatic approach [choose_ssvs()].
 #' @param init_spec SSVS initialization specification by [init_ssvs()]. By default, use OLS for coefficient and cholesky factor while 1 for dummies.
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `"short"` type and `"longrun"` type. By default, `"no"`.
+#' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `short` type and `longrun` type. By default, `no`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @details 
@@ -46,8 +46,8 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VHAR_SSVS"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
+#'   \item{process}{Description of the model, e.g. `VHAR_SSVS`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
 #'   \item{spec}{SSVS specification defined by [set_ssvs()]}
 #'   \item{init}{Initial specification defined by [init_ssvs()]}
 #'   \item{chain}{The numer of chains}
@@ -62,8 +62,6 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Kim, Y. G., and Baek, C. (2023). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation.
-#'
 #' Kim, Y. G., and Baek, C. (n.d.). Working paper.
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1

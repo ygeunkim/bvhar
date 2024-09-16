@@ -11,7 +11,7 @@
 #' @param bayes_spec Horseshoe initialization specification by [set_horseshoe()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Minnesota type
-#' @param algo Ordinary gibbs sampling (`"gibbs"`) or blocked gibbs (Default: `"block"`).
+#' @param algo Ordinary gibbs sampling (`gibbs`) or blocked gibbs (Default: `block`).
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @return `bvar_horseshoe` returns an object named `bvarhs` [class].
@@ -30,9 +30,9 @@
 #'   \item{obs}{Sample size used when training = `totobs` - `p`}
 #'   \item{totobs}{Total number of the observation}
 #'   \item{call}{Matched call}
-#'   \item{process}{Description of the model, e.g. `"VAR_Horseshoe"`}
-#'   \item{type}{include constant term (`"const"`) or not (`"none"`)}
-#'   \item{algo}{Usual Gibbs sampling (`"gibbs"`) or fast sampling (`"fast"`)}
+#'   \item{process}{Description of the model, e.g. `VAR_Horseshoe`}
+#'   \item{type}{include constant term (`const`) or not (`none`)}
+#'   \item{algo}{Usual Gibbs sampling (`gibbs`) or fast sampling (`fast`)}
 #'   \item{spec}{Horseshoe specification defined by [set_horseshoe()]}
 #'   \item{chain}{The numer of chains}
 #'   \item{iter}{Total iterations}
@@ -45,9 +45,9 @@
 #'   \item{y}{Raw input}
 #' }
 #' @references 
-#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465–480.
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). *The horseshoe estimator for sparse signals*. Biometrika, 97(2), 465-480.
 #' 
-#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179–182.
+#' Makalic, E., & Schmidt, D. F. (2016). *A Simple Sampler for the Horseshoe Estimator*. IEEE Signal Processing Letters, 23(1), 179-182.
 #' @importFrom posterior as_draws_df bind_draws
 #' @importFrom stats cov
 #' @order 1

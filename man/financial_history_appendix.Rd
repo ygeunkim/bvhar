@@ -6,7 +6,7 @@
 \alias{trading_day}
 \title{Time points and Financial Events}
 \format{
-A vector \code{trading_day} saves dates of each \link{etf_vix} and \link{oxfordman}.
+A vector \code{trading_day} saves dates of \link{etf_vix}.
 }
 \usage{
 trading_day
@@ -39,17 +39,13 @@ This might give some hint when cutting data and why we provides datasets in limi
 }
 
 \section{About Datasets in this package}{
-\link{etf_vix} and \link{oxfordman} range from 2012-01-09 to 2015-06-27 (only weekdays).
+\link{etf_vix} ranges from 2012-01-09 to 2015-06-27 (only weekdays).
 Each year corresponds to Italian default and Grexit.
 If you wonder the exact vector of the date, see \link{trading_day} vector.
 }
 
 \section{Notice}{
-If you want other time period, see codes in the Github repo for the dataset.
-\itemize{
-\item \code{etf_vix}: \href{https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R}{ygeunkim/bvhar/data-raw/etf_vix.R}
-\item \code{oxfordman}: \href{https://github.com/ygeunkim/bvhar/blob/master/data-raw/oxfordman_long.R}{ygeunkim/bvhar/data-raw/oxfordman_long.R}
-}
+If you want other time period, see codes in the Github repo for the dataset: \href{https://github.com/ygeunkim/bvhar/blob/master/data-raw/etf_vix.R}{ygeunkim/bvhar/data-raw/etf_vix.R}
 
 You can download what you want by changing a few lines.
 }
