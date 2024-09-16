@@ -32,7 +32,7 @@ Then the precision is computed by
 where TP is true positive, and FP is false positive.
 }
 \references{
-Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global–local shrinkage priors. Journal of Multivariate Analysis, 167, 157–170.
+Bai, R., & Ghosh, M. (2018). High-dimensional multivariate posterior consistency under global-local shrinkage priors. Journal of Multivariate Analysis, 167, 157-170.
 }
 \seealso{
 \code{\link[=confusion]{confusion()}}

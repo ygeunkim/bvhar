@@ -122,14 +122,14 @@ fitted.bvharmn <- function(object, ...) {
 }
 
 #' @rdname var_lm
-#' @param x `varlse` object
+#' @param x A `varlse` object
 #' @export
 is.varlse <- function(x) {
   inherits(x, "varlse")
 }
 
 #' @rdname vhar_lm
-#' @param x `vharlse` object
+#' @param x A `vharlse` object
 #' @export
 is.vharlse <- function(x) {
   inherits(x, "vharlse")

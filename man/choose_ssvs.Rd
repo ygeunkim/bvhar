@@ -20,7 +20,7 @@ choose_ssvs(
 
 \item{ord}{Order for VAR or VHAR.}
 
-\item{type}{Model type (Default: \code{"VAR"} or \code{"VHAR"}).}
+\item{type}{Model type (Default: \code{VAR} or \code{VHAR}).}
 
 \item{param}{Preselected constants \eqn{c_0 << c_1}. By default, \code{0.1} and \code{10} (See Details).}
 
@@ -50,9 +50,9 @@ In case of \eqn{(\omega_{0ij}, \omega_{1ij})},
 similarly.
 }
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881-889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553-580.
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267-358.
 }

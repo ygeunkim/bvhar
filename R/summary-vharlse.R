@@ -2,7 +2,7 @@
 #' 
 #' `summary` method for `vharlse` class.
 #' 
-#' @param object `vharlse` object
+#' @param object A `vharlse` object
 #' @param ... not used
 #' 
 #' @return `summary.vharlse` [class] additionally computes the following
@@ -30,9 +30,9 @@
 #' @references 
 #' Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
 #' 
-#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174–196.
+#' Corsi, F. (2008). *A Simple Approximate Long-Memory Model of Realized Volatility*. Journal of Financial Econometrics, 7(2), 174-196.
 #' 
-#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495–510.
+#' Baek, C. and Park, M. (2021). *Sparse vector heterogeneous autoregressive modeling for realized volatility*. J. Korean Stat. Soc. 50, 495-510.
 #' 
 #' @importFrom stats cor pt
 #' @importFrom tibble add_column

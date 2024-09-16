@@ -22,7 +22,7 @@
 \method{knit_print}{summary.normaliw}(x, ...)
 }
 \arguments{
-\item{object}{\code{normaliw} object}
+\item{object}{A \code{normaliw} object}
 
 \item{num_chains}{Number of MCMC chains}
 

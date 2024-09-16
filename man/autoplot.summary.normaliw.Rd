@@ -13,9 +13,9 @@
 )
 }
 \arguments{
-\item{object}{\code{summary.normaliw} object}
+\item{object}{A \code{summary.normaliw} object}
 
-\item{type}{The type of the plot. Trace plot (\code{"trace"}), kernel density plot (\code{"dens"}), and interval estimates plot (\code{"area"}).}
+\item{type}{The type of the plot. Trace plot (\code{trace}), kernel density plot (\code{dens}), and interval estimates plot (\code{area}).}
 
 \item{pars}{Parameter names to draw.}
 

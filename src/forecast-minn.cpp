@@ -3,7 +3,7 @@
 
 //' Forecasting BVAR(p)
 //' 
-//' @param object `bvarmn` or `bvarflat` object
+//' @param object A `bvarmn` or `bvarflat` object
 //' @param step Integer, Step to forecast
 //' @param num_sim Integer, number to simulate parameters from posterior distribution
 //' @details
@@ -26,7 +26,7 @@
 //' 
 //' Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal of the American Statistical Association, 114(526). [https://doi:10.1080/01621459.2018.1437043](https://doi:10.1080/01621459.2018.1437043)
 //' 
-//' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791–897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
+//' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897. doi:[10.1016/b978-0-444-62731-5.00015-4](https://doi.org/10.1016/B978-0-444-62731-5.00015-4)
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -70,7 +70,7 @@ Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim) {
 
 //' Forecasting Bayesian VHAR
 //' 
-//' @param object `bvharmn` object
+//' @param object A `bvharmn` object
 //' @param step Integer, Step to forecast
 //' @param num_sim Integer, number to simulate parameters from posterior distribution
 //' @details
@@ -84,7 +84,7 @@ Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim) {
 //'     - Predictive distribution: Again generate \eqn{\tilde{Y}_{n + j}^{(b)} \sim \Phi^{(b)}, \Sigma_e^{(b)} \sim MN}
 //'     - tilde notation indicates simulated ones
 //' 
-//' @references Kim, Y. G., and Baek, C. (n.d.). *Bayesian vector heterogeneous autoregressive modeling*. submitted.
+//' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim) {

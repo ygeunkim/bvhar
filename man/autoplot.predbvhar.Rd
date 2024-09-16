@@ -21,7 +21,7 @@
 \method{autolayer}{predbvhar}(object, ci_fill = "grey70", ci_alpha = 0.5, alpha_scale = 0.3, ...)
 }
 \arguments{
-\item{object}{\code{predbvhar} object}
+\item{object}{A \code{predbvhar} object}
 
 \item{type}{Divide variables using \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}} ("grid": default) or \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}} ("wrap")}
 
@@ -33,7 +33,7 @@
 
 \item{viridis}{If \code{TRUE}, scale CI and forecast line using \code{\link[ggplot2:scale_viridis]{ggplot2::scale_fill_viridis_d()}} and \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}, respectively.}
 
-\item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{"D"}.}
+\item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{D}.}
 
 \item{NROW}{\code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}}
 

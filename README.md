@@ -39,7 +39,7 @@ install.packages("bvhar")
 <!-- dev badges: start -->
 
 [![dev-r-cmd-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Adevelop)
-[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg)](https://codecov.io/github/ygeunkim/bvhar)
+[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar/tree/develop)
 [![Development version
 updated](https://img.shields.io/github/last-commit/ygeunkim/bvhar/develop?label=dev%20updated)](https://github.com/ygeunkim/bvhar/tree/develop)
 <!-- dev badges: end -->
@@ -51,6 +51,11 @@ branch](https://github.com/ygeunkim/bvhar/tree/develop).
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar@develop")
 ```
+
+We started to develop a Python version in python directory.
+
+- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [Source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
 
 ## Models
 
@@ -72,7 +77,9 @@ series model above
 | BVHAR |   `vhar_bayes()`    |   SSVS, Horseshoe, Minnesota, NG, DL    |
 
 This readme document shows forecasting procedure briefly. Details about
-each function are in vignettes and help documents.
+each function are in vignettes and help documents. Note that each
+`bvar_minnesota()` and `bvhar_minnesota()` will be integrated into
+`var_bayes()` and `vhar_bayes()` and removed in the next version.
 
 h-step ahead forecasting:
 
@@ -274,18 +281,6 @@ forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
 #>     5.54
 ```
 
-## Plots
-
-``` r
-autoplot(forecast_var, x_cut = 870, ci_alpha = .7, type = "wrap") +
-  autolayer(forecast_vhar, ci_alpha = .6) +
-  autolayer(forecast_bvar, ci_alpha = .4) +
-  autolayer(forecast_bvhar_v1, ci_alpha = .2) +
-  autolayer(forecast_bvhar_v2, ci_alpha = .1)
-```
-
-<img src="man/figures/README-predfig-1.png" width="70%" style="display: block; margin: auto;" />
-
 ## Citation
 
 Please cite this package with following BibTeX:
@@ -294,7 +289,8 @@ Please cite this package with following BibTeX:
       title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
-      note = {R package version 2.0.1.9014},
+      doi = {10.32614/CRAN.package.bvhar},
+      note = {R package version 2.1.0},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
@@ -302,7 +298,10 @@ Please cite this package with following BibTeX:
       title = {Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       journal = {Journal of Statistical Computation and Simulation},
-      year = {2023},
+      year = {2024},
+      volume = {94},
+      number = {6},
+      pages = {1139--1157},
       doi = {10.1080/00949655.2023.2281644},
     }
 

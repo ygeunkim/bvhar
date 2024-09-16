@@ -10,7 +10,7 @@ Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max)
 //' 
 //' Convert VAR process to infinite vector MA process
 //' 
-//' @param object `varlse` object
+//' @param object A `varlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Let VAR(p) be stable.
@@ -54,7 +54,7 @@ Eigen::MatrixXd compute_var_mse(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coe
 //' 
 //' Compute the forecast MSE matrices using VMA coefficients
 //' 
-//' @param object `varlse` object
+//' @param object A `varlse` object
 //' @param step Integer, Step to forecast
 //' @details
 //' See pp38 of Lütkepohl (2007).
@@ -98,7 +98,7 @@ Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtran
 //' 
 //' Convert VHAR process to infinite vector MA process
 //' 
-//' @param object `vharlse` object
+//' @param object A `vharlse` object
 //' @param lag_max Maximum lag for VMA
 //' @details
 //' Let VAR(p) be stable

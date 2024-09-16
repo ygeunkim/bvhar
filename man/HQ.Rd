@@ -25,7 +25,7 @@ HQ(object, ...)
 \method{HQ}{bvharmn}(object, ...)
 }
 \arguments{
-\item{object}{\code{logLik} object or Model fit}
+\item{object}{A \code{logLik} object or Model fit}
 
 \item{...}{not used}
 }

@@ -13,7 +13,7 @@ bibentry(
   #volume   = {},
   #number   = {},
   #pages    = {},
-  #doi = {},
+  doi = "10.32614/CRAN.package.bvhar",
   note = note,
   url = "https://cran.r-project.org/package=bvhar"
 )

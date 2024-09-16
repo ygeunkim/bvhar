@@ -2,7 +2,7 @@
 #' 
 #' `summary` method for `normaliw` class.
 #' 
-#' @param object `normaliw` object
+#' @param object A `normaliw` object
 #' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.

@@ -38,15 +38,15 @@ is.vharlse(x)
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{method}{Method to solve linear equation system.
-(\code{"nor"}: normal equation (default), \code{"chol"}: Cholesky, and \code{"qr"}: HouseholderQR)}
+(\code{nor}: normal equation (default), \code{chol}: Cholesky, and \code{qr}: HouseholderQR)}
 
-\item{x}{\code{vharlse} object}
+\item{x}{A \code{vharlse} object}
 
 \item{digits}{digit option to print}
 
 \item{...}{not used}
 
-\item{object}{\code{vharlse} object}
+\item{object}{A \code{vharlse} object}
 }
 \value{
 \code{vhar_lm()} returns an object named \code{vharlse} \link{class}.
@@ -57,18 +57,18 @@ It is a list with the following components:
 \item{fitted.values}{Fitted response values}
 \item{residuals}{Residuals}
 \item{covmat}{LS estimate for covariance matrix}
-\item{df}{Numer of Coefficients: 3m + 1 or 3m}
+\item{df}{Numer of Coefficients}
 \item{m}{Dimension of the data}
-\item{obs}{Sample size used when training = \code{totobs} - 22}
-\item{y0}{\eqn{Y_0}}
+\item{obs}{Sample size used when training = \code{totobs} - \code{month}}
+\item{y0}{Multivariate response matrix}
 \item{p}{3 (The number of terms. \code{vharlse} contains this element for usage in other functions.)}
 \item{week}{Order for weekly term}
 \item{month}{Order for monthly term}
 \item{totobs}{Total number of the observation}
 \item{process}{Process: VHAR}
-\item{type}{include constant term (\code{"const"}) or not (\code{"none"})}
-\item{HARtrans}{VHAR linear transformation matrix: \eqn{C_{HAR}}}
-\item{design}{\eqn{X_0}}
+\item{type}{include constant term (\code{const}) or not (\code{none})}
+\item{HARtrans}{VHAR linear transformation matrix}
+\item{design}{Design matrix of VAR(\code{month})}
 \item{y}{Raw input}
 \item{method}{Solving method}
 \item{call}{Matched call}
@@ -80,7 +80,9 @@ This function fits VHAR using OLS method.
 }
 \details{
 For VHAR model
+
 \deqn{Y_{t} = \Phi^{(d)} Y_{t - 1} + \Phi^{(w)} Y_{t - 1}^{(w)} + \Phi^{(m)} Y_{t - 1}^{(m)} + \epsilon_t}
+
 the function gives basic values.
 }
 \examples{
@@ -95,11 +97,11 @@ head(residuals(fit))
 head(fitted(fit))
 }
 \references{
-Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495–510.
+Baek, C. and Park, M. (2021). \emph{Sparse vector heterogeneous autoregressive modeling for realized volatility}. J. Korean Stat. Soc. 50, 495-510.
 
-Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829–2841.
+Bubák, V., Kočenda, E., & Žikeš, F. (2011). \emph{Volatility transmission in emerging European foreign exchange markets}. Journal of Banking & Finance, 35(11), 2829-2841.
 
-Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174–196.
+Corsi, F. (2008). \emph{A Simple Approximate Long-Memory Model of Realized Volatility}. Journal of Financial Econometrics, 7(2), 174-196.
 }
 \seealso{
 \itemize{

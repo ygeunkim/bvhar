@@ -23,7 +23,7 @@ gg_loss(
 
 \item{y}{Test data to be compared. should be the same format with the train data and predict$forecast.}
 
-\item{type}{Loss function to be used (\code{"mse"}: MSE, \code{"mae"}: MAE, \code{mape}: MAPE, \code{"mase"}: MASE)}
+\item{type}{Loss function to be used (\code{mse}: MSE, \code{mae}: MAE, \code{mape}: MAPE, \code{mase}: MASE)}
 
 \item{mean_line}{Whether to draw average loss. By default, \code{FALSE}.}
 
@@ -33,7 +33,7 @@ gg_loss(
 
 \item{viridis}{If \code{TRUE}, scale CI and forecast line using \code{\link[ggplot2:scale_viridis]{ggplot2::scale_fill_viridis_d()}} and \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}, respectively.}
 
-\item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{"D"}.}
+\item{viridis_option}{Option for viridis string. See \code{option} of \link[ggplot2:scale_viridis]{ggplot2::scale_colour_viridis_d}. Choose one of \code{c("A", "B", "C", "D", "E")}. By default, \code{D}.}
 
 \item{NROW}{\code{nrow} of \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}}
 

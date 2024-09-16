@@ -30,12 +30,12 @@ sim_horseshoe_vhar(
 
 \item{minnesota}{Only use off-diagonal terms of each coefficient matrices for restriction.
 In \code{sim_horseshoe_var()} function, use \code{TRUE} or \code{FALSE} (default).
-In \code{sim_horseshoe_vhar()} function, \code{"no"} (default), \code{"short"} type, or \code{"longrun"} type.}
+In \code{sim_horseshoe_vhar()} function, \code{no} (default), \code{short} type, or \code{longrun} type.}
 
 \item{method}{Method to compute \eqn{\Sigma^{1/2}}.}
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 }
 \description{
-This function generates parameters of VAR with Horseshoe prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function generates parameters of VAR with Horseshoe prior.
 }

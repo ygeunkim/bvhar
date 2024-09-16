@@ -7,7 +7,7 @@
 \method{autoplot}{normaliw}(object, hcol = "grey", hsize = 1.5, ...)
 }
 \arguments{
-\item{object}{\code{normaliw} object}
+\item{object}{A \code{normaliw} object}
 
 \item{hcol}{color of horizontal line = 0 (By default, grey)}
 

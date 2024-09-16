@@ -7,7 +7,7 @@
 \method{autoplot}{bvharirf}(object, ...)
 }
 \arguments{
-\item{object}{\code{bvharirf} object}
+\item{object}{A \code{bvharirf} object}
 
 \item{...}{Other arguments passed on the \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
 }

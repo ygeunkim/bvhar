@@ -29,10 +29,10 @@ is.dlspec(x)
 \code{dlspec} object
 }
 \description{
-Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 }
 \references{
-Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). \emph{Dirichlet–Laplace Priors for Optimal Shrinkage}. Journal of the American Statistical Association, 110(512), 1479–1490.
+Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). \emph{Dirichlet-Laplace Priors for Optimal Shrinkage}. Journal of the American Statistical Association, 110(512), 1479-1490.
 
-Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230–354.
+Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230-354.
 }

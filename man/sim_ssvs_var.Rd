@@ -36,7 +36,7 @@ sim_ssvs_vhar(
 
 \item{minnesota}{Only use off-diagonal terms of each coefficient matrices for restriction.
 In \code{sim_ssvs_var()} function, use \code{TRUE} or \code{FALSE} (default).
-In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"short"} type, or \code{"longrun"} type.}
+In \code{sim_ssvs_vhar()} function, \code{no} (default), \code{short} type, or \code{longrun} type.}
 
 \item{mn_prob}{Probability for own-lags.}
 
@@ -48,7 +48,7 @@ In \code{sim_ssvs_vhar()} function, \code{"no"} (default), \code{"short"} type, 
 List including coefficients.
 }
 \description{
-This function generates parameters of VAR with SSVS prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function generates parameters of VAR with SSVS prior.
 }
 \section{VAR(p) with SSVS prior}{
 
@@ -71,11 +71,11 @@ Let \eqn{\phi} be the vectorized coefficient of VHAR.
 }
 
 \references{
-George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881–889.
+George, E. I., & McCulloch, R. E. (1993). \emph{Variable Selection via Gibbs Sampling}. Journal of the American Statistical Association, 88(423), 881-889.
 
-George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553–580.
+George, E. I., Sun, D., & Ni, S. (2008). \emph{Bayesian stochastic search for VAR model restrictions}. Journal of Econometrics, 142(1), 553-580.
 
 Ghosh, S., Khare, K., & Michailidis, G. (2018). \emph{High-Dimensional Posterior Consistency in Bayesian Vector Autoregressive Models}. Journal of the American Statistical Association, 114(526).
 
-Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267–358.
+Koop, G., & Korobilis, D. (2009). \emph{Bayesian Multivariate Time Series Methods for Empirical Macroeconomics}. Foundations and Trends® in Econometrics, 3(4), 267-358.
 }
