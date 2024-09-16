@@ -1,3 +1,5 @@
+# bvhar (development version)
+
 # bvhar 2.1.0
 
 * Use Signal Adaptive Variable Selector (SAVS) to generate sparse coefficient from shrinkage priors.
