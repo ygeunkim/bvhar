@@ -37,5 +37,5 @@ In \code{sim_horseshoe_vhar()} function, \code{no} (default), \code{short} type,
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 }
 \description{
-This function generates parameters of VAR with Horseshoe prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function generates parameters of VAR with Horseshoe prior.
 }

@@ -225,7 +225,7 @@ sim_mnvhar_coef <- function(bayes_spec = set_bvhar(), full = TRUE) {
 
 #' Generate SSVS Parameters
 #' 
-#' This function generates parameters of VAR with SSVS prior.
+#' `r lifecycle::badge("deprecated")` This function generates parameters of VAR with SSVS prior.
 #' 
 #' @param bayes_spec A SSVS model specification by [set_ssvs()].
 #' @param p VAR lag
@@ -261,6 +261,7 @@ sim_ssvs_var <- function(bayes_spec,
                          minnesota = FALSE,
                          mn_prob = 1,
                          method = c("eigen", "chol")) {
+  deprecate_warn("2.0.1", details = "The package uses different SSVS specification.")
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
@@ -380,6 +381,7 @@ sim_ssvs_vhar <- function(bayes_spec,
                           minnesota = c("no", "short", "longrun"),
                           mn_prob = 1,
                           method = c("eigen", "chol")) {
+  deprecate_warn("2.0.1", details = "The package uses different SSVS specification.")
   if (!is.ssvsinput(bayes_spec)) {
     stop("Provide 'ssvsinput' for 'bayes_spec'.")
   }
@@ -494,7 +496,7 @@ sim_ssvs_vhar <- function(bayes_spec,
 
 #' Generate Horseshoe Parameters
 #'
-#' This function generates parameters of VAR with Horseshoe prior.
+#' `r lifecycle::badge("deprecated")` This function generates parameters of VAR with Horseshoe prior.
 #' 
 #' @param p VAR lag
 #' @param dim_data Specify the dimension of the data if hyperparameters of `bayes_spec` have constant values.
@@ -510,6 +512,7 @@ sim_horseshoe_var <- function(p,
                               include_mean = TRUE,
                               minnesota = FALSE,
                               method = c("eigen", "chol")) {
+  deprecate_warn("2.0.1", details = "The package uses different Horseshoe specification.")
   dim_design <- ifelse(include_mean, dim_data * p + 1, dim_data * p)
   num_coef <- dim_data * dim_design
   num_alpha <- dim_data^2 * p
@@ -575,6 +578,7 @@ sim_horseshoe_vhar <- function(har = c(5, 22),
                                include_mean = TRUE,
                                minnesota = c("no", "short", "longrun"),
                                method = c("eigen", "chol")) {
+  deprecate_warn("2.0.1", details = "The package uses different Horseshoe specification.")
   dim_har <- ifelse(include_mean, 3 * dim_data + 1, 3 * dim_data)
   num_coef <- dim_data * dim_har
   num_phi <- 3 * dim_data^2

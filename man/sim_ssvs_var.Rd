@@ -48,7 +48,7 @@ In \code{sim_ssvs_vhar()} function, \code{no} (default), \code{short} type, or \
 List including coefficients.
 }
 \description{
-This function generates parameters of VAR with SSVS prior.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function generates parameters of VAR with SSVS prior.
 }
 \section{VAR(p) with SSVS prior}{
 

@@ -1,5 +1,6 @@
 #' Fitting Bayesian VAR-SV
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' This function fits VAR-SV.
 #' It can have Minnesota, SSVS, and Horseshoe prior.
 #' 
