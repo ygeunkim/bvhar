@@ -58,6 +58,8 @@ struct RegRecords {
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 
+	RegRecords() : coef_record(), contem_coef_record() {}
+
 	RegRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
 		contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
