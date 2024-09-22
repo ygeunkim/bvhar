@@ -6,8 +6,19 @@
 
 namespace bvhar {
 
+class McmcInterface;
+
+template <typename PARAMS, typename INITS, typename MCMC>
+class McmcRun;
+
+class McmcInterface {
+public:
+	virtual ~McmcInterface() = default;
+	virtual LIST_OF_LIST returnMcmc() = 0;
+};
+
 template <
-	typename PARAMS = RegParams,
+	typename PARAMS = RegParams, // RegParams or SvParams(2)
 	typename INITS = typename std::conditional<
 		std::is_same<PARAMS, RegParams>::value,
 		LdltInits2,
@@ -19,7 +30,7 @@ template <
 		McmcSv2
 	>::type
 >
-class McmcRun {
+class McmcRun : public McmcInterface {
 public:
 	McmcRun(
 		int num_chains, int num_iter, int num_burn, int thin, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -122,7 +133,7 @@ public:
 		}
 	}
 	virtual ~McmcRun() = default;
-	LIST_OF_LIST returnMcmc() {
+	LIST_OF_LIST returnMcmc() override {
 		fit();
 		return WRAP(res);
 	}
@@ -175,6 +186,31 @@ private:
 	std::vector<std::unique_ptr<bvhar::McmcCta>> mcmc_objs;
 	std::vector<LIST> res;
 };
+
+// inline std::unique_ptr<McmcInterface> initMcmcRun(
+// 	int num_chains, int num_iter, int num_burn, int thin, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+// 	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+//   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+//   bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads
+// ) {
+// 	std::unique_ptr<bvhar::McmcInterface> mcmc;
+// 	if (param_reg.containsElementNamed("initial_mean")) {
+// 		mcmc.reset(new bvhar::McmcRun<bvhar::SvParams2>(
+// 			num_chains, num_iter, num_burn, thin, x, y,
+// 			param_reg, param_prior, param_intercept, param_init, prior_type,
+// 			grp_id, own_id, cross_id, grp_mat,
+// 			include_mean, seed_chain, display_progress, nthreads
+// 		));
+// 	} else {
+// 		mcmc.reset(new bvhar::McmcRun<bvhar::RegParams>(
+// 			num_chains, num_iter, num_burn, thin, x, y,
+// 			param_reg, param_prior, param_intercept, param_init, prior_type,
+// 			grp_id, own_id, cross_id, grp_mat,
+// 			include_mean, seed_chain, display_progress, nthreads
+// 		));
+// 	}
+// 	return mcmc;
+// }
 
 }; // namespace bvhar
 

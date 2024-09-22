@@ -740,6 +740,9 @@ protected:
 	}
 	void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
 	void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
+	void updateSv() override {
+		sqrt_sv = (-lvol_draw / 2).array().exp();
+	}
 	void updateCoefRecords() override {
 		reg_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
@@ -763,9 +766,9 @@ template <
 >
 class MinnReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams>
-	// MinnReg2(const MinnParams2<BaseRegParams>& params, const RegInits& inits, unsigned int seed) : BaseCta(params, inits, seed) {
-	MinnReg2(MinnParams2<>& params, InitType& inits, unsigned int seed) : BaseCta(params, inits, seed) {
+	template <typename BaseRegParams>
+	MinnReg2(MinnParams2<BaseRegParams>& params, InitType& inits, unsigned int seed) : BaseCta(params, inits, seed) {
+	// MinnReg2(MinnParams2<>& params, InitType& inits, unsigned int seed) : BaseCta(params, inits, seed) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.head(num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
 		if (include_mean) {
@@ -831,9 +834,9 @@ protected:
 template <typename BaseCta = McmcReg2>
 class HierMinnReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams, typename BaseRegInits>
-	// HierMinnReg2(const HierMinnParams2<BaseRegParams>& params, const HierminnInits2<BaseRegInits>& inits, unsigned int seed)
-	HierMinnReg2(HierMinnParams2<>& params, HierminnInits2<>& inits, unsigned int seed)
+	template <typename BaseRegParams, typename BaseRegInits>
+	HierMinnReg2(HierMinnParams2<BaseRegParams>& params, HierminnInits2<BaseRegInits>& inits, unsigned int seed)
+	// HierMinnReg2(HierMinnParams2<>& params, HierminnInits2<>& inits, unsigned int seed)
 	: BaseCta(params, inits, seed),
 		own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 		own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
@@ -967,9 +970,9 @@ private:
 template <typename BaseCta = McmcReg2>
 class SsvsReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams, typename BaseRegInits>
-	// SsvsReg2(const SsvsParams2<BaseRegParams>& params, const SsvsInits2<BaseRegInits>& inits, unsigned int seed)
-	SsvsReg2(SsvsParams2<>& params, SsvsInits2<>& inits, unsigned int seed)
+	template <typename BaseRegParams, typename BaseRegInits>
+	SsvsReg2(SsvsParams2<BaseRegParams>& params, SsvsInits2<BaseRegInits>& inits, unsigned int seed)
+	// SsvsReg2(SsvsParams2<>& params, SsvsInits2<>& inits, unsigned int seed)
 	: BaseCta(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
@@ -1103,9 +1106,9 @@ private:
 template <typename BaseCta = McmcReg2>
 class HorseshoeReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams, typename BaseRegInits>
-	// HorseshoeReg2(const HorseshoeParams2<BaseRegParams>& params, const HsInits2<BaseRegInits>& inits, unsigned int seed)
-	HorseshoeReg2(HorseshoeParams2<>& params, HsInits2<>& inits, unsigned int seed)
+	template <typename BaseRegParams, typename BaseRegInits>
+	HorseshoeReg2(HorseshoeParams2<BaseRegParams>& params, HsInits2<BaseRegInits>& inits, unsigned int seed)
+	// HorseshoeReg2(HorseshoeParams2<>& params, HsInits2<>& inits, unsigned int seed)
 	: BaseCta(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
@@ -1243,9 +1246,9 @@ private:
 template <typename BaseCta = McmcReg2>
 class NgReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams, typename BaseRegInits>
-	// NgReg2(const NgParams2<BaseRegParams>& params, const NgInits2<BaseRegInits>& inits, unsigned int seed)
-	NgReg2(NgParams2<>& params, NgInits2<>& inits, unsigned int seed)
+	template <typename BaseRegParams, typename BaseRegInits>
+	NgReg2(NgParams2<BaseRegParams>& params, NgInits2<BaseRegInits>& inits, unsigned int seed)
+	// NgReg2(NgParams2<>& params, NgInits2<>& inits, unsigned int seed)
 	: BaseCta(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
@@ -1379,9 +1382,9 @@ private:
 template <typename BaseCta>
 class DlReg2 : public BaseCta {
 public:
-	// template <typename BaseRegParams, typename BaseRegInits>
-	// DlReg2(const DlParams2<BaseRegParams>& params, const GlInits2<BaseRegInits>& inits, unsigned int seed)
-	DlReg2(DlParams2<>& params, GlInits2<>& inits, unsigned int seed)
+	template <typename BaseRegParams, typename BaseRegInits>
+	DlReg2(DlParams2<BaseRegParams>& params, GlInits2<BaseRegInits>& inits, unsigned int seed)
+	// DlReg2(DlParams2<>& params, GlInits2<>& inits, unsigned int seed)
 	: BaseCta(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),
