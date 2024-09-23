@@ -10,43 +10,21 @@ namespace bvhar {
 
 // Parameters
 struct SvParams2;
-
-template <typename BaseRegParams>
-struct MinnParams2;
-
-template <typename BaseRegParams>
-struct HierMinnParams2;
-
-template <typename BaseRegParams>
-struct SsvsParams2;
-
-template <typename BaseRegParams>
-struct HorseshoeParams2;
-
-template <typename BaseRegParams>
-struct NgParams2;
-
-template <typename BaseRegParams>
-struct DlParams2;
+template <typename BaseRegParams> struct MinnParams2;
+template <typename BaseRegParams> struct HierMinnParams2;
+template <typename BaseRegParams> struct SsvsParams2;
+template <typename BaseRegParams> struct HorseshoeParams2;
+template <typename BaseRegParams> struct NgParams2;
+template <typename BaseRegParams> struct DlParams2;
 
 // Initialization
 struct LdltInits2;
 struct SvInits2;
-
-template <typename BaseRegInits>
-struct HierminnInits2;
-
-template <typename BaseRegInits>
-struct SsvsInits2;
-
-template <typename BaseRegInits>
-struct GlInits2;
-
-template <typename BaseRegInits>
-struct HsInits2;
-
-template <typename BaseRegInits>
-struct NgInits2;
+template <typename BaseRegInits> struct HierminnInits2;
+template <typename BaseRegInits> struct SsvsInits2;
+template <typename BaseRegInits> struct GlInits2;
+template <typename BaseRegInits> struct HsInits2;
+template <typename BaseRegInits> struct NgInits2;
 
 // MCMC records
 struct LdltRecords2;
@@ -54,27 +32,14 @@ struct SvRecords2;
 
 // MCMC algorithms
 class McmcCta;
-
 class McmcReg2;
 class McmcSv2;
-
-template <typename BaseCta, typename InitType>
-class MinnReg2;
-
-template <typename BaseCta>
-class HierMinnReg2;
-
-template <typename BaseCta>
-class SsvsReg2;
-
-template <typename BaseCta>
-class HorseshoeReg2;
-
-template <typename BaseCta>
-class NgReg2;
-
-template <typename BaseCta>
-class DlReg2;
+template <typename BaseCta, typename InitType> class MinnReg2;
+template <typename BaseCta> class HierMinnReg2;
+template <typename BaseCta> class SsvsReg2;
+template <typename BaseCta> class HorseshoeReg2;
+template <typename BaseCta> class NgReg2;
+template <typename BaseCta> class DlReg2;
 
 struct SvParams2 : public RegParams {
 	Eigen::VectorXd _init_mean;

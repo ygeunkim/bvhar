@@ -7,9 +7,7 @@
 namespace bvhar {
 
 class McmcInterface;
-
-template <typename PARAMS, typename INITS, typename MCMC>
-class McmcRun;
+template <typename PARAMS, typename INITS, typename MCMC> class McmcRun;
 
 class McmcInterface {
 public:
