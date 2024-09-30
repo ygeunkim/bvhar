@@ -1475,6 +1475,204 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
+inline void init_records(std::unique_ptr<RegRecords>& record, int chain_id, LIST& fit_record, bool include_mean, bool sparse) {
+	STRING alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+	STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	LIST alpha_list = fit_record[alpha_name];
+	LIST a_list = fit_record[a_name];
+	// int num_chains = alpha_list.size();
+	if (CONTAINS(fit_record, "sigh_record")) {
+		LIST h_list = fit_record["h_record"];
+		LIST sigh_list = fit_record["sigh_record"];
+		// for (int i = 0; i < num_chains; ++i) {
+		// 	if (include_mean) {
+		// 		LIST c_list = fit_record["c_list"];
+		// 		record.reset(new SvRecords2(
+		// 			CAST<Eigen::MatrixXd>(alpha_list[i]),
+		// 			CAST<Eigen::MatrixXd>(c_list[i]),
+		// 			CAST<Eigen::MatrixXd>(h_list[i]),
+		// 			CAST<Eigen::MatrixXd>(a_list[i]),
+		// 			CAST<Eigen::MatrixXd>(sigh_list[i])
+		// 		));
+		// 	} else {
+		// 		record.reset(new SvRecords2(
+		// 			CAST<Eigen::MatrixXd>(alpha_list[i]),
+		// 			CAST<Eigen::MatrixXd>(h_list[i]),
+		// 			CAST<Eigen::MatrixXd>(a_list[i]),
+		// 			CAST<Eigen::MatrixXd>(sigh_list[i])
+		// 		));
+		// 	}
+		// }
+		if (include_mean) {
+			LIST c_list = fit_record["c_list"];
+			record.reset(new SvRecords2(
+				CAST<Eigen::MatrixXd>(alpha_list[chain_id]),
+				CAST<Eigen::MatrixXd>(c_list[chain_id]),
+				CAST<Eigen::MatrixXd>(h_list[chain_id]),
+				CAST<Eigen::MatrixXd>(a_list[chain_id]),
+				CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+			));
+		} else {
+			record.reset(new SvRecords2(
+				CAST<Eigen::MatrixXd>(alpha_list[chain_id]),
+				CAST<Eigen::MatrixXd>(h_list[chain_id]),
+				CAST<Eigen::MatrixXd>(a_list[chain_id]),
+				CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+			));
+		}
+	} else {
+		LIST d_list = fit_record["d_record"];
+		// for (int i = 0; i < num_chains; ++i) {
+		// 	if (include_mean) {
+		// 		LIST c_list = fit_record["c_list"];
+		// 		record.reset(new LdltRecords2(
+		// 			CAST<Eigen::MatrixXd>(alpha_list[i]),
+		// 			CAST<Eigen::MatrixXd>(c_list[i]),
+		// 			CAST<Eigen::MatrixXd>(a_list[i]),
+		// 			CAST<Eigen::MatrixXd>(d_list[i])
+		// 		));
+		// 	} else {
+		// 		record.reset(new LdltRecords2(
+		// 			CAST<Eigen::MatrixXd>(alpha_list[i]),
+		// 			CAST<Eigen::MatrixXd>(a_list[i]),
+		// 			CAST<Eigen::MatrixXd>(d_list[i])
+		// 		));
+		// 	}
+		// }
+		if (include_mean) {
+			LIST c_list = fit_record["c_list"];
+			record.reset(new LdltRecords2(
+				CAST<Eigen::MatrixXd>(alpha_list[chain_id]),
+				CAST<Eigen::MatrixXd>(c_list[chain_id]),
+				CAST<Eigen::MatrixXd>(a_list[chain_id]),
+				CAST<Eigen::MatrixXd>(d_list[chain_id])
+			));
+		} else {
+			record.reset(new LdltRecords2(
+				CAST<Eigen::MatrixXd>(alpha_list[chain_id]),
+				CAST<Eigen::MatrixXd>(a_list[chain_id]),
+				CAST<Eigen::MatrixXd>(d_list[chain_id])
+			));
+		}
+	}
+}
+
+template <
+	typename PARAMS = RegParams, // RegParams or SvParams(2)
+	typename INITS = typename std::conditional<
+		std::is_same<PARAMS, RegParams>::value,
+		LdltInits2,
+		SvInits2
+	>::type,
+	typename MCMC = typename std::conditional<
+		std::is_same<PARAMS, RegParams>::value,
+		McmcReg2,
+		McmcSv2
+	>::type
+>
+inline void init_mcmc(
+	std::vector<std::unique_ptr<McmcCta>>& mcmc_objs,
+	int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+  const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain
+) {
+	int num_chains = mcmc_objs.size();
+	switch (prior_type) {
+		case 1: {
+			MinnParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg, param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				INITS _inits(init_spec);
+				mcmc_objs[i].reset(new MinnReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 2: {
+			SsvsParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior, param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				SsvsInits2<INITS> _inits(init_spec);
+				mcmc_objs[i].reset(new SsvsReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 3: {
+			HorseshoeParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				LIST init_spec = param_init[i];
+				HsInits2<INITS> _inits(init_spec);
+				mcmc_objs[i].reset(new HorseshoeReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 4: {
+			HierMinnParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg,
+				own_id, cross_id, grp_mat,
+				param_prior, param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				LIST init_spec = param_init[i];
+				HierminnInits2<INITS> _inits(init_spec);
+				mcmc_objs[i].reset(new HierMinnReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 5: {
+			NgParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior, param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				LIST init_spec = param_init[i];
+				NgInits2<INITS> _inits(init_spec);
+				mcmc_objs[i].reset(new NgReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+		case 6: {
+			DlParams2<PARAMS> _params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior, param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; i++ ) {
+				LIST init_spec = param_init[i];
+				GlInits2<INITS> _inits(init_spec);
+				mcmc_objs[i].reset(new DlReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
+			}
+			break;
+		}
+	}
+}
+
+template <typename Record = LdltRecords2>
+inline Record getRecords(std::unique_ptr<McmcCta>& model, bool is_sv, int num_burn, int thin, bool sparse) {
+	if (is_sv) {
+		model->returnLdltRecords(num_burn, thin, sparse);
+	}
+	return model->returnSvRecords(num_burn, thin, sparse);
+}
+
 }; // namespace bvhar
 
 #endif // BVHARMCMC_H

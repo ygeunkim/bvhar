@@ -42,21 +42,28 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 	// 	include_mean, seed_chain, display_progress, nthreads
 	// );
 	std::unique_ptr<bvhar::McmcInterface> mcmc;
-	if (param_reg.containsElementNamed("initial_mean")) {
-		mcmc.reset(new bvhar::McmcRun<bvhar::SvParams2>(
-			num_chains, num_iter, num_burn, thin, x, y,
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain, display_progress, nthreads
-		));
-	} else {
-		mcmc.reset(new bvhar::McmcRun<bvhar::RegParams>(
-			num_chains, num_iter, num_burn, thin, x, y,
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain, display_progress, nthreads
-		));
-	}
+	// if (param_reg.containsElementNamed("initial_mean")) {
+	// 	mcmc.reset(new bvhar::McmcRun<bvhar::SvParams2>(
+	// 		num_chains, num_iter, num_burn, thin, x, y,
+	// 		param_reg, param_prior, param_intercept, param_init, prior_type,
+	// 		grp_id, own_id, cross_id, grp_mat,
+	// 		include_mean, seed_chain, display_progress, nthreads
+	// 	));
+	// } else {
+	// 	mcmc.reset(new bvhar::McmcRun<bvhar::RegParams>(
+	// 		num_chains, num_iter, num_burn, thin, x, y,
+	// 		param_reg, param_prior, param_intercept, param_init, prior_type,
+	// 		grp_id, own_id, cross_id, grp_mat,
+	// 		include_mean, seed_chain, display_progress, nthreads
+	// 	));
+	// }
+	init_mcmcrun(
+		mcmc,
+		num_chains, num_iter, num_burn, thin, x, y,
+		param_reg, param_prior, param_intercept, param_init, prior_type,
+		grp_id, own_id, cross_id, grp_mat,
+		include_mean, seed_chain, display_progress, nthreads
+	);
 	// std::unique_ptr<bvhar::McmcRun<REG_PARAMS>> mcmc(new bvhar::McmcRun<REG_PARAMS>(
 	// 	num_chains, num_iter, num_burn, thin, x, y,
 	// 	param_reg, param_prior, param_intercept, param_init, prior_type,

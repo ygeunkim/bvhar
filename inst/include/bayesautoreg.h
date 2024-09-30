@@ -38,97 +38,11 @@ public:
 	)
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), mcmc_objs(num_chains), res(num_chains) {
-		switch (prior_type) {
-			case 1: {
-				MinnParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg, param_prior,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					LIST init_spec = param_init[i];
-					// std::unique_ptr<RegInits> _inits;
-					// if (CONTAINS(param_reg, "initial_mean")) {
-					// 	_inits.reset(new SvInits2(_inits[i]));
-					// } else {
-					// 	_inits.reset(new LdltInits2(_inits[i]));
-					// }
-					INITS _inits(init_spec);
-					mcmc_objs[i].reset(new MinnReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 2: {
-				SsvsParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior, param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					LIST init_spec = param_init[i];
-					SsvsInits2<INITS> _inits(init_spec);
-					mcmc_objs[i].reset(new SsvsReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 3: {
-				HorseshoeParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					LIST init_spec = param_init[i];
-					HsInits2<INITS> _inits(init_spec);
-					mcmc_objs[i].reset(new HorseshoeReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 4: {
-				HierMinnParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg,
-					own_id, cross_id, grp_mat,
-					param_prior, param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					LIST init_spec = param_init[i];
-					HierminnInits2<INITS> _inits(init_spec);
-					mcmc_objs[i].reset(new HierMinnReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 5: {
-				NgParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior, param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					LIST init_spec = param_init[i];
-					NgInits2<INITS> _inits(init_spec);
-					mcmc_objs[i].reset(new NgReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 6: {
-				DlParams2<PARAMS> _params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior, param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					LIST init_spec = param_init[i];
-					GlInits2<INITS> _inits(init_spec);
-					mcmc_objs[i].reset(new DlReg2<MCMC>(_params, _inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-		}
+		init_mcmc<PARAMS, INITS, MCMC>(
+			mcmc_objs,
+			num_iter, x, y, param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain
+		);
 	}
 	virtual ~McmcRun() = default;
 	LIST_OF_LIST returnMcmc() override {
@@ -181,34 +95,33 @@ private:
 	int thin;
 	int nthreads;
 	bool display_progress;
-	std::vector<std::unique_ptr<bvhar::McmcCta>> mcmc_objs;
+	std::vector<std::unique_ptr<McmcCta>> mcmc_objs;
 	std::vector<LIST> res;
 };
 
-// inline std::unique_ptr<McmcInterface> initMcmcRun(
-// 	int num_chains, int num_iter, int num_burn, int thin, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-// 	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-//   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-//   bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads
-// ) {
-// 	std::unique_ptr<bvhar::McmcInterface> mcmc;
-// 	if (param_reg.containsElementNamed("initial_mean")) {
-// 		mcmc.reset(new bvhar::McmcRun<bvhar::SvParams2>(
-// 			num_chains, num_iter, num_burn, thin, x, y,
-// 			param_reg, param_prior, param_intercept, param_init, prior_type,
-// 			grp_id, own_id, cross_id, grp_mat,
-// 			include_mean, seed_chain, display_progress, nthreads
-// 		));
-// 	} else {
-// 		mcmc.reset(new bvhar::McmcRun<bvhar::RegParams>(
-// 			num_chains, num_iter, num_burn, thin, x, y,
-// 			param_reg, param_prior, param_intercept, param_init, prior_type,
-// 			grp_id, own_id, cross_id, grp_mat,
-// 			include_mean, seed_chain, display_progress, nthreads
-// 		));
-// 	}
-// 	return mcmc;
-// }
+inline void init_mcmcrun(
+	std::unique_ptr<McmcInterface>& mcmc,
+	int num_chains, int num_iter, int num_burn, int thin, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+  const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+  bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads
+) {
+	if (CONTAINS(param_reg, "initial_mean")) {
+		mcmc.reset(new McmcRun<SvParams2>(
+			num_chains, num_iter, num_burn, thin, x, y,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain, display_progress, nthreads
+		));
+	} else {
+		mcmc.reset(new McmcRun<RegParams>(
+			num_chains, num_iter, num_burn, thin, x, y,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain, display_progress, nthreads
+		));
+	}
+}
 
 }; // namespace bvhar
 
