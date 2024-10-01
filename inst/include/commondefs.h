@@ -3,11 +3,13 @@
 
 #ifdef USE_RCPP
 	#include <RcppEigen.h>
+	#include <string>
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
 	#define ENDL "\n"
 	#define FLUSH Rcpp::Rcout.flush()
+	#define STRING std::string
 
 	#define LIST Rcpp::List
 	#define LIST_OF_LIST Rcpp::List
@@ -55,6 +57,7 @@
 	#define COUT std::cout
 	#define ENDL std::endl
 	#define FLUSH std::cout.flush()
+	#define STRING py::str
 
 	#define LIST py::dict
 	#define LIST_OF_LIST std::vector<py::dict>
