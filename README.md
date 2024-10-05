@@ -18,7 +18,7 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/bvhar?color=blue)](http
 
 ## Overview
 
-`bvhar` provides functions to analyze multivariate time series time
+`bvhar` provides functions to analyze and forecast multivariate time
 series using
 
 - VAR
@@ -290,7 +290,7 @@ Please cite this package with following BibTeX:
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.1.0},
+      note = {R package version 2.1.1},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
