@@ -1,3 +1,5 @@
+# bvhar (development version)
+
 # bvhar 2.1.1
 
 * When using GIG generation in MCMC, it has maximum iteration numbers of while statement.
