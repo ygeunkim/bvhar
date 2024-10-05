@@ -988,6 +988,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_mcmc
+Rcpp::List forecast_mcmc(int num_chains, Eigen::VectorXi& ord, int step, Eigen::MatrixXd& response_mat, bool sparse, double level, Rcpp::List& fit_record, int prior_type, Eigen::VectorXi& seed_chain, bool include_mean, int nthreads);
+RcppExport SEXP _bvhar_forecast_mcmc(SEXP num_chainsSEXP, SEXP ordSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP prior_typeSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi& >::type ord(ordSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List& >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< int >::type prior_type(prior_typeSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi& >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_mcmc(num_chains, ord, step, response_mat, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvar
 Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim);
 RcppExport SEXP _bvhar_forecast_bvar(SEXP objectSEXP, SEXP stepSEXP, SEXP num_simSEXP) {
@@ -1890,6 +1911,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_roll_bvharldlt", (DL_FUNC) &_bvhar_roll_bvharldlt, 27},
     {"_bvhar_expand_bvarldlt", (DL_FUNC) &_bvhar_expand_bvarldlt, 26},
     {"_bvhar_expand_bvharldlt", (DL_FUNC) &_bvhar_expand_bvharldlt, 27},
+    {"_bvhar_forecast_mcmc", (DL_FUNC) &_bvhar_forecast_mcmc, 11},
     {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 3},
     {"_bvhar_forecast_bvharmn", (DL_FUNC) &_bvhar_forecast_bvharmn, 3},
     {"_bvhar_roll_bvar", (DL_FUNC) &_bvhar_roll_bvar, 7},

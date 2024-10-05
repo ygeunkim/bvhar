@@ -968,6 +968,26 @@ expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thi
     .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads, chunk_size)
 }
 
+#' Forecasting predictive density of BVAR and BVHAR
+#' 
+#' @param num_chains Number of chains
+#' @param ord VAR order of length 1 or VHAR order of length 2 (week, month).
+#' @param step Integer, Step to forecast.
+#' @param response_mat Response matrix.
+#' @param sv Use Innovation?
+#' @param sparse Use restricted model?
+#' @param level CI level to give sparsity. Valid when `prior_type` is 0.
+#' @param fit_record MCMC records list
+#' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
+#' @param seed_chain Seed for each chain
+#' @param include_mean Include constant term?
+#' @param nthreads OpenMP number of threads
+#' 
+#' @noRd
+forecast_mcmc <- function(num_chains, ord, step, response_mat, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads) {
+    .Call(`_bvhar_forecast_mcmc`, num_chains, ord, step, response_mat, sparse, level, fit_record, prior_type, seed_chain, include_mean, nthreads)
+}
+
 #' Forecasting BVAR(p)
 #' 
 #' @param object A `bvarmn` or `bvarflat` object
