@@ -108,7 +108,12 @@ jobs:
           New-Item -ItemType Directory -Force -Path temp-dir
 
       - name: Install package from github
-        # remove @develop after merging into master
+        run: |
+          pip install --upgrade pip
+          python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git#egg=bvhar&subdirectory=python'
+        working-directory: temp-dir
+
+      - name: Install dev version from github
         run: |
           pip install --upgrade pip
           python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'

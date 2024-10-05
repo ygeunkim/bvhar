@@ -428,7 +428,8 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	double draw_unif, draw_prop, cand, ar_const;
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
-		while (rejected) {
+		int iter_while = 0;
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_prop = unif_rand(0, A, rng);
 			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
@@ -448,6 +449,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 			}
 			draw_unif = unif_rand(0, 1, rng);
 			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
+			++iter_while;
 		}
 		res[i] = cand;
 	}
@@ -463,10 +465,12 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 	double draw_x, draw_y, cand; // bounded rectangle
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
-		while (rejected) {
+		int iter_while = 0;
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_x = unif_rand(0, bound_x, rng);
 			draw_y = unif_rand(0, 1, rng);
 			cand = draw_x / draw_y;
+			++iter_while;
 			rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
 		}
 		res[i] = cand;
@@ -491,7 +495,8 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 	double draw_x, draw_y, cand; // bounded rectangle
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
-		while (rejected) {
+		int iter_while = 0;
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_x = unif_rand(bound_x_neg, bound_x_pos, rng);
 			draw_y = unif_rand(0, 1, rng); // U(0, 1) since g has been normalized
 			cand = draw_x / draw_y + mode;
@@ -500,6 +505,7 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 			} else {
 				rejected = true; // cand can be negative
 			}
+			++iter_while;
 		}
 		res[i] = cand;
 	}
