@@ -28,7 +28,6 @@ jobs:
           - {os: ubuntu-latest,   r: 'oldrel-1'}
           - {os: ubuntu-latest,  r: 'oldrel-2'}
           - {os: ubuntu-latest,  r: 'oldrel-3'}
-          - {os: ubuntu-latest,  r: 'oldrel-4'}
           - {os: ubuntu-latest,  r: '3.6'}
 
     env:
@@ -78,7 +77,7 @@ jobs:
 
 # do not build vignettes in github actions check and ignore warnings
       - uses: r-lib/actions/check-r-package@v2
-        if: "!startsWith(github.ref, 'refs/heads/release/')"
+        if: "!startsWith(github.ref, 'refs/heads/release/') && !startsWith(github.ref, 'refs/heads/hotfix/')"
         with:
           args: 'c("--no-manual", "--as-cran", "--no-vignettes", "--no-build-vignettes", "--ignore-vignettes", "--no-examples")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
@@ -89,7 +88,7 @@ jobs:
       
       - name: Run check for CRAN
         uses: r-lib/actions/check-r-package@v2
-        if: startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')
         with:
           args: 'c("--no-manual", "--as-cran")'
           build_args: 'c("--no-manual")'

@@ -2,14 +2,14 @@
 
 In this version, we
 
-- Add some features
-- Deprecate some functions in preparation for removal in the next version.
+- Fix some numerical process
+- Fix a C++ macro issue
 
 ## Test environments
 
 - Local: macOS 14.6.1 (x86_64-apple-darwin20), R 4.3.3
 - Github actions
-    - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3, R-oldrel-4, R 3.6
+    - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3, R 3.6
     - macOS-latest: R-release
     - windows-latest: R-release, R-oldrel-4
 - win-builder: devel
