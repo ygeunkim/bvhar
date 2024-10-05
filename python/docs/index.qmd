@@ -76,11 +76,15 @@ Young Geun Kim
 ### Dev status
 
 <!-- badges: start -->
+[![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Amaster)
+[![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Amaster)
+[![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Amaster)
+[![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/master/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
+![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 [![py-conda-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-conda-check.yaml?query=branch%3Adevelop)
 [![py-pip-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-pip-check.yaml?query=branch%3Adevelop)
 [![py-wheel-check](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/py-wheel-check.yaml?query=branch%3Adevelop)
 [![Codecov test coverage](https://codecov.io/gh/ygeunkim/bvhar/branch/develop/graph/badge.svg?flag=python)](https://app.codecov.io/gh/ygeunkim/bvhar)
-![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 <!-- badges: end -->
 
 :::

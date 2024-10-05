@@ -7,7 +7,7 @@
 
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Amaster)
 [![Codecov test
-coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar)
+coverage](https://codecov.io/gh/ygeunkim/bvhar/graph/badge.svg?flag=r-package)](https://app.codecov.io/gh/ygeunkim/bvhar)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/bvhar)](https://CRAN.R-project.org/package=bvhar)
 [![monthly
@@ -39,7 +39,7 @@ install.packages("bvhar")
 <!-- dev badges: start -->
 
 [![dev-r-cmd-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Adevelop)
-[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg)](https://app.codecov.io/gh/ygeunkim/bvhar/tree/develop)
+[![dev-codecov](https://codecov.io/github/ygeunkim/bvhar/branch/develop/graph/badge.svg?flag=r-package)](https://app.codecov.io/gh/ygeunkim/bvhar/tree/develop)
 [![Development version
 updated](https://img.shields.io/github/last-commit/ygeunkim/bvhar/develop?label=dev%20updated)](https://github.com/ygeunkim/bvhar/tree/develop)
 <!-- dev badges: end -->
@@ -55,7 +55,7 @@ remotes::install_github("ygeunkim/bvhar@develop")
 We started to develop a Python version in python directory.
 
 - [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
-- [Source code](https://github.com/ygeunkim/bvhar/tree/develop/python)
+- [Source code](https://github.com/ygeunkim/bvhar/tree/master/python)
 
 ## Models
 
