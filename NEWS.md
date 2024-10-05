@@ -1,3 +1,9 @@
+# bvhar 2.1.1
+
+* When using GIG generation in MCMC, it has maximum iteration numbers of while statement.
+
+* Defined `USE_RCPP` macro in the C++ header so that Rcpp source usage works fine.
+
 # bvhar 2.1.0
 
 * Use Signal Adaptive Variable Selector (SAVS) to generate sparse coefficient from shrinkage priors.
