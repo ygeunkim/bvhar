@@ -2,8 +2,6 @@
 #define COMMONDEFS_H
 
 #ifdef USE_RCPP
-	#define USE_RCPP
-	
 	#include <RcppEigen.h>
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 

@@ -1,3 +1,12 @@
+.onLoad <- function(libname, pkgname) {
+  Rcpp::registerPlugin(
+    "bvhar",
+    function() {
+      list(env = list(PKG_CPPFLAGS = "DUSE_RCPP"))
+    }
+  )
+}
+
 .onAttach <- function(libname, pkgname) {
   if (!interactive()) {
     return()
