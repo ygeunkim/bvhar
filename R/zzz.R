@@ -2,7 +2,7 @@
   Rcpp::registerPlugin(
     "bvhar",
     function() {
-      list(env = list(PKG_CPPFLAGS = "DUSE_RCPP"))
+      list(env = list(PKG_CPPFLAGS = "-DUSE_RCPP"))
     }
   )
 }
