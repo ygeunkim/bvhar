@@ -1,9 +1,10 @@
-## Minor version update
+## Patch version update
 
+This is a quick fix for fatal algorithm fault.
 In this version, we
 
-- Fix some numerical process
-- Fix a C++ macro issue
+- Fixed MCMC algorithm when constant term exists.
+- Fixed out-of-forecasting result processing.
 
 ## Test environments
 

@@ -1,23 +1,23 @@
 # Platform
 
-|field    |value                                 |
-|:--------|:-------------------------------------|
-|version  |R version 4.3.3 (2024-02-29)          |
-|os       |macOS Big Sur ... 10.16               |
-|system   |x86_64, darwin20                      |
-|ui       |X11                                   |
-|language |(EN)                                  |
-|collate  |en_US.UTF-8                           |
-|ctype    |en_US.UTF-8                           |
-|tz       |Asia/Seoul                            |
-|date     |2024-10-05                            |
-|pandoc   |3.4 @ /usr/local/bin/ (via rmarkdown) |
+|field    |value                        |
+|:--------|:----------------------------|
+|version  |R version 4.3.3 (2024-02-29) |
+|os       |macOS Big Sur ... 10.16      |
+|system   |x86_64, darwin20             |
+|ui       |X11                          |
+|language |(EN)                         |
+|collate  |en_US.UTF-8                  |
+|ctype    |en_US.UTF-8                  |
+|tz       |Asia/Seoul                   |
+|date     |2024-10-09                   |
+|pandoc   |3.5 @ /usr/local/bin/pandoc  |
 
 # Dependencies
 
 |package        |old   |new       |Δ  |
 |:--------------|:-----|:---------|:--|
-|bvhar          |2.1.0 |2.1.1     |*  |
+|bvhar          |2.1.1 |2.1.2     |*  |
 |abind          |NA    |1.4-8     |*  |
 |backports      |NA    |1.5.0     |*  |
 |checkmate      |NA    |2.3.2     |*  |
