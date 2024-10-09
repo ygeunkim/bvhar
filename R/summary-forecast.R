@@ -220,11 +220,12 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 }
 
 #' @rdname forecast_roll
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -404,7 +405,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = .05 / 2)
+        apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(lower_quantile) <- name_var
@@ -413,7 +414,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+        apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(upper_quantile) <- name_var
@@ -436,12 +437,13 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
 }
 
 #' @rdname forecast_roll
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -622,7 +624,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = .05 / 2)
+        apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(lower_quantile) <- name_var
@@ -631,7 +633,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+        apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(upper_quantile) <- name_var
@@ -816,11 +818,12 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 }
 
 #' @rdname forecast_expand
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -1011,7 +1014,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = .05 / 2)
+        apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(lower_quantile) <- name_var
@@ -1020,7 +1023,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+        apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(upper_quantile) <- name_var
@@ -1043,12 +1046,13 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
 }
 
 #' @rdname forecast_expand
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -1239,7 +1243,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = .05 / 2)
+        apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(lower_quantile) <- name_var
@@ -1248,7 +1252,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
     lapply(function(res) {
       unlist(res) %>%
         array(dim = c(1, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - .05 / 2)
+        apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
   colnames(upper_quantile) <- name_var
