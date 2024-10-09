@@ -260,18 +260,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
   # if (num_horizon * num_chains %/% num_thread == 0) {
   #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   # }
-  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  if (chunk_size == 0) {
-    chunk_size <- 1
-  }
-  # if (num_horizon > num_chains && chunk_size > num_chains) {
-  #   chunk_size <- min(
-  #     num_chains,
-  #     (num_horizon %/% num_thread) * num_chains
-  #   )
-  #   if (chunk_size == 0) {
-  #     chunk_size <- 1
-  #   }
+  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  # if (chunk_size == 0) {
+  #   chunk_size <- 1
   # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
@@ -327,7 +318,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     },
     "bvharldlt" = {
@@ -372,7 +363,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     }
   )
@@ -478,18 +469,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
   # if (num_horizon * num_chains %/% num_thread == 0) {
   #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   # }
-  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  if (chunk_size == 0) {
-    chunk_size <- 1
-  }
-  # if (num_horizon > num_chains && chunk_size > num_chains) {
-  #   chunk_size <- min(
-  #     num_chains,
-  #     (num_horizon %/% num_thread) * num_chains
-  #   )
-  #   if (chunk_size == 0) {
-  #     chunk_size <- 1
-  #   }
+  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  # if (chunk_size == 0) {
+  #   chunk_size <- 1
   # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
@@ -546,7 +528,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     },
     "bvharsv" = {
@@ -591,7 +573,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     }
   )
@@ -859,18 +841,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   # }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  if (chunk_size == 0) {
-    chunk_size <- 1
-  }
-  # if (num_horizon > num_chains && chunk_size > num_chains) {
-  #   chunk_size <- min(
-  #     num_chains,
-  #     (num_horizon %/% num_thread) * num_chains
-  #   )
-  #   if (chunk_size == 0) {
-  #     chunk_size <- 1
-  #   }
+  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
+  # if (chunk_size == 0) {
+  #   chunk_size <- 1
   # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
@@ -927,7 +900,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     },
     "bvharldlt" = {
@@ -972,7 +945,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     }
   )
@@ -1088,18 +1061,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
   #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
   # }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  if (chunk_size == 0) {
-    chunk_size <- 1
-  }
-  # if (num_horizon > num_chains && chunk_size > num_chains) {
-  #   chunk_size <- min(
-  #     num_chains,
-  #     (num_horizon %/% num_thread) * num_chains
-  #   )
-  #   if (chunk_size == 0) {
-  #     chunk_size <- 1
-  #   }
+  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
+  # if (chunk_size == 0) {
+  #   chunk_size <- 1
   # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
@@ -1156,7 +1120,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     },
     "bvharsv" = {
@@ -1201,7 +1165,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread, chunk_size
+        num_thread
       )
     }
   )
