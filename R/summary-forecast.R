@@ -256,9 +256,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread == 0) {
-    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  }
+  # if (num_horizon * num_chains %/% num_thread == 0) {
+  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  # }
   chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   if (chunk_size == 0) {
     chunk_size <- 1
@@ -375,8 +375,8 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spars
       )
     }
   )
-  # num_draw <- nrow(object$a_record) # concatenate multiple chains
-  num_draw <- nrow(object$param) / num_chains
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
@@ -473,9 +473,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread == 0) {
-    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  }
+  # if (num_horizon * num_chains %/% num_thread == 0) {
+  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  # }
   chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   if (chunk_size == 0) {
     chunk_size <- 1
@@ -593,8 +593,8 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_sv 
       )
     }
   )
-  # num_draw <- nrow(object$a_record) # concatenate multiple chains
-  num_draw <- nrow(object$param) / num_chains
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
@@ -852,9 +852,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread == 0) {
-    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  }
+  # if (num_horizon * num_chains %/% num_thread == 0) {
+  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  # }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
   if (chunk_size == 0) {
@@ -973,8 +973,8 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, spa
       )
     }
   )
-  # num_draw <- nrow(object$a_record) # concatenate multiple chains
-  num_draw <- nrow(object$param) / num_chains
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
@@ -1080,9 +1080,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
   # if (num_thread > num_chains && num_chains != 1) {
   #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
   # }
-  if (num_horizon * num_chains %/% num_thread == 0) {
-    warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  }
+  # if (num_horizon * num_chains %/% num_thread == 0) {
+  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
+  # }
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
   if (chunk_size == 0) {
@@ -1201,8 +1201,8 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, use_s
       )
     }
   )
-  # num_draw <- nrow(object$a_record) # concatenate multiple chains
-  num_draw <- nrow(object$param) / num_chains
+  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
