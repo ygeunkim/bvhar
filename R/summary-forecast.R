@@ -367,7 +367,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
@@ -577,7 +577,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
@@ -949,7 +949,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
@@ -1169,7 +1169,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
       )
     }
   )
-  num_draw <- nrow(object$a_record) # concatenate multiple chains
+  num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
     lpl_val <- res_mat$lpl
