@@ -10,7 +10,7 @@
 |collate  |en_US.UTF-8                  |
 |ctype    |en_US.UTF-8                  |
 |tz       |Asia/Seoul                   |
-|date     |2024-10-09                   |
+|date     |2024-10-11                   |
 |pandoc   |3.5 @ /usr/local/bin/pandoc  |
 
 # Dependencies
