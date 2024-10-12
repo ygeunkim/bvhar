@@ -210,7 +210,6 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
-//' @param chunk_size Chunk size for OpenMP static scheduling
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -219,7 +218,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 bool include_mean, int step, Eigen::MatrixXd y_test,
-											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -467,7 +466,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -513,7 +512,6 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
-//' @param chunk_size Chunk size for OpenMP static scheduling
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -522,7 +520,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												bool include_mean, int step, Eigen::MatrixXd y_test,
-											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -771,7 +769,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -817,7 +815,6 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
-//' @param chunk_size Chunk size for OpenMP static scheduling
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -826,7 +823,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 bool include_mean, int step, Eigen::MatrixXd y_test,
-											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
   int num_test = y_test.rows();
@@ -1074,7 +1071,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -1120,7 +1117,6 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
-//' @param chunk_size Chunk size for OpenMP static scheduling
 //' 
 //' @noRd
 // [[Rcpp::export]]
@@ -1129,7 +1125,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 													bool include_mean, int step, Eigen::MatrixXd y_test,
-											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads, int chunk_size) {
+											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
 #endif
@@ -1381,7 +1377,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(dynamic, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(dynamic, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {

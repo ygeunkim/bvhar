@@ -24,7 +24,7 @@ public:
 		last_pvec(Eigen::VectorXd::Zero(dim_design)),
 		sv_update(Eigen::VectorXd::Zero(dim)),
 		post_mean(Eigen::VectorXd::Zero(dim)),
-		predictive_distn(Eigen::MatrixXd::Zero(step, num_sim * dim)),
+		// predictive_distn(Eigen::MatrixXd::Zero(step, num_sim * dim)),
 		coef_mat(Eigen::MatrixXd::Zero(num_coef / dim, dim)),
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
 		standard_normal(Eigen::VectorXd::Zero(dim)),
@@ -46,6 +46,8 @@ public:
 	}
 	Eigen::MatrixXd forecastDensity() {
 		std::lock_guard<std::mutex> lock(mtx);
+		Eigen::VectorXd mean_draw = post_mean.replicate(num_sim, 1); // cbind(sims)
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		for (int h = 0; h < step; h++) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
@@ -53,18 +55,23 @@ public:
 				if (include_mean) {
 					coef_mat.bottomRows(1) = reg_record.coef_record.row(i).tail(dim);
 				}
-				last_pvec.head(dim) = post_mean;
+				// last_pvec.head(dim) = post_mean;
+				last_pvec.head(dim) = mean_draw.segment(i * dim, dim); // hat(y_{T + h - 1}^{(i)})
 				computeMean(i);
 				updateVariance(i);
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
-				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
+				// predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
+				mean_draw.segment(i * dim, dim) = post_mean; // hat(Y_{T + h}^{(i)})
 			}
+			predictive_distn.row(h) = mean_draw;
 			tmp_vec = last_pvec.head((var_lag - 1) * dim);
 		}
 		return predictive_distn;
 	}
 	Eigen::MatrixXd forecastDensity(const Eigen::VectorXd& valid_vec) {
 		std::lock_guard<std::mutex> lock(mtx);
+		Eigen::VectorXd mean_draw = post_mean.replicate(num_sim, 1); // cbind(sims)
+		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
 		for (int h = 0; h < step; h++) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 			for (int i = 0; i < num_sim; i++) {
@@ -72,13 +79,16 @@ public:
 				if (include_mean) {
 					coef_mat.bottomRows(1) = reg_record.coef_record.row(i).tail(dim);
 				}
-				last_pvec.head(dim) = post_mean;
+				// last_pvec.head(dim) = post_mean;
+				last_pvec.head(dim) = mean_draw.segment(i * dim, dim);
 				computeMean(i); // can have overflow issue due to stability of each coef_record
 				updateVariance(i);
-				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L)
-				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
+				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D (L^T)^-1)
+				// predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose();
+				mean_draw.segment(i * dim, dim) = post_mean;
 				lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - (sv_update.cwiseSqrt().cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
 			}
+			predictive_distn.row(h) = mean_draw;
 			lpl[h] /= num_sim;
 			tmp_vec = last_pvec.head((var_lag - 1) * dim);
 		}
@@ -107,7 +117,7 @@ protected:
 	Eigen::VectorXd last_pvec; // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 	Eigen::VectorXd sv_update; // d_1, ..., d_m
 	Eigen::VectorXd post_mean; // posterior mean and y_(T + h - 1)
-	Eigen::MatrixXd predictive_distn; // rbind(step), cbind(sims)
+	// Eigen::MatrixXd predictive_distn; // rbind(step), cbind(sims)
 	Eigen::MatrixXd coef_mat; // include constant term when include_mean = true
 	Eigen::MatrixXd contem_mat; // L
 	Eigen::VectorXd standard_normal; // Z ~ N(0, I)

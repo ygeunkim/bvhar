@@ -61,7 +61,17 @@ Also, you can use in your single `C++` source:
 
 ```
 // [[Rcpp::depends(BH, RcppEigen, bvhar)]]
+// [[Rcpp::plugins(bvhar)]]
 ```
+
+You need to add `plugins` attribute because the header in this package should define `USE_RCPP` macro.
+Or you can use instead:
+
+```{r, eval=FALSE}
+Sys.setenv("PKG_CPPFLAGS" = "-DUSE_RCPP")
+```
+
+without using plugins attribute.
 
 ## MCMC headers
 

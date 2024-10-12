@@ -443,19 +443,30 @@ protected:
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
 			// Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
-			draw_coef(
-				coef_mat.col(j),
-				design_coef,
-				(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
-				prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
-				prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
-				rng
-			);
+			if (include_mean) {
+				Eigen::VectorXd prior_mean_j(dim_design);
+				Eigen::VectorXd prior_prec_j(dim_design);
+				prior_mean_j << prior_alpha_mean.segment(j * num_alpha / dim, num_alpha / dim), prior_alpha_mean.tail(dim)[j];
+				prior_prec_j << prior_alpha_prec.segment(j * num_alpha / dim, num_alpha / dim), prior_alpha_prec.tail(dim)[j];
+				draw_coef(
+					coef_mat.col(j), design_coef,
+					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
+					prior_mean_j, prior_prec_j, rng
+				);
+				coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+				coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
+			} else {
+				draw_coef(
+					coef_mat.col(j),
+					design_coef,
+					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
+					prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
+					prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
+					rng
+				);
+				coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+			}
 			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
-		}
-		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
-		if (include_mean) {
-			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
 	}
 	void updateDiag() {
@@ -515,26 +526,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -611,26 +602,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -746,27 +717,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("gamma_record") = ssvs_record.coef_dummy_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -886,34 +836,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("lambda_record") = hs_record.local_record,
-// 			Rcpp::Named("eta_record") = hs_record.group_record,
-// 			Rcpp::Named("tau_record") = hs_record.global_record,
-// 			Rcpp::Named("kappa_record") = hs_record.shrink_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-// 				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 			} else {
-// 				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
-// 			}
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -1047,33 +969,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("lambda_record") = ng_record.local_record,
-// 			Rcpp::Named("eta_record") = ng_record.group_record,
-// 			Rcpp::Named("tau_record") = ng_record.global_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-// 				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 			} else {
-// 				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
-// 			}
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
@@ -1207,32 +1102,6 @@ public:
 		updateDiag();
 		updateRecords();
 	}
-// #ifdef USE_RCPP
-// 	Rcpp::List returnRecords(int num_burn, int thin) const override {
-// 		Rcpp::List res = Rcpp::List::create(
-// 			Rcpp::Named("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
-// 			Rcpp::Named("a_record") = reg_record.contem_coef_record,
-// 			Rcpp::Named("d_record") = reg_record.fac_record,
-// 			Rcpp::Named("lambda_record") = dl_record.local_record,
-// 			Rcpp::Named("tau_record") = dl_record.global_record,
-// 			Rcpp::Named("alpha_sparse_record") = sparse_record.coef_record,
-// 			Rcpp::Named("a_sparse_record") = sparse_record.contem_coef_record
-// 		);
-// 		if (include_mean) {
-// 			res["c_record"] = reg_record.coef_record.rightCols(dim);
-// 		}
-// 		for (auto& record : res) {
-// 			if (Rcpp::is<Rcpp::NumericMatrix>(record)) {
-// 				record = thin_record(Rcpp::as<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
-// 			} else {
-// 				record = thin_record(Rcpp::as<Eigen::VectorXd>(record), num_iter, num_burn, thin);
-// 			}
-// 		}
-// 		return res;
-// 	}
-// #else
-// 	py::dict returnRecords(int num_burn, int thin) const override;
-// #endif
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
