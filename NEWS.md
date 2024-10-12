@@ -1,3 +1,5 @@
+# bvhar (development version)
+
 # bvhar 2.1.2
 
 * Fix MCMC algorithm for `include_mean = TRUE` case.
