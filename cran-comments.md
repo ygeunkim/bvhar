@@ -1,9 +1,10 @@
-## Minor version update
+## Patch version update
 
+This is a quick fix for fatal algorithm fault.
 In this version, we
 
-- Fix some numerical process
-- Fix a C++ macro issue
+- Fixed MCMC algorithm when constant term exists.
+- Fixed Forecasting algorithm for MCMC objects.
 
 ## Test environments
 
@@ -18,7 +19,10 @@ In this version, we
 
 0 errors | 0 warnings | 1 note
 
-* NOTE in local machine: HTML validation NOTE on local environment (aarch64-apple-darwin20) check. This note appears to be specific to my local machine and had no problem in previous CRAN checks.
+* NOTE for CRAN incoming feasibility (Days since last update: 6):
+The algorithms in the current version have some serious issues,
+so an update is needed ASAP.
+* NOTE only in local machine: HTML validation NOTE on local environment check. This note appears to be specific to my local machine and had no problem in previous CRAN checks.
 
 ## revdepcheck results
 

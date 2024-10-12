@@ -1,4 +1,10 @@
-# bvhar (development version)
+# bvhar 2.1.2
+
+* Fix MCMC algorithm for `include_mean = TRUE` case.
+
+* Fix predictive distribution update codes (`predict()`, `forecast_roll()`, and `forecast_expand()` for `ldltmod` and `svmod` classes).
+
+* Fix out-of-forecasting (`forecast_roll()` and `forecast_expand()`) result process codes.
 
 # bvhar 2.1.1
 
