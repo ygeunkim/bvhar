@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Transpose the predictive distribution update loop.
+
 # bvhar 2.1.2
 
 * Fix MCMC algorithm for `include_mean = TRUE` case.
