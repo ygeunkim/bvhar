@@ -2,6 +2,14 @@
 
 * Transpose the predictive distribution update loop.
 
+## Removal of deprecated functions
+
+* Removed bvar_sv() and bvhar_sv().
+
+* Removed bvar_ssvs(), bvhar_ssvs(), init_ssvs(), choose_ssvs(), sim_ssvs_var(), and sim_ssvs_vhar().
+
+* Removed bvar_horseshoe(), bvhar_horseshoe(), sim_horseshoe_var(), and sim_horseshoe_vhar().
+
 # bvhar 2.1.2
 
 * Fix MCMC algorithm for `include_mean = TRUE` case.
