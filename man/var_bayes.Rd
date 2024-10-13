@@ -2,7 +2,9 @@
 % Please edit documentation in R/var-bayes.R, R/print-bvharsp.R
 \name{var_bayes}
 \alias{var_bayes}
+\alias{print.bvarsv}
 \alias{print.bvarldlt}
+\alias{knit_print.bvarsv}
 \alias{knit_print.bvarldlt}
 \title{Fitting Bayesian VAR with Coefficient and Covariance Prior}
 \usage{
@@ -24,7 +26,11 @@ var_bayes(
   num_thread = 1
 )
 
+\method{print}{bvarsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
 \method{print}{bvarldlt}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{knit_print}{bvarsv}(x, ...)
 
 \method{knit_print}{bvarldlt}(x, ...)
 }

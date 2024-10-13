@@ -532,72 +532,6 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
     .Call(`_bvhar_estimate_hierachical_niw`, num_iter, num_burn, x, y, prior_prec, prior_scale, prior_shape, mn_mean, mn_prec, iw_scale, posterior_shape, gamma_shp, gamma_rate, invgam_shp, invgam_scl, acc_scale, obs_information, init_lambda, init_psi, display_progress)
 }
 
-#' Gibbs Sampler for Horseshoe BVAR SUR Parameterization
-#' 
-#' This function conducts Gibbs sampling for horseshoe prior BVAR(p).
-#' 
-#' @param num_chain Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thin Thinning
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param init_priorvar Initial variance constant
-#' @param init_local Initial local shrinkage hyperparameters
-#' @param init_global Initial global shrinkage hyperparameter
-#' @param init_sigma Initial sigma
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param fast Fast sampling?
-#' @param seed_chain Seed for each chain
-#' @param display_progress Progress bar
-#' @param nthreads Number of threads for openmp
-#' @noRd
-estimate_sur_horseshoe <- function(num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_sur_horseshoe`, num_chains, num_iter, num_burn, thin, x, y, init_local, init_group, init_global, init_sigma, grp_id, grp_mat, blocked_gibbs, fast, seed_chain, display_progress, nthreads)
-}
-
-#' BVAR(p) SSVS by Gibbs Sampler
-#' 
-#' This function conducts Gibbs sampling for BVAR SSVS.
-#' 
-#' @param num_chain Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thin Thinning
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param init_coef Initial k x m coefficient matrix.
-#' @param init_chol_diag Inital diagonal cholesky factor
-#' @param init_chol_upper Inital upper cholesky factor
-#' @param init_coef_dummy Initial indicator vector (0-1) corresponding to each coefficient vector
-#' @param init_chol_dummy Initial indicator vector (0-1) corresponding to each upper cholesky factor vector
-#' @param coef_spike Standard deviance for Spike normal distribution
-#' @param coef_slab Standard deviance for Slab normal distribution
-#' @param coef_slab_weight Coefficients vector sparsity proportion
-#' @param shape Gamma shape parameters for precision matrix
-#' @param rate Gamma rate parameters for precision matrix
-#' @param coef_s1 First shape of prior beta distribution of coefficients slab weight
-#' @param coef_s2 Second shape of prior beta distribution of coefficients slab weight
-#' @param chol_spike Standard deviance for cholesky factor Spike normal distribution
-#' @param chol_slab Standard deviance for cholesky factor Slab normal distribution
-#' @param chol_slab_weight Cholesky factor sparsity proportion
-#' @param chol_s1 First shape of prior beta distribution of cholesky factor slab weight
-#' @param chol_s2 Second shape of prior beta distribution of cholesky factor slab weight
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param mean_non Prior mean of unrestricted coefficients
-#' @param sd_non Standard deviance for unrestricted coefficients
-#' @param include_mean Add constant term
-#' @param seed_chain Seed for each chain
-#' @param init_gibbs Set custom initial values for Gibbs sampler
-#' @param display_progress Progress bar
-#' @param nthreads Number of threads for openmp
-#' @noRd
-estimate_bvar_ssvs <- function(num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_bvar_ssvs`, num_chains, num_iter, num_burn, thin, x, y, init_coef, init_chol_diag, init_chol_upper, init_coef_dummy, init_chol_dummy, coef_spike, coef_slab, coef_slab_weight, shape, rate, coef_s1, coef_s2, chol_spike, chol_slab, chol_slab_weight, chol_s1, chol_s2, grp_id, grp_mat, mean_non, sd_non, include_mean, seed_chain, init_gibbs, display_progress, nthreads)
-}
-
 #' VAR with Shrinkage Priors
 #' 
 #' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
@@ -743,64 +677,6 @@ estimate_har <- function(y, week, month, include_mean, method) {
 #' @noRd
 infer_vhar <- function(object) {
     .Call(`_bvhar_infer_vhar`, object)
-}
-
-#' Forecasting VAR(p) with SSVS
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
-#' @noRd
-forecast_bvarssvs_deprecate <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvarssvs_deprecate`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, eta_record, psi_record)
-}
-
-#' Forecasting VAR(p) with Horseshoe Prior
-#' 
-#' @param var_lag VAR order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param alpha_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvarhs_deprecate <- function(num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvarhs_deprecate`, num_chains, var_lag, step, response_mat, dim_design, alpha_record, sigma_record)
-}
-
-#' Forecasting VHAR with SSVS
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of alpha.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param psi_record Matrix, MCMC trace of psi.
-#' @noRd
-forecast_bvharssvs_deprecate <- function(num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record) {
-    .Call(`_bvhar_forecast_bvharssvs_deprecate`, num_chains, month, step, response_mat, HARtrans, phi_record, eta_record, psi_record)
-}
-
-#' Forecasting VHAR with Horseshoe Prior
-#' 
-#' @param month VHAR month order.
-#' @param step Integer, Step to forecast.
-#' @param response_mat Response matrix.
-#' @param coef_mat Posterior mean of SSVS.
-#' @param HARtrans VHAR linear transformation matrix
-#' @param phi_record Matrix, MCMC trace of phi.
-#' @param eta_record Matrix, MCMC trace of eta.
-#' @param omega_record Matrix, MCMC trace of omega.
-#' @noRd
-forecast_bvharhs_deprecate <- function(num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record) {
-    .Call(`_bvhar_forecast_bvharhs_deprecate`, num_chains, month, step, response_mat, HARtrans, phi_record, sigma_record)
 }
 
 #' Forecasting predictive density of BVAR

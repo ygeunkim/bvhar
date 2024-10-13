@@ -402,32 +402,16 @@ set_intercept <- function(mean = 0, sd = .1) {
 #'
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
 #'
-#' @param coef_spike `r lifecycle::badge("deprecated")` Standard deviance for Spike normal distribution.
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
-#' @param coef_slab `r lifecycle::badge("deprecated")` Standard deviance for Slab normal distribution.
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param coef_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd
 #' @param coef_slab_shape Inverse gamma shape for slab sd
 #' @param coef_slab_scl Inverse gamma scale for slab sd
-#' @param coef_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion.
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param coef_s1 First shape of coefficients prior beta distribution
 #' @param coef_s2 Second shape of coefficients prior beta distribution
-#' @param mean_non `r lifecycle::badge("deprecated")` Prior mean of unrestricted coefficients
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
-#' @param sd_non `r lifecycle::badge("deprecated")` Standard deviance for unrestricted coefficients
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
-#' @param chol_spike Standard deviance for Spike normal distribution, in the cholesky factor.
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
-#' @param chol_slab Standard deviance for Slab normal distribution, in the cholesky factor.
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param chol_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor
 #' @param chol_slab_shape Inverse gamma shape for slab sd in the cholesky factor
 #' @param chol_slab_scl Inverse gamma scale for slab sd in the cholesky factor
-#' @param chol_mixture `r lifecycle::badge("deprecated")` Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
-#' Will be deleted when [bvar_ssvs()] and [bvhar_ssvs()] are removed in the package.
 #' @param chol_s1 First shape of cholesky factor prior beta distribution
 #' @param chol_s2 Second shape of cholesky factor prior beta distribution
 #' @details 
@@ -476,33 +460,20 @@ set_intercept <- function(mean = 0, sd = .1) {
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
-set_ssvs <- function(coef_spike = .1,
-                     coef_slab = 5,
-                     coef_spike_scl = .01,
+set_ssvs <- function(coef_spike_scl = .01,
                      coef_slab_shape = .01,
                      coef_slab_scl = .01,
-                     coef_mixture = .5,
                      coef_s1 = c(1, 1),
                      coef_s2 = c(1, 1),
-                     mean_non = 0,
-                     sd_non = .1,
                      shape = .01,
                      rate = .01,
-                     chol_spike = .1,
-                     chol_slab = 5,
                      chol_spike_scl = .01,
                      chol_slab_shape = .01,
                      chol_slab_scl = .01,
-                     chol_mixture = .5,
                      chol_s1 = 1,
                      chol_s2 = 1) {
-  if (!(is.vector(coef_spike) &&
-    is.vector(coef_slab) &&
-    is.vector(coef_mixture) &&
-    is.vector(shape) &&
-    is.vector(rate) &&
-    is.vector(mean_non))) {
-    stop("'coef_spike', 'coef_slab', 'coef_mixture', 'shape', 'rate', and 'mean_non' be a vector.")
+  if (!(is.vector(shape) && is.vector(rate))) {
+    stop("'shape' and 'rate' be a vector.")
   }
   if (!(length(chol_s1) == 1 && length(chol_s2 == 1))) {
     stop("'chol_s1' and 'chol_s2' should be length 1 numeric.")
@@ -519,8 +490,7 @@ set_ssvs <- function(coef_spike = .1,
   # if (length(coef_s1) != length(coef_s2)) {
   #   stop("'coef_s1' and 'coef_s2' should have the same length.")
   # }
-  if (!(length(coef_s1) == 2 &&
-    length(coef_s2 == 2))) {
+  if (!(length(coef_s1) == 2 && length(coef_s2 == 2))) {
     stop("'coef_s1' and 'coef_s2' should be length 2 numeric, each indicating own and cross lag.")
   }
   if (coef_s1[1] < coef_s2[1]) {
@@ -529,68 +499,27 @@ set_ssvs <- function(coef_spike = .1,
   if (coef_s1[2] > coef_s2[2]) {
     stop("'coef_s1[2]' should be same or smaller than 'coef_s2[2]'.") # cross-lag
   }
-  if (length(sd_non) != 1) {
-    stop("'sd_non' should be length 1 numeric.")
-  }
-  if (sd_non < 0) {
-    stop("'sd_non' should be positive.")
-  }
-  if (!(is.numeric(chol_spike) ||
-        is.vector(chol_spike) || 
-        is.matrix(chol_spike) ||
-        is.numeric(chol_slab) ||
-        is.vector(chol_slab) ||
-        is.matrix(chol_slab) ||
-        is.numeric(chol_mixture) ||
-        is.vector(chol_mixture) ||
-        is.matrix(chol_mixture))) {
-    stop("'chol_spike', 'chol_slab', and 'chol_mixture' should be a vector or upper triangular matrix.")
-  }
   # coefficients---------------------
-  coef_param <- list(
-    coef_spike = coef_spike,
-    coef_slab = coef_slab,
-    coef_mixture = coef_mixture,
+  res <- list(
     coef_spike_scl = coef_spike_scl,
     coef_slab_shape = coef_slab_shape,
     coef_slab_scl = coef_slab_scl,
     coef_s1 = coef_s1,
     coef_s2 = coef_s2
   )
-  non_param <- list(
-    mean_non = mean_non,
-    sd_non = sd_non
-  )
-  len_param <- sapply(coef_param, length)
+  # non_param <- list(
+  #   mean_non = mean_non,
+  #   sd_non = sd_non
+  # )
+  len_param <- sapply(res, length)
   if (length(unique(len_param[len_param != 1])) > 1) {
     stop("The length of 'coef_spike', 'coef_slab', and 'coef_mixture' should be the same.")
   }
-  res <- append(coef_param, non_param)
+  # res <- append(coef_param, non_param)
   # cholesky factor-------------------
-  if (is.matrix(chol_spike)) {
-    if (any(chol_spike[lower.tri(chol_spike, diag = TRUE)] != 0)) {
-      stop("If 'chol_spike' is a matrix, it should be an upper triangular form.")
-    }
-    chol_spike <- chol_spike[upper.tri(chol_spike, diag = FALSE)]
-  }
-  if (is.matrix(chol_slab)) {
-    if (any(chol_slab[lower.tri(chol_slab, diag = TRUE)] != 0)) {
-      stop("If 'chol_slab' is a matrix, it should be an upper triangular form.")
-    }
-    chol_slab <- chol_slab[upper.tri(chol_slab, diag = FALSE)]
-  }
-  if (is.matrix(chol_mixture)) {
-    if (any(chol_mixture[lower.tri(chol_mixture, diag = TRUE)] != 0)) {
-      stop("If 'chol_mixture' is a matrix, it should be an upper triangular form.")
-    }
-    chol_mixture <- chol_mixture[upper.tri(chol_mixture, diag = FALSE)]
-  }
   chol_param <- list(
     shape = shape,
     rate = rate,
-    chol_spike = chol_spike, 
-    chol_slab = chol_slab,
-    chol_mixture = chol_mixture,
     chol_spike_scl = chol_spike_scl,
     chol_slab_shape = chol_slab_shape,
     chol_slab_scl = chol_slab_scl,
@@ -610,86 +539,6 @@ set_ssvs <- function(coef_spike = .1,
   }
   res <- append(res, chol_param)
   class(res) <- "ssvsinput"
-  res
-}
-
-#' Initial Parameters of Stochastic Search Variable Selection (SSVS) Model
-#' 
-#' `r lifecycle::badge("deprecated")` Set initial parameters before starting Gibbs sampler for SSVS.
-#' 
-#' @param init_coef Initial coefficient matrix. Initialize with an array or list for multiple chains.
-#' @param init_coef_dummy Initial indicator matrix (1-0) corresponding to each component of coefficient. Initialize with an array or list for multiple chains.
-#' @param init_chol Initial cholesky factor (upper triangular). Initialize with an array or list for multiple chains.
-#' @param init_chol_dummy Initial indicator matrix (1-0) corresponding to each component of cholesky factor. Initialize with an array or list for multiple chains.
-#' @param type `r lifecycle::badge("experimental")` Type to choose initial values. One of `user` (User-given) and `auto` (OLS for coefficients and 1 for dummy).
-#' @details 
-#' Set SSVS initialization for the VAR model.
-#' 
-#' * `init_coef`: (kp + 1) x m \eqn{A} coefficient matrix.
-#' * `init_coef_dummy`: kp x m \eqn{\Gamma} dummy matrix to restrict the coefficients.
-#' * `init_chol`: k x k \eqn{\Psi} upper triangular cholesky factor, which \eqn{\Psi \Psi^\intercal = \Sigma_e^{-1}}.
-#' * `init_chol_dummy`: k x k \eqn{\Omega} upper triangular dummy matrix to restrict the cholesky factor.
-#' 
-#' Denote that `init_chol` and `init_chol_dummy` should be upper_triangular or the function gives error.
-#' 
-#' For parallel chain initialization, assign three-dimensional array or three-length list.
-#' @return `ssvsinit` object
-#' @references 
-#' George, E. I., & McCulloch, R. E. (1993). *Variable Selection via Gibbs Sampling*. Journal of the American Statistical Association, 88(423), 881-889.
-#' 
-#' George, E. I., Sun, D., & Ni, S. (2008). *Bayesian stochastic search for VAR model restrictions*. Journal of Econometrics, 142(1), 553-580.
-#' 
-#' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
-#' @order 1
-#' @export
-init_ssvs <- function(init_coef,
-                      init_coef_dummy,
-                      init_chol,
-                      init_chol_dummy,
-                      type = c("user", "auto")) {
-  deprecate_warn("2.0.1", "init_ssvs()", details = "'bvar_ssvs()' and 'bvhar_ssvs()' are deprecated. 'var_bayes()' and 'vhar_bayes()' initialize gibbs sampler in random.")
-  type <- match.arg(type)
-  if (type == "auto") {
-    init_coef <- NULL
-    init_coef_dummy <- NULL
-    init_chol <- NULL
-    init_chol_dummy <- NULL
-    num_chain <- 1
-  } else {
-    num_chain <- 1
-    coef_mat <- init_coef
-    coef_dummy <- init_coef_dummy
-    chol_mat <- init_chol
-    chol_dummy <- init_chol_dummy
-    # Check dimension validity-----------------------------
-    dim_design <- nrow(coef_mat) # kp(+1)
-    dim_data <- ncol(coef_mat) # k = dim
-    if (!(nrow(coef_dummy) == dim_design && ncol(coef_dummy) == dim_data)) {
-      if (!(nrow(coef_dummy) == dim_design - 1 && ncol(coef_dummy) == dim_data)) {
-        stop("Invalid dimension of 'init_coef_dummy'.")
-      }
-    }
-    if (!(nrow(chol_mat) == dim_data && ncol(chol_mat) == dim_data)) {
-      stop("Invalid dimension of 'init_chol'.")
-    }
-    if (any(chol_mat[lower.tri(chol_mat, diag = FALSE)] != 0)) {
-      stop("'init_chol' should be upper triangular matrix.")
-    }
-    if (!(nrow(chol_dummy) == dim_data || ncol(chol_dummy) == dim_data)) {
-      stop("Invalid dimension of 'init_chol_dummy'.")
-    }
-  }
-  res <- list(
-    process = "VAR",
-    prior = "SSVS",
-    # chain = num_chain,
-    init_coef = init_coef,
-    init_coef_dummy = init_coef_dummy,
-    init_chol = init_chol,
-    init_chol_dummy = init_chol_dummy,
-    type = type
-  )
-  class(res) <- "ssvsinit"
   res
 }
 

@@ -53,62 +53,6 @@ split_coef <- function(object, ...) {
   }
 }
 
-#' Changing 3d initial array Input to List
-#' 
-#' This function changes 3d array of [init_ssvs()] function to list.
-#' 
-#' @param init_array potentially 3d array initial input
-#' 
-#' @noRd
-change_to_list <- function(init_array) {
-  if (length(dim(init_array)) == 3) {
-    lapply(
-      seq_len(dim(init_array)[3]),
-      function(k) init_array[,, k]
-    )
-  } else {
-    init_array
-  }
-}
-
-#' Checking if the Parallel Initial List are not Identical
-#' 
-#' This function checks if the list of parallel initial matrices are identical.
-#' 
-#' @param init_list List of parallel initial matrix
-#' @param case Check dimension (`dim`) or values (`values`).
-#' 
-#' @noRd
-isnot_identical <- function(init_list, case = c("dim", "values")) {
-  case <- match.arg(case)
-  switch(
-    case,
-    "dim" = {
-      if (length(unique(lapply(init_list, dim))) != 1) {
-        stop(paste0(
-          "Dimension of '",
-          deparse(substitute(init_list)),
-          "' across every chain should be the same."
-        ))
-      }
-    },
-    "values" = {
-      if (any(unlist(
-        lapply(
-          seq_along(init_list)[-1], 
-          function(i) identical(init_list[[1]], init_list[[i]])
-        )
-      ))) {
-        warning(paste0(
-          "Initial setting of '",
-          deparse(substitute(init_list)),
-          "' in each chain is recommended to be differed."
-        ))
-      }
-    }
-  )
-}
-
 #' Processing Multiple Chain Record Result Matrix from `RcppEigen`
 #' 
 #' Preprocess multiple chain record matrix for [posterior::posterior] package.

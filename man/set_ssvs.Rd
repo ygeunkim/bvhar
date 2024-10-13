@@ -8,24 +8,16 @@
 \title{Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor}
 \usage{
 set_ssvs(
-  coef_spike = 0.1,
-  coef_slab = 5,
   coef_spike_scl = 0.01,
   coef_slab_shape = 0.01,
   coef_slab_scl = 0.01,
-  coef_mixture = 0.5,
   coef_s1 = c(1, 1),
   coef_s2 = c(1, 1),
-  mean_non = 0,
-  sd_non = 0.1,
   shape = 0.01,
   rate = 0.01,
-  chol_spike = 0.1,
-  chol_slab = 5,
   chol_spike_scl = 0.01,
   chol_slab_shape = 0.01,
   chol_slab_scl = 0.01,
-  chol_mixture = 0.5,
   chol_s1 = 1,
   chol_s2 = 1
 )
@@ -37,49 +29,25 @@ is.ssvsinput(x)
 \method{knit_print}{ssvsinput}(x, ...)
 }
 \arguments{
-\item{coef_spike}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Standard deviance for Spike normal distribution.
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
-\item{coef_slab}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Standard deviance for Slab normal distribution.
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
 \item{coef_spike_scl}{Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd}
 
 \item{coef_slab_shape}{Inverse gamma shape for slab sd}
 
 \item{coef_slab_scl}{Inverse gamma scale for slab sd}
 
-\item{coef_mixture}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Bernoulli parameter for sparsity proportion.
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
 \item{coef_s1}{First shape of coefficients prior beta distribution}
 
 \item{coef_s2}{Second shape of coefficients prior beta distribution}
 
-\item{mean_non}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Prior mean of unrestricted coefficients
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
-\item{sd_non}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Standard deviance for unrestricted coefficients
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
 \item{shape}{Gamma shape parameters for precision matrix (See Details).}
 
 \item{rate}{Gamma rate parameters for precision matrix (See Details).}
-
-\item{chol_spike}{Standard deviance for Spike normal distribution, in the cholesky factor.
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
-
-\item{chol_slab}{Standard deviance for Slab normal distribution, in the cholesky factor.
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
 
 \item{chol_spike_scl}{Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor}
 
 \item{chol_slab_shape}{Inverse gamma shape for slab sd in the cholesky factor}
 
 \item{chol_slab_scl}{Inverse gamma scale for slab sd in the cholesky factor}
-
-\item{chol_mixture}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Bernoulli parameter for sparsity proportion, in the cholesky factor (See Details).
-Will be deleted when \code{\link[=bvar_ssvs]{bvar_ssvs()}} and \code{\link[=bvhar_ssvs]{bvhar_ssvs()}} are removed in the package.}
 
 \item{chol_s1}{First shape of cholesky factor prior beta distribution}
 

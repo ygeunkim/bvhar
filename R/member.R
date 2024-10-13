@@ -213,12 +213,6 @@ is.ssvsinput <- function(x) {
   inherits(x, "ssvsinput")
 }
 
-#' @rdname init_ssvs
-#' @export
-is.ssvsinit <- function(x) {
-  inherits(x, "ssvsinit")
-}
-
 #' @rdname set_horseshoe
 #' @export
 is.horseshoespec <- function(x) {

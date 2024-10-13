@@ -2,7 +2,9 @@
 % Please edit documentation in R/vhar-bayes.R, R/print-bvharsp.R
 \name{vhar_bayes}
 \alias{vhar_bayes}
+\alias{print.bvharsv}
 \alias{print.bvharldlt}
+\alias{knit_print.bvharsv}
 \alias{knit_print.bvharldlt}
 \title{Fitting Bayesian VHAR with Coefficient and Covariance Prior}
 \usage{
@@ -24,7 +26,11 @@ vhar_bayes(
   num_thread = 1
 )
 
+\method{print}{bvharsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
 \method{print}{bvharldlt}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{knit_print}{bvharsv}(x, ...)
 
 \method{knit_print}{bvharldlt}(x, ...)
 }
