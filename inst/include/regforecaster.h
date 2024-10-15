@@ -41,7 +41,7 @@ public:
 		if (include_mean) {
 			coef_mat.bottomRows(1) = reg_record.coef_record.row(i).tail(dim);
 		}
-		sv_update = reg_record.fac_record.row(i).transpose(); // D
+		sv_update = reg_record.fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 		contem_mat = build_inv_lower(dim, reg_record.contem_coef_record.row(i)); // L
 	}
 	void updateVariance(int i) {
@@ -50,7 +50,7 @@ public:
 		for (int j = 0; j < dim; j++) {
 			standard_normal[j] = normal_rand(rng);
 		}
-		standard_normal.array() *= sv_update.cwiseSqrt().array(); // D^(1/2) Z ~ N(0, D)
+		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
 	}
 	Eigen::MatrixXd forecastDensity() {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -61,12 +61,6 @@ public:
 			post_mean = obs_vec.head(dim);
 			tmp_vec = obs_vec.segment(dim, (var_lag - 1) * dim);
 			updateParams(i);
-			// coef_mat.topRows(nrow_coef) = unvectorize(reg_record.coef_record.row(i).head(num_alpha).transpose(), dim);
-			// if (include_mean) {
-			// 	coef_mat.bottomRows(1) = reg_record.coef_record.row(i).tail(dim);
-			// }
-			// sv_update = reg_record.fac_record.row(i).transpose(); // D
-			// contem_mat = build_inv_lower(dim, reg_record.contem_coef_record.row(i)); // L
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 				last_pvec.head(dim) = post_mean;
@@ -87,12 +81,6 @@ public:
 			last_pvec = obs_vec;
 			post_mean = obs_vec.head(dim);
 			tmp_vec = obs_vec.segment(dim, (var_lag - 1) * dim);
-			// coef_mat.topRows(nrow_coef) = unvectorize(reg_record.coef_record.row(i).head(num_alpha).transpose(), dim);
-			// if (include_mean) {
-			// 	coef_mat.bottomRows(1) = reg_record.coef_record.row(i).tail(dim);
-			// }
-			// sv_update = reg_record.fac_record.row(i).transpose(); // D
-			// contem_mat = build_inv_lower(dim, reg_record.contem_coef_record.row(i)); // L
 			updateParams(i);
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
@@ -101,7 +89,7 @@ public:
 				updateVariance(i);
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L^T-1)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose(); // hat(Y_{T + h}^{(i)})
-				lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - (sv_update.cwiseSqrt().cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
+				lpl[h] += sv_update.array().log().sum() / 2 - dim * log(2 * M_PI) / 2 - (sv_update.cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
 				tmp_vec = last_pvec.head((var_lag - 1) * dim);
 			}
 		}
