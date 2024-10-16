@@ -46,7 +46,7 @@ Rcpp::List compute_vharldlt_spillover(int week, int month, int step,
 Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			int lag, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
 																			int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-																			bool include_mean, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size) {
+																			bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
 	int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
 		Rf_error("Window size is too large.");
@@ -185,7 +185,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -216,7 +216,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			 int week, int month, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
 																			 int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-																			 bool include_mean, Eigen::MatrixXi seed_chain, int nthreads, int chunk_size) {
+																			 bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
 	int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
 		Rf_error("Window size is too large.");
@@ -356,7 +356,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {

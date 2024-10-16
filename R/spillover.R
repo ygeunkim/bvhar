@@ -412,7 +412,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
     cross_id <- 2
   }
   num_chains <- object$chain
-  chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
+  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   sp_list <- switch(model_type,
     "bvarldlt" = {
       dynamic_bvarldlt_spillover(
@@ -430,8 +430,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
         include_mean = include_mean,
         # seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
         seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-        nthreads = num_thread,
-        chunk_size = chunk_size
+        nthreads = num_thread
       )
     },
     "bvharldlt" = {
@@ -448,8 +447,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
         seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
-        nthreads = num_thread,
-        chunk_size = chunk_size
+        nthreads = num_thread
       )
     },
     stop("Not supported model.")
