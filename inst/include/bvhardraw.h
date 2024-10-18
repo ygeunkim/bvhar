@@ -1208,6 +1208,29 @@ inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd&
 	}
 }
 
+// Build coefficient in VAR(1) companion form of VAR(p)
+// 
+// @param coef_mat VAR without constant coefficient matrix form
+// 
+inline Eigen::MatrixXd build_companion(Eigen::Ref<Eigen::MatrixXd> coef_mat) {
+	int dim = coef_mat.cols();
+	int dim_design = coef_mat.rows();
+	Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim_design, dim_design);
+	res.topRows(dim) = coef_mat.transpose();
+	res.bottomLeftCorner(dim_design - dim, dim_design - dim).setIdentity();
+	return res;
+}
+
+// Characteristic polynomial for stability
+// 
+// @param var_mat VAR(1) form coefficient matrix
+// 
+inline Eigen::VectorXd root_unitcircle(Eigen::Ref<Eigen::MatrixXd> var_mat) {
+	Eigen::EigenSolver<Eigen::MatrixXd> es(var_mat);
+	Eigen::VectorXcd eigenvals = es.eigenvalues();
+	return eigenvals.cwiseAbs();
+}
+
 template<typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, Derived::Options> thin_record(const Eigen::MatrixBase<Derived>& record, int num_iter, int num_burn, int thin) {
   if (thin == 1) {
