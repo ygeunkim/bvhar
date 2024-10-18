@@ -481,9 +481,9 @@ set_ssvs <- function(coef_spike_scl = .01,
   if (!(length(coef_spike_scl) == 1 && length(chol_spike_scl) == 1)) {
     stop("'*_spike_scl' should be length 1 numeric.")
   }
-  if (!(coef_spike_scl > 0 && coef_spike_scl < 1 && chol_spike_scl > 0 && chol_spike_scl < 1)) {
-    stop("'*_spike_scl' should be between 0 and 1.")
-  }
+  # if (!(coef_spike_scl > 0 && coef_spike_scl < 1 && chol_spike_scl > 0 && chol_spike_scl < 1)) {
+  #   stop("'*_spike_scl' should be between 0 and 1.")
+  # }
   if (!(length(coef_slab_shape) == 1 && length(coef_slab_scl) == 1 && length(chol_slab_shape) == 1 && length(chol_slab_scl) == 1)) {
     stop("'*_slab_*' should be length 1 numeric.")
   }
