@@ -1212,7 +1212,7 @@ inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd&
 // 
 // @param coef_mat VAR without constant coefficient matrix form
 // 
-inline Eigen::MatrixXd build_companion(Eigen::Ref<Eigen::MatrixXd> coef_mat) {
+inline Eigen::MatrixXd build_companion(Eigen::Ref<const Eigen::MatrixXd> coef_mat) {
 	int dim = coef_mat.cols();
 	int dim_design = coef_mat.rows();
 	Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim_design, dim_design);
@@ -1226,9 +1226,22 @@ inline Eigen::MatrixXd build_companion(Eigen::Ref<Eigen::MatrixXd> coef_mat) {
 // @param var_mat VAR(1) form coefficient matrix
 // 
 inline Eigen::VectorXd root_unitcircle(Eigen::Ref<Eigen::MatrixXd> var_mat) {
-	Eigen::EigenSolver<Eigen::MatrixXd> es(var_mat);
-	Eigen::VectorXcd eigenvals = es.eigenvalues();
+	Eigen::VectorXcd eigenvals = var_mat.eigenvalues();
 	return eigenvals.cwiseAbs();
+}
+
+// Check if the coefficient is stable
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat) {
+	Eigen::MatrixXd companion_mat = build_companion(coef_mat);
+	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
+	return (stableroot.array() < 1).all();
+}
+
+// Check if the coefficient is stable
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+	Eigen::MatrixXd companion_mat = build_companion(har_trans.transpose() * coef_mat);
+	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
+	return (stableroot.array() < 1).all();
 }
 
 template<typename Derived>
