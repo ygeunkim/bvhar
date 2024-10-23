@@ -2,7 +2,9 @@
 #define COMMONDEFS_H
 
 #ifdef USE_RCPP
-	#include <RcppEigen.h>
+	// #include <RcppEigen.h>
+	#include <Rcpp.h>
+
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
@@ -25,12 +27,12 @@
 	#include <string>
 	#include <stdexcept>
 	#include <iostream>
-	#include <Eigen/Dense>
-	#include <Eigen/Cholesky>
-	#include <Eigen/QR>
-	#include <unsupported/Eigen/KroneckerProduct>
+	// #include <Eigen/Dense>
+	// #include <Eigen/Cholesky>
+	// #include <Eigen/QR>
+	// #include <unsupported/Eigen/KroneckerProduct>
 	#include <pybind11/stl.h>
-	#include <pybind11/eigen.h>
+	// #include <pybind11/eigen.h>
 
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
