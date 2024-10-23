@@ -1,7 +1,7 @@
 #ifndef BVHARDESIGN_H
 #define BVHARDESIGN_H
 
-#include "commondefs.h"
+#include "bvhareigen.h"
 
 namespace bvhar {
 
