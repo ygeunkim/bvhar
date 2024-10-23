@@ -1,8 +1,8 @@
 #ifndef MCMCREG_H
 #define MCMCREG_H
 
-#include "bvhardesign.h"
 #include "bvhardraw.h"
+#include "bvhardesign.h"
 #include "bvharprogress.h"
 
 namespace bvhar {

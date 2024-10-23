@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Changed Eigen and boost assertion behavior (`eigen_assert` and `BOOST_ASSERT`) to give error instead of abort.
+
 * Transpose the predictive distribution update loop.
 
 ## Removal of deprecated functions

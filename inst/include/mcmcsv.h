@@ -1,8 +1,8 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include "bvhardesign.h"
 #include "bvhardraw.h"
+#include "bvhardesign.h"
 #include "bvharprogress.h"
 
 namespace bvhar {
