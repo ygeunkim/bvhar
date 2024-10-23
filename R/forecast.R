@@ -378,6 +378,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param num_thread Number of threads
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
@@ -387,7 +388,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarldlt <- function(object, n_ahead, level = .05, stable = TRUE, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -455,6 +456,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, spars
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)
@@ -491,6 +493,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, spars
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param num_thread Number of threads
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
@@ -499,7 +502,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, num_thread = 1, spars
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvharldlt <- function(object, n_ahead, level = .05, stable = TRUE, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
@@ -568,6 +571,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, spar
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)
@@ -604,6 +608,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, spar
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param num_thread Number of threads
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
@@ -617,7 +622,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, num_thread = 1, spar
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, stable = TRUE, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -686,6 +691,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv 
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)
@@ -722,6 +728,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv 
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param num_thread Number of threads
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
@@ -731,7 +738,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv 
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
+predict.bvharsv <- function(object, n_ahead, level = .05, stable = TRUE, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
@@ -802,6 +809,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, num_thread = 1, use_sv
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)

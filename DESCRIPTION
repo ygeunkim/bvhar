@@ -1,7 +1,7 @@
 Package: bvhar
 Type: Package
 Title: Bayesian Vector Heterogeneous Autoregressive Modeling
-Version: 2.1.2.9002
+Version: 2.1.2.9004
 Authors@R: 
     c(person(given = "Young Geun",
              family = "Kim",

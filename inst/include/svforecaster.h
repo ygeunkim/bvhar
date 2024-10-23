@@ -13,9 +13,9 @@ class SvVharSelectForecaster;
 
 class SvForecaster {
 public:
-	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, unsigned int seed)
+	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed)
 	: sv_record(records), rng(seed),
-		response(response_mat), include_mean(include_mean),
+		response(response_mat), include_mean(include_mean), stable_filter(filter_stable),
 		step(step), dim(response.cols()), var_lag(ord),
 		dim_design(include_mean ? var_lag * dim + 1 : var_lag * dim),
 		num_coef(sv_record.coef_record.cols()),
@@ -137,6 +137,7 @@ protected:
 	std::mutex mtx;
 	Eigen::MatrixXd response; // y0
 	bool include_mean;
+	bool stable_filter;
 	int step;
 	int dim;
 	int var_lag; // VAR order or month order of VHAR
@@ -159,8 +160,16 @@ protected:
 
 class SvVarForecaster : public SvForecaster {
 public:
-	SvVarForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: SvForecaster(records, step, response_mat, lag, include_mean, seed) {}
+	SvVarForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
+		if (stable_filter) {
+			sv_record.subsetStable(num_alpha);
+			num_sim = sv_record.coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
 	virtual ~SvVarForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * coef_mat;
@@ -169,8 +178,16 @@ public:
 
 class SvVharForecaster : public SvForecaster {
 public:
-	SvVharForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: SvForecaster(records, step, response_mat, month, include_mean, seed), har_trans(har_trans) {}
+	SvVharForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans) {
+		if (stable_filter) {
+			sv_record.subsetStable(num_alpha, har_trans.topLeftCorner(3 * dim, month * dim));
+			num_sim = sv_record.coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
 	virtual ~SvVharForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
@@ -181,11 +198,11 @@ protected:
 
 class SvVarSelectForecaster : public SvVarForecaster {
 public:
-	SvVarSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: SvVarForecaster(records, step, response_mat, lag, include_mean, seed),
+	SvVarSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed),
 		activity_graph(unvectorize(sv_record.computeActivity(level), dim)) {}
-	SvVarSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: SvVarForecaster(records, step, response_mat, lag, include_mean, seed), activity_graph(selection) {}
+	SvVarSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~SvVarSelectForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
@@ -196,11 +213,11 @@ private:
 
 class SvVharSelectForecaster : public SvVharForecaster {
 public:
-	SvVharSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
+	SvVharSelectForecaster(const SvRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
 		activity_graph(unvectorize(sv_record.computeActivity(level), dim)) {}
-	SvVharSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed), activity_graph(selection) {}
+	SvVharSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~SvVharSelectForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();

@@ -1,7 +1,20 @@
 #ifndef BVHARCOMMON_H
 #define BVHARCOMMON_H
 
-#include "commondefs.h"
+#include "bvhareigen.h"
+
+namespace boost {
+
+inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
+	STOP("Boost assertion failed: %s in function %s at %s:%ld", expr, function, file, line);
+}
+
+inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line) {
+  STOP("Boost assertion failed: %s (%s) in function %s at %s:%ld", expr, msg, function, file, line);
+}
+
+} // namespace boost
+
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
@@ -13,6 +26,10 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
+
+// #undef assert
+// #define assert(x) \
+//   do {if (!(x)) { STOP("Assertion failed: " #x); } } while (0)
 
 namespace bvhar {
 

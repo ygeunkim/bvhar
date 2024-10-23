@@ -2,9 +2,9 @@
 #define MINNESOTA_H
 
 // #include <RcppEigen.h>
+#include "bvhardraw.h"
 #include "bvhardesign.h"
 // #include <memory> // std::unique_ptr
-#include "bvhardraw.h"
 #include "bvharprogress.h"
 
 namespace bvhar {

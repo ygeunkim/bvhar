@@ -1,8 +1,8 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include "bvhardesign.h"
 #include "bvhardraw.h"
+#include "bvhardesign.h"
 #include "bvharprogress.h"
 
 namespace bvhar {
@@ -401,6 +401,44 @@ struct SvRecords : public RegRecords {
 		lvol_record.row(id) = lvol_draw.transpose().reshaped();
 		lvol_sig_record.row(id) = lvol_sig;
 		lvol_init_record.row(id) = lvol_init;
+	}
+
+	void subsetStable(int num_alpha) {
+		int dim = lvol_sig_record.cols();
+		int count_stable = 0;
+		for (int i = 0; i < coef_record.rows(); ++i) {
+			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim))) {
+				coef_record.row(count_stable) = coef_record.row(i);
+				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
+				lvol_record.row(count_stable) = lvol_record.row(i);
+				lvol_sig_record.row(count_stable) = lvol_sig_record.row(i);
+				lvol_init_record.row(count_stable++) = lvol_init_record.row(i);
+			}
+		}
+		coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_sig_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_init_record.conservativeResize(count_stable, Eigen::NoChange);
+	}
+
+	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+		int dim = lvol_sig_record.cols();
+		int count_stable = 0;
+		for (int i = 0; i < coef_record.rows(); ++i) {
+			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim), har_trans)) {
+				coef_record.row(count_stable) = coef_record.row(i);
+				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
+				lvol_record.row(count_stable) = lvol_record.row(i);
+				lvol_sig_record.row(count_stable) = lvol_sig_record.row(i);
+				lvol_init_record.row(count_stable++) = lvol_init_record.row(i);
+			}
+		}
+		coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_sig_record.conservativeResize(count_stable, Eigen::NoChange);
+		lvol_init_record.conservativeResize(count_stable, Eigen::NoChange);
 	}
 };
 

@@ -195,6 +195,9 @@ var_bayes <- function(y,
     if (is.null(bayes_spec$delta)) {
       bayes_spec$delta <- rep(0, dim_data)
     }
+    if (length(bayes_spec$delta) == 1) {
+      bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+    }
     param_prior <- append(bayes_spec, list(p = p))
     if (bayes_spec$hierarchical) {
       param_prior$shape <- bayes_spec$lambda$param[1]

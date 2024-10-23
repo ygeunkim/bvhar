@@ -1,12 +1,13 @@
 #ifndef BVHARSTRUCTURAL_H
 #define BVHARSTRUCTURAL_H
 
-#ifdef USE_RCPP
-	#include <RcppEigen.h>
-#else
-	#include <Eigen/Dense>
-	#include <Eigen/Cholesky>
-#endif
+// #ifdef USE_RCPP
+// 	#include <RcppEigen.h>
+// #else
+// 	#include <Eigen/Dense>
+// 	#include <Eigen/Cholesky>
+// #endif
+#include "bvhareigen.h"
 
 namespace bvhar {
 

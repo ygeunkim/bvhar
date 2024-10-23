@@ -33,19 +33,19 @@ def help_var_bayes(
     assert fit_bayes.intercept_.shape == (dim_data,)
 
     if pred:
-        pred_out = fit_bayes.predict(n_ahead, sparse = True)
+        pred_out = fit_bayes.predict(n_ahead, stable = False, sparse = True)
         assert pred_out['forecast'].shape == (n_ahead, dim_data)
         assert pred_out['se'].shape == (n_ahead, dim_data)
         assert pred_out['lower'].shape == (n_ahead, dim_data)
         assert pred_out['upper'].shape == (n_ahead, dim_data)
     if roll:
-        roll_out = fit_bayes.roll_forecast(1, test_y, sparse = True)
+        roll_out = fit_bayes.roll_forecast(1, test_y, stable = False, sparse = True)
         assert roll_out['forecast'].shape == (n_ahead, dim_data)
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
     if expand:
-        roll_out = fit_bayes.expand_forecast(1, test_y, sparse = True)
+        roll_out = fit_bayes.expand_forecast(1, test_y, stable = False, sparse = True)
         assert roll_out['forecast'].shape == (n_ahead, dim_data)
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
@@ -71,7 +71,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True
+        data_out, n_ahead, False, False, False
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
@@ -140,19 +140,19 @@ def help_vhar_bayes(
     assert fit_bayes.intercept_.shape == (dim_data,)
 
     if pred:
-        pred_out = fit_bayes.predict(n_ahead, sparse = True)
+        pred_out = fit_bayes.predict(n_ahead, stable = False, sparse = True)
         assert pred_out['forecast'].shape == (n_ahead, dim_data)
         assert pred_out['se'].shape == (n_ahead, dim_data)
         assert pred_out['lower'].shape == (n_ahead, dim_data)
         assert pred_out['upper'].shape == (n_ahead, dim_data)
     if roll:
-        roll_out = fit_bayes.roll_forecast(1, test_y, sparse = True)
+        roll_out = fit_bayes.roll_forecast(1, test_y, stable = False, sparse = True)
         assert roll_out['forecast'].shape == (n_ahead, dim_data)
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
     if expand:
-        roll_out = fit_bayes.expand_forecast(1, test_y, sparse = True)
+        roll_out = fit_bayes.expand_forecast(1, test_y, stable = False, sparse = True)
         assert roll_out['forecast'].shape == (n_ahead, dim_data)
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
@@ -179,7 +179,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True
+        data_out, n_ahead, False, False, False
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,

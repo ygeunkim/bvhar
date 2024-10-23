@@ -85,13 +85,13 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
     if (lambda <= 0) {
       stop("'lambda' should be larger than 0.")
     }
-    if (length(sigma) > 0 & any(sigma <= 0)) {
+    if (length(sigma) > 0 && any(sigma <= 0)) {
       stop("'sigma' should be larger than 0.")
     }
-    if (length(delta) > 0 & any(delta < 0)) {
+    if (length(delta) > 0 && any(delta < 0)) {
       stop("'delta' should not be smaller than 0.")
     }
-    if (length(sigma) > 0 & length(delta) > 0) {
+    if (length(sigma) > 0 && length(delta) > 0) {
       if (length(sigma) != length(delta)) {
         stop("Length of 'sigma' and 'delta' must be the same as the dimension of the time series.")
       }

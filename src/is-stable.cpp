@@ -1,4 +1,4 @@
-#include <RcppEigen.h>
+#include <bvhardraw.h>
 
 //' VAR(1) Representation Given VAR Coefficient Matrix
 //' 
@@ -32,16 +32,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x) {
-  int dim = x.cols(); // m
-  int var_lag = x.rows() / dim; // p
-  Eigen::MatrixXd Im(dim, dim); // identity matrix
-  Im.setIdentity();
-  Eigen::MatrixXd res = Eigen::MatrixXd::Zero(dim * var_lag, dim * var_lag);
-  res.block(0, 0, dim, dim * var_lag) = x.transpose();
-  for (int i = 1; i < var_lag; i++) {
-    res.block(dim * i, dim * (i - 1), dim, dim) = Im;
-  }
-  return res;
+  return bvhar::build_companion(x);
 }
 
 //' VAR(1) Representation of VAR(p)

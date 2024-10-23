@@ -13,6 +13,7 @@
 //' @param fit_record MCMC records list
 //' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
 //' @param seed_chain Seed for each chain
+//' @param stable Filter stable draws
 //' @param include_mean Include constant term?
 //' @param nthreads OpenMP number of threads
 //' 
@@ -20,7 +21,7 @@
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
 													 bool sv, bool sparse, double level, Rcpp::List fit_record, int prior_type,
-													 Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
 	std::vector<std::unique_ptr<bvhar::SvVarForecaster>> forecaster(num_chains);
 	if (sparse && prior_type == 0) {
 		for (int i = 0; i < num_chains; ++i) {
@@ -48,7 +49,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 			}
 			forecaster[i].reset(new bvhar::SvVarSelectForecaster(
 				*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
-				step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				step, response_mat, var_lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	} else {
@@ -78,7 +79,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 				));
 			}
 			forecaster[i].reset(new bvhar::SvVarForecaster(
-				*sv_record, step, response_mat, var_lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, response_mat, var_lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
@@ -107,13 +108,14 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 //' @param prior_type Prior type. If 0, use CI. Valid when sparse is true.
 //' @param seed_chain Seed for each chain
 //' @param include_mean Include constant term?
+//' @param stable Filter stable draws
 //' @param nthreads OpenMP number of threads 
 //'
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 														bool sv, bool sparse, double level, Rcpp::List fit_record, int prior_type,
-														Eigen::VectorXi seed_chain, bool include_mean, int nthreads) {
+														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
 	std::vector<std::unique_ptr<bvhar::SvVharForecaster>> forecaster(num_chains);
 	if (sparse && prior_type == 0) {
 		for (int i = 0; i < num_chains; ++i) {
@@ -141,7 +143,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 			}
 			forecaster[i].reset(new bvhar::SvVharSelectForecaster(
 				*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), response_mat.cols()),
-				step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				step, response_mat, HARtrans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	} else {
@@ -171,7 +173,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 				));
 			}
 			forecaster[i].reset(new bvhar::SvVharForecaster(
-				*sv_record, step, response_mat, HARtrans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, response_mat, HARtrans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
@@ -207,6 +209,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param include_mean Constant term
+//' @param stable Filter stable draws
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
@@ -217,7 +220,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 											 bool sv, bool sparse, double level, Rcpp::List fit_record,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-											 bool include_mean, int step, Eigen::MatrixXd y_test,
+											 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
 											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -276,7 +279,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				}
 				forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
 					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-					step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					step, roll_y0[0], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		} else {
@@ -303,7 +306,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 					));
 				}
 				forecaster[0][i].reset(new bvhar::SvVarForecaster(
-					*sv_record, step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					*sv_record, step, roll_y0[0], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		}
@@ -441,12 +444,12 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
 				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-				step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				step, roll_y0[window], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		} else {
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-				sv_record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				sv_record, step, roll_y0[window], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		}
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
@@ -509,6 +512,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param include_mean Constant term
+//' @param stable Filter stable draws
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
@@ -519,7 +523,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 												bool sv, bool sparse, double level, Rcpp::List fit_record,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-												bool include_mean, int step, Eigen::MatrixXd y_test,
+												bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
 											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -579,7 +583,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				}
 				forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
 					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-					step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					step, roll_y0[0], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		} else {
@@ -606,7 +610,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 					));
 				}
 				forecaster[0][i].reset(new bvhar::SvVharForecaster(
-					*sv_record, step, roll_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					*sv_record, step, roll_y0[0], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		}
@@ -744,12 +748,12 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
 				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-				step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				step, roll_y0[window], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		} else {
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-				sv_record, step, roll_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				sv_record, step, roll_y0[window], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		}
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
@@ -812,6 +816,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param include_mean Constant term
+//' @param stable Filter stable draws
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
@@ -822,7 +827,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 												 bool sv, bool sparse, double level, Rcpp::List fit_record,
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-												 bool include_mean, int step, Eigen::MatrixXd y_test,
+												 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
 											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 	int num_window = y.rows();
   int dim = y.cols();
@@ -881,7 +886,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				}
 				forecaster[0][i].reset(new bvhar::SvVarSelectForecaster(
 					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-					step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					step, expand_y0[0], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		} else {
@@ -908,7 +913,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					));
 				}
 				forecaster[0][i].reset(new bvhar::SvVarForecaster(
-					*sv_record, step, expand_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					*sv_record, step, expand_y0[0], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		}
@@ -1046,12 +1051,12 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::SvVarSelectForecaster(
 				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-				step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				step, expand_y0[window], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		} else {
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-				sv_record, step, expand_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				sv_record, step, expand_y0[window], lag, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		}
 		sv_objs[window][chain].reset(); // free the memory by making nullptr
@@ -1114,6 +1119,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 //' @param grp_id Unique group id
 //' @param grp_mat Group matrix
 //' @param include_mean Constant term
+//' @param stable Filter stable draws
 //' @param step Integer, Step to forecast
 //' @param y_test Evaluation time series data period after `y`
 //' @param nthreads Number of threads
@@ -1124,7 +1130,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 													bool sv, bool sparse, double level, Rcpp::List fit_record,
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type,
 											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
-													bool include_mean, int step, Eigen::MatrixXd y_test,
+													bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
 											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, int nthreads) {
 #ifdef _OPENMP
   Eigen::setNbThreads(nthreads);
@@ -1187,7 +1193,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				}
 				forecaster[0][i].reset(new bvhar::SvVharSelectForecaster(
 					*sv_record, bvhar::unvectorize(sv_record->computeActivity(level), dim),
-					step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					step, expand_y0[0], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		} else {
@@ -1214,7 +1220,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 					));
 				}
 				forecaster[0][i].reset(new bvhar::SvVharForecaster(
-					*sv_record, step, expand_y0[0], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[i])
+					*sv_record, step, expand_y0[0], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[i])
 				));
 			}
 		}
@@ -1352,12 +1358,12 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, false);
 			forecaster[window][chain].reset(new bvhar::SvVharSelectForecaster(
 				sv_record, bvhar::unvectorize(sv_record.computeActivity(level), dim),
-				step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				step, expand_y0[window], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		} else {
 			bvhar::SvRecords sv_record = sv_objs[window][chain]->returnSvRecords(num_burn, thinning, sparse);
 			forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-				sv_record, step, expand_y0[window], har_trans, month, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+				sv_record, step, expand_y0[window], har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_forecast[chain])
 			));
 		}
 		sv_objs[window][chain].reset(); // free the memory by making nullptr

@@ -13,9 +13,9 @@ class RegVharSelectForecaster;
 
 class RegForecaster {
 public:
-	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, unsigned int seed)
+	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed)
 	: reg_record(records), rng(seed),
-		response(response_mat), include_mean(include_mean),
+		response(response_mat), include_mean(include_mean), stable_filter(filter_stable),
 		step(step), dim(response.cols()), var_lag(ord),
 		dim_design(include_mean ? var_lag * dim + 1 : var_lag * dim),
 		num_coef(reg_record.coef_record.cols()),
@@ -108,6 +108,7 @@ protected:
 	std::mutex mtx;
 	Eigen::MatrixXd response; // y0
 	bool include_mean;
+	bool stable_filter;
 	int step;
 	int dim;
 	int var_lag; // VAR order or month order of VHAR
@@ -129,8 +130,16 @@ protected:
 
 class RegVarForecaster : public RegForecaster {
 public:
-	RegVarForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: RegForecaster(records, step, response_mat, lag, include_mean, seed) {}
+	RegVarForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
+		if (stable_filter) {
+			reg_record.subsetStable(num_alpha);
+			num_sim = reg_record.coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
 	virtual ~RegVarForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * coef_mat;
@@ -139,8 +148,16 @@ public:
 
 class RegVharForecaster : public RegForecaster {
 public:
-	RegVharForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: RegForecaster(records, step, response_mat, month, include_mean, seed), har_trans(har_trans) {}
+	RegVharForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans) {
+		if (stable_filter) {
+			reg_record.subsetStable(num_alpha, har_trans.topLeftCorner(3 * dim, month * dim));
+			num_sim = reg_record.coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
 	virtual ~RegVharForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
@@ -151,11 +168,11 @@ protected:
 
 class RegVarSelectForecaster : public RegVarForecaster {
 public:
-	RegVarSelectForecaster(const LdltRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: RegVarForecaster(records, step, response_mat, lag, include_mean, seed),
+	RegVarSelectForecaster(const LdltRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed),
 		activity_graph(unvectorize(reg_record.computeActivity(level), dim)) {}
-	RegVarSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, unsigned int seed)
-	: RegVarForecaster(records, step, response_mat, lag, include_mean, seed), activity_graph(selection) {}
+	RegVarSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~RegVarSelectForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
@@ -166,11 +183,11 @@ private:
 
 class RegVharSelectForecaster : public RegVharForecaster {
 public:
-	RegVharSelectForecaster(const LdltRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed),
+	RegVharSelectForecaster(const LdltRecords& records, double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
 		activity_graph(unvectorize(reg_record.computeActivity(level), dim)) {}
-	RegVharSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, unsigned int seed)
-	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, seed), activity_graph(selection) {}
+	RegVharSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
+	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~RegVharSelectForecaster() = default;
 	void computeMean(int i) override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
