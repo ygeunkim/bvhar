@@ -195,6 +195,9 @@ vhar_bayes <- function(y,
       if (is.null(bayes_spec$delta)) {
         bayes_spec$delta <- rep(0, dim_data)
       }
+      if (length(bayes_spec$delta) == 1) {
+        bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+      }
     } else {
       if (is.null(bayes_spec$daily)) {
         bayes_spec$daily <- rep(0, dim_data)
@@ -204,6 +207,15 @@ vhar_bayes <- function(y,
       }
       if (is.null(bayes_spec$monthly)) {
         bayes_spec$monthly <- rep(0, dim_data)
+      }
+      if (length(bayes_spec$daily) == 1) {
+        bayes_spec$daily <- rep(bayes_spec$daily, dim_data)
+      }
+      if (length(bayes_spec$weekly) == 1) {
+        bayes_spec$weekly <- rep(bayes_spec$weekly, dim_data)
+      }
+      if (length(bayes_spec$monthly) == 1) {
+        bayes_spec$monthly <- rep(bayes_spec$monthly, dim_data)
       }
     }
     param_prior <- append(bayes_spec, list(p = 3))
