@@ -314,7 +314,7 @@ class VarBayes(_AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = True, sparse = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -323,6 +323,8 @@ class VarBayes(_AutoregBayes):
             Forecast until next `n_ahead` time point.
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -342,7 +344,7 @@ class VarBayes(_AutoregBayes):
             forecaster = LdltForecast(
                 self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_
             )
         else:
             forecaster = SvForecast(
@@ -359,7 +361,7 @@ class VarBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -370,6 +372,8 @@ class VarBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -397,7 +401,7 @@ class VarBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -424,7 +428,7 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -435,6 +439,8 @@ class VarBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -462,7 +468,7 @@ class VarBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -622,7 +628,7 @@ class VharBayes(_AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = True, sparse = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -631,6 +637,8 @@ class VharBayes(_AutoregBayes):
             Forecast until next `n_ahead` time point.
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -650,7 +658,7 @@ class VharBayes(_AutoregBayes):
             forecaster = LdltForecast(
                 self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_
             )
         else:
             forecaster = SvForecast(
@@ -667,7 +675,7 @@ class VharBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -678,6 +686,8 @@ class VharBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -705,7 +715,7 @@ class VharBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -732,7 +742,7 @@ class VharBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -743,6 +753,8 @@ class VharBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
         sv : bool
@@ -770,7 +782,7 @@ class VharBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size

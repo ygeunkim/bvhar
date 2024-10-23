@@ -5,7 +5,7 @@ public:
 	LdltForecast(
 		int num_chains, int lag, int step, const Eigen::MatrixXd& y,
 		bool sparse, py::dict& fit_record,
-		const Eigen::VectorXi& seed_chain, bool include_mean, int nthreads
+		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads
 	)
 	: num_chains(num_chains), nthreads(nthreads),
 		forecaster(num_chains), density_forecast(num_chains) {
@@ -33,14 +33,14 @@ public:
 				));
 			}
 			forecaster[i].reset(new bvhar::RegVarForecaster(
-				*reg_record, step, y, lag, include_mean, static_cast<unsigned int>(seed_chain[i])
+				*reg_record, step, y, lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
 	LdltForecast(
 		int num_chains, int week, int month, int step, const Eigen::MatrixXd& y,
 		bool sparse, py::dict& fit_record,
-		const Eigen::VectorXi& seed_chain, bool include_mean, int nthreads
+		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads
 	)
 	: num_chains(num_chains), nthreads(nthreads),
 		forecaster(num_chains), density_forecast(num_chains) {
@@ -69,7 +69,7 @@ public:
 			}
 			Eigen::MatrixXd har_trans = bvhar::build_vhar(y.cols(), week, month, include_mean);
 			forecaster[i].reset(new bvhar::RegVharForecaster(
-				*reg_record, step, y, har_trans, month, include_mean, static_cast<unsigned int>(seed_chain[i])
+				*reg_record, step, y, har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
@@ -104,11 +104,11 @@ public:
 		bool sparse, py::dict& fit_record,
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		bool include_mean, int step, const Eigen::MatrixXd& y_test,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
 	)
 	: num_window(y.rows()), dim(y.cols()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
-		lag(lag), include_mean(include_mean), sparse(sparse),
+		lag(lag), include_mean(include_mean), stable_filter(stable), sparse(sparse),
 		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
 		nthreads(nthreads), chunk_size(chunk_size), seed_forecast(seed_forecast),
 		roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
@@ -289,7 +289,7 @@ protected:
 	}
 	int num_window, dim, num_test, num_horizon, step;
 	int lag;
-	bool include_mean, sparse;
+	bool include_mean, stable_filter, sparse;
 	int num_chains, num_iter, num_burn, thin, nthreads, chunk_size;
 	Eigen::VectorXi seed_forecast;
 	std::vector<Eigen::MatrixXd> roll_mat, roll_y0;
@@ -307,14 +307,14 @@ public:
 		bool sparse, py::dict& fit_record,
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		bool include_mean, int step, const Eigen::MatrixXd& y_test,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
 	)
 	: LdltOutForecast(
 		y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
 		grp_id, own_id, cross_id, grp_mat,
-		include_mean, step, y_test,
+		include_mean, stable, step, y_test,
 		seed_chain, seed_forecast, nthreads, chunk_size
 	) {}
 	virtual ~LdltRoll() = default;
@@ -339,14 +339,14 @@ public:
 		bool sparse, py::dict& fit_record,
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		bool include_mean, int step, const Eigen::MatrixXd& y_test,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
 	)
 	: LdltOutForecast(
 		y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
 		grp_id, own_id, cross_id, grp_mat,
-		include_mean, step, y_test,
+		include_mean, stable, step, y_test,
 		seed_chain, seed_forecast, nthreads, chunk_size
 	) {}
 	virtual ~LdltExpand() = default;
@@ -372,14 +372,14 @@ public:
 		bool sparse, py::dict& fit_record,
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		bool include_mean, int step, const Eigen::MatrixXd& y_test,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
 	)
 	: BaseOutForecast(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
-			include_mean, step, y_test,
+			include_mean, stable, step, y_test,
 			seed_chain, seed_forecast, nthreads, chunk_size
 		) {
 		initialize(
@@ -414,7 +414,7 @@ protected:
 				));
 			}
 			forecaster[0][i].reset(new bvhar::RegVarForecaster(
-				*record, step, roll_y0[0], lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
 			));
 		}
 	}
@@ -427,7 +427,7 @@ protected:
 		}
 		bvhar::LdltRecords record = model[window][chain]->returnLdltRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::RegVarForecaster(
-			record, step, roll_y0[window], lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain])
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -436,6 +436,7 @@ protected:
 	using BaseOutForecast::step;
 	using BaseOutForecast::lag;
 	using BaseOutForecast::include_mean;
+	using BaseOutForecast::stable_filter;
 	using BaseOutForecast::sparse;
 	using BaseOutForecast::num_chains;
 	using BaseOutForecast::num_iter;
@@ -458,14 +459,14 @@ public:
 		bool sparse, py::dict& fit_record,
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-		bool include_mean, int step, const Eigen::MatrixXd& y_test,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
 	)
 	: BaseOutForecast(
 			y, month, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
-			include_mean, step, y_test,
+			include_mean, stable, step, y_test,
 			seed_chain, seed_forecast, nthreads, chunk_size
 		),
 		har_trans(bvhar::build_vhar(dim, week, month, include_mean)) {
@@ -501,7 +502,7 @@ protected:
 				));
 			}
 			forecaster[0][i].reset(new bvhar::RegVharForecaster(
-				*record, step, roll_y0[0], har_trans, lag, include_mean, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
 			));
 		}
 	}
@@ -514,7 +515,7 @@ protected:
 		}
 		bvhar::LdltRecords record = model[window][chain]->returnLdltRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::RegVharForecaster(
-			record, step, roll_y0[window], har_trans, lag, include_mean, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain])
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -523,6 +524,7 @@ protected:
 	using BaseOutForecast::step;
 	using BaseOutForecast::lag;
 	using BaseOutForecast::include_mean;
+	using BaseOutForecast::stable_filter;
 	using BaseOutForecast::sparse;
 	using BaseOutForecast::num_chains;
 	using BaseOutForecast::num_iter;
@@ -542,8 +544,8 @@ private:
 
 PYBIND11_MODULE(_ldltforecast, m) {
 	py::class_<LdltForecast>(m, "LdltForecast")
-		.def(py::init<int, int, int, const Eigen::MatrixXd&, bool, py::dict&, const Eigen::VectorXi&, bool, int>())
-		.def(py::init<int, int, int, int, const Eigen::MatrixXd&, bool, py::dict&, const Eigen::VectorXi&, bool, int>())
+		.def(py::init<int, int, int, const Eigen::MatrixXd&, bool, py::dict&, const Eigen::VectorXi&, bool, bool, int>())
+		.def(py::init<int, int, int, int, const Eigen::MatrixXd&, bool, py::dict&, const Eigen::VectorXi&, bool, bool, int>())
 		.def("returnForecast", &LdltForecast::returnForecast);
 
 	py::class_<LdltVarOut<LdltRoll>>(m, "LdltVarRoll")
@@ -551,7 +553,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			py::init<const Eigen::MatrixXd&, int, int, int, int, int,
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, int, const Eigen::MatrixXd&,
+			bool, bool, int, const Eigen::MatrixXd&,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
 		)
 		.def("returnForecast", &LdltVarOut<LdltRoll>::returnForecast);
@@ -561,7 +563,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			py::init<const Eigen::MatrixXd&, int, int, int, int, int,
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, int, const Eigen::MatrixXd&,
+			bool, bool, int, const Eigen::MatrixXd&,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
 		)
 		.def("returnForecast", &LdltVarOut<LdltExpand>::returnForecast);
@@ -571,7 +573,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			py::init<const Eigen::MatrixXd&, int, int, int, int, int, int,
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, int, const Eigen::MatrixXd&,
+			bool, bool, int, const Eigen::MatrixXd&,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
 		)
 		.def("returnForecast", &LdltVharOut<LdltRoll>::returnForecast);
@@ -581,7 +583,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			py::init<const Eigen::MatrixXd&, int, int, int, int, int, int,
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, int, const Eigen::MatrixXd&,
+			bool, bool, int, const Eigen::MatrixXd&,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
 		)
 		.def("returnForecast", &LdltVharOut<LdltExpand>::returnForecast);
