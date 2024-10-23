@@ -30,6 +30,7 @@
   object,
   n_ahead,
   level = 0.05,
+  stable = TRUE,
   num_thread = 1,
   sparse = FALSE,
   warn = FALSE,
@@ -40,6 +41,7 @@
   object,
   n_ahead,
   level = 0.05,
+  stable = TRUE,
   num_thread = 1,
   sparse = FALSE,
   warn = FALSE,
@@ -50,6 +52,7 @@
   object,
   n_ahead,
   level = 0.05,
+  stable = TRUE,
   num_thread = 1,
   use_sv = TRUE,
   sparse = FALSE,
@@ -61,6 +64,7 @@
   object,
   n_ahead,
   level = 0.05,
+  stable = TRUE,
   num_thread = 1,
   use_sv = TRUE,
   sparse = FALSE,
@@ -86,6 +90,8 @@ is.predbvhar(x)
 \item{n_iter}{Number to sample residual matrix from inverse-wishart distribution. By default, 100.}
 
 \item{num_thread}{Number of threads}
+
+\item{stable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Filter only stable coefficient draws in MCMC records.}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.
 Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval across MCMC for restriction.}

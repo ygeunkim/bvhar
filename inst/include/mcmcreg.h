@@ -329,6 +329,36 @@ struct LdltRecords : public RegRecords {
 		contem_coef_record.row(id) = contem_coef;
 		fac_record.row(id) = diag_vec.array();
 	}
+
+	void subsetStable(int num_alpha) {
+		int dim = fac_record.cols();
+		int count_stable = 0;
+		for (int i = 0; i < coef_record.rows(); ++i) {
+			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim))) {
+				coef_record.row(count_stable) = coef_record.row(i);
+				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
+				fac_record.row(count_stable++) = fac_record.row(i);
+			}
+		}
+		coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		fac_record.conservativeResize(count_stable, Eigen::NoChange);
+	}
+
+	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+		int dim = fac_record.cols();
+		int count_stable = 0;
+		for (int i = 0; i < coef_record.rows(); ++i) {
+			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim), har_trans)) {
+				coef_record.row(count_stable) = coef_record.row(i);
+				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
+				fac_record.row(count_stable++) = fac_record.row(i);
+			}
+		}
+		coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
+		fac_record.conservativeResize(count_stable, Eigen::NoChange);
+	}
 };
 
 class McmcReg {

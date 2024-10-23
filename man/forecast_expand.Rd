@@ -20,6 +20,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   y_test,
   num_thread = 1,
   level = 0.05,
+  stable = TRUE,
   sparse = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
@@ -33,6 +34,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   num_thread = 1,
   level = 0.05,
   use_sv = TRUE,
+  stable = TRUE,
   sparse = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
@@ -53,6 +55,8 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 \item{use_fit}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use \code{object} result for the first window. By default, \code{TRUE}.}
 
 \item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
+
+\item{stable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Filter only stable coefficient draws in MCMC records.}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 

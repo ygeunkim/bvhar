@@ -221,11 +221,12 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 
 #' @rdname forecast_roll
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -254,16 +255,6 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
   if (num_thread > num_horizon * num_chains) {
     warning(sprintf("'num_thread' > (number of horizon * number of chains) will use not every thread. Specify as 'num_thread' <= '(nrow(y_test) - n_ahead + 1) * object$chain' = %d.", num_horizon * num_chains))
   }
-  # if (num_thread > num_chains && num_chains != 1) {
-  #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
-  # }
-  # if (num_horizon * num_chains %/% num_thread == 0) {
-  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  # }
-  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
-  # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
@@ -314,7 +305,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -359,7 +350,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -430,11 +421,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
 #' @rdname forecast_roll
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param use_sv Use SV term
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -801,11 +793,12 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 
 #' @rdname forecast_expand
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -834,22 +827,6 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   if (num_thread > num_horizon * num_chains) {
     warning(sprintf("'num_thread' > (number of horizon * number of chains) will use not every thread. Specify as 'num_thread' <= '(nrow(y_test) - n_ahead + 1) * object$chain' = %d.", num_horizon * num_chains))
   }
-  # if (num_thread > num_chains && num_chains != 1) {
-  #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
-  # }
-  # if (num_horizon * num_chains %/% num_thread == 0) {
-  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  # }
-  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
-  # }
-  # # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
-  # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
@@ -901,7 +878,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -946,7 +923,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -1026,11 +1003,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
 #' @rdname forecast_expand
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param use_sv Use SV term
+#' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = TRUE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
