@@ -691,6 +691,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = TRUE, num_thre
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)
@@ -808,6 +809,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = TRUE, num_thr
     prior_type,
     sample.int(.Machine$integer.max, size = num_chains),
     object$type == "const",
+    stable,
     num_thread
   )
   var_names <- colnames(object$y0)

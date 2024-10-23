@@ -350,7 +350,7 @@ class VarBayes(_AutoregBayes):
             forecaster = SvForecast(
                 self.chains_, self.p_, n_ahead, self.response_, sv, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
@@ -413,7 +413,7 @@ class VarBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -480,7 +480,7 @@ class VarBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -664,7 +664,7 @@ class VharBayes(_AutoregBayes):
             forecaster = SvForecast(
                 self.chains_, self.week_, self.month_, n_ahead, self.response_, sv, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
@@ -727,7 +727,7 @@ class VharBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size
@@ -794,7 +794,7 @@ class VharBayes(_AutoregBayes):
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.thread_, chunk_size

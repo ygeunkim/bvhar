@@ -516,7 +516,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         use_sv, sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -561,7 +561,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         use_sv, sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -1037,22 +1037,6 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
   if (num_thread > num_horizon * num_chains) {
     warning(sprintf("'num_thread' > (number of horizon * number of chains) will use not every thread. Specify as 'num_thread' <= '(nrow(y_test) - n_ahead + 1) * object$chain' = %d.", num_horizon * num_chains))
   }
-  # if (num_thread > num_chains && num_chains != 1) {
-  #   warning(sprintf("'num_thread' > MCMC chain will use not every thread. Specify as 'num_thread' <= 'object$chain' = %d.", num_chains))
-  # }
-  # if (num_horizon * num_chains %/% num_thread == 0) {
-  #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  # }
-  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
-  # }
-  # # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # chunk_size <- num_chains # use inner loop for chain as a chunk in dynamic schedule
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
-  # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
@@ -1104,7 +1088,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         use_sv, sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
@@ -1149,7 +1133,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         use_sv, sparse, ci_lev, fit_ls,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type,
         grp_id, own_id, cross_id, grp_mat,
-        include_mean, n_ahead, y_test,
+        include_mean, stable, n_ahead, y_test,
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
