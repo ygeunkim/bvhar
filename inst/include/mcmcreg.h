@@ -1,7 +1,7 @@
 #ifndef MCMCREG_H
 #define MCMCREG_H
 
-#include "bvhardraw.h"
+#include "bvharconfig.h"
 #include "bvhardesign.h"
 #include "bvharprogress.h"
 

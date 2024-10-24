@@ -1,7 +1,7 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include "bvhardraw.h"
+#include "bvharconfig.h"
 #include "bvhardesign.h"
 #include "bvharprogress.h"
 
