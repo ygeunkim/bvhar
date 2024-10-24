@@ -98,7 +98,7 @@ def find_module(base_dir):
                         sources=[os.path.join(root, cpp_file)],
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
-                            ('BOOST_DISABLE_ASSERTS', None)
+                            ('BOOST_ENABLE_ASSERT_HANDLER', None)
                         ],
                         include_dirs=[
                             include_path,
