@@ -416,8 +416,9 @@ struct SvRecords : public RegRecords {
 		int dim = lvol_sig_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
+		Eigen::MatrixXd var_record = coef_record * kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), har_trans);
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), har_trans)) {
+			if (is_stable(var_record.row(i).head(num_alpha).reshaped(nrow_coef, dim))) {
 				stable_id.push_back(i);
 			}
 		}
