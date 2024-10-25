@@ -9,30 +9,38 @@ public:
 	)
 	: num_chains(num_chains), nthreads(nthreads), sv(sv),
 		forecaster(num_chains), density_forecast(num_chains) {
-		std::unique_ptr<bvhar::SvRecords> sv_record;
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
 		for (int i = 0; i < num_chains; ++i) {
-			py::list alpha_list = fit_record[alpha_name];
-			py::list a_list = fit_record[a_name];
-			py::list h_list = fit_record["h_record"];
-			py::list sigh_list = fit_record["sigh_record"];
-			if (include_mean) {
-				py::list c_list = fit_record["c_record"];
-				sv_record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(c_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
-			} else {
-				sv_record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
+			std::unique_ptr<bvhar::SvRecords> sv_record;
+		#ifdef _OPENMP
+			#pragma omp critical
+		#endif
+			{
+				py::list alpha_list = fit_record[alpha_name];
+				py::list a_list = fit_record[a_name];
+				py::list h_list = fit_record["h_record"];
+				py::list sigh_list = fit_record["sigh_record"];
+				if (include_mean) {
+					py::list c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(c_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
 			}
 			forecaster[i].reset(new bvhar::SvVarForecaster(
 				*sv_record, step, y, lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
@@ -46,30 +54,38 @@ public:
 	)
 	: num_chains(num_chains), nthreads(nthreads), sv(sv),
 		forecaster(num_chains), density_forecast(num_chains) {
-		std::unique_ptr<bvhar::SvRecords> sv_record;
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
 		for (int i = 0; i < num_chains; ++i) {
-			py::list alpha_list = fit_record[alpha_name];
-			py::list a_list = fit_record[a_name];
-			py::list h_list = fit_record["h_record"];
-			py::list sigh_list = fit_record["sigh_record"];
-			if (include_mean) {
-				py::list c_list = fit_record["c_record"];
-				sv_record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(c_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
-			} else {
-				sv_record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
+			std::unique_ptr<bvhar::SvRecords> sv_record;
+		#ifdef _OPENMP
+			#pragma omp critical
+		#endif
+			{
+				py::list alpha_list = fit_record[alpha_name];
+				py::list a_list = fit_record[a_name];
+				py::list h_list = fit_record["h_record"];
+				py::list sigh_list = fit_record["sigh_record"];
+				if (include_mean) {
+					py::list c_list = fit_record["c_record"];
+					sv_record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(c_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					sv_record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
 			}
 			Eigen::MatrixXd har_trans = bvhar::build_vhar(y.cols(), week, month, include_mean);
 			forecaster[i].reset(new bvhar::SvVharForecaster(
@@ -516,30 +532,38 @@ public:
 
 protected:
 	void initForecaster(py::dict& fit_record) override {
-		std::unique_ptr<bvhar::SvRecords> record;
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
-		py::list h_list = fit_record["h_record"];
-		py::list sigh_list = fit_record["sigh_record"];
-		py::list alpha_list = fit_record[alpha_name];
-		py::list a_list = fit_record[a_name];
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
 		for (int i = 0; i < num_chains; ++i) {
-			if (include_mean) {
-				py::list c_list = fit_record["c_record"];
-				record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(c_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
-			} else {
-				record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
+			std::unique_ptr<bvhar::SvRecords> record;
+		#ifdef _OPENMP
+			#pragma omp critical
+		#endif
+			{
+				py::list h_list = fit_record["h_record"];
+				py::list sigh_list = fit_record["sigh_record"];
+				py::list alpha_list = fit_record[alpha_name];
+				py::list a_list = fit_record[a_name];
+				if (include_mean) {
+					py::list c_list = fit_record["c_record"];
+					record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(c_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVarForecaster(
 				*record, step, roll_y0[0], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
@@ -570,6 +594,7 @@ protected:
 	using BaseOutForecast::num_iter;
 	using BaseOutForecast::num_burn;
 	using BaseOutForecast::thin;
+	using BaseOutForecast::nthreads;
 	using BaseOutForecast::seed_forecast;
 	using BaseOutForecast::roll_mat;
 	using BaseOutForecast::roll_y0;
@@ -607,30 +632,38 @@ public:
 
 protected:
 	void initForecaster(py::dict& fit_record) override {
-		std::unique_ptr<bvhar::SvRecords> record;
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
-		py::list alpha_list = fit_record[alpha_name];
-		py::list a_list = fit_record[a_name];
-		py::list h_list = fit_record["h_record"];
-		py::list sigh_list = fit_record["sigh_record"];
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
 		for (int i = 0; i < num_chains; ++i) {
-			if (include_mean) {
-				py::list c_list = fit_record["c_record"];
-				record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(c_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
-			} else {
-				record.reset(new bvhar::SvRecords(
-					py::cast<Eigen::MatrixXd>(alpha_list[i]),
-					py::cast<Eigen::MatrixXd>(h_list[i]),
-					py::cast<Eigen::MatrixXd>(a_list[i]),
-					py::cast<Eigen::MatrixXd>(sigh_list[i])
-				));
+			std::unique_ptr<bvhar::SvRecords> record;
+		#ifdef _OPENMP
+			#pragma omp critical
+		#endif
+			{
+				py::list alpha_list = fit_record[alpha_name];
+				py::list a_list = fit_record[a_name];
+				py::list h_list = fit_record["h_record"];
+				py::list sigh_list = fit_record["sigh_record"];
+				if (include_mean) {
+					py::list c_list = fit_record["c_record"];
+					record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(c_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				} else {
+					record.reset(new bvhar::SvRecords(
+						py::cast<Eigen::MatrixXd>(alpha_list[i]),
+						py::cast<Eigen::MatrixXd>(h_list[i]),
+						py::cast<Eigen::MatrixXd>(a_list[i]),
+						py::cast<Eigen::MatrixXd>(sigh_list[i])
+					));
+				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVharForecaster(
 				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
@@ -661,6 +694,7 @@ protected:
 	using BaseOutForecast::num_iter;
 	using BaseOutForecast::num_burn;
 	using BaseOutForecast::thin;
+	using BaseOutForecast::nthreads;
 	using BaseOutForecast::seed_forecast;
 	using BaseOutForecast::roll_mat;
 	using BaseOutForecast::roll_y0;
