@@ -27,10 +27,6 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
-// #undef assert
-// #define assert(x) \
-//   do {if (!(x)) { STOP("Assertion failed: " #x); } } while (0)
-
 namespace bvhar {
 
 typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;

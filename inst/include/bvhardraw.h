@@ -1043,7 +1043,7 @@ inline Eigen::VectorXd root_unitcircle(Eigen::Ref<Eigen::MatrixXd> var_mat) {
 inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat) {
 	Eigen::MatrixXd companion_mat = build_companion(coef_mat);
 	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
-	return (stableroot.array() < 1).all();
+	return stableroot.maxCoeff() < 1;
 }
 
 // Check if the coefficient is stable

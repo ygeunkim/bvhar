@@ -398,40 +398,34 @@ struct SvRecords : public RegRecords {
 
 	void subsetStable(int num_alpha) {
 		int dim = lvol_sig_record.cols();
-		int count_stable = 0;
+		int nrow_coef = num_alpha / dim;
+		std::vector<int> stable_id;
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim))) {
-				coef_record.row(count_stable) = coef_record.row(i);
-				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
-				lvol_record.row(count_stable) = lvol_record.row(i);
-				lvol_sig_record.row(count_stable) = lvol_sig_record.row(i);
-				lvol_init_record.row(count_stable++) = lvol_init_record.row(i);
+			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim))) {
+				stable_id.push_back(i);
 			}
 		}
-		coef_record.conservativeResize(count_stable, Eigen::NoChange);
-		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_sig_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_init_record.conservativeResize(count_stable, Eigen::NoChange);
+		coef_record = std::move(coef_record(stable_id, Eigen::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
+		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
+		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
+		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
 	}
 
 	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
 		int dim = lvol_sig_record.cols();
-		int count_stable = 0;
+		int nrow_coef = num_alpha / dim;
+		std::vector<int> stable_id;
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(coef_record.leftCols(num_alpha).row(i).reshaped(num_alpha / dim, dim), har_trans)) {
-				coef_record.row(count_stable) = coef_record.row(i);
-				contem_coef_record.row(count_stable) = contem_coef_record.row(i);
-				lvol_record.row(count_stable) = lvol_record.row(i);
-				lvol_sig_record.row(count_stable) = lvol_sig_record.row(i);
-				lvol_init_record.row(count_stable++) = lvol_init_record.row(i);
+			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), har_trans)) {
+				stable_id.push_back(i);
 			}
 		}
-		coef_record.conservativeResize(count_stable, Eigen::NoChange);
-		contem_coef_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_sig_record.conservativeResize(count_stable, Eigen::NoChange);
-		lvol_init_record.conservativeResize(count_stable, Eigen::NoChange);
+		coef_record = std::move(coef_record(stable_id, Eigen::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
+		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
+		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
+		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
 	}
 };
 
