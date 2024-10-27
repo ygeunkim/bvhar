@@ -954,22 +954,22 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 														double global_param, double lognormal_sd, boost::random::mt19937& rng) {
   int num_coef = local_param.size();
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
-	// double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
-	// log_ratio += num_coef * cand * (log(cand) - 2 * log(global_param));
-	// log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
-	// log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
-	// log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
-	// if (log(unif_rand(0, 1, rng)) < std::min(log_ratio, 0.0)) {
-	// 	return cand;
-	// }
-	double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);
-	acc_ratio *= pow(cand / (global_param * global_param), num_coef * cand);
-	acc_ratio *= pow(global_param * global_param / gamma_hyper, num_coef * gamma_hyper);
-	acc_ratio *= pow(local_param.prod(), cand - gamma_hyper);
-	acc_ratio *= exp((gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param));
-	if (unif_rand(0, 1, rng) < std::min(acc_ratio, 1.0)) {
+	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
+	log_ratio += num_coef * cand * (log(cand) - 2 * log(global_param));
+	log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
+	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
+	log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
+	if (log(unif_rand(0, 1, rng)) < std::min(log_ratio, 0.0)) {
 		return cand;
 	}
+	// double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);
+	// acc_ratio *= pow(cand / (global_param * global_param), num_coef * cand);
+	// acc_ratio *= pow(global_param * global_param / gamma_hyper, num_coef * gamma_hyper);
+	// acc_ratio *= pow(local_param.prod(), cand - gamma_hyper);
+	// acc_ratio *= exp((gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param));
+	// if (unif_rand(0, 1, rng) < std::min(acc_ratio, 1.0)) {
+	// 	return cand;
+	// }
 	return gamma_hyper;
 }
 // 
