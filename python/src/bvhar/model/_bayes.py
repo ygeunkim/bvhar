@@ -342,13 +342,13 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.fit_intercept, stable, self.thread_
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.p_, n_ahead, self.response_, sv, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sv, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.fit_intercept, stable, self.thread_
             )
@@ -656,13 +656,13 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.fit_intercept, stable, self.thread_
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.response_, sv, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sv, sparse, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                 self.fit_intercept, stable, self.thread_
             )
