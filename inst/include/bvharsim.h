@@ -339,9 +339,9 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 		STOP("Wrong parameter ranges for quasi GIG density: lambda = %g, psi = %g, chi = %g", lambda, psi, chi);
 	}
 	if (lambda < 0) {
-		res = res.cwiseInverse();
+		// res = res.cwiseInverse();
+		return (res * sqrt(chi / psi)).cwiseInverse();
 	}
-	// return res / alpha; // alpha: reciprocal of scale parameter
 	return res * sqrt(chi / psi);
 }
 #endif
@@ -561,9 +561,9 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 		STOP("Wrong parameter ranges for quasi GIG density: lambda = %g, psi = %g, chi = %g", lambda, psi, chi);
 	}
 	if (lambda < 0) {
-		res = res.cwiseInverse();
+		// res = res.cwiseInverse();
+		return (res * sqrt(chi / psi)).cwiseInverse();
 	}
-	// return res / alpha
 	return res * sqrt(chi / psi);
 }
 
