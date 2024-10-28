@@ -710,7 +710,8 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		// 	1, .5,
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
-		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
 	}
 }
 
