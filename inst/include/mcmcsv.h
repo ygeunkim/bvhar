@@ -21,7 +21,7 @@ public:
 		x(params._x), y(params._y),
 		num_iter(params._iter), dim(params._dim), dim_design(params._dim_design), num_design(params._num_design),
 		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef),
-		num_alpha(params._num_alpha),
+		num_alpha(params._num_alpha), nrow_coef(params._nrow),
 		sv_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
 		mcmc_step(0), rng(seed),
@@ -39,14 +39,14 @@ public:
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
-		sparse_coef(Eigen::MatrixXd::Zero(num_alpha / dim, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
+		sparse_coef(Eigen::MatrixXd::Zero(nrow_coef, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
 		prior_init_mean(params._init_mean), prior_init_prec(params._init_prec) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 			prior_alpha_prec.tail(dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
 		}
-		coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+		coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
 		if (include_mean) {
 			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
@@ -92,6 +92,7 @@ protected:
   int num_lowerchol;
   int num_coef;
 	int num_alpha;
+	int nrow_coef;
 	SvRecords sv_record;
 	SparseRecords sparse_record;
 	std::atomic<int> mcmc_step; // MCMC step
@@ -124,14 +125,14 @@ protected:
 			if (include_mean) {
 				Eigen::VectorXd prior_mean_j(dim_design);
 				Eigen::VectorXd prior_prec_j(dim_design);
-				prior_mean_j << prior_alpha_mean.segment(j * num_alpha / dim, num_alpha / dim), prior_alpha_mean.tail(dim)[j];
-				prior_prec_j << prior_alpha_prec.segment(j * num_alpha / dim, num_alpha / dim), prior_alpha_prec.tail(dim)[j];
+				prior_mean_j << prior_alpha_mean.segment(j * nrow_coef, nrow_coef), prior_alpha_mean.tail(dim)[j];
+				prior_prec_j << prior_alpha_prec.segment(j * nrow_coef, nrow_coef), prior_alpha_prec.tail(dim)[j];
 				draw_coef(
 					coef_mat.col(j), design_coef,
 					(((y - x * coef_mat) * chol_lower_j.transpose()).array() * sqrt_sv_j.array()).reshaped(),
 					prior_mean_j, prior_prec_j, rng
 				);
-				coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+				coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
 				coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 			} else {
 				draw_coef(
@@ -142,9 +143,9 @@ protected:
 					prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
 					rng
 				);
-				coef_vec.head(num_alpha) = coef_mat.topRows(num_alpha / dim).reshaped();
+				coef_vec = coef_mat.reshaped();
 			}
-			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(num_alpha / dim), design_coef);
+			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef);
 		}
 	}
 	void updateState() {

@@ -28,14 +28,15 @@ public:
 		coef_mat(Eigen::MatrixXd::Zero(num_coef / dim, dim)),
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
 		standard_normal(Eigen::VectorXd::Zero(dim)),
+		tmp_vec(Eigen::VectorXd::Zero((var_lag - 1) * dim)),
 		lpl(Eigen::VectorXd::Zero(step)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(var_lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(var_lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
-		post_mean = last_pvec.head(dim); // y_T
-		tmp_vec = last_pvec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
+		// post_mean = last_pvec.head(dim); // y_T
+		// tmp_vec = last_pvec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
 	}
 	virtual ~RegForecaster() = default;
-	virtual void computeMean(int i) = 0;
+	virtual void computeMean() = 0;
 	void updateParams(int i) {
 		coef_mat.topRows(nrow_coef) = unvectorize(reg_record.coef_record.row(i).head(num_alpha).transpose(), dim);
 		if (include_mean) {
@@ -44,10 +45,10 @@ public:
 		sv_update = reg_record.fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 		contem_mat = build_inv_lower(dim, reg_record.contem_coef_record.row(i)); // L
 	}
-	void updateVariance(int i) {
+	void updateVariance() {
 		// sv_update = reg_record.fac_record.row(i).transpose();
 		// contem_mat = build_inv_lower(dim, reg_record.contem_coef_record.row(i));
-		for (int j = 0; j < dim; j++) {
+		for (int j = 0; j < dim; ++j) {
 			standard_normal[j] = normal_rand(rng);
 		}
 		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
@@ -55,17 +56,17 @@ public:
 	Eigen::MatrixXd forecastDensity() {
 		std::lock_guard<std::mutex> lock(mtx);
 		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
-		Eigen::VectorXd obs_vec = last_pvec; // y_T y_(T - 1), ... y_(T - lag + 1)
+		Eigen::VectorXd obs_vec = last_pvec; // y_T, y_(T - 1), ... y_(T - lag + 1)
 		for (int i = 0; i < num_sim; ++i) {
-			last_pvec = obs_vec;
-			post_mean = obs_vec.head(dim);
-			tmp_vec = obs_vec.segment(dim, (var_lag - 1) * dim);
+			last_pvec = obs_vec; // y_T, y_(T - 1), ... y_(T - lag + 1)
+			post_mean = obs_vec.head(dim); // y_T
+			tmp_vec = obs_vec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
 			updateParams(i);
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 				last_pvec.head(dim) = post_mean;
-				computeMean(i);
-				updateVariance(i);
+				computeMean();
+				updateVariance();
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L^T-1)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose(); // hat(Y_{T + h}^{(i)})
 				tmp_vec = last_pvec.head((var_lag - 1) * dim);
@@ -76,7 +77,7 @@ public:
 	Eigen::MatrixXd forecastDensity(const Eigen::VectorXd& valid_vec) {
 		std::lock_guard<std::mutex> lock(mtx);
 		Eigen::MatrixXd predictive_distn(step, num_sim * dim); // rbind(step), cbind(sims)
-		Eigen::VectorXd obs_vec = last_pvec; // y_T y_(T - 1), ... y_(T - lag + 1)
+		Eigen::VectorXd obs_vec = last_pvec; // y_T, y_(T - 1), ... y_(T - lag + 1)
 		for (int i = 0; i < num_sim; ++i) {
 			last_pvec = obs_vec;
 			post_mean = obs_vec.head(dim);
@@ -85,11 +86,11 @@ public:
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 				last_pvec.head(dim) = post_mean;
-				computeMean(i);
-				updateVariance(i);
+				computeMean();
+				updateVariance();
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L^T-1)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose(); // hat(Y_{T + h}^{(i)})
-				lpl[h] += sv_update.array().log().sum() / 2 - dim * log(2 * M_PI) / 2 - (sv_update.cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
+				lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - (sv_update.cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
 				tmp_vec = last_pvec.head((var_lag - 1) * dim);
 			}
 		}
@@ -141,8 +142,9 @@ public:
 		}
 	}
 	virtual ~RegVarForecaster() = default;
-	void computeMean(int i) override {
-		post_mean = last_pvec.transpose() * coef_mat;
+	void computeMean() override {
+		// post_mean = last_pvec.transpose() * coef_mat;
+		post_mean = coef_mat.transpose() * last_pvec;
 	}
 };
 
@@ -159,8 +161,9 @@ public:
 		}
 	}
 	virtual ~RegVharForecaster() = default;
-	void computeMean(int i) override {
-		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
+	void computeMean() override {
+		// post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
+		post_mean = coef_mat.transpose() * har_trans * last_pvec;
 	}
 protected:
 	Eigen::MatrixXd har_trans;
@@ -174,7 +177,7 @@ public:
 	RegVarSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
 	: RegVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~RegVarSelectForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:
@@ -189,7 +192,7 @@ public:
 	RegVharSelectForecaster(const LdltRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
 	: RegVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~RegVharSelectForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:

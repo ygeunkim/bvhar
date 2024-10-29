@@ -21,7 +21,7 @@ struct RegParams {
 	Eigen::VectorXd _sig_shp, _sig_scl, _mean_non;
 	double _sd_non;
 	bool _mean;
-	int _dim, _dim_design, _num_design, _num_lowerchol, _num_coef, _num_alpha;
+	int _dim, _dim_design, _num_design, _num_lowerchol, _num_coef, _num_alpha, _nrow;
 
 	RegParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -35,7 +35,7 @@ struct RegParams {
 		_sd_non(CAST_DOUBLE(intercept["sd_non"])), _mean(include_mean),
 		_dim(y.cols()), _dim_design(x.cols()), _num_design(y.rows()),
 		_num_lowerchol(_dim * (_dim - 1) / 2), _num_coef(_dim * _dim_design),
-		_num_alpha(_mean ? _num_coef - _dim : _num_coef) {}
+		_num_alpha(_mean ? _num_coef - _dim : _num_coef), _nrow(_num_alpha / _dim) {}
 };
 
 struct RegInits {

@@ -29,14 +29,15 @@ public:
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
 		h_last_record(sv_record.lvol_record.rightCols(dim)),
 		standard_normal(Eigen::VectorXd::Zero(dim)),
+		tmp_vec(Eigen::VectorXd::Zero((var_lag - 1) * dim)),
 		lpl(Eigen::VectorXd::Zero(step)) {
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(var_lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(var_lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
-		post_mean = last_pvec.head(dim); // y_T
-		tmp_vec = last_pvec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
+		// post_mean = last_pvec.head(dim); // y_T
+		// tmp_vec = last_pvec.segment(dim, (var_lag - 1) * dim); // y_(T - 1), ... y_(T - lag + 1)
 	}
 	virtual ~SvForecaster() = default;
-	virtual void computeMean(int i) = 0;
+	virtual void computeMean() = 0;
 	void updateParams(int i) {
 		coef_mat.topRows(nrow_coef) = unvectorize(sv_record.coef_record.row(i).head(num_alpha).transpose(), dim);
 		if (include_mean) {
@@ -54,7 +55,7 @@ public:
 		// }
 		contem_mat = build_inv_lower(dim, sv_record.contem_coef_record.row(i)); // L
 	}
-	void updateVariance(int i) {
+	void updateVariance() {
 		for (int j = 0; j < dim; j++) {
 			standard_normal[j] = normal_rand(rng);
 		}
@@ -73,7 +74,7 @@ public:
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 				last_pvec.head(dim) = post_mean;
-				computeMean(i);
+				computeMean();
 				if (sv) {
 					for (int j = 0; j < dim; j++) {
 						standard_normal[j] = normal_rand(rng);
@@ -84,7 +85,7 @@ public:
 				} else {
 					sv_update = h_last_record.row(i).transpose();
 				}
-				updateVariance(i);
+				updateVariance();
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L^T-1)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose(); // hat(Y_{T + h}^{(i)})
 				tmp_vec = last_pvec.head((var_lag - 1) * dim);
@@ -104,7 +105,7 @@ public:
 			for (int h = 0; h < step; ++h) {
 				last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
 				last_pvec.head(dim) = post_mean;
-				computeMean(i);
+				computeMean();
 				if (sv) {
 					for (int j = 0; j < dim; j++) {
 						standard_normal[j] = normal_rand(rng);
@@ -115,7 +116,7 @@ public:
 				} else {
 					sv_update = h_last_record.row(i).transpose();
 				}
-				updateVariance(i);
+				updateVariance();
 				post_mean += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal); // N(post_mean, L^-1 D L^T-1)
 				predictive_distn.block(h, i * dim, 1, dim) = post_mean.transpose(); // hat(Y_{T + h}^{(i)})
 				lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
@@ -171,7 +172,7 @@ public:
 		}
 	}
 	virtual ~SvVarForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * coef_mat;
 	}
 };
@@ -189,7 +190,7 @@ public:
 		}
 	}
 	virtual ~SvVharForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
 	}
 protected:
@@ -204,7 +205,7 @@ public:
 	SvVarSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
 	: SvVarForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~SvVarSelectForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:
@@ -219,7 +220,7 @@ public:
 	SvVharSelectForecaster(const SvRecords& records, const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
 	: SvVharForecaster(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed), activity_graph(selection) {}
 	virtual ~SvVharSelectForecaster() = default;
-	void computeMean(int i) override {
+	void computeMean() override {
 		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
 	}
 private:
