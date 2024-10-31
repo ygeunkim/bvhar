@@ -13,6 +13,7 @@
 	#include <Eigen/Dense>
 	#include <Eigen/Cholesky>
 	#include <Eigen/QR>
+	#include <Eigen/Sparse>
 	#include <unsupported/Eigen/KroneckerProduct>
 	#include <pybind11/eigen.h>
 #endif

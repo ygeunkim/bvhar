@@ -57,6 +57,26 @@ inline Eigen::MatrixXd build_vhar(int dim, int week, int month, bool include_mea
   return HARtrans.block(0, 0, 3 * dim, month * dim);
 }
 
+inline Eigen::SparseMatrix<double> build_vhar_sparse(int dim, int week, int month, bool include_mean) {
+	Eigen::MatrixXd HAR = Eigen::MatrixXd::Zero(3, month);
+  Eigen::MatrixXd HARtrans = Eigen::MatrixXd::Zero(3 * dim + 1, month * dim + 1); // 3m x (month * m)
+  Eigen::MatrixXd Im = Eigen::MatrixXd::Identity(dim, dim);
+  HAR(0, 0) = 1.0;
+  for (int i = 0; i < week; i++) {
+    HAR(1, i) = 1.0 / week;
+  }
+  for (int i = 0; i < month; i++) {
+    HAR(2, i) = 1.0 / month;
+  }
+  HARtrans.block(0, 0, 3 * dim, month * dim) = Eigen::kroneckerProduct(HAR, Im).eval();
+  HARtrans(3 * dim, month * dim) = 1.0;
+	Eigen::SparseMatrix<double> sparse_har = HARtrans.sparseView();
+  if (include_mean) {
+    return sparse_har;
+  }
+	return sparse_har.block(0, 0, 3 * dim, month * dim);
+}
+
 inline Eigen::MatrixXd build_ydummy(int p, const Eigen::VectorXd& sigma, double lambda,
 																		const Eigen::VectorXd& daily, const Eigen::VectorXd& weekly, const Eigen::VectorXd& monthly,
 																		bool include_mean) {
