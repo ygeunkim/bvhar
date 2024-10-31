@@ -127,9 +127,11 @@ protected:
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
 			// Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
+			Eigen::VectorXd prior_mean_j(dim_design);
+			Eigen::VectorXd prior_prec_j(dim_design);
 			if (include_mean) {
-				Eigen::VectorXd prior_mean_j(dim_design);
-				Eigen::VectorXd prior_prec_j(dim_design);
+				// Eigen::VectorXd prior_mean_j(dim_design);
+				// Eigen::VectorXd prior_prec_j(dim_design);
 				prior_mean_j << prior_alpha_mean.segment(j * nrow_coef, nrow_coef), prior_alpha_mean.tail(dim)[j];
 				prior_prec_j << prior_alpha_prec.segment(j * nrow_coef, nrow_coef), prior_alpha_prec.tail(dim)[j];
 				draw_coef(
@@ -140,17 +142,18 @@ protected:
 				coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
 				coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 			} else {
+				prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
+				prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
 				draw_coef(
 					coef_mat.col(j),
 					design_coef,
 					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
-					prior_alpha_mean.segment(dim_design * j, dim_design), // Prior mean vector of j-th column of A
-					prior_alpha_prec.segment(dim_design * j, dim_design), // Prior precision of j-th column of A
-					rng
+					prior_mean_j, prior_prec_j, rng
 				);
 				coef_vec = coef_mat.reshaped();
 			}
-			draw_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef);
+			// draw_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef);
+			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef, prior_prec_j.head(nrow_coef));
 		}
 	}
 	void updateDiag() {
@@ -171,7 +174,8 @@ protected:
 				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
-			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+			// draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+			draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
 		}
 	}
 	void addStep() { mcmc_step++; }

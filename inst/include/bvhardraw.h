@@ -374,6 +374,30 @@ inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen:
 			sparse_coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
 		}
 	}
+	// Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
+	// Eigen::ArrayXd x_norm = x.colwise().squaredNorm().transpose().array();
+	// Eigen::ArrayXd abs_fit = coef_abs * x_norm;
+	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
+	// Eigen::ArrayXd penalty_vec = 1 / coef.array().square();
+	// sparse_coef.array() = sign_coef * (abs_fit - penalty_vec).cwiseMax(0) / x_norm;
+}
+
+inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x,
+												 Eigen::Ref<Eigen::VectorXd> prior_prec) {
+	sparse_coef.setZero();
+	for (int i = 0; i < coef.size(); ++i) {
+		double mu_i = 1 / (prior_prec[i] * coef[i] * coef[i]);
+		double abs_fit = abs(coef[i]) * x.col(i).squaredNorm();
+		if (abs_fit > mu_i) {
+			int alpha_sign = coef[i] >= 0 ? 1 : -1;
+			sparse_coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
+		}
+	}
+	// Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
+	// Eigen::ArrayXd x_norm = x.colwise().squaredNorm().array();
+	// Eigen::ArrayXd abs_fit = coef_abs * x_norm;
+	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
+	// sparse_coef.array() = sign_coef * (abs_fit - penalty_vec.array()).cwiseMax(0) / x_norm;
 }
 
 // Generating log-volatilities in MCMC
