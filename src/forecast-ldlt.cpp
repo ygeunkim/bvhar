@@ -52,6 +52,7 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 	} else {
 		std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		std::string a_name = sparse ? "a_sparse_record" : "a_record";
+		std::string c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -65,7 +66,7 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 				Rcpp::List a_list = fit_record[a_name];
 				Rcpp::List d_list = fit_record["d_record"];
 				if (include_mean) {
-					Rcpp::List c_list = fit_record["c_record"];
+					Rcpp::List c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -148,6 +149,7 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 	} else {
 		std::string alpha_name = sparse ? "phi_sparse_record" : "phi_record";
 		std::string a_name = sparse ? "a_sparse_record" : "a_record";
+		std::string c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -161,7 +163,7 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 				Rcpp::List a_list = fit_record[a_name];
 				Rcpp::List d_list = fit_record["d_record"];
 				if (include_mean) {
-					Rcpp::List c_list = fit_record["c_record"];
+					Rcpp::List c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -286,6 +288,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		} else {
 			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -299,7 +302,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					Rcpp::List alpha_list = fit_record[alpha_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -592,6 +595,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		} else {
 			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -605,7 +609,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 					Rcpp::List phi_list = fit_record[phi_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(phi_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -897,6 +901,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		} else {
 			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -910,7 +915,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 					Rcpp::List alpha_list = fit_record[alpha_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -1203,6 +1208,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		} else {
 			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -1216,7 +1222,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 					Rcpp::List phi_list = fit_record[phi_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(phi_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),

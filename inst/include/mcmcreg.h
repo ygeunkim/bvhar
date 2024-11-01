@@ -23,7 +23,7 @@ public:
 		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef),
 		num_alpha(params._num_alpha), nrow_coef(params._nrow),
 		reg_record(num_iter, dim, num_design, num_coef, num_lowerchol),
-		sparse_record(num_iter, dim, num_design, num_alpha, num_lowerchol),
+		sparse_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		mcmc_step(0), rng(seed),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
 		contem_coef(inits._contem), diag_vec(inits._diag),
@@ -35,11 +35,9 @@ public:
 		contem_id(0),
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
-		// ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
-		// response_contem(Eigen::MatrixXd::Zero(num_design, dim)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
-		sparse_coef(Eigen::MatrixXd::Zero(nrow_coef, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
+		sparse_coef(Eigen::MatrixXd::Zero(dim_design, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
@@ -54,22 +52,18 @@ public:
 	}
 	virtual ~McmcReg() = default;
 	virtual void doPosteriorDraws() = 0;
-// #ifdef USE_RCPP
-// 	virtual Rcpp::List returnRecords(int num_burn, int thin) const = 0;
-// #else
-// 	virtual py::dict returnRecords(int num_burn, int thin) const = 0;
-// #endif
 	virtual LIST returnRecords(int num_burn, int thin) const = 0;
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
-			Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
-			if (include_mean) {
-				coef_record << sparse_record.coef_record, reg_record.coef_record.rightCols(dim);
-			} else {
-				coef_record = sparse_record.coef_record;
-			}
+			// Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
+			// if (include_mean) {
+			// 	coef_record << sparse_record.coef_record, reg_record.coef_record.rightCols(dim);
+			// } else {
+			// 	coef_record = sparse_record.coef_record;
+			// }
 			return LdltRecords(
-				thin_record(coef_record, num_iter, num_burn, thin).derived(),
+				// thin_record(coef_record, num_iter, num_burn, thin).derived(),
+				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(reg_record.fac_record, num_iter, num_burn, thin).derived()
 			);
@@ -81,10 +75,6 @@ public:
 		);
 		return res_record;
 	}
-	// virtual SsvsRecords returnSsvsRecords(int num_burn, int thin) const = 0;
-	// virtual HorseshoeRecords returnHsRecords(int num_burn, int thin) const = 0;
-	// virtual NgRecords returnNgRecords(int num_burn, int thin) const = 0;
-	// virtual GlobalLocalRecords returnGlRecords(int num_burn, int thin) const = 0;
 
 protected:
 	bool include_mean;
@@ -153,7 +143,7 @@ protected:
 				coef_vec = coef_mat.reshaped();
 			}
 			// draw_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef);
-			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef, prior_prec_j.head(nrow_coef));
+			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), design_coef, prior_alpha_prec.segment(dim_design * j, dim_design));
 		}
 	}
 	void updateDiag() {
@@ -174,8 +164,7 @@ protected:
 				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
-			// draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
-			draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
+			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
 		}
 	}
 	void addStep() { mcmc_step++; }
@@ -219,12 +208,12 @@ public:
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			NAMED("a_record") = reg_record.contem_coef_record,
 			NAMED("d_record") = reg_record.fac_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
@@ -295,30 +284,18 @@ public:
 			NAMED("alpha_record") = reg_record.coef_record.leftCols(num_alpha),
 			NAMED("a_record") = reg_record.contem_coef_record,
 			NAMED("d_record") = reg_record.fac_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
-	// SsvsRecords returnSsvsRecords(int num_burn, int thin) const override {
-	// 	return SsvsRecords();
-	// }
-	// HorseshoeRecords returnHsRecords(int num_burn, int thin) const override {
-	// 	return HorseshoeRecords();
-	// }
-	// NgRecords returnNgRecords(int num_burn, int thin) const override {
-	// 	return NgRecords();
-	// }
-	// GlobalLocalRecords returnGlRecords(int num_burn, int thin) const override {
-	// 	return GlobalLocalRecords();
-	// }
 
 protected:
 	void updateCoefPrec() override {
@@ -411,12 +388,12 @@ public:
 			NAMED("a_record") = reg_record.contem_coef_record,
 			NAMED("d_record") = reg_record.fac_record,
 			NAMED("gamma_record") = ssvs_record.coef_dummy_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
@@ -515,12 +492,12 @@ public:
 			NAMED("eta_record") = hs_record.group_record,
 			NAMED("tau_record") = hs_record.global_record,
 			NAMED("kappa_record") = hs_record.shrink_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			if (IS_MATRIX(ACCESS_LIST(record, res))) {
@@ -629,12 +606,12 @@ public:
 			NAMED("lambda_record") = ng_record.local_record,
 			NAMED("eta_record") = ng_record.group_record,
 			NAMED("tau_record") = ng_record.global_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			if (IS_MATRIX(ACCESS_LIST(record, res))) {
@@ -744,12 +721,12 @@ public:
 			NAMED("d_record") = reg_record.fac_record,
 			NAMED("lambda_record") = dl_record.local_record,
 			NAMED("tau_record") = dl_record.global_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			// res["c_record"] = reg_record.coef_record.rightCols(dim);
 			res["c_record"] = CAST_MATRIX(reg_record.coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
 			if (IS_MATRIX(ACCESS_LIST(record, res))) {
