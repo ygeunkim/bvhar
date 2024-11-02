@@ -64,7 +64,33 @@ public:
 		updateState();
 		updateRecords();
 	}
-	virtual LIST returnRecords(int num_burn, int thin) const = 0;
+	LIST gatherRecords() const {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("d_record") = reg_record->fac_record,
+			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
+			NAMED("a_sparse_record") = sparse_record.contem_coef_record
+		);
+		if (include_mean) {
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
+			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
+		}
+		return res;
+	}
+	virtual void appendRecords(LIST& list) = 0;
+	LIST returnRecords(int num_burn, int thin) {
+		LIST res = gatherRecords();
+		appendRecords(res);
+		for (auto& record : res) {
+			if (IS_MATRIX(ACCESS_LIST(record, res))) {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			} else {
+				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			}
+		}
+		return res;
+	}
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
 			// Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
@@ -206,23 +232,7 @@ public:
 		}
 	}
 	virtual ~MinnReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-		}
-		return res;
-	}
+	void appendRecords(LIST& list) override {}
 
 protected:
 	void updateCoefPrec() override {};
@@ -255,23 +265,7 @@ public:
 		prior_chol_prec.array() /= contem_lambda; // divide because it is precision
 	}
 	virtual ~HierminnReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-		}
-		return res;
-	}
+	void appendRecords(LIST& list) override {}
 
 protected:
 	void updateCoefPrec() override {
@@ -341,23 +335,8 @@ public:
 		ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	virtual ~SsvsReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("gamma_record") = ssvs_record.coef_dummy_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-		}
-		return res;
+	void appendRecords(LIST& list) override {
+		list["gamma_record"] = ssvs_record.coef_dummy_record;
 	}
 
 protected:
@@ -426,30 +405,11 @@ public:
 		hs_record.assignRecords(0, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	virtual ~HorseshoeReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("lambda_record") = hs_record.local_record,
-			NAMED("eta_record") = hs_record.group_record,
-			NAMED("tau_record") = hs_record.global_record,
-			NAMED("kappa_record") = hs_record.shrink_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			}
-		}
-		return res;
+	void appendRecords(LIST& list) override {
+		list["lambda_record"] = hs_record.local_record;
+		list["eta_record"] = hs_record.group_record;
+		list["tau_record"] = hs_record.global_record;
+		list["kappa_record"] = hs_record.shrink_record;
 	}
 
 protected:
@@ -525,29 +485,10 @@ public:
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~NgReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("lambda_record") = ng_record.local_record,
-			NAMED("eta_record") = ng_record.group_record,
-			NAMED("tau_record") = ng_record.global_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			}
-		}
-		return res;
+	void appendRecords(LIST& list) override {
+		list["lambda_record"] = ng_record.local_record;
+		list["eta_record"] = ng_record.group_record;
+		list["tau_record"] = ng_record.global_record;
 	}
 
 protected:
@@ -624,28 +565,9 @@ public:
 		dl_record.assignRecords(0, local_lev, global_lev);
 	}
 	virtual ~DlReg() = default;
-	LIST returnRecords(int num_burn, int thin) const override {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("lambda_record") = dl_record.local_record,
-			NAMED("tau_record") = dl_record.global_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
-		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			}
-		}
-		return res;
+	void appendRecords(LIST& list) override {
+		list["lambda_record"] = dl_record.local_record;
+		list["tau_record"] = dl_record.global_record;
 	}
 
 protected:
