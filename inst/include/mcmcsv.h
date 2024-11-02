@@ -54,7 +54,19 @@ public:
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcSv() = default;
-	virtual void doPosteriorDraws() = 0;
+	void doPosteriorDraws() {
+		std::lock_guard<std::mutex> lock(mtx);
+		addStep();
+		updateCoefPrec();
+		updateSv(); // D_t before coef
+		updateCoef();
+		updateImpactPrec();
+		updateLatent(); // E_t before a
+		updateImpact();
+		updateChol(); // L before d_i
+		updateState();
+		updateRecords();
+	}
 	virtual LIST returnRecords(int num_burn, int thin) const = 0;
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
@@ -156,6 +168,8 @@ protected:
 		for (int t = 0; t < dim; t++) {
 			varsv_ht(lvol_draw.col(t), lvol_init[t], lvol_sig[t], ortho_latent.col(t), rng);
 		}
+		varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng);
+		varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng);
 	}
 	void updateImpact() {
 		for (int j = 2; j < dim + 1; j++) {
@@ -172,11 +186,13 @@ protected:
 			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
 		}
 	}
-	void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
-	void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
+	// void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
+	// void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
+	void updateLatent() { latent_innov = y - x * coef_mat; }
+	void updateChol() { chol_lower = build_inv_lower(dim, contem_coef); }
+	void updateSv() { sqrt_sv = (-lvol_draw / 2).array().exp(); }
 	void addStep() { mcmc_step++; }
 	virtual void updateCoefPrec() = 0;
-	virtual void updateCoefShrink() = 0;
 	virtual void updateImpactPrec() = 0;
 	virtual void updateRecords() = 0;
 	void updateCoefRecords() {
@@ -203,19 +219,6 @@ public:
 		}
 	}
 	virtual ~MinnSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -238,7 +241,6 @@ public:
 
 protected:
 	void updateCoefPrec() override {}
-	void updateCoefShrink() override {};
 	void updateImpactPrec() override {};
 	void updateRecords() override { updateCoefRecords(); }
 };
@@ -271,23 +273,6 @@ public:
 		prior_chol_prec.diagonal() /= contem_lambda; // divide because it is precision
 	}
 	virtual ~HierminnSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateCoefShrink();
-		updateCoefPrec();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		// updateCoefShrink();
-		updateImpactPrec();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -310,30 +295,6 @@ public:
 
 protected:
 	void updateCoefPrec() override {
-		// minnesota_lambda(
-		// 	own_lambda, own_shape, own_rate,
-		// 	coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-		// 	grp_vec, own_id, rng
-		// );
-		// if (coef_minnesota) {
-		// 	minnesota_lambda(
-		// 		cross_lambda, cross_shape, cross_rate,
-		// 		coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-		// 		grp_vec, cross_id, rng
-		// 	);
-		// }
-		for (int i = 0; i < num_alpha; ++i) {
-			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				// prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
-			}
-			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				// prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
-			}
-		}
-	}
-	void updateCoefShrink() override {
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
 			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
@@ -346,15 +307,17 @@ protected:
 				grp_vec, cross_id, rng
 			);
 		}
-		// for (int i = 0; i < num_alpha; ++i) {
-		// 	if (own_id.find(grp_vec[i]) != own_id.end()) {
-		// 		prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
-		// 	}
-		// 	if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-		// 		prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
-		// 	}
-		// }
-	};
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				// prior_alpha_prec(i, i) /= own_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
+			}
+			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+				// prior_alpha_prec(i, i) /= cross_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+			}
+		}
+	}
 	void updateImpactPrec() override {
 		minnesota_contem_lambda(
 			contem_lambda, contem_shape, contem_rate,
@@ -406,22 +369,6 @@ public:
 		ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	virtual ~SsvsSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateCoefPrec();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		updateCoefShrink();
-		updateImpactPrec();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -451,9 +398,6 @@ protected:
 		// prior_sd.head(num_alpha) = coef_mixture_mat;
 		// prior_alpha_prec.setZero();
 		// prior_alpha_prec.diagonal() = 1 / prior_sd.array().square();
-		prior_alpha_prec.head(num_alpha).array() = 1 / (spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array());
-	}
-	void updateCoefShrink() override {
 		for (int j = 0; j < num_grp; j++) {
 			slab_weight = (grp_vec.array() == grp_id[j]).select(
 				coef_weight[j],
@@ -467,6 +411,7 @@ protected:
 			rng
 		);
 		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
+		prior_alpha_prec.head(num_alpha).array() = 1 / (spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array());
 	}
 	void updateImpactPrec() override {
 		ssvs_local_slab(contem_slab, contem_dummy, contem_coef, contem_ig_shape, contem_ig_scl, contem_spike_scl, rng);
@@ -520,22 +465,6 @@ public:
 		hs_record.assignRecords(0, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	virtual ~HorseshoeSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateCoefPrec();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		updateCoefShrink();
-		updateImpactPrec();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -578,19 +507,14 @@ protected:
 		// lambda_mat.diagonal() = 1 / (global_lev * local_fac.array()).square();
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha) = lambda_mat;
 		// shrink_fac = 1 / (1 + lambda_mat.diagonal().array());
-		prior_alpha_prec.head(num_alpha) = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
-		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
-	}
-	void updateCoefShrink() override {
 		horseshoe_latent(latent_local, local_lev, rng);
 		horseshoe_latent(latent_group, group_lev, rng);
 		horseshoe_latent(latent_global, global_lev, rng);
-		// global_lev = horseshoe_global_sparsity(latent_global, local_fac, coef_vec.head(num_alpha), 1, rng);
 		global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec.head(num_alpha), 1, rng);
 		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
-		// horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev, rng);
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev * global_lev, rng);
-		// horseshoe_mn_global_sparsity(global_lev, grp_vec, grp_id, latent_global, local_lev, coef_vec.head(num_alpha), 1, rng);
+		prior_alpha_prec.head(num_alpha) = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
+		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
 	}
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
@@ -653,22 +577,6 @@ public:
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~NormalgammaSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateCoefPrec();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		// updateCoefShrink();
-		updateImpactPrec();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -712,14 +620,11 @@ protected:
 		}
 		// local_fac.array() = global_lev * coef_var.array() * local_lev.array();
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_fac.array().square();
-		updateCoefShrink();
-		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
-		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
-	}
-	void updateCoefShrink() override {
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
 		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
+		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / local_lev.array().square();
+		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
 	void updateImpactPrec() override {
 		// contem_var = contem_global_lev.replicate(1, num_lowerchol).reshaped();
@@ -779,22 +684,6 @@ public:
 		dl_record.assignRecords(0, local_lev, global_lev);
 	}
 	virtual ~DirLaplaceSv() = default;
-	void doPosteriorDraws() override {
-		std::lock_guard<std::mutex> lock(mtx);
-		addStep();
-		updateCoefPrec();
-		sqrt_sv = (-lvol_draw / 2).array().exp(); // D_t before coef
-		updateCoef();
-		updateCoefShrink();
-		updateImpactPrec();
-		latent_innov = y - x * coef_mat; // E_t before a
-		updateImpact();
-		chol_lower = build_inv_lower(dim, contem_coef); // L before h_t
-		updateState();
-		updateStateVar();
-		updateInitState();
-		updateRecords();
-	}
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
@@ -832,14 +721,11 @@ protected:
 			);
 		}
 		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
-		updateCoefShrink();
 		// prior_alpha_prec.topLeftCorner(num_alpha, num_alpha).diagonal() = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
-		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
-	}
-	void updateCoefShrink() override {
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
 		global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
+		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updateImpactPrec() override {
 		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
