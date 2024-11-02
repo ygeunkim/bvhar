@@ -384,11 +384,17 @@ struct SvRecords : public RegRecords {
 		lvol_record(h_record) {
 		coef_record << alpha_record, c_record;
 	}
+
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec
+	) override {}
+
 	void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
 		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
-	) {
+	) override {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
 		lvol_record.row(id) = lvol_draw.transpose().reshaped();

@@ -317,11 +317,17 @@ struct LdltRecords : public RegRecords {
 	void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec
-	) {
+	) override {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
 		fac_record.row(id) = diag_vec.array();
 	}
+
+	void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
+	) override {}
 
 	void subsetStable(int num_alpha, double threshold) {
 		int dim = fac_record.cols();

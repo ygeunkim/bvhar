@@ -26,7 +26,7 @@ public:
 		sparse_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		mcmc_step(0), rng(seed),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
-		contem_coef(inits._contem), diag_vec(inits._diag),
+		contem_coef(inits._contem),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
 		prior_alpha_prec(Eigen::VectorXd::Zero(num_coef)),
 		prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
@@ -38,7 +38,8 @@ public:
 		latent_innov(y - x * coef_mat),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
-		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
+		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
+		diag_vec(inits._diag) {
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 			prior_alpha_prec.tail(dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
@@ -133,7 +134,6 @@ protected:
 	boost::random::mt19937 rng; // RNG instance for multi-chain
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
-	Eigen::VectorXd diag_vec; // inverse of d_i
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
 	Eigen::VectorXd prior_alpha_prec; // Diagonal of alpha prior precision
 	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
@@ -142,6 +142,14 @@ protected:
 	int contem_id;
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
+	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+	// Eigen::MatrixXd ortho_latent; // orthogonalized Z0
+	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	// Eigen::MatrixXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+	Eigen::VectorXd prior_sig_shp;
+	Eigen::VectorXd prior_sig_scl;
 	void updateCoef() {
 		for (int j = 0; j < dim; j++) {
 			coef_mat.col(j).setZero(); // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
@@ -212,14 +220,7 @@ protected:
 	}
 
 private:
-	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
-	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
-	// Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
-	// Eigen::MatrixXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
-	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
-	Eigen::VectorXd prior_sig_shp;
-	Eigen::VectorXd prior_sig_scl;
+	Eigen::VectorXd diag_vec; // inverse of d_i
 };
 
 class MinnReg : public McmcReg {

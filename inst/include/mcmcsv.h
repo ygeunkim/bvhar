@@ -151,6 +151,13 @@ protected:
 	int contem_id;
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
+	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
+	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+	Eigen::VectorXd prior_sig_shp;
+	Eigen::VectorXd prior_sig_scl;
 	void updateCoef() {
 		for (int j = 0; j < dim; j++) {
 			coef_mat.col(j).setZero(); // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
@@ -209,8 +216,6 @@ protected:
 			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
 		}
 	}
-	// void updateStateVar() { varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng); }
-	// void updateInitState() { varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng); }
 	void updateLatent() { latent_innov = y - x * coef_mat; }
 	void updateChol() { chol_lower = build_inv_lower(dim, contem_coef); }
 	void updateSv() { sqrt_sv = (-lvol_draw / 2).array().exp(); }
@@ -224,13 +229,6 @@ protected:
 	}
 
 private:
-	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
-	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
-  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
-	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
-	Eigen::VectorXd prior_sig_shp;
-	Eigen::VectorXd prior_sig_scl;
 	Eigen::VectorXd prior_init_mean;
 	Eigen::MatrixXd prior_init_prec;
 };

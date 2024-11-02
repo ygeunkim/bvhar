@@ -71,6 +71,22 @@ struct RegRecords {
 	RegRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record)
 	: coef_record(alpha_record), contem_coef_record(a_record) {}
 
+	void assignRecords(int id, const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef) {
+		coef_record.row(id) = coef_vec;
+		contem_coef_record.row(id) = contem_coef;
+	}
+	
+	virtual void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec
+	) = 0;
+
+	virtual void assignRecords(
+		int id,
+		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
+		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
+	) = 0;
+
 	Eigen::VectorXd computeActivity(double level) {
 		Eigen::VectorXd lower_ci(coef_record.cols());
 		Eigen::VectorXd upper_ci(coef_record.cols());
