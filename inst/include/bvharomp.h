@@ -15,6 +15,5 @@
 #include <atomic>
 #include <mutex>
 #include <vector> // std::vector in source file
-#include <memory> // std::unique_ptr in source file
 
 #endif // BVHAROMP_H

@@ -22,7 +22,7 @@ public:
 		num_iter(params._iter), dim(params._dim), dim_design(params._dim_design), num_design(params._num_design),
 		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef),
 		num_alpha(params._num_alpha), nrow_coef(params._nrow),
-		sv_record(num_iter, dim, num_design, num_coef, num_lowerchol),
+		reg_record(std::make_unique<SvRecords>(num_iter, dim, num_design, num_coef, num_lowerchol)),
 		sparse_record(num_iter, dim, num_design, num_coef, num_lowerchol),
 		mcmc_step(0), rng(seed),
 		coef_vec(Eigen::VectorXd::Zero(num_coef)),
@@ -34,12 +34,12 @@ public:
 		prior_chol_prec(Eigen::VectorXd::Ones(num_lowerchol)),
 		coef_mat(inits._coef),
 		contem_id(0),
+		sparse_coef(Eigen::MatrixXd::Zero(dim_design, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		chol_lower(build_inv_lower(dim, contem_coef)),
 		latent_innov(y - x * coef_mat),
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
-		sparse_coef(Eigen::MatrixXd::Zero(dim_design, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl),
 		prior_init_mean(params._init_mean), prior_init_prec(params._init_prec) {
 		if (include_mean) {
@@ -50,7 +50,7 @@ public:
 		if (include_mean) {
 			coef_vec.tail(dim) = coef_mat.bottomRows(1).transpose();
 		}
-		sv_record.assignRecords(0, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+		reg_record->assignRecords(0, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcSv() = default;
@@ -72,23 +72,23 @@ public:
 		if (sparse) {
 			// Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
 			// if (include_mean) {
-			// 	coef_record << sparse_record.coef_record, sv_record.coef_record.rightCols(dim);
+			// 	coef_record << sparse_record.coef_record, reg_record->coef_record.rightCols(dim);
 			// } else {
 			// 	coef_record = sparse_record.coef_record;
 			// }
 			return SvRecords(
 				// thin_record(coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
-				thin_record(sv_record.lvol_record, num_iter, num_burn, thin).derived(),
+				thin_record(reg_record->lvol_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
-				thin_record(sv_record.lvol_sig_record, num_iter, num_burn, thin).derived()
+				thin_record(reg_record->lvol_sig_record, num_iter, num_burn, thin).derived()
 			);
 		}
 		SvRecords res_record(
-			thin_record(sv_record.coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(sv_record.lvol_record, num_iter, num_burn, thin).derived(),
-			thin_record(sv_record.contem_coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(sv_record.lvol_sig_record, num_iter, num_burn, thin).derived()
+			thin_record(reg_record->coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(reg_record->lvol_record, num_iter, num_burn, thin).derived(),
+			thin_record(reg_record->contem_coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(reg_record->lvol_sig_record, num_iter, num_burn, thin).derived()
 		);
 		return res_record;
 	}
@@ -106,7 +106,7 @@ protected:
   int num_coef;
 	int num_alpha;
 	int nrow_coef;
-	SvRecords sv_record;
+	std::unique_ptr<SvRecords> reg_record;
 	SparseRecords sparse_record;
 	std::atomic<int> mcmc_step; // MCMC step
 	boost::random::mt19937 rng; // RNG instance for multi-chain
@@ -121,11 +121,6 @@ protected:
 	Eigen::VectorXd prior_chol_prec; // Diagonal of prior precision of a = I
 	Eigen::MatrixXd coef_mat;
 	int contem_id;
-	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
-	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
-  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
-	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
-	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::MatrixXd sparse_coef;
 	Eigen::VectorXd sparse_contem;
 	void updateCoef() {
@@ -196,11 +191,16 @@ protected:
 	virtual void updateImpactPrec() = 0;
 	virtual void updateRecords() = 0;
 	void updateCoefRecords() {
-		sv_record.assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
+		reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
 	}
 
 private:
+	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+  Eigen::MatrixXd ortho_latent; // orthogonalized Z0
+	Eigen::VectorXd response_contem; // j-th column of Z0 = Y0 - X0 * A: n-dim
+	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::VectorXd prior_sig_shp;
 	Eigen::VectorXd prior_sig_scl;
 	Eigen::VectorXd prior_init_mean;
@@ -221,16 +221,16 @@ public:
 	virtual ~MinnSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
@@ -275,16 +275,16 @@ public:
 	virtual ~HierminnSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
@@ -371,17 +371,17 @@ public:
 	virtual ~SsvsSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("gamma_record") = ssvs_record.coef_dummy_record,
 			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
@@ -467,11 +467,11 @@ public:
 	virtual ~HorseshoeSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("lambda_record") = hs_record.local_record,
 			NAMED("eta_record") = hs_record.group_record,
 			NAMED("tau_record") = hs_record.global_record,
@@ -480,7 +480,7 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
@@ -579,11 +579,11 @@ public:
 	virtual ~NormalgammaSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("lambda_record") = ng_record.local_record,
 			NAMED("eta_record") = ng_record.group_record,
 			NAMED("tau_record") = ng_record.global_record,
@@ -591,7 +591,7 @@ public:
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
@@ -686,18 +686,18 @@ public:
 	virtual ~DirLaplaceSv() = default;
 	LIST returnRecords(int num_burn, int thin) const override {
 		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = sv_record.coef_record.leftCols(num_alpha),
-			NAMED("h_record") = sv_record.lvol_record,
-			NAMED("a_record") = sv_record.contem_coef_record,
-			NAMED("h0_record") = sv_record.lvol_init_record,
-			NAMED("sigh_record") = sv_record.lvol_sig_record,
+			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
+			NAMED("h_record") = reg_record->lvol_record,
+			NAMED("a_record") = reg_record->contem_coef_record,
+			NAMED("h0_record") = reg_record->lvol_init_record,
+			NAMED("sigh_record") = reg_record->lvol_sig_record,
 			NAMED("lambda_record") = dl_record.local_record,
 			NAMED("tau_record") = dl_record.global_record,
 			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
 			NAMED("a_sparse_record") = sparse_record.contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(sv_record.coef_record.rightCols(dim));
+			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
 			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
 		}
 		for (auto& record : res) {
