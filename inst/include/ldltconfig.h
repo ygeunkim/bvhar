@@ -323,12 +323,12 @@ struct LdltRecords : public RegRecords {
 		fac_record.row(id) = diag_vec.array();
 	}
 
-	void subsetStable(int num_alpha) {
+	void subsetStable(int num_alpha, double threshold) {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim))) {
+			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}
@@ -337,7 +337,7 @@ struct LdltRecords : public RegRecords {
 		fac_record = std::move(fac_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
@@ -346,7 +346,7 @@ struct LdltRecords : public RegRecords {
 			// if (is_stable(var_record.row(i).reshaped(nrow_coef, dim))) {
 			// 	stable_id.push_back(i);
 			// }
-			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), har_trans)) {
+			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold, har_trans)) {
 				stable_id.push_back(i);
 			}
 		}
@@ -355,12 +355,12 @@ struct LdltRecords : public RegRecords {
 		fac_record = std::move(fac_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(har_trans.transpose() * coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim))) {
+			if (is_stable(har_trans.transpose() * coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}

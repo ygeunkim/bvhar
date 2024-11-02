@@ -1062,17 +1062,17 @@ inline Eigen::VectorXd root_unitcircle(Eigen::Ref<Eigen::MatrixXd> var_mat) {
 }
 
 // Check if the coefficient is stable
-inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat) {
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, double threshold) {
 	Eigen::MatrixXd companion_mat = build_companion(coef_mat);
 	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
-	return stableroot.maxCoeff() < 1;
+	return stableroot.maxCoeff() < threshold;
 }
 
 // Check if the coefficient is stable
-inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
 	Eigen::MatrixXd companion_mat = build_companion(har_trans.transpose() * coef_mat);
 	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
-	return (stableroot.array() < 1).all();
+	return stableroot.maxCoeff() < threshold;
 }
 
 template<typename Derived>

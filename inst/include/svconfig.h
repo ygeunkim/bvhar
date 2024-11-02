@@ -396,12 +396,12 @@ struct SvRecords : public RegRecords {
 		lvol_init_record.row(id) = lvol_init;
 	}
 
-	void subsetStable(int num_alpha) {
+	void subsetStable(int num_alpha, double threshold) {
 		int dim = lvol_sig_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim))) {
+			if (is_stable(coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}
@@ -412,13 +412,13 @@ struct SvRecords : public RegRecords {
 		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
 		int dim = lvol_sig_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
 		Eigen::MatrixXd var_record = coef_record.leftCols(num_alpha) * kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), har_trans);
 		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(var_record.row(i).reshaped(nrow_coef, dim))) {
+			if (is_stable(var_record.row(i).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}

@@ -164,7 +164,7 @@ public:
 	SvVarForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
 	: SvForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
 		if (stable_filter) {
-			sv_record.subsetStable(num_alpha);
+			sv_record.subsetStable(num_alpha, 1.05);
 			num_sim = sv_record.coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");
@@ -182,7 +182,7 @@ public:
 	SvVharForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
 	: SvForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans) {
 		if (stable_filter) {
-			sv_record.subsetStable(num_alpha, har_trans.topLeftCorner(3 * dim, month * dim));
+			sv_record.subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim));
 			num_sim = sv_record.coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");

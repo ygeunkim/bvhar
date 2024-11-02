@@ -147,7 +147,7 @@ protected:
 				coef_vec = coef_mat.reshaped();
 			}
 			// draw_savs(sparse_coef.col(j), coef_mat.col(j).head(nrow_coef), design_coef);
-			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), design_coef, prior_alpha_prec.segment(dim_design * j, dim_design));
+			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), design_coef, prior_prec_j);
 		}
 	}
 	void updateState() {
