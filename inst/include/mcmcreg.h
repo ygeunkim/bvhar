@@ -1,7 +1,7 @@
 #ifndef MCMCREG_H
 #define MCMCREG_H
 
-#include "ldltconfig.h"
+#include "bvharconfig.h"
 #include "bvharprogress.h"
 
 namespace bvhar {

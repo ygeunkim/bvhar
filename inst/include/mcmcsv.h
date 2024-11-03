@@ -1,7 +1,7 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include "svconfig.h"
+#include "bvharconfig.h"
 #include "bvharprogress.h"
 
 namespace bvhar {
