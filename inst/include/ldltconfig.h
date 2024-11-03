@@ -298,6 +298,8 @@ struct NgInits : public HsInits {
 struct LdltRecords : public RegRecords {
 	Eigen::MatrixXd fac_record; // d_1, ..., d_m in D of LDLT
 
+	LdltRecords() : RegRecords(), fac_record() {}
+
 	LdltRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: RegRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
 		fac_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)) {}
@@ -329,7 +331,11 @@ struct LdltRecords : public RegRecords {
 		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
 	) override {}
 
-	void subsetStable(int num_alpha, double threshold) {
+	void appendRecords(LIST& list) override {
+		list["d_record"] = fac_record;
+	}
+
+	void subsetStable(int num_alpha, double threshold) override {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
@@ -343,7 +349,7 @@ struct LdltRecords : public RegRecords {
 		fac_record = std::move(fac_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) override {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
@@ -361,7 +367,7 @@ struct LdltRecords : public RegRecords {
 		fac_record = std::move(fac_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) override {
 		int dim = fac_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;

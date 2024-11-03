@@ -67,20 +67,10 @@ public:
 		updateState();
 		updateRecords();
 	}
-	LIST gatherRecords() const {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("h_record") = reg_record->lvol_record,
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("h0_record") = reg_record->lvol_init_record,
-			NAMED("sigh_record") = reg_record->lvol_sig_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
+	LIST gatherRecords() {
+		LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
+		reg_record->appendRecords(res);
+		sparse_record.appendRecords(res, dim, num_alpha, include_mean);
 		return res;
 	}
 	virtual void appendRecords(LIST& list) = 0;
@@ -98,14 +88,7 @@ public:
 	}
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
-			// Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
-			// if (include_mean) {
-			// 	coef_record << sparse_record.coef_record, reg_record->coef_record.rightCols(dim);
-			// } else {
-			// 	coef_record = sparse_record.coef_record;
-			// }
 			return SvRecords(
-				// thin_record(coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(reg_record->lvol_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),

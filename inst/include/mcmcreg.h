@@ -65,18 +65,10 @@ public:
 		updateState();
 		updateRecords();
 	}
-	LIST gatherRecords() const {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = reg_record->coef_record.leftCols(num_alpha),
-			NAMED("a_record") = reg_record->contem_coef_record,
-			NAMED("d_record") = reg_record->fac_record,
-			NAMED("alpha_sparse_record") = sparse_record.coef_record.leftCols(num_alpha),
-			NAMED("a_sparse_record") = sparse_record.contem_coef_record
-		);
-		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(reg_record->coef_record.rightCols(dim));
-			res["c_sparse_record"] = CAST_MATRIX(sparse_record.coef_record.rightCols(dim));
-		}
+	LIST gatherRecords() {
+		LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
+		reg_record->appendRecords(res);
+		sparse_record.appendRecords(res, dim, num_alpha, include_mean);
 		return res;
 	}
 	virtual void appendRecords(LIST& list) = 0;
@@ -94,14 +86,7 @@ public:
 	}
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		if (sparse) {
-			// Eigen::MatrixXd coef_record(num_iter + 1, num_coef);
-			// if (include_mean) {
-			// 	coef_record << sparse_record.coef_record, reg_record.coef_record.rightCols(dim);
-			// } else {
-			// 	coef_record = sparse_record.coef_record;
-			// }
 			return LdltRecords(
-				// thin_record(coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
 				thin_record(reg_record->fac_record, num_iter, num_burn, thin).derived()
@@ -156,17 +141,14 @@ protected:
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
-			// Eigen::VectorXd response_j = (((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(); // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 			Eigen::VectorXd prior_mean_j(dim_design);
 			Eigen::VectorXd prior_prec_j(dim_design);
 			if (include_mean) {
-				// Eigen::VectorXd prior_mean_j(dim_design);
-				// Eigen::VectorXd prior_prec_j(dim_design);
 				prior_mean_j << prior_alpha_mean.segment(j * nrow_coef, nrow_coef), prior_alpha_mean.tail(dim)[j];
 				prior_prec_j << prior_alpha_prec.segment(j * nrow_coef, nrow_coef), prior_alpha_prec.tail(dim)[j];
 				draw_coef(
 					coef_mat.col(j), design_coef,
-					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(),
+					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(), // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
 					prior_mean_j, prior_prec_j, rng
 				);
 				coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
@@ -187,8 +169,6 @@ protected:
 		}
 	}
 	void updateState() {
-		// ortho_latent = latent_innov * chol_lower.transpose(); // L eps_t <=> Z0 U
-		// reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, ortho_latent, rng);
 		reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, latent_innov * chol_lower.transpose(), rng);
 	}
 	void updateImpact() {

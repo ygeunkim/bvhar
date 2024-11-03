@@ -363,6 +363,8 @@ struct SvRecords : public RegRecords {
 	Eigen::MatrixXd lvol_init_record; // h0 = h10, ..., hk0
 	Eigen::MatrixXd lvol_record; // time-varying h = (h_1, ..., h_k) with h_j = (h_j1, ..., h_jn), row-binded
 	
+	SvRecords() : RegRecords(), lvol_sig_record(), lvol_init_record(), lvol_record() {}
+
 	SvRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: RegRecords(num_iter, dim, num_design, num_coef, num_lowerchol),
 		lvol_sig_record(Eigen::MatrixXd::Ones(num_iter + 1, dim)),
@@ -402,7 +404,13 @@ struct SvRecords : public RegRecords {
 		lvol_init_record.row(id) = lvol_init;
 	}
 
-	void subsetStable(int num_alpha, double threshold) {
+	void appendRecords(LIST& list) override {
+		list["h_record"] = lvol_record;
+		list["h0_record"] = lvol_init_record;
+		list["sigh_record"] = lvol_sig_record;
+	}
+
+	void subsetStable(int num_alpha, double threshold) override {
 		int dim = lvol_sig_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
@@ -418,13 +426,29 @@ struct SvRecords : public RegRecords {
 		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
 	}
 
-	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) override {
 		int dim = lvol_sig_record.cols();
 		int nrow_coef = num_alpha / dim;
 		std::vector<int> stable_id;
 		Eigen::MatrixXd var_record = coef_record.leftCols(num_alpha) * kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), har_trans);
 		for (int i = 0; i < coef_record.rows(); ++i) {
 			if (is_stable(var_record.row(i).reshaped(nrow_coef, dim), threshold)) {
+				stable_id.push_back(i);
+			}
+		}
+		coef_record = std::move(coef_record(stable_id, Eigen::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
+		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
+		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
+		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
+	}
+
+	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) override {
+		int dim = lvol_sig_record.cols();
+		int nrow_coef = num_alpha / dim;
+		std::vector<int> stable_id;
+		for (int i = 0; i < coef_record.rows(); ++i) {
+			if (is_stable(har_trans.transpose() * coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}

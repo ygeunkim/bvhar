@@ -64,6 +64,8 @@ struct RegRecords {
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
 
+	RegRecords() : coef_record(), contem_coef_record() {}
+
 	RegRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
 		contem_coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_lowerchol)) {}
@@ -86,6 +88,21 @@ struct RegRecords {
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
 		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
 	) = 0;
+
+	LIST returnListRecords(int dim, int num_alpha, bool include_mean) const {
+		LIST res = CREATE_LIST(
+			NAMED("alpha_record") = coef_record.leftCols(num_alpha),
+			NAMED("a_record") = contem_coef_record
+		);
+		if (include_mean) {
+			res["c_record"] = CAST_MATRIX(coef_record.rightCols(dim));
+		}
+		return res;
+	}
+	virtual void appendRecords(LIST& list) = 0;
+	virtual void subsetStable(int num_alpha, double threshold) = 0;
+	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) = 0;
+	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) = 0;
 
 	Eigen::VectorXd computeActivity(double level) {
 		Eigen::VectorXd lower_ci(coef_record.cols());
@@ -114,6 +131,14 @@ struct SparseRecords {
 	void assignRecords(int id, const Eigen::MatrixXd& coef_mat, const Eigen::VectorXd& contem_coef) {
 		coef_record.row(id) = coef_mat.reshaped();
 		contem_coef_record.row(id) = contem_coef;
+	}
+
+	void appendRecords(LIST& list, int dim, int num_alpha, bool include_mean) {
+		list["alpha_sparse_record"] = coef_record.leftCols(num_alpha);
+		list["a_sparse_record"] = contem_coef_record;
+		if (include_mean) {
+			list["c_sparse_record"] = CAST_MATRIX(coef_record.rightCols(dim));
+		}
 	}
 };
 
