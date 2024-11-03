@@ -155,7 +155,7 @@ public:
 			case 1: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::MinnParams minn_params(
+					bvhar::MinnParams<bvhar::RegParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_reg, param_prior,
 						param_intercept, include_mean
@@ -171,7 +171,7 @@ public:
 			case 2: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::SsvsParams ssvs_params(
+					bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 						num_iter, design, roll_y0[window],
 						param_reg, grp_id, grp_mat,
 						param_prior, param_intercept,
@@ -188,7 +188,7 @@ public:
 			case 3: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HorseshoeParams horseshoe_params(
+					bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 						num_iter, design, roll_y0[window],
 						param_reg, grp_id, grp_mat,
 						param_intercept, include_mean
@@ -204,7 +204,7 @@ public:
 			case 4: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HierminnParams minn_params(
+					bvhar::HierminnParams<bvhar::RegParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						own_id, cross_id, grp_mat,
@@ -222,7 +222,7 @@ public:
 			case 5: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::NgParams ng_params(
+					bvhar::NgParams<bvhar::RegParams> ng_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						grp_id, grp_mat,
@@ -240,7 +240,7 @@ public:
 			case 6: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::DlParams dl_params(
+					bvhar::DlParams<bvhar::RegParams> dl_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						grp_id, grp_mat,

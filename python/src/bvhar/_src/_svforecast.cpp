@@ -243,7 +243,7 @@ public:
 			case 1: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::MinnSvParams minn_params(
+					bvhar::MinnParams<bvhar::SvParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_sv, param_prior,
 						param_intercept, include_mean
@@ -259,7 +259,7 @@ public:
 			case 2: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::SsvsSvParams ssvs_params(
+					bvhar::SsvsParams<bvhar::SvParams> ssvs_params(
 						num_iter, design, roll_y0[window],
 						param_sv, grp_id, grp_mat,
 						param_prior, param_intercept,
@@ -276,7 +276,7 @@ public:
 			case 3: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HsSvParams horseshoe_params(
+					bvhar::HorseshoeParams<bvhar::SvParams> horseshoe_params(
 						num_iter, design, roll_y0[window],
 						param_sv, grp_id, grp_mat,
 						param_intercept, include_mean
@@ -292,7 +292,7 @@ public:
 			case 4: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HierminnSvParams minn_params(
+					bvhar::HierminnParams<bvhar::SvParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						own_id, cross_id, grp_mat,
@@ -310,7 +310,7 @@ public:
 			case 5: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::NgSvParams ng_params(
+					bvhar::NgParams<bvhar::SvParams> ng_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						grp_id, grp_mat,
@@ -328,7 +328,7 @@ public:
 			case 6: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::DlSvParams dl_params(
+					bvhar::DlParams<bvhar::SvParams> dl_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						grp_id, grp_mat,
@@ -389,7 +389,7 @@ public:
 			case 1: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::MinnSvParams minn_params(
+					bvhar::MinnParams<bvhar::SvParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_sv, param_prior,
 						param_intercept, include_mean
@@ -405,7 +405,7 @@ public:
 			case 2: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::SsvsSvParams ssvs_params(
+					bvhar::SsvsParams<bvhar::SvParams> ssvs_params(
 						num_iter, design, roll_y0[window],
 						param_sv, grp_id, grp_mat,
 						param_prior, param_intercept,
@@ -422,7 +422,7 @@ public:
 			case 3: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HsSvParams horseshoe_params(
+					bvhar::HorseshoeParams<bvhar::SvParams> horseshoe_params(
 						num_iter, design, roll_y0[window],
 						param_sv, grp_id, grp_mat,
 						param_intercept, include_mean
@@ -438,7 +438,7 @@ public:
 			case 4: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HierminnSvParams minn_params(
+					bvhar::HierminnParams<bvhar::SvParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						own_id, cross_id, grp_mat,
@@ -456,7 +456,7 @@ public:
 			case 5: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::NgSvParams ng_params(
+					bvhar::NgParams<bvhar::SvParams> ng_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						grp_id, grp_mat,
@@ -474,7 +474,7 @@ public:
 			case 6: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::DlSvParams dl_params(
+					bvhar::DlParams<bvhar::SvParams> dl_params(
 						num_iter, design, roll_y0[window],
 						param_sv,
 						grp_id, grp_mat,

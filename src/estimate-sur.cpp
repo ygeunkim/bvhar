@@ -34,7 +34,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
 		case 1: {
-			bvhar::MinnParams minn_params(
+			bvhar::MinnParams<bvhar::RegParams> minn_params(
 				num_iter, x, y,
 				param_reg, param_prior,
 				param_intercept, include_mean
@@ -47,7 +47,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 2: {
-			bvhar::SsvsParams ssvs_params(
+			bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 				num_iter, x, y,
 				param_reg,
 				grp_id, grp_mat,
@@ -63,7 +63,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 3: {
-			bvhar::HorseshoeParams horseshoe_params(
+			bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 				num_iter, x, y,
 				param_reg,
 				grp_id, grp_mat,
@@ -77,7 +77,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 4: {
-			bvhar::HierminnParams minn_params(
+			bvhar::HierminnParams<bvhar::RegParams> minn_params(
 				num_iter, x, y,
 				param_reg,
 				own_id, cross_id, grp_mat,
@@ -92,7 +92,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 5: {
-			bvhar::NgParams ng_params(
+			bvhar::NgParams<bvhar::RegParams> ng_params(
 				num_iter, x, y,
 				param_reg,
 				grp_id, grp_mat,
@@ -108,7 +108,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 6: {
-			bvhar::DlParams dl_params(
+			bvhar::DlParams<bvhar::RegParams> dl_params(
 				num_iter, x, y,
 				param_reg,
 				grp_id, grp_mat,

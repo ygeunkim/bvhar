@@ -329,7 +329,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -346,7 +346,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -364,7 +364,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
@@ -381,7 +381,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -400,7 +400,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -419,7 +419,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -636,7 +636,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -653,7 +653,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -671,7 +671,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
@@ -688,7 +688,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -707,7 +707,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -726,7 +726,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -942,7 +942,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -959,7 +959,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -977,7 +977,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
@@ -994,7 +994,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -1013,7 +1013,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1032,7 +1032,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1249,7 +1249,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -1266,7 +1266,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -1284,7 +1284,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
@@ -1301,7 +1301,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -1320,7 +1320,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1339,7 +1339,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,

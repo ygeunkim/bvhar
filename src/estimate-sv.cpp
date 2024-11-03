@@ -40,7 +40,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 	std::vector<Rcpp::List> res(num_chains);
 	switch (prior_type) {
 		case 1: {
-			bvhar::MinnSvParams minn_params(
+			bvhar::MinnParams<bvhar::SvParams> minn_params(
 				num_iter, x, y,
 				param_sv, param_prior,
 				param_intercept, include_mean
@@ -53,7 +53,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 2: {
-			bvhar::SsvsSvParams ssvs_params(
+			bvhar::SsvsParams<bvhar::SvParams> ssvs_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -69,7 +69,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 3: {
-			bvhar::HsSvParams horseshoe_params(
+			bvhar::HorseshoeParams<bvhar::SvParams> horseshoe_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -83,7 +83,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 4: {
-			bvhar::HierminnSvParams minn_params(
+			bvhar::HierminnParams<bvhar::SvParams> minn_params(
 				num_iter, x, y,
 				param_sv,
 				own_id, cross_id, grp_mat,
@@ -98,7 +98,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 5: {
-			bvhar::NgSvParams ng_params(
+			bvhar::NgParams<bvhar::SvParams> ng_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
@@ -114,7 +114,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			break;
 		}
 		case 6: {
-			bvhar::DlSvParams dl_params(
+			bvhar::DlParams<bvhar::SvParams> dl_params(
 				num_iter, x, y,
 				param_sv,
 				grp_id, grp_mat,
