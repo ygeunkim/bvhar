@@ -57,7 +57,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SsvsInits ssvs_inits(init_spec);
+				bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 				sur_objs[i].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -71,7 +71,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HsInits hs_inits(init_spec);
+				bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 				sur_objs[i].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -86,7 +86,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HierminnInits minn_inits(init_spec);
+				bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 				sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -102,7 +102,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::NgInits ng_inits(init_spec);
+				bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 				sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -118,7 +118,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::GlInits dl_inits(init_spec); // Use HsInits for DL
+				bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec); // Use HsInits for DL
 				sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;

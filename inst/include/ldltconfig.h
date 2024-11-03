@@ -5,83 +5,8 @@
 
 namespace bvhar {
 
-// Initialization
-struct LdltInits;
-struct HierminnInits;
-struct SsvsInits;
-struct GlInits;
-struct HsInits;
-struct NgInits;
 // MCMC records
 struct LdltRecords;
-
-struct LdltInits : public RegInits {
-	Eigen::VectorXd _diag;
-
-	LdltInits(LIST& init)
-	: RegInits(init),
-		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
-	
-	// void updateState() override
-};
-
-struct HierminnInits : public LdltInits {
-	double _own_lambda;
-	double _cross_lambda;
-	double _contem_lambda;
-
-	HierminnInits(LIST& init)
-	: LdltInits(init),
-		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
-};
-
-struct SsvsInits : public LdltInits {
-	Eigen::VectorXd _coef_dummy;
-	Eigen::VectorXd _coef_weight;
-	Eigen::VectorXd _contem_weight;
-	Eigen::VectorXd _coef_slab;
-	Eigen::VectorXd _contem_slab;
-
-	SsvsInits(LIST& init)
-	: LdltInits(init),
-		_coef_dummy(CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
-		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
-		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])) {}
-};
-
-struct GlInits : public LdltInits {
-	Eigen::VectorXd _init_local;
-	double _init_global;
-	Eigen::VectorXd _init_contem_local;
-	Eigen::VectorXd _init_conetm_global;
-	
-	GlInits(LIST& init)
-	: LdltInits(init),
-		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(CAST_DOUBLE(init["global_sparsity"])),
-		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
-};
-
-struct HsInits : public GlInits {
-	Eigen::VectorXd _init_group;
-	
-	HsInits(LIST& init)
-	: GlInits(init),
-		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
-};
-
-struct NgInits : public HsInits {
-	Eigen::VectorXd _init_local_shape;
-	double _init_contem_shape;
-
-	NgInits(LIST& init)
-	: HsInits(init),
-		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
-		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
-};
 
 struct LdltRecords : public RegRecords {
 	Eigen::MatrixXd fac_record; // d_1, ..., d_m in D of LDLT

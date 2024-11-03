@@ -97,7 +97,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -111,7 +111,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -126,7 +126,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -141,7 +141,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -156,7 +156,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -268,7 +268,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -282,7 +282,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -297,7 +297,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -312,7 +312,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;
@@ -327,7 +327,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 				);
 				for (int chain = 0; chain < num_chains; ++chain) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					sur_objs[i][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(i, chain))));
 				}
 				break;

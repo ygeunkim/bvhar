@@ -372,7 +372,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsSvInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -389,7 +389,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsSvInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::SvInits> hs_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -408,7 +408,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnSvInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -427,7 +427,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgSvInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::SvInits> ng_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -446,7 +446,7 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlSvInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::SvInits> dl_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -688,7 +688,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsSvInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -705,7 +705,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsSvInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::SvInits> hs_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -724,7 +724,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnSvInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -743,7 +743,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgSvInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::SvInits> ng_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -762,7 +762,7 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlSvInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::SvInits> dl_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -1003,7 +1003,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsSvInits ssvs_inits(init_spec, expand_y0[window].rows());
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1020,7 +1020,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsSvInits hs_inits(init_spec, expand_y0[window].rows());
+					bvhar::HsInits<bvhar::SvInits> hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1039,7 +1039,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnSvInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(init_spec);
 					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1058,7 +1058,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgSvInits ng_inits(init_spec, expand_y0[window].rows());
+					bvhar::NgInits<bvhar::SvInits> ng_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1077,7 +1077,7 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlSvInits dl_inits(init_spec, expand_y0[window].rows());
+					bvhar::GlInits<bvhar::SvInits> dl_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1319,7 +1319,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsSvInits ssvs_inits(init_spec, expand_y0[window].rows());
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1336,7 +1336,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsSvInits hs_inits(init_spec, expand_y0[window].rows());
+					bvhar::HsInits<bvhar::SvInits> hs_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1355,7 +1355,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnSvInits minn_inits(init_spec, expand_y0[window].rows());
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1374,7 +1374,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgSvInits ng_inits(init_spec, expand_y0[window].rows());
+					bvhar::NgInits<bvhar::SvInits> ng_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1393,7 +1393,7 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlSvInits dl_inits(init_spec, expand_y0[window].rows());
+					bvhar::GlInits<bvhar::SvInits> dl_inits(init_spec, expand_y0[window].rows());
 					sv_objs[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory

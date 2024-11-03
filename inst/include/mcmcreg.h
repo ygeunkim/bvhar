@@ -223,7 +223,7 @@ protected:
 
 class HierminnReg : public McmcReg {
 public:
-	HierminnReg(const HierminnParams<RegParams>& params, const HierminnInits& inits, unsigned int seed)
+	HierminnReg(const HierminnParams<RegParams>& params, const HierminnInits<LdltInits>& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 		own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
@@ -299,7 +299,7 @@ private:
 
 class SsvsReg : public McmcReg {
 public:
-	SsvsReg(const SsvsParams<RegParams>& params, const SsvsInits& inits, unsigned int seed)
+	SsvsReg(const SsvsParams<RegParams>& params, const SsvsInits<LdltInits>& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
@@ -372,7 +372,7 @@ private:
 
 class HorseshoeReg : public McmcReg {
 public:
-	HorseshoeReg(const HorseshoeParams<RegParams>& params, const HsInits& inits, unsigned int seed)
+	HorseshoeReg(const HorseshoeParams<RegParams>& params, const HsInits<LdltInits>& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
@@ -446,7 +446,7 @@ private:
 
 class NgReg : public McmcReg {
 public:
-	NgReg(const NgParams<RegParams>& params, const NgInits& inits, unsigned int seed)
+	NgReg(const NgParams<RegParams>& params, const NgInits<LdltInits>& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
@@ -531,7 +531,7 @@ private:
 
 class DlReg : public McmcReg {
 public:
-	DlReg(const DlParams<RegParams>& params, const GlInits& inits, unsigned int seed)
+	DlReg(const DlParams<RegParams>& params, const GlInits<LdltInits>& inits, unsigned int seed)
 	: McmcReg(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),

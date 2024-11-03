@@ -37,7 +37,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsSvInits ssvs_inits(param_init[i]);
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -50,7 +50,7 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsSvInits hs_inits(param_init[i]);
+					bvhar::HsInits<bvhar::SvInits> hs_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -64,7 +64,7 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnSvInits minn_inits(param_init[i]);
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -79,7 +79,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgSvInits ng_inits(param_init[i]);
+					bvhar::NgInits<bvhar::SvInits> ng_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -94,7 +94,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlSvInits dl_inits(param_init[i]);
+					bvhar::GlInits<bvhar::SvInits> dl_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;

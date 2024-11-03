@@ -266,7 +266,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::SsvsSvInits ssvs_inits(param_init[chain]);
+						bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -282,7 +282,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::HsSvInits hs_inits(param_init[chain]);
+						bvhar::HsInits<bvhar::SvInits> hs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -300,7 +300,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::HierminnSvInits minn_inits(param_init[chain]);
+						bvhar::HierminnInits<bvhar::SvInits> minn_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -318,7 +318,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::NgSvInits ng_inits(param_init[chain]);
+						bvhar::NgInits<bvhar::SvInits> ng_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -336,7 +336,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::GlSvInits dl_inits(param_init[chain]);
+						bvhar::GlInits<bvhar::SvInits> dl_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -412,7 +412,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::SsvsSvInits ssvs_inits(param_init[chain], roll_y0[window].rows());
+						bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(param_init[chain], roll_y0[window].rows());
 						model[window][chain].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -428,7 +428,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::HsSvInits hs_inits(param_init[chain], roll_y0[window].rows());
+						bvhar::HsInits<bvhar::SvInits> hs_inits(param_init[chain], roll_y0[window].rows());
 						model[window][chain].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -446,7 +446,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::HierminnSvInits minn_inits(param_init[chain]);
+						bvhar::HierminnInits<bvhar::SvInits> minn_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -464,7 +464,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::NgSvInits ng_inits(param_init[chain], roll_y0[window].rows());
+						bvhar::NgInits<bvhar::SvInits> ng_inits(param_init[chain], roll_y0[window].rows());
 						model[window][chain].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -482,7 +482,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::GlSvInits dl_inits(param_init[chain], roll_y0[window].rows());
+						bvhar::GlInits<bvhar::SvInits> dl_inits(param_init[chain], roll_y0[window].rows());
 						model[window][chain].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory

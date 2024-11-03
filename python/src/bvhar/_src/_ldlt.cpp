@@ -37,7 +37,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsInits ssvs_inits(param_init[i]);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -50,7 +50,7 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsInits hs_inits(param_init[i]);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -64,7 +64,7 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnInits minn_inits(param_init[i]);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -79,7 +79,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgInits ng_inits(param_init[i]);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
@@ -94,7 +94,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlInits dl_inits(param_init[i]);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;

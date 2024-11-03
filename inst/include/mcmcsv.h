@@ -238,7 +238,7 @@ protected:
 
 class HierminnSv : public McmcSv {
 public:
-	HierminnSv(const HierminnParams<SvParams>& params, const HierminnSvInits& inits, unsigned int seed)
+	HierminnSv(const HierminnParams<SvParams>& params, const HierminnInits<SvInits>& inits, unsigned int seed)
 		: McmcSv(params, inits, seed),
 			own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 			own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
@@ -319,7 +319,7 @@ private:
 
 class SsvsSv : public McmcSv {
 public:
-	SsvsSv(const SsvsParams<SvParams>& params, const SsvsSvInits& inits, unsigned int seed)
+	SsvsSv(const SsvsParams<SvParams>& params, const SsvsInits<SvInits>& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
@@ -405,7 +405,7 @@ private:
 
 class HorseshoeSv : public McmcSv {
 public:
-	HorseshoeSv(const HorseshoeParams<SvParams>& params, const HsSvInits& inits, unsigned int seed)
+	HorseshoeSv(const HorseshoeParams<SvParams>& params, const HsInits<SvInits>& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
@@ -489,7 +489,7 @@ private:
 
 class NormalgammaSv : public McmcSv {
 public:
-	NormalgammaSv(const NgParams<SvParams>& params, const NgSvInits& inits, unsigned int seed)
+	NormalgammaSv(const NgParams<SvParams>& params, const NgInits<SvInits>& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
@@ -581,7 +581,7 @@ private:
 
 class DirLaplaceSv : public McmcSv {
 public:
-	DirLaplaceSv(const DlParams<SvParams>& params, const GlSvInits& inits, unsigned int seed)
+	DirLaplaceSv(const DlParams<SvParams>& params, const GlInits<SvInits>& inits, unsigned int seed)
 	: McmcSv(params, inits, seed),
 		grp_id(params._grp_id), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),

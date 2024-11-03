@@ -178,7 +178,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::SsvsInits ssvs_inits(param_init[chain]);
+						bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -194,7 +194,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::HsInits hs_inits(param_init[chain]);
+						bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -212,7 +212,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::HierminnInits minn_inits(param_init[chain]);
+						bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -230,7 +230,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::NgInits ng_inits(param_init[chain]);
+						bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -248,7 +248,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::GlInits dl_inits(param_init[chain]);
+						bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory

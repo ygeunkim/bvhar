@@ -63,7 +63,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::SsvsSvInits ssvs_inits(init_spec);
+				bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(init_spec);
 				sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -77,7 +77,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HsSvInits hs_inits(init_spec);
+				bvhar::HsInits<bvhar::SvInits> hs_inits(init_spec);
 				sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -92,7 +92,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; i++ ) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::HierminnSvInits minn_inits(init_spec);
+				bvhar::HierminnInits<bvhar::SvInits> minn_inits(init_spec);
 				sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -108,7 +108,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::NgSvInits ng_inits(init_spec);
+				bvhar::NgInits<bvhar::SvInits> ng_inits(init_spec);
 				sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
@@ -124,7 +124,7 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
 			);
 			for (int i = 0; i < num_chains; ++i) {
 				Rcpp::List init_spec = param_init[i];
-				bvhar::GlSvInits dl_inits(init_spec); // Use HsInits for DL
+				bvhar::GlInits<bvhar::SvInits> dl_inits(init_spec); // Use HsInits for DL
 				sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 			}
 			break;
