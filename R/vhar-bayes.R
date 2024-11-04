@@ -523,7 +523,7 @@ vhar_bayes <- function(y,
   res$sparse_coef <- matrix(colMeans(res$phi_sparse_record), ncol = dim_data)
   if (include_mean) {
     res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
-    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_record))
+    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_sparse_record))
   }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
@@ -599,7 +599,8 @@ vhar_bayes <- function(y,
   if (include_mean) {
     res$param <- bind_draws(
       res$param,
-      res$c_record
+      res$c_record,
+      res$c_sparse_record
     )
   }
   if (bayes_spec$prior == "SSVS") {

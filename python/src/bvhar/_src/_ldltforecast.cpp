@@ -155,7 +155,7 @@ public:
 			case 1: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::MinnParams minn_params(
+					bvhar::MinnParams<bvhar::RegParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_reg, param_prior,
 						param_intercept, include_mean
@@ -171,14 +171,14 @@ public:
 			case 2: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::SsvsParams ssvs_params(
+					bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 						num_iter, design, roll_y0[window],
 						param_reg, grp_id, grp_mat,
 						param_prior, param_intercept,
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::SsvsInits ssvs_inits(param_init[chain]);
+						bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -188,13 +188,13 @@ public:
 			case 3: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HorseshoeParams horseshoe_params(
+					bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 						num_iter, design, roll_y0[window],
 						param_reg, grp_id, grp_mat,
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::HsInits hs_inits(param_init[chain]);
+						bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -204,7 +204,7 @@ public:
 			case 4: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HierminnParams minn_params(
+					bvhar::HierminnParams<bvhar::RegParams> minn_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						own_id, cross_id, grp_mat,
@@ -212,7 +212,7 @@ public:
 						param_intercept, include_mean
 					);
 					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::HierminnInits minn_inits(param_init[chain]);
+						bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -222,7 +222,7 @@ public:
 			case 5: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::NgParams ng_params(
+					bvhar::NgParams<bvhar::RegParams> ng_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						grp_id, grp_mat,
@@ -230,7 +230,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::NgInits ng_inits(param_init[chain]);
+						bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory
@@ -240,7 +240,7 @@ public:
 			case 6: {
 				for (int window = 0; window < num_horizon; ++window) {
 					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::DlParams dl_params(
+					bvhar::DlParams<bvhar::RegParams> dl_params(
 						num_iter, design, roll_y0[window],
 						param_reg,
 						grp_id, grp_mat,
@@ -248,7 +248,7 @@ public:
 						include_mean
 					);
 					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::GlInits dl_inits(param_init[chain]);
+						bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[chain]);
 						model[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 					}
 					roll_mat[window].resize(0, 0); // free the memory

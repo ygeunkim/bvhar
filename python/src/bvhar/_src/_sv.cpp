@@ -16,7 +16,7 @@ public:
 		display_progress(display_progress), sv_objs(num_chains), res(num_chains) {
 		switch (prior_type) {
 			case 1: {
-				bvhar::MinnSvParams minn_params(
+				bvhar::MinnParams<bvhar::SvParams> minn_params(
 					num_iter, x, y,
 					param_sv, param_prior,
 					param_intercept, include_mean
@@ -28,7 +28,7 @@ public:
 				break;
 			}
 			case 2: {
-				bvhar::SsvsSvParams ssvs_params(
+				bvhar::SsvsParams<bvhar::SvParams> ssvs_params(
 					num_iter, x, y,
 					param_sv,
 					grp_id, grp_mat,
@@ -37,26 +37,26 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsSvInits ssvs_inits(param_init[i]);
+					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 3: {
-				bvhar::HsSvParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::SvParams> horseshoe_params(
 					num_iter, x, y,
 					param_sv,
 					grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsSvInits hs_inits(param_init[i]);
+					bvhar::HsInits<bvhar::SvInits> hs_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 4: {
-				bvhar::HierminnSvParams minn_params(
+				bvhar::HierminnParams<bvhar::SvParams> minn_params(
 					num_iter, x, y,
 					param_sv,
 					own_id, cross_id, grp_mat,
@@ -64,13 +64,13 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnSvInits minn_inits(param_init[i]);
+					bvhar::HierminnInits<bvhar::SvInits> minn_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 5: {
-				bvhar::NgSvParams ng_params(
+				bvhar::NgParams<bvhar::SvParams> ng_params(
 					num_iter, x, y,
 					param_sv,
 					grp_id, grp_mat,
@@ -79,13 +79,13 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgSvInits ng_inits(param_init[i]);
+					bvhar::NgInits<bvhar::SvInits> ng_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 6: {
-				bvhar::DlSvParams dl_params(
+				bvhar::DlParams<bvhar::SvParams> dl_params(
 					num_iter, x, y,
 					param_sv,
 					grp_id, grp_mat,
@@ -94,7 +94,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlSvInits dl_inits(param_init[i]);
+					bvhar::GlInits<bvhar::SvInits> dl_inits(param_init[i]);
 					sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;

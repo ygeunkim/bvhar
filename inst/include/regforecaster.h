@@ -134,7 +134,7 @@ public:
 	RegVarForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed)
 	: RegForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
 		if (stable_filter) {
-			reg_record.subsetStable(num_alpha);
+			reg_record.subsetStable(num_alpha, 1.05);
 			num_sim = reg_record.coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");
@@ -151,9 +151,9 @@ public:
 class RegVharForecaster : public RegForecaster {
 public:
 	RegVharForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed)
-	: RegForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans) {
+	: RegForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans.sparseView()) {
 		if (stable_filter) {
-			reg_record.subsetStable(num_alpha, har_trans.topLeftCorner(3 * dim, month * dim));
+			reg_record.subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
 			num_sim = reg_record.coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");
@@ -166,7 +166,8 @@ public:
 		post_mean = coef_mat.transpose() * har_trans * last_pvec;
 	}
 protected:
-	Eigen::MatrixXd har_trans;
+	// Eigen::MatrixXd har_trans;
+	Eigen::SparseMatrix<double> har_trans;
 };
 
 class RegVarSelectForecaster : public RegVarForecaster {

@@ -366,14 +366,35 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 // @param x design matrix
 inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x) {
 	sparse_coef.setZero();
-	for (int i = 0; i < coef.size(); ++i) {
-		double mu_i = 1 / (coef[i] * coef[i]);
-		double abs_fit = abs(coef[i]) * x.col(i).squaredNorm();
-		if (abs_fit > mu_i) {
-			int alpha_sign = coef[i] >= 0 ? 1 : -1;
-			sparse_coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
-		}
-	}
+	// for (int i = 0; i < coef.size(); ++i) {
+	// 	double mu_i = 1 / (coef[i] * coef[i]);
+	// 	double abs_fit = abs(coef[i]) * x.col(i).squaredNorm();
+	// 	if (abs_fit > mu_i) {
+	// 		int alpha_sign = coef[i] >= 0 ? 1 : -1;
+	// 		sparse_coef[i] = alpha_sign * (abs_fit - mu_i) / x.col(i).squaredNorm();
+	// 	}
+	// }
+	Eigen::ArrayXd penalty_vec = 1 / coef.array().square();
+	Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
+	Eigen::ArrayXd x_norm = x.colwise().squaredNorm().transpose().array();
+	Eigen::ArrayXd abs_fit = coef_abs * x_norm;
+	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
+	// sparse_coef.array() = sign_coef * (abs_fit - penalty_vec).cwiseMax(0) / x_norm;
+	sparse_coef.array() = coef.array() * (abs_fit - penalty_vec).cwiseMax(0) / abs_fit;
+}
+
+inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<Eigen::MatrixXd> x,
+												 Eigen::Ref<Eigen::VectorXd> prior_prec) {
+	// sparse_coef.setZero();
+	// Eigen::ArrayXd penalty_vec = 1 / (prior_prec.array() * coef.array().square());
+	// Eigen::ArrayXd penalty_vec = prior_prec.array();
+	Eigen::ArrayXd penalty_vec = prior_prec.array() / (coef.array().square());
+	Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
+	Eigen::ArrayXd x_norm = x.colwise().squaredNorm().array();
+	Eigen::ArrayXd abs_fit = coef_abs * x_norm;
+	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
+	// sparse_coef.array() = sign_coef * (abs_fit - penalty_vec).cwiseMax(0) / x_norm;
+	sparse_coef.array() = coef.array() * (abs_fit - penalty_vec).cwiseMax(0) / abs_fit;
 }
 
 // Generating log-volatilities in MCMC
@@ -1041,17 +1062,17 @@ inline Eigen::VectorXd root_unitcircle(Eigen::Ref<Eigen::MatrixXd> var_mat) {
 }
 
 // Check if the coefficient is stable
-inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat) {
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, double threshold) {
 	Eigen::MatrixXd companion_mat = build_companion(coef_mat);
 	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
-	return stableroot.maxCoeff() < 1;
+	return stableroot.maxCoeff() < threshold;
 }
 
 // Check if the coefficient is stable
-inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
+inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) {
 	Eigen::MatrixXd companion_mat = build_companion(har_trans.transpose() * coef_mat);
 	Eigen::VectorXd stableroot = root_unitcircle(companion_mat);
-	return (stableroot.array() < 1).all();
+	return stableroot.maxCoeff() < threshold;
 }
 
 template<typename Derived>

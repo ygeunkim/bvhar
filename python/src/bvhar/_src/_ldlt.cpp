@@ -16,7 +16,7 @@ public:
 		display_progress(display_progress), sur_objs(num_chains), res(num_chains) {
 		switch (prior_type) {
 			case 1: {
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, x, y,
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -28,7 +28,7 @@ public:
 				break;
 			}
 			case 2: {
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, x, y,
 					param_reg,
 					grp_id, grp_mat,
@@ -37,26 +37,26 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsInits ssvs_inits(param_init[i]);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 3: {
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, x, y,
 					param_reg,
 					grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsInits hs_inits(param_init[i]);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 4: {
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, x, y,
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -64,13 +64,13 @@ public:
 					param_intercept, include_mean
 				);
 				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnInits minn_inits(param_init[i]);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 5: {
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, x, y,
 					param_reg,
 					grp_id, grp_mat,
@@ -79,13 +79,13 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgInits ng_inits(param_init[i]);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;
 			}
 			case 6: {
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, x, y,
 					param_reg,
 					grp_id, grp_mat,
@@ -94,7 +94,7 @@ public:
 					include_mean
 				);
 				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlInits dl_inits(param_init[i]);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[i]);
 					sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
 				}
 				break;

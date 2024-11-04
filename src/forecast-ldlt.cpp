@@ -52,6 +52,7 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 	} else {
 		std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		std::string a_name = sparse ? "a_sparse_record" : "a_record";
+		std::string c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -65,7 +66,7 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 				Rcpp::List a_list = fit_record[a_name];
 				Rcpp::List d_list = fit_record["d_record"];
 				if (include_mean) {
-					Rcpp::List c_list = fit_record["c_record"];
+					Rcpp::List c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -148,6 +149,7 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 	} else {
 		std::string alpha_name = sparse ? "phi_sparse_record" : "phi_record";
 		std::string a_name = sparse ? "a_sparse_record" : "a_record";
+		std::string c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -161,7 +163,7 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 				Rcpp::List a_list = fit_record[a_name];
 				Rcpp::List d_list = fit_record["d_record"];
 				if (include_mean) {
-					Rcpp::List c_list = fit_record["c_record"];
+					Rcpp::List c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -286,6 +288,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		} else {
 			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -299,7 +302,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 					Rcpp::List alpha_list = fit_record[alpha_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -326,7 +329,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -343,7 +346,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -351,7 +354,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -361,14 +364,14 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -378,7 +381,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -387,7 +390,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -397,7 +400,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -406,7 +409,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -416,7 +419,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], lag, include_mean);
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -425,7 +428,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -592,6 +595,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		} else {
 			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -605,7 +609,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 					Rcpp::List phi_list = fit_record[phi_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(phi_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -632,7 +636,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -649,7 +653,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -657,7 +661,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -667,14 +671,14 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, roll_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -684,7 +688,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -693,7 +697,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -703,7 +707,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -712,7 +716,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -722,7 +726,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(roll_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, roll_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -731,7 +735,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				roll_mat[window].resize(0, 0); // free the memory
@@ -897,6 +901,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		} else {
 			std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -910,7 +915,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 					Rcpp::List alpha_list = fit_record[alpha_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -937,7 +942,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -954,7 +959,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -962,7 +967,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -972,14 +977,14 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -989,7 +994,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -998,7 +1003,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1008,7 +1013,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1017,7 +1022,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1027,7 +1032,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], lag, include_mean);
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1036,7 +1041,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1203,6 +1208,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		} else {
 			std::string phi_name = sparse ? "phi_sparse_record" : "phi_record";
 			std::string a_name = sparse ? "a_sparse_record" : "a_record";
+			std::string c_name = sparse ? "c_sparse_record" : "c_record";
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
@@ -1216,7 +1222,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 					Rcpp::List phi_list = fit_record[phi_name];
 					Rcpp::List a_list = fit_record[a_name];
 					if (include_mean) {
-						Rcpp::List c_list = fit_record["c_record"];
+						Rcpp::List c_list = fit_record[c_name];
 						reg_record.reset(new bvhar::LdltRecords(
 							Rcpp::as<Eigen::MatrixXd>(phi_list[i]),
 							Rcpp::as<Eigen::MatrixXd>(c_list[i]),
@@ -1243,7 +1249,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 1: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::MinnParams minn_params(
+				bvhar::MinnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg, param_prior,
 					param_intercept, include_mean
@@ -1260,7 +1266,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 2: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::SsvsParams ssvs_params(
+				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_prior, param_intercept,
@@ -1268,7 +1274,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits ssvs_inits(init_spec);
+					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1278,14 +1284,14 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 3: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HorseshoeParams horseshoe_params(
+				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
 					num_iter, design, expand_y0[window],
 					param_reg, grp_id, grp_mat,
 					param_intercept, include_mean
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits hs_inits(init_spec);
+					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1295,7 +1301,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 4: {
 			for (int window = 0; window < num_horizon; window++) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::HierminnParams minn_params(
+				bvhar::HierminnParams<bvhar::RegParams> minn_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					own_id, cross_id, grp_mat,
@@ -1304,7 +1310,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits minn_inits(init_spec);
+					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1314,7 +1320,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 5: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::NgParams ng_params(
+				bvhar::NgParams<bvhar::RegParams> ng_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1323,7 +1329,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits ng_inits(init_spec);
+					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
@@ -1333,7 +1339,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 		case 6: {
 			for (int window = 0; window < num_horizon; ++window) {
 				Eigen::MatrixXd design = bvhar::build_x0(expand_mat[window], month, include_mean) * har_trans.transpose();
-				bvhar::DlParams dl_params(
+				bvhar::DlParams<bvhar::RegParams> dl_params(
 					num_iter, design, expand_y0[window],
 					param_reg,
 					grp_id, grp_mat,
@@ -1342,7 +1348,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 				);
 				for (int chain = 0; chain < num_chains; chain++) {
 					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits dl_inits(init_spec);
+					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
 					reg_objs[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
 				}
 				expand_mat[window].resize(0, 0); // free the memory
