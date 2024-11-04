@@ -486,7 +486,7 @@ struct SparseRecords {
 	}
 
 	void appendRecords(LIST& list, int dim, int num_alpha, bool include_mean) {
-		list["alpha_sparse_record"] = coef_record.leftCols(num_alpha);
+		list["alpha_sparse_record"] = CAST_MATRIX(coef_record.leftCols(num_alpha));
 		list["a_sparse_record"] = contem_coef_record;
 		if (include_mean) {
 			list["c_sparse_record"] = CAST_MATRIX(coef_record.rightCols(dim));
