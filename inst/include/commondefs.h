@@ -12,6 +12,7 @@
 	#define FLUSH Rcpp::Rcout.flush()
 
 	#define LIST Rcpp::List
+	#define LIST_OF_LIST Rcpp::List
 	#define CAST Rcpp::as
 	#define CAST_DOUBLE(value) value
 	#define CAST_INT(value) value
@@ -56,6 +57,7 @@
 	#define FLUSH std::cout.flush()
 
 	#define LIST py::dict
+	#define LIST_OF_LIST std::vector<py::dict>
   #define CAST py::cast
 	#define CAST_DOUBLE(value) py::cast<double>(value)
 	#define CAST_INT(value) py::cast<int>(value)
@@ -74,7 +76,7 @@
 
 #include <memory>
 
-#if __cplusplus < 201402L
+#if __cplusplus < 201402L || !defined(__cpp_lib_make_unique)
 namespace std {
 
 template <typename T, typename... Args>

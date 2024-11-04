@@ -702,6 +702,111 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
+template <typename BaseMcmc = McmcReg>
+inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
+	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+  const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain
+) {
+	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
+	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
+	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr(num_chains);
+	switch (prior_type) {
+		case 1: {
+			MinnParams<PARAMS> minn_params(
+				num_iter, x, y,
+				param_reg, param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				INITS ldlt_inits(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcMinn<BaseMcmc>>(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 2: {
+			SsvsParams<PARAMS> ssvs_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				SsvsInits<INITS> ssvs_inits(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcSsvs<BaseMcmc>>(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 3: {
+			HorseshoeParams<PARAMS> hs_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				HsInits<INITS> hs_inits(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcHorseshoe<BaseMcmc>>(hs_params, hs_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 4: {
+			HierminnParams<PARAMS> minn_params(
+				num_iter, x, y,
+				param_reg,
+				own_id, cross_id, grp_mat,
+				param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				HierminnInits<INITS> minn_inits(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcHierminn<BaseMcmc>>(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 5: {
+			NgParams<PARAMS> ng_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				NgInits<INITS> ng_inits(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcNg<BaseMcmc>>(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 6: {
+			DlParams<PARAMS> dl_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				GlInits<INITS> dl_inits(init_spec); // Use HsInits for DL
+				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			break;
+		}
+	}
+	return mcmc_ptr;
+}
+
 } // namespace bvhar
 
 #endif // BVHARMCMC_H
