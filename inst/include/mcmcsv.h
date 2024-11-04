@@ -87,21 +87,7 @@ public:
 		return res;
 	}
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
-		if (sparse) {
-			return SvRecords(
-				thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
-				thin_record(reg_record->lvol_record, num_iter, num_burn, thin).derived(),
-				thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
-				thin_record(reg_record->lvol_sig_record, num_iter, num_burn, thin).derived()
-			);
-		}
-		SvRecords res_record(
-			thin_record(reg_record->coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(reg_record->lvol_record, num_iter, num_burn, thin).derived(),
-			thin_record(reg_record->contem_coef_record, num_iter, num_burn, thin).derived(),
-			thin_record(reg_record->lvol_sig_record, num_iter, num_burn, thin).derived()
-		);
-		return res_record;
+		return reg_record->returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
 
 protected:

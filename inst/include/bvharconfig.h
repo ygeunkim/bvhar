@@ -448,6 +448,8 @@ struct RegRecords {
 		return res;
 	}
 	virtual void appendRecords(LIST& list) = 0;
+	virtual LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
+	virtual SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
 	virtual void subsetStable(int num_alpha, double threshold) = 0;
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) = 0;
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) = 0;
@@ -468,6 +470,8 @@ struct RegRecords {
 struct SparseRecords {
 	Eigen::MatrixXd coef_record;
 	Eigen::MatrixXd contem_coef_record;
+
+	SparseRecords() : coef_record(), contem_coef_record() {}
 
 	SparseRecords(int num_iter, int dim, int num_design, int num_coef, int num_lowerchol)
 	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, num_coef)),
@@ -529,6 +533,9 @@ struct LdltRecords : public RegRecords {
 	void appendRecords(LIST& list) override {
 		list["d_record"] = fac_record;
 	}
+
+	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
+	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
 	void subsetStable(int num_alpha, double threshold) override {
 		int dim = fac_record.cols();
@@ -630,6 +637,9 @@ struct SvRecords : public RegRecords {
 		list["h0_record"] = lvol_init_record;
 		list["sigh_record"] = lvol_sig_record;
 	}
+
+	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
+	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
 	void subsetStable(int num_alpha, double threshold) override {
 		int dim = lvol_sig_record.cols();
@@ -819,6 +829,48 @@ struct NgRecords : public GlobalLocalRecords {
 		return res_record;
 	}
 };
+
+inline LdltRecords LdltRecords::returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	if (sparse) {
+		return LdltRecords(
+			thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(fac_record, num_iter, num_burn, thin).derived()
+		);
+	}
+	LdltRecords res_record(
+		thin_record(coef_record, num_iter, num_burn, thin).derived(),
+		thin_record(contem_coef_record, num_iter, num_burn, thin).derived(),
+		thin_record(fac_record, num_iter, num_burn, thin).derived()
+	);
+	return res_record;
+}
+
+inline SvRecords LdltRecords::returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return SvRecords();
+}
+
+inline LdltRecords SvRecords::returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return LdltRecords();
+}
+
+inline SvRecords SvRecords::returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	if (sparse) {
+		return SvRecords(
+			thin_record(sparse_record.coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(lvol_record, num_iter, num_burn, thin).derived(),
+			thin_record(sparse_record.contem_coef_record, num_iter, num_burn, thin).derived(),
+			thin_record(lvol_sig_record, num_iter, num_burn, thin).derived()
+		);
+	}
+	SvRecords res_record(
+		thin_record(coef_record, num_iter, num_burn, thin).derived(),
+		thin_record(lvol_record, num_iter, num_burn, thin).derived(),
+		thin_record(contem_coef_record, num_iter, num_burn, thin).derived(),
+		thin_record(lvol_sig_record, num_iter, num_burn, thin).derived()
+	);
+	return res_record;
+}
 
 } // namespace bvhar
 
