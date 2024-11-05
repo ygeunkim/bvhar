@@ -100,7 +100,8 @@ protected:
 		if (include_mean) {
 			coef_mat.bottomRows(1) = reg_record->coef_record.row(i).tail(dim);
 		}
-		sv_update = reg_record->fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
+		// sv_update = reg_record->fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
+		reg_record->updateDiag(i, sv_update); // D^1/2
 		contem_mat = build_inv_lower(dim, reg_record->contem_coef_record.row(i)); // L
 	}
 	void updateVariance() {
