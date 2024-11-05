@@ -12,6 +12,8 @@
 	#define FLUSH Rcpp::Rcout.flush()
 
 	#define LIST Rcpp::List
+	#define LIST_OF_LIST Rcpp::List
+	#define WRAP(value) Rcpp::wrap(value)
 	#define CAST Rcpp::as
 	#define CAST_DOUBLE(value) value
 	#define CAST_INT(value) value
@@ -56,6 +58,8 @@
 	#define FLUSH std::cout.flush()
 
 	#define LIST py::dict
+	#define LIST_OF_LIST std::vector<py::dict>
+	#define WRAP(value) value
   #define CAST py::cast
 	#define CAST_DOUBLE(value) py::cast<double>(value)
 	#define CAST_INT(value) py::cast<int>(value)

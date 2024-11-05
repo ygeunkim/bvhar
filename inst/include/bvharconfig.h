@@ -272,12 +272,6 @@ struct RegInits {
 	RegInits(LIST& init)
 	: _coef(CAST<Eigen::MatrixXd>(init["init_coef"])),
 		_contem(CAST<Eigen::VectorXd>(init["init_contem"])) {}
-	
-	// void updateCoef()
-
-	// void updateImpact()
-
-	// virtual void updateState()
 };
 
 struct LdltInits : public RegInits {
@@ -287,7 +281,9 @@ struct LdltInits : public RegInits {
 	: RegInits(init),
 		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
 	
-	// void updateState() override
+	LdltInits(LIST& init, int num_design)
+	: RegInits(init),
+		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
 };
 
 struct SvInits : public RegInits {
@@ -303,18 +299,18 @@ struct SvInits : public RegInits {
 		_lvol = _lvol_init.transpose().replicate(num_design, 1);
 		_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	}
+	
 	SvInits(LIST& init)
 	: RegInits(init),
 		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(CAST<Eigen::MatrixXd>(init["lvol"])),
 		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+	
 	SvInits(LIST& init, int num_design)
 	: RegInits(init),
 		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
-	
-	// void updateState() override
 };
 
 template <typename BaseRegInits = LdltInits>

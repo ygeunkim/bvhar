@@ -3,19 +3,25 @@
 
 #include "bvharconfig.h"
 #include "bvharprogress.h"
+#include "bvharinterrupt.h"
 #include <type_traits>
 
 namespace bvhar {
 
+// MCMC algorithms
 class McmcTriangular;
 class McmcReg;
 class McmcSv;
+// Shrinkage priors
 template <typename BaseMcmc> class McmcMinn;
 template <typename BaseMcmc> class McmcHierminn;
 template <typename BaseMcmc> class McmcSsvs;
 template <typename BaseMcmc> class McmcHorseshoe;
 template <typename BaseMcmc> class McmcNg;
 template <typename BaseMcmc> class McmcDl;
+// Running MCMC
+class McmcInterface;
+template <typename BaseMcmc> class McmcRun;
 
 class McmcTriangular {
 public:
@@ -700,6 +706,198 @@ private:
 	Eigen::VectorXd contem_local_lev;
 	Eigen::VectorXd contem_global_lev;
 	Eigen::VectorXd latent_contem_local;
+};
+
+template <typename BaseMcmc = McmcReg>
+inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
+	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+  const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT
+) {
+	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
+	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
+	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr(num_chains);
+	switch (prior_type) {
+		case 1: {
+			MinnParams<PARAMS> minn_params(
+				num_iter, x, y,
+				param_reg, param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// INITS ldlt_inits(init_spec);
+				INITS ldlt_inits = num_design ? INITS(init_spec, *num_design) : INITS(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcMinn<BaseMcmc>>(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 2: {
+			SsvsParams<PARAMS> ssvs_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// SsvsInits<INITS> ssvs_inits(init_spec);
+				SsvsInits<INITS> ssvs_inits = num_design ? SsvsInits<INITS>(init_spec, *num_design) : SsvsInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcSsvs<BaseMcmc>>(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 3: {
+			HorseshoeParams<PARAMS> hs_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// HsInits<INITS> hs_inits(init_spec);
+				HsInits<INITS> hs_inits = num_design ? HsInits<INITS>(init_spec, *num_design) : HsInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcHorseshoe<BaseMcmc>>(hs_params, hs_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 4: {
+			HierminnParams<PARAMS> minn_params(
+				num_iter, x, y,
+				param_reg,
+				own_id, cross_id, grp_mat,
+				param_prior,
+				param_intercept, include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// HierminnInits<INITS> minn_inits(init_spec);
+				HierminnInits<INITS> minn_inits = num_design ? HierminnInits<INITS>(init_spec, *num_design) : HierminnInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcHierminn<BaseMcmc>>(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 5: {
+			NgParams<PARAMS> ng_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// NgInits<INITS> ng_inits(init_spec);
+				NgInits<INITS> ng_inits = num_design ? NgInits<INITS>(init_spec, *num_design) : NgInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcNg<BaseMcmc>>(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 6: {
+			DlParams<PARAMS> dl_params(
+				num_iter, x, y,
+				param_reg,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				// GlInits<INITS> dl_inits(init_spec);
+				GlInits<INITS> dl_inits = num_design ? GlInits<INITS>(init_spec, *num_design) : GlInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			break;
+		}
+	}
+	return mcmc_ptr;
+}
+
+class McmcInterface {
+public:
+	virtual ~McmcInterface() = default;
+	virtual LIST_OF_LIST returnRecords() = 0;
+};
+
+template <typename BaseMcmc = McmcReg>
+class McmcRun : public McmcInterface {
+public:
+	McmcRun(
+		int num_chains, int num_iter, int num_burn, int thin,
+    const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		LIST& param_cov, LIST& param_prior, LIST& param_intercept,
+		LIST_OF_LIST& param_init, int prior_type,
+    const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+    bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads
+	)
+	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
+		display_progress(display_progress), mcmc_ptr(num_chains), res(num_chains) {
+		mcmc_ptr = bvhar::initialize_mcmc<BaseMcmc>(
+			num_chains, num_iter, x, y,
+			param_cov, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain
+		);
+	}
+	virtual ~McmcRun() = default;
+	LIST_OF_LIST returnRecords() override {
+		fit();
+		return WRAP(res);
+	}
+
+protected:
+	void runGibbs(int chain) {
+		bvharprogress bar(num_iter, display_progress);
+		bvharinterrupt();
+		for (int i = 0; i < num_iter; ++i) {
+			if (bvharinterrupt::is_interrupted()) {
+			#ifdef _OPENMP
+				#pragma omp critical
+			#endif
+				{
+					res[chain] = mcmc_ptr[chain]->returnRecords(0, 1);
+				}
+				break;
+			}
+			bar.increment();
+			mcmc_ptr[chain]->doPosteriorDraws();
+			bar.update();
+		}
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			res[chain] = mcmc_ptr[chain]->returnRecords(num_burn, thin);
+		}
+	}
+	void fit() {
+		if (num_chains == 1) {
+			runGibbs(0);
+		} else {
+		#ifdef _OPENMP
+			#pragma omp parallel for num_threads(nthreads)
+		#endif
+			for (int chain = 0; chain < num_chains; chain++) {
+				runGibbs(chain);
+			}
+		}
+	}
+
+private:
+	int num_chains;
+	int num_iter;
+	int num_burn;
+	int thin;
+	int nthreads;
+	bool display_progress;
+	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr;
+	std::vector<LIST> res;
 };
 
 } // namespace bvhar

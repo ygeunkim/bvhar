@@ -27,6 +27,26 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
+#if __cplusplus >= 201703L || defined(__cpp_lib_optional)
+
+#include <optional>
+
+template <typename T>
+using Optional = std::optional<T>;
+
+#define NULLOPT std::nullopt
+
+#else
+
+#include <boost/optional.hpp>
+
+template <typename T>
+using Optional = boost::optional<T>;
+
+#define NULLOPT boost::none
+
+#endif
+
 namespace bvhar {
 
 typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
