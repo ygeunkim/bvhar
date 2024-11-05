@@ -6,52 +6,10 @@
 
 namespace bvhar {
 
-class SvVarForecaster;
-class SvVharForecaster;
+using SvVarForecaster = McmcVarForecaster<SvForecaster>;
+using SvVharForecaster = McmcVharForecaster<SvForecaster>;
 class SvVarSelectForecaster;
 class SvVharSelectForecaster;
-
-class SvVarForecaster : public SvForecaster {
-public:
-	SvVarForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed)
-	: SvForecaster(records, step, response_mat, lag, include_mean, filter_stable, sv, seed) {
-		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05);
-			num_sim = reg_record->coef_record.rows();
-			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
-			}
-		}
-	}
-	virtual ~SvVarForecaster() = default;
-
-protected:
-	void computeMean() override {
-		post_mean = last_pvec.transpose() * coef_mat;
-	}
-};
-
-class SvVharForecaster : public SvForecaster {
-public:
-	SvVharForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed)
-	: SvForecaster(records, step, response_mat, month, include_mean, filter_stable, sv, seed), har_trans(har_trans.sparseView()) {
-		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
-			num_sim = reg_record->coef_record.rows();
-			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
-			}
-		}
-	}
-	virtual ~SvVharForecaster() = default;
-
-protected:
-	// Eigen::MatrixXd har_trans;
-	Eigen::SparseMatrix<double> har_trans;
-	void computeMean() override {
-		post_mean = last_pvec.transpose() * har_trans.transpose() * coef_mat;
-	}
-};
 
 class SvVarSelectForecaster : public SvVarForecaster {
 public:

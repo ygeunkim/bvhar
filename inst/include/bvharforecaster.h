@@ -8,6 +8,8 @@ namespace bvhar {
 class McmcForecaster;
 class RegForecaster;
 class SvForecaster;
+template <typename BaseForecaster> class McmcVarForecaster;
+template <typename BaseForecaster> class McmcVharForecaster;
 
 class McmcForecaster {
 public:
@@ -184,6 +186,96 @@ protected:
 private:
 	bool sv;
 	Eigen::VectorXd sv_sig; // sig_h
+};
+
+template <typename BaseForecaster = RegForecaster>
+class McmcVarForecaster : public BaseForecaster {
+public:
+	McmcVarForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
+		if (stable_filter) {
+			reg_record->subsetStable(num_alpha, 1.05);
+			num_sim = reg_record->coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
+	McmcVarForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, sv, seed) {
+		if (stable_filter) {
+			reg_record->subsetStable(num_alpha, 1.05);
+			num_sim = reg_record->coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
+	virtual ~McmcVarForecaster() = default;
+
+protected:
+	using BaseForecaster::reg_record;
+	using BaseForecaster::stable_filter;
+	using BaseForecaster::num_alpha;
+	using BaseForecaster::num_sim;
+	using BaseForecaster::post_mean;
+	using BaseForecaster::coef_mat;
+	using BaseForecaster::last_pvec;
+	void computeMean() override {
+		post_mean = coef_mat.transpose() * last_pvec;
+	}
+};
+
+template <typename BaseForecaster = RegForecaster>
+class McmcVharForecaster : public BaseForecaster {
+public:
+	McmcVharForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans.sparseView()) {
+		if (stable_filter) {
+			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
+			num_sim = reg_record->coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
+	McmcVharForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, sv, seed), har_trans(har_trans.sparseView()) {
+		if (stable_filter) {
+			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
+			num_sim = reg_record->coef_record.rows();
+			if (num_sim == 0) {
+				STOP("No stable MCMC draws");
+			}
+		}
+	}
+	virtual ~McmcVharForecaster() = default;
+	
+protected:
+	using BaseForecaster::reg_record;
+	using BaseForecaster::stable_filter;
+	using BaseForecaster::dim;
+	using BaseForecaster::num_alpha;
+	using BaseForecaster::num_sim;
+	using BaseForecaster::post_mean;
+	using BaseForecaster::coef_mat;
+	using BaseForecaster::last_pvec;
+	Eigen::SparseMatrix<double> har_trans;
+	void computeMean() override {
+		post_mean = coef_mat.transpose() * har_trans * last_pvec;
+	}
 };
 
 } // namespace bvhar
