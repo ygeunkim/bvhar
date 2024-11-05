@@ -6,6 +6,12 @@
 
 * Transpose the predictive distribution update loop.
 
+## C++ Header file changes
+
+* Use template to avoid code duplicates among LDLT and SV models.
+
+* Can easily conduct MCMC using `McmcRun` class in C++ source.
+
 ## Removal of deprecated functions
 
 * Removed bvar_sv() and bvhar_sv().
