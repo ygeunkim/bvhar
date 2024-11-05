@@ -27,7 +27,7 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
-#if __cplusplus >= 201703L || defined(__cpp_lib_optional)
+#if defined(__cpp_lib_optional)
 
 #include <optional>
 

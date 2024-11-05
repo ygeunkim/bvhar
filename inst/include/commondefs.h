@@ -78,7 +78,7 @@
 
 #include <memory>
 
-#if __cplusplus < 201402L || !defined(__cpp_lib_make_unique)
+#if !defined(__cpp_lib_make_unique)
 namespace std {
 
 template <typename T, typename... Args>
