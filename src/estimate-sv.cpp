@@ -36,50 +36,13 @@ Rcpp::List estimate_var_sv(int num_chains, int num_iter, int num_burn, int thin,
                            bool include_mean,
 													 Eigen::VectorXi seed_chain,
                            bool display_progress, int nthreads) {
-	auto sv_objs = bvhar::initialize_mcmc<bvhar::McmcSv>(
-		num_chains, num_iter, x, y,
+	auto mcmc_run = std::make_unique<bvhar::McmcRun<bvhar::McmcSv>>(
+		num_chains, num_iter, num_burn, thin, x, y,
 		param_sv, param_prior, param_intercept, param_init, prior_type,
 		grp_id, own_id, cross_id, grp_mat,
-		include_mean, seed_chain
+		include_mean, seed_chain,
+		display_progress, nthreads
 	);
-	std::vector<Rcpp::List> res(num_chains);
   // Start Gibbs sampling-----------------------------------
-	auto run_gibbs = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
-		bvhar::bvharinterrupt();
-		for (int i = 0; i < num_iter; i++) {
-			if (bvhar::bvharinterrupt::is_interrupted()) {
-			#ifdef _OPENMP
-				#pragma omp critical
-			#endif
-				{
-					res[chain] = sv_objs[chain]->returnRecords(0, 1);
-				}
-				break;
-			}
-			bar.increment();
-			// if (display_progress) {
-			// 	bar.update();
-			// }
-			sv_objs[chain]->doPosteriorDraws(); // alpha -> a -> h -> sigma_h -> h0
-			bar.update();
-		}
-	#ifdef _OPENMP
-		#pragma omp critical
-	#endif
-		{
-			res[chain] = sv_objs[chain]->returnRecords(num_burn, thin);
-		}
-	};
-	if (num_chains == 1) {
-		run_gibbs(0);
-	} else {
-	#ifdef _OPENMP
-		#pragma omp parallel for num_threads(nthreads)
-	#endif
-		for (int chain = 0; chain < num_chains; chain++) {
-			run_gibbs(chain);
-		}
-	}
-	return Rcpp::wrap(res);
+	return mcmc_run->returnRecords();
 }
