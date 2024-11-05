@@ -43,7 +43,7 @@ public:
 				}
 			}
 			forecaster[i].reset(new bvhar::SvVarForecaster(
-				*sv_record, step, y, lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, y, lag, include_mean, stable, sv, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
@@ -89,7 +89,7 @@ public:
 			}
 			Eigen::MatrixXd har_trans = bvhar::build_vhar(y.cols(), week, month, include_mean);
 			forecaster[i].reset(new bvhar::SvVharForecaster(
-				*sv_record, step, y, har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, y, har_trans, month, include_mean, stable, sv, static_cast<unsigned int>(seed_chain[i])
 			));
 		}
 	}
@@ -105,7 +105,7 @@ protected:
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
 		for (int chain = 0; chain < num_chains; ++chain) {
-			density_forecast[chain] = forecaster[chain]->forecastDensity(sv);
+			density_forecast[chain] = forecaster[chain]->forecastDensity();
 			forecaster[chain].reset(); // free the memory by making nullptr
 		}
 	}
@@ -179,7 +179,7 @@ protected:
 					runGibbs(window, 0);
 				}
 				Eigen::VectorXd valid_vec = y_test.row(step);
-				out_forecast[window][0] = forecaster[window][0]->forecastDensity(valid_vec, sv).bottomRows(1);
+				out_forecast[window][0] = forecaster[window][0]->forecastDensity(valid_vec).bottomRows(1);
 				lpl_record(window, 0) = forecaster[window][0]->returnLpl();
 				forecaster[window][0].reset(); // free the memory by making nullptr
 			}
@@ -193,7 +193,7 @@ protected:
 						runGibbs(window, chain);
 					}
 					Eigen::VectorXd valid_vec = y_test.row(step);
-					out_forecast[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec, sv).bottomRows(1);
+					out_forecast[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
 					lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 					forecaster[window][chain].reset(); // free the memory by making nullptr
 				}
@@ -377,7 +377,7 @@ protected:
 				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVarForecaster(
-				*record, step, roll_y0[0], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[i])
 			));
 		}
 	}
@@ -390,7 +390,7 @@ protected:
 		}
 		bvhar::SvRecords record = model[window][chain]->returnSvRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-			record, step, roll_y0[window], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[chain])
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -400,6 +400,7 @@ protected:
 	using BaseOutForecast::lag;
 	using BaseOutForecast::include_mean;
 	using BaseOutForecast::stable_filter;
+	using BaseOutForecast::sv;
 	using BaseOutForecast::sparse;
 	using BaseOutForecast::num_chains;
 	using BaseOutForecast::num_iter;
@@ -477,7 +478,7 @@ protected:
 				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVharForecaster(
-				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[i])
 			));
 		}
 	}
@@ -490,7 +491,7 @@ protected:
 		}
 		bvhar::SvRecords record = model[window][chain]->returnSvRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-			record, step, roll_y0[window], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], har_trans, lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[chain])
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -500,6 +501,7 @@ protected:
 	using BaseOutForecast::lag;
 	using BaseOutForecast::include_mean;
 	using BaseOutForecast::stable_filter;
+	using BaseOutForecast::sv;
 	using BaseOutForecast::sparse;
 	using BaseOutForecast::num_chains;
 	using BaseOutForecast::num_iter;
