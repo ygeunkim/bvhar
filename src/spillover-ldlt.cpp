@@ -72,96 +72,12 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, lag, lag + 1);
 		Eigen::MatrixXd roll_x0 = bvhar::build_x0(roll_mat, lag, include_mean);
-		switch (prior_type) {
-			case 1: {
-				bvhar::MinnParams<bvhar::RegParams> minn_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg, param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::LdltInits ldlt_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::MinnReg(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 2: {
-				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 3: {
-				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 4: {
-				bvhar::HierminnParams<bvhar::RegParams> minn_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg,
-					own_id, cross_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 5: {
-				bvhar::NgParams<bvhar::RegParams> ng_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 6: {
-				bvhar::DlParams<bvhar::RegParams> dl_params(
-					num_iter, roll_x0, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-		}
+		sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg>(
+			num_chains, num_iter, roll_x0, roll_y0,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain
+		);
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		for (int i = 0; i < num_iter; i++) {
@@ -243,96 +159,12 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, month, month + 1);
 		Eigen::MatrixXd roll_x1 = bvhar::build_x0(roll_mat, month, include_mean) * har_trans.transpose();
-		switch (prior_type) {
-			case 1: {
-				bvhar::MinnParams<bvhar::RegParams> minn_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg, param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::LdltInits ldlt_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::MinnReg(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 2: {
-				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 3: {
-				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::HsInits<bvhar::LdltInits> hs_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 4: {
-				bvhar::HierminnParams<bvhar::RegParams> minn_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg,
-					own_id, cross_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 5: {
-				bvhar::NgParams<bvhar::RegParams> ng_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::NgInits<bvhar::LdltInits> ng_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-			case 6: {
-				bvhar::DlParams<bvhar::RegParams> dl_params(
-					num_iter, roll_x1, roll_y0,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int chain = 0; chain < num_chains; ++chain) {
-					Rcpp::List init_spec = param_init[chain];
-					bvhar::GlInits<bvhar::LdltInits> dl_inits(init_spec);
-					sur_objs[i][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(i, chain))));
-				}
-				break;
-			}
-		}
+		sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg>(
+			num_chains, num_iter, roll_x1, roll_y0,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain
+		);
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		for (int i = 0; i < num_iter; i++) {

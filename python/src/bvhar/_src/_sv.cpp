@@ -14,92 +14,12 @@ public:
 	)
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), sv_objs(num_chains), res(num_chains) {
-		switch (prior_type) {
-			case 1: {
-				bvhar::MinnParams<bvhar::SvParams> minn_params(
-					num_iter, x, y,
-					param_sv, param_prior,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SvInits sv_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::MinnSv(minn_params, sv_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 2: {
-				bvhar::SsvsParams<bvhar::SvParams> ssvs_params(
-					num_iter, x, y,
-					param_sv,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsInits<bvhar::SvInits> ssvs_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::SsvsSv(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 3: {
-				bvhar::HorseshoeParams<bvhar::SvParams> horseshoe_params(
-					num_iter, x, y,
-					param_sv,
-					grp_id, grp_mat,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsInits<bvhar::SvInits> hs_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::HorseshoeSv(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 4: {
-				bvhar::HierminnParams<bvhar::SvParams> minn_params(
-					num_iter, x, y,
-					param_sv,
-					own_id, cross_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnInits<bvhar::SvInits> minn_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::HierminnSv(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 5: {
-				bvhar::NgParams<bvhar::SvParams> ng_params(
-					num_iter, x, y,
-					param_sv,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgInits<bvhar::SvInits> ng_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::NormalgammaSv(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 6: {
-				bvhar::DlParams<bvhar::SvParams> dl_params(
-					num_iter, x, y,
-					param_sv,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlInits<bvhar::SvInits> dl_inits(param_init[i]);
-					sv_objs[i].reset(new bvhar::DirLaplaceSv(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-		}
+		sv_objs = bvhar::initialize_mcmc<bvhar::McmcSv>(
+			num_chains, num_iter, x, y,
+			param_sv, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain
+		);
 	}
 	virtual ~SvMcmc() = default;
 	std::vector<py::dict> returnRecords() {

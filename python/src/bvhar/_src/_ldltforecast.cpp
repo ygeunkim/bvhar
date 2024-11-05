@@ -151,110 +151,15 @@ public:
 	) {
 		initData(y);
 		initForecaster(fit_record);
-		switch (prior_type) {
-			case 1: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::MinnParams<bvhar::RegParams> minn_params(
-						num_iter, design, roll_y0[window],
-						param_reg, param_prior,
-						param_intercept, include_mean
-					);
-					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::LdltInits sv_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::MinnReg(minn_params, sv_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
-			case 2: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
-						num_iter, design, roll_y0[window],
-						param_reg, grp_id, grp_mat,
-						param_prior, param_intercept,
-						include_mean
-					);
-					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
-			case 3: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
-						num_iter, design, roll_y0[window],
-						param_reg, grp_id, grp_mat,
-						param_intercept, include_mean
-					);
-					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
-			case 4: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::HierminnParams<bvhar::RegParams> minn_params(
-						num_iter, design, roll_y0[window],
-						param_reg,
-						own_id, cross_id, grp_mat,
-						param_prior,
-						param_intercept, include_mean
-					);
-					for (int chain = 0; chain < num_chains; chain++) {
-						bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
-			case 5: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::NgParams<bvhar::RegParams> ng_params(
-						num_iter, design, roll_y0[window],
-						param_reg,
-						grp_id, grp_mat,
-						param_prior, param_intercept,
-						include_mean
-					);
-					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
-			case 6: {
-				for (int window = 0; window < num_horizon; ++window) {
-					Eigen::MatrixXd design = buildDesign(window);
-					bvhar::DlParams<bvhar::RegParams> dl_params(
-						num_iter, design, roll_y0[window],
-						param_reg,
-						grp_id, grp_mat,
-						param_prior, param_intercept,
-						include_mean
-					);
-					for (int chain = 0; chain < num_chains; ++chain) {
-						bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[chain]);
-						model[window][chain].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain(window, chain))));
-					}
-					roll_mat[window].resize(0, 0); // free the memory
-				}
-				break;
-			}
+		for (int window = 0; window < num_horizon; ++window) {
+			Eigen::MatrixXd design = buildDesign(window);
+			model[window] = bvhar::initialize_mcmc<bvhar::McmcReg>(
+				num_chains, num_iter, design, roll_y0[window],
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain
+			);
+			roll_mat[window].resize(0, 0); // free the memory
 		}
 	}
 	py::dict returnForecast() {

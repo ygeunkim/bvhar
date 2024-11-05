@@ -14,92 +14,12 @@ public:
 	)
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), sur_objs(num_chains), res(num_chains) {
-		switch (prior_type) {
-			case 1: {
-				bvhar::MinnParams<bvhar::RegParams> minn_params(
-					num_iter, x, y,
-					param_reg, param_prior,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::LdltInits ldlt_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::MinnReg(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 2: {
-				bvhar::SsvsParams<bvhar::RegParams> ssvs_params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::SsvsInits<bvhar::LdltInits> ssvs_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::SsvsReg(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 3: {
-				bvhar::HorseshoeParams<bvhar::RegParams> horseshoe_params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HsInits<bvhar::LdltInits> hs_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::HorseshoeReg(horseshoe_params, hs_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 4: {
-				bvhar::HierminnParams<bvhar::RegParams> minn_params(
-					num_iter, x, y,
-					param_reg,
-					own_id, cross_id, grp_mat,
-					param_prior,
-					param_intercept, include_mean
-				);
-				for (int i = 0; i < num_chains; i++ ) {
-					bvhar::HierminnInits<bvhar::LdltInits> minn_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::HierminnReg(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 5: {
-				bvhar::NgParams<bvhar::RegParams> ng_params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					bvhar::NgInits<bvhar::LdltInits> ng_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::NgReg(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-			case 6: {
-				bvhar::DlParams<bvhar::RegParams> dl_params(
-					num_iter, x, y,
-					param_reg,
-					grp_id, grp_mat,
-					param_prior,
-					param_intercept,
-					include_mean
-				);
-				for (int i = 0; i < num_chains; ++i) {
-					bvhar::GlInits<bvhar::LdltInits> dl_inits(param_init[i]);
-					sur_objs[i].reset(new bvhar::DlReg(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i])));
-				}
-				break;
-			}
-		}
+		sur_objs = bvhar::initialize_mcmc<bvhar::McmcReg>(
+			num_chains, num_iter, x, y,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain
+		);
 	}
 	virtual ~McmcLdlt() = default;
 	std::vector<py::dict> returnRecords() {
