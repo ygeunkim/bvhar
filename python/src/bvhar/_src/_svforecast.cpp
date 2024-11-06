@@ -11,6 +11,7 @@ public:
 		forecaster(num_chains), density_forecast(num_chains) {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -25,7 +26,7 @@ public:
 				py::list h_list = fit_record["h_record"];
 				py::list sigh_list = fit_record["sigh_record"];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					sv_record.reset(new bvhar::SvRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -43,7 +44,7 @@ public:
 				}
 			}
 			forecaster[i].reset(new bvhar::SvVarForecaster(
-				*sv_record, step, y, lag, include_mean, stable, sv, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, y, lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i]), sv
 			));
 		}
 	}
@@ -56,6 +57,7 @@ public:
 		forecaster(num_chains), density_forecast(num_chains) {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -70,7 +72,7 @@ public:
 				py::list h_list = fit_record["h_record"];
 				py::list sigh_list = fit_record["sigh_record"];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					sv_record.reset(new bvhar::SvRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -89,7 +91,7 @@ public:
 			}
 			Eigen::MatrixXd har_trans = bvhar::build_vhar(y.cols(), week, month, include_mean);
 			forecaster[i].reset(new bvhar::SvVharForecaster(
-				*sv_record, step, y, har_trans, month, include_mean, stable, sv, static_cast<unsigned int>(seed_chain[i])
+				*sv_record, step, y, har_trans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i]), sv
 			));
 		}
 	}
@@ -126,12 +128,12 @@ public:
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: num_window(y.rows()), dim(y.cols()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
 		lag(lag), include_mean(include_mean), stable_filter(stable), sv(sv), sparse(sparse),
 		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
-		nthreads(nthreads), chunk_size(chunk_size), seed_forecast(seed_forecast),
+		nthreads(nthreads), seed_forecast(seed_forecast),
 		roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		out_forecast(num_horizon, std::vector<Eigen::MatrixXd>(num_chains)),
@@ -185,7 +187,7 @@ protected:
 			}
 		} else {
 		#ifdef _OPENMP
-			#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+			#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 		#endif
 			for (int window = 0; window < num_horizon; ++window) {
 				for (int chain = 0; chain < num_chains; ++chain) {
@@ -203,7 +205,7 @@ protected:
 	int num_window, dim, num_test, num_horizon, step;
 	int lag;
 	bool include_mean, stable_filter, sv, sparse;
-	int num_chains, num_iter, num_burn, thin, nthreads, chunk_size;
+	int num_chains, num_iter, num_burn, thin, nthreads;
 	Eigen::VectorXi seed_forecast;
 	std::vector<Eigen::MatrixXd> roll_mat, roll_y0;
 	Eigen::MatrixXd y_test;
@@ -221,14 +223,14 @@ public:
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: SvOutForecast(
 			y, lag, num_chains, num_iter, num_burn, thin, sv, sparse, fit_record,
 			param_sv, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		) {}
 	virtual ~SvRoll() = default;
 	void initialize(
@@ -272,14 +274,14 @@ public:
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: SvOutForecast(
 			y, lag, num_chains, num_iter, num_burn, thin, sv, sparse, fit_record,
 			param_sv, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		) {}
 	virtual ~SvExpand() = default;
 	void initialize(
@@ -325,14 +327,14 @@ public:
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: BaseOutForecast(
 			y, lag, num_chains, num_iter, num_burn, thin, sv, sparse, fit_record,
 			param_sv, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		) {
 		initialize(
 			y, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type,
@@ -345,6 +347,7 @@ protected:
 	void initForecaster(py::dict& fit_record) override {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -359,7 +362,7 @@ protected:
 				py::list alpha_list = fit_record[alpha_name];
 				py::list a_list = fit_record[a_name];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					record.reset(new bvhar::SvRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -377,7 +380,7 @@ protected:
 				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVarForecaster(
-				*record, step, roll_y0[0], lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i]), sv
 			));
 		}
 	}
@@ -390,7 +393,7 @@ protected:
 		}
 		bvhar::SvRecords record = model[window][chain]->returnSvRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::SvVarForecaster(
-			record, step, roll_y0[window], lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -425,14 +428,14 @@ public:
 		py::dict& param_sv, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: BaseOutForecast(
 			y, month, num_chains, num_iter, num_burn, thin, sv, sparse, fit_record,
 			param_sv, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		),
 		har_trans(bvhar::build_vhar(dim, week, month, include_mean)) {
 		initialize(
@@ -446,6 +449,7 @@ protected:
 	void initForecaster(py::dict& fit_record) override {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -460,7 +464,7 @@ protected:
 				py::list h_list = fit_record["h_record"];
 				py::list sigh_list = fit_record["sigh_record"];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					record.reset(new bvhar::SvRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -478,7 +482,7 @@ protected:
 				}
 			}
 			forecaster[0][i].reset(new bvhar::SvVharForecaster(
-				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[i])
+				*record, step, roll_y0[0], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[i]), sv
 			));
 		}
 	}
@@ -491,7 +495,7 @@ protected:
 		}
 		bvhar::SvRecords record = model[window][chain]->returnSvRecords(num_burn, thin, sparse);
 		forecaster[window][chain].reset(new bvhar::SvVharForecaster(
-			record, step, roll_y0[window], har_trans, lag, include_mean, stable_filter, sv, static_cast<unsigned int>(seed_forecast[chain])
+			record, step, roll_y0[window], har_trans, lag, include_mean, stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
 		));
 		model[window][chain].reset(); // free the memory by making nullptr
 	}
@@ -532,7 +536,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &SvVarOut<SvRoll>::returnForecast);
 	
@@ -542,7 +546,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &SvVarOut<SvExpand>::returnForecast);
 	
@@ -552,7 +556,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &SvVharOut<SvRoll>::returnForecast);
 
@@ -562,7 +566,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &SvVharOut<SvExpand>::returnForecast);
 }

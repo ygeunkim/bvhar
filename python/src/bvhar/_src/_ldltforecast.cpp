@@ -11,6 +11,7 @@ public:
 		forecaster(num_chains), density_forecast(num_chains) {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -24,7 +25,7 @@ public:
 				py::list a_list = fit_record[a_name];
 				py::list d_list = fit_record["d_record"];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -51,8 +52,9 @@ public:
 	)
 	: num_chains(num_chains), nthreads(nthreads),
 		forecaster(num_chains), density_forecast(num_chains) {
-		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+		py::str alpha_name = sparse ? "phi_sparse_record" : "phi_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -66,7 +68,7 @@ public:
 				py::list a_list = fit_record[a_name];
 				py::list d_list = fit_record["d_record"];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					reg_record.reset(new bvhar::LdltRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -119,12 +121,12 @@ public:
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: num_window(y.rows()), dim(y.cols()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
 		lag(lag), include_mean(include_mean), stable_filter(stable), sparse(sparse),
 		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
-		nthreads(nthreads), chunk_size(chunk_size), seed_forecast(seed_forecast),
+		nthreads(nthreads), seed_forecast(seed_forecast),
 		roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		out_forecast(num_horizon, std::vector<Eigen::MatrixXd>(num_chains)),
@@ -191,7 +193,7 @@ protected:
 			}
 		} else {
 		#ifdef _OPENMP
-			#pragma omp parallel for collapse(2) schedule(static, chunk_size) num_threads(nthreads)
+			#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 		#endif
 			for (int window = 0; window < num_horizon; ++window) {
 				for (int chain = 0; chain < num_chains; ++chain) {
@@ -209,7 +211,7 @@ protected:
 	int num_window, dim, num_test, num_horizon, step;
 	int lag;
 	bool include_mean, stable_filter, sparse;
-	int num_chains, num_iter, num_burn, thin, nthreads, chunk_size;
+	int num_chains, num_iter, num_burn, thin, nthreads;
 	Eigen::VectorXi seed_forecast;
 	std::vector<Eigen::MatrixXd> roll_mat, roll_y0;
 	Eigen::MatrixXd y_test;
@@ -227,14 +229,14 @@ public:
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: LdltOutForecast(
 		y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
 		grp_id, own_id, cross_id, grp_mat,
 		include_mean, stable, step, y_test,
-		seed_chain, seed_forecast, nthreads, chunk_size
+		seed_chain, seed_forecast, nthreads
 	) {}
 	virtual ~LdltRoll() = default;
 
@@ -259,14 +261,14 @@ public:
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: LdltOutForecast(
 		y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
 		grp_id, own_id, cross_id, grp_mat,
 		include_mean, stable, step, y_test,
-		seed_chain, seed_forecast, nthreads, chunk_size
+		seed_chain, seed_forecast, nthreads
 	) {}
 	virtual ~LdltExpand() = default;
 
@@ -292,14 +294,14 @@ public:
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: BaseOutForecast(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		) {
 		initialize(
 			y, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -312,6 +314,7 @@ protected:
 	void initForecaster(py::dict& fit_record) override {
 		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -325,7 +328,7 @@ protected:
 				py::list alpha_list = fit_record[alpha_name];
 				py::list a_list = fit_record[a_name];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					record.reset(new bvhar::LdltRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -388,14 +391,14 @@ public:
 		py::dict& param_reg, py::dict& param_prior, py::dict& param_intercept, std::vector<py::dict>& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, int chunk_size
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads
 	)
 	: BaseOutForecast(
 			y, month, num_chains, num_iter, num_burn, thin, sparse, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, stable, step, y_test,
-			seed_chain, seed_forecast, nthreads, chunk_size
+			seed_chain, seed_forecast, nthreads
 		),
 		har_trans(bvhar::build_vhar(dim, week, month, include_mean)) {
 		initialize(
@@ -407,8 +410,9 @@ public:
 
 protected:
 	void initForecaster(py::dict& fit_record) override {
-		py::str alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
+		py::str alpha_name = sparse ? "phi_sparse_record" : "phi_record";
 		py::str a_name = sparse ? "a_sparse_record" : "a_record";
+		py::str c_name = sparse ? "c_sparse_record" : "c_record";
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
 	#endif
@@ -422,7 +426,7 @@ protected:
 				py::list alpha_list = fit_record[alpha_name];
 				py::list a_list = fit_record[a_name];
 				if (include_mean) {
-					py::list c_list = fit_record["c_record"];
+					py::list c_list = fit_record[c_name];
 					record.reset(new bvhar::LdltRecords(
 						py::cast<Eigen::MatrixXd>(alpha_list[i]),
 						py::cast<Eigen::MatrixXd>(c_list[i]),
@@ -491,7 +495,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &LdltVarOut<LdltRoll>::returnForecast);
 	
@@ -501,7 +505,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &LdltVarOut<LdltExpand>::returnForecast);
 	
@@ -511,7 +515,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &LdltVharOut<LdltRoll>::returnForecast);
 
@@ -521,7 +525,7 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			bool, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, int>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int>()
 		)
 		.def("returnForecast", &LdltVharOut<LdltExpand>::returnForecast);
 }

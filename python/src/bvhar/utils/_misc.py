@@ -1,3 +1,4 @@
+import re
 import numpy as np
 import pandas as pd
 
@@ -113,17 +114,22 @@ def build_grpmat(p, dim_data, minnesota = "longrun"):
         res.append(lag_grp)
     return np.vstack(res)
 
-def process_record(record_list: list):
+def process_record(record_list: list, har = False):
     rec_names = list(record_list[0].keys())
+    if har:
+        return [re.sub(r'alpha_', 'phi_', name).replace('_record', '') for name in rec_names]
     return [name.replace('_record', '') for name in rec_names]
 
-def concat_chain(record_list: list):
+def concat_chain(record_list: list, har = False):
     record_concat = pd.DataFrame()
     tot_draw_n = 0
     for chain_id, chain_dict in enumerate(record_list):
         param_record = pd.DataFrame()
         for rec_names, record in chain_dict.items():
-            param = rec_names.replace('_record', '')
+            if har:
+                param = re.sub(r'alpha_', 'phi_', rec_names).replace('_record', '')
+            else:
+                param = rec_names.replace('_record', '')
             n_col = record.shape[1]
             chain_record = pd.DataFrame(
                 record,

@@ -314,7 +314,7 @@ class VarBayes(_AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, stable = True, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -361,7 +361,7 @@ class VarBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -392,7 +392,7 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
+        # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVarRoll(
@@ -404,7 +404,7 @@ class VarBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         else:
             forecaster = SvVarRoll(
@@ -416,7 +416,7 @@ class VarBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -428,7 +428,7 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -459,7 +459,7 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
+        # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVarExpand(
@@ -471,7 +471,7 @@ class VarBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         else:
             forecaster = SvVarExpand(
@@ -483,7 +483,7 @@ class VarBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -619,16 +619,16 @@ class VharBayes(_AutoregBayes):
             An instance of the estimator.
         """
         res = self.__model.returnRecords()
-        self.param_names_ = process_record(res)
-        self.param_ = concat_chain(res)
-        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
+        self.param_names_ = process_record(res, True)
+        self.param_ = concat_chain(res, True)
+        self.coef_ = self.param_.filter(regex='^phi\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
         if self.fit_intercept:
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, stable = True, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -675,7 +675,7 @@ class VharBayes(_AutoregBayes):
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -706,8 +706,6 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
-        # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVharRoll(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
@@ -718,7 +716,7 @@ class VharBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         else:
             forecaster = SvVharRoll(
@@ -730,7 +728,7 @@ class VharBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -742,7 +740,7 @@ class VharBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, stable = True, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -773,8 +771,6 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
-        # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVharExpand(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
@@ -785,7 +781,7 @@ class VharBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         else:
             forecaster = SvVharExpand(
@@ -797,7 +793,7 @@ class VharBayes(_AutoregBayes):
                 self.fit_intercept, stable, n_ahead, test,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
+                self.thread_
             )
         out_forecast = forecaster.returnForecast()
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
