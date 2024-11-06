@@ -4,12 +4,14 @@
 #ifdef USE_RCPP
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
+	#include <string>
 
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
 	#define ENDL "\n"
 	#define FLUSH Rcpp::Rcout.flush()
+	#define STRING std::string
 
 	#define LIST Rcpp::List
 	#define LIST_OF_LIST Rcpp::List
@@ -56,13 +58,14 @@
 	#define COUT std::cout
 	#define ENDL std::endl
 	#define FLUSH std::cout.flush()
+	#define STRING py::str
 
 	#define LIST py::dict
 	#define LIST_OF_LIST std::vector<py::dict>
 	#define WRAP(value) value
   #define CAST py::cast
 	#define CAST_DOUBLE(value) py::cast<double>(value)
-	#define CAST_INT(value) py::cast<int>(value)
+	#define CAST_INT(value) py::int_(value)
 	#define CONTAINS(container, key) container.contains(key)
 	#define CREATE_LIST(...) py::dict(__VA_ARGS__)
 	#define NAMED py::arg

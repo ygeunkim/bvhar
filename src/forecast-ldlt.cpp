@@ -22,70 +22,11 @@
 Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
 													 	 bool sparse, double level, Rcpp::List fit_record, int prior_type,
 													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	std::vector<std::unique_ptr<bvhar::RegVarForecaster>> forecaster(num_chains);
-	if (sparse && prior_type == 0) {
-		for (int i = 0; i < num_chains; ++i) {
-			std::unique_ptr<bvhar::LdltRecords> reg_record;
-			Rcpp::List alpha_list = fit_record["alpha_record"];
-			Rcpp::List a_list = fit_record["a_record"];
-			Rcpp::List d_list = fit_record["d_record"];
-			if (include_mean) {
-				Rcpp::List c_list = fit_record["c_record"];
-				reg_record.reset(new bvhar::LdltRecords(
-					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(d_list[i])
-				));
-			} else {
-				reg_record.reset(new bvhar::LdltRecords(
-					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(d_list[i])
-				));
-			}
-			forecaster[i].reset(new bvhar::RegVarSelectForecaster(
-				*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), response_mat.cols()),
-				step, response_mat, var_lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
-			));
-		}
-	} else {
-		std::string alpha_name = sparse ? "alpha_sparse_record" : "alpha_record";
-		std::string a_name = sparse ? "a_sparse_record" : "a_record";
-		std::string c_name = sparse ? "c_sparse_record" : "c_record";
-	#ifdef _OPENMP
-		#pragma omp parallel for num_threads(nthreads)
-	#endif
-		for (int i = 0; i < num_chains; i++ ) {
-			std::unique_ptr<bvhar::LdltRecords> reg_record;
-		#ifdef _OPENMP
-			#pragma omp critical
-		#endif
-			{
-				Rcpp::List alpha_list = fit_record[alpha_name];
-				Rcpp::List a_list = fit_record[a_name];
-				Rcpp::List d_list = fit_record["d_record"];
-				if (include_mean) {
-					Rcpp::List c_list = fit_record[c_name];
-					reg_record.reset(new bvhar::LdltRecords(
-						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(d_list[i])
-					));
-				} else {
-					reg_record.reset(new bvhar::LdltRecords(
-						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(d_list[i])
-					));
-				}
-			}
-			forecaster[i].reset(new bvhar::RegVarForecaster(
-				*reg_record, step, response_mat, var_lag, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
-			));
-		}
-	}
+	auto forecaster = bvhar::initialize_forecaster<bvhar::RegForecaster>(
+		num_chains, var_lag, step, response_mat, sparse, level,
+		fit_record, prior_type, seed_chain, include_mean,
+		stable, nthreads, true
+	);
 	std::vector<Eigen::MatrixXd> res(num_chains);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
@@ -119,70 +60,11 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 															bool sparse, double level, Rcpp::List fit_record, int prior_type,
 															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	std::vector<std::unique_ptr<bvhar::RegVharForecaster>> forecaster(num_chains);
-	if (sparse && prior_type == 0) {
-		for (int i = 0; i < num_chains; ++i) {
-			std::unique_ptr<bvhar::LdltRecords> reg_record;
-			Rcpp::List alpha_list = fit_record["phi_record"];
-			Rcpp::List a_list = fit_record["a_record"];
-			Rcpp::List d_list = fit_record["d_record"];
-			if (include_mean) {
-				Rcpp::List c_list = fit_record["c_record"];
-				reg_record.reset(new bvhar::LdltRecords(
-					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(d_list[i])
-				));
-			} else {
-				reg_record.reset(new bvhar::LdltRecords(
-					Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-					Rcpp::as<Eigen::MatrixXd>(d_list[i])
-				));
-			}
-			forecaster[i].reset(new bvhar::RegVharSelectForecaster(
-				*reg_record, bvhar::unvectorize(reg_record->computeActivity(level), response_mat.cols()),
-				step, response_mat, HARtrans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
-			));
-		}
-	} else {
-		std::string alpha_name = sparse ? "phi_sparse_record" : "phi_record";
-		std::string a_name = sparse ? "a_sparse_record" : "a_record";
-		std::string c_name = sparse ? "c_sparse_record" : "c_record";
-	#ifdef _OPENMP
-		#pragma omp parallel for num_threads(nthreads)
-	#endif
-		for (int i = 0; i < num_chains; i++ ) {
-			std::unique_ptr<bvhar::LdltRecords> reg_record;
-		#ifdef _OPENMP
-			#pragma omp critical
-		#endif
-			{
-				Rcpp::List alpha_list = fit_record[alpha_name];
-				Rcpp::List a_list = fit_record[a_name];
-				Rcpp::List d_list = fit_record["d_record"];
-				if (include_mean) {
-					Rcpp::List c_list = fit_record[c_name];
-					reg_record.reset(new bvhar::LdltRecords(
-						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(c_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(d_list[i])
-					));
-				} else {
-					reg_record.reset(new bvhar::LdltRecords(
-						Rcpp::as<Eigen::MatrixXd>(alpha_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(a_list[i]),
-						Rcpp::as<Eigen::MatrixXd>(d_list[i])
-					));
-				}
-			}
-			forecaster[i].reset(new bvhar::RegVharForecaster(
-				*reg_record, step, response_mat, HARtrans, month, include_mean, stable, static_cast<unsigned int>(seed_chain[i])
-			));
-		}
-	}
+	auto forecaster = bvhar::initialize_forecaster<bvhar::RegForecaster>(
+		num_chains, month, step, response_mat, sparse, level,
+		fit_record, prior_type, seed_chain, include_mean,
+		stable, nthreads, true, HARtrans
+	);
 	std::vector<Eigen::MatrixXd> res(num_chains);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)

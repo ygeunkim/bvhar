@@ -254,7 +254,7 @@ protected:
 	}
 };
 
-template <typename BaseForecaster>
+template <typename BaseForecaster = RegForecaster>
 class McmcVarSelectForecaster : public McmcVarForecaster<BaseForecaster> {
 public:
 	McmcVarSelectForecaster(
@@ -286,7 +286,7 @@ private:
 	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
 
-template <typename BaseForecaster>
+template <typename BaseForecaster = RegForecaster>
 class McmcVharSelectForecaster : public McmcVharForecaster<BaseForecaster> {
 public:
 	McmcVharSelectForecaster(
@@ -318,6 +318,107 @@ protected:
 private:
 	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
+
+inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	LIST coef_list = fit_record[coef_name];
+	LIST a_list = fit_record[a_name];
+	LIST d_list = fit_record["d_record"];
+	if (include_mean) {
+		LIST c_list = fit_record[c_name];
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(c_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(d_list[CAST_INT(chain_id)])
+		);
+	} else {
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(d_list[CAST_INT(chain_id)])
+		);
+	}
+}
+
+inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	LIST coef_list = fit_record[coef_name];
+	LIST a_list = fit_record[a_name];
+	LIST h_list = fit_record["h_record"];
+	LIST sigh_list = fit_record["sigh_record"];
+	if (include_mean) {
+		LIST c_list = fit_record[c_name];
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(c_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(h_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(sigh_list[CAST_INT(chain_id)])
+		);
+	} else {
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(h_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
+			CAST<Eigen::MatrixXd>(sigh_list[CAST_INT(chain_id)])
+		);
+	}
+}
+
+template <typename BaseForecaster = RegForecaster>
+inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
+	int num_chains, int ord, int step, const Eigen::MatrixXd& response_mat,
+	bool sparse, double level,
+	LIST& fit_record, int prior_type,
+	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
+	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT
+) {
+	bool activity = (prior_type == 0); // Optional<double> level = NULLOPT
+	if (!sparse && activity) {
+		STOP("If 'prior_type == 0', 'spare' should be true.");
+	}
+	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
+	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
+	STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
+	STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	STRING c_name = sparse ? "c_sparse_record" : "c_record";
+#ifdef _OPENMP
+	#pragma omp parallel for num_threads(nthreads)
+#endif
+	for (int i = 0; i < num_chains; ++i) {
+		std::unique_ptr<Records> reg_record;
+		initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
+		if (har_trans && !activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
+				*reg_record, step, response_mat,
+				*har_trans, ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else if (!har_trans && !activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
+				*reg_record, step, response_mat,
+				ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else if (har_trans && activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
+				*reg_record, level, step, response_mat,
+				*har_trans, ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else {
+			forecaster_ptr[i] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
+				*reg_record, level, step, response_mat,
+				ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		}
+	}
+	return forecaster_ptr;
+}
 
 } // namespace bvhar
 
