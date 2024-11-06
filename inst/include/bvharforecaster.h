@@ -15,7 +15,7 @@ template <typename BaseForecaster> class McmcVharSelectForecaster;
 
 class McmcForecaster {
 public:
-	McmcForecaster(const RegRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed)
+	McmcForecaster(const RegRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true)
 	: rng(seed), response(response_mat), include_mean(include_mean), stable_filter(filter_stable),
 		step(step), dim(response.cols()), var_lag(ord),
 		dim_design(include_mean ? var_lag * dim + 1 : var_lag * dim),
@@ -122,8 +122,8 @@ protected:
 
 class RegForecaster : public McmcForecaster {
 public:
-	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed)
-	: McmcForecaster(records, step, response_mat, ord, include_mean, filter_stable, seed) {
+	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true)
+	: McmcForecaster(records, step, response_mat, ord, include_mean, filter_stable, seed, sv) {
 		reg_record = std::make_unique<LdltRecords>(records);
 	}
 	virtual ~RegForecaster() = default;
@@ -151,8 +151,8 @@ protected:
 
 class SvForecaster : public McmcForecaster {
 public:
-	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, bool sv, unsigned int seed)
-	: McmcForecaster(records, step, response_mat, ord, include_mean, filter_stable, seed),
+	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv)
+	: McmcForecaster(records, step, response_mat, ord, include_mean, filter_stable, seed, sv),
 		sv(sv), sv_sig(Eigen::VectorXd::Zero(dim)) {
 		reg_record = std::make_unique<SvRecords>(records);
 	}
@@ -195,22 +195,9 @@ class McmcVarForecaster : public BaseForecaster {
 public:
 	McmcVarForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+		int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed) {
-		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05);
-			num_sim = reg_record->coef_record.rows();
-			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
-			}
-		}
-	}
-	McmcVarForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, sv, seed) {
+	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed, sv) {
 		if (stable_filter) {
 			reg_record->subsetStable(num_alpha, 1.05);
 			num_sim = reg_record->coef_record.rows();
@@ -239,22 +226,9 @@ class McmcVharForecaster : public BaseForecaster {
 public:
 	McmcVharForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed), har_trans(har_trans.sparseView()) {
-		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
-			num_sim = reg_record->coef_record.rows();
-			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
-			}
-		}
-	}
-	McmcVharForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, sv, seed), har_trans(har_trans.sparseView()) {
+	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed, sv), har_trans(har_trans.sparseView()) {
 		if (stable_filter) {
 			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
 			num_sim = reg_record->coef_record.rows();
@@ -285,28 +259,15 @@ class McmcVarSelectForecaster : public McmcVarForecaster<BaseForecaster> {
 public:
 	McmcVarSelectForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+		double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed),
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed, sv),
 		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
 	McmcVarSelectForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed),
-		activity_graph(selection) {}
-
-	McmcVarSelectForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, sv, seed),
-		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
-	McmcVarSelectForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, sv, seed),
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed, sv),
 		activity_graph(selection) {}
 	
 	virtual ~McmcVarSelectForecaster() = default;
@@ -330,28 +291,15 @@ class McmcVharSelectForecaster : public McmcVharForecaster<BaseForecaster> {
 public:
 	McmcVharSelectForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+		double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed, sv),
 		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
 	McmcVharSelectForecaster(
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
-		activity_graph(selection) {}
-
-	McmcVharSelectForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, sv, seed),
-		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
-	McmcVharSelectForecaster(
-		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
-		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
-	)
-	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, sv, seed),
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed, sv),
 		activity_graph(selection) {}
 	
 	virtual ~McmcVharSelectForecaster() = default;
