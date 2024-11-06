@@ -12,6 +12,8 @@ template <typename BaseForecaster> class McmcVarForecaster;
 template <typename BaseForecaster> class McmcVharForecaster;
 template <typename BaseForecaster> class McmcVarSelectForecaster;
 template <typename BaseForecaster> class McmcVharSelectForecaster;
+// Running forecasters
+template <typename BaseForecaster> class McmcForecastRun;
 
 class McmcForecaster {
 public:
@@ -367,14 +369,13 @@ inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, 
 template <typename BaseForecaster = RegForecaster>
 inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	int num_chains, int ord, int step, const Eigen::MatrixXd& response_mat,
-	bool sparse, double level,
-	LIST& fit_record, int prior_type,
+	bool sparse, double level, LIST& fit_record,
 	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
 	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT
 ) {
-	bool activity = (prior_type == 0); // Optional<double> level = NULLOPT
+	bool activity = (level != 0); // Optional<double> level = NULLOPT
 	if (!sparse && activity) {
-		STOP("If 'prior_type == 0', 'spare' should be true.");
+		STOP("If 'level != 0', 'spare' should be true.");
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
@@ -419,6 +420,73 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	}
 	return forecaster_ptr;
 }
+
+template <typename BaseForecaster = RegForecaster>
+class McmcForecastRun {
+public:
+	McmcForecastRun(
+		int num_chains, int lag, int step, const Eigen::MatrixXd& response_mat,
+		bool sparse, double level, LIST& fit_record,
+		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
+		bool sv = true
+	)
+	: num_chains(num_chains), nthreads(nthreads), density_forecast(num_chains) {
+		forecaster = initialize_forecaster<BaseForecaster>(
+			num_chains, lag, step, response_mat, sparse, level,
+			fit_record, seed_chain, include_mean,
+			stable, nthreads, sv
+		);
+	}
+	McmcForecastRun(
+		int num_chains, int week, int month, int step, const Eigen::MatrixXd& response_mat,
+		bool sparse, double level, LIST& fit_record,
+		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
+		bool sv = true
+	)
+	: num_chains(num_chains), nthreads(nthreads), density_forecast(num_chains) {
+		Eigen::MatrixXd har_trans = build_vhar(response_mat.cols(), week, month, include_mean);
+		forecaster = initialize_forecaster<BaseForecaster>(
+			num_chains, month, step, response_mat, sparse, level,
+			fit_record, seed_chain, include_mean,
+			stable, nthreads, sv, har_trans
+		);
+	}
+	McmcForecastRun(
+		int num_chains, int month, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans,
+		bool sparse, double level, LIST& fit_record,
+		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
+		bool sv = true
+	)
+	: num_chains(num_chains), nthreads(nthreads), density_forecast(num_chains) {
+		forecaster = initialize_forecaster<BaseForecaster>(
+			num_chains, month, step, response_mat, sparse, level,
+			fit_record, seed_chain, include_mean,
+			stable, nthreads, sv, har_trans
+		);
+	}
+	virtual ~McmcForecastRun() = default;
+	std::vector<Eigen::MatrixXd> returnForecast() {
+		forecast();
+		return density_forecast;
+	}
+
+protected:
+	void forecast() {
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; ++chain) {
+			density_forecast[chain] = forecaster[chain]->forecastDensity();
+			forecaster[chain].reset(); // free the memory by making nullptr
+		}
+	}
+
+private:
+	int num_chains;
+	int nthreads;
+	std::vector<Eigen::MatrixXd> density_forecast;
+	std::vector<std::unique_ptr<BaseForecaster>> forecaster;
+};
 
 } // namespace bvhar
 

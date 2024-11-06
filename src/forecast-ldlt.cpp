@@ -21,20 +21,12 @@
 Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
 													 	 bool sparse, double level, Rcpp::List fit_record, int prior_type,
 													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = bvhar::initialize_forecaster<bvhar::RegForecaster>(
-		num_chains, var_lag, step, response_mat, sparse, level,
-		fit_record, prior_type, seed_chain, include_mean,
-		stable, nthreads, true
+	auto forecaster = std::make_unique<bvhar::McmcForecastRun<bvhar::RegForecaster>>(
+		num_chains, var_lag, step, response_mat,
+		sparse, level, fit_record,
+		seed_chain, include_mean, stable, nthreads
 	);
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
+	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' Forecasting Predictive Density of BVHAR
@@ -59,20 +51,12 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 															bool sparse, double level, Rcpp::List fit_record, int prior_type,
 															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = bvhar::initialize_forecaster<bvhar::RegForecaster>(
-		num_chains, month, step, response_mat, sparse, level,
-		fit_record, prior_type, seed_chain, include_mean,
-		stable, nthreads, true, HARtrans
+	auto forecaster = std::make_unique<bvhar::McmcForecastRun<bvhar::RegForecaster>>(
+		num_chains, month, step, response_mat, HARtrans,
+		sparse, level, fit_record,
+		seed_chain, include_mean, stable, nthreads
 	);
-	std::vector<Eigen::MatrixXd> res(num_chains);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int chain = 0; chain < num_chains; chain++) {
-		res[chain] = forecaster[chain]->forecastDensity();
-		forecaster[chain].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::wrap(res);
+	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -142,7 +126,7 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 	if (use_fit) {
 		forecaster[0] = bvhar::initialize_forecaster<bvhar::RegForecaster>(
 			num_chains, lag, step, roll_y0[0], sparse, level,
-			fit_record, prior_type, seed_forecast, include_mean,
+			fit_record, seed_forecast, include_mean,
 			stable, nthreads, true
 		);
 	}
@@ -287,7 +271,7 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 	if (use_fit) {
 		forecaster[0] = bvhar::initialize_forecaster<bvhar::RegForecaster>(
 			num_chains, month, step, roll_y0[0], sparse, level,
-			fit_record, prior_type, seed_forecast, include_mean,
+			fit_record, seed_forecast, include_mean,
 			stable, nthreads, true, har_trans
 		);
 	}
@@ -431,7 +415,7 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 	if (use_fit) {
 		forecaster[0] = bvhar::initialize_forecaster<bvhar::RegForecaster>(
 			num_chains, lag, step, expand_y0[0], sparse, level,
-			fit_record, prior_type, seed_forecast, include_mean,
+			fit_record, seed_forecast, include_mean,
 			stable, nthreads, true
 		);
 	}
@@ -576,7 +560,7 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 	if (use_fit) {
 		forecaster[0] = bvhar::initialize_forecaster<bvhar::RegForecaster>(
 			num_chains, month, step, expand_y0[0], sparse, level,
-			fit_record, prior_type, seed_forecast, include_mean,
+			fit_record, seed_forecast, include_mean,
 			stable, nthreads, true, har_trans
 		);
 	}

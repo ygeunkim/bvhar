@@ -421,7 +421,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
   }
   prior_nm <- object$spec$prior
   # ci_lev <- NULL
-  ci_lev <- .05
+  ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE
@@ -535,7 +535,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   prior_nm <- object$spec$prior
-  ci_lev <- .05
+  ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE
@@ -655,7 +655,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
   }
   prior_nm <- object$spec$prior
   # ci_lev <- NULL
-  ci_lev <- .05
+  ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE
@@ -772,7 +772,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
   }
   prior_nm <- object$spec$prior
   # ci_lev <- NULL
-  ci_lev <- .05
+  ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
     sparse <- TRUE

@@ -10,10 +10,7 @@
 #ifdef USE_RCPP
 	#include <RcppEigen.h>
 #else
-	#include <Eigen/Dense>
-	#include <Eigen/Cholesky>
-	#include <Eigen/QR>
-	#include <Eigen/Sparse>
+	#include <Eigen/Eigen>
 	#include <unsupported/Eigen/KroneckerProduct>
 	#include <pybind11/eigen.h>
 #endif
