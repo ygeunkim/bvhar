@@ -10,6 +10,8 @@ class RegForecaster;
 class SvForecaster;
 template <typename BaseForecaster> class McmcVarForecaster;
 template <typename BaseForecaster> class McmcVharForecaster;
+template <typename BaseForecaster> class McmcVarSelectForecaster;
+template <typename BaseForecaster> class McmcVharSelectForecaster;
 
 class McmcForecaster {
 public:
@@ -276,6 +278,97 @@ protected:
 	void computeMean() override {
 		post_mean = coef_mat.transpose() * har_trans * last_pvec;
 	}
+};
+
+template <typename BaseForecaster>
+class McmcVarSelectForecaster : public McmcVarForecaster<BaseForecaster> {
+public:
+	McmcVarSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed),
+		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
+	McmcVarSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, seed),
+		activity_graph(selection) {}
+
+	McmcVarSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		double level, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, sv, seed),
+		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
+	McmcVarSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: McmcVarForecaster<BaseForecaster>(records, step, response_mat, lag, include_mean, filter_stable, sv, seed),
+		activity_graph(selection) {}
+	
+	virtual ~McmcVarSelectForecaster() = default;
+
+protected:
+	using McmcVarForecaster<BaseForecaster>::dim;
+	using McmcVarForecaster<BaseForecaster>::reg_record;
+	using McmcVarForecaster<BaseForecaster>::post_mean;
+	using McmcVarForecaster<BaseForecaster>::coef_mat;
+	using McmcVarForecaster<BaseForecaster>::last_pvec;
+	void computeMean() override {
+		post_mean = last_pvec.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
+	}
+
+private:
+	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
+};
+
+template <typename BaseForecaster>
+class McmcVharSelectForecaster : public McmcVharForecaster<BaseForecaster> {
+public:
+	McmcVharSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
+		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
+	McmcVharSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed
+	)
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, seed),
+		activity_graph(selection) {}
+
+	McmcVharSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		double level, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, sv, seed),
+		activity_graph(unvectorize(reg_record->computeActivity(level), dim)) {}
+	McmcVharSelectForecaster(
+		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
+		const Eigen::MatrixXd& selection, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, bool sv, unsigned int seed
+	)
+	: McmcVharForecaster<BaseForecaster>(records, step, response_mat, har_trans, month, include_mean, filter_stable, sv, seed),
+		activity_graph(selection) {}
+	
+	virtual ~McmcVharSelectForecaster() = default;
+
+protected:
+	using McmcVharForecaster<BaseForecaster>::dim;
+	using McmcVharForecaster<BaseForecaster>::reg_record;
+	using McmcVharForecaster<BaseForecaster>::post_mean;
+	using McmcVharForecaster<BaseForecaster>::coef_mat;
+	using McmcVharForecaster<BaseForecaster>::last_pvec;
+	using McmcVharForecaster<BaseForecaster>::har_trans;
+	void computeMean() override {
+		post_mean = last_pvec.transpose() * har_trans.transpose() * (activity_graph.array() * coef_mat.array()).matrix();
+	}
+
+private:
+	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
 
 } // namespace bvhar
