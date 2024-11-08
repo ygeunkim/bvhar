@@ -139,8 +139,8 @@ protected:
 	virtual void updateImpactPrec() = 0;
 	virtual void updateRecords() = 0;
 	void updateCoef() {
-		for (int j = 0; j < dim; j++) {
-			coef_mat.col(j).setZero(); // j-th column of A = 0: A(-j) = (alpha_1, ..., alpha_(j-1), 0, alpha_(j), ..., alpha_k)
+		for (int j = 0; j < dim; ++j) {
+			coef_mat.col(j).setZero(); // j-th column of A = 0
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
 			Eigen::MatrixXd sqrt_sv_j = sqrt_sv.rightCols(dim - j); // use h_jt to h_kt for t = 1, .. n => (k - j + 1) x k
 			Eigen::MatrixXd design_coef = kronecker_eigen(chol_lower_j.col(j), x).array().colwise() / sqrt_sv_j.reshaped().array(); // L_(j:k, j) otimes X0 scaled by D_(1:n, j:k): n(k - j + 1) x kp
@@ -182,7 +182,8 @@ protected:
 				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
-			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+			// draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+			draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
 		}
 	}
 	void updateLatent() { latent_innov = y - x * coef_mat; }
@@ -234,7 +235,7 @@ protected:
 		varsv_sigh(lvol_sig, prior_sig_shp, prior_sig_scl, lvol_init, lvol_draw, rng);
 		varsv_h0(lvol_init, prior_init_mean, prior_init_prec, lvol_draw.row(0), lvol_sig, rng);
 	}
-	void updateSv() override { sqrt_sv = (-lvol_draw / 2).array().exp(); }
+	void updateSv() override { sqrt_sv = (lvol_draw / 2).array().exp(); }
 	void updateCoefRecords() override {
 		reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
 		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);

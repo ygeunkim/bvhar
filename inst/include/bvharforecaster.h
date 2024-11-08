@@ -204,7 +204,7 @@ public:
 	)
 	: BaseForecaster(records, step, response_mat, lag, include_mean, filter_stable, seed, sv) {
 		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05);
+			reg_record->subsetStable(num_alpha, 1);
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");
@@ -235,7 +235,7 @@ public:
 	)
 	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed, sv), har_trans(har_trans.sparseView()) {
 		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1.05, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
+			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");

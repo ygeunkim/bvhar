@@ -321,24 +321,6 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 // @param prior_mean Prior mean vector
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
-// inline void varsv_regression(Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x, Eigen::VectorXd& y,
-// 														 Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::MatrixXd> prior_prec, boost::random::mt19937& rng) {
-//   int dim = prior_mean.size();
-//   Eigen::VectorXd res(dim);
-//   for (int i = 0; i < dim; i++) {
-// 		res[i] = normal_rand(rng);
-//   }
-//   // Eigen::MatrixXd post_sig = prior_prec + x.transpose() * x;
-// 	auto post_sig = (prior_prec + x.transpose() * x).selfadjointView<Eigen::Lower>();
-//   Eigen::LLT<Eigen::MatrixXd> lltOfscale(post_sig);
-// 	if (lltOfscale.info() == Eigen::NumericalIssue) {
-// 		// post_sig.diagonal().array() += 1e-8;
-// 		// lltOfscale.compute(post_sig);
-// 		Rcpp::stop("LLT error");
-// 	}
-//   Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec * prior_mean + x.transpose() * y);
-// 	coef = post_mean + lltOfscale.matrixU().solve(res);
-// }
 inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::VectorXd> y,
 											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, boost::random::mt19937& rng) {
   int dim = prior_mean.size();
@@ -346,14 +328,11 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-	Eigen::LLT<Eigen::MatrixXd> lltOfscale(
+	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
 	);
-	if (lltOfscale.info() == Eigen::NumericalIssue) {
-		STOP("LLT error");
-	}
-  Eigen::VectorXd post_mean = lltOfscale.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
-	coef = post_mean + lltOfscale.matrixU().solve(res);
+  Eigen::VectorXd post_mean = llt_of_prec.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
+	coef = post_mean + llt_of_prec.matrixU().solve(res);
 }
 
 // SAVS Algorithm for shirnkage prior
