@@ -12,6 +12,8 @@
 
 * Can easily conduct MCMC using `McmcRun` class in C++ source.
 
+* Can easily implement forecasting for LDLT and SV MCMC using `McmcForecastRun`, `McmcVarforecastRun`, and `McmcVharforecastRun`.
+
 ## Removal of deprecated functions
 
 * Removed bvar_sv() and bvhar_sv().
