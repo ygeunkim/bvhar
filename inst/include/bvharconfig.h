@@ -446,6 +446,10 @@ struct RegRecords {
 	virtual void appendRecords(LIST& list) = 0;
 	virtual LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
 	virtual SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
+
+	template <typename RecordType = LdltRecords>
+	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
+
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) = 0;
 	virtual void subsetStable(int num_alpha, double threshold) = 0;
@@ -879,6 +883,16 @@ inline SvRecords SvRecords::returnSvRecords(const SparseRecords& sparse_record, 
 		thin_record(lvol_sig_record, num_iter, num_burn, thin).derived()
 	);
 	return res_record;
+}
+
+template<>
+inline LdltRecords RegRecords::returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return returnLdltRecords(sparse_record, num_iter, num_burn, thin, sparse);
+}
+
+template<>
+inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 }
 
 } // namespace bvhar

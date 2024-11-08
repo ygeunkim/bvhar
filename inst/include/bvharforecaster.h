@@ -14,6 +14,11 @@ template <typename BaseForecaster> class McmcVarSelectForecaster;
 template <typename BaseForecaster> class McmcVharSelectForecaster;
 // Running forecasters
 template <typename BaseForecaster> class McmcForecastRun;
+template <typename BaseForecaster> class McmcOutforecastRun;
+template <typename BaseForecaster> class McmcRollforecastRun;
+template <typename BaseForecaster> class McmcExpandforecastRun;
+template <template <typename> class BaseOutForecast, typename BaseForecaster> class McmcVarforecastRun;
+template <template <typename> class BaseOutForecast, typename BaseForecaster> class McmcVharforecastRun;
 
 class McmcForecaster {
 public:
@@ -322,46 +327,46 @@ private:
 };
 
 inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
-	LIST coef_list = fit_record[coef_name];
-	LIST a_list = fit_record[a_name];
-	LIST d_list = fit_record["d_record"];
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST d_list = fit_record["d_record"];
 	if (include_mean) {
-		LIST c_list = fit_record[c_name];
+		PY_LIST c_list = fit_record[c_name];
 		record = std::make_unique<LdltRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(c_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(d_list[CAST_INT(chain_id)])
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
 		);
 	} else {
 		record = std::make_unique<LdltRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(d_list[CAST_INT(chain_id)])
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
 		);
 	}
 }
 
 inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
-	LIST coef_list = fit_record[coef_name];
-	LIST a_list = fit_record[a_name];
-	LIST h_list = fit_record["h_record"];
-	LIST sigh_list = fit_record["sigh_record"];
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST h_list = fit_record["h_record"];
+	PY_LIST sigh_list = fit_record["sigh_record"];
 	if (include_mean) {
-		LIST c_list = fit_record[c_name];
+		PY_LIST c_list = fit_record[c_name];
 		record = std::make_unique<SvRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(c_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(h_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(sigh_list[CAST_INT(chain_id)])
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
 		);
 	} else {
 		record = std::make_unique<SvRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(h_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(a_list[CAST_INT(chain_id)]),
-			CAST<Eigen::MatrixXd>(sigh_list[CAST_INT(chain_id)])
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
 		);
 	}
 }
@@ -373,9 +378,9 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
 	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT
 ) {
-	bool activity = (level != 0); // Optional<double> level = NULLOPT
+	bool activity = (level > 0); // Optional<double> level = NULLOPT
 	if (!sparse && activity) {
-		STOP("If 'level != 0', 'spare' should be true.");
+		STOP("If 'level > 0', 'spare' should be true."); // change this later: sparse && activity
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
@@ -387,35 +392,40 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 #endif
 	for (int i = 0; i < num_chains; ++i) {
 		std::unique_ptr<Records> reg_record;
-		initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
-		if (har_trans && !activity) {
-			forecaster_ptr[i] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
-				*reg_record, step, response_mat,
-				*har_trans, ord,
-				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-				sv
-			);
-		} else if (!har_trans && !activity) {
-			forecaster_ptr[i] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
-				*reg_record, step, response_mat,
-				ord,
-				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-				sv
-			);
-		} else if (har_trans && activity) {
-			forecaster_ptr[i] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
-				*reg_record, level, step, response_mat,
-				*har_trans, ord,
-				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-				sv
-			);
-		} else {
-			forecaster_ptr[i] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
-				*reg_record, level, step, response_mat,
-				ord,
-				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-				sv
-			);
+	#ifdef _OPENMP
+		#pragma omp critical
+	#endif
+		{
+			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
+			if (har_trans && !activity) {
+				forecaster_ptr[i] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
+					*reg_record, step, response_mat,
+					*har_trans, ord,
+					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+					sv
+				);
+			} else if (!har_trans && !activity) {
+				forecaster_ptr[i] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
+					*reg_record, step, response_mat,
+					ord,
+					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+					sv
+				);
+			} else if (har_trans && activity) {
+				forecaster_ptr[i] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
+					*reg_record, level, step, response_mat,
+					*har_trans, ord,
+					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+					sv
+				);
+			} else {
+				forecaster_ptr[i] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
+					*reg_record, level, step, response_mat,
+					ord,
+					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+					sv
+				);
+			}
 		}
 	}
 	return forecaster_ptr;
@@ -430,7 +440,7 @@ public:
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true
 	)
-	: num_chains(num_chains), nthreads(nthreads), density_forecast(num_chains) {
+	: num_chains(num_chains), nthreads(nthreads), density_forecast(num_chains), forecaster(num_chains) {
 		forecaster = initialize_forecaster<BaseForecaster>(
 			num_chains, lag, step, response_mat, sparse, level,
 			fit_record, seed_chain, include_mean,
@@ -486,6 +496,399 @@ private:
 	int nthreads;
 	std::vector<Eigen::MatrixXd> density_forecast;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster;
+};
+
+template <typename BaseForecaster = RegForecaster>
+class McmcOutforecastRun {
+public:
+	McmcOutforecastRun(
+		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
+		bool sparse, double level, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+	)
+	: num_window(y.rows()), dim(y.cols()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
+		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
+		include_mean(include_mean), stable_filter(stable), sparse(sparse), get_lpl(get_lpl),
+		sv(sv), level(level), seed_forecast(seed_forecast),
+		roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
+		model(num_horizon), forecaster(num_horizon),
+		out_forecast(num_horizon, std::vector<Eigen::MatrixXd>(num_chains)),
+		lpl_record(Eigen::MatrixXd::Zero(num_horizon, num_chains)) {
+		for (auto &reg_chain : model) {
+			reg_chain.resize(num_chains);
+			for (auto &ptr : reg_chain) {
+				ptr = nullptr;
+			}
+		}
+		for (auto &reg_forecast : forecaster) {
+			reg_forecast.resize(num_chains);
+			for (auto &ptr : reg_forecast) {
+				ptr = nullptr;
+			}
+		}
+	}
+	virtual ~McmcOutforecastRun() = default;
+	LIST returnForecast() {
+		forecast();
+		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
+		if (get_lpl) {
+			res["lpl"] = CAST_DOUBLE(lpl_record.mean());
+		}
+		return res;
+	}
+
+protected:
+	using BaseMcmc = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, McmcReg, McmcSv>::type;
+	using RecordType = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
+	int num_window, dim, num_test, num_horizon, step;
+	int lag, num_chains, num_iter, num_burn, thin, nthreads;
+	bool include_mean, stable_filter, sparse, get_lpl, sv;
+	double level;
+	Eigen::VectorXi seed_forecast;
+	std::vector<Eigen::MatrixXd> roll_mat;
+	std::vector<Eigen::MatrixXd> roll_y0;
+	Eigen::MatrixXd y_test;
+	std::vector<std::vector<std::unique_ptr<BaseMcmc>>> model;
+	std::vector<std::vector<std::unique_ptr<BaseForecaster>>> forecaster;
+	std::vector<std::vector<Eigen::MatrixXd>> out_forecast;
+	Eigen::MatrixXd lpl_record;
+	virtual void initData(const Eigen::MatrixXd& y) = 0;
+	virtual void initForecaster(LIST& fit_record) = 0;
+	virtual void initMcmc(
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		const Eigen::MatrixXi& seed_chain
+	) = 0;
+	virtual Eigen::MatrixXd buildDesign(int window) = 0;
+	virtual void updateForecaster(RecordType& reg_record, int window, int chain) = 0;
+	void initialize(
+		const Eigen::MatrixXd& y, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		const Eigen::MatrixXi& seed_chain
+	) {
+		initData(y);
+		initForecaster(fit_record);
+		initMcmc(
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, seed_chain
+		);
+	}
+	void runGibbs(int window, int chain) {
+		bvharinterrupt();
+		for (int i = 0; i < num_iter; ++i) {
+			if (bvharinterrupt::is_interrupted()) {
+				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(num_burn, thin, sparse);
+				break;
+			}
+			model[window][chain]->doPosteriorDraws();
+		}
+		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(num_burn, thin, sparse);
+		updateForecaster(reg_record, window, chain);
+	}
+	void forecastWindow(int window, int chain) {
+		if (window != 0) {
+			runGibbs(window, chain);
+		}
+		Eigen::VectorXd valid_vec = y_test.row(step);
+		out_forecast[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
+		lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
+		forecaster[window][chain].reset(); // free the memory by making nullpt
+	}
+	void forecast() {
+		if (num_chains == 1) {
+		#ifdef _OPENMP
+			#pragma omp parallel for num_threads(nthreads)
+		#endif
+			for (int window = 0; window < num_horizon; ++window) {
+				forecastWindow(window, 0);
+			}
+		} else {
+		#ifdef _OPENMP
+			#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
+		#endif
+			for (int window = 0; window < num_horizon; ++window) {
+				for (int chain = 0; chain < num_chains; ++chain) {
+					forecastWindow(window, chain);
+				}
+			}
+		}
+	}
+};
+
+template <typename BaseForecaster = RegForecaster>
+class McmcRollforecastRun : public McmcOutforecastRun<BaseForecaster> {
+public:
+	McmcRollforecastRun(
+		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
+		bool sparse, double level, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+	)
+	: McmcOutforecastRun<BaseForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
+			seed_chain, seed_forecast, nthreads, sv
+		) {}
+	virtual ~McmcRollforecastRun() = default;
+
+protected:
+	using typename McmcOutforecastRun<BaseForecaster>::BaseMcmc;
+	using McmcOutforecastRun<BaseForecaster>::num_window;
+	using McmcOutforecastRun<BaseForecaster>::dim;
+	using McmcOutforecastRun<BaseForecaster>::num_test;
+	using McmcOutforecastRun<BaseForecaster>::num_horizon;
+	using McmcOutforecastRun<BaseForecaster>::lag;
+	using McmcOutforecastRun<BaseForecaster>::num_chains;
+	using McmcOutforecastRun<BaseForecaster>::num_iter;
+	using McmcOutforecastRun<BaseForecaster>::include_mean;
+	using McmcOutforecastRun<BaseForecaster>::roll_mat;
+	using McmcOutforecastRun<BaseForecaster>::roll_y0;
+	using McmcOutforecastRun<BaseForecaster>::y_test;
+	using McmcOutforecastRun<BaseForecaster>::model;
+	using McmcOutforecastRun<BaseForecaster>::buildDesign;
+	using McmcOutforecastRun<BaseForecaster>::initialize;
+	void initData(const Eigen::MatrixXd& y) override {
+		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+		tot_mat << y,
+							 y_test;
+		for (int i = 0; i < num_horizon; ++i) {
+			roll_mat[i] = tot_mat.middleRows(i, num_window);
+			roll_y0[i] = build_y0(roll_mat[i], lag, lag + 1);
+		}
+	}
+	void initMcmc(
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		const Eigen::MatrixXi& seed_chain
+	) override {
+		for (int window = 0; window < num_horizon; ++window) {
+			Eigen::MatrixXd design = buildDesign(window);
+			model[window] = initialize_mcmc<BaseMcmc>(
+				num_chains, num_iter, design, roll_y0[window],
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain.row(window)
+			);
+			roll_mat[window].resize(0, 0); // free the memory
+		}
+	}
+};
+
+template <typename BaseForecaster = RegForecaster>
+class McmcExpandforecastRun : public McmcOutforecastRun<BaseForecaster> {
+public:
+	McmcExpandforecastRun(
+		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
+		bool sparse, double level, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+	)
+	: McmcOutforecastRun<BaseForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
+			seed_chain, seed_forecast, nthreads, sv
+		) {}
+	virtual ~McmcExpandforecastRun() = default;
+
+protected:
+	using typename McmcOutforecastRun<BaseForecaster>::BaseMcmc;
+	using McmcOutforecastRun<BaseForecaster>::num_window;
+	using McmcOutforecastRun<BaseForecaster>::dim;
+	using McmcOutforecastRun<BaseForecaster>::num_test;
+	using McmcOutforecastRun<BaseForecaster>::num_horizon;
+	using McmcOutforecastRun<BaseForecaster>::lag;
+	using McmcOutforecastRun<BaseForecaster>::num_chains;
+	using McmcOutforecastRun<BaseForecaster>::num_iter;
+	using McmcOutforecastRun<BaseForecaster>::include_mean;
+	using McmcOutforecastRun<BaseForecaster>::roll_mat;
+	using McmcOutforecastRun<BaseForecaster>::roll_y0;
+	using McmcOutforecastRun<BaseForecaster>::y_test;
+	using McmcOutforecastRun<BaseForecaster>::model;
+	using McmcOutforecastRun<BaseForecaster>::buildDesign;
+	using McmcOutforecastRun<BaseForecaster>::initialize;
+	void initData(const Eigen::MatrixXd& y) override {
+		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
+		tot_mat << y,
+							 y_test;
+		for (int i = 0; i < num_horizon; ++i) {
+			roll_mat[i] = tot_mat.topRows(num_window + i);
+			roll_y0[i] = build_y0(roll_mat[i], lag, lag + 1);
+		}
+	}
+	void initMcmc(
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		const Eigen::MatrixXi& seed_chain
+	) override {
+		for (int window = 0; window < num_horizon; ++window) {
+			Eigen::MatrixXd design = buildDesign(window);
+			if (CONTAINS(param_reg, "initial_mean")) {
+				// BaseMcmc == McmcSv
+				model[window] = initialize_mcmc<BaseMcmc>(
+					num_chains, num_iter, design, roll_y0[window],
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain.row(window),
+					roll_y0[window].rows()
+				);
+			} else {
+				// BaseMcmc == McmcReg
+				model[window] = initialize_mcmc<BaseMcmc>(
+					num_chains, num_iter, design, roll_y0[window],
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain.row(window)
+				);
+			}
+			roll_mat[window].resize(0, 0); // free the memory
+		}
+	}
+};
+
+template <template <typename> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster>
+class McmcVarforecastRun : public BaseOutForecast<BaseForecaster> {
+public:
+	McmcVarforecastRun(
+		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
+		bool sparse, double level, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+	)
+	: BaseOutForecast<BaseForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
+			seed_chain, seed_forecast, nthreads, sv
+		) {
+		initialize(
+			y, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, seed_chain
+		);
+	}
+	virtual ~McmcVarforecastRun() = default;
+
+protected:
+	using typename BaseOutForecast<BaseForecaster>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster>::RecordType;
+	using BaseOutForecast<BaseForecaster>::num_horizon;
+	using BaseOutForecast<BaseForecaster>::step;
+	using BaseOutForecast<BaseForecaster>::lag;
+	using BaseOutForecast<BaseForecaster>::num_chains;
+	using BaseOutForecast<BaseForecaster>::num_iter;
+	using BaseOutForecast<BaseForecaster>::num_burn;
+	using BaseOutForecast<BaseForecaster>::thin;
+	using BaseOutForecast<BaseForecaster>::nthreads;
+	using BaseOutForecast<BaseForecaster>::include_mean;
+	using BaseOutForecast<BaseForecaster>::stable_filter;
+	using BaseOutForecast<BaseForecaster>::sparse;
+	using BaseOutForecast<BaseForecaster>::sv;
+	using BaseOutForecast<BaseForecaster>::level;
+	using BaseOutForecast<BaseForecaster>::seed_forecast;
+	using BaseOutForecast<BaseForecaster>::roll_mat;
+	using BaseOutForecast<BaseForecaster>::roll_y0;
+	using BaseOutForecast<BaseForecaster>::model;
+	using BaseOutForecast<BaseForecaster>::forecaster;
+	using BaseOutForecast<BaseForecaster>::out_forecast;
+	using BaseOutForecast<BaseForecaster>::lpl_record;
+	using BaseOutForecast<BaseForecaster>::initialize;
+	void initForecaster(LIST& fit_record) override {
+		forecaster[0] = initialize_forecaster<BaseForecaster>(
+			num_chains, lag, step, roll_y0[0], sparse, level,
+			fit_record, seed_forecast, include_mean,
+			stable_filter, nthreads, sv
+		);
+	}
+	Eigen::MatrixXd buildDesign(int window) override {
+		return build_x0(roll_mat[window], lag, include_mean);
+	}
+	void updateForecaster(RecordType& reg_record, int window, int chain) override {
+		forecaster[window][chain] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
+			reg_record, step, roll_y0[window], lag, include_mean,
+			stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+		);
+	}
+};
+
+template <template <typename> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster>
+class McmcVharforecastRun : public BaseOutForecast<BaseForecaster> {
+public:
+	McmcVharforecastRun(
+		const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thin,
+		bool sparse, double level, LIST& fit_record,
+		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+	)
+	: BaseOutForecast<BaseForecaster>(
+			y, month, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
+			seed_chain, seed_forecast, nthreads, sv
+		),
+		har_trans(build_vhar(dim, week, month, include_mean)) {
+		initialize(
+			y, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, seed_chain
+		);
+	}
+	virtual ~McmcVharforecastRun() = default;
+
+protected:
+	using typename BaseOutForecast<BaseForecaster>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster>::RecordType;
+	using BaseOutForecast<BaseForecaster>::dim;
+	using BaseOutForecast<BaseForecaster>::num_horizon;
+	using BaseOutForecast<BaseForecaster>::step;
+	using BaseOutForecast<BaseForecaster>::lag;
+	using BaseOutForecast<BaseForecaster>::num_chains;
+	using BaseOutForecast<BaseForecaster>::num_iter;
+	using BaseOutForecast<BaseForecaster>::num_burn;
+	using BaseOutForecast<BaseForecaster>::thin;
+	using BaseOutForecast<BaseForecaster>::nthreads;
+	using BaseOutForecast<BaseForecaster>::include_mean;
+	using BaseOutForecast<BaseForecaster>::stable_filter;
+	using BaseOutForecast<BaseForecaster>::sparse;
+	using BaseOutForecast<BaseForecaster>::sv;
+	using BaseOutForecast<BaseForecaster>::level;
+	using BaseOutForecast<BaseForecaster>::seed_forecast;
+	using BaseOutForecast<BaseForecaster>::roll_mat;
+	using BaseOutForecast<BaseForecaster>::roll_y0;
+	using BaseOutForecast<BaseForecaster>::model;
+	using BaseOutForecast<BaseForecaster>::forecaster;
+	using BaseOutForecast<BaseForecaster>::out_forecast;
+	using BaseOutForecast<BaseForecaster>::lpl_record;
+	using BaseOutForecast<BaseForecaster>::initialize;
+	Eigen::MatrixXd har_trans;
+	void initForecaster(LIST& fit_record) override {
+		forecaster[0] = initialize_forecaster<BaseForecaster>(
+			num_chains, lag, step, roll_y0[0], sparse, level,
+			fit_record, seed_forecast, include_mean,
+			stable_filter, nthreads, sv,
+			har_trans
+		);
+	}
+	Eigen::MatrixXd buildDesign(int window) override {
+		return build_x0(roll_mat[window], lag, include_mean) * har_trans.transpose();
+	}
+	void updateForecaster(RecordType& reg_record, int window, int chain) override {
+		forecaster[window][chain] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
+			reg_record, step, roll_y0[window], har_trans, lag, include_mean,
+			stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+		);
+	}
 };
 
 } // namespace bvhar

@@ -342,15 +342,15 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.p_, n_ahead, self.y_, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sparse, 0.0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, stable, self.thread_
+                self.fit_intercept, stable, self.thread_, True
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.p_, n_ahead, self.y_, sv, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, stable, self.thread_
+                self.fit_intercept, stable, self.thread_, sv
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
@@ -397,29 +397,31 @@ class VarBayes(_AutoregBayes):
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVarRoll(
                 self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, True
             )
         else:
             forecaster = SvVarRoll(
                 self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, sv
             )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
             "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
@@ -464,29 +466,31 @@ class VarBayes(_AutoregBayes):
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVarExpand(
                 self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, True
             )
         else:
             forecaster = SvVarExpand(
                 self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, sv
             )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
             "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
@@ -656,15 +660,15 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, stable, self.thread_
+                self.fit_intercept, stable, self.thread_, True
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.y_, sv, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, stable, self.thread_
+                self.fit_intercept, stable, self.thread_, sv
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
@@ -709,29 +713,31 @@ class VharBayes(_AutoregBayes):
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVharRoll(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, True
             )
         else:
             forecaster = SvVharRoll(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, sv
             )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
             "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
@@ -774,29 +780,31 @@ class VharBayes(_AutoregBayes):
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltVharExpand(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, True
             )
         else:
             forecaster = SvVharExpand(
                 self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
+                sparse, 0, fit_record,
                 self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
                 self.init_, self._prior_type,
                 self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test,
+                self.fit_intercept, stable, n_ahead, test, True,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_
+                self.thread_, sv
             )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
             "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),

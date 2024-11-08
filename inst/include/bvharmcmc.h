@@ -94,6 +94,10 @@ public:
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
+	template <typename RecordType>
+	RecordType returnStructRecords(int num_burn, int thin, bool sparse = false) const {
+		return reg_record->returnRecords<RecordType>(sparse_record, num_iter, num_burn, thin, sparse);
+	}
 
 protected:
 	bool include_mean;
@@ -813,7 +817,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				GlInits<INITS> dl_inits = num_design ? GlInits<INITS>(init_spec, *num_design) : GlInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
-			break;
+			return mcmc_ptr;
 		}
 	}
 	return mcmc_ptr;
@@ -838,7 +842,7 @@ public:
 	)
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), mcmc_ptr(num_chains), res(num_chains) {
-		mcmc_ptr = bvhar::initialize_mcmc<BaseMcmc>(
+		mcmc_ptr = initialize_mcmc<BaseMcmc>(
 			num_chains, num_iter, x, y,
 			param_cov, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,

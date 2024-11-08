@@ -15,6 +15,7 @@
 
 	#define LIST Rcpp::List
 	#define LIST_OF_LIST Rcpp::List
+	#define PY_LIST Rcpp::List
 	#define WRAP(value) Rcpp::wrap(value)
 	#define CAST Rcpp::as
 	#define CAST_DOUBLE(value) value
@@ -62,6 +63,7 @@
 
 	#define LIST py::dict
 	#define LIST_OF_LIST std::vector<py::dict>
+	#define PY_LIST py::list
 	#define WRAP(value) value
   #define CAST py::cast
 	#define CAST_DOUBLE(value) py::cast<double>(value)
