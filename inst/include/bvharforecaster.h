@@ -136,7 +136,6 @@ public:
 	virtual ~RegForecaster() = default;
 
 protected:
-	// virtual void computeMean() = 0;
 	void updateParams(int i) override {
 		coef_mat.topRows(nrow_coef) = unvectorize(reg_record->coef_record.row(i).head(num_alpha).transpose(), dim);
 		if (include_mean) {
@@ -166,7 +165,6 @@ public:
 	virtual ~SvForecaster() = default;
 
 protected:
-	virtual void computeMean() = 0;
 	void updateParams(int i) override {
 		coef_mat.topRows(nrow_coef) = unvectorize(reg_record->coef_record.row(i).head(num_alpha).transpose(), dim);
 		if (include_mean) {
@@ -379,8 +377,8 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT
 ) {
 	bool activity = (level > 0); // Optional<double> level = NULLOPT
-	if (!sparse && activity) {
-		STOP("If 'level > 0', 'spare' should be true."); // change this later: sparse && activity
+	if (sparse && activity) {
+		STOP("If 'level > 0', 'spare' should be false.");
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
@@ -528,6 +526,9 @@ public:
 			for (auto &ptr : reg_forecast) {
 				ptr = nullptr;
 			}
+		}
+		if (level > 0) {
+			sparse = false;
 		}
 	}
 	virtual ~McmcOutforecastRun() = default;
@@ -814,10 +815,17 @@ protected:
 		return build_x0(roll_mat[window], lag, include_mean);
 	}
 	void updateForecaster(RecordType& reg_record, int window, int chain) override {
-		forecaster[window][chain] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
-			reg_record, step, roll_y0[window], lag, include_mean,
-			stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
-		);
+		if (level > 0) {
+			forecaster[window][chain] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
+				reg_record, level, step, roll_y0[window], lag, include_mean,
+				stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+			);
+		} else {
+			forecaster[window][chain] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
+				reg_record, step, roll_y0[window], lag, include_mean,
+				stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+			);
+		}
 	}
 };
 
@@ -884,10 +892,17 @@ protected:
 		return build_x0(roll_mat[window], lag, include_mean) * har_trans.transpose();
 	}
 	void updateForecaster(RecordType& reg_record, int window, int chain) override {
-		forecaster[window][chain] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
-			reg_record, step, roll_y0[window], har_trans, lag, include_mean,
-			stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
-		);
+		if (level > 0) {
+			forecaster[window][chain] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
+				reg_record, level, step, roll_y0[window], har_trans, lag, include_mean,
+				stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+			);
+		} else {
+			forecaster[window][chain] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
+				reg_record, step, roll_y0[window], har_trans, lag, include_mean,
+				stable_filter, static_cast<unsigned int>(seed_forecast[chain]), sv
+			);
+		}
 	}
 };
 

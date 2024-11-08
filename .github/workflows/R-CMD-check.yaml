@@ -84,7 +84,7 @@ jobs:
           error-on: '"warning"'
           check-dir: '"check"'
           upload-snapshots: false
-          upload-results: false
+          upload-results: 'never'
       
       - name: Run check for CRAN
         uses: r-lib/actions/check-r-package@v2

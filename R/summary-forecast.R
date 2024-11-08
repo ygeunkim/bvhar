@@ -258,7 +258,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
   }
   fit_ls <- list()
   if (use_fit) {
@@ -468,7 +468,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
   }
   fit_ls <- list()
   if (use_fit) {
@@ -830,7 +830,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
   }
   fit_ls <- list()
   if (use_fit) {
@@ -1040,7 +1040,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
   }
   fit_ls <- list()
   if (use_fit) {

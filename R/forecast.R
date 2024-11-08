@@ -424,7 +424,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
     prior_nm <- "ci"
   }
   fit_ls <- lapply(
@@ -538,7 +538,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
     prior_nm <- "ci"
   }
   fit_ls <- lapply(
@@ -658,7 +658,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
     prior_nm <- "ci"
   }
   fit_ls <- lapply(
@@ -775,7 +775,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
   ci_lev <- 0
   if (is.numeric(sparse)) {
     ci_lev <- sparse
-    sparse <- TRUE
+    sparse <- FALSE
     prior_nm <- "ci"
   }
   fit_ls <- lapply(
