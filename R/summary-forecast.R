@@ -368,7 +368,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
@@ -377,7 +377,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), sd)
     }) %>%
     do.call(rbind, .)
@@ -386,7 +386,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
@@ -395,7 +395,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
@@ -579,7 +579,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
@@ -588,7 +588,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), sd)
     }) %>%
     do.call(rbind, .)
@@ -597,7 +597,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
@@ -606,7 +606,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
@@ -950,7 +950,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
@@ -959,7 +959,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), sd)
     }) %>%
     do.call(rbind, .)
@@ -968,7 +968,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
@@ -977,7 +977,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)
@@ -1160,7 +1160,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), mean)
     }) %>%
     do.call(rbind, .)
@@ -1169,7 +1169,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), sd)
     }) %>%
     do.call(rbind, .)
@@ -1178,7 +1178,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = level / 2)
     }) %>%
     do.call(rbind, .)
@@ -1187,7 +1187,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     res_mat %>%
     lapply(function(res) {
       unlist(res) %>%
-        array(dim = c(1, object$m, num_draw)) %>%
+        array(dim = c(num_horizon, object$m, num_draw)) %>%
         apply(c(1, 2), quantile, probs = 1 - level / 2)
     }) %>%
     do.call(rbind, .)

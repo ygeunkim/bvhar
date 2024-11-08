@@ -3,7 +3,6 @@
 
 #include "bvharsim.h"
 #include <set>
-#include <string>
 
 namespace bvhar {
 

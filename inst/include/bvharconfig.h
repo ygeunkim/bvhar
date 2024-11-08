@@ -446,6 +446,12 @@ struct RegRecords {
 	virtual void appendRecords(LIST& list) = 0;
 	virtual LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
 	virtual SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
+
+	template <typename RecordType = LdltRecords>
+	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
+
+	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
+	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) = 0;
 	virtual void subsetStable(int num_alpha, double threshold) = 0;
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) = 0;
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) = 0;
@@ -532,6 +538,11 @@ struct LdltRecords : public RegRecords {
 
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
+
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
+	}
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {}
 
 	void subsetStable(int num_alpha, double threshold) override {
 		int dim = fac_record.cols();
@@ -636,6 +647,12 @@ struct SvRecords : public RegRecords {
 
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
+
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {}
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {
+		sv_update = lvol_record.rightCols(lvol_sig_record.cols()).row(i).transpose();
+		sv_sig = lvol_sig_record.row(i).cwiseSqrt();
+	}
 
 	void subsetStable(int num_alpha, double threshold) override {
 		int dim = lvol_sig_record.cols();
@@ -866,6 +883,16 @@ inline SvRecords SvRecords::returnSvRecords(const SparseRecords& sparse_record, 
 		thin_record(lvol_sig_record, num_iter, num_burn, thin).derived()
 	);
 	return res_record;
+}
+
+template<>
+inline LdltRecords RegRecords::returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return returnLdltRecords(sparse_record, num_iter, num_burn, thin, sparse);
+}
+
+template<>
+inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
+	return returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 }
 
 } // namespace bvhar

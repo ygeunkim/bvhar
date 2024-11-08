@@ -52,7 +52,7 @@ def help_var_bayes(
         assert roll_out['upper'].shape == (n_ahead, dim_data)
 
 def test_var_bayes():
-    num_data = 30
+    num_data = 50
     dim_data = 2
     var_lag = 3
     etf_vix = load_vix()
@@ -71,7 +71,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, False, False, False
+        data_out, n_ahead, True, True, True
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
@@ -159,7 +159,7 @@ def help_vhar_bayes(
         assert roll_out['upper'].shape == (n_ahead, dim_data)
 
 def test_vhar_bayes():
-    num_data = 30
+    num_data = 50
     dim_data = 3
     week = 5
     month = 22
@@ -179,7 +179,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, False, False, False
+        data_out, n_ahead, True, True, True
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
