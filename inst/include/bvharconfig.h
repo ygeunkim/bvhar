@@ -417,6 +417,8 @@ struct RegRecords {
 	RegRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record)
 	: coef_record(alpha_record), contem_coef_record(a_record) {}
 
+	virtual ~RegRecords() = default;
+
 	void assignRecords(int id, const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
@@ -516,6 +518,8 @@ struct LdltRecords : public RegRecords {
 		fac_record(d_record) {
 		coef_record << alpha_record, c_record;
 	}
+
+	virtual ~LdltRecords() = default;
 
 	void assignRecords(
 		int id,
@@ -621,6 +625,8 @@ struct SvRecords : public RegRecords {
 		lvol_record(h_record) {
 		coef_record << alpha_record, c_record;
 	}
+
+	virtual ~SvRecords() = default;
 
 	void assignRecords(
 		int id,
