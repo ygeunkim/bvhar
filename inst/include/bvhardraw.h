@@ -70,6 +70,32 @@ inline double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invga
   return res;
 }
 
+// Build std::set own-id and cross-id based on VectorXd
+inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, const Eigen::VectorXi& grp_own, const Eigen::VectorXi& grp_cross) {
+	for (int i = 0; i < grp_own.size(); ++i) {
+		own_id.insert(grp_own[i]);
+	}
+	for (int i = 0; i < grp_cross.size(); ++i) {
+		cross_id.insert(grp_cross[i]);
+	}
+}
+
+inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, bool& minnesota,
+											 const Eigen::VectorXi& grp_own, const Eigen::VectorXi& grp_cross, const Eigen::MatrixXi& grp_mat) {
+	minnesota = true;
+	std::set<int> unique_grp(grp_mat.data(), grp_mat.data() + grp_mat.size());
+	if (unique_grp.size() == 1) {
+		minnesota = false;
+	}
+	for (int i = 0; i < grp_own.size(); ++i) {
+		own_id.insert(grp_own[i]);
+	}
+	for (int i = 0; i < grp_cross.size(); ++i) {
+		cross_id.insert(grp_cross[i]);
+	}
+}
+
+
 // Building Spike-and-slab SD Diagonal Matrix
 // 
 // In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.

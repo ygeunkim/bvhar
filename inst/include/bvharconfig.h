@@ -159,17 +159,7 @@ struct HierminnParams : public BaseRegParams {
 		_prior_mean = _prior_prec.llt().solve(dummy_design.transpose() * dummy_response);
 		_prec_diag.diagonal() = 1 / _sigma.array();
 		_grp_mat = grp_mat;
-		_minnesota = true;
-		std::set<int> unique_grp(_grp_mat.data(), _grp_mat.data() + _grp_mat.size());
-		if (unique_grp.size() == 1) {
-			_minnesota = false;
-		}
-		for (int i = 0; i < own_id.size(); ++i) {
-			_own_id.insert(own_id[i]);
-		}
-		for (int i = 0; i < cross_id.size(); ++i) {
-			_cross_id.insert(cross_id[i]);
-		}
+		set_grp_id(_own_id, _cross_id, _minnesota, own_id, cross_id, _grp_mat);
 	}
 };
 
