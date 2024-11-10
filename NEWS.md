@@ -6,13 +6,17 @@
 
 * Transpose the predictive distribution update loop.
 
+* `med = TRUE` gives median of forecast draws as point forecast.
+
 ## C++ Header file changes
 
 * Use template to avoid code duplicates among LDLT and SV models.
 
 * Can easily conduct MCMC using `McmcRun` class in C++ source.
 
-* Can easily implement forecasting for LDLT and SV MCMC using `McmcForecastRun`, `McmcVarforecastRun`, and `McmcVharforecastRun`.
+* Can easily implement forecasting for LDLT and SV MCMC using `McmcVarforecastRun<>` and `McmcVharforecastRun<>`.
+
+* Can easily use rolling and expanding forecast for LDLT ans SV MCMC using `McmcVarforecastRun<>` and `McmcVharforecastRun<>`.
 
 ## Removal of deprecated functions
 
