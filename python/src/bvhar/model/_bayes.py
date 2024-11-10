@@ -314,7 +314,7 @@ class VarBayes(_AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, med = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -327,6 +327,8 @@ class VarBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -355,13 +357,13 @@ class VarBayes(_AutoregBayes):
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
-            "forecast": np.mean(y_distn, axis=0),
+            "forecast": np.median(y_distn, axis=0) if med else np.mean(y_distn, axis=0),
             "se": np.std(y_distn, axis=0, ddof=1),
             "lower": np.quantile(y_distn, level / 2, axis=0),
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -376,6 +378,8 @@ class VarBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -423,14 +427,14 @@ class VarBayes(_AutoregBayes):
         forecast_elem = next(iter(out_forecast.values()))
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -445,6 +449,8 @@ class VarBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -492,7 +498,7 @@ class VarBayes(_AutoregBayes):
         forecast_elem = next(iter(out_forecast.values()))
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
@@ -632,7 +638,7 @@ class VharBayes(_AutoregBayes):
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, med = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -645,6 +651,8 @@ class VharBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -673,13 +681,13 @@ class VharBayes(_AutoregBayes):
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
-            "forecast": np.mean(y_distn, axis=0),
+            "forecast": np.median(y_distn, axis=0) if med else np.mean(y_distn, axis=0),
             "se": np.std(y_distn, axis=0, ddof=1),
             "lower": np.quantile(y_distn, level / 2, axis=0),
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -694,6 +702,8 @@ class VharBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -739,14 +749,14 @@ class VharBayes(_AutoregBayes):
         forecast_elem = next(iter(out_forecast.values()))
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
             "lpl": out_forecast.get('lpl')
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -761,6 +771,8 @@ class VharBayes(_AutoregBayes):
             Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -806,7 +818,7 @@ class VharBayes(_AutoregBayes):
         forecast_elem = next(iter(out_forecast.values()))
         y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),

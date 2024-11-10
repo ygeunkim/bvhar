@@ -223,10 +223,11 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -364,14 +365,25 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  pred_mean <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), mean)
-    }) %>%
-    do.call(rbind, .)
+  if (med) {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), median)
+      }) %>%
+      do.call(rbind, .)
+  } else {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), mean)
+      }) %>%
+      do.call(rbind, .)
+  }
   colnames(pred_mean) <- name_var
   est_se <- 
     res_mat %>%
@@ -423,10 +435,11 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
 #' @param use_sv Use SV term
 #' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -460,10 +473,6 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
   # }
   # if (num_horizon * num_chains %/% num_thread == 0) {
   #   warning(sprintf("OpenMP cannot divide the iterations as integer. Use divisor of ('nrow(y_test) - n_ahead + 1') * 'num_thread' <= 'object$chain' = %d", num_horizon * num_chains))
-  # }
-  # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
-  # if (chunk_size == 0) {
-  #   chunk_size <- 1
   # }
   ci_lev <- 0
   if (is.numeric(sparse)) {
@@ -575,14 +584,25 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  pred_mean <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), mean)
-    }) %>%
-    do.call(rbind, .)
+  if (med) {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), median)
+      }) %>%
+      do.call(rbind, .)
+  } else {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), mean)
+      }) %>%
+      do.call(rbind, .)
+  }
   colnames(pred_mean) <- name_var
   est_se <-
     res_mat %>%
@@ -795,10 +815,11 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 #' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -946,14 +967,25 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   #   }) %>%
   #   do.call(rbind, .)
   # colnames(res_mat) <- name_var
-  pred_mean <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), mean)
-    }) %>%
-    do.call(rbind, .)
+  if (med) {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), median)
+      }) %>%
+      do.call(rbind, .)
+  } else {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), mean)
+      }) %>%
+      do.call(rbind, .)
+  }
   colnames(pred_mean) <- name_var
   est_se <-
     res_mat %>%
@@ -1005,10 +1037,11 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
 #' @param use_sv Use SV term
 #' @param stable `r lifecycle::badge("experimental")` Filter only stable coefficient draws in MCMC records.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -1147,23 +1180,34 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  # res_mat <- 
-  #   res_mat %>% 
+  # res_mat <-
+  #   res_mat %>%
   #   lapply(function(res) {
-  #     unlist(res) %>% 
-  #       array(dim = c(1, object$m, num_draw)) %>% 
+  #     unlist(res) %>%
+  #       array(dim = c(1, object$m, num_draw)) %>%
   #       apply(c(1, 2), mean)
-  #   }) %>% 
+  #   }) %>%
   #   do.call(rbind, .)
   # colnames(res_mat) <- name_var
-  pred_mean <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), mean)
-    }) %>%
-    do.call(rbind, .)
+  if (med) {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), median)
+      }) %>%
+      do.call(rbind, .)
+  } else {
+    pred_mean <-
+      res_mat %>%
+      lapply(function(res) {
+        unlist(res) %>%
+          array(dim = c(num_horizon, object$m, num_draw)) %>%
+          apply(c(1, 2), mean)
+      }) %>%
+      do.call(rbind, .)
+  }
   colnames(pred_mean) <- name_var
   est_se <-
     res_mat %>%

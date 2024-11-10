@@ -304,7 +304,7 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thr
 }
 
 #' @rdname predict
-#' 
+#'
 #' @param object Model object
 #' @param n_ahead step to forecast
 #' @param n_iter Number to sample residual matrix from inverse-wishart distribution. By default, 100.
@@ -342,8 +342,8 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
   # colnames(pred_mean) <- var_names
   # Predictive distribution-------------------------
   dim_data <- ncol(pred_mean)
-  y_distn <- 
-    pred_res$predictive %>% 
+  y_distn <-
+    pred_res$predictive %>%
     array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
   # num_draw <- nrow(alpha_record) # concatenate multiple chains
   # y_distn <-
@@ -382,13 +382,15 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
 #' @param num_thread Number of threads
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @references Korobilis, D. (2013). *VAR FORECASTING USING BAYESIAN VARIABLE SELECTION*. Journal of Applied Econometrics, 28(2).
 #' @importFrom posterior subset_draws as_draws_matrix
+#' @importFrom stats median
 #' @order 1
 #' @export
-predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, sparse = FALSE, med = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -466,7 +468,11 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
     pred_res %>%
     unlist() %>%
     array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  if (med) {
+    pred_mean <- apply(y_distn, c(1, 2), median)
+  } else {
+    pred_mean <- apply(y_distn, c(1, 2), mean)
+  }
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
@@ -497,12 +503,13 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
 #' @param num_thread Number of threads
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, sparse = FALSE, warn = FALSE, ...) {
+predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, sparse = FALSE, med = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
@@ -581,7 +588,11 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
     pred_res %>% 
     unlist() %>% 
     array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  if (med) {
+    pred_mean <- apply(y_distn, c(1, 2), median)
+  } else {
+    pred_mean <- apply(y_distn, c(1, 2), mean)
+  }
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
@@ -613,6 +624,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @references
@@ -622,7 +634,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
+predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, use_sv = TRUE, sparse = FALSE, med = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
@@ -701,7 +713,11 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
     pred_res %>% 
     unlist() %>% 
     array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  if (med) {
+    pred_mean <- apply(y_distn, c(1, 2), median)
+  } else {
+    pred_mean <- apply(y_distn, c(1, 2), mean)
+  }
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
@@ -733,12 +749,13 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
 #' @param use_sv Use SV term
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param warn Give warning for stability of each coefficients record. By default, `FALSE`.
 #' @param ... not used
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @order 1
 #' @export
-predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, use_sv = TRUE, sparse = FALSE, warn = FALSE, ...) {
+predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thread = 1, use_sv = TRUE, sparse = FALSE, med = FALSE, warn = FALSE, ...) {
   dim_data <- object$m
   num_chains <- object$chain
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
@@ -819,7 +836,11 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
     pred_res %>% 
     unlist() %>% 
     array(dim = c(n_ahead, dim_data, num_draw))
-  pred_mean <- apply(y_distn, c(1, 2), mean)
+  if (med) {
+    pred_mean <- apply(y_distn, c(1, 2), median)
+  } else {
+    pred_mean <- apply(y_distn, c(1, 2), mean)
+  }
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
   upper_quantile <- apply(y_distn, c(1, 2), quantile, probs = (1 - level / 2))
   est_se <- apply(y_distn, c(1, 2), sd)
