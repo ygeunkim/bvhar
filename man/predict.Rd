@@ -33,6 +33,7 @@
   stable = FALSE,
   num_thread = 1,
   sparse = FALSE,
+  med = FALSE,
   warn = FALSE,
   ...
 )
@@ -44,6 +45,7 @@
   stable = FALSE,
   num_thread = 1,
   sparse = FALSE,
+  med = FALSE,
   warn = FALSE,
   ...
 )
@@ -56,6 +58,7 @@
   num_thread = 1,
   use_sv = TRUE,
   sparse = FALSE,
+  med = FALSE,
   warn = FALSE,
   ...
 )
@@ -68,6 +71,7 @@
   num_thread = 1,
   use_sv = TRUE,
   sparse = FALSE,
+  med = FALSE,
   warn = FALSE,
   ...
 )
@@ -95,6 +99,8 @@ is.predbvhar(x)
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.
 Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval across MCMC for restriction.}
+
+\item{med}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If \code{TRUE}, use median of forecast draws instead of mean (default).}
 
 \item{warn}{Give warning for stability of each coefficients record. By default, \code{FALSE}.}
 

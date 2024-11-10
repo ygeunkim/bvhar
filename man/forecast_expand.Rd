@@ -22,6 +22,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   level = 0.05,
   stable = FALSE,
   sparse = FALSE,
+  med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
   ...
@@ -36,6 +37,7 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
   use_sv = TRUE,
   stable = FALSE,
   sparse = FALSE,
+  med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
   ...
@@ -59,6 +61,8 @@ forecast_expand(object, n_ahead, y_test, num_thread = 1, ...)
 \item{stable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Filter only stable coefficient draws in MCMC records.}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
+
+\item{med}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If \code{TRUE}, use median of forecast draws instead of mean (default).}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
 
