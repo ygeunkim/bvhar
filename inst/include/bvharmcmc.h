@@ -182,8 +182,8 @@ protected:
 				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
-			// draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
-			draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
+			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
+			// draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
 		}
 	}
 	void updateLatent() { latent_innov = y - x * coef_mat; }
