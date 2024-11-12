@@ -159,17 +159,7 @@ struct HierminnParams : public BaseRegParams {
 		_prior_mean = _prior_prec.llt().solve(dummy_design.transpose() * dummy_response);
 		_prec_diag.diagonal() = 1 / _sigma.array();
 		_grp_mat = grp_mat;
-		_minnesota = true;
-		std::set<int> unique_grp(_grp_mat.data(), _grp_mat.data() + _grp_mat.size());
-		if (unique_grp.size() == 1) {
-			_minnesota = false;
-		}
-		for (int i = 0; i < own_id.size(); ++i) {
-			_own_id.insert(own_id[i]);
-		}
-		for (int i = 0; i < cross_id.size(); ++i) {
-			_cross_id.insert(cross_id[i]);
-		}
+		set_grp_id(_own_id, _cross_id, _minnesota, own_id, cross_id, _grp_mat);
 	}
 };
 
@@ -177,6 +167,8 @@ template <typename BaseRegParams = RegParams>
 struct SsvsParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
 	Eigen::VectorXd _coef_s1, _coef_s2;
 	double _contem_s1, _contem_s2;
 	double _coef_spike_scl, _contem_spike_scl;
@@ -185,6 +177,7 @@ struct SsvsParams : public BaseRegParams {
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		LIST& reg_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		LIST& ssvs_spec, LIST& intercept,
 		bool include_mean
@@ -195,27 +188,36 @@ struct SsvsParams : public BaseRegParams {
 		_contem_s1(CAST_DOUBLE(ssvs_spec["chol_s1"])), _contem_s2(CAST_DOUBLE(ssvs_spec["chol_s2"])),
 		_coef_spike_scl(CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
 		_coef_slab_shape(CAST_DOUBLE(ssvs_spec["coef_slab_shape"])), _coef_slab_scl(CAST_DOUBLE(ssvs_spec["coef_slab_scl"])),
-		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])) {}
+		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])) {
+		set_grp_id(_own_id, _cross_id, own_id, cross_id);
+	}
 };
 
 template <typename BaseRegParams = RegParams>
 struct HorseshoeParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		LIST& reg_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		LIST& intercept, bool include_mean
 	)
-	: BaseRegParams(num_iter, x, y, reg_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
+	: BaseRegParams(num_iter, x, y, reg_spec, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {
+		set_grp_id(_own_id, _cross_id, own_id, cross_id);
+	}
 };
 
 template <typename BaseRegParams = RegParams>
 struct NgParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
 	double _mh_sd;
 	double _group_shape;
 	double _group_scl;
@@ -227,6 +229,7 @@ struct NgParams : public BaseRegParams {
 	NgParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		LIST& reg_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		LIST& ng_spec, LIST& intercept,
 		bool include_mean
@@ -235,13 +238,17 @@ struct NgParams : public BaseRegParams {
 		_mh_sd(CAST_DOUBLE(ng_spec["shape_sd"])),
 		_group_shape(CAST_DOUBLE(ng_spec["group_shape"])), _group_scl(CAST_DOUBLE(ng_spec["group_scale"])),
 		_global_shape(CAST_DOUBLE(ng_spec["global_shape"])), _global_scl(CAST_DOUBLE(ng_spec["global_scale"])),
-		_contem_global_shape(CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(CAST_DOUBLE(ng_spec["contem_global_scale"])) {}
+		_contem_global_shape(CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(CAST_DOUBLE(ng_spec["contem_global_scale"])) {
+		set_grp_id(_own_id, _cross_id, own_id, cross_id);
+	}
 };
 
 template <typename BaseRegParams = RegParams>
 struct DlParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
+	std::set<int> _own_id;
+	std::set<int> _cross_id;
 	int _grid_size;
 	double _shape;
 	double _rate;
@@ -249,13 +256,16 @@ struct DlParams : public BaseRegParams {
 	DlParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		LIST& reg_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		LIST& dl_spec, LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
-		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
+		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {
+		set_grp_id(_own_id, _cross_id, own_id, cross_id);
+	}
 };
 
 struct RegInits {

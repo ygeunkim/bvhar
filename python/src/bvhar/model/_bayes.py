@@ -150,6 +150,7 @@ class _AutoregBayes:
         self.param_names_ = None
         self.param_ = None
         # self.cov_ = None
+        self.sparse_coef_ = None
     
     def _validate(self):
         if not isinstance(self.cov_spec_, LdltConfig):
@@ -308,9 +309,11 @@ class VarBayes(_AutoregBayes):
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
         self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
+        self.sparse_coef_ = self.param_.filter(regex='^alpha_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
         if self.fit_intercept:
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
+            self.sparse_coef_ = np.concatenate([self.sparse_coef_, self.param_.filter(regex='^c_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
@@ -632,9 +635,11 @@ class VharBayes(_AutoregBayes):
         self.param_names_ = process_record(res, True)
         self.param_ = concat_chain(res, True)
         self.coef_ = self.param_.filter(regex='^phi\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
+        self.sparse_coef_ = self.param_.filter(regex='^phi_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
         if self.fit_intercept:
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
+            self.sparse_coef_ = np.concatenate([self.sparse_coef_, self.param_.filter(regex='^c_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
