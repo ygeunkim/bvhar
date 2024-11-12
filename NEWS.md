@@ -8,6 +8,8 @@
 
 * `med = TRUE` gives median of forecast draws as point forecast.
 
+* SAVS penalty is zero in own-lag.
+
 ## C++ Header file changes
 
 * Use template to avoid code duplicates among LDLT and SV models.
