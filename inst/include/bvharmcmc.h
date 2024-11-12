@@ -35,7 +35,7 @@ public:
 		coef_vec(Eigen::VectorXd::Zero(num_coef)), contem_coef(inits._contem),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
 		prior_alpha_prec(Eigen::VectorXd::Zero(num_coef)),
-		alpha_penalty(Eigen::VectorXd::Zero(num_alpha)),
+		alpha_penalty(Eigen::VectorXd::Ones(num_alpha)),
 		prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_chol_prec(Eigen::VectorXd::Ones(num_lowerchol)),
 		coef_mat(inits._coef), contem_id(0),
@@ -267,7 +267,7 @@ public:
 	: BaseMcmc(params, inits, seed) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.head(num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		if (include_mean) {
 			prior_alpha_mean.tail(dim) = params._mean_non;
 		}
@@ -357,7 +357,7 @@ protected:
 		}
 	}
 	void updatePenalty() override {
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -448,7 +448,7 @@ protected:
 		prior_alpha_prec.head(num_alpha).array() = 1 / (spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array());
 	}
 	void updatePenalty() override {
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -542,7 +542,7 @@ protected:
 		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
 	}
 	void updatePenalty() override {
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -644,7 +644,7 @@ protected:
 		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
 	void updatePenalty() override {
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -734,7 +734,7 @@ protected:
 		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updatePenalty() override {
-		alpha_penalty = prior_alpha_prec.head(num_alpha);
+		// alpha_penalty = prior_alpha_prec.head(num_alpha);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
