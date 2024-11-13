@@ -392,8 +392,9 @@ inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eig
 	// sparse_coef.setZero();
 	// Eigen::ArrayXd penalty_vec = 1 / (prior_prec.array() * coef.array().square());
 	// Eigen::ArrayXd penalty_vec = prior_prec.array();
-	Eigen::ArrayXd penalty_vec = prior_prec.array() / (coef.array().square());
+	// Eigen::ArrayXd penalty_vec = prior_prec.array() / (coef.array().square());
 	Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
+	Eigen::ArrayXd penalty_vec = prior_prec.array() / coef_abs;
 	Eigen::ArrayXd x_norm = x.colwise().squaredNorm().array();
 	Eigen::ArrayXd abs_fit = coef_abs * x_norm;
 	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
