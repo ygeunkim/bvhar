@@ -913,6 +913,18 @@ public:
 		);
 	}
 	virtual ~McmcRun() = default;
+	void fit() {
+		if (num_chains == 1) {
+			runGibbs(0);
+		} else {
+		#ifdef _OPENMP
+			#pragma omp parallel for num_threads(nthreads)
+		#endif
+			for (int chain = 0; chain < num_chains; chain++) {
+				runGibbs(chain);
+			}
+		}
+	}
 	LIST_OF_LIST returnRecords() override {
 		fit();
 		return WRAP(res);
@@ -941,18 +953,6 @@ protected:
 	#endif
 		{
 			res[chain] = mcmc_ptr[chain]->returnRecords(num_burn, thin);
-		}
-	}
-	void fit() {
-		if (num_chains == 1) {
-			runGibbs(0);
-		} else {
-		#ifdef _OPENMP
-			#pragma omp parallel for num_threads(nthreads)
-		#endif
-			for (int chain = 0; chain < num_chains; chain++) {
-				runGibbs(chain);
-			}
 		}
 	}
 

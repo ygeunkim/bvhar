@@ -473,12 +473,6 @@ public:
 		);
 	}
 	virtual ~McmcForecastRun() = default;
-	std::vector<Eigen::MatrixXd> returnForecast() {
-		forecast();
-		return density_forecast;
-	}
-
-protected:
 	void forecast() {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
@@ -487,6 +481,10 @@ protected:
 			density_forecast[chain] = forecaster[chain]->forecastDensity();
 			forecaster[chain].reset(); // free the memory by making nullptr
 		}
+	}
+	std::vector<Eigen::MatrixXd> returnForecast() {
+		forecast();
+		return density_forecast;
 	}
 
 private:
@@ -532,6 +530,25 @@ public:
 		}
 	}
 	virtual ~McmcOutforecastRun() = default;
+	void forecast() {
+		if (num_chains == 1) {
+		#ifdef _OPENMP
+			#pragma omp parallel for num_threads(nthreads)
+		#endif
+			for (int window = 0; window < num_horizon; ++window) {
+				forecastWindow(window, 0);
+			}
+		} else {
+		#ifdef _OPENMP
+			#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
+		#endif
+			for (int window = 0; window < num_horizon; ++window) {
+				for (int chain = 0; chain < num_chains; ++chain) {
+					forecastWindow(window, chain);
+				}
+			}
+		}
+	}
 	LIST returnForecast() {
 		forecast();
 		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
@@ -598,25 +615,6 @@ protected:
 		out_forecast[window][chain] = forecaster[window][chain]->forecastDensity(valid_vec).bottomRows(1);
 		lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 		forecaster[window][chain].reset(); // free the memory by making nullpt
-	}
-	void forecast() {
-		if (num_chains == 1) {
-		#ifdef _OPENMP
-			#pragma omp parallel for num_threads(nthreads)
-		#endif
-			for (int window = 0; window < num_horizon; ++window) {
-				forecastWindow(window, 0);
-			}
-		} else {
-		#ifdef _OPENMP
-			#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
-		#endif
-			for (int window = 0; window < num_horizon; ++window) {
-				for (int chain = 0; chain < num_chains; ++chain) {
-					forecastWindow(window, chain);
-				}
-			}
-		}
 	}
 };
 
