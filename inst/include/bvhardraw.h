@@ -388,7 +388,7 @@ inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen:
 }
 
 inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<Eigen::MatrixXd> x,
-												 Eigen::Ref<Eigen::VectorXd> prior_prec) {
+												 Eigen::Ref<const Eigen::VectorXd> prior_prec) {
 	// sparse_coef.setZero();
 	// Eigen::ArrayXd penalty_vec = 1 / (prior_prec.array() * coef.array().square());
 	// Eigen::ArrayXd penalty_vec = prior_prec.array();
