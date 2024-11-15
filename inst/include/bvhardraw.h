@@ -368,7 +368,7 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 // 
 // @param coef non-zero coef
 // @param x design matrix
-inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::MatrixXd& x) {
+inline void draw_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<Eigen::MatrixXd> x) {
 	sparse_coef.setZero();
 	// for (int i = 0; i < coef.size(); ++i) {
 	// 	double mu_i = 1 / (coef[i] * coef[i]);

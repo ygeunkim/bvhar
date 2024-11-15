@@ -168,7 +168,7 @@ protected:
 				);
 				coef_vec = coef_mat.reshaped();
 			}
-			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), design_coef, prior_prec_j.cwiseSqrt());
+			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, prior_prec_j.cwiseSqrt());
 		}
 	}
 	void updateImpact() {
@@ -183,8 +183,7 @@ protected:
 				prior_chol_prec.segment(contem_id, j - 1),
 				rng
 			);
-			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem);
-			// draw_mn_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), design_contem, prior_chol_prec.segment(contem_id, j - 1));
+			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), latent_innov.leftCols(j - 1));
 		}
 	}
 	void updateLatent() { latent_innov = y - x * coef_mat; }
