@@ -143,7 +143,7 @@ spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALS
     a_record = a_record
   )
   dim_data <- object$m
-  num_draw <- nrow(phi_record)
+  num_draw <- nrow(alpha_record)
   var_names <- colnames(object$coefficients)
   connect_distn <- process_forecast_draws(
     sp_res$connect,
