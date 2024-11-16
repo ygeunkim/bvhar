@@ -524,9 +524,11 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
   tot_distn <-
     lapply(
       sp_list$tot,
-      function(x) process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE)
-    ) %>%
-    lapply(function(x) do.call(cbind, x)) %>%
+      function(x) {
+        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
+          do.call(cbind, .)
+      }
+    ) %>% 
     do.call(rbind, .)
   # sp_list <- lapply(sp_list, function(x) {
   #   if (is.matrix(x)) {
@@ -558,11 +560,12 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
 }
 
 #' @rdname dynamic_spillover
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @export
-dynamic_spillover.svmod <- function(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...) {
+dynamic_spillover.svmod <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, num_thread = 1, ...) {
   num_design <- nrow(object$y0)
   if (num_design < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -611,17 +614,35 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, sparse = FALSE, num_t
     },
     stop("Not supported model.")
   )
+  dim_data <- object$m
+  var_names <- colnames(object$coefficients)
+  to_distn <- process_dynamic_spdraws(sp_list$to, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  from_distn <- process_dynamic_spdraws(sp_list$from, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  net_distn <- process_dynamic_spdraws(sp_list$net, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  tot_distn <-
+    lapply(
+      sp_list$tot,
+      function(x) {
+        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
+          do.call(cbind, .)
+      }
+    ) %>%
+    do.call(rbind, .)
   # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
-  colnames(sp_list$to) <- colnames(object$y)
-  colnames(sp_list$from) <- colnames(object$y)
-  colnames(sp_list$net) <- colnames(object$y)
+  # colnames(sp_list$to) <- colnames(object$y)
+  # colnames(sp_list$from) <- colnames(object$y)
+  # colnames(sp_list$net) <- colnames(object$y)
   res <- list(
-    tot = sp_list$tot,
+    # tot = sp_list$tot,
+    tot = tot_distn,
     # directional = as_tibble(cbind(sp_list$to, sp_list$from)),
-    to = as_tibble(sp_list$to),
-    from = as_tibble(sp_list$from),
-    net = as_tibble(sp_list$net),
+    # to = as_tibble(sp_list$to),
+    # from = as_tibble(sp_list$from),
+    # net = as_tibble(sp_list$net),
+    to = to_distn,
+    from = from_distn,
+    net = net_distn,
     index = seq_len(nrow(object$y))[-seq_len(nrow(object$y) - nrow(object$y0))],
     ahead = n_ahead,
     process = object$process

@@ -39,7 +39,14 @@ dynamic_spillover(object, n_ahead = 10L, ...)
   ...
 )
 
-\method{dynamic_spillover}{svmod}(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...)
+\method{dynamic_spillover}{svmod}(
+  object,
+  n_ahead = 10L,
+  level = 0.05,
+  sparse = FALSE,
+  num_thread = 1,
+  ...
+)
 }
 \arguments{
 \item{object}{Model object}

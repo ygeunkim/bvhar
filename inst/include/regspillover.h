@@ -69,9 +69,6 @@ public:
 	Eigen::VectorXd returnFrom() {
 		return from_spillover;
 	}
-	// double returnTot() {
-	// 	return compute_tot(spillover);
-	// }
 	Eigen::VectorXd returnTot() {
 		return tot_spillover;
 	}
