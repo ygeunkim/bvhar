@@ -14,7 +14,7 @@ namespace bvhar {
 inline Eigen::MatrixXd convert_var_to_vma(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
   int dim = var_coef.cols(); // m
   if (lag_max < 1) {
-    Rcpp::stop("'lag_max' must larger than 0");
+    STOP("'lag_max' must larger than 0");
   }
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
@@ -41,10 +41,10 @@ inline Eigen::MatrixXd convert_var_to_vma(Eigen::MatrixXd var_coef, int var_lag,
 inline Eigen::MatrixXd convert_vma_ortho(Eigen::MatrixXd var_coef, Eigen::MatrixXd var_covmat, int var_lag, int lag_max) {
   int dim = var_covmat.cols(); // num_rows = num_cols
   if ((dim != var_covmat.rows()) && (dim != var_coef.cols())) {
-    Rcpp::stop("Wrong covariance matrix format: `var_covmat`.");
+    STOP("Wrong covariance matrix format: `var_covmat`.");
   }
   if ((var_coef.rows() != var_lag * dim + 1) && (var_coef.rows() != var_lag * dim)) {
-    Rcpp::stop("Wrong VAR coefficient format: `var_coef`.");
+    STOP("Wrong VAR coefficient format: `var_coef`.");
   }
   Eigen::MatrixXd ma = convert_var_to_vma(var_coef, var_lag, lag_max);
   Eigen::MatrixXd res(ma.rows(), dim);
@@ -60,7 +60,7 @@ inline Eigen::MatrixXd convert_vhar_to_vma(Eigen::MatrixXd vhar_coef, Eigen::Mat
   int dim = vhar_coef.cols(); // dimension of time series
   Eigen::MatrixXd coef_mat = HARtrans_mat.transpose() * vhar_coef; // bhat = tilde(T)^T * Phi
   if (lag_max < 1) {
-    Rcpp::stop("'lag_max' must larger than 0");
+    STOP("'lag_max' must larger than 0");
   }
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
@@ -83,10 +83,10 @@ inline Eigen::MatrixXd convert_vhar_to_vma(Eigen::MatrixXd vhar_coef, Eigen::Mat
 inline Eigen::MatrixXd convert_vhar_vma_ortho(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd vhar_covmat, Eigen::MatrixXd HARtrans_mat, int lag_max, int month) {
   int dim = vhar_covmat.cols(); // num_rows = num_cols
   if ((dim != vhar_covmat.rows()) && (dim != vhar_coef.cols())) {
-    Rcpp::stop("Wrong covariance matrix format: `vhar_covmat`.");
+    STOP("Wrong covariance matrix format: `vhar_covmat`.");
   }
   if ((vhar_coef.rows() != 3 * dim + 1) && (vhar_coef.rows() != 3 * dim)) {
-    Rcpp::stop("Wrong VAR coefficient format: `vhar_coef`.");
+    STOP("Wrong VAR coefficient format: `vhar_coef`.");
   }
   Eigen::MatrixXd ma = convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
   Eigen::MatrixXd res(ma.rows(), dim);
@@ -122,26 +122,26 @@ inline Eigen::MatrixXd compute_vma_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixX
   return res;
 }
 
-inline Eigen::MatrixXd compute_sp_index(Eigen::MatrixXd fevd) {
+inline Eigen::MatrixXd compute_sp_index(Eigen::Ref<Eigen::MatrixXd> fevd) {
   return fevd.bottomRows(fevd.cols()) * 100;
 }
 
-inline Eigen::VectorXd compute_to(Eigen::MatrixXd spillover) {
+inline Eigen::VectorXd compute_to(Eigen::Ref<Eigen::MatrixXd> spillover) {
   Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
   return (spillover - diag_mat).colwise().sum();
 }
 
-inline Eigen::VectorXd compute_from(Eigen::MatrixXd spillover) {
+inline Eigen::VectorXd compute_from(Eigen::Ref<Eigen::MatrixXd> spillover) {
   Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
   return (spillover - diag_mat).rowwise().sum();
 }
 
-inline double compute_tot(Eigen::MatrixXd spillover) {
+inline double compute_tot(Eigen::Ref<Eigen::MatrixXd> spillover) {
   Eigen::MatrixXd diag_mat = spillover.diagonal().asDiagonal();
   return (spillover - diag_mat).sum() / spillover.cols();
 }
 
-inline Eigen::MatrixXd compute_net(Eigen::MatrixXd spillover) {
+inline Eigen::MatrixXd compute_net(Eigen::Ref<Eigen::MatrixXd> spillover) {
   return (spillover.transpose() - spillover) / spillover.cols();
 }
 

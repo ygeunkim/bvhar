@@ -171,6 +171,117 @@ get_gammaparam <- function(mode, sd) {
   )
 }
 
+#' Compute Summaries from Forecast Draws
+#' 
+#' @param draws Matrix in forms of rbind(step) x cbind(draws)
+#' @param n_ahead Forecast step used
+#' @param dim_data Dimension
+#' @param num_draw MCMC draws
+#' @param var_names Variable names
+#' @param level level for lower and upper quantiles
+#' @param med Get median instead of mean?
+#' 
+#' @noRd 
+process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names, level = .05, med = FALSE) {
+  mcmc_distn <-
+    draws %>%
+    unlist() %>% 
+    array(dim = c(n_ahead, dim_data, num_draw))
+  if (med) {
+    pred_mean <- apply(mcmc_distn, c(1, 2), median)
+  } else {
+    pred_mean <- apply(mcmc_distn, c(1, 2), mean)
+  }
+  pred_se <- apply(mcmc_distn, c(1, 2), sd)
+  pred_lower <- apply(mcmc_distn, c(1, 2), quantile, probs = level / 2)
+  pred_upper <- apply(mcmc_distn, c(1, 2), quantile, probs = 1 - level / 2)
+  colnames(pred_mean) <- var_names
+  rownames(pred_mean) <- var_names
+  colnames(pred_se) <- var_names
+  rownames(pred_se) <- var_names
+  colnames(pred_lower) <- var_names
+  rownames(pred_lower) <- var_names
+  colnames(pred_upper) <- var_names
+  rownames(pred_upper) <- var_names
+  list(
+    mean = pred_mean,
+    sd = pred_se,
+    lower = pred_lower,
+    upper = pred_upper
+  )
+}
+
+#' Compute Summaries from Vector Draws
+#'
+#' @param dim_data Dimension
+#' @param level level for lower and upper quantiles
+#' @param med Get median instead of mean?
+#'
+#' @noRd
+process_vector_draws <- function(draws, dim_data, level = .05, med = FALSE) {
+  mcmc_distn <- matrix(draws, ncol = dim_data)
+  if (med) {
+    pred_mean <- apply(mcmc_distn, 2, median)
+  } else {
+    pred_mean <- colMeans(mcmc_distn)
+  }
+  list(
+    mean = pred_mean,
+    sd = apply(mcmc_distn, 2, sd),
+    lower = apply(mcmc_distn, 2, quantile, probs = level / 2),
+    upper = apply(mcmc_distn, 2, quantile, probs = 1 - level / 2)
+  )
+}
+
+#' Compute Summaries from Dynamic Spillover
+#'
+#' @param dim_data Dimension
+#' @param level level for lower and upper quantiles
+#' @param med Get median instead of mean?
+#' @param var_names Variable names
+#' 
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr mutate
+#' @noRd 
+process_dynamic_spdraws <- function(draws, dim_data, level = .05, med = FALSE, var_names) {
+  lapply(
+    draws,
+    function(x) {
+      process_vector_draws(unlist(x), dim_data = dim_data, level = level, med = med) %>%
+        do.call(cbind, .) %>%
+        as.data.frame() %>%
+        mutate(series = var_names)
+    }
+  ) %>%
+    do.call(rbind, .) %>%
+    as_tibble()
+}
+
+#' Pivot longer spillover
+#' 
+#' @param connect Connectedness table
+#' @param col_names Column name for value
+#' @noRd 
+gather_spillover <- function(connect, col_names = "spillover") {
+  connect %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "series") %>%
+    pivot_longer(-"series", names_to = "shock", values_to = col_names)
+}
+
+#' Pivot longer spillover summaries
+#'
+#' @param distn Connectedness table distribution
+#' @param prefix Column names prefix
+#' 
+#' @noRd
+join_long_spillover <- function(connect, prefix = "spillover") {
+  gather_spillover(connect$mean, col_names = prefix) %>%
+    left_join(gather_spillover(connect$lower, col_names = paste(prefix, "lower", sep = "_")), by = c("series", "shock")) %>%
+    left_join(gather_spillover(connect$upper, col_names = paste(prefix, "upper", sep = "_")), by = c("series", "shock")) %>%
+    left_join(gather_spillover(connect$sd, col_names = paste(prefix, "sd", sep = "_")), by = c("series", "shock"))
+}
+
 #' Define Minnesota Group Matrix
 #'
 #' This function creates a matrix with group index

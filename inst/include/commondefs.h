@@ -25,6 +25,7 @@
 	#define NAMED Rcpp::Named
 	#define ACCESS_LIST(iterator, list) iterator
 	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
+	#define CAST_VECTOR(element) element
 	#define CAST_MATRIX(element) element
 #else
 	#include <pybind11/pybind11.h>
@@ -73,6 +74,7 @@
 	#define NAMED py::arg
 	#define ACCESS_LIST(iterator, list) list[iterator.first]
 	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
+	#define CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
 	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
 
 	#ifndef M_PI

@@ -1,24 +1,14 @@
 #include "bvharomp.h"
-#include "regspillover.h"
+#include <regspillover.h>
+// #include <bvharspillover.h>
 #include <algorithm>
 
 // [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step,
 																		 Eigen::MatrixXd alpha_record, Eigen::MatrixXd d_record, Eigen::MatrixXd a_record) {
 	bvhar::LdltRecords reg_record(alpha_record, a_record, d_record);
-	std::unique_ptr<bvhar::RegSpillover> spillover;
-	spillover.reset(new bvhar::RegSpillover(reg_record, step, lag));
-	spillover->computeSpillover();
-	Eigen::VectorXd to_sp = spillover->returnTo();
-	Eigen::VectorXd from_sp = spillover->returnFrom();
-	return Rcpp::List::create(
-		Rcpp::Named("connect") = spillover->returnSpillover(),
-		Rcpp::Named("to") = to_sp,
-		Rcpp::Named("from") = from_sp,
-		Rcpp::Named("tot") = spillover->returnTot(),
-		Rcpp::Named("net") = to_sp - from_sp,
-		Rcpp::Named("net_pairwise") = spillover->returnNet()
-	);
+	auto spillover = std::make_unique<bvhar::RegSpillover>(reg_record, step, lag);
+	return spillover->returnSpilloverDensity();
 }
 
 // [[Rcpp::export]]
@@ -27,19 +17,8 @@ Rcpp::List compute_vharldlt_spillover(int week, int month, int step,
 	int dim = d_record.cols();
 	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, false);
 	bvhar::LdltRecords reg_record(phi_record, a_record, d_record);
-	std::unique_ptr<bvhar::RegSpillover> spillover;
-	spillover.reset(new bvhar::RegVharSpillover(reg_record, step, month, har_trans));
-	spillover->computeSpillover();
-	Eigen::VectorXd to_sp = spillover->returnTo();
-	Eigen::VectorXd from_sp = spillover->returnFrom();
-	return Rcpp::List::create(
-		Rcpp::Named("connect") = spillover->returnSpillover(),
-		Rcpp::Named("to") = to_sp,
-		Rcpp::Named("from") = from_sp,
-		Rcpp::Named("tot") = spillover->returnTot(),
-		Rcpp::Named("net") = to_sp - from_sp,
-		Rcpp::Named("net_pairwise") = spillover->returnNet()
-	);
+	auto spillover = std::make_unique<bvhar::RegVharSpillover>(reg_record, step, month, har_trans);
+	return spillover->returnSpilloverDensity();
 }
 
 // [[Rcpp::export]]
@@ -65,9 +44,14 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 			ptr = nullptr;
 		}
 	}
-	Eigen::MatrixXd tot(num_horizon, num_chains);
-	std::vector<Eigen::MatrixXd> to_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
-	std::vector<Eigen::MatrixXd> from_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// Eigen::MatrixXd tot(num_horizon, num_chains);
+	// std::vector<Eigen::MatrixXd> to_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// std::vector<Eigen::MatrixXd> from_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	std::vector<std::vector<Eigen::VectorXd>> tot(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> to_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> from_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> net_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	// std::vector<Eigen::MatrixXd> net(num_horizon, Eigen::MatrixXd(num_horizon, y.cols()));
 	for (int i = 0; i < num_horizon; ++i) {
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, lag, lag + 1);
@@ -76,7 +60,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 			num_chains, num_iter, roll_x0, roll_y0,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain
+			include_mean, seed_chain.row(i)
 		);
 	}
 	auto run_gibbs = [&](int window, int chain) {
@@ -94,9 +78,13 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		for (int window = 0; window < num_horizon; ++window) {
 			run_gibbs(window, 0);
 			spillover[window][0]->computeSpillover();
-			to_sp[0].row(window) = spillover[window][0]->returnTo();
-			from_sp[0].row(window) = spillover[window][0]->returnFrom();
-			tot(window, 0) = spillover[window][0]->returnTot();
+			// to_sp[0].row(window) = spillover[window][0]->returnTo();
+			// from_sp[0].row(window) = spillover[window][0]->returnFrom();
+			// tot(window, 0) = spillover[window][0]->returnTot();
+			to_sp[window][0] = spillover[window][0]->returnTo();
+			from_sp[window][0] = spillover[window][0]->returnFrom();
+			tot[window][0] = spillover[window][0]->returnTot();
+			net_sp[window][0] = to_sp[window][0] - from_sp[window][0];
 			spillover[window][0].reset();
 		}
 	} else {
@@ -107,24 +95,30 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
 				spillover[window][chain]->computeSpillover();
-				to_sp[chain].row(window) = spillover[window][chain]->returnTo();
-				from_sp[chain].row(window) = spillover[window][chain]->returnFrom();
-				tot(window, chain) = spillover[window][chain]->returnTot();
+				// to_sp[chain].row(window) = spillover[window][chain]->returnTo();
+				// from_sp[chain].row(window) = spillover[window][chain]->returnFrom();
+				// tot(window, chain) = spillover[window][chain]->returnTot();
+				to_sp[window][chain] = spillover[window][chain]->returnTo();
+				from_sp[window][chain] = spillover[window][chain]->returnFrom();
+				tot[window][chain] = spillover[window][chain]->returnTot();
+				net_sp[window][chain] = to_sp[window][chain] - from_sp[window][chain];
 				spillover[window][chain].reset();
 			}
 		}
 	}
-	std::vector<Eigen::MatrixXd> net(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
-	std::transform(
-		to_sp.begin(), to_sp.end(), from_sp.begin(), net.begin(),
-		[](const Eigen::MatrixXd& to, const Eigen::MatrixXd& from) {
-			return to - from;
-		});
+	// std::vector<Eigen::MatrixXd> net(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// std::transform(
+	// 	to_sp.begin(), to_sp.end(), from_sp.begin(), net.begin(),
+	// 	[](const Eigen::MatrixXd& to, const Eigen::MatrixXd& from) {
+	// 		return to - from;
+	// 	});
 	return Rcpp::List::create(
 		Rcpp::Named("to") = Rcpp::wrap(to_sp),
 		Rcpp::Named("from") = Rcpp::wrap(from_sp),
-		Rcpp::Named("tot") = tot,
-		Rcpp::Named("net") = Rcpp::wrap(net)
+		// Rcpp::Named("tot") = tot,
+		// Rcpp::Named("net") = Rcpp::wrap(net)
+		Rcpp::Named("tot") = Rcpp::wrap(tot),
+		Rcpp::Named("net") = Rcpp::wrap(net_sp)
 	);
 }
 
@@ -151,9 +145,13 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 			ptr = nullptr;
 		}
 	}
-	Eigen::MatrixXd tot(num_horizon, num_chains);
-	std::vector<Eigen::MatrixXd> to_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
-	std::vector<Eigen::MatrixXd> from_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// Eigen::MatrixXd tot(num_horizon, num_chains);
+	// std::vector<Eigen::MatrixXd> to_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// std::vector<Eigen::MatrixXd> from_sp(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	std::vector<std::vector<Eigen::VectorXd>> tot(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> to_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> from_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
+	std::vector<std::vector<Eigen::VectorXd>> net_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains));
 	Eigen::MatrixXd har_trans = bvhar::build_vhar(y.cols(), week, month, include_mean);
 	for (int i = 0; i < num_horizon; ++i) {
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
@@ -163,11 +161,11 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 			num_chains, num_iter, roll_x1, roll_y0,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain
+			include_mean, seed_chain.row(i)
 		);
 	}
 	auto run_gibbs = [&](int window, int chain) {
-		for (int i = 0; i < num_iter; i++) {
+		for (int i = 0; i < num_iter; ++i) {
 			sur_objs[window][chain]->doPosteriorDraws();
 		}
 		bvhar::LdltRecords reg_record = sur_objs[window][chain]->returnLdltRecords(num_burn, thin, sparse);
@@ -181,9 +179,13 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		for (int window = 0; window < num_horizon; ++window) {
 			run_gibbs(window, 0);
 			spillover[window][0]->computeSpillover();
-			to_sp[0].row(window) = spillover[window][0]->returnTo();
-			from_sp[0].row(window) = spillover[window][0]->returnFrom();
-			tot(window, 0) = spillover[window][0]->returnTot();
+			// to_sp[0].row(window) = spillover[window][0]->returnTo();
+			// from_sp[0].row(window) = spillover[window][0]->returnFrom();
+			// tot(window, 0) = spillover[window][0]->returnTot();
+			to_sp[window][0] = spillover[window][0]->returnTo();
+			from_sp[window][0] = spillover[window][0]->returnFrom();
+			tot[window][0] = spillover[window][0]->returnTot();
+			net_sp[window][0] = to_sp[window][0] - from_sp[window][0];
 			spillover[window][0].reset();
 		}
 	} else {
@@ -194,23 +196,29 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 			for (int chain = 0; chain < num_chains; chain++) {
 				run_gibbs(window, chain);
 				spillover[window][chain]->computeSpillover();
-				to_sp[chain].row(window) = spillover[window][chain]->returnTo();
-				from_sp[chain].row(window) = spillover[window][chain]->returnFrom();
-				tot(window, chain) = spillover[window][chain]->returnTot();
+				// to_sp[chain].row(window) = spillover[window][chain]->returnTo();
+				// from_sp[chain].row(window) = spillover[window][chain]->returnFrom();
+				// tot(window, chain) = spillover[window][chain]->returnTot();
+				to_sp[window][chain] = spillover[window][chain]->returnTo();
+				from_sp[window][chain] = spillover[window][chain]->returnFrom();
+				tot[window][chain] = spillover[window][chain]->returnTot();
+				net_sp[window][chain] = to_sp[window][chain] - from_sp[window][chain];
 				spillover[window][chain].reset();
 			}
 		}
 	}
-	std::vector<Eigen::MatrixXd> net(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
-	std::transform(
-		to_sp.begin(), to_sp.end(), from_sp.begin(), net.begin(),
-		[](const Eigen::MatrixXd& to, const Eigen::MatrixXd& from) {
-			return to - from;
-		});
+	// std::vector<Eigen::MatrixXd> net(num_chains, Eigen::MatrixXd(num_horizon, y.cols()));
+	// std::transform(
+	// 	to_sp.begin(), to_sp.end(), from_sp.begin(), net.begin(),
+	// 	[](const Eigen::MatrixXd& to, const Eigen::MatrixXd& from) {
+	// 		return to - from;
+	// 	});
 	return Rcpp::List::create(
 		Rcpp::Named("to") = Rcpp::wrap(to_sp),
 		Rcpp::Named("from") = Rcpp::wrap(from_sp),
-		Rcpp::Named("tot") = tot,
-		Rcpp::Named("net") = Rcpp::wrap(net)
+		// Rcpp::Named("tot") = tot,
+		// Rcpp::Named("net") = Rcpp::wrap(net)
+		Rcpp::Named("tot") = Rcpp::wrap(tot),
+		Rcpp::Named("net") = Rcpp::wrap(net_sp)
 	);
 }
