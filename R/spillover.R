@@ -123,71 +123,133 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
 }
 
 #' @rdname spillover
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @importFrom posterior subset_draws as_draws_matrix
+#' @importFrom dplyr left_join
 #' @export
-spillover.bvarldlt <- function(object, n_ahead = 10L, sparse = FALSE, ...) {
+spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
   if (sparse) {
     alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
     a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
   }
-  res <- compute_varldlt_spillover(
+  sp_res <- compute_varldlt_spillover(
     object$p,
     step = n_ahead,
     alpha_record = alpha_record,
     d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
     a_record = a_record
   )
-  colnames(res$connect) <- colnames(object$coefficients)
-  rownames(res$connect) <- colnames(object$coefficients)
-  res$df_long <-
-    res$connect %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "series") %>%
-    pivot_longer(-"series", names_to = "shock", values_to = "spillover")
-  colnames(res$net_pairwise) <- colnames(res$connect)
-  rownames(res$net_pairwise) <- rownames(res$connect)
-  res$connect <- rbind(res$connect, "to_spillovers" = res$to)
-  res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
-  res$ahead <- n_ahead
-  res$process <- object$process
+  dim_data <- object$m
+  num_draw <- nrow(alpha_record)
+  var_names <- colnames(object$coefficients)
+  connect_distn <- process_forecast_draws(
+    sp_res$connect,
+    n_ahead = dim_data,
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = var_names,
+    level = level,
+    med = FALSE
+  )
+  net_pairwise_distn <- process_forecast_draws(
+    sp_res$net_pairwise,
+    n_ahead = dim_data,
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = var_names,
+    level = level,
+    med = FALSE
+  )
+  tot_distn <- process_vector_draws(sp_res$tot, dim_data = 1, level = level, med = FALSE)
+  to_distn <- process_vector_draws(sp_res$to, dim_data = dim_data, level = level, med = FALSE)
+  from_distn <- process_vector_draws(sp_res$from, dim_data = dim_data, level = level, med = FALSE)
+  net_distn <- process_vector_draws(sp_res$net, dim_data = dim_data, level = level, med = FALSE)
+  df_long <-
+    join_long_spillover(connect_distn, prefix = "spillover") %>%
+    left_join(join_long_spillover(net_pairwise_distn, prefix = "net"), by = c("series", "shock"))
+  res <- list(
+    connect = connect_distn,
+    net_pairwise = net_pairwise_distn,
+    tot = tot_distn,
+    to = to_distn,
+    from = from_distn,
+    net = net_distn,
+    df_long = df_long,
+    ahead = n_ahead,
+    process = object$process
+  )
   class(res) <- "bvharspillover"
   res
 }
 
 #' @rdname spillover
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @importFrom posterior subset_draws as_draws_matrix
+#' @importFrom dplyr left_join
 #' @export
-spillover.bvharldlt <- function(object, n_ahead = 10L, sparse = FALSE, ...) {
+spillover.bvharldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
   if (sparse) {
     phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
     a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
   }
-  res <- compute_vharldlt_spillover(
+  sp_res <- compute_vharldlt_spillover(
     object$week, object$month,
     step = n_ahead,
     phi_record = phi_record,
     d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
     a_record = a_record
   )
-  colnames(res$connect) <- colnames(object$coefficients)
-  rownames(res$connect) <- colnames(object$coefficients)
-  res$df_long <-
-    res$connect %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "series") %>%
-    pivot_longer(-"series", names_to = "shock", values_to = "spillover")
-  colnames(res$net_pairwise) <- colnames(res$connect)
-  rownames(res$net_pairwise) <- rownames(res$connect)
-  res$connect <- rbind(res$connect, "to_spillovers" = res$to)
-  res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
-  res$ahead <- n_ahead
-  res$process <- object$process
+  dim_data <- object$m
+  num_draw <- nrow(phi_record)
+  var_names <- colnames(object$coefficients)
+  connect_distn <- process_forecast_draws(
+    sp_res$connect,
+    n_ahead = dim_data,
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = var_names,
+    level = level,
+    med = FALSE
+  )
+  net_pairwise_distn <- process_forecast_draws(
+    sp_res$net_pairwise,
+    n_ahead = dim_data,
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = var_names,
+    level = level,
+    med = FALSE
+  )
+  tot_distn <- process_vector_draws(sp_res$tot, dim_data = 1, level = level, med = FALSE)
+  to_distn <- process_vector_draws(sp_res$to, dim_data = dim_data, level = level, med = FALSE)
+  from_distn <- process_vector_draws(sp_res$from, dim_data = dim_data, level = level, med = FALSE)
+  net_distn <- process_vector_draws(sp_res$net, dim_data = dim_data, level = level, med = FALSE)
+  df_long <-
+    join_long_spillover(connect_distn, prefix = "spillover") %>%
+    left_join(join_long_spillover(net_pairwise_distn, prefix = "net"), by = c("series", "shock"))
+  res <- list(
+    connect = connect_distn,
+    net_pairwise = net_pairwise_distn,
+    tot = tot_distn,
+    to = to_distn,
+    from = from_distn,
+    net = net_distn,
+    df_long = df_long,
+    ahead = n_ahead,
+    process = object$process
+  )
+  # colnames(res$net_pairwise) <- colnames(res$connect)
+  # rownames(res$net_pairwise) <- rownames(res$connect)
+  # res$connect <- rbind(res$connect, "to_spillovers" = res$to)
+  # res$connect <- cbind(res$connect, "from_spillovers" = c(res$from, res$tot))
+  # res$ahead <- n_ahead
+  # res$process <- object$process
   class(res) <- "bvharspillover"
   res
 }
@@ -353,10 +415,12 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window,
 
 #' @rdname dynamic_spillover
 #' @param window Window size
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
+#' @importFrom dplyr mutate
 #' @export
-dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FALSE, num_thread = 1, ...) {
+dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05, sparse = FALSE, num_thread = 1, ...) {
   num_horizon <- nrow(object$y) - window + 1
   if (num_horizon < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -452,23 +516,41 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
     },
     stop("Not supported model.")
   )
-  sp_list <- lapply(sp_list, function(x) {
-    if (is.matrix(x)) {
-      return(apply(x, 1, mean))
-    }
-    Reduce("+", x) / length(x)
-  })
+  dim_data <- object$m
+  var_names <- colnames(object$coefficients)
+  to_distn <- process_dynamic_spdraws(sp_list$to, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  from_distn <- process_dynamic_spdraws(sp_list$from, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  net_distn <- process_dynamic_spdraws(sp_list$net, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  tot_distn <-
+    lapply(
+      sp_list$tot,
+      function(x) {
+        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
+          do.call(cbind, .)
+      }
+    ) %>% 
+    do.call(rbind, .)
+  # sp_list <- lapply(sp_list, function(x) {
+  #   if (is.matrix(x)) {
+  #     return(apply(x, 1, mean))
+  #   }
+  #   Reduce("+", x) / length(x)
+  # })
   # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
-  colnames(sp_list$to) <- colnames(object$y)
-  colnames(sp_list$from) <- colnames(object$y)
-  colnames(sp_list$net) <- colnames(object$y)
+  # colnames(sp_list$to) <- colnames(object$y)
+  # colnames(sp_list$from) <- colnames(object$y)
+  # colnames(sp_list$net) <- colnames(object$y)
   res <- list(
-    tot = sp_list$tot,
+    # tot = sp_list$tot,
+    tot = tot_distn,
     # directional = as_tibble(cbind(sp_list$to, sp_list$from)),
-    to = as_tibble(sp_list$to),
-    from = as_tibble(sp_list$from),
-    net = as_tibble(sp_list$net),
+    # to = as_tibble(sp_list$to),
+    # from = as_tibble(sp_list$from),
+    # net = as_tibble(sp_list$net),
+    to = to_distn,
+    from = from_distn,
+    net = net_distn,
     index = window:nrow(object$y),
     ahead = n_ahead,
     process = object$process
@@ -478,11 +560,12 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, sparse = FA
 }
 
 #' @rdname dynamic_spillover
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param num_thread `r lifecycle::badge("experimental")` Number of threads
 #' @importFrom posterior subset_draws as_draws_matrix
 #' @export
-dynamic_spillover.svmod <- function(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...) {
+dynamic_spillover.svmod <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, num_thread = 1, ...) {
   num_design <- nrow(object$y0)
   if (num_design < 0) {
     stop(sprintf("Invalid 'window' size: Specify as 'window' < 'nrow(y) + 1' = %d", nrow(object$y) + 1))
@@ -531,17 +614,35 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, sparse = FALSE, num_t
     },
     stop("Not supported model.")
   )
+  dim_data <- object$m
+  var_names <- colnames(object$coefficients)
+  to_distn <- process_dynamic_spdraws(sp_list$to, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  from_distn <- process_dynamic_spdraws(sp_list$from, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  net_distn <- process_dynamic_spdraws(sp_list$net, dim_data = dim_data, level = level, med = FALSE, var_names = var_names)
+  tot_distn <-
+    lapply(
+      sp_list$tot,
+      function(x) {
+        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
+          do.call(cbind, .)
+      }
+    ) %>%
+    do.call(rbind, .)
   # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
-  colnames(sp_list$to) <- colnames(object$y)
-  colnames(sp_list$from) <- colnames(object$y)
-  colnames(sp_list$net) <- colnames(object$y)
+  # colnames(sp_list$to) <- colnames(object$y)
+  # colnames(sp_list$from) <- colnames(object$y)
+  # colnames(sp_list$net) <- colnames(object$y)
   res <- list(
-    tot = sp_list$tot,
+    # tot = sp_list$tot,
+    tot = tot_distn,
     # directional = as_tibble(cbind(sp_list$to, sp_list$from)),
-    to = as_tibble(sp_list$to),
-    from = as_tibble(sp_list$from),
-    net = as_tibble(sp_list$net),
+    # to = as_tibble(sp_list$to),
+    # from = as_tibble(sp_list$from),
+    # net = as_tibble(sp_list$net),
+    to = to_distn,
+    from = from_distn,
+    net = net_distn,
     index = seq_len(nrow(object$y))[-seq_len(nrow(object$y) - nrow(object$y0))],
     ahead = n_ahead,
     process = object$process

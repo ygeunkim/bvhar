@@ -8,8 +8,21 @@ print.bvharspillover <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("Directional spillovers:\n")
   cat("variables (i) <- shocks (j)\n")
   cat("========================\n")
+  if (is.list(x$connect)) {
+    connect <- x$connect$mean
+    to <- x$to$mean
+    from <- x$from$mean
+    tot <- x$tot$mean
+  } else {
+    connect <- x$connect
+    to <- x$to
+    from <- x$from
+    tot <- x$tot
+  }
+  connect <- rbind(connect, "to_spillovers" = to)
+  connect <- cbind(connect, "from_spillovers" = c(from, tot))
   print(
-    x$connect,
+    connect,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -17,15 +30,25 @@ print.bvharspillover <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("\n*Lower right corner: Total spillover\n")
   cat("------------------------\n")
   cat("Net spillovers:\n")
+  if (is.list(x$net)) {
+    net <- x$net$mean
+  } else {
+    net <- x$net
+  }
   print(
-    x$net,
+    net,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
   )
   cat("\nNet pairwise spillovers:\n")
+  if (is.list(x$net_pairwise)) {
+    net_pairwise <- x$net_pairwise$mean
+  } else {
+    net_pairwise <- x$net_pairwise
+  }
   print(
-    x$net_pairwise,
+    net_pairwise,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -43,6 +66,8 @@ knit_print.bvharspillover <- function(x, ...) {
 #' @param digits digit option to print
 #' @param ... not used
 #' @importFrom utils head
+#' @importFrom dplyr mutate n select
+#' @importFrom tidyr pivot_wider
 #' @order 2
 #' @export
 print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
@@ -50,8 +75,11 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
   cat(sprintf("Forecast using %s\n", x$process))
   cat(sprintf("Forecast step: %d\n", x$ahead))
   cat("========================\n")
+  is_mcmc <- !is.vector(x$tot)
   cat("Total spillovers:\n")
-  cat(sprintf("# A vector: %d\n", length(x$tot)))
+  if (!is_mcmc) {
+    cat(sprintf("# A vector: %d\n", length(x$tot)))
+  }
   print(
     head(x$tot),
     digits = digits,
@@ -66,9 +94,31 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
   #   print.gap = 2L,
   #   quote = FALSE
   # )
+  if (is_mcmc) {
+    dim_data <- nrow(x$to) / length(x$index)
+    to_distn <-
+      x$to %>%
+      select("series", "mean") %>%
+      mutate(id = rep(x$index, each = dim_data)) %>%
+      pivot_wider(names_from = "series", values_from = "mean")
+    from_distn <-
+      x$from %>%
+      select("series", "mean") %>%
+      mutate(id = rep(x$index, each = dim_data)) %>%
+      pivot_wider(names_from = "series", values_from = "mean")
+    net_distn <-
+      x$net %>%
+      select("series", "mean") %>%
+      mutate(id = rep(x$index, each = dim_data)) %>%
+      pivot_wider(names_from = "series", values_from = "mean")
+  } else {
+    to_distn <- x$to
+    from_distn <- x$from
+    net_distn <- x$net
+  }
   cat("To spillovers:\n")
   print(
-    x$to,
+    to_distn,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -76,7 +126,7 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
   cat("------------------------\n")
   cat("From spillovers:\n")
   print(
-    x$from,
+    from_distn,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
@@ -84,7 +134,7 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
   cat("------------------------\n")
   cat("Net spillovers:\n")
   print(
-    x$net,
+    net_distn,
     digits = digits,
     print.gap = 2L,
     quote = FALSE
