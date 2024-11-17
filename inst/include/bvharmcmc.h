@@ -172,18 +172,18 @@ protected:
 		}
 	}
 	void updateImpact() {
-		for (int j = 2; j < dim + 1; j++) {
-			response_contem = latent_innov.col(j - 2).array() / sqrt_sv.col(j - 2).array(); // n-dim
-			Eigen::MatrixXd design_contem = latent_innov.leftCols(j - 1).array().colwise() / sqrt_sv.col(j - 2).reshaped().array(); // n x (j - 1)
-			contem_id = (j - 1) * (j - 2) / 2;
+		for (int j = 1; j < dim; ++j) {
+			response_contem = latent_innov.col(j).array() / sqrt_sv.col(j).array(); // n-dim
+			Eigen::MatrixXd design_contem = latent_innov.leftCols(j).array().colwise() / sqrt_sv.col(j).reshaped().array(); // n x (j - 1)
+			contem_id = j * (j - 1) / 2;
 			draw_coef(
-				contem_coef.segment(contem_id, j - 1),
+				contem_coef.segment(contem_id, j),
 				design_contem, response_contem,
-				prior_chol_mean.segment(contem_id, j - 1),
-				prior_chol_prec.segment(contem_id, j - 1),
+				prior_chol_mean.segment(contem_id, j),
+				prior_chol_prec.segment(contem_id, j),
 				rng
 			);
-			draw_savs(sparse_contem.segment(contem_id, j - 1), contem_coef.segment(contem_id, j - 1), latent_innov.leftCols(j - 1));
+			draw_savs(sparse_contem.segment(contem_id, j), contem_coef.segment(contem_id, j), latent_innov.leftCols(j));
 		}
 	}
 	void updateLatent() { latent_innov = y - x * coef_mat; }
