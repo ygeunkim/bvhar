@@ -205,7 +205,7 @@ protected:
 	void updateSv() override { sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1); }
 	void updateCoefRecords() override {
 		reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
-		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
+		sparse_record.assignRecords(mcmc_step, num_alpha, dim, nrow_coef, sparse_coef, sparse_contem);
 	}
 
 private:
@@ -238,7 +238,7 @@ protected:
 	void updateSv() override { sqrt_sv = (lvol_draw / 2).array().exp(); }
 	void updateCoefRecords() override {
 		reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, lvol_draw, lvol_sig, lvol_init);
-		sparse_record.assignRecords(mcmc_step, sparse_coef, sparse_contem);
+		sparse_record.assignRecords(mcmc_step, num_alpha, dim, nrow_coef, sparse_coef, sparse_contem);
 	}
 
 private:

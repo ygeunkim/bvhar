@@ -479,6 +479,16 @@ struct SparseRecords {
 		contem_coef_record.row(id) = contem_coef;
 	}
 
+	void assignRecords(int id, int num_alpha, int dim, int nrow_coef, const Eigen::MatrixXd& coef_mat, const Eigen::VectorXd& contem_coef) {
+		if (coef_mat.size() == num_alpha) {
+			coef_record.row(id) = coef_mat.reshaped();
+		} else {
+			coef_record.row(id).head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
+			coef_record.row(id).tail(dim) = coef_mat.bottomRows(1).reshaped();
+		}
+		contem_coef_record.row(id) = contem_coef;
+	}
+
 	void appendRecords(LIST& list, int dim, int num_alpha, bool include_mean) {
 		list["alpha_sparse_record"] = CAST_MATRIX(coef_record.leftCols(num_alpha));
 		list["a_sparse_record"] = contem_coef_record;
