@@ -32,7 +32,7 @@ public:
 	virtual ~RegSpillover() = default;
 	void computeSpillover() {
 		for (int i = 0; i < num_sim; ++i) {
-			reg_record.updateDiag(0, sv_update);
+			reg_record.updateDiag(i, sv_update);
 			sqrt_sig = build_inv_lower(dim, reg_record.contem_coef_record.row(i)).triangularView<Eigen::UnitLower>().solve(sv_update.asDiagonal().toDenseMatrix());
 			cov = sqrt_sig * sqrt_sig.transpose();
 			coef_mat = unvectorize(reg_record.coef_record.row(i).transpose(), dim);
