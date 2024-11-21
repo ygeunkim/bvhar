@@ -35,6 +35,7 @@ public:
 		coef_vec(Eigen::VectorXd::Zero(num_coef)), contem_coef(inits._contem),
 		prior_alpha_mean(Eigen::VectorXd::Zero(num_coef)),
 		prior_alpha_prec(Eigen::VectorXd::Zero(num_coef)),
+		alpha_penalty(Eigen::VectorXd::Zero(num_alpha)),
 		prior_chol_mean(Eigen::VectorXd::Zero(num_lowerchol)),
 		prior_chol_prec(Eigen::VectorXd::Ones(num_lowerchol)),
 		coef_mat(inits._coef), contem_id(0),
@@ -60,6 +61,7 @@ public:
 	void doWarmUp() {
 		std::lock_guard<std::mutex> lock(mtx);
 		updateCoefPrec();
+		updatePenalty();
 		updateSv();
 		updateCoef();
 		updateImpactPrec();
@@ -72,6 +74,7 @@ public:
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
+		updatePenalty();
 		updateSv(); // D before coef
 		updateCoef();
 		updateImpactPrec();
@@ -131,6 +134,7 @@ protected:
 	Eigen::VectorXd contem_coef;
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
 	Eigen::VectorXd prior_alpha_prec; // Diagonal of alpha prior precision
+	Eigen::VectorXd alpha_penalty; // SAVS penalty vector
 	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
 	Eigen::VectorXd prior_chol_prec; // Diagonal of prior precision of a = I
 	Eigen::MatrixXd coef_mat;
@@ -147,6 +151,7 @@ protected:
 	virtual void updateSv() = 0;
 	virtual void updateCoefRecords() = 0;
 	virtual void updateCoefPrec() = 0;
+	virtual void updatePenalty() = 0;
 	virtual void updateImpactPrec() = 0;
 	virtual void updateRecords() = 0;
 	void updateCoef() {
@@ -161,6 +166,8 @@ protected:
 			if (include_mean) {
 				prior_mean_j << prior_alpha_mean.segment(j * nrow_coef, nrow_coef), prior_alpha_mean.tail(dim)[j];
 				prior_prec_j << prior_alpha_prec.segment(j * nrow_coef, nrow_coef), prior_alpha_prec.tail(dim)[j];
+				// penalty_j << alpha_penalty.segment(j * nrow_coef, nrow_coef), alpha_penalty.tail(dim)[j];
+				penalty_j.head(nrow_coef) = alpha_penalty.segment(j * nrow_coef, nrow_coef);
 				draw_coef(
 					coef_mat.col(j), design_coef,
 					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(), // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
@@ -171,6 +178,7 @@ protected:
 			} else {
 				prior_mean_j = prior_alpha_mean.segment(dim_design * j, dim_design);
 				prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
+				penalty_j = alpha_penalty.segment(dim_design * j, dim_design);
 				draw_coef(
 					coef_mat.col(j),
 					design_coef,
@@ -179,7 +187,7 @@ protected:
 				);
 				coef_vec = coef_mat.reshaped();
 			}
-			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, prior_prec_j.cwiseSqrt());
+			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
 	}
 	void updateImpact() {
@@ -285,8 +293,10 @@ protected:
 	using BaseMcmc::include_mean;
 	using BaseMcmc::prior_alpha_mean;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {};
+	void updatePenalty() override {};
 	void updateImpactPrec() override {};
 	void updateRecords() override { updateCoefRecords(); }
 };
@@ -300,7 +310,8 @@ public:
 		unsigned int seed
 	)
 	: BaseMcmc(params, inits, seed),
-		own_id(params._own_id), cross_id(params._cross_id), coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
+		own_id(params._own_id), cross_id(params._cross_id),
+		coef_minnesota(params._minnesota), grp_mat(params._grp_mat), grp_vec(grp_mat.reshaped()),
 		own_lambda(inits._own_lambda), cross_lambda(inits._cross_lambda), contem_lambda(inits._contem_lambda),
 		own_shape(params.shape), own_rate(params.rate),
 		cross_shape(params.shape), cross_rate(params.rate),
@@ -330,6 +341,7 @@ protected:
 	using BaseMcmc::rng;
 	using BaseMcmc::prior_alpha_mean;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::prior_chol_mean;
 	using BaseMcmc::prior_chol_prec;
 	using BaseMcmc::coef_vec;
@@ -351,12 +363,15 @@ protected:
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
+				alpha_penalty[i] = 0;
 			}
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
 				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+				alpha_penalty[i] = 1;
 			}
 		}
 	}
+	void updatePenalty() override {};
 	void updateImpactPrec() override {
 		minnesota_contem_lambda(
 			contem_lambda, contem_shape, contem_rate,
@@ -392,7 +407,7 @@ public:
 		unsigned int seed
 	)
 	: BaseMcmc(params, inits, seed),
-		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
+		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ssvs_record(num_iter, num_alpha, num_grp, num_lowerchol),
 		coef_dummy(inits._coef_dummy), coef_weight(inits._coef_weight),
 		contem_dummy(Eigen::VectorXd::Ones(num_lowerchol)), contem_weight(inits._contem_weight),
@@ -418,6 +433,7 @@ protected:
 	using BaseMcmc::mcmc_step;
 	using BaseMcmc::rng;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::prior_chol_prec;
 	using BaseMcmc::coef_vec;
 	using BaseMcmc::contem_coef;
@@ -439,6 +455,15 @@ protected:
 		ssvs_mn_weight(coef_weight, grp_vec, grp_id, coef_dummy, coef_s1, coef_s2, rng);
 		prior_alpha_prec.head(num_alpha).array() = 1 / (spike_scl * (1 - coef_dummy.array()) * coef_slab.array() + coef_dummy.array() * coef_slab.array());
 	}
+	void updatePenalty() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				alpha_penalty[i] = 0;
+			} else {
+				alpha_penalty[i] = 1;
+			}
+		}
+	}
 	void updateImpactPrec() override {
 		ssvs_local_slab(contem_slab, contem_dummy, contem_coef, contem_ig_shape, contem_ig_scl, contem_spike_scl, rng);
 		ssvs_dummy(contem_dummy, contem_coef, contem_slab, contem_spike_scl * contem_slab, contem_weight, rng);
@@ -451,6 +476,7 @@ protected:
 	}
 
 private:
+	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
@@ -477,7 +503,7 @@ public:
 		unsigned int seed
 	)
 	: BaseMcmc(params, inits, seed),
-		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
+		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
 		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
@@ -503,6 +529,7 @@ protected:
 	using BaseMcmc::mcmc_step;
 	using BaseMcmc::rng;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::prior_chol_prec;
 	using BaseMcmc::coef_vec;
 	using BaseMcmc::contem_coef;
@@ -523,6 +550,15 @@ protected:
 		prior_alpha_prec.head(num_alpha) = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
 		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
 	}
+	void updatePenalty() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				alpha_penalty[i] = 0;
+			} else {
+				alpha_penalty[i] = 1;
+			}
+		}
+	}
 	void updateImpactPrec() override {
 		horseshoe_latent(latent_contem_local, contem_local_lev, rng);
 		horseshoe_latent(latent_contem_global, contem_global_lev, rng);
@@ -538,6 +574,7 @@ protected:
 	}
 
 private:
+	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
@@ -566,7 +603,7 @@ public:
 		unsigned int seed
 	)
 	: BaseMcmc(params, inits, seed),
-		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
+		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		ng_record(num_iter, num_alpha, num_grp),
 		mh_sd(params._mh_sd),
 		local_shape(inits._init_local_shape), local_shape_fac(Eigen::VectorXd::Ones(num_alpha)),
@@ -594,6 +631,7 @@ protected:
 	using BaseMcmc::mcmc_step;
 	using BaseMcmc::rng;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::prior_chol_prec;
 	using BaseMcmc::coef_vec;
 	using BaseMcmc::contem_coef;
@@ -615,6 +653,15 @@ protected:
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
+	void updatePenalty() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				alpha_penalty[i] = 0;
+			} else {
+				alpha_penalty[i] = 1;
+			}
+		}
+	}
 	void updateImpactPrec() override {
 		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
 		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
@@ -627,6 +674,7 @@ protected:
 	}
 
 private:
+	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
@@ -652,7 +700,7 @@ public:
 		unsigned int seed
 	)
 	: BaseMcmc(params, inits, seed),
-		grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
+		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),
 		dir_concen(0.0), contem_dir_concen(0.0),
 		shape(params._shape), rate(params._rate),
@@ -677,6 +725,7 @@ protected:
 	using BaseMcmc::mcmc_step;
 	using BaseMcmc::rng;
 	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
 	using BaseMcmc::prior_chol_prec;
 	using BaseMcmc::coef_vec;
 	using BaseMcmc::contem_coef;
@@ -695,6 +744,15 @@ protected:
 		global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
 		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
+	void updatePenalty() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				alpha_penalty[i] = 0;
+			} else {
+				alpha_penalty[i] = 1;
+			}
+		}
+	}
 	void updateImpactPrec() override {
 		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
 		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
@@ -708,6 +766,7 @@ protected:
 	}
 
 private:
+	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
 	int num_grp;
@@ -738,7 +797,9 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 		case 1: {
 			MinnParams<PARAMS> minn_params(
 				num_iter, x, y,
-				param_reg, param_prior,
+				param_reg,
+				own_id, cross_id,
+				param_prior,
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
@@ -753,6 +814,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 			SsvsParams<PARAMS> ssvs_params(
 				num_iter, x, y,
 				param_reg,
+				own_id, cross_id,
 				grp_id, grp_mat,
 				param_prior,
 				param_intercept,
@@ -770,6 +832,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 			HorseshoeParams<PARAMS> hs_params(
 				num_iter, x, y,
 				param_reg,
+				own_id, cross_id,
 				grp_id, grp_mat,
 				param_intercept, include_mean
 			);
@@ -801,6 +864,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 			NgParams<PARAMS> ng_params(
 				num_iter, x, y,
 				param_reg,
+				own_id, cross_id,
 				grp_id, grp_mat,
 				param_prior,
 				param_intercept,
@@ -818,6 +882,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 			DlParams<PARAMS> dl_params(
 				num_iter, x, y,
 				param_reg,
+				own_id, cross_id,
 				grp_id, grp_mat,
 				param_prior,
 				param_intercept,
@@ -911,6 +976,7 @@ protected:
 	}
 
 private:
+	std::set<int> own_id;
 	int num_chains;
 	int num_iter;
 	int num_burn;

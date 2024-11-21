@@ -80,21 +80,20 @@ inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, const Eige
 	}
 }
 
-inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, bool& minnesota,
-											 const Eigen::VectorXi& grp_own, const Eigen::VectorXi& grp_cross, const Eigen::MatrixXi& grp_mat) {
-	minnesota = true;
-	std::set<int> unique_grp(grp_mat.data(), grp_mat.data() + grp_mat.size());
-	if (unique_grp.size() == 1) {
-		minnesota = false;
-	}
-	for (int i = 0; i < grp_own.size(); ++i) {
-		own_id.insert(grp_own[i]);
-	}
-	for (int i = 0; i < grp_cross.size(); ++i) {
-		cross_id.insert(grp_cross[i]);
-	}
-}
-
+// inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, bool& minnesota,
+// 											 const Eigen::VectorXi& grp_own, const Eigen::VectorXi& grp_cross, const Eigen::MatrixXi& grp_mat) {
+// 	minnesota = true;
+// 	std::set<int> unique_grp(grp_mat.data(), grp_mat.data() + grp_mat.size());
+// 	if (unique_grp.size() == 1) {
+// 		minnesota = false;
+// 	}
+// 	for (int i = 0; i < grp_own.size(); ++i) {
+// 		own_id.insert(grp_own[i]);
+// 	}
+// 	for (int i = 0; i < grp_cross.size(); ++i) {
+// 		cross_id.insert(grp_cross[i]);
+// 	}
+// }
 
 // Building Spike-and-slab SD Diagonal Matrix
 // 
@@ -392,9 +391,9 @@ inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eig
 	// sparse_coef.setZero();
 	// Eigen::ArrayXd penalty_vec = 1 / (prior_prec.array() * coef.array().square());
 	// Eigen::ArrayXd penalty_vec = prior_prec.array();
-	// Eigen::ArrayXd penalty_vec = prior_prec.array() / (coef.array().square());
+	Eigen::ArrayXd penalty_vec = prior_prec.array() / (coef.array().square());
 	Eigen::ArrayXd coef_abs = coef.cwiseAbs().array();
-	Eigen::ArrayXd penalty_vec = prior_prec.array() / coef_abs;
+	// Eigen::ArrayXd penalty_vec = prior_prec.array() / coef_abs;
 	Eigen::ArrayXd x_norm = x.colwise().squaredNorm().array();
 	Eigen::ArrayXd abs_fit = coef_abs * x_norm;
 	// Eigen::ArrayXd sign_coef = coef.array() / coef_abs;
