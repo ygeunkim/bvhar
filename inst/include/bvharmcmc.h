@@ -57,6 +57,17 @@ public:
 	}
 	virtual ~McmcTriangular() = default;
 	virtual void appendRecords(LIST& list) = 0;
+	void doWarmUp() {
+		std::lock_guard<std::mutex> lock(mtx);
+		updateCoefPrec();
+		updateSv();
+		updateCoef();
+		updateImpactPrec();
+		updateLatent();
+		updateImpact();
+		updateChol();
+		updateState();
+	}
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -844,7 +855,7 @@ public:
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), mcmc_ptr(num_chains), res(num_chains) {
 		mcmc_ptr = initialize_mcmc<BaseMcmc>(
-			num_chains, num_iter, x, y,
+			num_chains, num_iter - num_burn, x, y,
 			param_cov, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, seed_chain
@@ -872,7 +883,12 @@ protected:
 	void runGibbs(int chain) {
 		bvharprogress bar(num_iter, display_progress);
 		bvharinterrupt();
-		for (int i = 0; i < num_iter; ++i) {
+		for (int i = 0; i < num_burn; ++i) {
+			bar.increment();
+			mcmc_ptr[chain]->doWarmUp();
+			bar.update();
+		}
+		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
 			#ifdef _OPENMP
 				#pragma omp critical
@@ -890,7 +906,7 @@ protected:
 		#pragma omp critical
 	#endif
 		{
-			res[chain] = mcmc_ptr[chain]->returnRecords(num_burn, thin);
+			res[chain] = mcmc_ptr[chain]->returnRecords(0, thin);
 		}
 	}
 

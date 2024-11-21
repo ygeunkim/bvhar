@@ -597,15 +597,19 @@ protected:
 	}
 	void runGibbs(int window, int chain) {
 		bvharinterrupt();
-		for (int i = 0; i < num_iter; ++i) {
+		for (int i = 0; i < num_burn; ++i) {
+			model[window][chain]->doWarmUp();
+		}
+		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
-				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(num_burn, thin, sparse);
+				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 				break;
 			}
 			model[window][chain]->doPosteriorDraws();
 		}
-		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(num_burn, thin, sparse);
+		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		updateForecaster(reg_record, window, chain);
+		model[window][chain].reset();
 	}
 	void forecastWindow(int window, int chain) {
 		if (window != 0) {
@@ -646,6 +650,7 @@ protected:
 	using McmcOutforecastRun<BaseForecaster>::lag;
 	using McmcOutforecastRun<BaseForecaster>::num_chains;
 	using McmcOutforecastRun<BaseForecaster>::num_iter;
+	using McmcOutforecastRun<BaseForecaster>::num_burn;
 	using McmcOutforecastRun<BaseForecaster>::include_mean;
 	using McmcOutforecastRun<BaseForecaster>::roll_mat;
 	using McmcOutforecastRun<BaseForecaster>::roll_y0;
@@ -670,7 +675,7 @@ protected:
 		for (int window = 0; window < num_horizon; ++window) {
 			Eigen::MatrixXd design = buildDesign(window);
 			model[window] = initialize_mcmc<BaseMcmc>(
-				num_chains, num_iter, design, roll_y0[window],
+				num_chains, num_iter - num_burn, design, roll_y0[window],
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				grp_id, own_id, cross_id, grp_mat,
 				include_mean, seed_chain.row(window)
@@ -708,6 +713,7 @@ protected:
 	using McmcOutforecastRun<BaseForecaster>::lag;
 	using McmcOutforecastRun<BaseForecaster>::num_chains;
 	using McmcOutforecastRun<BaseForecaster>::num_iter;
+	using McmcOutforecastRun<BaseForecaster>::num_burn;
 	using McmcOutforecastRun<BaseForecaster>::include_mean;
 	using McmcOutforecastRun<BaseForecaster>::roll_mat;
 	using McmcOutforecastRun<BaseForecaster>::roll_y0;
@@ -734,7 +740,7 @@ protected:
 			if (CONTAINS(param_reg, "initial_mean")) {
 				// BaseMcmc == McmcSv
 				model[window] = initialize_mcmc<BaseMcmc>(
-					num_chains, num_iter, design, roll_y0[window],
+					num_chains, num_iter - num_burn, design, roll_y0[window],
 					param_reg, param_prior, param_intercept, param_init, prior_type,
 					grp_id, own_id, cross_id, grp_mat,
 					include_mean, seed_chain.row(window),
@@ -743,7 +749,7 @@ protected:
 			} else {
 				// BaseMcmc == McmcReg
 				model[window] = initialize_mcmc<BaseMcmc>(
-					num_chains, num_iter, design, roll_y0[window],
+					num_chains, num_iter - num_burn, design, roll_y0[window],
 					param_reg, param_prior, param_intercept, param_init, prior_type,
 					grp_id, own_id, cross_id, grp_mat,
 					include_mean, seed_chain.row(window)
