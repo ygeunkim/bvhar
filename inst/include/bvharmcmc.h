@@ -16,9 +16,9 @@ class McmcSv;
 template <typename BaseMcmc> class McmcMinn;
 template <typename BaseMcmc> class McmcHierminn;
 template <typename BaseMcmc> class McmcSsvs;
-template <typename BaseMcmc> class McmcHorseshoe;
-template <typename BaseMcmc> class McmcNg;
-template <typename BaseMcmc> class McmcDl;
+template <typename BaseMcmc, bool isGroup> class McmcHorseshoe;
+template <typename BaseMcmc, bool isGroup> class McmcNg;
+template <typename BaseMcmc, bool isGroup> class McmcDl;
 // Running MCMC
 class McmcInterface;
 template <typename BaseMcmc> class McmcRun;
@@ -494,7 +494,7 @@ private:
 	Eigen::VectorXd slab_weight; // pij vector
 };
 
-template <typename BaseMcmc = McmcReg>
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcHorseshoe : public BaseMcmc {
 public:
 	McmcHorseshoe(
@@ -505,7 +505,7 @@ public:
 	: BaseMcmc(params, inits, seed),
 		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		hs_record(num_iter, num_alpha, num_grp),
-		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
+		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(isGroup ? inits._init_global : 1.0),
 		shrink_fac(Eigen::VectorXd::Zero(num_alpha)),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)), latent_group(Eigen::VectorXd::Zero(num_grp)), latent_global(0.0),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
@@ -535,6 +535,8 @@ protected:
 	using BaseMcmc::contem_coef;
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
+		horseshoe_latent(latent_group, group_lev, rng);
+		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
@@ -542,10 +544,10 @@ protected:
 			);
 		}
 		horseshoe_latent(latent_local, local_lev, rng);
-		horseshoe_latent(latent_group, group_lev, rng);
-		horseshoe_latent(latent_global, global_lev, rng);
-		global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec.head(num_alpha), 1, rng);
-		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec.head(num_alpha), 1, rng);
+		if constexpr (isGroup) {
+			horseshoe_latent(latent_global, global_lev, rng);
+			global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec.head(num_alpha), 1, rng);
+		}
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec.head(num_alpha), global_lev * global_lev, rng);
 		prior_alpha_prec.head(num_alpha) = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
 		shrink_fac = 1 / (1 + prior_alpha_prec.head(num_alpha).array());
@@ -594,7 +596,7 @@ private:
 	Eigen::VectorXd latent_contem_global; // -> double
 };
 
-template <typename BaseMcmc = McmcReg>
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcNg : public BaseMcmc {
 public:
 	McmcNg(
@@ -611,7 +613,7 @@ public:
 		group_shape(params._group_shape), group_scl(params._global_scl),
 		global_shape(params._global_shape), global_scl(params._global_scl),
 		contem_global_shape(params._contem_global_shape), contem_global_scl(params._contem_global_scl),
-		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(inits._init_global),
+		local_lev(inits._init_local), group_lev(inits._init_group), global_lev(isGroup ? inits._init_global : 1.0),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		contem_global_lev(inits._init_conetm_global),
 		contem_fac(contem_global_lev[0] * inits._init_contem_local) {
@@ -649,7 +651,9 @@ protected:
 			);
 		}
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
+		if constexpr (isGroup) {
+			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
+		}
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
@@ -691,7 +695,7 @@ private:
 	Eigen::VectorXd contem_fac;
 };
 
-template <typename BaseMcmc = McmcReg>
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcDl : public BaseMcmc {
 public:
 	McmcDl(
@@ -705,7 +709,7 @@ public:
 		dir_concen(0.0), contem_dir_concen(0.0),
 		shape(params._shape), rate(params._rate),
 		grid_size(params._grid_size),
-		local_lev(inits._init_local), group_lev(Eigen::VectorXd::Zero(num_grp)), global_lev(inits._init_global),
+		local_lev(inits._init_local), group_lev(Eigen::VectorXd::Zero(num_grp)), global_lev(isGroup ? inits._init_global : 1.0),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
 		coef_var(Eigen::VectorXd::Zero(num_alpha)),
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
@@ -741,7 +745,9 @@ protected:
 		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
-		global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
+		if constexpr (isGroup) {
+			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
+		}
 		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updatePenalty() override {
