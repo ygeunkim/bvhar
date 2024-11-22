@@ -490,6 +490,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
         # param_init = object$init[[1]], # should add multiple chain later
         param_init = object$init,
         prior_type = prior_type,
+        ggl = object$ggl,
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
         # seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
@@ -508,6 +509,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
         param_intercept = object$intercept[c("mean_non", "sd_non")],
         param_init = object$init,
         prior_type = prior_type,
+        ggl = object$ggl,
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
         seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
