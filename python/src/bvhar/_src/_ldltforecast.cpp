@@ -45,4 +45,44 @@ PYBIND11_MODULE(_ldltforecast, m) {
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcExpandforecastRun, bvhar::RegForecaster>::returnForecast);
+	
+	py::class_<bvhar::McmcVarforecastRun<bvhar::McmcRollforecastRun, bvhar::RegForecaster, false>>(m, "LdltGrpVarRoll")
+		.def(
+			py::init<const Eigen::MatrixXd&, int, int, int, int, int,
+			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
+			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
+			bool, bool, int, const Eigen::MatrixXd&, bool,
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+		)
+		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcRollforecastRun, bvhar::RegForecaster, false>::returnForecast);
+	
+	py::class_<bvhar::McmcVarforecastRun<bvhar::McmcExpandforecastRun, bvhar::RegForecaster, false>>(m, "LdltGrpVarExpand")
+		.def(
+			py::init<const Eigen::MatrixXd&, int, int, int, int, int,
+			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
+			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
+			bool, bool, int, const Eigen::MatrixXd&, bool,
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+		)
+		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcExpandforecastRun, bvhar::RegForecaster, false>::returnForecast);
+	
+	py::class_<bvhar::McmcVharforecastRun<bvhar::McmcRollforecastRun, bvhar::RegForecaster, false>>(m, "LdltGrpVharRoll")
+		.def(
+			py::init<const Eigen::MatrixXd&, int, int, int, int, int, int,
+			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
+			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
+			bool, bool, int, const Eigen::MatrixXd&, bool,
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+		)
+		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcRollforecastRun, bvhar::RegForecaster, false>::returnForecast);
+	
+	py::class_<bvhar::McmcVharforecastRun<bvhar::McmcExpandforecastRun, bvhar::RegForecaster, false>>(m, "LdltGrpVharExpand")
+		.def(
+			py::init<const Eigen::MatrixXd&, int, int, int, int, int, int,
+			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
+			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
+			bool, bool, int, const Eigen::MatrixXd&, bool,
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+		)
+		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcExpandforecastRun, bvhar::RegForecaster, false>::returnForecast);
 }

@@ -7,7 +7,7 @@ import numpy as np
 
 def help_var_bayes(
     dim_data, var_lag, data,
-    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
     bayes_config, cov_config,
     test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False
 ):
@@ -23,6 +23,7 @@ def help_var_bayes(
         InterceptConfig(),
         intercept,
         minnesota,
+        ggl,
         False,
         num_threads
     )
@@ -67,27 +68,28 @@ def test_var_bayes():
     thin = 1
     intercept = True
     minnesota = True
+    ggl = True
 
     help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
         data_out, n_ahead, True, True, True
     )
     help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         HorseshoeConfig(), LdltConfig(),
         data_out, n_ahead
     )
     help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         MinnesotaConfig(lam=LambdaConfig()), LdltConfig()
     )
     help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         NgConfig(), LdltConfig()
     )
     help_var_bayes(
-        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         DlConfig(), LdltConfig()
     )
 
@@ -100,7 +102,7 @@ def test_var_bayes():
         VarBayes(
             data, var_lag, 2, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
-            intercept, minnesota, False, 3
+            intercept, minnesota, False, True, 3
         )
     
     with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {var_lag}"):
@@ -109,12 +111,12 @@ def test_var_bayes():
         VarBayes(
             data, var_lag, num_chains, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
-            intercept, minnesota, False, num_threads
+            intercept, minnesota, False, True, num_threads
         )
 
 def help_vhar_bayes(
     dim_data, week, month, data,
-    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+    num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
     bayes_config, cov_config,
     test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False
 ):
@@ -130,6 +132,7 @@ def help_vhar_bayes(
         InterceptConfig(),
         intercept,
         minnesota,
+        ggl,
         False,
         num_threads
     )
@@ -175,26 +178,27 @@ def test_vhar_bayes():
     thin = 1
     intercept = True
     minnesota = "longrun"
+    ggl = True
 
     help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
         data_out, n_ahead, True, True, True
     )
     help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         HorseshoeConfig(), LdltConfig()
     )
     help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         MinnesotaConfig(lam=LambdaConfig()), LdltConfig()
     )
     help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         NgConfig(), LdltConfig()
     )
     help_vhar_bayes(
-        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota,
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         DlConfig(), LdltConfig()
     )
 
@@ -203,11 +207,11 @@ def test_vhar_bayes():
     #     SsvsConfig(), SvConfig()
     # )
 
-    with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = {num_chains}' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
+    with pytest.warns(UserWarning, match=f"'n_thread = 3 > 'n_chain' = 2' will not use every thread. Specify as 'n_thread <= 'n_chain'."):
         VharBayes(
-            data, week, month, num_chains, num_iter, num_burn, thin,
+            data, week, month, 2, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
-            intercept, minnesota, False, 3
+            intercept, minnesota, False, True, 3
         )
     
     with pytest.raises(ValueError, match=f"'data' rows must be larger than 'lag' = {month}"):
@@ -215,5 +219,5 @@ def test_vhar_bayes():
         VharBayes(
             data, week, month, num_chains, num_iter, num_burn, thin,
             SsvsConfig(), LdltConfig(), InterceptConfig(),
-            intercept, minnesota, False, num_threads
+            intercept, minnesota, False, True, num_threads
         )

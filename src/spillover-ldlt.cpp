@@ -24,7 +24,7 @@ Rcpp::List compute_vharldlt_spillover(int week, int month, int step,
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			int lag, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
-																			int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+																			int prior_type, bool ggl, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
 	int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -56,12 +56,21 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, lag, lag + 1);
 		Eigen::MatrixXd roll_x0 = bvhar::build_x0(roll_mat, lag, include_mean);
-		sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg>(
-			num_chains, num_iter, roll_x0, roll_y0,
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain.row(i)
-		);
+		if (ggl) {
+			sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg, true>(
+				num_chains, num_iter, roll_x0, roll_y0,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain.row(i)
+			);
+		} else {
+			sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg, false>(
+				num_chains, num_iter, roll_x0, roll_y0,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain.row(i)
+			);
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		for (int i = 0; i < num_iter; i++) {
@@ -125,7 +134,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			 int week, int month, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
-																			 int prior_type, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
+																			 int prior_type, bool ggl, Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			 bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
 	int num_horizon = y.rows() - window + 1; // number of windows = T - win + 1
 	if (num_horizon <= 0) {
@@ -157,12 +166,21 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, month, month + 1);
 		Eigen::MatrixXd roll_x1 = bvhar::build_x0(roll_mat, month, include_mean) * har_trans.transpose();
-		sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg>(
-			num_chains, num_iter, roll_x1, roll_y0,
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain.row(i)
-		);
+		if (ggl) {
+			sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg, true>(
+				num_chains, num_iter, roll_x1, roll_y0,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain.row(i)
+			);
+		} else {
+			sur_objs[i] = bvhar::initialize_mcmc<bvhar::McmcReg, false>(
+				num_chains, num_iter, roll_x1, roll_y0,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain.row(i)
+			);
+		}
 	}
 	auto run_gibbs = [&](int window, int chain) {
 		for (int i = 0; i < num_iter; ++i) {

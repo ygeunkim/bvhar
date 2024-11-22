@@ -1,10 +1,10 @@
 from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
-from .._src._ldlt import McmcLdlt
-from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand
-from .._src._sv import SvMcmc
-from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand
+from .._src._ldlt import McmcLdlt, McmcLdltGrp
+from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand, LdltGrpVarRoll, LdltGrpVharRoll, LdltGrpVarExpand, LdltGrpVharExpand
+from .._src._sv import SvMcmc, SvGrpMcmc
+from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand, SvGrpVarRoll, SvGrpVharRoll, SvGrpVarExpand, SvGrpVharExpand
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
 import numpy as np
@@ -20,7 +20,7 @@ class _AutoregBayes:
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),
         intercept_config = InterceptConfig(), fit_intercept = True,
-        minnesota = "longrun"
+        minnesota = "longrun", ggl = True
     ):
         self.y_ = check_np(data)
         self.n_features_in_ = self.y_.shape[1]
@@ -42,6 +42,7 @@ class _AutoregBayes:
         self._group_id = pd.unique(self.group_.flatten(order='F')).astype(np.int32)
         self._own_id = None
         self._cross_id = None
+        self._ggl = ggl
         n_grp = len(self._group_id)
         n_alpha = self.n_features_in_ * self.n_features_in_ * self.p_
         n_design = self.p_ * self.n_features_in_ + 1 if self.fit_intercept else self.p_ * self.n_features_in_
@@ -219,6 +220,8 @@ class VarBayes(_AutoregBayes):
         Include constant term in the model, by default True
     minnesota : bool
         If `True`, apply Minnesota-type group structure, by default True
+    ggl : bool
+        If `False`, use group shrinkage parameter instead of global, by default True
     verbose : bool
         If `True`, print progress bar for MCMC, by default False
     n_thread : int
@@ -256,10 +259,11 @@ class VarBayes(_AutoregBayes):
         intercept_config = InterceptConfig(),
         fit_intercept = True,
         minnesota = True,
+        ggl = True,
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no")
+        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no", ggl)
         self.design_ = build_design(self.y_, lag, fit_intercept)
         self.response_ = build_response(self.y_, lag, lag + 1)
         if minnesota:
@@ -276,27 +280,51 @@ class VarBayes(_AutoregBayes):
         if self.thread_ > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
-            self.__model = McmcLdlt(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = McmcLdlt(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
+            else:
+                self.__model = McmcLdltGrp(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
         else:
-            self.__model = SvMcmc(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = SvMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
+            else:
+                self.__model = SvGrpMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
 
     def fit(self):
         """Conduct MCMC and compute posterior mean
@@ -402,29 +430,55 @@ class VarBayes(_AutoregBayes):
         # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVarRoll(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, True
-            )
+            if self._ggl:
+                forecaster = LdltVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
         else:
-            forecaster = SvVarRoll(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, sv
-            )
+            if self._ggl:
+                forecaster = SvVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         forecast_elem = next(iter(out_forecast.values()))
@@ -473,29 +527,55 @@ class VarBayes(_AutoregBayes):
         # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVarExpand(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, True
-            )
+            if self._ggl:
+                forecaster = LdltVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
         else:
-            forecaster = SvVarExpand(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, sv
-            )
+            if self._ggl:
+                forecaster = SvVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         forecast_elem = next(iter(out_forecast.values()))
@@ -548,6 +628,8 @@ class VharBayes(_AutoregBayes):
         - "no": Not use the group structure
         - "short": BVAR-minnesota structure
         - "longrun": BVHAR-minnesota structure
+    ggl : bool
+        If `False`, use group shrinkage parameter instead of global, by default True
     verbose : bool
         If `True`, print progress bar for MCMC, by default False
     n_thread : int
@@ -578,10 +660,11 @@ class VharBayes(_AutoregBayes):
         intercept_config = InterceptConfig(),
         fit_intercept = True,
         minnesota = "longrun",
+        ggl = True,
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota)
+        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota, ggl)
         self.design_ = build_design(self.y_, week, month, fit_intercept)
         self.response_ = build_response(self.y_, month, month + 1)
         self.week_ = week
@@ -602,27 +685,51 @@ class VharBayes(_AutoregBayes):
         if self.thread_ > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
-            self.__model = McmcLdlt(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = McmcLdlt(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
+            else:
+                self.__model = McmcLdltGrp(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
         else:
-            self.__model = SvMcmc(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = SvMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
+            else:
+                self.__model = SvGrpMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    verbose, self.thread_
+                )
 
     def fit(self):
         """Conduct MCMC and compute posterior mean
@@ -726,29 +833,55 @@ class VharBayes(_AutoregBayes):
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVharRoll(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, True
-            )
+            if self._ggl:
+                forecaster = LdltVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
         else:
-            forecaster = SvVharRoll(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, sv
-            )
+            if self._ggl:
+                forecaster = SvVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         forecast_elem = next(iter(out_forecast.values()))
@@ -795,29 +928,55 @@ class VharBayes(_AutoregBayes):
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVharExpand(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, True
-            )
+            if self._ggl:
+                forecaster = LdltVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, True
+                )
         else:
-            forecaster = SvVharExpand(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, 0, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, stable, n_ahead, test, True,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, sv
-            )
+            if self._ggl:
+                forecaster = SvVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
         forecast_elem = next(iter(out_forecast.values()))
