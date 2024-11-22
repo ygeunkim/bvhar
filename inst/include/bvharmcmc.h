@@ -789,7 +789,7 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
-template <typename BaseMcmc = McmcReg>
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
@@ -846,7 +846,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				LIST init_spec = param_init[i];
 				// HsInits<INITS> hs_inits(init_spec);
 				HsInits<INITS> hs_inits = num_design ? HsInits<INITS>(init_spec, *num_design) : HsInits<INITS>(init_spec);
-				mcmc_ptr[i] = std::make_unique<McmcHorseshoe<BaseMcmc>>(hs_params, hs_inits, static_cast<unsigned int>(seed_chain[i]));
+				mcmc_ptr[i] = std::make_unique<McmcHorseshoe<BaseMcmc, isGroup>>(hs_params, hs_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
 			return mcmc_ptr;
 		}
@@ -880,7 +880,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				LIST init_spec = param_init[i];
 				// NgInits<INITS> ng_inits(init_spec);
 				NgInits<INITS> ng_inits = num_design ? NgInits<INITS>(init_spec, *num_design) : NgInits<INITS>(init_spec);
-				mcmc_ptr[i] = std::make_unique<McmcNg<BaseMcmc>>(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i]));
+				mcmc_ptr[i] = std::make_unique<McmcNg<BaseMcmc, isGroup>>(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
 			return mcmc_ptr;
 		}
@@ -898,7 +898,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				LIST init_spec = param_init[i];
 				// GlInits<INITS> dl_inits(init_spec);
 				GlInits<INITS> dl_inits = num_design ? GlInits<INITS>(init_spec, *num_design) : GlInits<INITS>(init_spec);
-				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
+				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc, isGroup>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
 			return mcmc_ptr;
 		}
