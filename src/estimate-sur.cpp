@@ -1,5 +1,4 @@
-#include "mcmcreg.h"
-#include "bvharinterrupt.h"
+#include <bvharmcmc.h>
 
 //' VAR with Shrinkage Priors
 //' 
@@ -27,16 +26,45 @@
 Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
                         Eigen::MatrixXd x, Eigen::MatrixXd y,
 												Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept,
-												Rcpp::List param_init, int prior_type,
+												Rcpp::List param_init, int prior_type, bool ggl,
                         Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
                         bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	auto mcmc_run = std::make_unique<bvhar::McmcRun<bvhar::McmcReg>>(
-		num_chains, num_iter, num_burn, thin, x, y,
-		param_reg, param_prior, param_intercept, param_init, prior_type,
-		grp_id, own_id, cross_id, grp_mat,
-		include_mean, seed_chain,
-		display_progress, nthreads
-	);
+	auto mcmc_run = [&]() -> std::unique_ptr<bvhar::McmcInterface> {
+		if (param_reg.containsElementNamed("initial_mean")) {
+			if (ggl) {
+				return std::make_unique<bvhar::McmcRun<bvhar::McmcSv, true>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads
+				);
+			}
+			return std::make_unique<bvhar::McmcRun<bvhar::McmcSv, false>>(
+				num_chains, num_iter, num_burn, thin, x, y,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain,
+				display_progress, nthreads
+			);
+		}
+		if (ggl) {
+			return std::make_unique<bvhar::McmcRun<bvhar::McmcReg, true>>(
+				num_chains, num_iter, num_burn, thin, x, y,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain,
+				display_progress, nthreads
+			);
+		}
+		return std::make_unique<bvhar::McmcRun<bvhar::McmcReg, false>>(
+			num_chains, num_iter, num_burn, thin, x, y,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain,
+			display_progress, nthreads
+		);
+	}();
   // Start Gibbs sampling-----------------------------------
 	return mcmc_run->returnRecords();
 }

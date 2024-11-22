@@ -17,6 +17,9 @@
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param minnesota Apply cross-variable shrinkage structure (Minnesota-way). Two type: `short` type and `longrun` (default) type.
 #' You can also set `no`.
+#' @param ggl If `TRUE` (default), use additional group shrinkage parameter for group structure.
+#' Otherwise, use group shrinkage parameter instead of global shirnkage parameter.
+#' Applies to HS, NG, and DL priors.
 #' @param save_init Save every record starting from the initial values (`TRUE`).
 #' By default, exclude the initial values in the record (`FALSE`), even when `num_burn = 0` and `thinning = 1`.
 #' If `num_burn > 0` or `thinning != 1`, this option is ignored.
@@ -80,6 +83,7 @@ vhar_bayes <- function(y,
                        intercept = set_intercept(),
                        include_mean = TRUE,
                        minnesota = c("longrun", "short", "no"),
+                       ggl = TRUE,
                        save_init = FALSE,
                        convergence = NULL,
                        verbose = FALSE,
@@ -450,27 +454,7 @@ vhar_bayes <- function(y,
         )
       }
     )
-    res <- estimate_var_sv(
-      num_chains = num_chains,
-      num_iter = num_iter,
-      num_burn = num_burn,
-      thin = thinning,
-      x = X1,
-      y = Y0,
-      param_sv = cov_spec[c("shape", "scale", "initial_mean", "initial_prec")],
-      param_prior = param_prior,
-      param_intercept = intercept[c("mean_non", "sd_non")],
-      param_init = param_init,
-      prior_type = prior_type,
-      grp_id = grp_id,
-      own_id = own_id,
-      cross_id = cross_id,
-      grp_mat = glob_idmat,
-      include_mean = include_mean,
-      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-      display_progress = verbose,
-      nthreads = num_thread
-    )
+    param_cov <- cov_spec[c("shape", "scale", "initial_mean", "initial_prec")]
   } else {
     param_init <- lapply(
       param_init,
@@ -481,28 +465,30 @@ vhar_bayes <- function(y,
         )
       }
     )
-    res <- estimate_sur(
-      num_chains = num_chains,
-      num_iter = num_iter,
-      num_burn = num_burn,
-      thin = thinning,
-      x = X1,
-      y = Y0,
-      param_reg = cov_spec[c("shape", "scale")],
-      param_prior = param_prior,
-      param_intercept = intercept[c("mean_non", "sd_non")],
-      param_init = param_init,
-      prior_type = prior_type,
-      grp_id = grp_id,
-      own_id = own_id,
-      cross_id = cross_id,
-      grp_mat = glob_idmat,
-      include_mean = include_mean,
-      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-      display_progress = verbose,
-      nthreads = num_thread
-    )
+    param_cov <- cov_spec[c("shape", "scale")]
   }
+  res <- estimate_sur(
+    num_chains = num_chains,
+    num_iter = num_iter,
+    num_burn = num_burn,
+    thin = thinning,
+    x = X1,
+    y = Y0,
+    param_reg = param_cov,
+    param_prior = param_prior,
+    param_intercept = intercept[c("mean_non", "sd_non")],
+    param_init = param_init,
+    prior_type = prior_type,
+    ggl = ggl,
+    grp_id = grp_id,
+    own_id = own_id,
+    cross_id = cross_id,
+    grp_mat = glob_idmat,
+    include_mean = include_mean,
+    seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+    display_progress = verbose,
+    nthreads = num_thread
+  )
   res <- do.call(rbind, res)
   colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
   rec_names <- colnames(res) # *_record
@@ -654,6 +640,7 @@ vhar_bayes <- function(y,
   #   res$prior_mean <- prior_mean
   #   res$prior_prec <- prior_prec
   # }
+  res$ggl <- ggl
   # variables------------
   res$df <- dim_har
   res$p <- 3

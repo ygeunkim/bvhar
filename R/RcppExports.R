@@ -554,34 +554,8 @@ estimate_hierachical_niw <- function(num_iter, num_burn, x, y, prior_prec, prior
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
-}
-
-#' VAR-SV by Gibbs Sampler
-#' 
-#' This function generates parameters \eqn{\beta, a, \sigma_{h,i}^2, h_{0,i}} and log-volatilities \eqn{h_{i,1}, \ldots, h_{i, n}}.
-#' 
-#' @param num_chain Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thin Thinning
-#' @param x Design matrix X0
-#' @param y Response matrix Y0
-#' @param param_sv SV specification list
-#' @param param_prior Prior specification list
-#' @param param_intercept Intercept specification list
-#' @param param_init Initialization specification list
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param include_mean Constant term
-#' @param seed_chain Seed for each chain
-#' @param display_progress Progress bar
-#' @param nthreads Number of threads for openmp
-#' 
-#' @noRd
-estimate_var_sv <- function(num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_var_sv`, num_chains, num_iter, num_burn, thin, x, y, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
+estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' Compute VAR(p) Coefficient Matrices and Fitted Values
@@ -749,8 +723,8 @@ forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, 
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_roll_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_roll_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -780,8 +754,8 @@ roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, spar
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_roll_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_roll_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -811,8 +785,8 @@ roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinn
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_expand_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_expand_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -842,8 +816,8 @@ expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sp
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Forecasting BVAR(p)
@@ -1161,8 +1135,8 @@ forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1192,8 +1166,8 @@ roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sp
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1223,8 +1197,8 @@ roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinnin
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -1254,8 +1228,8 @@ expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, 
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
-    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
+expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads) {
+    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, nthreads)
 }
 
 #' VAR(1) Representation Given VAR Coefficient Matrix

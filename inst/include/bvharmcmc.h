@@ -21,7 +21,7 @@ template <typename BaseMcmc, bool isGroup> class McmcNg;
 template <typename BaseMcmc, bool isGroup> class McmcDl;
 // Running MCMC
 class McmcInterface;
-template <typename BaseMcmc> class McmcRun;
+template <typename BaseMcmc, bool isGroup> class McmcRun;
 
 class McmcTriangular {
 public:
@@ -912,7 +912,7 @@ public:
 	virtual LIST_OF_LIST returnRecords() = 0;
 };
 
-template <typename BaseMcmc = McmcReg>
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcRun : public McmcInterface {
 public:
 	McmcRun(
@@ -925,7 +925,7 @@ public:
 	)
 	: num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		display_progress(display_progress), mcmc_ptr(num_chains), res(num_chains) {
-		mcmc_ptr = initialize_mcmc<BaseMcmc>(
+		mcmc_ptr = initialize_mcmc<BaseMcmc, isGroup>(
 			num_chains, num_iter - num_burn, x, y,
 			param_cov, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat,
