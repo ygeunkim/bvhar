@@ -8,6 +8,8 @@
 
 * `med = TRUE` gives median of forecast draws as point forecast.
 
+* `var_bayes()` and `vhar_bayes()` can choose to use only group shrinkage parameters without global parameter with `ggl = FALSE` option.
+
 * SAVS penalty is zero in own-lag.
 
 ## C++ Header file changes
