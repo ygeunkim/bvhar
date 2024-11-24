@@ -19,6 +19,7 @@ template <typename BaseMcmc> class McmcSsvs;
 template <typename BaseMcmc, bool isGroup> class McmcHorseshoe;
 template <typename BaseMcmc, bool isGroup> class McmcNg;
 template <typename BaseMcmc, bool isGroup> class McmcDl;
+template <typename BaseMcmc> class McmcGdp;
 // Running MCMC
 class McmcInterface;
 template <typename BaseMcmc, bool isGroup> class McmcRun;
@@ -789,6 +790,94 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
+template <typename BaseMcmc = McmcReg>
+class McmcGdp : public BaseMcmc {
+public:
+	McmcGdp(
+		const GdpParams<typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type>& params,
+		const GdpInits<typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type>& inits,
+		unsigned int seed
+	)
+	: BaseMcmc(params, inits, seed),
+		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
+		// ng_record(num_iter, num_alpha, num_grp),
+		group_rate(inits._init_group_rate), group_rate_fac(Eigen::VectorXd::Ones(num_alpha)),
+		coef_gamma_shape(inits._init_gamma_shape), coef_gamma_rate(inits._init_gamma_rate),
+		shape_grid(params._grid_shape), rate_grid(params._grid_rate),
+		local_lev(inits._init_local),
+		contem_rate(inits._init_contem_rate),
+		contem_gamma_shape(inits._init_contem_gamma_shape), contem_gamma_rate(inits._init_contem_gamma_rate),
+		contem_fac(inits._init_contem_local) {
+		// ng_record.assignRecords(0, local_lev, group_lev, global_lev);
+	}
+	virtual ~McmcGdp() = default;
+	void appendRecords(LIST& list) override {
+		// list["lambda_record"] = ng_record.local_record;
+		// list["eta_record"] = ng_record.group_record;
+		// list["tau_record"] = ng_record.global_record;
+	}
+
+protected:
+	using BaseMcmc::num_iter;
+	using BaseMcmc::num_alpha;
+	using BaseMcmc::num_lowerchol;
+	using BaseMcmc::mcmc_step;
+	using BaseMcmc::rng;
+	using BaseMcmc::prior_alpha_prec;
+	using BaseMcmc::alpha_penalty;
+	using BaseMcmc::prior_chol_prec;
+	using BaseMcmc::coef_vec;
+	using BaseMcmc::contem_coef;
+	using BaseMcmc::updateCoefRecords;
+	void updateCoefPrec() override {
+		gdp_shape_griddy(coef_gamma_shape, coef_gamma_rate, shape_grid, coef_vec.head(num_alpha), rng);
+		gdp_rate_griddy(coef_gamma_rate, coef_gamma_shape, rate_grid, coef_vec.head(num_alpha), rng);
+		gdp_exp_rate(group_rate, coef_gamma_shape, coef_gamma_rate, coef_vec.head(num_alpha), grp_vec, grp_id, rng);
+		for (int j = 0; j < num_grp; ++j) {
+			group_rate_fac = (grp_vec.array() == grp_id[j]).select(
+				group_rate[j],
+				group_rate_fac
+			);
+		}
+		gdp_local_sparsity(local_lev, group_rate_fac, coef_vec.head(num_alpha), rng);
+		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
+	}
+	void updatePenalty() override {
+		for (int i = 0; i < num_alpha; ++i) {
+			if (own_id.find(grp_vec[i]) != own_id.end()) {
+				alpha_penalty[i] = 0;
+			} else {
+				alpha_penalty[i] = 1;
+			}
+		}
+	}
+	void updateImpactPrec() override {
+		gdp_shape_griddy(contem_gamma_shape, contem_gamma_rate, shape_grid, contem_coef, rng);
+		gdp_rate_griddy(contem_gamma_rate, contem_gamma_shape, rate_grid, contem_coef, rng);
+		gdp_exp_rate(contem_rate, contem_gamma_shape, contem_gamma_rate, contem_coef, rng);
+		gdp_local_sparsity(contem_fac, contem_rate, contem_coef, rng);
+		prior_chol_prec = 1 / contem_fac.array().square();
+	}
+	void updateRecords() override {
+		updateCoefRecords();
+		// ng_record.assignRecords(mcmc_step, local_lev, group_lev, global_lev);
+	}
+
+private:
+	std::set<int> own_id;
+	Eigen::VectorXi grp_id;
+	Eigen::VectorXi grp_vec;
+	int num_grp;
+	// NgRecords ng_record;
+	Eigen::VectorXd group_rate, group_rate_fac;
+	double coef_gamma_shape, coef_gamma_rate;
+	int shape_grid, rate_grid;
+	Eigen::VectorXd local_lev;
+	Eigen::VectorXd contem_rate;
+	double contem_gamma_shape, contem_gamma_rate;
+	Eigen::VectorXd contem_fac;
+};
+
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -899,6 +988,23 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				// GlInits<INITS> dl_inits(init_spec);
 				GlInits<INITS> dl_inits = num_design ? GlInits<INITS>(init_spec, *num_design) : GlInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc, isGroup>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
+			}
+			return mcmc_ptr;
+		}
+		case 7: {
+			GdpParams<PARAMS> gdp_params(
+				num_iter, x, y,
+				param_reg,
+				own_id, cross_id,
+				grp_id, grp_mat,
+				param_prior,
+				param_intercept,
+				include_mean
+			);
+			for (int i = 0; i < num_chains; ++i) {
+				LIST init_spec = param_init[i];
+				GdpInits<INITS> gdp_inits = num_design ? GdpInits<INITS>(init_spec, *num_design) : GdpInits<INITS>(init_spec);
+				mcmc_ptr[i] = std::make_unique<McmcGdp<BaseMcmc>>(gdp_params, gdp_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
 			return mcmc_ptr;
 		}
