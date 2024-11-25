@@ -364,3 +364,19 @@ class NgConfig(_BayesConfig):
             "contem_global_shape": self.contem_global_shape,
             "contem_global_scale": self.contem_global_scale
         }
+    
+class GdpConfig(_BayesConfig):
+    """Generalized Double Pareto prior configuration
+
+    Specifies GDP prior for coefficient.
+    """
+    def __init__(self, shape_grid: int = 100, rate_grid: int = 100):
+        super().__init__("GDP")
+        self.grid_shape = self.validate(shape_grid, "shape_grid")
+        self.grid_rate = self.validate(rate_grid, "rate_grid")
+
+    def to_dict(self):
+        return {
+            "grid_shape": self.grid_shape,
+            "grid_rate": self.grid_rate
+        }
