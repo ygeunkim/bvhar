@@ -231,6 +231,12 @@ is.dlspec <- function(x) {
   inherits(x, "dlspec")
 }
 
+#' @rdname set_gdp
+#' @export
+is.gdpspec <- function(x) {
+  inherits(x, "gdpspec")
+}
+
 #' @rdname set_ldlt
 #' @export
 is.covspec <- function(x) {

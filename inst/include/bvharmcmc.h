@@ -840,7 +840,7 @@ protected:
 			);
 		}
 		gdp_local_sparsity(local_lev, group_rate_fac, coef_vec.head(num_alpha), rng);
-		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
+		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array();
 	}
 	void updatePenalty() override {
 		for (int i = 0; i < num_alpha; ++i) {
@@ -856,7 +856,7 @@ protected:
 		gdp_rate_griddy(contem_gamma_rate, contem_gamma_shape, rate_grid, contem_coef, rng);
 		gdp_exp_rate(contem_rate, contem_gamma_shape, contem_gamma_rate, contem_coef, rng);
 		gdp_local_sparsity(contem_fac, contem_rate, contem_coef, rng);
-		prior_chol_prec = 1 / contem_fac.array().square();
+		prior_chol_prec = 1 / contem_fac.array();
 	}
 	void updateRecords() override {
 		updateCoefRecords();

@@ -1066,7 +1066,7 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_sh
 				mn_local[k++] = coef[j];
 			}
 		}
-		group_rate[i] = gamma_rand(prior_shape + mn_size, 1 / (prior_rate + mn_local.cwiseAbs().sum()), rng);
+		group_rate[i] = gamma_rand(prior_shape + mn_size, 1 / (prior_rate + mn_local.lpNorm<1>()), rng);
   }
 }
 
@@ -1100,7 +1100,7 @@ inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_si
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
 	shape_hyper = cat_rand(weight, rng);
-	shape_hyper = 1 / (shape_hyper - 1);
+	shape_hyper = (1 - grid[static_cast<int>(shape_hyper)]) / grid[static_cast<int>(shape_hyper)];
 }
 
 inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
@@ -1112,7 +1112,7 @@ inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_siz
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
 	rate_hyper = cat_rand(weight, rng);
-	rate_hyper = 1 / (rate_hyper - 1);
+	rate_hyper = (1 - grid[static_cast<int>(rate_hyper)]) / grid[static_cast<int>(rate_hyper)];
 }
 
 // Draw d_i in D from cholesky decomposition of precision matrix
