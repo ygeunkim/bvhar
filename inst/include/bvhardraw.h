@@ -747,7 +747,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 // @param coef Coefficients vector
 // @param rng boost rng
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
-										 					Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
@@ -811,14 +811,16 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
-	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
+	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
+	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = dl_logdens_dir(grid[i], local_param, global_param);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp(); // use log-sum-exp against overflow
 	weight /= weight.sum();
-	dir_concen = cat_rand(weight, rng);
+	dir_concen = static_cast<double>(cat_rand(weight, rng));
+	// dir_concen = grid[cat_rand(weight, rng)];
 }
 
 // Generating lambda of Minnesota-SV
@@ -1092,27 +1094,27 @@ inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, do
 // @param coef
 // @param rng
 inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, .0001, .9999);
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = gdp_logdens_shape(grid[i], coef, rate_hyper);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
-	shape_hyper = cat_rand(weight, rng);
-	shape_hyper = (1 - grid[static_cast<int>(shape_hyper)]) / grid[static_cast<int>(shape_hyper)];
+	int id = cat_rand(weight, rng);
+	shape_hyper = (1 - grid[id]) / grid[id];
 }
 
 inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, .0001, .9999);
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = gdp_logdens_rate(grid[i], coef, shape_hyper);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
-	rate_hyper = cat_rand(weight, rng);
-	rate_hyper = (1 - grid[static_cast<int>(rate_hyper)]) / grid[static_cast<int>(rate_hyper)];
+	int id = cat_rand(weight, rng);
+	rate_hyper = (1 - grid[id]) / grid[id];
 }
 
 // Draw d_i in D from cholesky decomposition of precision matrix
