@@ -128,6 +128,7 @@ template <typename BaseRegParams = RegParams>
 struct HierminnParams : public BaseRegParams {
 	double shape;
 	double rate;
+	int _grid_size;
 	Eigen::MatrixXd _prec_diag;
 	Eigen::MatrixXd _prior_mean;
 	Eigen::MatrixXd _prior_prec;
@@ -144,7 +145,7 @@ struct HierminnParams : public BaseRegParams {
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, intercept, include_mean),
-		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])),
+		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])), _grid_size(CAST_INT(priors["grid_size"])),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
 		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
@@ -186,8 +187,9 @@ struct SsvsParams : public BaseRegParams {
 	Eigen::MatrixXi _grp_mat;
 	Eigen::VectorXd _coef_s1, _coef_s2;
 	double _contem_s1, _contem_s2;
-	double _coef_spike_scl, _contem_spike_scl;
+	// double _coef_spike_scl, _contem_spike_scl;
 	double _coef_slab_shape, _coef_slab_scl, _contem_slab_shape, _contem_slab_scl;
+	int _coef_grid, _contem_grid;
 
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -201,9 +203,10 @@ struct SsvsParams : public BaseRegParams {
 		_grp_id(grp_id), _grp_mat(grp_mat),
 		_coef_s1(CAST<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(CAST<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
 		_contem_s1(CAST_DOUBLE(ssvs_spec["chol_s1"])), _contem_s2(CAST_DOUBLE(ssvs_spec["chol_s2"])),
-		_coef_spike_scl(CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
+		// _coef_spike_scl(CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
 		_coef_slab_shape(CAST_DOUBLE(ssvs_spec["coef_slab_shape"])), _coef_slab_scl(CAST_DOUBLE(ssvs_spec["coef_slab_scl"])),
-		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])) {}
+		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])),
+		_coef_grid(CAST_INT(ssvs_spec["coef_grid"])), _contem_grid(CAST_INT(ssvs_spec["chol_grid"])) {}
 };
 
 template <typename BaseRegParams = RegParams>
@@ -366,6 +369,7 @@ struct SsvsInits : public BaseRegInits {
 	Eigen::VectorXd _contem_weight; // in SsvsSvParams
 	Eigen::VectorXd _coef_slab;
 	Eigen::VectorXd _contem_slab;
+	double _coef_spike_scl, _contem_spike_scl;
 	
 	SsvsInits(LIST& init)
 	: BaseRegInits(init),
@@ -373,7 +377,9 @@ struct SsvsInits : public BaseRegInits {
 		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
 		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
 		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])) {}
+		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])),
+		_coef_spike_scl(CAST_DOUBLE(init["coef_spike_scl"])),
+		_contem_spike_scl(CAST_DOUBLE(init["chol_spike_scl"])) {}
 	
 	SsvsInits(LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
@@ -381,7 +387,9 @@ struct SsvsInits : public BaseRegInits {
 		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
 		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
 		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])) {}
+		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])),
+		_coef_spike_scl(CAST_DOUBLE(init["coef_spike_scl"])),
+		_contem_spike_scl(CAST_DOUBLE(init["chol_spike_scl"])) {}
 };
 
 template <typename BaseRegInits = LdltInits>

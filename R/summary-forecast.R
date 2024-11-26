@@ -284,6 +284,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -332,6 +333,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -509,6 +511,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -557,6 +560,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -889,6 +893,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -937,6 +942,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -1117,6 +1123,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
@@ -1165,6 +1172,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         if (object$spec$hierarchical) {
           param_prior$shape <- object$spec$lambda$param[1]
           param_prior$rate <- object$spec$lambda$param[2]
+          param_prior$grid_size <- object$spec$lambda$grid_size
           prior_type <- 4
         } else {
           prior_type <- 1
