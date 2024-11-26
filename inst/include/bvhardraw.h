@@ -337,6 +337,22 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 	}
 }
 
+inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_sd) {
+	return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);
+}
+
+inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
+														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, boost::random::mt19937& rng) {
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
+	Eigen::VectorXd log_wt(grid_size);
+	for (int i = 0; i < grid_size; ++i) {
+		log_wt[i] = ssvs_logdens_scl(grid[i], coef_vec, slab_param);
+	}
+	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
+	weight /= weight.sum();
+	spike_scl = grid[cat_rand(weight, rng)];
+}
+
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 // 
 // This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.

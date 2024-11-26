@@ -470,6 +470,7 @@ protected:
 				slab_weight
 			);
 		}
+		ssvs_scl_griddy(spike_scl, 100, coef_vec.head(num_alpha), coef_slab, rng);
 		ssvs_dummy(
 			coef_dummy,
 			coef_vec.head(num_alpha),
