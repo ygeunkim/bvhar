@@ -319,12 +319,16 @@ public:
 		contem_shape(params.shape), contem_rate(params.rate) {
 		prior_alpha_mean.head(num_alpha) = params._prior_mean.reshaped();
 		prior_alpha_prec.head(num_alpha) = kronecker_eigen(params._prec_diag, params._prior_prec).diagonal();
+		prior_alpha_prec.head(num_alpha).array() /= own_lambda;
 		for (int i = 0; i < num_alpha; ++i) {
-			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
-			}
+			// if (own_id.find(grp_vec[i]) != own_id.end()) {
+			// 	prior_alpha_prec[i] /= own_lambda; // divide because it is precision
+			// }
+			// if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+			// 	prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+			// }
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= cross_lambda;
 			}
 		}
 		if (include_mean) {
@@ -349,32 +353,51 @@ protected:
 	using BaseMcmc::contem_coef;
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
+		// minnesota_lambda(
+		// 	own_lambda, own_shape, own_rate,
+		// 	coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 	grp_vec, own_id, rng
+		// );
+		// if (coef_minnesota) {
+		// 	minnesota_lambda(
+		// 		cross_lambda, cross_shape, cross_rate,
+		// 		coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
+		// 		grp_vec, cross_id, rng
+		// 	);
+		// }
+		// for (int i = 0; i < num_alpha; ++i) {
+		// 	if (own_id.find(grp_vec[i]) != own_id.end()) {
+		// 		prior_alpha_prec[i] /= own_lambda; // divide because it is precision
+		// 		alpha_penalty[i] = 0;
+		// 	}
+		// 	if (cross_id.find(grp_vec[i]) != cross_id.end()) {
+		// 		prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+		// 		alpha_penalty[i] = 1;
+		// 	}
+		// }
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
-			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-			grp_vec, own_id, rng
+			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec.head(num_alpha),
+			rng
 		);
-		if (coef_minnesota) {
-			minnesota_lambda(
-				cross_lambda, cross_shape, cross_rate,
-				coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec,
-				grp_vec, cross_id, rng
-			);
-		}
+		minnesota_nu_griddy(
+			cross_lambda, 100,
+			coef_vec.head(num_alpha), prior_alpha_mean.head(num_alpha), prior_alpha_prec.head(num_alpha),
+			grp_vec, cross_id, rng
+		);
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
-				prior_alpha_prec[i] /= own_lambda; // divide because it is precision
 				alpha_penalty[i] = 0;
 			}
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec[i] /= cross_lambda; // divide because it is precision
+				prior_alpha_prec[i] /= cross_lambda;
 				alpha_penalty[i] = 1;
 			}
 		}
 	}
 	void updatePenalty() override {};
 	void updateImpactPrec() override {
-		minnesota_contem_lambda(
+		minnesota_lambda(
 			contem_lambda, contem_shape, contem_rate,
 			contem_coef, prior_chol_mean, prior_chol_prec,
 			rng
