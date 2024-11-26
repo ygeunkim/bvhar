@@ -6,7 +6,7 @@ from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVa
 from .._src._sv import SvMcmc, SvGrpMcmc
 from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand, SvGrpVarRoll, SvGrpVharRoll, SvGrpVarExpand, SvGrpVharExpand
 from ._spec import LdltConfig, SvConfig, InterceptConfig
-from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
+from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig, GdpConfig
 import numpy as np
 import pandas as pd
 import warnings
@@ -136,6 +136,26 @@ class _AutoregBayes:
                     'contem_local_sparsity': contem_local_sparsity,
                     'contem_global_sparsity': np.array([contem_global_sparsity]) # used as VectorXd in C++
                 })
+        elif type(self.spec_) == GdpConfig:
+            for init in self.init_:
+                local_sparsity = np.exp(np.random.uniform(-1, 1, n_alpha))
+                group_rate = np.exp(np.random.uniform(-1, 1, n_grp))
+                contem_local_sparsity = np.exp(np.random.uniform(-1, 1, n_eta))
+                contem_local_rate = np.exp(np.random.uniform(-1, 1, n_eta))
+                coef_shape = np.random.uniform(0, 1)
+                coef_rate = np.random.uniform(0, 1)
+                contem_shape = np.random.uniform(0, 1)
+                contem_rate = np.random.uniform(0, 1)
+                init.update({
+                    'local_sparsity': local_sparsity,
+                    'group_rate': group_rate,
+                    'contem_local_sparsity': contem_local_sparsity,
+                    'contem_rate': contem_local_rate,
+                    'gamma_shape': coef_shape,
+                    'gamma_rate': coef_rate,
+                    'contem_gamma_shape': contem_shape,
+                    'contem_gamma_rate': contem_rate
+                })
         self.init_ = make_fortran_array(self.init_)
         self._prior_type = {
             "Minnesota": 1,
@@ -143,7 +163,8 @@ class _AutoregBayes:
             "Horseshoe": 3,
             "HMN": 4,
             "NG": 5,
-            "DL": 6
+            "DL": 6,
+            "GDP": 7
         }.get(self.spec_.prior)
         self.is_fitted_ = False
         self.coef_ = None
@@ -171,6 +192,8 @@ class _AutoregBayes:
         elif type(self.spec_) == DlConfig:
             pass
         elif type(self.spec_) == NgConfig:
+            pass
+        elif type(self.spec_) == GdpConfig:
             pass
 
     def fit(self):

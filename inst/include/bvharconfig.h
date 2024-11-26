@@ -16,6 +16,7 @@ template <typename BaseRegParams> struct SsvsParams;
 template <typename BaseRegParams> struct HorseshoeParams;
 template <typename BaseRegParams> struct NgParams;
 template <typename BaseRegParams> struct DlParams;
+template <typename BaseRegParams> struct GdpParams;
 // Initialization
 struct RegInits;
 struct LdltInits;
@@ -25,6 +26,7 @@ template <typename BaseRegInits> struct SsvsInits;
 template <typename BaseRegInits> struct GlInits;
 template <typename BaseRegInits> struct HsInits;
 template <typename BaseRegInits> struct NgInits;
+template <typename BaseRegInits> struct GdpInits;
 // MCMC records
 struct RegRecords;
 struct SparseRecords;
@@ -267,6 +269,26 @@ struct DlParams : public BaseRegParams {
 		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
 };
 
+template <typename BaseRegParams = RegParams>
+struct GdpParams : public BaseRegParams {
+	Eigen::VectorXi _grp_id;
+	Eigen::MatrixXi _grp_mat;
+	int _grid_shape;
+	int _grid_rate;
+
+	GdpParams(
+		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		LIST& reg_spec,
+		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
+		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
+		LIST& gdp_spec, LIST& intercept,
+		bool include_mean
+	)
+	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, intercept, include_mean),
+		_grp_id(grp_id), _grp_mat(grp_mat),
+		_grid_shape(CAST_INT(gdp_spec["grid_shape"])), _grid_rate(CAST_INT(gdp_spec["grid_rate"])) {}
+};
+
 struct RegInits {
 	Eigen::MatrixXd _coef;
 	Eigen::VectorXd _contem;
@@ -411,6 +433,33 @@ struct NgInits : public HsInits<BaseRegInits> {
 	: HsInits<BaseRegInits>(init, num_design),
 		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
 		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
+};
+
+template <typename BaseRegInits = LdltInits>
+struct GdpInits : public BaseRegInits {
+	Eigen::VectorXd _init_local;
+	Eigen::VectorXd _init_group_rate;
+	Eigen::VectorXd _init_contem_local;
+	Eigen::VectorXd _init_contem_rate;
+	double _init_gamma_shape, _init_gamma_rate, _init_contem_gamma_shape, _init_contem_gamma_rate;
+
+	GdpInits(LIST& init)
+	: BaseRegInits(init),
+		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_group_rate(CAST<Eigen::VectorXd>(init["group_rate"])),
+		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_contem_rate(CAST<Eigen::VectorXd>(init["contem_rate"])),
+		_init_gamma_shape(CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(CAST_DOUBLE(init["gamma_rate"])),
+		_init_contem_gamma_shape(CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(CAST_DOUBLE(init["contem_gamma_rate"])) {}
+	
+	GdpInits(LIST& init, int num_design)
+	: BaseRegInits(init, num_design),
+		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_group_rate(CAST<Eigen::VectorXd>(init["group_rate"])),
+		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_contem_rate(CAST<Eigen::VectorXd>(init["contem_rate"])),
+		_init_gamma_shape(CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(CAST_DOUBLE(init["gamma_rate"])),
+		_init_contem_gamma_shape(CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(CAST_DOUBLE(init["contem_gamma_rate"])) {}
 };
 
 struct RegRecords {

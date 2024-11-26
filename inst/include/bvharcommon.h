@@ -212,7 +212,7 @@ inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 	return rdist(rng);
 }
 
-inline double cat_rand(const Eigen::VectorXd& probabilities, boost::random::mt19937& rng) {
+inline int cat_rand(const Eigen::VectorXd& probabilities, boost::random::mt19937& rng) {
 	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
 	return rdist(rng);
 }

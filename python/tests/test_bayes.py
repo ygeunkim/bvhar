@@ -1,7 +1,7 @@
 import pytest
 from bvhar.model import VarBayes, VharBayes
 from bvhar.model import LdltConfig, SvConfig, InterceptConfig
-from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig
+from bvhar.model import SsvsConfig, HorseshoeConfig, MinnesotaConfig, LambdaConfig, NgConfig, DlConfig, GdpConfig
 from bvhar.datasets import load_vix
 import numpy as np
 
@@ -91,6 +91,10 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         DlConfig(), LdltConfig()
+    )
+    help_var_bayes(
+        dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
+        GdpConfig(), LdltConfig()
     )
 
     # help_var_bayes(
@@ -200,6 +204,10 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         DlConfig(), LdltConfig()
+    )
+    help_vhar_bayes(
+        dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
+        GdpConfig(), LdltConfig()
     )
 
     # help_vhar_bayes(

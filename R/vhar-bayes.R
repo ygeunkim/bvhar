@@ -125,9 +125,10 @@ vhar_bayes <- function(y,
     is.ssvsinput(bayes_spec) ||
     is.horseshoespec(bayes_spec) ||
     is.ngspec(bayes_spec) ||
-    is.dlspec(bayes_spec)
+    is.dlspec(bayes_spec) ||
+    is.gdpspec(bayes_spec)
   )) {
-    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', or 'dlspec' for 'bayes_spec'.")
+    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
   }
   if (!is.covspec(cov_spec)) {
     stop("Provide 'covspec' for 'cov_spec'.")
@@ -416,6 +417,34 @@ vhar_bayes <- function(y,
         )
       }
     )
+  } else if (prior_nm == "GDP") {
+    param_prior <- bayes_spec
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        local_sparsity <- exp(runif(num_phi, -1, 1))
+        group_rate <- exp(runif(num_grp, -1, 1))
+        contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+        contem_local_rate <- exp(runif(num_eta, -1, 1))
+        coef_shape <- runif(1, 0, 1)
+        coef_rate <- runif(1, 0, 1)
+        contem_shape <- runif(1, 0, 1)
+        contem_rate <- runif(1, 0, 1)
+        append(
+          init,
+          list(
+            local_sparsity = local_sparsity,
+            group_rate = group_rate,
+            contem_local_sparsity = contem_local_sparsity,
+            contem_rate = contem_local_rate,
+            gamma_shape = coef_shape,
+            gamma_rate = coef_rate,
+            contem_gamma_shape = contem_shape,
+            contem_gamma_rate = contem_rate
+          )
+        )
+      }
+    )
   }
   prior_type <- switch(prior_nm,
     "Minnesota" = 1,
@@ -423,7 +452,8 @@ vhar_bayes <- function(y,
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
     "NG" = 5,
-    "DL" = 6
+    "DL" = 6,
+    "GDP" = 7
   )
   if (num_thread > get_maxomp()) {
     warning("'num_thread' is greater than 'omp_get_max_threads()'. Check with bvhar:::get_maxomp(). Check OpenMP support of your machine with bvhar:::check_omp().")
@@ -615,6 +645,8 @@ vhar_bayes <- function(y,
       res$lambda_record,
       res$tau_record
     )
+  } else if (bayes_spec$prior == "GDP") {
+    # 
   }
   res[rec_names] <- NULL
   res$param_names <- param_names
@@ -683,6 +715,8 @@ vhar_bayes <- function(y,
     class(res) <- c(class(res), "ngmod")
   } else if (bayes_spec$prior == "DL") {
     class(res) <- c(class(res), "dlmod")
+  } else if (bayes_spec$prior == "GDP") {
+    class(res) <- c(class(res), "gdpmod")
   }
   res
 }

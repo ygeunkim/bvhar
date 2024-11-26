@@ -300,6 +300,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       roll_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -345,6 +348,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       roll_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -519,6 +525,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       roll_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -564,6 +573,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       roll_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -893,6 +905,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       expand_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -938,6 +953,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       expand_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
@@ -1115,6 +1133,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       expand_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
@@ -1160,6 +1181,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
       } else if (is.dlspec(object$spec)) {
         param_prior <- object$spec
         prior_type <- 6
+      } else if (is.gdpspec(object$spec)) {
+        param_prior <- object$spec
+        prior_type <- 7
       }
       expand_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,

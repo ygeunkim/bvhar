@@ -683,6 +683,36 @@ set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
   res
 }
 
+#' Generalized Double Pareto Shrinkage Hyperparameters for Coefficients and Contemporaneous Coefficients
+#'
+#' `r lifecycle::badge("experimental")` Set GDP hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
+#'
+#' @param shape_grid Griddy gibbs grid size for Gamma shape hyperparameter
+#' @param rate_grid Griddy gibbs grid size for Gamma rate hyperparameter
+#' @return `gdpspec` object
+#' @references
+#' Armagan, A., Dunson, D. B., & Lee, J. (2013). *GENERALIZED DOUBLE PARETO SHRINKAGE*. Statistica Sinica, 23(1), 119–143.
+#'
+#' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
+#' @order 1
+#' @export
+set_gdp <- function(shape_grid = 100L, rate_grid = 100L) {
+  if (!(length(shape_grid) == 1 && length(rate_grid))) {
+    stop("'shape_grid' and 'rate_grid' should be length 1 numeric.")
+  }
+  if (!(shape_grid %% 1 == 0 && rate_grid %% 1 == 0)) {
+    stop("Provide integer for 'shape_grid' and 'rate_grid'.")
+  }
+  res <- list(
+    process = "VAR",
+    prior = "GDP",
+    grid_shape = shape_grid,
+    grid_rate = rate_grid
+  )
+  class(res) <- "gdpspec"
+  res
+}
+
 #' Covariance Matrix Prior Specification
 #'
 #' `r lifecycle::badge("experimental")` Set prior for covariance matrix.

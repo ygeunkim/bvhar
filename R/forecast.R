@@ -445,7 +445,8 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
     "NG" = 5,
-    "DL" = 6
+    "DL" = 6,
+    "GDP" = 7
   )
   pred_res <- forecast_bvarldlt(
     num_chains,
@@ -564,7 +565,8 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
     "NG" = 5,
-    "DL" = 6
+    "DL" = 6,
+    "GDP" = 7
   )
   pred_res <- forecast_bvharldlt(
     num_chains,
@@ -689,7 +691,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
     "NG" = 5,
-    "DL" = 6
+    "DL" = 6,
+    "GDP" = 7
   )
   pred_res <- forecast_bvarsv(
     num_chains,
@@ -811,7 +814,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
     "Horseshoe" = 3,
     "MN_Hierarchical" = 4,
     "NG" = 5,
-    "DL" = 6
+    "DL" = 6,
+    "GDP" = 7
   )
   pred_res <- forecast_bvharsv(
     num_chains,

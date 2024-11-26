@@ -747,7 +747,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 // @param coef Coefficients vector
 // @param rng boost rng
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
-										 					Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
@@ -811,14 +811,16 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
-	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
+	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
+	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = dl_logdens_dir(grid[i], local_param, global_param);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp(); // use log-sum-exp against overflow
 	weight /= weight.sum();
-	dir_concen = cat_rand(weight, rng);
+	dir_concen = static_cast<double>(cat_rand(weight, rng));
+	// dir_concen = grid[cat_rand(weight, rng)];
 }
 
 // Generating lambda of Minnesota-SV
@@ -1017,6 +1019,102 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 		}
 		gamma_hyper[i] = ng_shape_jump(gamma_hyper[i], mn_local, global_param * group_param[i], lognormal_sd, rng);
   }
+}
+
+// Draw Local sparsity in GDP prior
+// 
+// @param local_param
+// @param local_shape
+// @param coef
+// @param rng
+inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<const Eigen::VectorXd> local_shape,
+															 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	for (int i = 0; i < local_param.size(); ++i) {
+		local_param[i] = 1 / sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
+		// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));
+	}
+}
+
+// Draw Rate in GDP prior
+// @param prior_shape
+// @param prior_rate
+// @param coef
+// @param rng
+inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> rate_hyper, double prior_shape, double prior_rate,
+											 		 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	for (int i = 0; i < rate_hyper.size(); ++i) {
+		rate_hyper[i] = gamma_rand(prior_shape + 1, 1 / (prior_rate + abs(coef[i])), rng);
+	}
+}
+
+// Draw Group Rate in GDP prior
+// @param group_rate
+// @param coef
+// @param grp_vec Group vector
+// @param grp_id Unique group id
+// @param rng
+inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_shape, double prior_rate,
+												 Eigen::Ref<Eigen::VectorXd> coef,
+												 Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, boost::random::mt19937& rng) {
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+	int num_coef = coef.size();
+  for (int i = 0; i < grp_id.size(); ++i) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+    Eigen::VectorXd mn_local(mn_size);
+		for (int j = 0, k = 0; j < num_coef; ++j) {
+			if (group_id[j]) {
+				mn_local[k++] = coef[j];
+			}
+		}
+		group_rate[i] = gamma_rand(prior_shape + mn_size, 1 / (prior_rate + mn_local.lpNorm<1>()), rng);
+  }
+}
+
+// Log-density for Gamma shape hyperparameter in GDP
+// 
+// @param cand
+// @param coef
+// @param rate
+inline double gdp_logdens_shape(double cand, Eigen::Ref<Eigen::VectorXd> coef, double rate) {
+	int num_coef = coef.size();
+	return num_coef * (log(1 - cand) - log(cand)) - (coef.array() / rate).log1p().sum() / cand;
+}
+
+inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, double shape) {
+	int num_coef = coef.size();
+	return num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.array() * cand / (1 - cand)).log1p().sum();
+}
+
+// Griddy Gibbs for Hyperparameter of Gamma Prior in GDP
+// 
+// @param gamma_shape
+// @param grid_size
+// @param coef
+// @param rng
+inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
+	Eigen::VectorXd log_wt(grid_size);
+	for (int i = 0; i < grid_size; ++i) {
+		log_wt[i] = gdp_logdens_shape(grid[i], coef, rate_hyper);
+	}
+	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
+	weight /= weight.sum();
+	int id = cat_rand(weight, rng);
+	shape_hyper = (1 - grid[id]) / grid[id];
+}
+
+inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
+	Eigen::VectorXd log_wt(grid_size);
+	for (int i = 0; i < grid_size; ++i) {
+		log_wt[i] = gdp_logdens_rate(grid[i], coef, shape_hyper);
+	}
+	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
+	weight /= weight.sum();
+	int id = cat_rand(weight, rng);
+	rate_hyper = (1 - grid[id]) / grid[id];
 }
 
 // Draw d_i in D from cholesky decomposition of precision matrix
