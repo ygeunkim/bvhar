@@ -271,6 +271,19 @@ test_that("Rolling windows - VHAR-DL-LDLT", {
   expect_s3_class(test_roll_sparse, "bvharcv")
 })
 
+test_that("Rolling windows - VHAR-GDP-LDLT", {
+  skip_on_cran()
+
+  test_roll_dense <- help_vhar_bayes_roll(set_gdp(), set_ldlt(), FALSE)
+  test_roll_sparse <- help_vhar_bayes_roll(set_gdp(), set_ldlt(), TRUE)
+
+  expect_s3_class(test_roll_dense, "predbvhar_roll")
+  expect_s3_class(test_roll_dense, "bvharcv")
+
+  expect_s3_class(test_roll_sparse, "predbvhar_roll")
+  expect_s3_class(test_roll_sparse, "bvharcv")
+})
+
 test_that("Rolling windows - VAR-Minn-SV", {
   skip_on_cran()
 
@@ -341,6 +354,19 @@ test_that("Rolling windows - VAR-DL-SV", {
 
   test_roll_dense <- help_var_bayes_roll(set_dl(), set_sv(), FALSE)
   test_roll_sparse <- help_var_bayes_roll(set_dl(), set_sv(), TRUE)
+
+  expect_s3_class(test_roll_dense, "predbvhar_roll")
+  expect_s3_class(test_roll_dense, "bvharcv")
+
+  expect_s3_class(test_roll_sparse, "predbvhar_roll")
+  expect_s3_class(test_roll_sparse, "bvharcv")
+})
+
+test_that("Rolling windows - VAR-GDP-SV", {
+  skip_on_cran()
+
+  test_roll_dense <- help_var_bayes_roll(set_gdp(), set_sv(), FALSE)
+  test_roll_sparse <- help_var_bayes_roll(set_gdp(), set_sv(), TRUE)
 
   expect_s3_class(test_roll_dense, "predbvhar_roll")
   expect_s3_class(test_roll_dense, "bvharcv")
@@ -427,6 +453,19 @@ test_that("Rolling windows - VHAR-DL-SV", {
   expect_s3_class(test_roll_sparse, "bvharcv")
 })
 
+test_that("Rolling windows - VHAR-GDP-SV", {
+  skip_on_cran()
+
+  test_roll_dense <- help_vhar_bayes_roll(set_gdp(), set_sv(), FALSE)
+  test_roll_sparse <- help_vhar_bayes_roll(set_gdp(), set_sv(), TRUE)
+
+  expect_s3_class(test_roll_dense, "predbvhar_roll")
+  expect_s3_class(test_roll_dense, "bvharcv")
+
+  expect_s3_class(test_roll_sparse, "predbvhar_roll")
+  expect_s3_class(test_roll_sparse, "bvharcv")
+})
+
 test_that("Expanding windows - VAR-Minn-LDLT", {
   skip_on_cran()
 
@@ -505,6 +544,19 @@ test_that("Expanding windows - VAR-DL-LDLT", {
   expect_s3_class(test_expand_sparse, "bvharcv")
 })
 
+test_that("Expanding windows - VAR-GDP-LDLT", {
+  skip_on_cran()
+
+  test_expand_dense <- help_var_bayes_expand(set_gdp(), set_ldlt(), FALSE)
+  test_expand_sparse <- help_var_bayes_expand(set_gdp(), set_ldlt(), TRUE)
+
+  expect_s3_class(test_expand_dense, "predbvhar_expand")
+  expect_s3_class(test_expand_dense, "bvharcv")
+
+  expect_s3_class(test_expand_sparse, "predbvhar_expand")
+  expect_s3_class(test_expand_sparse, "bvharcv")
+})
+
 test_that("Expanding windows - VHAR-Minn-LDLT", {
   skip_on_cran()
 
@@ -575,6 +627,19 @@ test_that("Expanding windows - VHAR-DL-LDLT", {
 
   test_expand_dense <- help_vhar_bayes_expand(set_dl(), set_ldlt(), FALSE)
   test_expand_sparse <- help_vhar_bayes_expand(set_dl(), set_ldlt(), TRUE)
+
+  expect_s3_class(test_expand_dense, "predbvhar_expand")
+  expect_s3_class(test_expand_dense, "bvharcv")
+
+  expect_s3_class(test_expand_sparse, "predbvhar_expand")
+  expect_s3_class(test_expand_sparse, "bvharcv")
+})
+
+test_that("Expanding windows - VHAR-GDP-LDLT", {
+  skip_on_cran()
+
+  test_expand_dense <- help_vhar_bayes_expand(set_gdp(), set_ldlt(), FALSE)
+  test_expand_sparse <- help_vhar_bayes_expand(set_gdp(), set_ldlt(), TRUE)
 
   expect_s3_class(test_expand_dense, "predbvhar_expand")
   expect_s3_class(test_expand_dense, "bvharcv")
@@ -731,6 +796,19 @@ test_that("Expanding windows - VHAR-DL-SV", {
 
   test_expand_dense <- help_vhar_bayes_expand(set_dl(), set_sv(), FALSE)
   test_expand_sparse <- help_vhar_bayes_expand(set_dl(), set_sv(), TRUE)
+
+  expect_s3_class(test_expand_dense, "predbvhar_expand")
+  expect_s3_class(test_expand_dense, "bvharcv")
+
+  expect_s3_class(test_expand_sparse, "predbvhar_expand")
+  expect_s3_class(test_expand_sparse, "bvharcv")
+})
+
+test_that("Expanding windows - VHAR-GDP-SV", {
+  skip_on_cran()
+
+  test_expand_dense <- help_vhar_bayes_expand(set_gdp(), set_sv(), FALSE)
+  test_expand_sparse <- help_vhar_bayes_expand(set_gdp(), set_sv(), TRUE)
 
   expect_s3_class(test_expand_dense, "predbvhar_expand")
   expect_s3_class(test_expand_dense, "bvharcv")

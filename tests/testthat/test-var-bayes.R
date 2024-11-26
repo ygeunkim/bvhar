@@ -87,6 +87,21 @@ test_that("VAR-DL-LDLT", {
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
+test_that("VAR-GDP-LDLT", {
+  set.seed(1)
+  fit_test <- var_bayes(
+    etf_vix[1:50, 1:2],
+    p = 1,
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_gdp(),
+    cov_spec = set_ldlt(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "gdpmod")
+  # expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
 test_that("VAR-Minn-SV", {
   set.seed(1)
   fit_test <- var_bayes(
@@ -173,6 +188,21 @@ test_that("VAR-DL-SV", {
   )
   expect_s3_class(fit_test, "dlmod")
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
+test_that("VAR-DL-SV", {
+  set.seed(1)
+  fit_test <- var_bayes(
+    etf_vix[1:50, 1:2],
+    p = 1,
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_gdp(),
+    cov_spec = set_sv(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "gdpmod")
+  # expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
 test_that("Multi chain", {

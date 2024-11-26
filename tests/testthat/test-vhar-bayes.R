@@ -81,6 +81,20 @@ test_that("VHAR-DL-LDLT", {
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
+test_that("VHAR-GDP-LDLT", {
+  set.seed(1)
+  fit_test <- vhar_bayes(
+    etf_vix[1:50, 1:2],
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_gdp(),
+    cov_spec = set_ldlt(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "gdpmod")
+  # expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
 test_that("Members - VHAR-Minn-SV", {
   set.seed(1)
   fit_test <- vhar_bayes(
@@ -161,6 +175,20 @@ test_that("Members - VHAR-DL-SV", {
   )
   expect_s3_class(fit_test, "dlmod")
   expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
+})
+
+test_that("Members - VHAR-GDP-SV", {
+  set.seed(1)
+  fit_test <- vhar_bayes(
+    etf_vix[1:50, 1:2],
+    num_iter = 5,
+    num_burn = 0,
+    bayes_spec = set_gdp(),
+    cov_spec = set_sv(),
+    include_mean = FALSE
+  )
+  expect_s3_class(fit_test, "gdpmod")
+  # expect_true(all(c("lambda", "tau") %in% fit_test$param_names))
 })
 
 test_that("Multi chain", {
