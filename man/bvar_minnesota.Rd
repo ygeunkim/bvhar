@@ -69,7 +69,7 @@ is.bvarmn(x)
 
 \item{num_thread}{Number of threads}
 
-\item{x}{\code{bvarhm} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

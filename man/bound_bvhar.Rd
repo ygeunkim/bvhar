@@ -26,7 +26,7 @@ is.boundbvharemp(x)
 
 \item{upper_spec}{Upper bound Bayes model specification}
 
-\item{x}{\code{boundbvharemp} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

@@ -53,7 +53,7 @@ is.ssvsinput(x)
 
 \item{chol_s2}{Second shape of cholesky factor prior beta distribution}
 
-\item{x}{\code{ssvsinput}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

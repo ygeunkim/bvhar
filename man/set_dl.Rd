@@ -19,7 +19,7 @@ is.dlspec(x)
 
 \item{rate}{Gamma rate}
 
-\item{x}{\code{dlspec}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

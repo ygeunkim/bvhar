@@ -35,7 +35,7 @@ is.ngspec(x)
 
 \item{contem_global_scale}{Inverse gamma prior scale for contemporaneous coefficient global shrinkage}
 
-\item{x}{\code{ngspec}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

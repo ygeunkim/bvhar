@@ -64,7 +64,7 @@ is.bvharcv(x)
 
 \item{...}{not used}
 
-\item{x}{\code{bvharcv} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

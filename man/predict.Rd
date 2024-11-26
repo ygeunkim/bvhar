@@ -106,7 +106,7 @@ Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval 
 
 \item{use_sv}{Use SV term}
 
-\item{x}{\code{predbvhar} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 }

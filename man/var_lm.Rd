@@ -38,7 +38,7 @@ is.bvharmod(x)
 \item{method}{Method to solve linear equation system.
 (\code{nor}: normal equation (default), \code{chol}: Cholesky, and \code{qr}: HouseholderQR)}
 
-\item{x}{A \code{varlse} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

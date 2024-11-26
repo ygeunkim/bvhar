@@ -32,7 +32,7 @@ For SV (\code{\link[=set_sv]{set_sv()}}), this is for state variance.}
 
 \item{initial_prec}{Prior precision of initial state.}
 
-\item{x}{\code{covspec}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

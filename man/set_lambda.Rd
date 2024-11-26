@@ -33,7 +33,7 @@ is.bvharpriorspec(x)
 
 \item{scale}{Scale of Inverse Gamma distribution. By default, \code{(.02)^2}.}
 
-\item{x}{\code{bvharpriorspec} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

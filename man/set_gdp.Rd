@@ -13,6 +13,8 @@ is.gdpspec(x)
 \item{shape_grid}{Griddy gibbs grid size for Gamma shape hyperparameter}
 
 \item{rate_grid}{Griddy gibbs grid size for Gamma rate hyperparameter}
+
+\item{x}{Any object}
 }
 \value{
 \code{gdpspec} object
