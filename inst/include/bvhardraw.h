@@ -817,7 +817,8 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 // @param global_param Global shrinkage
 inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_param, double& global_param) {
 	int num_coef = local_param.size();
-	return cand * (num_coef * log(global_param) - num_coef * log(2.0) + local_param.sum()) - lgammafn(num_coef * cand);
+	// return cand * (num_coef * log(global_param) - num_coef * log(2.0) + local_param.sum()) - lgammafn(num_coef * cand);
+	return (cand * num_coef - 1) * log(global_param) - num_coef * (cand * log(2.0) - lgammafn(cand)) + (cand - 1) * local_param.array().log().sum();
 }
 
 // Griddy Gibbs for Hyperparameter of Dirichlet Prior in DL
@@ -828,15 +829,16 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
 	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
-	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
+	// Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), local_param.size());
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = dl_logdens_dir(grid[i], local_param, global_param);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp(); // use log-sum-exp against overflow
 	weight /= weight.sum();
-	dir_concen = static_cast<double>(cat_rand(weight, rng));
-	// dir_concen = grid[cat_rand(weight, rng)];
+	// dir_concen = static_cast<double>(cat_rand(weight, rng));
+	dir_concen = grid[cat_rand(weight, rng)];
 }
 
 // Generating lambda of Minnesota-SV
