@@ -829,16 +829,16 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
 	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
-	// Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
-	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), local_param.size());
+	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
+	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), local_param.size());
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = dl_logdens_dir(grid[i], local_param, global_param);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp(); // use log-sum-exp against overflow
 	weight /= weight.sum();
-	// dir_concen = static_cast<double>(cat_rand(weight, rng));
-	dir_concen = grid[cat_rand(weight, rng)];
+	dir_concen = static_cast<double>(cat_rand(weight, rng));
+	// dir_concen = grid[cat_rand(weight, rng)];
 }
 
 // Generating lambda of Minnesota-SV
