@@ -325,17 +325,18 @@ class DlConfig(_BayesConfig):
 
     Specifies Dirichlet-Laplace prior for coefficient.
     """
-    def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
+    def __init__(self, dir_grid: int = 100):
+    # def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
         super().__init__("DL")
         self.grid_size = self.validate(dir_grid, "dir_grid")
-        self.shape = self.validate(shape, "shape")
-        self.rate = self.validate(rate, "rate")
+        # self.shape = self.validate(shape, "shape")
+        # self.rate = self.validate(rate, "rate")
 
     def to_dict(self):
         return {
-            "grid_size": self.grid_size,
-            "shape": self.shape,
-            "rate": self.rate
+            "grid_size": self.grid_size
+            # "shape": self.shape,
+            # "rate": self.rate
         }
 
 class NgConfig(_BayesConfig):

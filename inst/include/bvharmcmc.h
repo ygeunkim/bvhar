@@ -709,7 +709,7 @@ public:
 		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_mat.reshaped()), num_grp(grp_id.size()),
 		dl_record(num_iter, num_alpha),
 		dir_concen(0.0), contem_dir_concen(0.0),
-		shape(params._shape), rate(params._rate),
+		// shape(params._shape), rate(params._rate),
 		grid_size(params._grid_size),
 		local_lev(inits._init_local), group_lev(Eigen::VectorXd::Zero(num_grp)), global_lev(isGroup ? inits._init_global : 1.0),
 		latent_local(Eigen::VectorXd::Zero(num_alpha)),
@@ -737,20 +737,25 @@ protected:
 	using BaseMcmc::contem_coef;
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
-		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, rate, coef_vec.head(num_alpha), rng);
-		for (int j = 0; j < num_grp; j++) {
-			coef_var = (grp_vec.array() == grp_id[j]).select(
-				group_lev[j],
-				coef_var
-			);
-		}
-		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
+		// dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, rate, coef_vec.head(num_alpha), rng);
+		// for (int j = 0; j < num_grp; j++) {
+		// 	coef_var = (grp_vec.array() == grp_id[j]).select(
+		// 		group_lev[j],
+		// 		coef_var
+		// 	);
+		// }
+		// dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
+		// dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
+		// dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
+		dl_latent(latent_local, global_lev * local_lev.array(), coef_vec.head(num_alpha), rng);
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
-		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha) / global_lev, rng);
 		if constexpr (isGroup) {
-			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
+			// global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
+			global_lev = dl_global_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha), rng);
 		}
-		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		// prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array()).square() * latent_local.array());
 	}
 	void updatePenalty() override {
 		for (int i = 0; i < num_alpha; ++i) {
@@ -779,7 +784,8 @@ private:
 	Eigen::VectorXi grp_vec;
 	int num_grp;
 	GlobalLocalRecords dl_record;
-	double dir_concen, contem_dir_concen, shape, rate;
+	// double dir_concen, contem_dir_concen, shape, rate;
+	double dir_concen, contem_dir_concen;
 	int grid_size;
 	Eigen::VectorXd local_lev;
 	Eigen::VectorXd group_lev;
