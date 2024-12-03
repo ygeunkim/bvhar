@@ -4,6 +4,7 @@
 #include "bvhardraw.h"
 #include "bvhardesign.h"
 #include <utility>
+#include <algorithm>
 
 namespace bvhar {
 
@@ -307,6 +308,24 @@ struct RegInits {
 	RegInits(LIST& init)
 	: _coef(CAST<Eigen::MatrixXd>(init["init_coef"])),
 		_contem(CAST<Eigen::VectorXd>(init["init_contem"])) {}
+	
+	RegInits(int dim, int dim_design, int num_lowerchol, boost::random::mt19937& rng)
+	: _coef(Eigen::MatrixXd::Zero(dim_design, dim)), _contem(Eigen::VectorXd::Zero(num_lowerchol)) {
+		std::generate_n(
+			_coef.data(),
+			dim_design * dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_contem.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 0, rng));
+			}
+		);
+	}
 };
 
 struct LdltInits : public RegInits {
@@ -319,6 +338,18 @@ struct LdltInits : public RegInits {
 	LdltInits(LIST& init, int num_design)
 	: RegInits(init),
 		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
+	
+	LdltInits(int dim, int dim_design, int num_lowerchol, int num_design, boost::random::mt19937& rng)
+	: RegInits(dim, dim_design, num_lowerchol, rng),
+		_diag(Eigen::VectorXd::Zero(dim)) {
+		std::generate_n(
+			_diag.data(),
+			dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 struct SvInits : public RegInits {
@@ -346,6 +377,34 @@ struct SvInits : public RegInits {
 		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+	
+	SvInits(int dim, int dim_design, int num_lowerchol, int num_design, boost::random::mt19937& rng)
+	: RegInits(dim, dim_design, num_lowerchol, rng),
+		_lvol_init(Eigen::VectorXd::Zero(dim)),
+		_lvol(Eigen::MatrixXd::Zero(num_design, dim)),
+		_lvol_sig(Eigen::VectorXd::Zero(dim)) {
+		std::generate_n(
+			_lvol_init.data(),
+			dim,
+			[&]() {
+				return unif_rand(-1, 1, rng);
+			}
+		);
+		std::generate_n(
+			_lvol.data(),
+			dim * num_design,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_lvol_sig.data(),
+			dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -361,6 +420,12 @@ struct HierminnInits : public BaseRegInits {
 	HierminnInits(LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
 		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
+	
+	HierminnInits(int dim, int dim_design, int num_lowerchol, int num_design, boost::random::mt19937& rng)
+	: BaseRegInits(dim, dim_design, num_lowerchol, num_design, rng),
+		_own_lambda(unif_rand(0, 1, rng)),
+		_cross_lambda(unif_rand(0, 1, rng)),
+		_contem_lambda(unif_rand(0, 1, rng)) {}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -391,6 +456,53 @@ struct SsvsInits : public BaseRegInits {
 		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])),
 		_coef_spike_scl(CAST_DOUBLE(init["coef_spike_scl"])),
 		_contem_spike_scl(CAST_DOUBLE(init["chol_spike_scl"])) {}
+	
+	SsvsInits(int dim, int dim_design, int num_lowerchol, int num_design, int num_alpha, int num_grp, boost::random::mt19937& rng)
+	: BaseRegInits(dim, dim_design, num_lowerchol, num_design, rng),
+		_coef_dummy(Eigen::VectorXd::Zero(num_alpha)),
+		_coef_weight(Eigen::VectorXd::Zero(num_grp)),
+		_contem_weight(Eigen::VectorXd::Zero(num_lowerchol)),
+		_coef_slab(Eigen::VectorXd::Zero(num_alpha)),
+		_contem_slab(Eigen::VectorXd::Zero(num_lowerchol)),
+		_coef_spike_scl(unif_rand(0, 1, rng)), _contem_spike_scl(unif_rand(0, 1, rng)) {
+		std::generate_n(
+			_coef_dummy.data(),
+			num_alpha,
+			[&]() {
+				return ber_rand(.5, rng);
+			}
+		);
+		std::generate_n(
+			_coef_weight.data(),
+			num_grp,
+			[&]() {
+				double x = unif_rand(-1, 1, rng);
+				return exp(x) / (1 + exp(x));
+			}
+		);
+		std::generate_n(
+			_contem_weight.data(),
+			num_lowerchol,
+			[&]() {
+				double x = unif_rand(-1, 1, rng);
+				return exp(x) / (1 + exp(x));
+			}
+		);
+		std::generate_n(
+			_coef_slab.data(),
+			num_alpha,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_contem_slab.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -413,6 +525,29 @@ struct GlInits : public BaseRegInits {
 		_init_global(CAST_DOUBLE(init["global_sparsity"])),
 		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
 		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+	
+	GlInits(int dim, int dim_design, int num_lowerchol, int num_design, int num_alpha, boost::random::mt19937& rng)
+	: BaseRegInits(dim, dim_design, num_lowerchol, num_design, rng),
+		_init_local(Eigen::VectorXd::Zero(num_alpha)),
+		_init_global(exp(unif_rand(-1, 1, rng))),
+		_init_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
+		_init_contem_global(Eigen::VectorXd::Zero(1)) {
+		std::generate_n(
+			_init_local.data(),
+			num_alpha,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_init_contem_local.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		_init_conetm_global[0] = exp(unif_rand(-1, 1, rng));
+	}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -426,6 +561,18 @@ struct HsInits : public GlInits<BaseRegInits> {
 	HsInits(LIST& init, int num_design)
 	: GlInits<BaseRegInits>(init, num_design),
 		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
+	
+	HsInits(int dim, int dim_design, int num_lowerchol, int num_design, int num_alpha, int num_grp, boost::random::mt19937& rng)
+	: GlInits<BaseRegInits>(dim, dim_design, num_lowerchol, num_design, num_alpha, rng),
+		_init_group(Eigen::VectorXd::Zero(num_grp)) {
+		std::generate_n(
+			_init_group.data(),
+			num_grp,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -442,6 +589,19 @@ struct NgInits : public HsInits<BaseRegInits> {
 	: HsInits<BaseRegInits>(init, num_design),
 		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
 		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
+	
+	NgInits(int dim, int dim_design, int num_lowerchol, int num_design, int num_alpha, int num_grp, boost::random::mt19937& rng)
+	: HsInits<BaseRegInits>(dim, dim_design, num_lowerchol, num_design, num_alpha, num_grp, rng),
+		_init_local_shape(Eigen::VectorXd::Zero(num_grp)),
+		_init_contem_shape(unif_rand(0, 1, rng)) {
+		std::generate_n(
+			_init_local_shape.data(),
+			num_grp,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 template <typename BaseRegInits = LdltInits>
@@ -469,6 +629,44 @@ struct GdpInits : public BaseRegInits {
 		_init_contem_rate(CAST<Eigen::VectorXd>(init["contem_rate"])),
 		_init_gamma_shape(CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(CAST_DOUBLE(init["gamma_rate"])),
 		_init_contem_gamma_shape(CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(CAST_DOUBLE(init["contem_gamma_rate"])) {}
+	
+	GdpInits(int dim, int dim_design, int num_lowerchol, int num_design, int num_alpha, int num_grp, boost::random::mt19937& rng)
+	: BaseRegInits(dim, dim_design, num_lowerchol, num_design, rng),
+		_init_local(Eigen::VectorXd::Zero(num_alpha)),
+		_init_group_rate(Eigen::VectorXd::Zero(num_grp)),
+		_init_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
+		_init_contem_rate(Eigen::VectorXd::Zero(num_lowerchol)),
+		_init_gamma_shape(unif_rand(0, 1, rng)), _init_gamma_rate(unif_rand(0, 1, rng)),
+		_init_contem_gamma_shape(unif_rand(0, 1, rng)), _init_contem_gamma_rate(unif_rand(0, 1, rng)) {
+		std::generate_n(
+			_init_local.data(),
+			num_alpha,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_init_group_rate.data(),
+			num_grp,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_init_contem_local.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_init_contem_rate.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 struct RegRecords {
