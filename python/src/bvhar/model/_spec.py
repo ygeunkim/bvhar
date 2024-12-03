@@ -295,7 +295,7 @@ class MinnesotaConfig(_BayesConfig):
             }
 
 class LambdaConfig:
-    """Hierarchical structure of Minnesota prior
+    r"""Hierarchical structure of Minnesota prior
 
     Specifies prior for :math:`\lambda` in Minnesota prior.
     """
