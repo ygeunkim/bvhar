@@ -337,6 +337,22 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 	}
 }
 
+inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_sd) {
+	return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);
+}
+
+inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
+														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, boost::random::mt19937& rng) {
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
+	Eigen::VectorXd log_wt(grid_size);
+	for (int i = 0; i < grid_size; ++i) {
+		log_wt[i] = ssvs_logdens_scl(grid[i], coef_vec, slab_param);
+	}
+	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
+	weight /= weight.sum();
+	spike_scl = grid[cat_rand(weight, rng)];
+}
+
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
 // 
 // This function generates j-th column of coefficients matrix and j-th row of impact matrix using precision sampler.
@@ -751,7 +767,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
-	local_param /= local_param.sum();
+	// local_param /= local_param.sum();
 }
 
 // Generating Global Parameter of Dirichlet-Laplace Prior
@@ -801,7 +817,9 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 // @param global_param Global shrinkage
 inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_param, double& global_param) {
 	int num_coef = local_param.size();
-	return cand * (num_coef * log(global_param) - num_coef * log(2.0) + local_param.sum()) - lgammafn(num_coef * cand);
+	// return cand * (num_coef * log(global_param) - num_coef * log(2.0) + local_param.sum()) - lgammafn(num_coef * cand);
+	// return (cand * num_coef - 1) * log(global_param) - num_coef * (cand * log(2.0) - lgammafn(cand)) + (cand - 1) * local_param.array().log().sum();
+	return (cand * num_coef - 1) * log(global_param) - num_coef * lgammafn(cand) - lgammafn(num_coef * cand) + (cand - 1) * local_param.array().log().sum();
 }
 
 // Griddy Gibbs for Hyperparameter of Dirichlet Prior in DL
@@ -811,7 +829,6 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
-	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5);
 	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -819,8 +836,7 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp(); // use log-sum-exp against overflow
 	weight /= weight.sum();
-	dir_concen = static_cast<double>(cat_rand(weight, rng));
-	// dir_concen = grid[cat_rand(weight, rng)];
+	dir_concen = grid[cat_rand(weight, rng)];
 }
 
 // Generating lambda of Minnesota-SV
@@ -877,9 +893,9 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 // @param coef_mean Prior mean
 // @param coef_prec Prior precision matrix
 // @param rng boost rng
-inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 				Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
-														 				boost::random::mt19937& rng) {
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+														 boost::random::mt19937& rng) {
 	coef_prec.diagonal() *= lambda;
 	// double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
 	// double gig_chi = ((coef - coef_mean).array().square()).sum();
@@ -888,13 +904,41 @@ inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate,
 	coef_prec.diagonal() /= lambda;
 }
 
-inline void minnesota_contem_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 				Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-														 				boost::random::mt19937& rng) {
+inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+														 boost::random::mt19937& rng) {
 	coef_prec.array() *= lambda;
 	double gig_chi = (coef - coef_mean).squaredNorm();
 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
 	coef_prec.array() /= lambda;
+}
+
+inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef,
+														 		 		Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+														 		 		Eigen::VectorXi& grp_vec, std::set<int>& grp_id) {
+	double gaussian_kernel = 0;
+	int num_alpha = coef.size();
+	int mn_size = 0;
+	for (int i = 0; i < num_alpha; ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			mn_size++;
+			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+		}
+	}
+	return -(mn_size * log(cand) + gaussian_kernel / cand) / 2;
+}
+
+inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::VectorXd> coef,
+																Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
+	Eigen::VectorXd log_wt(grid_size);
+	for (int i = 0; i < grid_size; ++i) {
+		log_wt[i] = minnesota_logdens_scl(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);
+	}
+	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
+	weight /= weight.sum();
+	nu = grid[cat_rand(weight, rng)];
 }
 
 // Generating local shrinkage of Normal-Gamma prior

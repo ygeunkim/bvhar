@@ -8,7 +8,14 @@
 \alias{knit_print.bvharpriorspec}
 \title{Hyperpriors for Bayesian Models}
 \usage{
-set_lambda(mode = 0.2, sd = 0.4, param = NULL, lower = 1e-05, upper = 3)
+set_lambda(
+  mode = 0.2,
+  sd = 0.4,
+  param = NULL,
+  lower = 1e-05,
+  upper = 3,
+  grid_size = 100L
+)
 
 set_psi(shape = 4e-04, scale = 4e-04, lower = 1e-05, upper = 3)
 
@@ -28,6 +35,8 @@ is.bvharpriorspec(x)
 \item{lower}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Lower bound for \code{\link[stats:optim]{stats::optim()}}. By default, \code{1e-5}.}
 
 \item{upper}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Upper bound for \code{\link[stats:optim]{stats::optim()}}. By default, \code{3}.}
+
+\item{grid_size}{Griddy gibbs grid size for lag scaling}
 
 \item{shape}{Shape of Inverse Gamma distribution. By default, \code{(.02)^2}.}
 

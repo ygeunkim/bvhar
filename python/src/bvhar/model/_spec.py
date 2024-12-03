@@ -165,17 +165,17 @@ class SsvsConfig(_BayesConfig):
     Specifies SSVS prior for coefficient.
     """
     def __init__(
-        self, coef_spike_scl = .01, coef_slab_shape = .01, coef_slab_scl = .01, coef_s1 = [1, 1], coef_s2 = [1, 1],
-        chol_spike_scl = .01, chol_slab_shape = .01, chol_slab_scl = .01,
+        self, coef_spike_grid = 100, coef_slab_shape = .01, coef_slab_scl = .01, coef_s1 = [1, 1], coef_s2 = [1, 1],
+        chol_spike_grid = 100, chol_slab_shape = .01, chol_slab_scl = .01,
         chol_s1 = 1, chol_s2 = 1
     ):
         super().__init__("SSVS")
-        self.coef_spike_scl = self.validate(coef_spike_scl, "coef_spike_scl")
+        self.coef_spike_grid = self.validate(coef_spike_grid, "coef_spike_grid")
         self.coef_slab_shape = self.validate(coef_slab_shape, "coef_slab_shape")
         self.coef_slab_scl = self.validate(coef_slab_scl, "coef_slab_scl")
         self.coef_s1 = self.validate(coef_s1, "coef_s1", 2)
         self.coef_s2 = self.validate(coef_s2, "coef_s1", 2)
-        self.chol_spike_scl = self.validate(chol_spike_scl, "chol_spike_scl")
+        self.chol_spike_grid = self.validate(chol_spike_grid, "chol_spike_grid")
         self.chol_slab_shape = self.validate(chol_slab_shape, "chol_slab_shape")
         self.chol_slab_scl = self.validate(chol_slab_scl, "chol_slab_scl")
         self.chol_s1 = self.validate(chol_s1, "chol_s1")
@@ -195,12 +195,12 @@ class SsvsConfig(_BayesConfig):
 
     def to_dict(self):
         return {
-            "coef_spike_scl": self.coef_spike_scl,
+            "coef_grid": self.coef_spike_grid,
             "coef_slab_shape": self.coef_slab_shape,
             "coef_slab_scl": self.coef_slab_scl,
             "coef_s1": self.coef_s1,
             "coef_s2": self.coef_s2,
-            "chol_spike_scl": self.chol_spike_scl,
+            "chol_grid": self.chol_spike_grid,
             "chol_slab_shape": self.chol_slab_shape,
             "chol_slab_scl": self.chol_slab_scl,
             "chol_s1": self.chol_s1,
@@ -231,7 +231,7 @@ class MinnesotaConfig(_BayesConfig):
         # self.lam = self.validate(lam, "lam")
         self.lam = lam
         if type(self.lam) == LambdaConfig:
-            self.lam = [lam.shape_, lam.rate_] # shape and rate
+            self.lam = [lam.shape_, lam.rate_, lam.grid_size] # shape and rate
             self.prior = "HMN"
         self.delt = None
         if delt is not None or isinstance(delt, np.ndarray):
@@ -258,6 +258,7 @@ class MinnesotaConfig(_BayesConfig):
                 return {
                     "shape": self.lam[0],
                     "rate": self.lam[1],
+                    "grid_size": self.lam[2],
                     "p": self.p,
                     "sigma": self.sig,
                     "eps": self.eps,
@@ -279,6 +280,7 @@ class MinnesotaConfig(_BayesConfig):
             return {
                 "shape": self.lam[0],
                 "rate": self.lam[1],
+                "grid_size": self.lam[2],
                 "p": self.p,
                 "sigma": self.sig,
                 "eps": self.eps,
@@ -297,9 +299,10 @@ class LambdaConfig:
 
     Specifies prior for :math:`\lambda` in Minnesota prior.
     """
-    def __init__(self, shape = .01, rate = .01, eps = 1e-04):
+    def __init__(self, shape = .01, rate = .01, grid_size = 100, eps = 1e-04):
         self.shape_ = self.validate(shape, "shape")
         self.rate_ = self.validate(rate, "rate")
+        self.grid_size = self.validate(grid_size, "grid_size")
     
     def validate(self, value, member):
         if isinstance(value, int):
@@ -322,17 +325,18 @@ class DlConfig(_BayesConfig):
 
     Specifies Dirichlet-Laplace prior for coefficient.
     """
-    def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
+    def __init__(self, dir_grid: int = 100):
+    # def __init__(self, dir_grid: int = 100, shape = .01, rate = .01):
         super().__init__("DL")
         self.grid_size = self.validate(dir_grid, "dir_grid")
-        self.shape = self.validate(shape, "shape")
-        self.rate = self.validate(rate, "rate")
+        # self.shape = self.validate(shape, "shape")
+        # self.rate = self.validate(rate, "rate")
 
     def to_dict(self):
         return {
-            "grid_size": self.grid_size,
-            "shape": self.shape,
-            "rate": self.rate
+            "grid_size": self.grid_size
+            # "shape": self.shape,
+            # "rate": self.rate
         }
 
 class NgConfig(_BayesConfig):

@@ -120,6 +120,7 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @param param Shape and rate of Gamma distribution, in the form of `c(shape, rate)`. If specified, ignore `mode` and `sd`.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound for [stats::optim()]. By default, `1e-5`.
 #' @param upper `r lifecycle::badge("experimental")` Upper bound for [stats::optim()]. By default, `3`.
+#' @param grid_size Griddy gibbs grid size for lag scaling
 #' @details
 #' In addition to Normal-IW priors [set_bvar()], [set_bvhar()], and [set_weight_bvhar()],
 #' these functions give hierarchical structure to the model.
@@ -137,13 +138,20 @@ set_bvar <- function(sigma, lambda = .1, delta, eps = 1e-04) {
 #' @references Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
 #' @order 1
 #' @export
-set_lambda <- function(mode = .2, sd = .4, param = NULL, lower = 1e-5, upper = 3) {
+set_lambda <- function(mode = .2, sd = .4, param = NULL, lower = 1e-5, upper = 3, grid_size = 100L) {
+  if (length(grid_size) != 1) {
+    stop("'grid_size' should be length 1 numeric.")
+  }
+  if (grid_size %% 1 != 0) {
+    stop("Provide integer for 'grid_size'.")
+  }
   if (is.null(param)) {
     params <- get_gammaparam(mode, sd)
     # param <- c(params$shape, params$rate)
     lam_prior <- list(
       hyperparam = "lambda",
       param = c(params$shape, params$rate),
+      grid_size = grid_size,
       mode = mode,
       lower = lower,
       upper = upper
@@ -152,7 +160,8 @@ set_lambda <- function(mode = .2, sd = .4, param = NULL, lower = 1e-5, upper = 3
     mode <- ifelse(param[1] >= 1, (param[1] - 1) / param[2], 0)
     lam_prior <- list(
       hyperparam = "lambda",
-      param = param
+      param = param,
+      grid_size = grid_size
     )
   }
   # lam_prior <- list(
@@ -402,14 +411,14 @@ set_intercept <- function(mean = 0, sd = .1) {
 #'
 #' Set SSVS hyperparameters for VAR or VHAR coefficient matrix and Cholesky factor.
 #'
-#' @param coef_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd
+#' @param coef_spike_grid Griddy gibbs grid size for scaling factor (between 0 and 1) of spike sd which is Spike sd = c * slab sd
 #' @param coef_slab_shape Inverse gamma shape for slab sd
 #' @param coef_slab_scl Inverse gamma scale for slab sd
 #' @param coef_s1 First shape of coefficients prior beta distribution
 #' @param coef_s2 Second shape of coefficients prior beta distribution
 #' @param shape Gamma shape parameters for precision matrix (See Details).
 #' @param rate Gamma rate parameters for precision matrix (See Details).
-#' @param chol_spike_scl Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor
+#' @param chol_spike_grid Griddy gibbs grid size for scaling factor (between 0 and 1) of spike sd which is Spike sd = c * slab sd in the cholesky factor
 #' @param chol_slab_shape Inverse gamma shape for slab sd in the cholesky factor
 #' @param chol_slab_scl Inverse gamma scale for slab sd in the cholesky factor
 #' @param chol_s1 First shape of cholesky factor prior beta distribution
@@ -460,14 +469,14 @@ set_intercept <- function(mean = 0, sd = .1) {
 #' Koop, G., & Korobilis, D. (2009). *Bayesian Multivariate Time Series Methods for Empirical Macroeconomics*. Foundations and Trends® in Econometrics, 3(4), 267-358.
 #' @order 1
 #' @export
-set_ssvs <- function(coef_spike_scl = .01,
+set_ssvs <- function(coef_spike_grid = 100L,
                      coef_slab_shape = .01,
                      coef_slab_scl = .01,
                      coef_s1 = c(1, 1),
                      coef_s2 = c(1, 1),
                      shape = .01,
                      rate = .01,
-                     chol_spike_scl = .01,
+                     chol_spike_grid = 100,
                      chol_slab_shape = .01,
                      chol_slab_scl = .01,
                      chol_s1 = 1,
@@ -478,18 +487,9 @@ set_ssvs <- function(coef_spike_scl = .01,
   if (!(length(chol_s1) == 1 && length(chol_s2 == 1))) {
     stop("'chol_s1' and 'chol_s2' should be length 1 numeric.")
   }
-  if (!(length(coef_spike_scl) == 1 && length(chol_spike_scl) == 1)) {
-    stop("'*_spike_scl' should be length 1 numeric.")
-  }
-  if (!(coef_spike_scl > 0 && coef_spike_scl < 1 && chol_spike_scl > 0 && chol_spike_scl < 1)) {
-    stop("'*_spike_scl' should be between 0 and 1.")
-  }
-  if (!(length(coef_slab_shape) == 1 && length(coef_slab_scl) == 1 && length(chol_slab_shape) == 1 && length(chol_slab_scl) == 1)) {
+  if (!(length(coef_slab_shape) == 1 && length(chol_slab_shape) == 1)) {
     stop("'*_slab_*' should be length 1 numeric.")
   }
-  # if (length(coef_s1) != length(coef_s2)) {
-  #   stop("'coef_s1' and 'coef_s2' should have the same length.")
-  # }
   if (!(length(coef_s1) == 2 && length(coef_s2 == 2))) {
     stop("'coef_s1' and 'coef_s2' should be length 2 numeric, each indicating own and cross lag.")
   }
@@ -501,7 +501,8 @@ set_ssvs <- function(coef_spike_scl = .01,
   }
   # coefficients---------------------
   res <- list(
-    coef_spike_scl = coef_spike_scl,
+    # coef_spike_scl = coef_spike_scl,
+    coef_grid = 100,
     coef_slab_shape = coef_slab_shape,
     coef_slab_scl = coef_slab_scl,
     coef_s1 = coef_s1,
@@ -520,7 +521,8 @@ set_ssvs <- function(coef_spike_scl = .01,
   chol_param <- list(
     shape = shape,
     rate = rate,
-    chol_spike_scl = chol_spike_scl,
+    # chol_spike_scl = chol_spike_scl,
+    chol_grid = 100,
     chol_slab_shape = chol_slab_shape,
     chol_slab_scl = chol_slab_scl,
     chol_s1 = chol_s1,
@@ -654,8 +656,6 @@ set_ng <- function(shape_sd = .01,
 #' `r lifecycle::badge("experimental")` Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
 #' @param dir_grid Griddy gibbs grid size for Dirichlet hyperparameter
-#' @param shape Gamma shape
-#' @param rate Gamma rate
 #' @return `dlspec` object
 #' @references
 #' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet-Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479-1490.
@@ -663,9 +663,12 @@ set_ng <- function(shape_sd = .01,
 #' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
 #' @order 1
 #' @export
-set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
-  if (!(length(dir_grid) == 1 && length(shape) == 1 && length(rate) == 1)) {
-    stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
+set_dl <- function(dir_grid = 100L) {
+  # if (!(length(dir_grid) == 1 && length(shape) == 1 && length(rate) == 1)) {
+  #   stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
+  # }
+  if (length(dir_grid) != 1) {
+    stop("'dir_grid' should be length 1 numeric.")
   }
   if (dir_grid %% 1 != 0) {
     stop("Provide integer for 'dir_grid'.")
@@ -675,9 +678,9 @@ set_dl <- function(dir_grid = 100L, shape = .01, rate = .01) {
     prior = "DL",
     # dirichlet = dirichlet,
     # contem_dirichlet = contem_dirichlet,
-    grid_size = dir_grid,
-    shape = shape,
-    rate = rate
+    grid_size = dir_grid
+    # shape = shape,
+    # rate = rate
   )
   class(res) <- "dlspec"
   res

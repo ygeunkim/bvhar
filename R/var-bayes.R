@@ -207,6 +207,7 @@ var_bayes <- function(y,
     if (bayes_spec$hierarchical) {
       param_prior$shape <- bayes_spec$lambda$param[1]
       param_prior$rate <- bayes_spec$lambda$param[2]
+      param_prior$grid_size <- bayes_spec$lambda$grid_size
       prior_nm <- "MN_Hierarchical"
       param_init <- lapply(
         param_init,
@@ -283,7 +284,9 @@ var_bayes <- function(y,
             coef_mixture = coef_mixture,
             coef_slab = init_coef_slab,
             chol_mixture = chol_mixture,
-            contem_slab = init_contem_slab
+            contem_slab = init_contem_slab,
+            coef_spike_scl = runif(1, 0, 1),
+            chol_spike_scl = runif(1, 0, 1)
           )
         )
       }

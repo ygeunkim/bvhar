@@ -83,7 +83,9 @@ class _AutoregBayes:
                     'coef_mixture': coef_mixture,
                     'coef_slab': init_coef_slab,
                     'chol_mixture': chol_mixture,
-                    'contem_slab': init_contem_slab
+                    'contem_slab': init_contem_slab,
+                    'coef_spike_scl': np.random.uniform(0, 1),
+                    'chol_spike_scl': np.random.uniform(0, 1)
                 })
         elif type(self.spec_) == HorseshoeConfig:
             for init in self.init_:

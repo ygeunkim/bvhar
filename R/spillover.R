@@ -448,6 +448,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
     if (object$spec$hierarchical) {
       param_prior$shape <- object$spec$lambda$param[1]
       param_prior$rate <- object$spec$lambda$param[2]
+      param_prior$grid_size <- object$spec$lambda$grid_size
       prior_nm <- "MN_Hierarchical"
     }
   } else if (prior_nm == "SSVS") {

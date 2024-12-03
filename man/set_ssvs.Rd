@@ -8,14 +8,14 @@
 \title{Stochastic Search Variable Selection (SSVS) Hyperparameter for Coefficients Matrix and Cholesky Factor}
 \usage{
 set_ssvs(
-  coef_spike_scl = 0.01,
+  coef_spike_grid = 100L,
   coef_slab_shape = 0.01,
   coef_slab_scl = 0.01,
   coef_s1 = c(1, 1),
   coef_s2 = c(1, 1),
   shape = 0.01,
   rate = 0.01,
-  chol_spike_scl = 0.01,
+  chol_spike_grid = 100,
   chol_slab_shape = 0.01,
   chol_slab_scl = 0.01,
   chol_s1 = 1,
@@ -29,7 +29,7 @@ is.ssvsinput(x)
 \method{knit_print}{ssvsinput}(x, ...)
 }
 \arguments{
-\item{coef_spike_scl}{Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd}
+\item{coef_spike_grid}{Griddy gibbs grid size for scaling factor (between 0 and 1) of spike sd which is Spike sd = c * slab sd}
 
 \item{coef_slab_shape}{Inverse gamma shape for slab sd}
 
@@ -43,7 +43,7 @@ is.ssvsinput(x)
 
 \item{rate}{Gamma rate parameters for precision matrix (See Details).}
 
-\item{chol_spike_scl}{Scaling factor (between 0 and 1) for spike sd which is Spike sd = c * slab sd in the cholesky factor}
+\item{chol_spike_grid}{Griddy gibbs grid size for scaling factor (between 0 and 1) of spike sd which is Spike sd = c * slab sd in the cholesky factor}
 
 \item{chol_slab_shape}{Inverse gamma shape for slab sd in the cholesky factor}
 
