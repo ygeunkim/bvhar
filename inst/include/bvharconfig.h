@@ -256,8 +256,8 @@ struct DlParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
 	Eigen::MatrixXi _grp_mat;
 	int _grid_size;
-	// double _shape;
-	// double _rate;
+	double _shape;
+	double _scl;
 
 	DlParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -269,8 +269,7 @@ struct DlParams : public BaseRegParams {
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, intercept, include_mean),
 		_grp_id(grp_id), _grp_mat(grp_mat),
-		// _grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _rate(CAST_DOUBLE(dl_spec["rate"])) {}
-		_grid_size(CAST_INT(dl_spec["grid_size"])) {}
+		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _scl(CAST_DOUBLE(dl_spec["scale"])) {}
 };
 
 template <typename BaseRegParams = RegParams>

@@ -804,7 +804,12 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_local[k++] = global_param * local_param[j];
 			}
 		}
-		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
+		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
+		group_param[i] = 1 / gamma_rand(
+			shape + mn_size,
+			1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
+			rng
+		);
   }
 }
 
@@ -819,7 +824,8 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 	int num_coef = local_param.size();
 	// return cand * (num_coef * log(global_param) - num_coef * log(2.0) + local_param.sum()) - lgammafn(num_coef * cand);
 	// return (cand * num_coef - 1) * log(global_param) - num_coef * (cand * log(2.0) - lgammafn(cand)) + (cand - 1) * local_param.array().log().sum();
-	return (cand * num_coef - 1) * log(global_param) - num_coef * lgammafn(cand) - lgammafn(num_coef * cand) + (cand - 1) * local_param.array().log().sum();
+	return cand * (num_coef * (log(global_param) - log(2.0)) + local_param.array().log().sum()) - num_coef * lgammafn(cand);
+	// return (cand * num_coef - 1) * log(global_param) - num_coef * lgammafn(cand) - lgammafn(num_coef * cand) + (cand - 1) * local_param.array().log().sum();
 }
 
 // Griddy Gibbs for Hyperparameter of Dirichlet Prior in DL
