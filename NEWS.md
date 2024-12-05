@@ -10,6 +10,8 @@
 
 * `var_bayes()` and `vhar_bayes()` can choose to use only group shrinkage parameters without global parameter with `ggl = FALSE` option.
 
+* Use inverse-gamma prior for group parameters in DL.
+
 * SAVS penalty is zero in own-lag.
 
 * `set_gdp()` can use Generalized Double Pareto (GDP) shrinkage prior.

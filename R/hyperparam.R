@@ -656,6 +656,8 @@ set_ng <- function(shape_sd = .01,
 #' `r lifecycle::badge("experimental")` Set DL hyperparameters for VAR or VHAR coefficient and contemporaneous coefficient.
 #'
 #' @param dir_grid Griddy gibbs grid size for Dirichlet hyperparameter
+#' @param shape Inverse Gamma shape
+#' @param scale Inverse Gamma scale
 #' @return `dlspec` object
 #' @references
 #' Bhattacharya, A., Pati, D., Pillai, N. S., & Dunson, D. B. (2015). *Dirichlet-Laplace Priors for Optimal Shrinkage*. Journal of the American Statistical Association, 110(512), 1479-1490.
@@ -663,12 +665,9 @@ set_ng <- function(shape_sd = .01,
 #' Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230-354.
 #' @order 1
 #' @export
-set_dl <- function(dir_grid = 100L) {
-  # if (!(length(dir_grid) == 1 && length(shape) == 1 && length(rate) == 1)) {
-  #   stop("'dirichlet', 'contem_dirichlet', 'shape', and 'rate' should be length 1 numeric.")
-  # }
-  if (length(dir_grid) != 1) {
-    stop("'dir_grid' should be length 1 numeric.")
+set_dl <- function(dir_grid = 100L, shape = .01, scale = .01) {
+  if (!(length(dir_grid) == 1 && length(shape) == 1 && length(scale) == 1)) {
+    stop("'dirichlet', 'contem_dirichlet', 'shape', and 'scale' should be length 1 numeric.")
   }
   if (dir_grid %% 1 != 0) {
     stop("Provide integer for 'dir_grid'.")
@@ -676,11 +675,9 @@ set_dl <- function(dir_grid = 100L) {
   res <- list(
     process = "VAR",
     prior = "DL",
-    # dirichlet = dirichlet,
-    # contem_dirichlet = contem_dirichlet,
-    grid_size = dir_grid
-    # shape = shape,
-    # rate = rate
+    grid_size = dir_grid,
+    shape = shape,
+    scale = scale
   )
   class(res) <- "dlspec"
   res
