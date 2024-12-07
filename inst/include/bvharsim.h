@@ -429,7 +429,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
 		int iter_while = 0;
-		while (rejected && iter_while <= 5000) {
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_prop = unif_rand(0, A, rng);
 			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
@@ -466,7 +466,7 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
 		int iter_while = 0;
-		while (rejected && iter_while <= 5000) {
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_x = unif_rand(0, bound_x, rng);
 			draw_y = unif_rand(0, 1, rng);
 			cand = draw_x / draw_y;
@@ -496,7 +496,7 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 	for (int i = 0; i < num_sim; i++) {
 		rejected = true;
 		int iter_while = 0;
-		while (rejected && iter_while <= 5000) {
+		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
 			draw_x = unif_rand(bound_x_neg, bound_x_pos, rng);
 			draw_y = unif_rand(0, 1, rng); // U(0, 1) since g has been normalized
 			cand = draw_x / draw_y + mode;
