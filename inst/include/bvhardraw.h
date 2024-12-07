@@ -767,7 +767,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
-	// local_param /= local_param.sum();
+	local_param /= local_param.sum();
 }
 
 // Generating Global Parameter of Dirichlet-Laplace Prior
