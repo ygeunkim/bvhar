@@ -49,9 +49,9 @@ using Optional = boost::optional<T>;
 
 namespace bvhar {
 
-typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
+using ColMajorMatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
 
-typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
+using VectorXb = Eigen::Matrix<bool, Eigen::Dynamic, 1>;
 
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
