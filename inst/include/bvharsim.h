@@ -340,7 +340,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	}
 	if (lambda < 0) {
 		// res = res.cwiseInverse();
-		return (res * sqrt(chi / psi)).cwiseInverse();
+		return sqrt(chi / psi) * res.cwiseInverse();
 	}
 	return res * sqrt(chi / psi);
 }
@@ -562,7 +562,7 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	}
 	if (lambda < 0) {
 		// res = res.cwiseInverse();
-		return (res * sqrt(chi / psi)).cwiseInverse();
+		return sqrt(chi / psi) * res.cwiseInverse();
 	}
 	return res * sqrt(chi / psi);
 }
