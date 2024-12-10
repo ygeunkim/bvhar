@@ -45,7 +45,9 @@ Imports:
 LinkingTo: 
     BH (>= 1.84.0-0),
     Rcpp,
-    RcppEigen(>= 0.3.4.0.0)
+    RcppEigen (>= 0.3.4.0.0),
+    RcppSpdlog,
+    RcppThread
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.6.0)
