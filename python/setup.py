@@ -25,7 +25,7 @@ class HeaderInclude(object):
         print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
-                self.lib = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
+                self.lib = '' if self.lib in ['boost', 'fmt', 'spdlog'] else self.lib # should use include/ in windows-conda
                 lib_path = os.path.join(conda_prefix, 'Library', 'include', self.lib)
             else:
                 lib_path = os.path.join(conda_prefix, 'include', self.lib)
@@ -78,6 +78,21 @@ class BuildExt(_build_ext):
             ext.extra_link_args += link_args
         _build_ext.build_extensions(self)
 
+def find_lib():
+    conda_prefix = sys.prefix
+    lib_path = []
+    if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
+        if sys.platform.startswith('win'):
+            lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
+        else:
+            lib_path.append(os.path.join(conda_prefix, 'lib'))
+    else:
+        if sys.platform.startswith('win'):
+            lib_path.append(os.path.join(sys.prefix, 'Lib'))  # Python standard library location
+        else:
+            lib_path.append(os.path.join(sys.prefix, 'lib'))
+    return lib_path
+
 def find_module(base_dir):
     extensions = []
     is_src = os.path.basename(base_dir) == 'src'
@@ -98,13 +113,18 @@ def find_module(base_dir):
                         sources=[os.path.join(root, cpp_file)],
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
-                            ('BOOST_ENABLE_ASSERT_HANDLER', None)
+                            ('BOOST_ENABLE_ASSERT_HANDLER', None),
+                            ('SPDLOG_FMT_EXTERNAL', None)
                         ],
                         include_dirs=[
                             include_path,
                             str(HeaderInclude('eigen3')),
-                            str(HeaderInclude('boost'))
-                        ]
+                            str(HeaderInclude('boost')),
+                            str(HeaderInclude('spdlog')),
+                            str(HeaderInclude('fmt'))
+                        ],
+                        library_dirs=find_lib(),
+                        libraries=['fmt']
                     )
                 )
     return extensions
