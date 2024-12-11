@@ -99,12 +99,14 @@ def find_module(base_dir):
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
                             ('BOOST_ENABLE_ASSERT_HANDLER', None),
-                            ('FMT_HEADER_ONLY', None)
+                            ('FMT_HEADER_ONLY', None),
+                            ('SPDLOG_HEADER_ONLY', None)
                         ],
                         include_dirs=[
                             include_path,
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost')),
+                            str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog'))
                         ]
                     )
