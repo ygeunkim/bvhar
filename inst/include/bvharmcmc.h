@@ -1065,10 +1065,14 @@ protected:
 		std::string log_name = fmt::format("Chain {}", chain + 1);
 		auto logger = SPDLOG_SINK_MT(log_name);
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
+		int logging_freq = num_iter / 10; // 10 percent
+		if (logging_freq == 0) {
+			logging_freq = 1;
+		}
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
 			mcmc_ptr[chain]->doWarmUp();
-			if ((i + 1) % (num_iter / 10) == 0 && display_progress) {
+			if (display_progress && (i + 1) % logging_freq == 0) {
 				logger->info("{} / {}", i + 1, num_iter);
 			}
 		}
@@ -1084,7 +1088,7 @@ protected:
 				break;
 			}
 			mcmc_ptr[chain]->doPosteriorDraws();
-			if ((i + 1) % (num_iter / 10) == 0 && display_progress) {
+			if (display_progress && (i + 1) % logging_freq == 0) {
 				logger->info("{} / {}", i + 1, num_iter);
 			}
 		}
