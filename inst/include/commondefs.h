@@ -5,52 +5,62 @@
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
 	#include <string>
-	#include <RcppSpdlog>
+	// #include <RcppSpdlog>
 	// #include <RcppThread.h>
 	#include <RcppThread/Rcout.hpp>
+
+	#define Rcout RcppThreadRcout
+	namespace Rcpp {
+	
+	static RcppThread::RPrinter RcppThreadRcout = RcppThread::RPrinter();
+	
+	} // namespace Rcpp
 
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
 	#define ENDL "\n"
-	#define FLUSH Rcpp::Rcout.flush()
+	// #define FLUSH Rcpp::Rcout.flush()
+	#define FLUSH std::cout.flush()
 	#define STRING std::string
 
-namespace bvhar {
-namespace sinks {
+	#include <RcppSpdlog>
 
-// Replace Rcpp::Rcout with RcppThread::Rcout in r_sink class
-template<typename Mutex>
-class bvhar_sink : public spdlog::sinks::r_sink<Mutex> {
-protected:
-  void sink_it_(const spdlog::details::log_msg& msg) override {
-    spdlog::memory_buf_t formatted;
-    spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-  #ifdef SPDLOG_USE_STD_FORMAT
-    RcppThread::Rcout << formatted;
-  #else
-    RcppThread::Rcout << fmt::to_string(formatted);
-  #endif
-  }
+// namespace bvhar {
+// namespace sinks {
 
-  void flush_() override {
-    RcppThread::Rcout << std::flush;
-  }
-};
+// // Replace Rcpp::Rcout with RcppThread::Rcout in r_sink class
+// template<typename Mutex>
+// class bvhar_sink : public spdlog::sinks::r_sink<Mutex> {
+// protected:
+//   void sink_it_(const spdlog::details::log_msg& msg) override {
+//     spdlog::memory_buf_t formatted;
+//     spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
+//   #ifdef SPDLOG_USE_STD_FORMAT
+//     RcppThread::Rcout << formatted;
+//   #else
+//     RcppThread::Rcout << fmt::to_string(formatted);
+//   #endif
+//   }
 
-using bvhar_sink_mt = bvhar_sink<std::mutex>;
+//   void flush_() override {
+//     RcppThread::Rcout << std::flush;
+//   }
+// };
 
-} // namespace sinks
+// using bvhar_sink_mt = bvhar_sink<std::mutex>;
 
-template<typename Factory = spdlog::synchronous_factory>
-inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_name) {
-  return Factory::template create<sinks::bvhar_sink_mt>(logger_name);
-}
+// } // namespace sinks
 
-} // namespace bvhar
+// template<typename Factory = spdlog::synchronous_factory>
+// inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_name) {
+//   return Factory::template create<sinks::bvhar_sink_mt>(logger_name);
+// }
 
-	// #define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
-	#define SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
+// } // namespace bvhar
+
+	#define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
+	// #define SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
 
 	// #include <spdlog/spdlog.h>
 	// #include <spdlog/sinks/stdout_sinks.h>
