@@ -503,12 +503,12 @@ public:
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
 	: num_window(y.rows()), dim(y.cols()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
 		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		include_mean(include_mean), stable_filter(stable), sparse(sparse), get_lpl(get_lpl),
-		sv(sv), level(level), seed_forecast(seed_forecast),
+		sv(sv), display_progress(display_progress), level(level), seed_forecast(seed_forecast),
 		roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		out_forecast(num_horizon, std::vector<Eigen::MatrixXd>(num_chains)),
@@ -563,7 +563,7 @@ protected:
 	using RecordType = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	int num_window, dim, num_test, num_horizon, step;
 	int lag, num_chains, num_iter, num_burn, thin, nthreads;
-	bool include_mean, stable_filter, sparse, get_lpl, sv;
+	bool include_mean, stable_filter, sparse, get_lpl, sv, display_progress;
 	double level;
 	Eigen::VectorXi seed_forecast;
 	std::vector<Eigen::MatrixXd> roll_mat;
@@ -596,20 +596,31 @@ protected:
 		);
 	}
 	void runGibbs(int window, int chain) {
+		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
+		auto logger = SPDLOG_SINK_MT(log_name);
+		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
 			model[window][chain]->doWarmUp();
+			if ((i + 1) % (num_iter / 10) == 0 && display_progress) {
+				logger->info("{} / {}", i + 1, num_iter);
+			}
 		}
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
 				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
+				logger->warn("User interrupt in {} / {}", i + 1, num_iter);
 				break;
 			}
 			model[window][chain]->doPosteriorDraws();
+			if ((i + 1) % (num_iter / 10) == 0 && display_progress) {
+				logger->info("{} / {}", i + 1, num_iter);
+			}
 		}
 		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		updateForecaster(reg_record, window, chain);
 		model[window][chain].reset();
+		spdlog::drop(log_name);
 	}
 	void forecastWindow(int window, int chain) {
 		if (window != 0) {
@@ -631,13 +642,13 @@ public:
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
 	: McmcOutforecastRun<BaseForecaster>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
-			seed_chain, seed_forecast, nthreads, sv
+			seed_chain, seed_forecast, display_progress, nthreads, sv
 		) {}
 	virtual ~McmcRollforecastRun() = default;
 
@@ -694,13 +705,13 @@ public:
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
 	: McmcOutforecastRun<BaseForecaster>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
-			seed_chain, seed_forecast, nthreads, sv
+			seed_chain, seed_forecast, display_progress, nthreads, sv
 		) {}
 	virtual ~McmcExpandforecastRun() = default;
 
@@ -769,13 +780,13 @@ public:
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
 	: BaseOutForecast<BaseForecaster, isGroup>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
-			seed_chain, seed_forecast, nthreads, sv
+			seed_chain, seed_forecast, display_progress, nthreads, sv
 		) {
 		initialize(
 			y, fit_record, param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -842,13 +853,13 @@ public:
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
-		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, int nthreads, bool sv = true
+		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
 	: BaseOutForecast<BaseForecaster, isGroup>(
 			y, month, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
-			seed_chain, seed_forecast, nthreads, sv
+			seed_chain, seed_forecast, display_progress, nthreads, sv
 		),
 		har_trans(build_vhar(dim, week, month, include_mean)) {
 		initialize(

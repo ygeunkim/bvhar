@@ -20,7 +20,7 @@ class _AutoregBayes:
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),
         intercept_config = InterceptConfig(), fit_intercept = True,
-        minnesota = "longrun", ggl = True
+        minnesota = "longrun", ggl = True, verbose = False
     ):
         self.y_ = check_np(data)
         self.n_features_in_ = self.y_.shape[1]
@@ -43,6 +43,7 @@ class _AutoregBayes:
         self._own_id = None
         self._cross_id = None
         self._ggl = ggl
+        self._verbose = verbose
         n_grp = len(self._group_id)
         n_alpha = self.n_features_in_ * self.n_features_in_ * self.p_
         n_design = self.p_ * self.n_features_in_ + 1 if self.fit_intercept else self.p_ * self.n_features_in_
@@ -278,7 +279,7 @@ class VarBayes(_AutoregBayes):
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no", ggl)
+        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no", ggl, verbose)
         self.design_ = build_design(self.y_, lag, fit_intercept)
         self.response_ = build_response(self.y_, lag, lag + 1)
         if minnesota:
@@ -304,7 +305,7 @@ class VarBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
             else:
                 self.__model = McmcLdltGrp(
@@ -315,7 +316,7 @@ class VarBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
         else:
             if self._ggl:
@@ -327,7 +328,7 @@ class VarBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
             else:
                 self.__model = SvGrpMcmc(
@@ -338,7 +339,7 @@ class VarBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
 
     def fit(self):
@@ -455,7 +456,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
             else:
                 forecaster = LdltGrpVarRoll(
@@ -467,7 +468,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
         else:
             if self._ggl:
@@ -480,7 +481,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
             else:
                 forecaster = SvGrpVarRoll(
@@ -492,7 +493,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -552,7 +553,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
             else:
                 forecaster = LdltGrpVarExpand(
@@ -564,7 +565,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
         else:
             if self._ggl:
@@ -577,7 +578,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
             else:
                 forecaster = SvGrpVarExpand(
@@ -589,7 +590,7 @@ class VarBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -679,7 +680,7 @@ class VharBayes(_AutoregBayes):
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota, ggl)
+        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota, ggl, verbose)
         self.design_ = build_design(self.y_, week, month, fit_intercept)
         self.response_ = build_response(self.y_, month, month + 1)
         self.week_ = week
@@ -709,7 +710,7 @@ class VharBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
             else:
                 self.__model = McmcLdltGrp(
@@ -720,7 +721,7 @@ class VharBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
         else:
             if self._ggl:
@@ -732,7 +733,7 @@ class VharBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
             else:
                 self.__model = SvGrpMcmc(
@@ -743,7 +744,7 @@ class VharBayes(_AutoregBayes):
                     self._group_id, self._own_id, self._cross_id, self.group_,
                     self.fit_intercept,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    verbose, self.thread_
+                    self._verbose, self.thread_
                 )
 
     def fit(self):
@@ -858,7 +859,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
             else:
                 forecaster = LdltGrpVharRoll(
@@ -870,7 +871,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
         else:
             if self._ggl:
@@ -883,7 +884,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
             else:
                 forecaster = SvGrpVharRoll(
@@ -895,7 +896,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
@@ -953,7 +954,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
             else:
                 forecaster = LdltGrpVharExpand(
@@ -965,7 +966,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, True
+                    self._verbose, self.thread_, True
                 )
         else:
             if self._ggl:
@@ -978,7 +979,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
             else:
                 forecaster = SvGrpVharExpand(
@@ -990,7 +991,7 @@ class VharBayes(_AutoregBayes):
                     self.fit_intercept, stable, n_ahead, test, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                    self.thread_, sv
+                    self._verbose, self.thread_, sv
                 )
         out_forecast = forecaster.returnForecast()
         # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
