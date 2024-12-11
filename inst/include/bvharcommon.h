@@ -2,6 +2,7 @@
 #define BVHARCOMMON_H
 
 #include "bvhareigen.h"
+#include "bvharspdlog.h"
 
 namespace boost {
 
