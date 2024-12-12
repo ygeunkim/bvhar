@@ -38,6 +38,7 @@ jobs:
           echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> $GITHUB_ENV
           echo "SPDLOG_INCLUDE_DIR=/usr/include/spdlog" >> $GITHUB_ENV
+          echo "FMT_INCLUDE_DIR=/usr/include/fmt" >> $GITHUB_ENV
       
       - name: Set system dependencies on macOS
         if: runner.os == 'macOS'
@@ -47,11 +48,13 @@ jobs:
           EIGEN_LOC=$(brew --prefix eigen)
           BOOST_LOC=$(brew --prefix boost)
           SPDLOG_LOC=$(brew --prefix spdlog)
+          FMT_LOC=$(brew --prefix fmt)
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
           echo "EIGEN_INCLUDE_DIR=$EIGEN_LOC/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=$BOOST_LOC/include" >> $GITHUB_ENV
           echo "SPDLOG_INCLUDE_DIR=$SPDLOG_LOC/include" >> $GITHUB_ENV
+          echo "FMT_INCLUDE_DIR=$FMT_LOC/include" >> $GITHUB_ENV
           echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
           echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
           echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
@@ -88,6 +91,7 @@ jobs:
             "eigen" = "$installPath\include\eigen3"
             "boost" = "$installPath\include"
             "spdlog" = "$installPath\include"
+            "fmt" = "$installPath\include"
           }
           foreach ($lib in $libPath.Keys) {
             if (Test-Path $libPath[$lib]) {
@@ -105,6 +109,7 @@ jobs:
           ls ${{ env.EIGEN_INCLUDE_DIR }}
           ls ${{ env.BOOST_INCLUDE_DIR }}
           ls ${{ env.SPDLOG_INCLUDE_DIR }}
+          ls ${{ env.FMT_INCLUDE_DIR }}
       
       - name: Verify C++ libraries on Windows
         if: runner.os == 'Windows'
@@ -112,6 +117,7 @@ jobs:
           dir ${{ env.EIGEN_INCLUDE_DIR }}
           dir ${{ env.BOOST_INCLUDE_DIR }}
           dir ${{ env.SPDLOG_INCLUDE_DIR }}
+          dir ${{ env.FMT_INCLUDE_DIR }}
 
       - name: Install requirements
         run: |
