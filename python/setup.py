@@ -69,6 +69,7 @@ class BuildExt(_build_ext):
         if sys.platform.startswith('win'):
             if self.has_flags(self.compiler, '/openmp'):
                 compile_args.append('/openmp')
+                compile_args.append('/utf-8')
         else:
             if self.has_flags(self.compiler, '-fopenmp'):
                 compile_args.append('-fopenmp')
@@ -114,12 +115,14 @@ def find_module(base_dir):
                         sources=[os.path.join(root, cpp_file)],
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
-                            ('BOOST_ENABLE_ASSERT_HANDLER', None)
+                            ('BOOST_ENABLE_ASSERT_HANDLER', None),
+                            ('SPDLOG_FMT_EXTERNAL', None)
                         ],
                         include_dirs=[
                             include_path,
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost')),
+                            str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog'))
                         ],
                         library_dirs=find_lib(),
