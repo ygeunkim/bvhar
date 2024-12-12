@@ -62,9 +62,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           $vcpkgRoot = $Env:VCPKG_INSTALLATION_ROOT
-          vcpkg install eigen3 --quiet
-          vcpkg install boost --quiet
-          vcpkg install spdlog --quiet
+          vcpkg install eigen3 | Out-Null
+          vcpkg install boost | Out-Null
+          vcpkg install spdlog | Out-Null
           $installPath = $null
           $tripletCand = @(
             "$vcpkgRoot\installed\x64-windows",

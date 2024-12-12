@@ -25,7 +25,7 @@ class HeaderInclude(object):
         print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
-                lib_header = '' if self.lib in ['boost', 'fmt', 'spdlog'] else self.lib # should use include/ in windows-conda
+                lib_header = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
                 lib_path = os.path.join(conda_prefix, 'Library', 'include', lib_header)
             else:
                 lib_path = os.path.join(conda_prefix, 'include', self.lib)
@@ -36,19 +36,15 @@ class HeaderInclude(object):
                 print(f"No {self.lib} in conda environment")
         _lib = self.lib.rstrip('0123456789$').upper()
         lib_dir = os.environ.get(f"{_lib}_INCLUDE_DIR")
-        if lib_dir and os.path.exists(lib_dir):
-            return lib_dir
-        sys_path = []
-        if sys.platform == 'darwin':
-            sys_path = ['/usr/local/include', '/opt/homebrew/include']
-        elif sys.platform.startswith('linux'):
-            sys_path = ['/usr/include', '/usr/local/include']
-        for path in sys_path:
-            path = os.path.join(path, self.lib)
-            if os.path.exists(path):
-                print(f"System path: {path}")
-                return path
-        raise RuntimeError(f"Use conda or set {_lib}_INCLUDE_DIR environment variable")
+        if lib_dir:
+            # lib_path = os.path.join(lib_dir, 'include', self.lib)
+            lib_path = lib_dir
+            if os.path.exists(lib_path):
+                return lib_path
+            else:
+                raise RuntimeError(f"No {self.lib} found in {_lib}_INCLUDE_DIR")
+        else:
+            raise RuntimeError(f"Use conda or set {_lib}_INCLUDE_DIR environment variable")
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
