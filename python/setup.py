@@ -17,18 +17,21 @@ include_path = os.path.abspath(
 )
 
 class HeaderInclude(object):
-    def __init__(self, lib: str):
+    def __init__(self, lib: str, header_only = True):
         self.lib = lib
+        self.header_only = header_only
 
     def __str__(self):
         conda_prefix = sys.prefix
         print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
-            if sys.platform.startswith('win'):
-                lib_header = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
-                lib_path = os.path.join(conda_prefix, 'Library', 'include', lib_header)
-            else:
-                lib_path = os.path.join(conda_prefix, 'include', self.lib)
+            # if sys.platform.startswith('win'):
+            #     lib_header = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
+            #     lib_path = os.path.join(conda_prefix, 'Library', 'include', lib_header)
+            # else:
+            #     lib_path = os.path.join(conda_prefix, 'include', self.lib)
+            lib_header = self.lib if self.header_only else ''
+            lib_path = os.path.join(conda_prefix, 'include', lib_header)
             if os.path.exists(lib_path):
                 print(f"Use {lib_path} for {self.lib} header")
                 return lib_path
@@ -81,19 +84,21 @@ class BuildExt(_build_ext):
 
 def find_lib():
     conda_prefix = sys.prefix
-    lib_path = []
     if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
         if sys.platform.startswith('win'):
-            lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
+            lib_path = os.path.join(conda_prefix, 'Library', 'lib')
         else:
-            lib_path.append(os.path.join(conda_prefix, 'lib'))
+            lib_path = os.path.join(conda_prefix, 'lib')
     else:
         if sys.platform.startswith('win'):
-            lib_path.append(os.path.join(sys.prefix, 'Lib'))
+            lib_path = os.path.join(sys.prefix, 'Lib')
         else:
-            lib_path.append(os.path.join(sys.prefix, 'lib'))
-    print(f"Use library_dirs: {lib_path}")
-    return lib_path
+            lib_path = os.path.join(sys.prefix, 'lib')
+    if os.path.exists(lib_path):
+        print(f"Use library_dirs: {lib_path}")
+        return lib_path
+    else:
+        raise RuntimeError(f"No {lib_path} found")
 
 def find_module(base_dir):
     extensions = []
@@ -120,12 +125,12 @@ def find_module(base_dir):
                         ],
                         include_dirs=[
                             include_path,
-                            str(HeaderInclude('eigen3')),
-                            str(HeaderInclude('boost')),
-                            str(HeaderInclude('fmt')),
-                            str(HeaderInclude('spdlog'))
+                            str(HeaderInclude('eigen3', True)),
+                            str(HeaderInclude('boost', False)),
+                            str(HeaderInclude('fmt', False)),
+                            str(HeaderInclude('spdlog', False))
                         ],
-                        library_dirs=find_lib(),
+                        library_dirs=[find_lib()],
                         libraries=['fmt']
                     )
                 )
