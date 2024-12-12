@@ -25,8 +25,8 @@ class HeaderInclude(object):
         print(f"Current environment path: {conda_prefix}")
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
-                self.lib = '' if self.lib in ['boost', 'fmt', 'spdlog'] else self.lib # should use include/ in windows-conda
-                lib_path = os.path.join(conda_prefix, 'Library', 'include', self.lib)
+                lib_header = '' if self.lib in ['boost', 'fmt', 'spdlog'] else self.lib # should use include/ in windows-conda
+                lib_path = os.path.join(conda_prefix, 'Library', 'include', lib_header)
             else:
                 lib_path = os.path.join(conda_prefix, 'include', self.lib)
             if os.path.exists(lib_path):
@@ -36,15 +36,19 @@ class HeaderInclude(object):
                 print(f"No {self.lib} in conda environment")
         _lib = self.lib.rstrip('0123456789$').upper()
         lib_dir = os.environ.get(f"{_lib}_INCLUDE_DIR")
-        if lib_dir:
-            # lib_path = os.path.join(lib_dir, 'include', self.lib)
-            lib_path = lib_dir
-            if os.path.exists(lib_path):
-                return lib_path
-            else:
-                raise RuntimeError(f"No {self.lib} found in {_lib}_INCLUDE_DIR")
-        else:
-            raise RuntimeError(f"Use conda or set {_lib}_INCLUDE_DIR environment variable")
+        if lib_dir and os.path.exists(lib_dir):
+            return lib_dir
+        sys_path = []
+        if sys.platform == 'darwin':
+            sys_path = ['/usr/local/include', '/opt/homebrew/include']
+        elif sys.platform.startswith('linux'):
+            sys_path = ['/usr/include', '/usr/local/include']
+        for path in sys_path:
+            path = os.path.join(path, self.lib)
+            if os.path.exists(path):
+                print(f"System path: {path}")
+                return path
+        raise RuntimeError(f"Use conda or set {_lib}_INCLUDE_DIR environment variable")
 
 class BuildExt(_build_ext):
     def has_flags(self, compiler, flag):
@@ -78,6 +82,22 @@ class BuildExt(_build_ext):
             ext.extra_link_args += link_args
         _build_ext.build_extensions(self)
 
+def find_lib():
+    conda_prefix = sys.prefix
+    lib_path = []
+    if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
+        if sys.platform.startswith('win'):
+            lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
+        else:
+            lib_path.append(os.path.join(conda_prefix, 'lib'))
+    else:
+        if sys.platform.startswith('win'):
+            lib_path.append(os.path.join(sys.prefix, 'Lib'))
+        else:
+            lib_path.append(os.path.join(sys.prefix, 'lib'))
+    print(f"Use library_dirs: {lib_path}")
+    return lib_path
+
 def find_module(base_dir):
     extensions = []
     is_src = os.path.basename(base_dir) == 'src'
@@ -98,17 +118,16 @@ def find_module(base_dir):
                         sources=[os.path.join(root, cpp_file)],
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
-                            ('BOOST_ENABLE_ASSERT_HANDLER', None),
-                            ('FMT_HEADER_ONLY', None),
-                            ('SPDLOG_HEADER_ONLY', None)
+                            ('BOOST_ENABLE_ASSERT_HANDLER', None)
                         ],
                         include_dirs=[
                             include_path,
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost')),
-                            str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog'))
-                        ]
+                        ],
+                        library_dirs=find_lib(),
+                        libraries=['fmt']
                     )
                 )
     return extensions
