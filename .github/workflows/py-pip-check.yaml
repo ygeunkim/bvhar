@@ -88,12 +88,11 @@ jobs:
             Write-Error "No valid installation path"
             exit 1
           }
-          Get-ChildItem -Path "$installPath\include" -Recurse -Depth 2 | Format-Table Name, LastWriteTime
           $libPath = @{
             "eigen" = "$installPath\include\eigen3"
-            "boost" = "$installPath\include\boost"
-            "spdlog" = "$installPath\include\spdlog"
-            "fmt" = "$installPath\include\fmt"
+            "boost" = "$installPath\include"
+            "spdlog" = "$installPath\include"
+            "fmt" = "$installPath\include"
           }
           foreach ($lib in $libPath.Keys) {
             if (Test-Path $libPath[$lib]) {

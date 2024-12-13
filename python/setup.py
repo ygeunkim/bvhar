@@ -88,27 +88,6 @@ def find_module(base_dir):
             lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
         else:
             lib_path.append(os.path.join(conda_prefix, 'lib'))
-    elif fmt_include := os.environ.get('FMT_INCLUDE_DIR'):
-        if sys.platform.startswith('linux'):
-            for lib_dir in ['/usr/lib', '/usr/lib64', '/usr/local/lib', '/usr/local/lib64']:
-                if os.path.exists(lib_dir):
-                    lib_path.append(lib_dir)
-        else:
-            fmt_dir = os.path.dirname(fmt_include)
-            fmt_lib = os.path.join(fmt_dir, 'lib')
-            if os.path.exists(fmt_lib):
-                lib_path.append(fmt_lib)
-            else:
-                if sys.platform.startswith('win'):
-                    if lib_dir := os.path.join(sys.prefix, 'Lib'):
-                        lib_path.append(lib_dir)
-                    else:
-                        raise RuntimeError(f"No {lib_dir} found")
-                else:
-                    if lib_dir := os.path.join(sys.prefix, 'lib'):
-                        lib_path.append(lib_dir)
-                    else:
-                        raise RuntimeError(f"No {lib_dir} found")
     else:
         if sys.platform.startswith('win'):
             lib_path.append(os.path.join(sys.prefix, 'Lib'))
