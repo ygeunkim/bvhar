@@ -796,18 +796,21 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
   for (int i = 0; i < grp_id.size(); i++) {
 		group_id = grp_vec.array() == grp_id[i];
 		mn_size = group_id.count();
-    Eigen::VectorXd mn_coef(mn_size);
-    Eigen::VectorXd mn_local(mn_size);
+    // Eigen::VectorXd mn_coef(mn_size);
+    // Eigen::VectorXd mn_local(mn_size);
+		Eigen::VectorXd mn_scl(mn_size);
 		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
 			if (group_id[j]) {
-				mn_coef[k] = coef_vec[j];
-				mn_local[k++] = global_param * local_param[j];
+				// mn_coef[k] = coef_vec[j];
+				// mn_local[k++] = global_param * local_param[j];
+				mn_scl[k++] = abs(coef_vec[j]) / (global_param * local_param[j]);
 			}
 		}
 		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
 		group_param[i] = 1 / gamma_rand(
 			shape + mn_size,
-			1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
+			// 1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
+			1 / (rate + mn_scl.sum()),
 			rng
 		);
   }
