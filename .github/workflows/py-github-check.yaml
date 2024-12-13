@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*', 'feature/*-withci']
+    branches: [main, master, 'hotfix/*', 'release/*', develop]
   pull_request:
     branches: [main, master, 'hotfix/*', 'release/*', develop]
 
