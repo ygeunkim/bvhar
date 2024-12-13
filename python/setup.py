@@ -79,7 +79,8 @@ class BuildExt(_build_ext):
             ext.extra_link_args += link_args
         _build_ext.build_extensions(self)
 
-def find_lib():
+def find_module(base_dir):
+    extensions = []
     conda_prefix = sys.prefix
     lib_path = []
     if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
@@ -87,16 +88,22 @@ def find_lib():
             lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
         else:
             lib_path.append(os.path.join(conda_prefix, 'lib'))
+    elif fmt_include := os.environ.get('FMT_INCLUDE_DIR'):
+        fmt_dir = os.path.dirname(fmt_include)
+        fmt_lib = os.path.join(fmt_dir, 'lib')
+        if os.path.exists(fmt_lib):
+            lib_path.append(fmt_lib)
+        else:
+            if sys.platform.startswith('win'):
+                lib_path.append(os.path.join(sys.prefix, 'Lib'))
+            else:
+                lib_path.append(os.path.join(sys.prefix, 'lib'))
     else:
         if sys.platform.startswith('win'):
             lib_path.append(os.path.join(sys.prefix, 'Lib'))
         else:
             lib_path.append(os.path.join(sys.prefix, 'lib'))
     print(f"Use library_dirs: {lib_path}")
-    return lib_path
-
-def find_module(base_dir):
-    extensions = []
     is_src = os.path.basename(base_dir) == 'src'
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:
@@ -125,7 +132,7 @@ def find_module(base_dir):
                             str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog'))
                         ],
-                        library_dirs=find_lib(),
+                        library_dirs=lib_path,
                         libraries=['fmt']
                     )
                 )
