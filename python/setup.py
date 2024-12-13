@@ -88,13 +88,6 @@ def find_module(base_dir):
             lib_path.append(os.path.join(conda_prefix, 'Library', 'lib'))
         else:
             lib_path.append(os.path.join(conda_prefix, 'lib'))
-    elif sys.platform.startswith('darwin'):
-        # elif fmt_include := os.environ.get('FMT_INCLUDE_DIR'):
-        fmt_include = os.environ.get('FMT_INCLUDE_DIR')
-        fmt_dir = os.path.dirname(fmt_include)
-        fmt_lib = os.path.join(fmt_dir, 'lib')
-        if os.path.exists(fmt_lib):
-            lib_path.append(fmt_lib)
     else:
         if sys.platform.startswith('win'):
             lib_path.append(os.path.join(sys.prefix, 'Lib'))
