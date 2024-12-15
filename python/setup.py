@@ -98,6 +98,14 @@ def find_module(base_dir):
     # if sys.platform.startswith('linux'):
     #     lib_name.append('fmt')
     is_src = os.path.basename(base_dir) == 'src'
+    inc_dir = [include_path]
+    if not sys.platform.startswith('linux'):
+        inc_dir.append(str(HeaderInclude('fmt')))
+    inc_dir.extend([
+        str(HeaderInclude('spdlog')),
+        str(HeaderInclude('eigen3')),
+        str(HeaderInclude('boost'))
+    ])
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:
             if cpp_file.endswith('.cpp'):
@@ -119,16 +127,8 @@ def find_module(base_dir):
                             # ('SPDLOG_FMT_EXTERNAL', None),
                             ('FMT_HEADER_ONLY', None)
                         ],
-                        include_dirs=[
-                            include_path,
-                            # str(HeaderInclude('fmt')),
-                            str(HeaderInclude('spdlog')),
-                            str(HeaderInclude('eigen3')),
-                            str(HeaderInclude('boost'))
-                        ],
+                        include_dirs = inc_dir,
                         library_dirs = lib_path
-                        # ,
-                        # libraries = lib_name
                     )
                 )
     return extensions
