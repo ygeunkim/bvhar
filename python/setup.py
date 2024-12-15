@@ -94,9 +94,9 @@ def find_module(base_dir):
         else:
             lib_path.append(os.path.join(sys.prefix, 'lib'))
     print(f"Use library_dirs: {lib_path}")
-    lib_name = []
-    if sys.platform.startswith('linux'):
-        lib_name.append('fmt')
+    # lib_name = []
+    # if sys.platform.startswith('linux'):
+    #     lib_name.append('fmt')
     is_src = os.path.basename(base_dir) == 'src'
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:
@@ -116,18 +116,19 @@ def find_module(base_dir):
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
                             ('BOOST_ENABLE_ASSERT_HANDLER', None),
-                            ('SPDLOG_FMT_EXTERNAL', None),
+                            # ('SPDLOG_FMT_EXTERNAL', None),
                             ('FMT_HEADER_ONLY', None)
                         ],
                         include_dirs=[
                             include_path,
-                            str(HeaderInclude('fmt')),
+                            # str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog')),
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost'))
                         ],
-                        library_dirs = lib_path,
-                        libraries = lib_name
+                        library_dirs = lib_path
+                        # ,
+                        # libraries = lib_name
                     )
                 )
     return extensions
