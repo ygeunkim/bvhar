@@ -114,7 +114,7 @@ def find_module(base_dir):
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
                             ('BOOST_ENABLE_ASSERT_HANDLER', None),
                             ('SPDLOG_FMT_EXTERNAL', None),
-                            ('SPDLOG_HEADER_ONLY', None)
+                            ('FMT_HEADER_ONLY', None)
                         ],
                         include_dirs=[
                             include_path,
@@ -122,9 +122,7 @@ def find_module(base_dir):
                             str(HeaderInclude('boost')),
                             str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog'))
-                        ],
-                        library_dirs=lib_path,
-                        libraries=['fmt']
+                        ]
                     )
                 )
     return extensions
