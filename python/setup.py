@@ -113,19 +113,17 @@ def find_module(base_dir):
                         define_macros=[
                             ('EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS', None),
                             ('BOOST_ENABLE_ASSERT_HANDLER', None),
-                            # ('SPDLOG_FMT_EXTERNAL', None),
-                            # ('FMT_HEADER_ONLY', None)
-                            ('SPDLOG_COMPILE_LIB', None)
+                            ('SPDLOG_FMT_EXTERNAL', None),
+                            ('FMT_HEADER_ONLY', None)
                         ],
                         include_dirs=[
                             include_path,
-                            # str(HeaderInclude('fmt')),
+                            str(HeaderInclude('fmt')),
                             str(HeaderInclude('spdlog')),
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost'))
                         ],
-                        library_dirs = lib_path,
-                        libraries = ['fmt']
+                        library_dirs = lib_path
                     )
                 )
     return extensions
