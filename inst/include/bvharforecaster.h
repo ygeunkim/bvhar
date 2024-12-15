@@ -599,7 +599,7 @@ protected:
 		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
 		auto logger = SPDLOG_SINK_MT(log_name);
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
-		int logging_freq = num_iter / 10; // 10 percent
+		int logging_freq = num_iter / 20; // 5 percent
 		if (logging_freq == 0) {
 			logging_freq = 1;
 		}
@@ -610,6 +610,7 @@ protected:
 				logger->info("{} / {} (Warmup)", i + 1, num_iter);
 			}
 		}
+		logger->flush();
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
 				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
@@ -624,6 +625,7 @@ protected:
 		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		updateForecaster(reg_record, window, chain);
 		model[window][chain].reset();
+		logger->flush();
 		spdlog::drop(log_name);
 	}
 	void forecastWindow(int window, int chain) {
