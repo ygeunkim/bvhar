@@ -5,13 +5,25 @@
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
 	#include <string>
+	// #include <RcppSpdlog>
+	// #include <RcppThread.h>
 
 	#define STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
 	#define ENDL "\n"
 	#define FLUSH Rcpp::Rcout.flush()
+	// #define FLUSH std::cout.flush()
+	// #define FLUSH R_FlushConsole()
 	#define STRING std::string
+
+	// #include <RcppSpdlog>
+
+	// #define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
+
+	// #include <spdlog/spdlog.h>
+	// #include <spdlog/sinks/stdout_sinks.h>
+	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 	#define LIST Rcpp::List
 	#define LIST_OF_LIST Rcpp::List
@@ -39,6 +51,8 @@
 	// #include <unsupported/Eigen/KroneckerProduct>
 	#include <pybind11/stl.h>
 	// #include <pybind11/eigen.h>
+	// #include <spdlog/spdlog.h>
+	// #include <spdlog/sinks/stdout_sinks.h>
 
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
@@ -61,6 +75,7 @@
 	#define ENDL std::endl
 	#define FLUSH std::cout.flush()
 	#define STRING py::str
+	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 	#define LIST py::dict
 	#define LIST_OF_LIST std::vector<py::dict>

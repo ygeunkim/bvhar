@@ -1064,15 +1064,23 @@ public:
 
 protected:
 	void runGibbs(int chain) {
-		bvharprogress bar(num_iter, display_progress);
+		std::string log_name = fmt::format("Chain {}", chain + 1);
+		auto logger = SPDLOG_SINK_MT(log_name);
+		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
+		int logging_freq = num_iter / 10; // 10 percent
+		if (logging_freq == 0) {
+			logging_freq = 1;
+		}
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
-			bar.increment();
 			mcmc_ptr[chain]->doWarmUp();
-			bar.update();
+			if (display_progress && (i + 1) % logging_freq == 0) {
+				logger->info("{} / {} (Warmup)", i + 1, num_iter);
+			}
 		}
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
+				logger->warn("User interrupt in {} / {}", i + 1, num_iter);
 			#ifdef _OPENMP
 				#pragma omp critical
 			#endif
@@ -1081,9 +1089,10 @@ protected:
 				}
 				break;
 			}
-			bar.increment();
 			mcmc_ptr[chain]->doPosteriorDraws();
-			bar.update();
+			if (display_progress && (i + 1) % logging_freq == 0) {
+				logger->info("{} / {} (Sampling)", i + 1, num_iter);
+			}
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
@@ -1091,6 +1100,7 @@ protected:
 		{
 			res[chain] = mcmc_ptr[chain]->returnRecords(0, thin);
 		}
+		spdlog::drop(log_name);
 	}
 
 private:

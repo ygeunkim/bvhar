@@ -35,6 +35,7 @@ is.bvharcv(x)
   med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
+  verbose = FALSE,
   ...
 )
 
@@ -50,6 +51,7 @@ is.bvharcv(x)
   med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -79,6 +81,8 @@ is.bvharcv(x)
 \item{med}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If \code{TRUE}, use median of forecast draws instead of mean (default).}
 
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{use_sv}{Use SV term}
 }
