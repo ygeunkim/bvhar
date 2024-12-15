@@ -94,6 +94,9 @@ def find_module(base_dir):
         else:
             lib_path.append(os.path.join(sys.prefix, 'lib'))
     print(f"Use library_dirs: {lib_path}")
+    lib_name = []
+    if sys.platform.startswith('linux'):
+        lib_name.append('fmt')
     is_src = os.path.basename(base_dir) == 'src'
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:
@@ -123,7 +126,8 @@ def find_module(base_dir):
                             str(HeaderInclude('eigen3')),
                             str(HeaderInclude('boost'))
                         ],
-                        library_dirs = lib_path
+                        library_dirs = lib_path,
+                        libraries = lib_name
                     )
                 )
     return extensions
