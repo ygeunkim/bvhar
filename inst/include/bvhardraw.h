@@ -816,6 +816,29 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
   }
 }
 
+inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
+													 double& shape, double& rate,
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < grp_id.size(); i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+		Eigen::VectorXd mn_scl(mn_size);
+		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
+			if (group_id[j]) {
+				mn_scl[k++] = coef_vec[j] * coef_vec[j] / (global_param * global_param * local_param[j] * local_param[j] * latent_param[j]);
+			}
+		}
+		group_param[i] = sqrt(1 / gamma_rand(
+			shape + mn_size / 2,
+			1 / (rate + mn_scl.sum() / 2),
+			rng
+		));
+  }
+}
+
 // Log-density for Dirichlet Hyperparameter in DL
 // 
 // Log density of Dirichlet hyperparameter ignoring constant term
