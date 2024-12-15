@@ -607,7 +607,7 @@ protected:
 		for (int i = 0; i < num_burn; ++i) {
 			model[window][chain]->doWarmUp();
 			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {}", i + 1, num_iter);
+				logger->info("{} / {} (Warmup)", i + 1, num_iter);
 			}
 		}
 		for (int i = num_burn; i < num_iter; ++i) {
@@ -618,7 +618,7 @@ protected:
 			}
 			model[window][chain]->doPosteriorDraws();
 			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {}", i + 1, num_iter);
+				logger->info("{} / {} (Sampling)", i + 1, num_iter);
 			}
 		}
 		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
