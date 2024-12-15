@@ -118,11 +118,12 @@ def find_module(base_dir):
                         ],
                         include_dirs=[
                             include_path,
-                            str(HeaderInclude('eigen3')),
-                            str(HeaderInclude('boost')),
                             str(HeaderInclude('fmt')),
-                            str(HeaderInclude('spdlog'))
-                        ]
+                            str(HeaderInclude('spdlog')),
+                            str(HeaderInclude('eigen3')),
+                            str(HeaderInclude('boost'))
+                        ],
+                        library_dirs = lib_path
                     )
                 )
     return extensions
