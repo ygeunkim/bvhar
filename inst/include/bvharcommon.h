@@ -208,6 +208,11 @@ inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
 	return rdist(rng);
 }
 
+inline double unif_rand(boost::random::mt19937& rng) {
+	boost::random::uniform_real_distribution<> rdist(0, 1);
+	return rdist(rng);
+}
+
 inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);

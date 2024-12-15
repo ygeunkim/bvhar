@@ -430,7 +430,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 		rejected = true;
 		int iter_while = 0;
 		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
-			draw_prop = unif_rand(0, A, rng);
+			draw_prop = A * unif_rand(rng);
 			if (draw_prop <= A1) { // subdomain (0, x0)
 				cand = x0 * draw_prop / A1;
 				ar_const = log(k1);
@@ -447,7 +447,7 @@ inline void rgig_nonconcave(Eigen::VectorXd& res, int num_sim, double lambda, do
 				cand = -2 * log(exp(-xstar * beta / 2) - draw_prop * beta / (2 * k3)) / beta;
 				ar_const = log(k3) - cand * beta / 2;
 			}
-			draw_unif = unif_rand(0, 1, rng);
+			draw_unif = unif_rand(rng);
 			rejected = log(draw_unif) + ar_const > dgig_quasi(cand, lambda, beta);
 			++iter_while;
 		}
@@ -467,8 +467,8 @@ inline void rgig_without_mode(Eigen::VectorXd& res, int num_sim, double lambda, 
 		rejected = true;
 		int iter_while = 0;
 		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
-			draw_x = unif_rand(0, bound_x, rng);
-			draw_y = unif_rand(0, 1, rng);
+			draw_x = bound_x * unif_rand(rng);
+			draw_y = unif_rand(rng);
 			cand = draw_x / draw_y;
 			++iter_while;
 			rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
@@ -497,8 +497,8 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 		rejected = true;
 		int iter_while = 0;
 		while (rejected && iter_while <= std::numeric_limits<int>::max() / 2) {
-			draw_x = unif_rand(bound_x_neg, bound_x_pos, rng);
-			draw_y = unif_rand(0, 1, rng); // U(0, 1) since g has been normalized
+			draw_x = (bound_x_pos - bound_x_neg) * unif_rand(rng) + bound_x_neg;
+			draw_y = unif_rand(rng); // U(0, 1) since g has been normalized
 			cand = draw_x / draw_y + mode;
 			if (cand > 0) {
 				rejected = log(draw_y) > dgig_quasi(cand, lambda, beta) / 2 - bound_y; // Check if U <= g(y) / unif(y)
@@ -575,7 +575,7 @@ inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rn
 	double cand_fac = 1 + y - sqrt(2 * y + y * y);
 	// double cand = mean * (1 + y - sqrt(2 * y + y * y));
 	// if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
-	if (unif_rand(0, 1, rng) <= 1 / (1 + cand_fac)) {
+	if (unif_rand(rng) <= 1 / (1 + cand_fac)) {
 		// return cand;
 		return mean * cand_fac;
 	}
