@@ -765,7 +765,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * std::max(abs(coef[i]), std::numeric_limits<double>::epsilon()), rng)[0];
+		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
 	local_param /= local_param.sum();
 }
@@ -778,8 +778,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
 										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	double gig_chi = std::max((coef.cwiseAbs().array() / local_param.array()).sum(), std::numeric_limits<double>::epsilon());
-	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * gig_chi, rng)[0];
+	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 }
 
 // Generating Group Parameter of Dirichlet-Laplace Prior
@@ -808,13 +807,13 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			}
 		}
 		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
-		double ig_scl = std::max(rate + mn_scl.sum(), std::numeric_limits<double>::epsilon());
-		group_param[i] = 1 / gamma_rand(
-			shape + mn_size,
-			// 1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
-			1 / ig_scl,
-			rng
-		);
+		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
+		// group_param[i] = 1 / gamma_rand(
+		// 	shape + mn_size,
+		// 	// 1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
+		// 	1 / (rate + mn_scl.sum()),
+		// 	rng
+		// );
   }
 }
 
@@ -833,10 +832,9 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_scl[k++] = coef_vec[j] * coef_vec[j] / (global_param * global_param * local_param[j] * local_param[j] * latent_param[j]);
 			}
 		}
-		double ig_scl = std::max(rate + mn_scl.sum() / 2, std::numeric_limits<double>::epsilon());
 		group_param[i] = sqrt(1 / gamma_rand(
 			shape + mn_size / 2,
-			1 / ig_scl,
+			1 / (rate + mn_scl.sum() / 2),
 			rng
 		));
   }
