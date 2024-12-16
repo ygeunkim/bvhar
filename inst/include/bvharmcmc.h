@@ -1,3 +1,8 @@
+/**
+ * @file bvharmcmc.h
+ * @brief Header including MCMC algorithm
+ */
+
 #ifndef BVHARMCMC_H
 #define BVHARMCMC_H
 
@@ -24,6 +29,12 @@ template <typename BaseMcmc> class McmcGdp;
 class McmcInterface;
 template <typename BaseMcmc, bool isGroup> class McmcRun;
 
+/**
+ * @brief Corrected Triangular Algorithm
+ * 
+ * This class is a base class to conduct corrected triangular algorithm.
+ * 
+ */
 class McmcTriangular {
 public:
 	McmcTriangular(const RegParams& params, const RegInits& inits, unsigned int seed)
@@ -59,6 +70,11 @@ public:
 	}
 	virtual ~McmcTriangular() = default;
 	virtual void appendRecords(LIST& list) = 0;
+
+	/**
+	 * @brief MCMC warmup step
+	 * 
+	 */
 	void doWarmUp() {
 		std::lock_guard<std::mutex> lock(mtx);
 		updateCoefPrec();
@@ -71,6 +87,11 @@ public:
 		updateChol();
 		updateState();
 	}
+
+	/**
+	 * @brief MCMC posterior sampling step
+	 * 
+	 */
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -85,12 +106,26 @@ public:
 		updateState();
 		updateRecords();
 	}
+
+	/**
+	 * @brief Gather MCMC records
+	 * 
+	 * @return LIST 
+	 */
 	LIST gatherRecords() {
 		LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
 		reg_record->appendRecords(res);
 		sparse_record.appendRecords(res, dim, num_alpha, include_mean);
 		return res;
 	}
+
+	/**
+	 * @brief Return posterior sampling records
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return LIST 
+	 */
 	LIST returnRecords(int num_burn, int thin) {
 		LIST res = gatherRecords();
 		appendRecords(res);
@@ -211,6 +246,10 @@ protected:
 	void addStep() { mcmc_step++; }
 };
 
+/**
+ * @brief MCMC for homoskedastic LDLT parameterization
+ * 
+ */
 class McmcReg : public McmcTriangular {
 public:
 	McmcReg(const RegParams& params, const LdltInits& inits, unsigned int seed)
@@ -232,6 +271,10 @@ private:
 	Eigen::VectorXd diag_vec; // inverse of d_i
 };
 
+/**
+ * @brief MCMC for stochastic volatility
+ * 
+ */
 class McmcSv : public McmcTriangular {
 public:
 	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
@@ -270,6 +313,11 @@ private:
 	Eigen::MatrixXd prior_init_prec;
 };
 
+/**
+ * @brief Minnesota prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcMinn : public BaseMcmc {
 public:
@@ -302,6 +350,11 @@ protected:
 	void updateRecords() override { updateCoefRecords(); }
 };
 
+/**
+ * @brief Hierarchical Minnesota prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcHierminn : public BaseMcmc {
 public:
@@ -396,6 +449,11 @@ private:
 	double contem_rate;
 };
 
+/**
+ * @brief Stochastic Search Variable Selection (SSVS) prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcSsvs : public BaseMcmc {
 public:
@@ -496,6 +554,12 @@ private:
 	Eigen::VectorXd slab_weight; // pij vector
 };
 
+/**
+ * @brief Horseshoe prior
+ * 
+ * @tparam BaseMcmc McmcReg or McmcSv
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcHorseshoe : public BaseMcmc {
 public:
@@ -599,6 +663,12 @@ private:
 	Eigen::VectorXd latent_contem_global; // -> double
 };
 
+/**
+ * @brief Normal-Gamma Prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcNg : public BaseMcmc {
 public:
@@ -699,6 +769,12 @@ private:
 	Eigen::VectorXd contem_fac;
 };
 
+/**
+ * @brief Dirichlet-Laplace prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcDl : public BaseMcmc {
 public:
@@ -794,6 +870,11 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
+/**
+ * @brief Generalized Double Pareto (GDP) prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcGdp : public BaseMcmc {
 public:
@@ -882,6 +963,29 @@ private:
 	Eigen::VectorXd contem_fac;
 };
 
+/**
+ * @brief Function to initialize `McmcReg` or `McmcSv`
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ * @param num_chains Number of MCMC chains
+ * @param num_iter MCMC iteration
+ * @param x Design matrix in multivariate regression form
+ * @param y Response matrix in multivariat regression form
+ * @param param_reg Covariance configuration
+ * @param param_prior Shrinkage prior configuration
+ * @param param_intercept Constant term configuration
+ * @param param_init MCMC initial values
+ * @param prior_type Prior number to use
+ * @param grp_id Minnesota group unique ids
+ * @param own_id Own-lag id
+ * @param cross_id Cross-lag id
+ * @param grp_mat Minnesota group matrix
+ * @param include_mean If `true`, include constant term
+ * @param seed_chain Seed for each chain
+ * @param num_design Number of samples
+ * @return std::vector<std::unique_ptr<BaseMcmc>> 
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -1016,12 +1120,22 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	return mcmc_ptr;
 }
 
+/**
+ * @brief Interface class for MCMC
+ * 
+ */
 class McmcInterface {
 public:
 	virtual ~McmcInterface() = default;
 	virtual LIST_OF_LIST returnRecords() = 0;
 };
 
+/**
+ * @brief Class that conducts MCMC
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcRun : public McmcInterface {
 public:
@@ -1043,6 +1157,11 @@ public:
 		);
 	}
 	virtual ~McmcRun() = default;
+
+	/**
+	 * @brief Conduct MCMC
+	 * 
+	 */
 	void fit() {
 		if (num_chains == 1) {
 			runGibbs(0);
@@ -1055,6 +1174,12 @@ public:
 			}
 		}
 	}
+
+	/**
+	 * @brief Do MCMC and return the MCMC records
+	 * 
+	 * @return LIST_OF_LIST 
+	 */
 	LIST_OF_LIST returnRecords() override {
 		fit();
 		return WRAP(res);

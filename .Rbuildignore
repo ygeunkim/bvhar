@@ -16,3 +16,4 @@
 ^CRAN-SUBMISSION$
 ^revdep$
 ^python$
+inst/doxygen

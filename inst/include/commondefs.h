@@ -1,3 +1,9 @@
+/**
+ * @file commondefs.h
+ * @author Young Geun Kim (ygeunkimstat@gmail.com)
+ * @brief Common header
+ */
+
 #ifndef COMMONDEFS_H
 #define COMMONDEFS_H
 
