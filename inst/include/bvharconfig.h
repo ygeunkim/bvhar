@@ -682,10 +682,10 @@ struct RegRecords {
 	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
 
 	/**
-	 * @brief Update parameters in \f$D\f$
+	 * @brief Update parameters in D
 	 * 
 	 * @param i MCMC step
-	 * @param sv_update Diagonal term draw
+	 * @param sv_update State vector draw
 	 */
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
 
