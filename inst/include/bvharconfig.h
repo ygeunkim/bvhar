@@ -1,3 +1,9 @@
+/**
+ * @file bvharconfig.h
+ * @author your name (you@domain.com)
+ * @brief Headers including MCMC configuration structs
+ */
+
 #ifndef BVHARCONFIG_H
 #define BVHARCONFIG_H
 

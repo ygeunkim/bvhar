@@ -1,0 +1,42 @@
+# Render doxygen to github page repo
+on:
+  push:
+    branches: [main, master, develop, feature/doxygen] # feature/doxygen for pre-test
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+  
+name: doxygen
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    # Only restrict concurrency for non-PR jobs
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: sudo apt-get install -y doxygen graphviz
+    
+      - name: Render doxygen
+        run: doxygen inst/doxygen/Doxyfile
+    
+      - name: Create .nojekyll
+        run: sudo touch inst/doxygen/html/.nojekyll
+
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4.6.1
+        with:
+          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          repository-name: ygeunkim/ygeunkim.github.io
+          clean: false
+          branch: master
+          folder: inst/doxygen/html
+          target-folder: package/bvhar/cpp
