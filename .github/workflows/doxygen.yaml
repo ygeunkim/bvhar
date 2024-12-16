@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get install -y doxygen graphviz
     
       - name: Render doxygen
-        run: doxygen inst/doxygen/Doxyfile -DUSE_RCPP
+        run: doxygen inst/doxygen/Doxyfile
     
       - name: Create .nojekyll
         run: sudo touch inst/doxygen/html/.nojekyll
