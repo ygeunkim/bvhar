@@ -23,6 +23,9 @@ jobs:
 
       - name: Install Doxygen
         run: sudo apt-get install -y doxygen graphviz
+      
+      - name: Extract version number from DESCRIPTION
+        run: sed -i 's|BVHAR_VERSION|$(grep '^Version:' DESCRIPTION | cut -d ' ' -f 2)' inst/doxygen/Doxyfile
     
       - name: Render doxygen
         run: doxygen inst/doxygen/Doxyfile
