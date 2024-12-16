@@ -20,6 +20,10 @@ template <typename BaseForecaster, bool isGroup> class McmcExpandforecastRun;
 template <template <typename, bool> class BaseOutForecast, typename BaseForecaster, bool isGroup> class McmcVarforecastRun;
 template <template <typename, bool> class BaseOutForecast, typename BaseForecaster, bool isGroup> class McmcVharforecastRun;
 
+/**
+ * @brief Forecast class for `McmcTriangular`
+ * 
+ */
 class McmcForecaster {
 public:
 	McmcForecaster(const RegRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true)
@@ -42,6 +46,12 @@ public:
 		last_pvec.head(var_lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(var_lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
 	}
 	virtual ~McmcForecaster() = default;
+
+	/**
+	 * @brief Draw density forecast
+	 * 
+	 * @return Eigen::MatrixXd Every forecast draw of which the row indicates forecast step and columns are blocked by chains.
+	 */
 	Eigen::MatrixXd forecastDensity() {
 		std::lock_guard<std::mutex> lock(mtx);
 		Eigen::VectorXd obs_vec = last_pvec; // y_T, y_(T - 1), ... y_(T - lag + 1)
@@ -54,6 +64,12 @@ public:
 		}
 		return predictive_distn;
 	}
+
+	/**
+	 * @copydoc forecastDensity()
+	 * 
+	 * @param valid_vec Validation vector to compute average log predictive likelihood (ALPL)
+	 */
 	Eigen::MatrixXd forecastDensity(const Eigen::VectorXd& valid_vec) {
 		std::lock_guard<std::mutex> lock(mtx);
 		Eigen::VectorXd obs_vec = last_pvec; // y_T, y_(T - 1), ... y_(T - lag + 1)
@@ -67,9 +83,21 @@ public:
 		lpl.array() /= num_sim;
 		return predictive_distn;
 	}
+
+	/**
+	 * @brief Return the draws of LPL
+	 * 
+	 * @return Eigen::VectorXd LPL draws
+	 */
 	Eigen::VectorXd returnLplRecord() {
 		return lpl;
 	}
+
+	/**
+	 * @brief Return ALPL
+	 * 
+	 * @return double ALPL value
+	 */
 	double returnLpl() {
 		return lpl.mean();
 	}
@@ -98,10 +126,39 @@ protected:
 	Eigen::VectorXd standard_normal; // Z ~ N(0, I)
 	Eigen::VectorXd tmp_vec; // y_(T + h - 2), ... y_(T + h - lag)
 	Eigen::VectorXd lpl; // average log-predictive likelihood
+
+	/**
+	 * @brief Compute Normal mean of the forecast density
+	 * 
+	 */
 	virtual void computeMean() = 0;
+
+	/**
+	 * @brief Update members with corresponding MCMC draw
+	 * 
+	 * @param i MCMC step
+	 */
 	virtual void updateParams(int i) = 0;
+
+	/**
+	 * @brief Draw innovation with D covariance matrix
+	 * 
+	 */
 	virtual void updateVariance() = 0;
+
+	/**
+	 * @brief Compute LPL
+	 * 
+	 * @param h Forecast step
+	 * @param valid_vec Validation vector
+	 */
 	virtual void updateLpl(int h, const Eigen::VectorXd& valid_vec) = 0;
+
+	/**
+	 * @brief Draw i-th forecast
+	 * 
+	 * @param i MCMC step
+	 */
 	void forecastOut(int i) {
 		for (int h = 0; h < step; ++h) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
@@ -113,6 +170,12 @@ protected:
 			tmp_vec = last_pvec.head((var_lag - 1) * dim);
 		}
 	}
+
+	/**
+	 * @copydoc forecastOut(int)
+	 * 
+	 * @param valid_vec Validation vector
+	 */
 	void forecastOut(int i, const Eigen::VectorXd& valid_vec) {
 		for (int h = 0; h < step; ++h) {
 			last_pvec.segment(dim, (var_lag - 1) * dim) = tmp_vec;
@@ -127,6 +190,10 @@ protected:
 	}
 };
 
+/**
+ * @brief Forecast class for `McmcReg`
+ * 
+ */
 class RegForecaster : public McmcForecaster {
 public:
 	RegForecaster(const LdltRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true)
@@ -155,6 +222,10 @@ protected:
 	}
 };
 
+/**
+ * @brief Forecast class for `McmcSv`
+ * 
+ */
 class SvForecaster : public McmcForecaster {
 public:
 	SvForecaster(const SvRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean, bool filter_stable, unsigned int seed, bool sv)
@@ -195,6 +266,11 @@ private:
 	Eigen::VectorXd sv_sig; // sig_h
 };
 
+/**
+ * @brief Forecast class of Bayesian VAR based on `McmcTriangular`
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcVarForecaster : public BaseForecaster {
 public:
@@ -226,6 +302,11 @@ protected:
 	}
 };
 
+/**
+ * @brief Forecast class of Bayesian VHAR based on `McmcTriangular`
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcVharForecaster : public BaseForecaster {
 public:
@@ -259,6 +340,11 @@ protected:
 	}
 };
 
+/**
+ * @brief Bayesian VAR forecast class with sparse draw induced by posterior summary
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcVarSelectForecaster : public McmcVarForecaster<BaseForecaster> {
 public:
@@ -291,6 +377,11 @@ private:
 	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
 
+/**
+ * @brief Bayesian VHAR forecast class with sparse draw induced by posterior summary
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcVharSelectForecaster : public McmcVharForecaster<BaseForecaster> {
 public:
@@ -324,6 +415,17 @@ private:
 	Eigen::MatrixXd activity_graph; // Activity graph computed after MCMC
 };
 
+/**
+ * @brief Initialize MCMC record used in forecast classes
+ * 
+ * @param record Smart pointer of `LdltRecords` or `SvRecords`
+ * @param chain_id Chain id
+ * @param fit_record `LIST` of MCMC draw
+ * @param include_mean Include constant term?
+ * @param coef_name Element name for the coefficient in `fit_record`
+ * @param a_name Element name for the contemporaneous coefficient in `fit_record`
+ * @param c_name Element name for the constant term in `fit_record`
+ */
 inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];
@@ -345,6 +447,10 @@ inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id
 	}
 }
 
+/**
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * 
+ */
 inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];
@@ -369,6 +475,25 @@ inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, 
 	}
 }
 
+/**
+ * @brief Initialize the vector of forecast class smart pointer
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @param num_chains Number of MCMC chains
+ * @param ord VAR lag or VHAR month
+ * @param step Forecasting step
+ * @param response_mat Response matrix of multivariate regression
+ * @param sparse If `true`, use sparsified records
+ * @param level CI level
+ * @param fit_record `LIST` of MCMC draws
+ * @param seed_chain Random seed for each chain
+ * @param include_mean If `true`, include constant term
+ * @param stable If `true`, filter stable draws
+ * @param nthreads Number of OpenMP threads
+ * @param sv Use stochastic volaility when forecasting
+ * @param har_trans VHAR transformation matrix
+ * @return std::vector<std::unique_ptr<BaseForecaster>> Vector of forecast class smart pointer corresponding to each chain
+ */
 template <typename BaseForecaster = RegForecaster>
 inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	int num_chains, int ord, int step, const Eigen::MatrixXd& response_mat,
@@ -429,6 +554,11 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	return forecaster_ptr;
 }
 
+/**
+ * @brief CTA forecasting class
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcForecastRun {
 public:
@@ -473,6 +603,11 @@ public:
 		);
 	}
 	virtual ~McmcForecastRun() = default;
+
+	/**
+	 * @brief Forecast
+	 * 
+	 */
 	void forecast() {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)
@@ -482,6 +617,12 @@ public:
 			forecaster[chain].reset(); // free the memory by making nullptr
 		}
 	}
+
+	/**
+	 * @brief Return forecast draws
+	 * 
+	 * @return std::vector<Eigen::MatrixXd> Forecast density of each chain
+	 */
 	std::vector<Eigen::MatrixXd> returnForecast() {
 		forecast();
 		return density_forecast;
@@ -494,6 +635,11 @@ private:
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster;
 };
 
+/**
+ * @brief Out-of-sample forecasting class
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ */
 template <typename BaseForecaster = RegForecaster>
 class McmcOutforecastRun {
 public:
@@ -530,6 +676,11 @@ public:
 		}
 	}
 	virtual ~McmcOutforecastRun() = default;
+
+	/**
+	 * @brief Out-of-sample forecasting
+	 * 
+	 */
 	void forecast() {
 		if (num_chains == 1) {
 		#ifdef _OPENMP
@@ -549,6 +700,12 @@ public:
 			}
 		}
 	}
+
+	/**
+	 * @brief Return out-of-sample forecasting draws
+	 * 
+	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 */
 	LIST returnForecast() {
 		forecast();
 		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
@@ -573,15 +730,74 @@ protected:
 	std::vector<std::vector<std::unique_ptr<BaseForecaster>>> forecaster;
 	std::vector<std::vector<Eigen::MatrixXd>> out_forecast;
 	Eigen::MatrixXd lpl_record;
+
+	/**
+	 * @brief Define input in each window
+	 * 
+	 * @param y Entire data including validation set
+	 */
 	virtual void initData(const Eigen::MatrixXd& y) = 0;
+
+	/**
+	 * @brief Initialize forecaster
+	 * 
+	 * @param fit_record MCMC draw `LIST`
+	 */
 	virtual void initForecaster(LIST& fit_record) = 0;
+
+	/**
+	 * @brief Initialize CTA
+	 * 
+	 * @param param_reg `LIST` of CTA hyperparameters
+	 * @param param_prior `LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param prior_type Shrinkage prior number
+	 * @param grp_id Minnesota group unique id
+	 * @param own_id own-lag id
+	 * @param cross_id cross-lag id
+	 * @param grp_mat Minnesota group matrix
+	 * @param seed_chain Random seed for each chain
+	 */
 	virtual void initMcmc(
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain
 	) = 0;
+
+	/**
+	 * @brief Define VAR or VHAR design matrix
+	 * 
+	 * @param window Window index
+	 * @return Eigen::MatrixXd Design matrix
+	 */
 	virtual Eigen::MatrixXd buildDesign(int window) = 0;
+
+	/**
+	 * @brief Replace the forecast smart pointer given MCMC result
+	 * 
+	 * @param reg_record MCMC record
+	 * @param window Window index
+	 * @param chain Chain index
+	 */
 	virtual void updateForecaster(RecordType& reg_record, int window, int chain) = 0;
+
+	/**
+	 * @brief Initialize every member of `McmcOutforecastRun`
+	 * 
+	 * @param y Response matrix
+	 * @param fit_record `LIST` of MCMC draws
+	 * @param param_reg `LIST` of CTA hyperparameters
+	 * @param param_prior `LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param prior_type Shrinkage prior number
+	 * @param grp_id Minnesota group unique id
+	 * @param own_id own-lag id
+	 * @param cross_id cross-lag id
+	 * @param grp_mat Minnesota group matrix
+	 * @param seed_chain Random seed for each chain
+	 */
 	void initialize(
 		const Eigen::MatrixXd& y, LIST& fit_record,
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
@@ -595,6 +811,13 @@ protected:
 			grp_id, own_id, cross_id, grp_mat, seed_chain
 		);
 	}
+
+	/**
+	 * @brief Conduct MCMC and update forecast pointer
+	 * 
+	 * @param window Window index
+	 * @param chain Chain index
+	 */
 	void runGibbs(int window, int chain) {
 		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
 		auto logger = SPDLOG_SINK_MT(log_name);
@@ -628,6 +851,13 @@ protected:
 		logger->flush();
 		spdlog::drop(log_name);
 	}
+
+	/**
+	 * @brief Forecast
+	 * 
+	 * @param window Window index
+	 * @param chain Chain index
+	 */
 	void forecastWindow(int window, int chain) {
 		if (window != 0) {
 			runGibbs(window, chain);
@@ -639,6 +869,12 @@ protected:
 	}
 };
 
+/**
+ * @brief Rolling-window forecast class
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseForecaster = RegForecaster, bool isGroup = true>
 class McmcRollforecastRun : public McmcOutforecastRun<BaseForecaster> {
 public:
@@ -702,6 +938,12 @@ protected:
 	}
 };
 
+/**
+ * @brief Expanding-window forecast class
+ * 
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseForecaster = RegForecaster, bool isGroup = true>
 class McmcExpandforecastRun : public McmcOutforecastRun<BaseForecaster> {
 public:
@@ -777,6 +1019,13 @@ protected:
 	}
 };
 
+/**
+ * @brief Out-of-sample forecast class for Bayesian VAR
+ * 
+ * @tparam BaseOutForecast `McmcRollforecastRun` or `McmcExpandforecastRun`
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <template <typename, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true>
 class McmcVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup> {
 public:
@@ -850,6 +1099,13 @@ protected:
 	}
 };
 
+/**
+ * @brief Out-of-sample forecast class for Bayesian VHAR
+ * 
+ * @tparam BaseOutForecast `McmcRollforecastRun` or `McmcExpandforecastRun`
+ * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <template <typename, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true>
 class McmcVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup> {
 public:

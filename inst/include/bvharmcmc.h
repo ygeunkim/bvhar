@@ -30,7 +30,7 @@ class McmcInterface;
 template <typename BaseMcmc, bool isGroup> class McmcRun;
 
 /**
- * @brief Corrected Triangular Algorithm
+ * @brief Corrected Triangular Algorithm (CTA)
  * 
  * This class is a base class to conduct corrected triangular algorithm.
  * 
@@ -1221,6 +1221,12 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 class McmcInterface {
 public:
 	virtual ~McmcInterface() = default;
+
+	/**
+	 * @brief Conduct multi-chain MCMC and return MCMC records of every chain
+	 * 
+	 * @return LIST_OF_LIST `LIST_OF_LIST`
+	 */
 	virtual LIST_OF_LIST returnRecords() = 0;
 };
 
@@ -1253,7 +1259,7 @@ public:
 	virtual ~McmcRun() = default;
 
 	/**
-	 * @brief Conduct MCMC
+	 * @brief Conduct multi-chain MCMC
 	 * 
 	 */
 	void fit() {
@@ -1269,17 +1275,17 @@ public:
 		}
 	}
 
-	/**
-	 * @brief Do MCMC and return the MCMC records
-	 * 
-	 * @return LIST_OF_LIST 
-	 */
 	LIST_OF_LIST returnRecords() override {
 		fit();
 		return WRAP(res);
 	}
 
 protected:
+	/**
+	 * @brief Single chain MCMC
+	 * 
+	 * @param chain Chain id
+	 */
 	void runGibbs(int chain) {
 		std::string log_name = fmt::format("Chain {}", chain + 1);
 		auto logger = SPDLOG_SINK_MT(log_name);
