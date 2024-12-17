@@ -27,7 +27,7 @@ jobs:
       - name: Extract version number from DESCRIPTION
         run: |
           VERSION=$(grep '^Version:' DESCRIPTION | cut -d ' ' -f 2)
-          sed -i 's|BVHAR_VERSION|$VERSION|' inst/doxygen/Doxyfile
+          sed -i "s|BVHAR_VERSION|${VERSION}|" inst/doxygen/Doxyfile
     
       - name: Render doxygen
         run: doxygen inst/doxygen/Doxyfile
