@@ -1,7 +1,7 @@
 # Render doxygen to github page repo
 on:
   push:
-    branches: [main, master, develop, feature/cpp-document] # temporarily use feature/cpp-document to check 
+    branches: [main, master, develop]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
