@@ -806,12 +806,12 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_scl[k++] = abs(coef_vec[j]) / (global_param * local_param[j]);
 			}
 		}
-		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
-		group_param[i] = 1 / gamma_rand(
-			shape + mn_size,
-			1 / (rate + mn_scl.sum()),
-			rng
-		);
+		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
+		// group_param[i] = 1 / gamma_rand(
+		// 	shape + mn_size,
+		// 	1 / (rate + mn_scl.sum()),
+		// 	rng
+		// );
   }
 }
 
