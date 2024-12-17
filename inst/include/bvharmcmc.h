@@ -30,7 +30,7 @@ class McmcInterface;
 template <typename BaseMcmc, bool isGroup> class McmcRun;
 
 /**
- * @brief Corrected Triangular Algorithm
+ * @brief Corrected Triangular Algorithm (CTA)
  * 
  * This class is a base class to conduct corrected triangular algorithm.
  * 
@@ -69,6 +69,12 @@ public:
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcTriangular() = default;
+
+	/**
+	 * @brief Append each class's additional record to the result `LIST`
+	 * 
+	 * @param list `LIST` containing MCMC record result
+	 */
 	virtual void appendRecords(LIST& list) = 0;
 
 	/**
@@ -124,7 +130,7 @@ public:
 	 * 
 	 * @param num_burn Number of burn-in
 	 * @param thin Thinning
-	 * @return LIST 
+	 * @return LIST `LIST` containing every MCMC draws
 	 */
 	LIST returnRecords(int num_burn, int thin) {
 		LIST res = gatherRecords();
@@ -138,12 +144,40 @@ public:
 		}
 		return res;
 	}
+
+	/**
+	 * @brief Return `LdltRecords`
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return LdltRecords `LdltRecords` object
+	 */
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnLdltRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
+
+	/**
+	 * @brief Return `SvRecords`
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return SvRecords `SvRecords` object
+	 */
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
+
+	/**
+	 * @brief Return `LdltRecords` or `SvRecords`
+	 * 
+	 * @tparam RecordType `LdltRecords` or `SvRecords` 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return RecordType `LdltRecords` or `SvRecords` 
+	 */
 	template <typename RecordType>
 	RecordType returnStructRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnRecords<RecordType>(sparse_record, num_iter, num_burn, thin, sparse);
@@ -183,13 +217,53 @@ protected:
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::VectorXd prior_sig_shp;
 	Eigen::VectorXd prior_sig_scl;
+
+	/**
+	 * @brief Draw state vector
+	 * 
+	 */
 	virtual void updateState() = 0;
+
+	/**
+	 * @brief Compute D
+	 * 
+	 */
 	virtual void updateSv() = 0;
+
+	/**
+	 * @brief Save coefficient records
+	 * 
+	 */
 	virtual void updateCoefRecords() = 0;
+
+	/**
+	 * @brief Draw precision of coefficient based on each shrinkage priors
+	 * 
+	 */
 	virtual void updateCoefPrec() = 0;
+
+	/**
+	 * @brief Update SAVS penalty
+	 * 
+	 */
 	virtual void updatePenalty() = 0;
+
+	/**
+	 * @brief Draw precision of contemporaneous coefficient based on each shrinkage priors
+	 * 
+	 */
 	virtual void updateImpactPrec() = 0;
+
+	/**
+	 * @brief Save MCMC records
+	 * 
+	 */
 	virtual void updateRecords() = 0;
+
+	/**
+	 * @brief Draw coefficients
+	 * 
+	 */
 	void updateCoef() {
 		for (int j = 0; j < dim; ++j) {
 			coef_mat.col(j).setZero(); // j-th column of A = 0
@@ -226,6 +300,11 @@ protected:
 			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
 	}
+
+	/**
+	 * @brief Draw contemporaneous coefficients
+	 * 
+	 */
 	void updateImpact() {
 		for (int j = 1; j < dim; ++j) {
 			response_contem = latent_innov.col(j).array() / sqrt_sv.col(j).array(); // n-dim
@@ -241,8 +320,23 @@ protected:
 			draw_savs(sparse_contem.segment(contem_id, j), contem_coef.segment(contem_id, j), latent_innov.leftCols(j));
 		}
 	}
+
+	/**
+	 * @brief Compute residual matrix for orthogonalization
+	 * 
+	 */
 	void updateLatent() { latent_innov = y - x * coef_mat; }
+
+	/**
+	 * @brief Compute L
+	 * 
+	 */
 	void updateChol() { chol_lower = build_inv_lower(dim, contem_coef); }
+
+	/**
+	 * @brief Increment the MCMC step
+	 * 
+	 */
 	void addStep() { mcmc_step++; }
 };
 
@@ -1127,6 +1221,12 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 class McmcInterface {
 public:
 	virtual ~McmcInterface() = default;
+
+	/**
+	 * @brief Conduct multi-chain MCMC and return MCMC records of every chain
+	 * 
+	 * @return LIST_OF_LIST `LIST_OF_LIST`
+	 */
 	virtual LIST_OF_LIST returnRecords() = 0;
 };
 
@@ -1159,7 +1259,7 @@ public:
 	virtual ~McmcRun() = default;
 
 	/**
-	 * @brief Conduct MCMC
+	 * @brief Conduct multi-chain MCMC
 	 * 
 	 */
 	void fit() {
@@ -1175,17 +1275,17 @@ public:
 		}
 	}
 
-	/**
-	 * @brief Do MCMC and return the MCMC records
-	 * 
-	 * @return LIST_OF_LIST 
-	 */
 	LIST_OF_LIST returnRecords() override {
 		fit();
 		return WRAP(res);
 	}
 
 protected:
+	/**
+	 * @brief Single chain MCMC
+	 * 
+	 * @param chain Chain id
+	 */
 	void runGibbs(int chain) {
 		std::string log_name = fmt::format("Chain {}", chain + 1);
 		auto logger = SPDLOG_SINK_MT(log_name);
