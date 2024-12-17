@@ -806,14 +806,12 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 				mn_scl[k++] = abs(coef_vec[j]) / (global_param * local_param[j]);
 			}
 		}
-		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
-		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
-		// group_param[i] = 1 / gamma_rand(
-		// 	shape + mn_size,
-		// 	// 1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
-		// 	1 / (rate + mn_scl.sum()),
-		// 	rng
-		// );
+		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
+		group_param[i] = 1 / gamma_rand(
+			shape + mn_size,
+			1 / (rate + mn_scl.sum()),
+			rng
+		);
   }
 }
 
@@ -1064,7 +1062,7 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 	log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
 	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
 	log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
-	if (log(unif_rand(0, 1, rng)) < std::min(log_ratio, 0.0)) {
+	if (log(unif_rand(rng)) < std::min(log_ratio, 0.0)) {
 		return cand;
 	}
 	// double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);

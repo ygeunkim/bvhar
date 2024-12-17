@@ -807,6 +807,7 @@ protected:
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
 		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
+		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
@@ -817,12 +818,11 @@ protected:
 				local_shape_fac
 			);
 		}
-		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
 		using is_group = std::integral_constant<bool, isGroup>;
 		if (is_group::value) {
 			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		}
-		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
+		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
 		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
 	void updatePenalty() override {
@@ -836,8 +836,8 @@ protected:
 	}
 	void updateImpactPrec() override {
 		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
-		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
 		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
+		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
 		prior_chol_prec = 1 / contem_fac.array().square();
 	}
 	void updateRecords() override {
@@ -936,9 +936,9 @@ protected:
 	}
 	void updateImpactPrec() override {
 		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
-		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		prior_chol_prec = 1 / ((contem_global_lev[0] * contem_local_lev.array()).square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
