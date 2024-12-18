@@ -2,6 +2,7 @@
 #define BVHARCOMMON_H
 
 #include "bvhareigen.h"
+#include "bvharspdlog.h"
 
 namespace boost {
 
@@ -49,9 +50,9 @@ using Optional = boost::optional<T>;
 
 namespace bvhar {
 
-typedef Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> ColMajorMatrixXd;
+using ColMajorMatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
 
-typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
+using VectorXb = Eigen::Matrix<bool, Eigen::Dynamic, 1>;
 
 template <typename Derived>
 inline Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> vectorize_eigen(const Eigen::MatrixBase<Derived>& x) {
@@ -204,6 +205,11 @@ inline double ber_rand(double prob, boost::random::mt19937& rng) {
 
 inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
 	boost::random::uniform_real_distribution<> rdist(min, max);
+	return rdist(rng);
+}
+
+inline double unif_rand(boost::random::mt19937& rng) {
+	boost::random::uniform_real_distribution<> rdist(0, 1);
 	return rdist(rng);
 }
 

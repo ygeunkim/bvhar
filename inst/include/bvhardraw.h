@@ -767,7 +767,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
 	}
-	// local_param /= local_param.sum();
+	local_param /= local_param.sum();
 }
 
 // Generating Global Parameter of Dirichlet-Laplace Prior
@@ -796,20 +796,45 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
   for (int i = 0; i < grp_id.size(); i++) {
 		group_id = grp_vec.array() == grp_id[i];
 		mn_size = group_id.count();
-    Eigen::VectorXd mn_coef(mn_size);
-    Eigen::VectorXd mn_local(mn_size);
+    // Eigen::VectorXd mn_coef(mn_size);
+    // Eigen::VectorXd mn_local(mn_size);
+		Eigen::VectorXd mn_scl(mn_size);
 		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
 			if (group_id[j]) {
-				mn_coef[k] = coef_vec[j];
-				mn_local[k++] = global_param * local_param[j];
+				// mn_coef[k] = coef_vec[j];
+				// mn_local[k++] = global_param * local_param[j];
+				mn_scl[k++] = abs(coef_vec[j]) / (global_param * local_param[j]);
 			}
 		}
-		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * (mn_coef.cwiseAbs().array() / mn_local.array()).sum(), rng)[0];
-		group_param[i] = 1 / gamma_rand(
-			shape + mn_size,
-			1 / (rate + (mn_coef.cwiseAbs().array() / mn_local.array()).sum()),
+		group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
+		// group_param[i] = 1 / gamma_rand(
+		// 	shape + mn_size,
+		// 	1 / (rate + mn_scl.sum()),
+		// 	rng
+		// );
+  }
+}
+
+inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
+													 double& shape, double& rate,
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+  int mn_size = 0;
+  for (int i = 0; i < grp_id.size(); i++) {
+		group_id = grp_vec.array() == grp_id[i];
+		mn_size = group_id.count();
+		Eigen::VectorXd mn_scl(mn_size);
+		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
+			if (group_id[j]) {
+				mn_scl[k++] = coef_vec[j] * coef_vec[j] / (global_param * global_param * local_param[j] * local_param[j] * latent_param[j]);
+			}
+		}
+		group_param[i] = sqrt(1 / gamma_rand(
+			shape + mn_size / 2,
+			1 / (rate + mn_scl.sum() / 2),
 			rng
-		);
+		));
   }
 }
 
@@ -1037,7 +1062,7 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 	log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
 	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
 	log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
-	if (log(unif_rand(0, 1, rng)) < std::min(log_ratio, 0.0)) {
+	if (log(unif_rand(rng)) < std::min(log_ratio, 0.0)) {
 		return cand;
 	}
 	// double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);

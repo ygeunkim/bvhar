@@ -12,7 +12,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcRollforecastRun, bvhar::SvForecaster>::returnForecast);
 	
@@ -22,7 +22,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcExpandforecastRun, bvhar::SvForecaster>::returnForecast);
 	
@@ -32,7 +32,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcRollforecastRun, bvhar::SvForecaster>::returnForecast);
 	
@@ -42,7 +42,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcExpandforecastRun, bvhar::SvForecaster>::returnForecast);
 	
@@ -52,7 +52,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcRollforecastRun, bvhar::SvForecaster, false>::returnForecast);
 	
@@ -62,7 +62,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVarforecastRun<bvhar::McmcExpandforecastRun, bvhar::SvForecaster, false>::returnForecast);
 	
@@ -72,7 +72,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcRollforecastRun, bvhar::SvForecaster, false>::returnForecast);
 	
@@ -82,7 +82,7 @@ PYBIND11_MODULE(_svforecast, m) {
 			bool, double, py::dict&, py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, bool, int, const Eigen::MatrixXd&, bool,
-			const Eigen::MatrixXi&, const Eigen::VectorXi&, int, bool>()
+			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::McmcVharforecastRun<bvhar::McmcExpandforecastRun, bvhar::SvForecaster, false>::returnForecast);
 }

@@ -1,5 +1,9 @@
 # bvhar (development version)
 
+* Use `spdlog` (using `RcppSpdlog`) logger instead of custom progress bar (`bvharprogress`).
+
+* Use `RcppThread` to make the logger thread-safe ([eddelbuettel/rcppspdlog#22](https://github.com/eddelbuettel/rcppspdlog/issues/22))
+
 * Can filter MCMC draws where coefficient is stable when forecasting.
 
 * Changed Eigen and boost assertion behavior (`eigen_assert` and `BOOST_ASSERT`) to give error instead of abort.

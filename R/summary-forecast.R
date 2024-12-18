@@ -226,8 +226,9 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -314,7 +315,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     },
     "bvharldlt" = {
@@ -363,7 +364,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     }
   )
@@ -446,8 +447,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -541,7 +543,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     },
     "bvharsv" = {
@@ -590,7 +592,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     }
   )
@@ -834,8 +836,9 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -923,7 +926,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     },
     "bvharldlt" = {
@@ -972,7 +975,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     }
   )
@@ -1064,8 +1067,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
+#' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -1153,7 +1157,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     },
     "bvharsv" = {
@@ -1202,7 +1206,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         lpl,
         sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
-        num_thread
+        verbose, num_thread
       )
     }
   )

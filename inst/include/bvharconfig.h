@@ -1,3 +1,9 @@
+/**
+ * @file bvharconfig.h
+ * @author your name (you@domain.com)
+ * @brief Headers including MCMC configuration structs
+ */
+
 #ifndef BVHARCONFIG_H
 #define BVHARCONFIG_H
 
@@ -38,6 +44,10 @@ struct GlobalLocalRecords;
 struct HorseshoeRecords;
 struct NgRecords;
 
+/**
+ * @brief Hyperparameters for `McmcReg`
+ * 
+ */
 struct RegParams {
 	int _iter;
 	Eigen::MatrixXd _x, _y;
@@ -67,6 +77,10 @@ struct RegParams {
 	}
 };
 
+/**
+ * @brief Hyperparameters for `McmcSv`
+ * 
+ */
 struct SvParams : public RegParams {
 	Eigen::VectorXd _init_mean;
 	Eigen::MatrixXd _init_prec;
@@ -83,6 +97,11 @@ struct SvParams : public RegParams {
 		_init_prec(CAST<Eigen::MatrixXd>(spec["initial_prec"])) {}
 };
 
+/**
+ * @brief Hyperparameters for Minnesota prior `McmcMinn`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct MinnParams : public BaseRegParams {
 	Eigen::MatrixXd _prec_diag;
@@ -125,6 +144,11 @@ struct MinnParams : public BaseRegParams {
 	}
 };
 
+/**
+ * @brief Hyperparameters for Hierarchical Minnesota prior `McmcHierminn`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct HierminnParams : public BaseRegParams {
 	double shape;
@@ -182,6 +206,11 @@ struct HierminnParams : public BaseRegParams {
 	}
 };
 
+/**
+ * @brief Hyperparameters for SSVS prior `McmcSsvs`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct SsvsParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
@@ -210,6 +239,11 @@ struct SsvsParams : public BaseRegParams {
 		_coef_grid(CAST_INT(ssvs_spec["coef_grid"])), _contem_grid(CAST_INT(ssvs_spec["chol_grid"])) {}
 };
 
+/**
+ * @brief Hyperparameters for Horseshoe prior `McmcHorseshoe`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct HorseshoeParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
@@ -225,6 +259,11 @@ struct HorseshoeParams : public BaseRegParams {
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, intercept, include_mean), _grp_id(grp_id), _grp_mat(grp_mat) {}
 };
 
+/**
+ * @brief Hyperparameters for Normal-gamma prior `McmcNg`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct NgParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
@@ -252,6 +291,11 @@ struct NgParams : public BaseRegParams {
 		_contem_global_shape(CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(CAST_DOUBLE(ng_spec["contem_global_scale"])) {}
 };
 
+/**
+ * @brief Hyperparameters for Dirichlet-Laplace prior `McmcDl`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct DlParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
@@ -273,6 +317,11 @@ struct DlParams : public BaseRegParams {
 		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _scl(CAST_DOUBLE(dl_spec["scale"])) {}
 };
 
+/**
+ * @brief Hyperparameters for GDP prior `McmcGdp`
+ * 
+ * @tparam BaseRegParams `RegParams` or `SvParams`
+ */
 template <typename BaseRegParams = RegParams>
 struct GdpParams : public BaseRegParams {
 	Eigen::VectorXi _grp_id;
@@ -293,6 +342,11 @@ struct GdpParams : public BaseRegParams {
 		_grid_shape(CAST_INT(gdp_spec["grid_shape"])), _grid_rate(CAST_INT(gdp_spec["grid_rate"])) {}
 };
 
+
+/**
+ * @brief MCMC initial values for `McmcTriangular`
+ * 
+ */
 struct RegInits {
 	Eigen::MatrixXd _coef;
 	Eigen::VectorXd _contem;
@@ -327,6 +381,10 @@ struct RegInits {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcReg`
+ * 
+ */
 struct LdltInits : public RegInits {
 	Eigen::VectorXd _diag;
 
@@ -351,6 +409,10 @@ struct LdltInits : public RegInits {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcSv`
+ * 
+ */
 struct SvInits : public RegInits {
 	Eigen::VectorXd _lvol_init;
 	Eigen::MatrixXd _lvol;
@@ -406,6 +468,11 @@ struct SvInits : public RegInits {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcHierminn`
+ * 
+ * @tparam BaseRegInits 
+ */
 template <typename BaseRegInits = LdltInits>
 struct HierminnInits : public BaseRegInits {
 	double _own_lambda;
@@ -427,6 +494,11 @@ struct HierminnInits : public BaseRegInits {
 		_contem_lambda(unif_rand(0, 1, rng)) {}
 };
 
+/**
+ * @brief MCMC initial values for `McmcSsvs`
+ * 
+ * @tparam BaseRegInits `LdltInits` or `SvInits`
+ */
 template <typename BaseRegInits = LdltInits>
 struct SsvsInits : public BaseRegInits {
 	Eigen::VectorXd _coef_dummy;
@@ -504,6 +576,12 @@ struct SsvsInits : public BaseRegInits {
 	}
 };
 
+/**
+ * @brief MCMC initial values for global-local shrinkage prior.
+ * `McmcDl` takes this.
+ * 
+ * @tparam BaseRegInits `LdldInits` or `SvInits` 
+ */
 template <typename BaseRegInits = LdltInits>
 struct GlInits : public BaseRegInits {
 	Eigen::VectorXd _init_local;
@@ -549,6 +627,11 @@ struct GlInits : public BaseRegInits {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcHorseshoe`
+ * 
+ * @tparam BaseRegInits `LdltInits` or `SvInits`
+ */
 template <typename BaseRegInits = LdltInits>
 struct HsInits : public GlInits<BaseRegInits> {
 	Eigen::VectorXd _init_group;
@@ -574,6 +657,11 @@ struct HsInits : public GlInits<BaseRegInits> {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcNg`
+ * 
+ * @tparam BaseRegInits `LdltInits` or `SvInits`
+ */
 template <typename BaseRegInits = LdltInits>
 struct NgInits : public HsInits<BaseRegInits> {
 	Eigen::VectorXd _init_local_shape;
@@ -603,6 +691,11 @@ struct NgInits : public HsInits<BaseRegInits> {
 	}
 };
 
+/**
+ * @brief MCMC initial values for `McmcGdp`
+ * 
+ * @tparam BaseRegInits `LdltInits` or `SvInits`
+ */
 template <typename BaseRegInits = LdltInits>
 struct GdpInits : public BaseRegInits {
 	Eigen::VectorXd _init_local;
@@ -668,6 +761,10 @@ struct GdpInits : public BaseRegInits {
 	}
 };
 
+/**
+ * @brief MCMC records for `McmcTriangular`
+ * 
+ */
 struct RegRecords {
 	Eigen::MatrixXd coef_record; // alpha in VAR
 	Eigen::MatrixXd contem_coef_record; // a = a21, a31, a32, ..., ak1, ..., ak(k-1)
@@ -683,22 +780,49 @@ struct RegRecords {
 
 	virtual ~RegRecords() = default;
 
+	/**
+	 * @brief Assign MCMC draw to the draw matrix
+	 * 
+	 * @param id MCMC step
+	 * @param coef_vec Coefficient vector draw
+	 * @param contem_coef Contemporaneous coefficient draw
+	 */
 	void assignRecords(int id, const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef) {
 		coef_record.row(id) = coef_vec;
 		contem_coef_record.row(id) = contem_coef;
 	}
 	
+	/**
+	 * @copydoc assignRecords(int, const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& coef_vec)
+	 * 
+	 * @param diag_vec Diagonal term draw
+	 */
 	virtual void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef, const Eigen::VectorXd& diag_vec
 	) = 0;
 
+	/**
+	 * @copydoc assignRecords(int, const Eigen::VectorXd&, const Eigen::VectorXd&)
+	 * 
+	 * @param lvol_draw Log volatilities draw
+	 * @param lvol_sig Variance draw of log volatilities
+	 * @param lvol_init Initial log volatlity draw
+	 */
 	virtual void assignRecords(
 		int id,
 		const Eigen::VectorXd& coef_vec, const Eigen::VectorXd& contem_coef,
 		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
 	) = 0;
 
+	/**
+	 * @brief Return the MCMC record `LIST`
+	 * 
+	 * @param dim Time series dimension
+	 * @param num_alpha The number of coefficient elements except constant term
+	 * @param include_mean If `true`, constant term is included
+	 * @return LIST A `LIST` containing MCMC records. If `include_mean` is `true`, it also includes a constant term record.
+	 */
 	LIST returnListRecords(int dim, int num_alpha, bool include_mean) const {
 		LIST res = CREATE_LIST(
 			NAMED("alpha_record") = coef_record.leftCols(num_alpha),
@@ -709,19 +833,95 @@ struct RegRecords {
 		}
 		return res;
 	}
+
+	/**
+	 * @brief Append records to the MCMC record `LIST`
+	 * 
+	 * @param list MCMC record `LIST`
+	 */
 	virtual void appendRecords(LIST& list) = 0;
+
+	/**
+	 * @brief Return `LdltRecords`
+	 * 
+	 * @param sparse_record `SparseRecords` object
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return LdltRecords `LdltRecords` object
+	 */
 	virtual LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
+
+	/**
+	 * @brief Return `SvRecords`
+	 * 
+	 * @param sparse_record `SparseRecords` object
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return SvRecords `SvRecords` object
+	 */
 	virtual SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const = 0;
 
+	/**
+	 * @brief Return `LdltRecords` or `SvRecords`
+	 * 
+	 * @tparam RecordType `LdltRecords` or `SvRecords`
+	 * @param sparse_record `SparseRecords` object
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return RecordType `LdltRecords` or `SvRecords`
+	 */
 	template <typename RecordType = LdltRecords>
 	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
 
+	/**
+	 * @brief Update parameters in D
+	 * 
+	 * @param i MCMC step
+	 * @param sv_update State vector draw
+	 */
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
+
+	/**
+	 * @copydoc updateDiag(int, Eigen::Ref<Eigen::VectorXd>)
+	 * 
+	 * @param sv_sig Variance draw of AR log volatilties
+	 */
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) = 0;
+
+	/**
+	 * @brief Remove unstable coefficients draw
+	 * 
+	 * @param num_alpha The number of coefficient elements except constant term
+	 * @param threshold Threashold to check stability
+	 */
 	virtual void subsetStable(int num_alpha, double threshold) = 0;
+
+	/**
+	 * @copydoc subsetStable(int, double)
+	 * 
+	 * @param har_trans Dense VHAR transformation matrix
+	 */
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) = 0;
+
+	/**
+	 * @copydoc subsetStable(int, double)
+	 * 
+	 * @param har_trans Sprase VHAR transformation matrix
+	 */
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) = 0;
 
+	/**
+	 * @brief Get sparse draw using credible interval
+	 * 
+	 * @param level Credible interval level
+	 * @return Eigen::VectorXd Vector of 0 or 1. 0 if the credible interval includes 0.
+	 */
 	Eigen::VectorXd computeActivity(double level) {
 		Eigen::VectorXd lower_ci(coef_record.cols());
 		Eigen::VectorXd upper_ci(coef_record.cols());
@@ -735,6 +935,10 @@ struct RegRecords {
 	}
 };
 
+/**
+ * @brief Signal adaptive variable selector records
+ * 
+ */
 struct SparseRecords {
 	Eigen::MatrixXd coef_record;
 	Eigen::MatrixXd contem_coef_record;
@@ -748,11 +952,25 @@ struct SparseRecords {
 	SparseRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& a_record)
 	: coef_record(alpha_record), contem_coef_record(a_record) {}
 	
+	/**
+	 * @brief Assign MCMC draw to the draw matrix
+	 * 
+	 * @param id MCMC step
+	 * @param coef_mat Coefficient matrix processed by SAVS
+	 * @param contem_coef Contemporaneous vector processed by SAVS
+	 */
 	void assignRecords(int id, const Eigen::MatrixXd& coef_mat, const Eigen::VectorXd& contem_coef) {
 		coef_record.row(id) = coef_mat.reshaped();
 		contem_coef_record.row(id) = contem_coef;
 	}
 
+	/**
+	 * @copydoc assignRecords(int, const Eigen::MatrixXd&, const Eigen::VectorXd&)
+	 * 
+	 * @param num_alpha The number of coefficient elements except constant term
+	 * @param dim Time series dimension
+	 * @param nrow_coef Number of rows of coefficient matrix
+	 */
 	void assignRecords(int id, int num_alpha, int dim, int nrow_coef, const Eigen::MatrixXd& coef_mat, const Eigen::VectorXd& contem_coef) {
 		if (coef_mat.size() == num_alpha) {
 			coef_record.row(id) = coef_mat.reshaped();
@@ -763,6 +981,14 @@ struct SparseRecords {
 		contem_coef_record.row(id) = contem_coef;
 	}
 
+	/**
+	 * @brief Append sparse records to the MCMC record `LIST`
+	 * 
+	 * @param list MCMC record `LIST`
+	 * @param dim Time series dimension
+	 * @param num_alpha The number of coefficient elements except constant term
+	 * @param include_mean If `true`, constant term is included
+	 */
 	void appendRecords(LIST& list, int dim, int num_alpha, bool include_mean) {
 		list["alpha_sparse_record"] = CAST_MATRIX(coef_record.leftCols(num_alpha));
 		list["a_sparse_record"] = contem_coef_record;
@@ -772,6 +998,10 @@ struct SparseRecords {
 	}
 };
 
+/**
+ * @brief MCMC records for `McmcReg`
+ * 
+ */
 struct LdltRecords : public RegRecords {
 	Eigen::MatrixXd fac_record; // d_1, ..., d_m in D of LDLT
 
@@ -984,6 +1214,10 @@ struct SvRecords : public RegRecords {
 	}
 };
 
+/**
+ * @brief MCMC records for `McmcSsvs`
+ * 
+ */
 struct SsvsRecords {
 	Eigen::MatrixXd coef_dummy_record;
 	Eigen::MatrixXd coef_weight_record;
@@ -1005,6 +1239,15 @@ struct SsvsRecords {
 	: coef_dummy_record(coef_dummy_record), coef_weight_record(coef_weight_record),
 		contem_dummy_record(contem_dummy_record), contem_weight_record(contem_weight_record) {}
 	
+	/**
+	 * @brief Assign MCMC draw to the draw matrix
+	 * 
+	 * @param id MCMC step
+	 * @param coef_dummy Dummy parameter corresponding to coefficient draw
+	 * @param coef_weight Weight parameter corresponding to coefficient draw
+	 * @param contem_dummy Dummy parameter corresponding to contemporaneous coefficient draw
+	 * @param contem_weight Weight parameter corresponding to contemporaneous coefficient draw
+	 */
 	void assignRecords(int id, const Eigen::VectorXd& coef_dummy, const Eigen::VectorXd& coef_weight, const Eigen::VectorXd& contem_dummy, const Eigen::VectorXd& contem_weight) {
 		coef_dummy_record.row(id) = coef_dummy;
 		coef_weight_record.row(id) = coef_weight;
@@ -1012,6 +1255,14 @@ struct SsvsRecords {
 		contem_weight_record.row(id) = contem_weight;
 	}
 
+	/**
+	 * @brief Return `SsvsRecords`
+	 * 
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return SsvsRecords `SsvsRecords`
+	 */
 	SsvsRecords returnRecords(int num_iter, int num_burn, int thin) const {
 		SsvsRecords res_record(
 			thin_record(coef_dummy_record, num_iter, num_burn, thin).derived(),
@@ -1023,6 +1274,11 @@ struct SsvsRecords {
 	}
 };
 
+/**
+ * @brief MCMC records for global-local shrinkage prior
+ * `McmcDl` directly uses this.
+ * 
+ */
 struct GlobalLocalRecords {
 	Eigen::MatrixXd local_record;
 	Eigen::VectorXd global_record;
@@ -1036,19 +1292,46 @@ struct GlobalLocalRecords {
 	GlobalLocalRecords(const Eigen::MatrixXd& local_record, const Eigen::VectorXd& global_record)
 	: local_record(local_record), global_record(global_record) {}
 	
+	/**
+	 * @brief Assign MCMC draw to the draw matrix
+	 * 
+	 * @param id MCMC step
+	 * @param local_lev Local shrinkage parameter draw
+	 * @param global_lev Global shrinkage parameter draw
+	 */
 	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const double global_lev) {
 		local_record.row(id) = local_lev;
 		global_record[id] = global_lev;
 	}
 
+	/**
+	 * @copydoc assignRecords(int, const Eigen::VectorXd&, const double)
+	 * 
+	 * @param id MCMC step
+	 * @param group_lev Group shrinkage parameter draw
+	 */
 	virtual void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
 		assignRecords(id, local_lev, global_lev);
 	}
 
+	/**
+	 * @copydoc assignRecords(int, const Eigen::VectorXd&, const double)
+	 * 
+	 * @param id MCMC step
+	 * @param shrink_fac Shrinkage factor draw
+	 */
 	virtual void assignRecords(int id, const Eigen::VectorXd& shrink_fac, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) {
 		assignRecords(id, local_lev, global_lev);
 	}
 
+	/**
+	 * @brief Return `GlobalLocalRecords`
+	 * 
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return GlobalLocalRecords `GlobalLocalRecords`
+	 */
 	GlobalLocalRecords returnGlRecords(int num_iter, int num_burn, int thin) const {
 		GlobalLocalRecords res_record(
 			thin_record(local_record, num_iter, num_burn, thin).derived(),
@@ -1058,6 +1341,10 @@ struct GlobalLocalRecords {
 	}
 };
 
+/**
+ * @brief MCMC records for `McmcHorseshoe`
+ * 
+ */
 struct HorseshoeRecords : public GlobalLocalRecords {
 	Eigen::MatrixXd group_record;
 	Eigen::MatrixXd shrink_record;
@@ -1082,6 +1369,14 @@ struct HorseshoeRecords : public GlobalLocalRecords {
 
 	void assignRecords(int id, const Eigen::VectorXd& local_lev, const Eigen::VectorXd& group_lev, const double global_lev) override {}
 
+	/**
+	 * @brief Return `HorseshoeRecords`
+	 * 
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return HorseshoeRecords `HorseshoeRecords`
+	 */
 	HorseshoeRecords returnHsRecords(int num_iter, int num_burn, int thin) const {
 		HorseshoeRecords res_record(
 			thin_record(local_record, num_iter, num_burn, thin).derived(),
@@ -1093,6 +1388,10 @@ struct HorseshoeRecords : public GlobalLocalRecords {
 	}
 };
 
+/**
+ * @brief MCMC records for `McmcNg`
+ * 
+ */
 struct NgRecords : public GlobalLocalRecords {
 	Eigen::MatrixXd group_record;
 
@@ -1113,6 +1412,14 @@ struct NgRecords : public GlobalLocalRecords {
 		global_record[id] = global_lev;
 	}
 
+	/**
+	 * @brief Return `NgRecords`
+	 * 
+	 * @param num_iter Number of MCMC iteration
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return NgRecords `NgRecords`
+	 */
 	NgRecords returnNgRecords(int num_iter, int num_burn, int thin) const {
 		NgRecords res_record(
 			thin_record(local_record, num_iter, num_burn, thin).derived(),

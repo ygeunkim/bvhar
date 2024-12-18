@@ -49,3 +49,5 @@ Meta
 /src/*.so
 
 ^_pkgdown.yml
+
+inst/doxygen/html/

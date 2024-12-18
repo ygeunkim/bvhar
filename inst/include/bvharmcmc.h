@@ -1,3 +1,8 @@
+/**
+ * @file bvharmcmc.h
+ * @brief Header including MCMC algorithm
+ */
+
 #ifndef BVHARMCMC_H
 #define BVHARMCMC_H
 
@@ -24,6 +29,12 @@ template <typename BaseMcmc> class McmcGdp;
 class McmcInterface;
 template <typename BaseMcmc, bool isGroup> class McmcRun;
 
+/**
+ * @brief Corrected Triangular Algorithm (CTA)
+ * 
+ * This class is a base class to conduct corrected triangular algorithm.
+ * 
+ */
 class McmcTriangular {
 public:
 	McmcTriangular(const RegParams& params, const RegInits& inits, unsigned int seed)
@@ -58,7 +69,18 @@ public:
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
 	}
 	virtual ~McmcTriangular() = default;
+
+	/**
+	 * @brief Append each class's additional record to the result `LIST`
+	 * 
+	 * @param list `LIST` containing MCMC record result
+	 */
 	virtual void appendRecords(LIST& list) = 0;
+
+	/**
+	 * @brief MCMC warmup step
+	 * 
+	 */
 	void doWarmUp() {
 		std::lock_guard<std::mutex> lock(mtx);
 		updateCoefPrec();
@@ -71,6 +93,11 @@ public:
 		updateChol();
 		updateState();
 	}
+
+	/**
+	 * @brief MCMC posterior sampling step
+	 * 
+	 */
 	void doPosteriorDraws() {
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
@@ -85,12 +112,26 @@ public:
 		updateState();
 		updateRecords();
 	}
+
+	/**
+	 * @brief Gather MCMC records
+	 * 
+	 * @return LIST 
+	 */
 	LIST gatherRecords() {
 		LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
 		reg_record->appendRecords(res);
 		sparse_record.appendRecords(res, dim, num_alpha, include_mean);
 		return res;
 	}
+
+	/**
+	 * @brief Return posterior sampling records
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @return LIST `LIST` containing every MCMC draws
+	 */
 	LIST returnRecords(int num_burn, int thin) {
 		LIST res = gatherRecords();
 		appendRecords(res);
@@ -103,12 +144,40 @@ public:
 		}
 		return res;
 	}
+
+	/**
+	 * @brief Return `LdltRecords`
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return LdltRecords `LdltRecords` object
+	 */
 	LdltRecords returnLdltRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnLdltRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
+
+	/**
+	 * @brief Return `SvRecords`
+	 * 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return SvRecords `SvRecords` object
+	 */
 	SvRecords returnSvRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 	}
+
+	/**
+	 * @brief Return `LdltRecords` or `SvRecords`
+	 * 
+	 * @tparam RecordType `LdltRecords` or `SvRecords` 
+	 * @param num_burn Number of burn-in
+	 * @param thin Thinning
+	 * @param sparse If `true`, return sparsified draws.
+	 * @return RecordType `LdltRecords` or `SvRecords` 
+	 */
 	template <typename RecordType>
 	RecordType returnStructRecords(int num_burn, int thin, bool sparse = false) const {
 		return reg_record->returnRecords<RecordType>(sparse_record, num_iter, num_burn, thin, sparse);
@@ -148,13 +217,53 @@ protected:
 	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
 	Eigen::VectorXd prior_sig_shp;
 	Eigen::VectorXd prior_sig_scl;
+
+	/**
+	 * @brief Draw state vector
+	 * 
+	 */
 	virtual void updateState() = 0;
+
+	/**
+	 * @brief Compute D
+	 * 
+	 */
 	virtual void updateSv() = 0;
+
+	/**
+	 * @brief Save coefficient records
+	 * 
+	 */
 	virtual void updateCoefRecords() = 0;
+
+	/**
+	 * @brief Draw precision of coefficient based on each shrinkage priors
+	 * 
+	 */
 	virtual void updateCoefPrec() = 0;
+
+	/**
+	 * @brief Update SAVS penalty
+	 * 
+	 */
 	virtual void updatePenalty() = 0;
+
+	/**
+	 * @brief Draw precision of contemporaneous coefficient based on each shrinkage priors
+	 * 
+	 */
 	virtual void updateImpactPrec() = 0;
+
+	/**
+	 * @brief Save MCMC records
+	 * 
+	 */
 	virtual void updateRecords() = 0;
+
+	/**
+	 * @brief Draw coefficients
+	 * 
+	 */
 	void updateCoef() {
 		for (int j = 0; j < dim; ++j) {
 			coef_mat.col(j).setZero(); // j-th column of A = 0
@@ -191,6 +300,11 @@ protected:
 			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
 	}
+
+	/**
+	 * @brief Draw contemporaneous coefficients
+	 * 
+	 */
 	void updateImpact() {
 		for (int j = 1; j < dim; ++j) {
 			response_contem = latent_innov.col(j).array() / sqrt_sv.col(j).array(); // n-dim
@@ -206,11 +320,30 @@ protected:
 			draw_savs(sparse_contem.segment(contem_id, j), contem_coef.segment(contem_id, j), latent_innov.leftCols(j));
 		}
 	}
+
+	/**
+	 * @brief Compute residual matrix for orthogonalization
+	 * 
+	 */
 	void updateLatent() { latent_innov = y - x * coef_mat; }
+
+	/**
+	 * @brief Compute L
+	 * 
+	 */
 	void updateChol() { chol_lower = build_inv_lower(dim, contem_coef); }
+
+	/**
+	 * @brief Increment the MCMC step
+	 * 
+	 */
 	void addStep() { mcmc_step++; }
 };
 
+/**
+ * @brief MCMC for homoskedastic LDLT parameterization
+ * 
+ */
 class McmcReg : public McmcTriangular {
 public:
 	McmcReg(const RegParams& params, const LdltInits& inits, unsigned int seed)
@@ -232,6 +365,10 @@ private:
 	Eigen::VectorXd diag_vec; // inverse of d_i
 };
 
+/**
+ * @brief MCMC for stochastic volatility
+ * 
+ */
 class McmcSv : public McmcTriangular {
 public:
 	McmcSv(const SvParams& params, const SvInits& inits, unsigned int seed)
@@ -270,6 +407,11 @@ private:
 	Eigen::MatrixXd prior_init_prec;
 };
 
+/**
+ * @brief Minnesota prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcMinn : public BaseMcmc {
 public:
@@ -302,6 +444,11 @@ protected:
 	void updateRecords() override { updateCoefRecords(); }
 };
 
+/**
+ * @brief Hierarchical Minnesota prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcHierminn : public BaseMcmc {
 public:
@@ -396,6 +543,11 @@ private:
 	double contem_rate;
 };
 
+/**
+ * @brief Stochastic Search Variable Selection (SSVS) prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcSsvs : public BaseMcmc {
 public:
@@ -496,6 +648,12 @@ private:
 	Eigen::VectorXd slab_weight; // pij vector
 };
 
+/**
+ * @brief Horseshoe prior
+ * 
+ * @tparam BaseMcmc McmcReg or McmcSv
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcHorseshoe : public BaseMcmc {
 public:
@@ -546,7 +704,8 @@ protected:
 			);
 		}
 		horseshoe_latent(latent_local, local_lev, rng);
-		if constexpr (isGroup) {
+		using is_group = std::integral_constant<bool, isGroup>;
+		if (is_group::value) {
 			horseshoe_latent(latent_global, global_lev, rng);
 			global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec.head(num_alpha), 1, rng);
 		}
@@ -598,6 +757,12 @@ private:
 	Eigen::VectorXd latent_contem_global; // -> double
 };
 
+/**
+ * @brief Normal-Gamma Prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcNg : public BaseMcmc {
 public:
@@ -642,6 +807,7 @@ protected:
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
 		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
+		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
@@ -652,11 +818,11 @@ protected:
 				local_shape_fac
 			);
 		}
-		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
-		if constexpr (isGroup) {
+		using is_group = std::integral_constant<bool, isGroup>;
+		if (is_group::value) {
 			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		}
-		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
+		ng_local_sparsity(local_lev, local_shape_fac, coef_vec.head(num_alpha), global_lev * coef_var, rng);
 		prior_alpha_prec.head(num_alpha) = 1 / local_lev.array().square();
 	}
 	void updatePenalty() override {
@@ -670,8 +836,8 @@ protected:
 	}
 	void updateImpactPrec() override {
 		contem_shape = ng_shape_jump(contem_shape, contem_fac, contem_global_lev[0], mh_sd, rng);
-		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
 		contem_global_lev[0] = ng_global_sparsity(contem_fac, contem_shape, contem_global_shape, contem_global_scl, rng);
+		ng_local_sparsity(contem_fac, contem_shape, contem_coef, contem_global_lev.replicate(1, num_lowerchol).reshaped(), rng);
 		prior_chol_prec = 1 / contem_fac.array().square();
 	}
 	void updateRecords() override {
@@ -697,6 +863,12 @@ private:
 	Eigen::VectorXd contem_fac;
 };
 
+/**
+ * @brief Dirichlet-Laplace prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcDl : public BaseMcmc {
 public:
@@ -744,12 +916,13 @@ protected:
 				coef_var
 			);
 		}
-		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.head(num_alpha).array() / coef_var.array(), rng);
-		if constexpr (isGroup) {
+		using is_group = std::integral_constant<bool, isGroup>;
+		if (is_group::value) {
 			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
 		}
+		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updatePenalty() override {
@@ -763,9 +936,9 @@ protected:
 	}
 	void updateImpactPrec() override {
 		dl_dir_griddy(contem_dir_concen, grid_size, contem_local_lev, contem_global_lev[0], rng);
-		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		dl_local_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
 		contem_global_lev[0] = dl_global_sparsity(contem_local_lev, contem_dir_concen, contem_coef, rng);
+		dl_latent(latent_contem_local, contem_local_lev, contem_coef, rng);
 		prior_chol_prec = 1 / ((contem_global_lev[0] * contem_local_lev.array()).square() * latent_contem_local.array());
 	}
 	void updateRecords() override {
@@ -791,6 +964,11 @@ private:
 	Eigen::VectorXd latent_contem_local;
 };
 
+/**
+ * @brief Generalized Double Pareto (GDP) prior
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ */
 template <typename BaseMcmc = McmcReg>
 class McmcGdp : public BaseMcmc {
 public:
@@ -879,6 +1057,29 @@ private:
 	Eigen::VectorXd contem_fac;
 };
 
+/**
+ * @brief Function to initialize `McmcReg` or `McmcSv`
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ * @param num_chains Number of MCMC chains
+ * @param num_iter MCMC iteration
+ * @param x Design matrix in multivariate regression form
+ * @param y Response matrix in multivariat regression form
+ * @param param_reg Covariance configuration
+ * @param param_prior Shrinkage prior configuration
+ * @param param_intercept Constant term configuration
+ * @param param_init MCMC initial values
+ * @param prior_type Prior number to use
+ * @param grp_id Minnesota group unique ids
+ * @param own_id Own-lag id
+ * @param cross_id Cross-lag id
+ * @param grp_mat Minnesota group matrix
+ * @param include_mean If `true`, include constant term
+ * @param seed_chain Seed for each chain
+ * @param num_design Number of samples
+ * @return std::vector<std::unique_ptr<BaseMcmc>> 
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
@@ -1013,12 +1214,28 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	return mcmc_ptr;
 }
 
+/**
+ * @brief Interface class for MCMC
+ * 
+ */
 class McmcInterface {
 public:
 	virtual ~McmcInterface() = default;
+
+	/**
+	 * @brief Conduct multi-chain MCMC and return MCMC records of every chain
+	 * 
+	 * @return LIST_OF_LIST `LIST_OF_LIST`
+	 */
 	virtual LIST_OF_LIST returnRecords() = 0;
 };
 
+/**
+ * @brief Class that conducts MCMC
+ * 
+ * @tparam BaseMcmc `McmcReg` or `McmcSv`
+ * @tparam isGroup If `true`, use group shrinkage parameter
+ */
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 class McmcRun : public McmcInterface {
 public:
@@ -1040,6 +1257,11 @@ public:
 		);
 	}
 	virtual ~McmcRun() = default;
+
+	/**
+	 * @brief Conduct multi-chain MCMC
+	 * 
+	 */
 	void fit() {
 		if (num_chains == 1) {
 			runGibbs(0);
@@ -1052,22 +1274,37 @@ public:
 			}
 		}
 	}
+
 	LIST_OF_LIST returnRecords() override {
 		fit();
 		return WRAP(res);
 	}
 
 protected:
+	/**
+	 * @brief Single chain MCMC
+	 * 
+	 * @param chain Chain id
+	 */
 	void runGibbs(int chain) {
-		bvharprogress bar(num_iter, display_progress);
+		std::string log_name = fmt::format("Chain {}", chain + 1);
+		auto logger = SPDLOG_SINK_MT(log_name);
+		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
+		int logging_freq = num_iter / 20; // 5 percent
+		if (logging_freq == 0) {
+			logging_freq = 1;
+		}
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
-			bar.increment();
 			mcmc_ptr[chain]->doWarmUp();
-			bar.update();
+			if (display_progress && (i + 1) % logging_freq == 0) {
+				logger->info("{} / {} (Warmup)", i + 1, num_iter);
+			}
 		}
+		logger->flush();
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
+				logger->warn("User interrupt in {} / {}", i + 1, num_iter);
 			#ifdef _OPENMP
 				#pragma omp critical
 			#endif
@@ -1076,9 +1313,10 @@ protected:
 				}
 				break;
 			}
-			bar.increment();
 			mcmc_ptr[chain]->doPosteriorDraws();
-			bar.update();
+			if (display_progress && (i + 1) % logging_freq == 0) {
+				logger->info("{} / {} (Sampling)", i + 1, num_iter);
+			}
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
@@ -1086,6 +1324,8 @@ protected:
 		{
 			res[chain] = mcmc_ptr[chain]->returnRecords(0, thin);
 		}
+		logger->flush();
+		spdlog::drop(log_name);
 	}
 
 private:

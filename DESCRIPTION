@@ -1,7 +1,7 @@
 Package: bvhar
 Type: Package
 Title: Bayesian Vector Heterogeneous Autoregressive Modeling
-Version: 2.1.2.9012
+Version: 2.1.2.9013
 Authors@R: 
     c(person(given = "Young Geun",
              family = "Kim",
@@ -43,9 +43,11 @@ Imports:
     posterior,
     bayesplot
 LinkingTo: 
-    BH (>= 1.84.0-0),
-    Rcpp,
-    RcppEigen(>= 0.3.4.0.0)
+    BH (>= 1.87.0-0),
+    Rcpp (>= 0.10.0),
+    RcppEigen (>= 0.3.4.0.0),
+    RcppSpdlog,
+    RcppThread
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.6.0)

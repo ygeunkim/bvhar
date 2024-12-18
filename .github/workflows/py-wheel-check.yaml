@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*']
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/py-*', 'feature/*-withci']
   pull_request:
     branches: [main, master, 'hotfix/*', 'release/*', develop]
 
@@ -33,22 +33,28 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libboost-all-dev libeigen3-dev
+          sudo apt-get install -y libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev
           echo $(sudo apt list --installed)
           echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> $GITHUB_ENV
+          echo "SPDLOG_INCLUDE_DIR=/usr/include/spdlog" >> $GITHUB_ENV
+          echo "FMT_INCLUDE_DIR=/usr/include/fmt" >> $GITHUB_ENV
       
       - name: Set system dependencies on macOS
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install llvm libomp boost eigen
+          brew install llvm libomp boost eigen fmt spdlog
           EIGEN_LOC=$(brew --prefix eigen)
           BOOST_LOC=$(brew --prefix boost)
+          SPDLOG_LOC=$(brew --prefix spdlog)
+          FMT_LOC=$(brew --prefix fmt)
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
           echo "EIGEN_INCLUDE_DIR=$EIGEN_LOC/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=$BOOST_LOC/include" >> $GITHUB_ENV
+          echo "SPDLOG_INCLUDE_DIR=$SPDLOG_LOC/include" >> $GITHUB_ENV
+          echo "FMT_INCLUDE_DIR=$FMT_LOC/include" >> $GITHUB_ENV
           echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
           echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
           echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
@@ -59,52 +65,60 @@ jobs:
       - name: Set system dependencies on Windows
         if: runner.os == 'Windows'
         run: |
-          choco install eigen -y --no-progress
-          choco install boost-msvc-14.3 -y --no-progress
-          $eigenPath = (
-            Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\eigen" -Recurse -Filter "Eigen" |
-            Select-Object -First 1
-          ).Parent.FullName
-          if ($eigenPath) {
-            echo "eigen is installed in $eigenPath"
-          } else {
-            Write-Error "Wrong eigen path"
-            exit 1
-          }
-          $boostPath = $null
-          $boostCand = @("C:\local", "C:\ProgramData\chocolatey\lib")
-          foreach ($cand in $boostCand) {
-            $isPath = (
-                Get-ChildItem -Path $cand -Directory |
-                Where-Object { $_.Name -match  "boost" } |
-                Sort-Object LastWriteTime -Descending |
-                Select-Object -First 1
-            ).FullName
-            if ($isPath) {
-                $boostPath = $isPath
-                break
+          $vcpkgRoot = $Env:VCPKG_INSTALLATION_ROOT
+          vcpkg install eigen3 | Out-Null
+          vcpkg install boost | Out-Null
+          vcpkg install fmt | Out-Null
+          vcpkg install spdlog | Out-Null
+          $installPath = $null
+          $tripletCand = @(
+            "$vcpkgRoot\installed\x64-windows",
+            "$vcpkgRoot\installed\x86-windows",
+            "$vcpkgRoot\installed\arm64-windows"
+          )
+          foreach ($cand in $tripletCand) {
+            Write-Host "Checking triplet path: $cand"
+            if (Test-Path "$cand\include") {
+              $installPath = "$cand"
+              Write-Host "Valid installation: $installPath"
+              break
             }
           }
-          if ($boostPath) {
-            echo "boost is installed in $boostPath"
-          } else {
-            Write-Error "Wrong boost path"
+          if (-not $installPath) {
+            Write-Error "No valid installation path"
             exit 1
           }
-          echo "EIGEN_INCLUDE_DIR=$eigenPath" >> $Env:GITHUB_ENV
-          echo "BOOST_INCLUDE_DIR=$boostPath" >> $Env:GITHUB_ENV
+          $libPath = @{
+            "eigen" = "$installPath\include\eigen3"
+            "boost" = "$installPath\include"
+            "spdlog" = "$installPath\include"
+            "fmt" = "$installPath\include"
+          }
+          foreach ($lib in $libPath.Keys) {
+            if (Test-Path $libPath[$lib]) {
+              Write-Host "$lib is installed in $($libPath[$lib])"
+              echo "$($lib.ToUpper())_INCLUDE_DIR=$($libPath[$lib])" >> $Env:GITHUB_ENV
+            } else {
+              Write-Error "Wrong $lib path: $($libPath[$lib])"
+              exit 1
+            }
+          }
 
-      - name: Verify Eigen and boost on non-Windows
+      - name: Verify C++ libraries on non-Windows
         if: runner.os != 'Windows'
         run: |
           ls ${{ env.EIGEN_INCLUDE_DIR }}
           ls ${{ env.BOOST_INCLUDE_DIR }}
+          ls ${{ env.SPDLOG_INCLUDE_DIR }}
+          ls ${{ env.FMT_INCLUDE_DIR }}
       
-      - name: Verify Eigen and boost on Windows
+      - name: Verify C++ libraries on Windows
         if: runner.os == 'Windows'
         run: |
           dir ${{ env.EIGEN_INCLUDE_DIR }}
           dir ${{ env.BOOST_INCLUDE_DIR }}
+          dir ${{ env.SPDLOG_INCLUDE_DIR }}
+          dir ${{ env.FMT_INCLUDE_DIR }}
           
       - name: Install requirements
         run: |
