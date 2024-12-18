@@ -43,7 +43,7 @@ Imports:
     posterior,
     bayesplot
 LinkingTo: 
-    BH (>= 1.84.0-0),
+    BH (>= 1.87.0-0),
     Rcpp (>= 0.10.0),
     RcppEigen (>= 0.3.4.0.0),
     RcppSpdlog,
