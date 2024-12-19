@@ -98,7 +98,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, num_horizon) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
@@ -208,7 +208,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 		}
 	} else {
 	#ifdef _OPENMP
-		#pragma omp parallel for collapse(2) schedule(static, num_horizon) num_threads(nthreads)
+		#pragma omp parallel for collapse(2) schedule(static, num_chains) num_threads(nthreads)
 	#endif
 		for (int window = 0; window < num_horizon; window++) {
 			for (int chain = 0; chain < num_chains; chain++) {
