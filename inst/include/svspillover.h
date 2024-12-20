@@ -8,28 +8,22 @@ namespace bvhar {
 class SvSpillover;
 class SvVharSpillover;
 
-class SvSpillover : public McmcSpillover {
+class SvSpillover : public McmcVarSpillover {
 public:
 	SvSpillover(const SvRecords& records, int lag_max, int ord, int id)
-	: McmcSpillover(records, lag_max, ord, records.lvol_sig_record.cols(), id) {
+	: McmcVarSpillover(records, lag_max, ord, records.lvol_sig_record.cols(), id) {
 		reg_record = std::make_unique<SvRecords>(records);
 	}
 	virtual ~SvSpillover() = default;
 };
 
-class SvVharSpillover : public SvSpillover {
+class SvVharSpillover : public McmcVharSpillover {
 public:
 	SvVharSpillover(const SvRecords& records, int lag_max, int month, int id, const Eigen::MatrixXd& har_trans)
-	: SvSpillover(records, lag_max, month, id), har_trans(har_trans) {}
-	virtual ~SvVharSpillover() = default;
-
-protected:
-	void computeVma() override {
-		vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
+	: McmcVharSpillover(records, lag_max, month, records.lvol_sig_record.cols(), har_trans, id) {
+		reg_record = std::make_unique<SvRecords>(records);
 	}
-
-private:
-	Eigen::MatrixXd har_trans; // without constant term
+	virtual ~SvVharSpillover() = default;
 };
 
 }; // namespace bvhar

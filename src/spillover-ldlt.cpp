@@ -147,7 +147,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 			ptr = nullptr;
 		}
 	}
-	std::vector<std::vector<std::unique_ptr<bvhar::RegSpillover>>> spillover(num_horizon);
+	std::vector<std::vector<std::unique_ptr<bvhar::RegVharSpillover>>> spillover(num_horizon);
 	for (auto &reg_spillover : spillover) {
 		reg_spillover.resize(num_chains);
 		for (auto &ptr : reg_spillover) {

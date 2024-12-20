@@ -7,6 +7,8 @@
 namespace bvhar {
 
 class McmcSpillover;
+class McmcVarSpillover;
+class McmcVharSpillover;
 
 /**
  * @brief Spillover class for `McmcTriangular`
@@ -151,9 +153,42 @@ protected:
 	 * @brief VMA representation
 	 * 
 	 */
-	virtual void computeVma() {
+	virtual void computeVma() = 0;
+};
+
+/**
+ * @brief Spillover class for VAR with `McmcTriangular`
+ * 
+ */
+class McmcVarSpillover : public McmcSpillover {
+public:
+	McmcVarSpillover(const RegRecords& records, int lag_max, int ord, int dim, int id = 0)
+	: McmcSpillover(records, lag_max, ord, dim, id) {}
+	virtual ~McmcVarSpillover() = default;
+
+protected:
+	void computeVma() override {
 		vma_mat = convert_var_to_vma(coef_mat, lag, step - 1);
 	}
+};
+
+/**
+ * @brief Spillover class for VHAR with `McmcTriangular`
+ * 
+ */
+class McmcVharSpillover : public McmcSpillover {
+public:
+	McmcVharSpillover(const RegRecords& records, int lag_max, int month, int dim, const Eigen::MatrixXd& har_trans, int id = 0)
+	: McmcSpillover(records, lag_max, month, dim, id), har_trans(har_trans) {}
+	virtual ~McmcVharSpillover() = default;
+
+protected:
+	void computeVma() override {
+		vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
+	}
+
+private:
+	Eigen::MatrixXd har_trans; // without constant term
 };
 
 } // namespace bvhar
