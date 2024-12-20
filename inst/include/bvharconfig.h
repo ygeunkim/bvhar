@@ -697,6 +697,15 @@ struct RegRecords {
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
 
 	/**
+	 * @brief Update parameters in D
+	 * 
+	 * @param i MCMC step
+	 * @param id Timestamp
+	 * @param sv_update State vector draw
+	 */
+	virtual void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
+
+	/**
 	 * @copydoc updateDiag(int, Eigen::Ref<Eigen::VectorXd>)
 	 * 
 	 * @param sv_sig Variance draw of AR log volatilties
@@ -863,6 +872,9 @@ struct LdltRecords : public RegRecords {
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
 		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 	}
+	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
+	}
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {}
 
 	void subsetStable(int num_alpha, double threshold) override {
@@ -984,6 +996,11 @@ struct SvRecords : public RegRecords {
 		}
 		sv_update /= num_design;
 	}
+
+	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		sv_update = (lvol_record.middleCols(id * getDim(), getDim()).row(i) / 2).array().exp().matrix();
+	}
+
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {
 		sv_update = lvol_record.rightCols(lvol_sig_record.cols()).row(i).transpose();
 		sv_sig = lvol_sig_record.row(i).cwiseSqrt();

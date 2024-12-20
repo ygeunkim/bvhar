@@ -14,8 +14,8 @@ class McmcSpillover;
  */
 class McmcSpillover {
 public:
-	McmcSpillover(const RegRecords& records, int lag_max, int ord, int dim)
-	: step(lag_max), lag(ord), dim(dim),
+	McmcSpillover(const RegRecords& records, int lag_max, int ord, int dim, int id = 0)
+	: step(lag_max), time_id(id), lag(ord), dim(dim),
 		num_coef(records.coef_record.cols()), num_sim(records.coef_record.rows()),
 		coef_mat(Eigen::MatrixXd::Zero(num_coef / dim, dim)),
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
@@ -37,7 +37,7 @@ public:
 	 */
 	void computeSpillover() {
 		for (int i = 0; i < num_sim; ++i) {
-			reg_record->updateDiag(i, sv_update);
+			reg_record->updateDiag(i, time_id, sv_update);
 			sqrt_sig = build_inv_lower(
 				dim,
 				reg_record->contem_coef_record.row(i)
@@ -128,6 +128,7 @@ public:
 
 protected:
 	int step;
+	int time_id;
 	int lag; // p of VAR or month of VHAR
 	int dim;
 	int num_coef;
