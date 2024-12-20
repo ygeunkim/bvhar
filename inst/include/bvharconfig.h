@@ -682,6 +682,13 @@ struct RegRecords {
 	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
 
 	/**
+	 * @brief Get the dimension
+	 * 
+	 * @return int Time series dimension
+	 */
+	virtual int getDim() = 0;
+
+	/**
 	 * @brief Update parameters in D
 	 * 
 	 * @param i MCMC step
@@ -849,6 +856,10 @@ struct LdltRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
+	int getDim() {
+		return fac_record.cols();
+	}
+
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
 		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 	}
@@ -960,7 +971,19 @@ struct SvRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
-	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {}
+	int getDim() {
+		return lvol_sig_record.cols();
+	}
+
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		int dim = getDim();
+		int num_design = lvol_record.cols() / dim;
+		sv_update.setZero();
+		for (int id = 0; id < num_design; ++id) {
+			sv_update += (lvol_record.block(i, id * dim, 1, dim) / 2).array().exp().matrix();
+		}
+		sv_update /= num_design;
+	}
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {
 		sv_update = lvol_record.rightCols(lvol_sig_record.cols()).row(i).transpose();
 		sv_sig = lvol_sig_record.row(i).cwiseSqrt();
