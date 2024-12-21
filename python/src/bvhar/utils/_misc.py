@@ -144,15 +144,19 @@ def concat_chain(record_list: list, har = False):
         record_concat = pd.concat([record_concat, param_record], axis=0)
     return record_concat
 
-def concat_params(record: pd.DataFrame, param_names: str):
+def concat_params(record: pd.DataFrame, param_names: str, chain = True):
     res = {}
     # n_chains = record['_chain'].nunique()
     for _name in param_names:
         param_columns = [col for col in record.columns if col.startswith(_name)]
-        param_record = record[param_columns + ['_chain']]
-        param_record_chain = [df for _, df in param_record.groupby('_chain')]
-        array_chain = [df.drop('_chain', axis=1).values for df in param_record_chain]
-        res[f"{_name}_record"] = array_chain
+        if chain:
+            param_record = record[param_columns + ['_chain']]
+            param_record_chain = [df for _, df in param_record.groupby('_chain')]
+            array_chain = [df.drop('_chain', axis=1).values for df in param_record_chain]
+            res[f"{_name}_record"] = array_chain
+        else:
+            param_record = record[param_columns]
+            res[f"{_name}_record"] = [param_record.values]
     return res
 
 def process_dens_forecast(pred_list: list, n_dim: int):
@@ -164,3 +168,23 @@ def process_dens_forecast(pred_list: list, n_dim: int):
     for arr in pred_list:
         res.append([arr[:, range(id * n_dim, id * n_dim + n_dim)] for id in range(n_draw)])
     return np.concatenate(res, axis=0)
+
+def process_dens_spillover(conn_tab: np.array, n_dim: int, level = .05):
+    n_draw = int(conn_tab.shape[1] / n_dim)
+    conn_split = np.array_split(conn_tab, n_draw, axis = 1)
+    conn_stack = np.stack(conn_split, axis = 0)
+    return {
+        "mean": np.mean(conn_stack, axis = 0),
+        "se": np.std(conn_stack, axis = 0),
+        "lower": np.quantile(conn_stack, level / 2, axis = 0),
+        "upper": np.quantile(conn_stack, 1 - level / 2, axis = 0)
+    }
+
+def process_dens_vector_spillover(draw: np.array, n_dim: int, level = .05):
+    draw_reshaped = draw.reshape((-1, n_dim))
+    return {
+        "mean": np.mean(draw_reshaped, axis = 0),
+        "se": np.std(draw_reshaped, axis = 0),
+        "lower": np.quantile(draw_reshaped, level / 2, axis = 0),
+        "upper": np.quantile(draw_reshaped, 1 - level / 2, axis = 0)
+    }

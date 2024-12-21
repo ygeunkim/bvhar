@@ -1,4 +1,4 @@
-from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast
+from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast, process_dens_spillover, process_dens_vector_spillover
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt, McmcLdltGrp
@@ -606,8 +606,37 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def spillover(self):
-        pass
+    def spillover(self, n_ahead: int, level = .05, sparse = True):
+        """Spillover
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast step
+        level : float, optional
+            Density level, by default .05
+        sparse : bool, optional
+            Use sparse draw?, by default True
+
+        Returns
+        -------
+        _type_
+            Density for each directional and sample spillover effect
+        """
+        fit_record = concat_params(self.param_, self.param_names_, False)
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltSpillover(self.lag_, n_ahead, fit_record, sparse)
+        else:
+            spo = SvSpillover(self.lag_, n_ahead, fit_record, sparse)
+        out_spillover = spo.returnSpillover()
+        return {
+            "connect": process_dens_spillover(out_spillover['connect'], self.n_features_in_),
+            "net_pairwise": process_dens_spillover(out_spillover['net_pairwise'], self.n_features_in_, level),
+            "tot": process_dens_vector_spillover(out_spillover['tot'], self.n_features_in_, level),
+            "to": process_dens_vector_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_vector_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
 
     def dynamic_spillover(self):
         pass
@@ -1007,8 +1036,37 @@ class VharBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def spillover(self):
-        pass
+    def spillover(self, n_ahead: int, level = .05, sparse = True):
+        """Spillover
+
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast step
+        level : float, optional
+            Density level, by default .05
+        sparse : bool, optional
+            Use sparse draw?, by default True
+
+        Returns
+        -------
+        _type_
+            Density for each directional and sample spillover effect
+        """
+        fit_record = concat_params(self.param_, self.param_names_, False)
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltSpillover(self.week_, self.month_, n_ahead, fit_record, sparse)
+        else:
+            spo = SvSpillover(self.week_, self.month_, n_ahead, fit_record, sparse)
+        out_spillover = spo.returnSpillover()
+        return {
+            "connect": process_dens_spillover(out_spillover['connect'], self.n_features_in_),
+            "net_pairwise": process_dens_spillover(out_spillover['net_pairwise'], self.n_features_in_, level),
+            "tot": process_dens_vector_spillover(out_spillover['tot'], self.n_features_in_, level),
+            "to": process_dens_vector_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_vector_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
 
     def dynamic_spillover(self):
         pass

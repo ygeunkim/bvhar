@@ -51,6 +51,14 @@ def help_var_bayes(
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
+    if spillover:
+        sp_out = fit_bayes.spillover(n_ahead, sparse = True)
+        assert sp_out['connect']['mean'].shape == (dim_data, dim_data)
+        assert sp_out['net_pairwise']['mean'].shape == (dim_data, dim_data)
+        assert sp_out['tot']['mean'].shape == (dim_data,)
+        assert sp_out['to']['mean'].shape == (dim_data,)
+        assert sp_out['from']['mean'].shape == (dim_data,)
+        assert sp_out['net']['mean'].shape == (dim_data,)
 
 def test_var_bayes():
     num_data = 50
@@ -73,7 +81,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True
+        data_out, n_ahead, True, True, True, True
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
@@ -164,6 +172,14 @@ def help_vhar_bayes(
         assert roll_out['se'].shape == (n_ahead, dim_data)
         assert roll_out['lower'].shape == (n_ahead, dim_data)
         assert roll_out['upper'].shape == (n_ahead, dim_data)
+    if spillover:
+        sp_out = fit_bayes.spillover(n_ahead, sparse = True)
+        assert sp_out['connect']['mean'].shape == (dim_data, dim_data)
+        assert sp_out['net_pairwise']['mean'].shape == (dim_data, dim_data)
+        assert sp_out['tot']['mean'].shape == (dim_data,)
+        assert sp_out['to']['mean'].shape == (dim_data,)
+        assert sp_out['from']['mean'].shape == (dim_data,)
+        assert sp_out['net']['mean'].shape == (dim_data,)
 
 def test_vhar_bayes():
     num_data = 50
@@ -187,7 +203,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True
+        data_out, n_ahead, True, True, True, True
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
