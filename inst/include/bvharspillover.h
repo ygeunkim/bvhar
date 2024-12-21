@@ -186,6 +186,11 @@ public:
 	: McmcSpillover(records, lag_max, month, records.getDim(), id), har_trans(har_trans) {
 		reg_record = std::make_unique<RecordType>(records);
 	}
+	McmcVharSpillover(RecordType& records, int lag_max, int week, int month, int id = 0)
+	: McmcSpillover(records, lag_max, month, records.getDim(), id),
+		har_trans(build_vhar(records.getDim(), week, month, false)) {
+		reg_record = std::make_unique<RecordType>(records);
+	}
 	virtual ~McmcVharSpillover() = default;
 
 protected:
@@ -196,6 +201,27 @@ protected:
 private:
 	Eigen::MatrixXd har_trans; // without constant term
 };
+
+template <typename RecordType = LdltRecords>
+inline std::unique_ptr<McmcSpillover> initialize_spillover(
+	int chain_id, int lag, int step, LIST& fit_record, bool sparse, int id = 0,
+	Optional<Eigen::MatrixXd> har_trans = NULLOPT, Optional<int> week = NULLOPT
+) {
+	std::unique_ptr<RecordType> reg_record;
+	STRING coef_name = (har_trans || week) ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
+	STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	STRING c_name = sparse ? "c_sparse_record" : "c_record";
+	initialize_record(reg_record, chain_id, fit_record, false, coef_name, a_name, c_name);
+	std::unique_ptr<McmcSpillover> spillover_ptr;
+	if (har_trans) {
+		spillover_ptr = std::make_unique<McmcVharSpillover<RecordType>>(*reg_record, step, lag, *har_trans, id);
+	} else if (week) {
+		spillover_ptr = std::make_unique<McmcVharSpillover<RecordType>>(*reg_record, step, *week, lag, id);
+	} else {
+		spillover_ptr = std::make_unique<McmcVarSpillover<RecordType>>(*reg_record, step, lag, id);
+	}
+	return spillover_ptr;
+}
 
 } // namespace bvhar
 
