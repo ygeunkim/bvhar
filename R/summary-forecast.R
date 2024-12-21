@@ -264,15 +264,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
   }
   fit_ls <- list()
   if (use_fit) {
-    fit_ls <- lapply(
-      object$param_names,
-      function(x) {
-        subset_draws(object$param, variable = x) %>%
-          as_draws_matrix() %>%
-          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-      }
-    ) %>%
-      setNames(paste(object$param_names, "record", sep = "_"))
+    fit_ls <- get_records(object, TRUE)
   }
   res_mat <- switch(model_type,
     "bvarldlt" = {
@@ -491,15 +483,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
   }
   fit_ls <- list()
   if (use_fit) {
-    fit_ls <- lapply(
-      object$param_names,
-      function(x) {
-        subset_draws(object$param, variable = x) %>%
-          as_draws_matrix() %>%
-          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-      }
-    ) %>% 
-    setNames(paste(object$param_names, "record", sep = "_"))
+    fit_ls <- get_records(object, TRUE)
   }
   res_mat <- switch(model_type,
     "bvarsv" = {
@@ -874,15 +858,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   }
   fit_ls <- list()
   if (use_fit) {
-    fit_ls <- lapply(
-      object$param_names,
-      function(x) {
-        subset_draws(object$param, variable = x) %>%
-          as_draws_matrix() %>%
-          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-      }
-    ) %>%
-      setNames(paste(object$param_names, "record", sep = "_"))
+    fit_ls <- get_records(object, TRUE)
   }
   res_mat <- switch(model_type,
     "bvarldlt" = {
@@ -1105,15 +1081,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
   }
   fit_ls <- list()
   if (use_fit) {
-    fit_ls <- lapply(
-      object$param_names,
-      function(x) {
-        subset_draws(object$param, variable = x) %>%
-          as_draws_matrix() %>%
-          split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-      }
-    ) %>%
-      setNames(paste(object$param_names, "record", sep = "_"))
+    fit_ls <- get_records(object, TRUE)
   }
   res_mat <- switch(model_type,
     "bvarsv" = {

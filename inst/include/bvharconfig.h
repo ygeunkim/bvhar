@@ -1324,6 +1324,66 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
 	return returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
 }
 
+/**
+ * @brief Initialize MCMC record used in forecast classes
+ * 
+ * @param record Smart pointer of `LdltRecords` or `SvRecords`
+ * @param chain_id Chain id
+ * @param fit_record `LIST` of MCMC draw
+ * @param include_mean Include constant term?
+ * @param coef_name Element name for the coefficient in `fit_record`
+ * @param a_name Element name for the contemporaneous coefficient in `fit_record`
+ * @param c_name Element name for the constant term in `fit_record`
+ */
+inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST d_list = fit_record["d_record"];
+	if (include_mean) {
+		PY_LIST c_list = fit_record[c_name];
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	} else {
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	}
+}
+
+/**
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * 
+ */
+inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST h_list = fit_record["h_record"];
+	PY_LIST sigh_list = fit_record["sigh_record"];
+	if (include_mean) {
+		PY_LIST c_list = fit_record[c_name];
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	} else {
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	}
+}
+
 } // namespace bvhar
 
 #endif // BVHARCONFIG_H

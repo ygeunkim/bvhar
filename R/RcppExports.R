@@ -1375,12 +1375,12 @@ sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, 
     .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
-compute_varldlt_spillover <- function(lag, step, alpha_record, d_record, a_record) {
-    .Call(`_bvhar_compute_varldlt_spillover`, lag, step, alpha_record, d_record, a_record)
+compute_varldlt_spillover <- function(lag, step, fit_record, sparse) {
+    .Call(`_bvhar_compute_varldlt_spillover`, lag, step, fit_record, sparse)
 }
 
-compute_vharldlt_spillover <- function(week, month, step, phi_record, d_record, a_record) {
-    .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, phi_record, d_record, a_record)
+compute_vharldlt_spillover <- function(week, month, step, fit_record, sparse) {
+    .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, fit_record, sparse)
 }
 
 dynamic_bvarldlt_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, sparse, lag, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {

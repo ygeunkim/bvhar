@@ -130,17 +130,20 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
 #' @export
 spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-  if (sparse) {
-    alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
-    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-  }
+  # a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  # if (sparse) {
+  #   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
+  #   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  # }
+  fit_ls <- get_records(object, FALSE)
   sp_res <- compute_varldlt_spillover(
     object$p,
     step = n_ahead,
-    alpha_record = alpha_record,
-    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = a_record
+    # alpha_record = alpha_record,
+    # d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    # a_record = a_record
+    fit_record = fit_ls,
+    sparse = sparse
   )
   dim_data <- object$m
   num_draw <- nrow(alpha_record)
@@ -193,17 +196,20 @@ spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALS
 #' @export
 spillover.bvharldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-  if (sparse) {
-    phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
-    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-  }
+  # a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  # if (sparse) {
+  #   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
+  #   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  # }
+  fit_ls <- get_records(object, FALSE)
   sp_res <- compute_vharldlt_spillover(
     object$week, object$month,
     step = n_ahead,
-    phi_record = phi_record,
-    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = a_record
+    # phi_record = phi_record,
+    # d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    # a_record = a_record
+    fit_record = fit_ls,
+    sparse = sparse
   )
   dim_data <- object$m
   num_draw <- nrow(phi_record)

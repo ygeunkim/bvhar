@@ -4,20 +4,30 @@
 #include <algorithm>
 
 // [[Rcpp::export]]
-Rcpp::List compute_varldlt_spillover(int lag, int step,
-																		 Eigen::MatrixXd alpha_record, Eigen::MatrixXd d_record, Eigen::MatrixXd a_record) {
-	bvhar::LdltRecords reg_record(alpha_record, a_record, d_record);
-	auto spillover = std::make_unique<bvhar::RegSpillover>(reg_record, step, lag);
+Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse) {
+	// bvhar::LdltRecords reg_record(alpha_record, a_record, d_record);
+	std::unique_ptr<bvhar::LdltRecords> reg_record;
+	std::string coef_name = sparse ? "alpha_sparse_record" : "alpha_record";
+	std::string a_name = sparse ? "a_sparse_record" : "a_record";
+	std::string c_name = sparse ? "c_sparse_record" : "c_record";
+	bvhar::initialize_record(reg_record, 0, fit_record, false, coef_name, a_name, c_name);
+	auto spillover = std::make_unique<bvhar::RegSpillover>(*reg_record, step, lag);
 	return spillover->returnSpilloverDensity();
 }
 
 // [[Rcpp::export]]
-Rcpp::List compute_vharldlt_spillover(int week, int month, int step,
-																			Eigen::MatrixXd phi_record, Eigen::MatrixXd d_record, Eigen::MatrixXd a_record) {
-	int dim = d_record.cols();
+Rcpp::List compute_vharldlt_spillover(int week, int month, int step, Rcpp::List fit_record, bool sparse) {
+	std::unique_ptr<bvhar::LdltRecords> reg_record;
+	std::string coef_name = sparse ? "phi_sparse_record" : "phi_record";
+	std::string a_name = sparse ? "a_sparse_record" : "a_record";
+	std::string c_name = sparse ? "c_sparse_record" : "c_record";
+	bvhar::initialize_record(reg_record, 0, fit_record, false, coef_name, a_name, c_name);
+	int dim = reg_record->getDim();
+	// int dim = d_record.cols();
 	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, false);
-	bvhar::LdltRecords reg_record(phi_record, a_record, d_record);
-	auto spillover = std::make_unique<bvhar::RegVharSpillover>(reg_record, step, month, har_trans);
+	auto spillover = std::make_unique<bvhar::RegVharSpillover>(*reg_record, step, month, har_trans);
+	// bvhar::LdltRecords reg_record(phi_record, a_record, d_record);
+	// auto spillover = std::make_unique<bvhar::RegVharSpillover>(reg_record, step, month, har_trans);
 	return spillover->returnSpilloverDensity();
 }
 
