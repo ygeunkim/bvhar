@@ -82,7 +82,7 @@ Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_desi
 #endif
 	for (int i = 0; i < num_design; i++) {
 		bvhar::SvRecords sv_record(phi_record, h_record, a_record, Eigen::MatrixXd::Zero(h_record.rows(), dim));
-		spillover[i].reset(new bvhar::SvVharSpillover(sv_record, step, month, i, har_trans));
+		spillover[i].reset(new bvhar::SvVharSpillover(sv_record, step, month, har_trans, i));
 		spillover[i]->computeSpillover();
 		// to_sp.row(i) = spillover[i]->returnTo();
 		// from_sp.row(i) = spillover[i]->returnFrom();

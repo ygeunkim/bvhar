@@ -7,8 +7,8 @@
 namespace bvhar {
 
 class McmcSpillover;
-class McmcVarSpillover;
-class McmcVharSpillover;
+template <typename RecordType> class McmcVarSpillover;
+template <typename RecordType> class McmcVharSpillover;
 
 /**
  * @brief Spillover class for `McmcTriangular`
@@ -160,10 +160,13 @@ protected:
  * @brief Spillover class for VAR with `McmcTriangular`
  * 
  */
+template <typename RecordType = LdltRecords>
 class McmcVarSpillover : public McmcSpillover {
 public:
-	McmcVarSpillover(const RegRecords& records, int lag_max, int ord, int dim, int id = 0)
-	: McmcSpillover(records, lag_max, ord, dim, id) {}
+	McmcVarSpillover(RecordType& records, int lag_max, int ord, int id = 0)
+	: McmcSpillover(records, lag_max, ord, records.getDim(), id) {
+		reg_record = std::make_unique<RecordType>(records);
+	}
 	virtual ~McmcVarSpillover() = default;
 
 protected:
@@ -176,10 +179,13 @@ protected:
  * @brief Spillover class for VHAR with `McmcTriangular`
  * 
  */
+template <typename RecordType = LdltRecords>
 class McmcVharSpillover : public McmcSpillover {
 public:
-	McmcVharSpillover(const RegRecords& records, int lag_max, int month, int dim, const Eigen::MatrixXd& har_trans, int id = 0)
-	: McmcSpillover(records, lag_max, month, dim, id), har_trans(har_trans) {}
+	McmcVharSpillover(RecordType& records, int lag_max, int month, const Eigen::MatrixXd& har_trans, int id = 0)
+	: McmcSpillover(records, lag_max, month, records.getDim(), id), har_trans(har_trans) {
+		reg_record = std::make_unique<RecordType>(records);
+	}
 	virtual ~McmcVharSpillover() = default;
 
 protected:

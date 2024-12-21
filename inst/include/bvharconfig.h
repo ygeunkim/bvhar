@@ -865,7 +865,7 @@ struct LdltRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
-	int getDim() {
+	int getDim() override {
 		return fac_record.cols();
 	}
 
@@ -983,7 +983,7 @@ struct SvRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
-	int getDim() {
+	int getDim() override {
 		return lvol_sig_record.cols();
 	}
 
