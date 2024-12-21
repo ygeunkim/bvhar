@@ -998,7 +998,11 @@ struct SvRecords : public RegRecords {
 	}
 
 	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
-		sv_update = (lvol_record.middleCols(id * getDim(), getDim()).row(i) / 2).array().exp().matrix();
+		if (id >= 0) {
+			sv_update = (lvol_record.middleCols(id * getDim(), getDim()).row(i) / 2).array().exp().matrix();
+		} else {
+			updateDiag(i, sv_update);
+		}
 	}
 
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {

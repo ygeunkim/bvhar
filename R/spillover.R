@@ -591,34 +591,19 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, level = .05, sparse =
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  fit_ls <- get_records(object, FALSE)
   sp_list <- switch(model_type,
     "bvarsv" = {
-      alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-      if (sparse) {
-        alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
-        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-      }
       dynamic_bvarsv_spillover(
         lag = object$p, step = n_ahead, num_design = num_design,
-        alpha_record = alpha_record,
-        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = a_record,
+        fit_record = fit_ls, sparse = sparse, include_mean = include_mean,
         nthreads = num_thread
       )
     },
     "bvharsv" = {
-      phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-      if (sparse) {
-        phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
-        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-      }
       dynamic_bvharsv_spillover(
         week = object$week, month = object$month, step = n_ahead, num_design = num_design,
-        phi_record = phi_record,
-        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = a_record,
+        fit_record = fit_ls, sparse = sparse, include_mean = include_mean,
         nthreads = num_thread
       )
     },

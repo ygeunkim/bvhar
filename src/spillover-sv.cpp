@@ -13,43 +13,9 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design,
-																	 	Eigen::MatrixXd alpha_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
-	int dim = h_record.cols() / num_design;
-	// Eigen::VectorXd tot(num_design); // length = T - p
-	// Eigen::MatrixXd to_sp(num_design, dim);
-	// Eigen::MatrixXd from_sp(num_design, dim);
-	std::vector<Eigen::VectorXd> tot(num_design);
-	std::vector<Eigen::VectorXd> to_sp(num_design);
-	std::vector<Eigen::VectorXd> from_sp(num_design);
-	std::vector<Eigen::VectorXd> net_sp(num_design);
-	std::vector<std::unique_ptr<bvhar::SvSpillover>> spillover(num_design);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int i = 0; i < num_design; ++i) {
-		bvhar::SvRecords sv_record(alpha_record, h_record, a_record, Eigen::MatrixXd::Zero(h_record.rows(), dim));
-		spillover[i].reset(new bvhar::SvSpillover(sv_record, step, lag, i));
-		spillover[i]->computeSpillover();
-		// to_sp.row(i) = spillover[i]->returnTo();
-		// from_sp.row(i) = spillover[i]->returnFrom();
-		// tot[i] = spillover[i]->returnTot();
-		to_sp[i] = spillover[i]->returnTo();
-		from_sp[i] = spillover[i]->returnFrom();
-		tot[i] = spillover[i]->returnTot();
-		net_sp[i] = to_sp[i] - from_sp[i];
-		spillover[i].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::List::create(
-		// Rcpp::Named("to") = to_sp,
-		// Rcpp::Named("from") = from_sp,
-		// Rcpp::Named("tot") = tot,
-		// Rcpp::Named("net") = to_sp - from_sp
-		Rcpp::Named("to") = Rcpp::wrap(to_sp),
-		Rcpp::Named("from") = Rcpp::wrap(from_sp),
-		Rcpp::Named("tot") = Rcpp::wrap(tot),
-		Rcpp::Named("net") = Rcpp::wrap(net_sp)
-	);
+Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design, Rcpp::List fit_record, bool sparse, bool include_mean, int nthreads) {
+	auto spillover = std::make_unique<bvhar::DynamicSvSpillover>(lag, step, num_design, fit_record, include_mean, sparse, nthreads);
+	return spillover->returnSpillover();
 }
 
 //' Dynamic Total Spillover Index of BVHAR-SV
@@ -65,42 +31,7 @@ Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design,
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_design,
-																	 	 Eigen::MatrixXd phi_record, Eigen::MatrixXd h_record, Eigen::MatrixXd a_record, int nthreads) {
-	int dim = h_record.cols() / num_design;
-	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, false);
-	// Eigen::VectorXd tot(num_design); // length = T - p
-	// Eigen::MatrixXd to_sp(num_design, dim);
-	// Eigen::MatrixXd from_sp(num_design, dim);
-	std::vector<Eigen::VectorXd> tot(num_design);
-	std::vector<Eigen::VectorXd> to_sp(num_design);
-	std::vector<Eigen::VectorXd> from_sp(num_design);
-	std::vector<Eigen::VectorXd> net_sp(num_design);
-	std::vector<std::unique_ptr<bvhar::SvVharSpillover>> spillover(num_design);
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
-	for (int i = 0; i < num_design; i++) {
-		bvhar::SvRecords sv_record(phi_record, h_record, a_record, Eigen::MatrixXd::Zero(h_record.rows(), dim));
-		spillover[i].reset(new bvhar::SvVharSpillover(sv_record, step, month, har_trans, i));
-		spillover[i]->computeSpillover();
-		// to_sp.row(i) = spillover[i]->returnTo();
-		// from_sp.row(i) = spillover[i]->returnFrom();
-		// tot[i] = spillover[i]->returnTot();
-		to_sp[i] = spillover[i]->returnTo();
-		from_sp[i] = spillover[i]->returnFrom();
-		tot[i] = spillover[i]->returnTot();
-		net_sp[i] = to_sp[i] - from_sp[i];
-		spillover[i].reset(); // free the memory by making nullptr
-	}
-	return Rcpp::List::create(
-		// Rcpp::Named("to") = to_sp,
-		// Rcpp::Named("from") = from_sp,
-		// Rcpp::Named("tot") = tot,
-		// Rcpp::Named("net") = to_sp - from_sp
-		Rcpp::Named("to") = Rcpp::wrap(to_sp),
-		Rcpp::Named("from") = Rcpp::wrap(from_sp),
-		Rcpp::Named("tot") = Rcpp::wrap(tot),
-		Rcpp::Named("net") = Rcpp::wrap(net_sp)
-	);
+Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_design, Rcpp::List fit_record, bool sparse, bool include_mean, int nthreads) {
+	auto spillover = std::make_unique<bvhar::DynamicSvSpillover>(week, month, step, num_design, fit_record, include_mean, sparse, nthreads);
+	return spillover->returnSpillover();
 }
