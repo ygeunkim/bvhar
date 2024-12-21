@@ -11,6 +11,7 @@ template <typename RecordType> class McmcVarSpillover;
 template <typename RecordType> class McmcVharSpillover;
 template <typename RecordType> class McmcSpilloverRun;
 class DynamicLdltSpillover;
+class DynamicSvSpillover;
 
 /**
  * @brief Spillover class for `McmcTriangular`
@@ -66,12 +67,12 @@ public:
 	LIST returnSpilloverDensity() {
 		computeSpillover();
 		LIST res = CREATE_LIST(
-			NAMED("connect") = CAST_MATRIX(spillover),
-			NAMED("to") = CAST_VECTOR(to_spillover),
-			NAMED("from") = CAST_VECTOR(from_spillover),
-			NAMED("tot") = CAST_VECTOR(tot_spillover),
-			NAMED("net") = CAST_VECTOR(to_spillover - from_spillover),
-			NAMED("net_pairwise") = CAST_MATRIX(net_spillover)
+			NAMED("connect") = spillover,
+			NAMED("to") = to_spillover,
+			NAMED("from") = from_spillover,
+			NAMED("tot") = tot_spillover,
+			NAMED("net") = to_spillover - from_spillover,
+			NAMED("net_pairwise") = net_spillover
 		);
 		return res;
 	}
@@ -243,6 +244,11 @@ inline std::unique_ptr<McmcSpillover> initialize_spillover(
 	return spillover_ptr;
 }
 
+/**
+ * @brief Spillover running class
+ * 
+ * @tparam RecordType `LdltRecords` or `SvRecords`
+ */
 template <typename RecordType = LdltRecords>
 class McmcSpilloverRun {
 public:
@@ -259,10 +265,14 @@ private:
 	std::unique_ptr<McmcSpillover> spillover_ptr;
 };
 
+/**
+ * @brief Dynamic spillover class for `LdltRecords`
+ * 
+ */
 class DynamicLdltSpillover {
 public:
 	DynamicLdltSpillover(
-		const Eigen::MatrixXd y, int window, int step, int lag, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
+		const Eigen::MatrixXd& y, int window, int step, int lag, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, const Eigen::MatrixXi& seed_chain, int nthreads
@@ -281,7 +291,7 @@ public:
 		);
 	}
 	DynamicLdltSpillover(
-		const Eigen::MatrixXd y, int window, int step, int week, int month, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
+		const Eigen::MatrixXd& y, int window, int step, int week, int month, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, const Eigen::MatrixXi& seed_chain, int nthreads
@@ -302,14 +312,15 @@ public:
 		);
 	}
 	virtual ~DynamicLdltSpillover() = default;
-	LIST_OF_LIST returnSpillover() {
+	LIST returnSpillover() {
 		fit();
-		return CREATE_LIST(
+		LIST res = CREATE_LIST(
 			NAMED("to") = WRAP(to_sp),
 			NAMED("from") = WRAP(from_sp),
 			NAMED("tot") = WRAP(tot),
 			NAMED("net") = WRAP(net_sp)
 		);
+		return res;
 	}
 
 protected:
@@ -323,7 +334,7 @@ protected:
 	std::vector<std::vector<std::unique_ptr<McmcSpillover>>> spillover;
 	Optional<Eigen::MatrixXd> har_trans;
 	void initialize(
-		const Eigen::MatrixXd y, LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+		const Eigen::MatrixXd& y, LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain
 	) {
@@ -408,6 +419,10 @@ protected:
 	}
 };
 
+/**
+ * @brief Dynamic spillover class for `SvRecords`
+ * 
+ */
 class DynamicSvSpillover {
 public:
 	DynamicSvSpillover(int lag, int step, int num_design, LIST& fit_record, bool include_mean, bool sparse, int nthreads)
@@ -430,14 +445,15 @@ public:
 		har_trans = build_vhar(reg_record->getDim(), week, month, include_mean);
 	}
 	virtual ~DynamicSvSpillover() = default;
-	LIST_OF_LIST returnSpillover() {
+	LIST returnSpillover() {
 		fit();
-		return CREATE_LIST(
+		LIST res = CREATE_LIST(
 			NAMED("to") = WRAP(to_sp),
 			NAMED("from") = WRAP(from_sp),
 			NAMED("tot") = WRAP(tot),
 			NAMED("net") = WRAP(net_sp)
 		);
+		return res;
 	}
 
 protected:

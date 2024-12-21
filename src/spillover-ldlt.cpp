@@ -1,7 +1,4 @@
-#include "bvharomp.h"
-#include <regspillover.h>
-// #include <bvharspillover.h>
-#include <algorithm>
+#include <bvharspillover.h>
 
 // [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse) {

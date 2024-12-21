@@ -1,5 +1,4 @@
-#include <bvharomp.h>
-#include <svspillover.h>
+#include <bvharspillover.h>
 
 //' Dynamic Total Spillover Index of BVAR-SV
 //' 
