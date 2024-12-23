@@ -1,4 +1,4 @@
-from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast, process_dens_spillover, process_dens_vector_spillover
+from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast, process_dens_spillover, process_dens_vector_spillover, process_dens_list_spillover
 from ..utils.checkomp import get_maxomp
 from .._src._design import build_response, build_design
 from .._src._ldlt import McmcLdlt, McmcLdltGrp
@@ -654,7 +654,12 @@ class VarBayes(_AutoregBayes):
             fit_record = concat_params(self.param_, self.param_names_, False)
             spo = SvDynamicSpillover(self.lag_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
         out_spillover = spo.returnSpillover()
-        print(f"result: {out_spillover}")
+        return {
+            "tot": process_dens_list_spillover(out_spillover['tot'], 1, level),
+            "to": process_dens_list_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_list_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_list_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
 
 class VharBayes(_AutoregBayes):
     """Bayesian Vector Autoregressive Model
@@ -1099,4 +1104,9 @@ class VharBayes(_AutoregBayes):
             fit_record = concat_params(self.param_, self.param_names_, False)
             spo = SvDynamicSpillover(self.week_, self.month_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
         out_spillover = spo.returnSpillover()
-        print(f"result: {out_spillover}")
+        return {
+            "tot": process_dens_list_spillover(out_spillover['tot'], 1, level),
+            "to": process_dens_list_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_list_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_list_spillover(out_spillover['net'], self.n_features_in_, level)
+        }

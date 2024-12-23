@@ -188,3 +188,21 @@ def process_dens_vector_spillover(draw: np.array, n_dim: int, level = .05):
         "lower": np.quantile(draw_reshaped, level / 2, axis = 0),
         "upper": np.quantile(draw_reshaped, 1 - level / 2, axis = 0)
     }
+
+def flatten_tot(tot: np.array):
+    return tot.flatten() if tot.shape[1] == 1 else tot
+
+def process_dens_list_spillover(sp_list: list, n_dim: int, level = .05):
+    draw_reshaped = [
+        np.vstack([
+            y.reshape(-1, n_dim)
+            for y in x
+        ])
+        for x in sp_list
+    ]
+    return {
+        "mean": flatten_tot(np.vstack([np.mean(x, axis = 0) for x in draw_reshaped])),
+        "se": flatten_tot(np.vstack([np.std(x, axis = 0) for x in draw_reshaped])),
+        "lower": flatten_tot(np.vstack([np.quantile(x, level / 2, axis = 0) for x in draw_reshaped])),
+        "upper": flatten_tot(np.vstack([np.quantile(x, 1 - level / 2, axis = 0) for x in draw_reshaped]))
+    }

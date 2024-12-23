@@ -9,7 +9,7 @@ def help_var_bayes(
     dim_data, var_lag, data,
     num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
     bayes_config, cov_config,
-    test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False
+    test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False, win_size = None
 ):
     np.random.seed(1)
     fit_bayes = VarBayes(
@@ -59,10 +59,15 @@ def help_var_bayes(
         assert sp_out['to']['mean'].shape == (dim_data,)
         assert sp_out['from']['mean'].shape == (dim_data,)
         assert sp_out['net']['mean'].shape == (dim_data,)
-        dynamic_out = fit_bayes.dynamic_spillover(30, n_ahead)
+        dynamic_out = fit_bayes.dynamic_spillover(win_size, n_ahead)
+        assert dynamic_out['tot']['mean'].shape == (data.shape[0] - win_size + 1,)
+        assert dynamic_out['to']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
+        assert dynamic_out['from']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
+        assert dynamic_out['net']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
 
 def test_var_bayes():
     num_data = 50
+    win_size = 30
     dim_data = 2
     var_lag = 3
     etf_vix = load_vix()
@@ -82,7 +87,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True, True
+        data_out, n_ahead, True, True, True, True, win_size = win_size
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
@@ -131,7 +136,7 @@ def help_vhar_bayes(
     dim_data, week, month, data,
     num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
     bayes_config, cov_config,
-    test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False
+    test_y = None, n_ahead = None, pred = False, roll = False, expand = False, spillover = False, win_size = None
 ):
     np.random.seed(1)
     fit_bayes = VharBayes(
@@ -181,10 +186,15 @@ def help_vhar_bayes(
         assert sp_out['to']['mean'].shape == (dim_data,)
         assert sp_out['from']['mean'].shape == (dim_data,)
         assert sp_out['net']['mean'].shape == (dim_data,)
-        # dynamic_out = fit_bayes.dynamic_spillover(30, n_ahead)
+        dynamic_out = fit_bayes.dynamic_spillover(win_size, n_ahead)
+        assert dynamic_out['tot']['mean'].shape == (data.shape[0] - win_size + 1,)
+        assert dynamic_out['to']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
+        assert dynamic_out['from']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
+        assert dynamic_out['net']['mean'].shape == (data.shape[0] - win_size + 1, dim_data)
 
 def test_vhar_bayes():
     num_data = 50
+    win_size = 30
     dim_data = 3
     week = 5
     month = 22
@@ -205,7 +215,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True, True
+        data_out, n_ahead, True, True, True, True, win_size
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
