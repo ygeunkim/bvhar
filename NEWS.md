@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Requires `R >= 4.1` following [tidyverse R version support schedule](https://www.tidyverse.org/blog/2019/04/r-version-support/)
+
 * Use `spdlog` (using `RcppSpdlog`) logger instead of custom progress bar (`bvharprogress`).
 
 * Use `RcppThread` to make the logger thread-safe ([eddelbuettel/rcppspdlog#22](https://github.com/eddelbuettel/rcppspdlog/issues/22))
