@@ -278,7 +278,8 @@ public:
 		bool include_mean, const Eigen::MatrixXi& seed_chain, int nthreads
 	)
 	: num_horizon(y.rows() - window + 1), win_size(window), lag(lag), step(step),
-		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), sparse(sparse),
+		num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
+		include_mean(include_mean), sparse(sparse),
 		tot(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
 		to_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
 		from_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
