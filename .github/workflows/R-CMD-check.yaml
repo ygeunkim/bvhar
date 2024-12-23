@@ -21,7 +21,7 @@ jobs:
           - {os: macOS-latest,   r: 'release'}
 
           - {os: windows-latest, r: 'release'}
-          - {os: windows-latest, r: 'oldrel-4'}
+          - {os: windows-latest, r: '3.6'}
 
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
@@ -43,7 +43,8 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          use-public-rspm: ${{ matrix.config.r != '3.6' || matrix.config.os != 'windows-latest' }}
+          rtools-version: ${{ (matrix.config.r == '3.6' && matrix.config.os == 'windows-latest') && '35' || ''}}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
