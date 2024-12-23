@@ -30,7 +30,6 @@ LazyData: true
 RoxygenNote: 7.3.2
 Imports: 
     lifecycle,
-    magrittr,
     Rcpp,
     ggplot2,
     tidyr,

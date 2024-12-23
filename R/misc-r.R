@@ -210,7 +210,7 @@ process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names
           array(dim = c(n_ahead, dim_data, num_draw)) |>
           apply(c(1, 2), sd)
       })
-    pred_se <- do.call(pred_se, pred_se)
+    pred_se <- do.call(rbind, pred_se)
     pred_lower <-
       draws |> 
       lapply(function(res) {
@@ -242,13 +242,15 @@ process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names
     pred_upper <- apply(mcmc_distn, c(1, 2), quantile, probs = 1 - level / 2)
   }
   colnames(pred_mean) <- var_names
-  rownames(pred_mean) <- var_names
   colnames(pred_se) <- var_names
-  rownames(pred_se) <- var_names
   colnames(pred_lower) <- var_names
-  rownames(pred_lower) <- var_names
   colnames(pred_upper) <- var_names
-  rownames(pred_upper) <- var_names
+  if (nrow(pred_mean) == ncol(pred_mean)) {
+    rownames(pred_mean) <- var_names
+    rownames(pred_se) <- var_names
+    rownames(pred_lower) <- var_names
+    rownames(pred_upper) <- var_names
+  }
   list(
     mean = pred_mean,
     sd = pred_se,
@@ -293,8 +295,10 @@ process_dynamic_spdraws <- function(draws, dim_data, level = .05, med = FALSE, v
   sp_draws <- lapply(
     draws,
     function(x) {
-      process_vector_draws(unlist(x), dim_data = dim_data, level = level, med = med) |>
-        do.call(cbind, .) |>
+      do.call(
+        cbind,
+        process_vector_draws(unlist(x), dim_data = dim_data, level = level, med = med)
+      ) |>
         as.data.frame() |>
         mutate(series = var_names)
     }
