@@ -132,8 +132,8 @@ sim_var <- function(num_sim,
 #' @export
 sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = FALSE) {
   res <-
-    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) %>%
-    simplify2array() %>%
+    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) |>
+    simplify2array() |>
     apply(1, function(x) x)
   names(res) <- c("mn", "iw")
   res

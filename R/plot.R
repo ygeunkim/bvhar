@@ -34,12 +34,12 @@ autoplot.summary.normaliw <- function(object, type = c("trace", "dens", "area"),
 #' @importFrom tidyr pivot_longer
 #' @export
 autoplot.normaliw <- function(object, hcol = "grey", hsize = 1.5, ...) {
-  X <- object$residuals %>% as.data.frame()
+  X <- object$residuals |> as.data.frame()
   X[["id"]] <- 1:object$obs
   X <- 
-    X %>% 
+    X |> 
     pivot_longer(-id, names_to = "name", values_to = "value")
-  X %>% 
+  X |> 
     ggplot(aes(x = id, y = value)) +
     geom_hline(yintercept = 0, col = hcol, size = hsize) +
     geom_point(...) +
@@ -70,27 +70,27 @@ autoplot.normaliw <- function(object, hcol = "grey", hsize = 1.5, ...) {
 #' @noRd
 gather_predbvhar <- function(object) {
   Y <- 
-    object$y %>% 
-    as.data.frame() %>% 
+    object$y |> 
+    as.data.frame() |> 
     mutate(forecast = FALSE)
   PRED <- 
-    object$forecast %>% 
-    as.data.frame() %>% 
+    object$forecast |> 
+    as.data.frame() |> 
     mutate(forecast = TRUE)
   lapply(
     c("forecast", "lower_joint", "upper_joint"),
     function(comp) {
       PRED <- 
-        object[[comp]] %>% 
-        as.data.frame() %>% 
+        object[[comp]] |> 
+        as.data.frame() |> 
         mutate(forecast = TRUE)
-      Y %>% 
-        bind_rows(PRED) %>% 
-        mutate(id = 1:n()) %>% 
+      Y |> 
+        bind_rows(PRED) |> 
+        mutate(id = 1:n()) |> 
         pivot_longer(-c(id, forecast), names_to = "variable", values_to = paste("value", comp, sep = "_"))
     }
-  ) %>% 
-    reduce(left_join, by = c("id", "variable", "forecast")) %>% 
+  ) |> 
+    reduce(left_join, by = c("id", "variable", "forecast")) |> 
     mutate(Model = object$process)
 }
 
@@ -182,10 +182,10 @@ autoplot.predbvhar <- function(object,
                                NCOL = NULL, ...) {
   type <- match.arg(type)
   forecast_list <- 
-    gather_predbvhar(object) %>% 
+    gather_predbvhar(object) |> 
     filter(id >= x_cut)
   p <- 
-    forecast_list %>% 
+    forecast_list |> 
     ggplot(aes(x = id, y = value_forecast)) +
     geom_path(data = filter(forecast_list, forecast == FALSE))
   p <- 
@@ -239,17 +239,16 @@ autolayer.predbvhar <- function(object,
                                 ci_fill = "grey70", 
                                 ci_alpha = .5,
                                 alpha_scale = .3, ...) {
-  aes_data <- 
-    last_plot() %>% 
-    ggplot_build() %>% 
-    .$plot %>% 
-    .$data # same form as forecast_list above
+  aes_data <-
+    last_plot() |>
+    ggplot_build()
+  aes_data <- aes_data$plot$data # same form as forecast_list above
   x_cut <- aes_data[["id"]][1]
   NEW_list <- 
-    gather_predbvhar(object) %>% # new forecast_list
+    gather_predbvhar(object) |> # new forecast_list
     filter(id >= x_cut)
   geom_predbvhar(
-    data = NEW_list %>% filter(forecast == TRUE),
+    data = NEW_list |> filter(forecast == TRUE),
     alpha_scale = alpha_scale,
     ci_param = list(alpha = ci_alpha, colour = NA),
     line_param = list(...)
@@ -279,15 +278,15 @@ geom_eval <- function(data, colour = "red", ...) {
     stop("Every column must be numeric class.")
   }
   aes_id <-
-    last_plot() %>%
-    ggplot_build() %>%
-    .$plot %>%
-    .$data %>% # same form as forecast_list above
-    filter(forecast == FALSE) %>%
-    .$id # index
+    last_plot() |>
+    ggplot_build()
+  aes_id <-
+    aes_id$plot$data |>
+    filter(forecast == FALSE)
+  aes_id <- aes_id$id # index
   new_data <- 
-    data %>% 
-    mutate(id = 1:n() + max(aes_id)) %>% 
+    data |> 
+    mutate(id = 1:n() + max(aes_id)) |> 
     pivot_longer(-id, names_to = "variable", values_to = "value")
   geom_path(
     aes(x = id, y = value),
@@ -319,34 +318,34 @@ gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) 
   }
   # Model names-------------------------
   mod_name <- 
-    object %>% 
-    lapply(function(PRED) PRED$process) %>% 
+    object |> 
+    lapply(function(PRED) PRED$process) |> 
     unlist()
   # error for each model----------------
   score_dt <- 
     switch(
       loss,
       "mse" = {
-        object %>% 
+        object |> 
           lapply(mse, y_test)
       },
       "mae" = {
-        object %>% 
+        object |> 
           lapply(mae, y_test)
       },
       "mape" = {
-        object %>% 
+        object |> 
           lapply(mape, y_test)
       },
       "mase" = {
-        object %>% 
+        object |> 
           lapply(mase, y_test)
       }
     )
-  score_dt %>% 
-    bind_rows() %>% 
-    mutate(Model = mod_name) %>% 
-    pivot_longer(-Model, names_to = "name", values_to = "score") %>% 
+  score_dt |> 
+    bind_rows() |> 
+    mutate(Model = mod_name) |> 
+    pivot_longer(-Model, names_to = "name", values_to = "score") |> 
     mutate(Loss = toupper(loss))
 }
 
@@ -356,8 +355,8 @@ gather_loss <- function(object, y_test, loss = c("mse", "mae", "mape", "mase")) 
 #' @importFrom dplyr group_by mutate
 #' @noRd
 summarise_loss <- function(data) {
-  data %>% 
-    group_by(Model, Loss) %>% 
+  data |> 
+    group_by(Model, Loss) |> 
     mutate(average = mean(score))
 }
 
@@ -482,13 +481,13 @@ gg_loss <- function(mod_list,
   # Input data for geom_loss----------------
   fct_arrange <- toupper(type)
   data <- 
-    type %>% 
+    type |> 
     lapply(
       function(loss) {
         gather_loss(mod_list, y, loss)
       }
-    ) %>% 
-    bind_rows() %>% 
+    ) |> 
+    bind_rows() |> 
     mutate(Loss = factor(Loss, levels = fct_arrange))
   # plot------------------------------------
   p <- 
@@ -534,8 +533,8 @@ gg_loss <- function(mod_list,
 #' @export
 autoplot.bvharirf <- function(object, ...) {
   irf_df <- object$df_long
-  irf_df %>% 
-    unite("term", impulse, response, c("impulse", "response"), sep = "->") %>% 
+  irf_df |> 
+    unite("term", impulse, response, c("impulse", "response"), sep = "->") |> 
     ggplot(aes(x = period, y = value)) +
     geom_path(...) +
     scale_x_continuous(breaks = 0:(object$lag_max)) +
@@ -584,15 +583,15 @@ autoplot.bvharsp <- function(object,
 #' @noRd
 gather_heat <- function(object) {
   heat_coef <-
-    object$coefficients %>%
-    as.data.frame() %>%
-    rownames_to_column("term") %>%
-    pivot_longer(-term, names_to = "x", values_to = "value") %>%
+    object$coefficients |>
+    as.data.frame() |>
+    rownames_to_column("term") |>
+    pivot_longer(-term, names_to = "x", values_to = "value") |>
     mutate(x = factor(x, levels = colnames(object$coefficients)))
   is_vhar <- gsub(pattern = "(?=\\_).*", replacement = "", object$process, perl = TRUE) == "VHAR"
   if (object$type == "const") {
     heat_coef <-
-      heat_coef %>% 
+      heat_coef |> 
       mutate(term = ifelse(
         term == "const",
         paste("const", term, sep = "_"),
@@ -600,16 +599,16 @@ gather_heat <- function(object) {
       ))
   }
   heat_coef <-
-    heat_coef %>% 
+    heat_coef |> 
     separate_wider_regex(
       term,
       patterns = c(y = ".*", "_", ord = ".*$")
-    ) %>% 
+    ) |> 
     mutate(y = factor(y, levels = c(rev(colnames(object$coefficients)), "const")))
   # VHAR model--------------------------------
   if (is_vhar) {
     heat_coef <- 
-      heat_coef %>% 
+      heat_coef |> 
       mutate(
         ord = case_when(
           ord == "day" ~ "Daily",
@@ -636,7 +635,7 @@ gather_heat <- function(object) {
 autoplot.summary.bvharsp <- function(object, point = FALSE, ...) {
   heat_coef <- gather_heat(object)
   p <- 
-    heat_coef %>% 
+    heat_coef |> 
     ggplot(aes(x = x, y = y))
   if (point) {
     p <- 

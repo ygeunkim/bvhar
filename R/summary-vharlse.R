@@ -50,15 +50,15 @@ summary.vharlse <- function(object, ...) {
   term_name <- lapply(
     vhar_name,
     function(x) paste(rownames(coef_mat), x, sep = ".")
-  ) %>% 
+  ) |> 
     unlist()
   vhar_coef <- 
-    vhar_coef %>% 
-    as.data.frame() %>% 
+    vhar_coef |> 
+    as.data.frame() |> 
     add_column(
       term = term_name,
       .before = 1
-    ) %>% 
+    ) |> 
     mutate(p.value = 2 * (1 - pt(abs(statistic), df = vhar_stat$df)))
   log_lik <- logLik(object)
   res <- list(

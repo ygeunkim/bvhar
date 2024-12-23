@@ -7,14 +7,10 @@
 compute_ci <- function(draws, level = .05) {
   # low_lev <- ifelse(correction, level / (2 * object$df * object$m), level / 2)
   low_lev <- level / 2
-  cred_int <-
-    draws %>% 
-    summarise_draws(
-      ~quantile(
-        .,
-        prob = c(low_lev, 1 - low_lev)
-      )
-    )
+  cred_int <- summarise_draws(
+    draws,
+    ~quantile(., prob = c(low_lev, 1 - low_lev))
+  )
   colnames(cred_int) <- c("term", "conf.low", "conf.high")
   cred_int
 }
@@ -286,7 +282,7 @@ confusion <- function(x, y, ...) {
 #' @export
 confusion.summary.bvharsp <- function(x, y, truth_thr = 0, ...) {
   est <- factor(c(x$choose_coef * 1), levels = c(0L, 1L))
-  truth <- ifelse(c(abs(y)) <= truth_thr, 0L, 1L) %>% factor(levels = c(0L, 1L))
+  truth <- ifelse(c(abs(y)) <= truth_thr, 0L, 1L) |> factor(levels = c(0L, 1L))
   table(truth = truth, estimation = est)
 }
 

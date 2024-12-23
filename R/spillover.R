@@ -39,9 +39,9 @@ spillover.olsmod <- function(object, n_ahead = 10L, ...) {
   colnames(res$connect) <- colnames(object$coefficients)
   rownames(res$connect) <- colnames(object$coefficients)
   res$df_long <-
-    res$connect %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "series") %>%
+    res$connect |>
+    as.data.frame() |>
+    rownames_to_column(var = "series") |>
     pivot_longer(-"series", names_to = "shock", values_to = "spillover")
   colnames(res$net_pairwise) <- colnames(res$connect)
   rownames(res$net_pairwise) <- rownames(res$connect)
@@ -108,9 +108,9 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
   colnames(res$connect) <- colnames(object$coefficients)
   rownames(res$connect) <- colnames(object$coefficients)
   res$df_long <-
-    res$connect %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "series") %>%
+    res$connect |>
+    as.data.frame() |>
+    rownames_to_column(var = "series") |>
     pivot_longer(-"series", names_to = "shock", values_to = "spillover")
   colnames(res$net_pairwise) <- colnames(res$connect)
   rownames(res$net_pairwise) <- rownames(res$connect)
@@ -171,7 +171,7 @@ spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALS
   from_distn <- process_vector_draws(sp_res$from, dim_data = dim_data, level = level, med = FALSE)
   net_distn <- process_vector_draws(sp_res$net, dim_data = dim_data, level = level, med = FALSE)
   df_long <-
-    join_long_spillover(connect_distn, prefix = "spillover") %>%
+    join_long_spillover(connect_distn, prefix = "spillover") |>
     left_join(join_long_spillover(net_pairwise_distn, prefix = "net"), by = c("series", "shock"))
   res <- list(
     connect = connect_distn,
@@ -237,7 +237,7 @@ spillover.bvharldlt <- function(object, n_ahead = 10L, level = .05, sparse = FAL
   from_distn <- process_vector_draws(sp_res$from, dim_data = dim_data, level = level, med = FALSE)
   net_distn <- process_vector_draws(sp_res$net, dim_data = dim_data, level = level, med = FALSE)
   df_long <-
-    join_long_spillover(connect_distn, prefix = "spillover") %>%
+    join_long_spillover(connect_distn, prefix = "spillover") |>
     left_join(join_long_spillover(net_pairwise_distn, prefix = "net"), by = c("series", "shock"))
   res <- list(
     connect = connect_distn,
@@ -383,7 +383,7 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window,
         # num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
         lag = object$p, bayes_spec = object$spec, include_mean = include_mean,
         seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
-        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },
@@ -394,7 +394,7 @@ dynamic_spillover.normaliw <- function(object, n_ahead = 10L, window,
         # num_chains = num_chains, num_iter = object$iter, num_burn = object$burn, thin = object$thin,
         week = object$week, month = object$month, bayes_spec = object$spec, include_mean = include_mean,
         seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
-        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        # seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },
@@ -509,7 +509,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
         # seed_chain = sample.int(.Machine$integer.max, size = num_horizon),
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },
@@ -534,7 +534,7 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
         ggl = object$ggl,
         grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = object$group,
         include_mean = include_mean,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         nthreads = num_thread
       )
     },
@@ -549,11 +549,11 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
     lapply(
       sp_list$tot,
       function(x) {
-        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
-          do.call(cbind, .)
+        processed <- process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE)
+        do.call(cbind, processed)
       }
-    ) %>% 
-    do.call(rbind, .)
+    )
+  tot_distn <- do.call(rbind, tot_distn)
   # sp_list <- lapply(sp_list, function(x) {
   #   if (is.matrix(x)) {
   #     return(apply(x, 1, mean))
@@ -632,11 +632,11 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, level = .05, sparse =
     lapply(
       sp_list$tot,
       function(x) {
-        process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE) %>%
-          do.call(cbind, .)
+        processed <- process_vector_draws(unlist(x), dim_data = 1, level = level, med = FALSE)
+        do.call(cbind, processed)
       }
-    ) %>%
-    do.call(rbind, .)
+    )
+  tot_distn <- do.call(rbind, tot_distn)
   # colnames(sp_list$to) <- paste(colnames(object$y), "to", sep = "_")
   # colnames(sp_list$from) <- paste(colnames(object$y), "from", sep = "_")
   # colnames(sp_list$to) <- colnames(object$y)

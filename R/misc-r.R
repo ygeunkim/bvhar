@@ -4,7 +4,7 @@ concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
     lapply(
       prefix,
       function(lag) paste(var_name, lag, sep = "_")
-    ) %>% 
+    ) |> 
     unlist()
   if (!include_mean) {
     return(nm)
@@ -33,11 +33,11 @@ split_coef <- function(object, ...) {
     return(
       switch(object$type,
         "const" = {
-          split.data.frame(object$coefficients[-object$df, ], gl(object$p, object$m)) %>%
+          split.data.frame(object$coefficients[-object$df, ], gl(object$p, object$m)) |>
             lapply(t)
         },
         "none" = {
-          split.data.frame(object$coefficients, gl(object$p, object$m)) %>%
+          split.data.frame(object$coefficients, gl(object$p, object$m)) |>
             lapply(t)
         }
       )
@@ -68,9 +68,9 @@ split_coef <- function(object, ...) {
 split_paramarray <- function(x, chain, param_name) {
   num_var <- ncol(x) / chain
   res <- 
-    split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>%
-    lapply(t) %>%
-    unlist() %>% 
+    split.data.frame(t(x), gl(num_var, 1, ncol(x))) |>
+    lapply(t) |>
+    unlist() |> 
     array(
       dim = c(nrow(x), chain, num_var),
       dimnames = list(
@@ -91,7 +91,7 @@ split_paramarray <- function(x, chain, param_name) {
 #' @noRd
 split_psirecord <- function(x, chain = 1, varname = "cholesky") {
   res <- 
-    x %>% 
+    x |> 
     split.data.frame(gl(nrow(x) / ncol(x), ncol(x)))
   if (chain == 1) {
     return(res)
@@ -100,9 +100,9 @@ split_psirecord <- function(x, chain = 1, varname = "cholesky") {
       res,
       function(y) {
         num_var <- ncol(y) / chain
-        split.data.frame(t(y), gl(num_var, 1, ncol(y))) %>% 
-          lapply(t) %>% 
-          unlist() %>% 
+        split.data.frame(t(y), gl(num_var, 1, ncol(y))) |> 
+          lapply(t) |> 
+          unlist() |> 
           array(
             dim = c(nrow(y), chain, num_var),
             dimnames = list(
@@ -132,10 +132,10 @@ split_chain <- function(x, chain = 1, varname = "alpha") {
     # num_var <- ncol(x) / chain
     num_row <- nrow(x) / chain
     res <-
-      # split.data.frame(t(x), gl(num_var, 1, ncol(x))) %>%
-      # lapply(t) %>%
-      split.data.frame(x, gl(chain, num_row)) %>%
-      unlist(x) %>%
+      # split.data.frame(t(x), gl(num_var, 1, ncol(x))) |>
+      # lapply(t) |>
+      split.data.frame(x, gl(chain, num_row)) |>
+      unlist(x) |>
       array(
         # dim = c(nrow(x), chain, num_var),
         dim = c(num_row, chain, ncol(x)),
@@ -180,21 +180,67 @@ get_gammaparam <- function(mode, sd) {
 #' @param var_names Variable names
 #' @param level level for lower and upper quantiles
 #' @param med Get median instead of mean?
+#' @param roll Is the `draws` the result of rolling or expanding windows?
 #' 
 #' @noRd 
-process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names, level = .05, med = FALSE) {
-  mcmc_distn <-
-    draws %>%
-    unlist() %>% 
-    array(dim = c(n_ahead, dim_data, num_draw))
-  if (med) {
-    pred_mean <- apply(mcmc_distn, c(1, 2), median)
+process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names, level = .05, roll = FALSE, med = FALSE) {
+  if (roll) {
+    if (med) {
+      pred_mean <-
+        draws |>
+        lapply(function(res) {
+          unlist(res) |>
+            array(dim = c(n_ahead, dim_data, num_draw)) |>
+            apply(c(1, 2), median)
+        })
+    } else {
+      pred_mean <-
+        draws |>
+        lapply(function(res) {
+          unlist(res) |>
+            array(dim = c(n_ahead, dim_data, num_draw)) |>
+            apply(c(1, 2), mean)
+        })
+    }
+    pred_mean <- do.call(rbind, pred_mean)
+    pred_se <-
+      draws |>
+      lapply(function(res) {
+        unlist(res) |>
+          array(dim = c(n_ahead, dim_data, num_draw)) |>
+          apply(c(1, 2), sd)
+      })
+    pred_se <- do.call(pred_se, pred_se)
+    pred_lower <-
+      draws |> 
+      lapply(function(res) {
+        unlist(res) |> 
+          array(dim = c(n_ahead, dim_data, num_draw)) |> 
+          apply(c(1, 2), quantile, probs = level / 2)
+      })
+    pred_lower <- do.call(rbind, pred_lower)
+    pred_upper <-
+      draws |>
+      lapply(function(res) {
+        unlist(res) |>
+          array(dim = c(n_ahead, dim_data, num_draw)) |>
+          apply(c(1, 2), quantile, probs = 1 - level / 2)
+      })
+    pred_upper <- do.call(rbind, pred_upper)
   } else {
-    pred_mean <- apply(mcmc_distn, c(1, 2), mean)
+    mcmc_distn <-
+      draws |>
+      unlist() |>
+      array(dim = c(n_ahead, dim_data, num_draw))
+    if (med) {
+      pred_mean <- apply(mcmc_distn, c(1, 2), median)
+    } else {
+      pred_mean <- apply(mcmc_distn, c(1, 2), mean)
+    }
+    pred_se <- apply(mcmc_distn, c(1, 2), sd)
+    pred_lower <- apply(mcmc_distn, c(1, 2), quantile, probs = level / 2)
+    pred_upper <- apply(mcmc_distn, c(1, 2), quantile, probs = 1 - level / 2)
   }
-  pred_se <- apply(mcmc_distn, c(1, 2), sd)
-  pred_lower <- apply(mcmc_distn, c(1, 2), quantile, probs = level / 2)
-  pred_upper <- apply(mcmc_distn, c(1, 2), quantile, probs = 1 - level / 2)
   colnames(pred_mean) <- var_names
   rownames(pred_mean) <- var_names
   colnames(pred_se) <- var_names
@@ -244,16 +290,16 @@ process_vector_draws <- function(draws, dim_data, level = .05, med = FALSE) {
 #' @importFrom dplyr mutate
 #' @noRd 
 process_dynamic_spdraws <- function(draws, dim_data, level = .05, med = FALSE, var_names) {
-  lapply(
+  sp_draws <- lapply(
     draws,
     function(x) {
-      process_vector_draws(unlist(x), dim_data = dim_data, level = level, med = med) %>%
-        do.call(cbind, .) %>%
-        as.data.frame() %>%
+      process_vector_draws(unlist(x), dim_data = dim_data, level = level, med = med) |>
+        do.call(cbind, .) |>
+        as.data.frame() |>
         mutate(series = var_names)
     }
-  ) %>%
-    do.call(rbind, .) %>%
+  )
+  do.call(rbind, sp_draws) |> 
     as_tibble()
 }
 
@@ -263,9 +309,9 @@ process_dynamic_spdraws <- function(draws, dim_data, level = .05, med = FALSE, v
 #' @param col_names Column name for value
 #' @noRd 
 gather_spillover <- function(connect, col_names = "spillover") {
-  connect %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "series") %>%
+  connect |>
+    as.data.frame() |>
+    rownames_to_column(var = "series") |>
     pivot_longer(-"series", names_to = "shock", values_to = col_names)
 }
 
@@ -276,9 +322,9 @@ gather_spillover <- function(connect, col_names = "spillover") {
 #' 
 #' @noRd
 join_long_spillover <- function(connect, prefix = "spillover") {
-  gather_spillover(connect$mean, col_names = prefix) %>%
-    left_join(gather_spillover(connect$lower, col_names = paste(prefix, "lower", sep = "_")), by = c("series", "shock")) %>%
-    left_join(gather_spillover(connect$upper, col_names = paste(prefix, "upper", sep = "_")), by = c("series", "shock")) %>%
+  gather_spillover(connect$mean, col_names = prefix) |>
+    left_join(gather_spillover(connect$lower, col_names = paste(prefix, "lower", sep = "_")), by = c("series", "shock")) |>
+    left_join(gather_spillover(connect$upper, col_names = paste(prefix, "upper", sep = "_")), by = c("series", "shock")) |>
     left_join(gather_spillover(connect$sd, col_names = paste(prefix, "sd", sep = "_")), by = c("series", "shock"))
 }
 
@@ -354,10 +400,10 @@ get_records <- function(object, split_chain = TRUE) {
   lapply(
     object$param_names,
     function(x) {
-      subset_draws(object$param, variable = x) %>%
-        as_draws_matrix() %>%
+      subset_draws(object$param, variable = x) |>
+        as_draws_matrix() |>
         split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
     }
-  ) %>%
+  ) |>
     setNames(paste(object$param_names, "record", sep = "_"))
 }

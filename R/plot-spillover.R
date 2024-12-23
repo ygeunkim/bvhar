@@ -25,29 +25,29 @@ autoplot.bvhardynsp <- function(object,
       data.frame(
         id = object$index,
         y = object$tot
-      ) %>%
+      ) |>
         ggplot(aes(x = id, y = y)) +
           geom_path()
     },
     "to" = {
-      cbind(id = object$index, object$to) %>%
-        pivot_longer(-id, names_to = "series", values_to = "value") %>%
+      cbind(id = object$index, object$to) |>
+        pivot_longer(-id, names_to = "series", values_to = "value") |>
         ggplot(aes(x = id)) +
         # geom_ribbon(aes(ymin = 0, ymax = value)) +
         geom_path(aes(y = value)) +
         facet_wrap(series ~ ., nrow = row_facet, ncol = col_facet)
     },
     "from" = {
-      cbind(id = object$index, object$from) %>%
-        pivot_longer(-id, names_to = "series", values_to = "value") %>%
+      cbind(id = object$index, object$from) |>
+        pivot_longer(-id, names_to = "series", values_to = "value") |>
         ggplot(aes(x = id)) +
         # geom_ribbon(aes(ymin = 0, ymax = value)) +
         geom_path(aes(y = value)) +
         facet_wrap(series ~ ., nrow = row_facet, ncol = col_facet)
     },
     "net" = {
-      cbind(id = object$index, object$net) %>%
-        pivot_longer(-id, names_to = "series", values_to = "value") %>%
+      cbind(id = object$index, object$net) |>
+        pivot_longer(-id, names_to = "series", values_to = "value") |>
         ggplot(aes(x = id)) +
         # geom_ribbon(aes(ymin = 0, ymax = value)) +
         geom_hline(yintercept = 0, col = hcol, size = hsize) +
