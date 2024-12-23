@@ -682,12 +682,28 @@ struct RegRecords {
 	RecordType returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const;
 
 	/**
+	 * @brief Get the dimension
+	 * 
+	 * @return int Time series dimension
+	 */
+	virtual int getDim() = 0;
+
+	/**
 	 * @brief Update parameters in D
 	 * 
 	 * @param i MCMC step
 	 * @param sv_update State vector draw
 	 */
 	virtual void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
+
+	/**
+	 * @brief Update parameters in D
+	 * 
+	 * @param i MCMC step
+	 * @param id Timestamp
+	 * @param sv_update State vector draw
+	 */
+	virtual void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) = 0;
 
 	/**
 	 * @copydoc updateDiag(int, Eigen::Ref<Eigen::VectorXd>)
@@ -849,7 +865,14 @@ struct LdltRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
+	int getDim() override {
+		return fac_record.cols();
+	}
+
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
+	}
+	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
 		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 	}
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {}
@@ -960,7 +983,28 @@ struct SvRecords : public RegRecords {
 	LdltRecords returnLdltRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 	SvRecords returnSvRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const override;
 
-	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {}
+	int getDim() override {
+		return lvol_sig_record.cols();
+	}
+
+	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		int dim = getDim();
+		int num_design = lvol_record.cols() / dim;
+		sv_update.setZero();
+		for (int id = 0; id < num_design; ++id) {
+			sv_update += (lvol_record.block(i, id * dim, 1, dim) / 2).array().exp().matrix();
+		}
+		sv_update /= num_design;
+	}
+
+	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
+		if (id >= 0) {
+			sv_update = (lvol_record.middleCols(id * getDim(), getDim()).row(i) / 2).array().exp().matrix();
+		} else {
+			updateDiag(i, sv_update);
+		}
+	}
+
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {
 		sv_update = lvol_record.rightCols(lvol_sig_record.cols()).row(i).transpose();
 		sv_sig = lvol_sig_record.row(i).cwiseSqrt();
@@ -1282,6 +1326,66 @@ inline LdltRecords RegRecords::returnRecords(const SparseRecords& sparse_record,
 template<>
 inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, int num_iter, int num_burn, int thin, bool sparse) const {
 	return returnSvRecords(sparse_record, num_iter, num_burn, thin, sparse);
+}
+
+/**
+ * @brief Initialize MCMC record used in forecast classes
+ * 
+ * @param record Smart pointer of `LdltRecords` or `SvRecords`
+ * @param chain_id Chain id
+ * @param fit_record `LIST` of MCMC draw
+ * @param include_mean Include constant term?
+ * @param coef_name Element name for the coefficient in `fit_record`
+ * @param a_name Element name for the contemporaneous coefficient in `fit_record`
+ * @param c_name Element name for the constant term in `fit_record`
+ */
+inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST d_list = fit_record["d_record"];
+	if (include_mean) {
+		PY_LIST c_list = fit_record[c_name];
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	} else {
+		record = std::make_unique<LdltRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	}
+}
+
+/**
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * 
+ */
+inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+	PY_LIST coef_list = fit_record[coef_name];
+	PY_LIST a_list = fit_record[a_name];
+	PY_LIST h_list = fit_record["h_record"];
+	PY_LIST sigh_list = fit_record["sigh_record"];
+	if (include_mean) {
+		PY_LIST c_list = fit_record[c_name];
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	} else {
+		record = std::make_unique<SvRecords>(
+			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	}
 }
 
 } // namespace bvhar

@@ -340,3 +340,24 @@ build_grpmat <- function(p, dim_data, dim_design, num_coef, minnesota, include_m
     }
   )
 }
+
+#' Get MCMC records as a list
+#' 
+#' @param object Model list
+#' @param split_chain Split each chain as list
+#' @noRd
+get_records <- function(object, split_chain = TRUE) {
+  num_chains <- 1
+  if (split_chain) {
+    num_chains <- object$chain
+  }
+  lapply(
+    object$param_names,
+    function(x) {
+      subset_draws(object$param, variable = x) %>%
+        as_draws_matrix() %>%
+        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
+    }
+  ) %>%
+    setNames(paste(object$param_names, "record", sep = "_"))
+}

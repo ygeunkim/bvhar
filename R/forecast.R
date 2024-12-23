@@ -429,15 +429,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
     sparse <- FALSE
     prior_nm <- "ci"
   }
-  fit_ls <- lapply(
-    object$param_names,
-    function(x) {
-      subset_draws(object$param, variable = x) %>%
-        as_draws_matrix() %>%
-        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-    }
-  ) %>%
-    setNames(paste(object$param_names, "record", sep = "_"))
+  fit_ls <- get_records(object, TRUE)
   prior_type <- switch(prior_nm,
     "ci" = 0,
     "Minnesota" = 1,
@@ -549,15 +541,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
     sparse <- FALSE
     prior_nm <- "ci"
   }
-  fit_ls <- lapply(
-    object$param_names,
-    function(x) {
-      subset_draws(object$param, variable = x) %>%
-        as_draws_matrix() %>%
-        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-    }
-  ) %>%
-    setNames(paste(object$param_names, "record", sep = "_"))
+  fit_ls <- get_records(object, TRUE)
   prior_type <- switch(prior_nm,
     "ci" = 0,
     "Minnesota" = 1,
@@ -675,15 +659,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
     sparse <- FALSE
     prior_nm <- "ci"
   }
-  fit_ls <- lapply(
-    object$param_names,
-    function(x) {
-      subset_draws(object$param, variable = x) %>%
-        as_draws_matrix() %>%
-        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-    }
-  ) %>%
-    setNames(paste(object$param_names, "record", sep = "_"))
+  fit_ls <- get_records(object, TRUE)
   prior_type <- switch(prior_nm,
     "ci" = 0,
     "Minnesota" = 1,
@@ -798,15 +774,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
     sparse <- FALSE
     prior_nm <- "ci"
   }
-  fit_ls <- lapply(
-    object$param_names,
-    function(x) {
-      subset_draws(object$param, variable = x) %>%
-        as_draws_matrix() %>%
-        split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
-    }
-  ) %>%
-    setNames(paste(object$param_names, "record", sep = "_"))
+  fit_ls <- get_records(object, TRUE)
   prior_type <- switch(prior_nm,
     "ci" = 0,
     "Minnesota" = 1,

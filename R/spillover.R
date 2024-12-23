@@ -130,17 +130,20 @@ spillover.normaliw <- function(object, n_ahead = 10L, num_iter = 5000L, num_burn
 #' @export
 spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-  if (sparse) {
-    alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
-    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-  }
+  # a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  # if (sparse) {
+  #   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
+  #   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  # }
+  fit_ls <- get_records(object, FALSE)
   sp_res <- compute_varldlt_spillover(
     object$p,
     step = n_ahead,
-    alpha_record = alpha_record,
-    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = a_record
+    # alpha_record = alpha_record,
+    # d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    # a_record = a_record
+    fit_record = fit_ls,
+    sparse = sparse
   )
   dim_data <- object$m
   num_draw <- nrow(alpha_record)
@@ -193,17 +196,20 @@ spillover.bvarldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALS
 #' @export
 spillover.bvharldlt <- function(object, n_ahead = 10L, level = .05, sparse = FALSE, ...) {
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-  a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-  if (sparse) {
-    phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
-    a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-  }
+  # a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
+  # if (sparse) {
+  #   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
+  #   a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
+  # }
+  fit_ls <- get_records(object, FALSE)
   sp_res <- compute_vharldlt_spillover(
     object$week, object$month,
     step = n_ahead,
-    phi_record = phi_record,
-    d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
-    a_record = a_record
+    # phi_record = phi_record,
+    # d_record = as_draws_matrix(subset_draws(object$param, variable = "d")),
+    # a_record = a_record
+    fit_record = fit_ls,
+    sparse = sparse
   )
   dim_data <- object$m
   num_draw <- nrow(phi_record)
@@ -470,17 +476,24 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
     "GDP" = 7
   )
   grp_id <- unique(c(object$group))
-  if (length(grp_id) > 1) {
-    own_id <- 2
-    cross_id <- seq_len(object$p + 1)[-2]
-  } else {
-    own_id <- 1
-    cross_id <- 2
-  }
+  # if (length(grp_id) > 1) {
+  #   own_id <- 2
+  #   cross_id <- seq_len(object$p + 1)[-2]
+  # } else {
+  #   own_id <- 1
+  #   cross_id <- 2
+  # }
   num_chains <- object$chain
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   sp_list <- switch(model_type,
     "bvarldlt" = {
+      if (length(grp_id) > 1) {
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
+      } else {
+        own_id <- 1
+        cross_id <- 2
+      }
       dynamic_bvarldlt_spillover(
         y = object$y, window = window, step = n_ahead,
         num_chains = num_chains,
@@ -501,11 +514,18 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
       )
     },
     "bvharldlt" = {
+      if (length(grp_id) > 1) {
+        own_id <- c(2, 4, 6)
+        cross_id <- c(1, 3, 5)
+      } else {
+        own_id <- 1
+        cross_id <- 2
+      }
       dynamic_bvharldlt_spillover(
         y = object$y, window = window, step = n_ahead,
         num_chains = num_chains,
         num_iter = object$iter, num_burn = object$burn, thin = object$thin, sparse = sparse,
-        week = object$p, month = object$month,
+        week = object$week, month = object$month,
         param_reg = object$sv[c("shape", "scale")],
         param_prior = param_prior,
         param_intercept = object$intercept[c("mean_non", "sd_non")],
@@ -585,34 +605,19 @@ dynamic_spillover.svmod <- function(object, n_ahead = 10L, level = .05, sparse =
   }
   model_type <- class(object)[1]
   include_mean <- ifelse(object$type == "const", TRUE, FALSE)
+  fit_ls <- get_records(object, FALSE)
   sp_list <- switch(model_type,
     "bvarsv" = {
-      alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
-      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-      if (sparse) {
-        alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha_sparse"))
-        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-      }
       dynamic_bvarsv_spillover(
         lag = object$p, step = n_ahead, num_design = num_design,
-        alpha_record = alpha_record,
-        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = a_record,
+        fit_record = fit_ls, sparse = sparse, include_mean = include_mean,
         nthreads = num_thread
       )
     },
     "bvharsv" = {
-      phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
-      a_record <- as_draws_matrix(subset_draws(object$param, variable = "a"))
-      if (sparse) {
-        phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi_sparse"))
-        a_record <- as_draws_matrix(subset_draws(object$param, variable = "a_sparse"))
-      }
       dynamic_bvharsv_spillover(
         week = object$week, month = object$month, step = n_ahead, num_design = num_design,
-        phi_record = phi_record,
-        h_record = as_draws_matrix(subset_draws(object$param, variable = "h")),
-        a_record = a_record,
+        fit_record = fit_ls, sparse = sparse, include_mean = include_mean,
         nthreads = num_thread
       )
     },
