@@ -305,6 +305,9 @@ public:
 		net_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
 		model(num_horizon), spillover(num_horizon),
 		har_trans(build_vhar(y.cols(), week, month, include_mean)) {
+		if (num_horizon <= 0) {
+			STOP("Window size is too large");
+		}
 		initialize(
 			y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
 			grp_id, own_id, cross_id, grp_mat,
@@ -333,6 +336,23 @@ protected:
 	std::vector<std::vector<std::unique_ptr<McmcReg>>> model;
 	std::vector<std::vector<std::unique_ptr<McmcSpillover>>> spillover;
 	Optional<Eigen::MatrixXd> har_trans;
+
+	/**
+	 * @brief Initialize every member of `DynamicLdltSpillover`
+	 * 
+	 * @param y Response matrix
+	 * @param param_reg `LIST` of CTA hyperparameters
+	 * @param param_prior `LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param prior_type Shrinkage prior number
+	 * @param ggl Group parameter?
+	 * @param grp_id Minnesota group unique id
+	 * @param own_id own-lag id
+	 * @param cross_id cross-lag id
+	 * @param grp_mat Minnesota group matrix
+	 * @param seed_chain Random seed for each window and chain
+	 */
 	void initialize(
 		const Eigen::MatrixXd& y, LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
@@ -353,7 +373,7 @@ protected:
 		for (int i = 0; i < num_horizon; ++i) {
 			Eigen::MatrixXd roll_mat = y.middleRows(i, win_size);
 			Eigen::MatrixXd roll_y0 = build_y0(roll_mat, lag, lag + 1);
-			Eigen::MatrixXd roll_design = buildDesign(roll_mat, i, har_trans);
+			Eigen::MatrixXd roll_design = buildDesign(roll_mat, har_trans);
 			if (ggl) {
 				model[i] = initialize_mcmc<McmcReg, true>(
 					num_chains, num_iter - num_burn, roll_design, roll_y0,
@@ -371,7 +391,7 @@ protected:
 			}
 		}
 	}
-	Eigen::MatrixXd buildDesign(Eigen::Ref<Eigen::MatrixXd> sample_mat, int i, Optional<Eigen::MatrixXd> har_trans = NULLOPT) {
+	Eigen::MatrixXd buildDesign(Eigen::Ref<Eigen::MatrixXd> sample_mat, Optional<Eigen::MatrixXd> har_trans = NULLOPT) {
 		if (har_trans) {
 			return build_x0(sample_mat, lag, include_mean) * (*har_trans).transpose();
 		}

@@ -13,5 +13,11 @@ PYBIND11_MODULE(_ldltspillover, m) {
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
 			bool, const Eigen::MatrixXi&, int>()
 		)
+		.def(
+			py::init<const Eigen::MatrixXd&, int, int, int, int, int, int, int, int, bool,
+			py::dict&, py::dict&, py::dict&, std::vector<py::dict>&, int, bool,
+			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
+			bool, const Eigen::MatrixXi&, int>()
+		)
 		.def("returnSpillover", &bvhar::DynamicLdltSpillover::returnSpillover);
 }

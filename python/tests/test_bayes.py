@@ -59,6 +59,7 @@ def help_var_bayes(
         assert sp_out['to']['mean'].shape == (dim_data,)
         assert sp_out['from']['mean'].shape == (dim_data,)
         assert sp_out['net']['mean'].shape == (dim_data,)
+        dynamic_out = fit_bayes.dynamic_spillover(30, n_ahead)
 
 def test_var_bayes():
     num_data = 50
@@ -180,6 +181,7 @@ def help_vhar_bayes(
         assert sp_out['to']['mean'].shape == (dim_data,)
         assert sp_out['from']['mean'].shape == (dim_data,)
         assert sp_out['net']['mean'].shape == (dim_data,)
+        # dynamic_out = fit_bayes.dynamic_spillover(30, n_ahead)
 
 def test_vhar_bayes():
     num_data = 50

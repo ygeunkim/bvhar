@@ -476,17 +476,24 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
     "GDP" = 7
   )
   grp_id <- unique(c(object$group))
-  if (length(grp_id) > 1) {
-    own_id <- 2
-    cross_id <- seq_len(object$p + 1)[-2]
-  } else {
-    own_id <- 1
-    cross_id <- 2
-  }
+  # if (length(grp_id) > 1) {
+  #   own_id <- 2
+  #   cross_id <- seq_len(object$p + 1)[-2]
+  # } else {
+  #   own_id <- 1
+  #   cross_id <- 2
+  # }
   num_chains <- object$chain
   # chunk_size <- num_horizon * num_chains %/% num_thread # default setting of OpenMP schedule(static)
   sp_list <- switch(model_type,
     "bvarldlt" = {
+      if (length(grp_id) > 1) {
+        own_id <- 2
+        cross_id <- seq_len(object$p + 1)[-2]
+      } else {
+        own_id <- 1
+        cross_id <- 2
+      }
       dynamic_bvarldlt_spillover(
         y = object$y, window = window, step = n_ahead,
         num_chains = num_chains,
@@ -507,11 +514,18 @@ dynamic_spillover.ldltmod <- function(object, n_ahead = 10L, window, level = .05
       )
     },
     "bvharldlt" = {
+      if (length(grp_id) > 1) {
+        own_id <- c(2, 4, 6)
+        cross_id <- c(1, 3, 5)
+      } else {
+        own_id <- 1
+        cross_id <- 2
+      }
       dynamic_bvharldlt_spillover(
         y = object$y, window = window, step = n_ahead,
         num_chains = num_chains,
         num_iter = object$iter, num_burn = object$burn, thin = object$thin, sparse = sparse,
-        week = object$p, month = object$month,
+        week = object$week, month = object$month,
         param_reg = object$sv[c("shape", "scale")],
         param_prior = param_prior,
         param_intercept = object$intercept[c("mean_non", "sd_non")],

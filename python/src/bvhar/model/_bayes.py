@@ -606,13 +606,13 @@ class VarBayes(_AutoregBayes):
             "lpl": out_forecast.get('lpl')
         }
 
-    def spillover(self, n_ahead: int, level = .05, sparse = True):
+    def spillover(self, n_ahead = 10, level = .05, sparse = True):
         """Spillover
 
         Parameters
         ----------
-        n_ahead : int
-            Forecast step
+        n_ahead : int, optional
+            Forecast step, by default 10
         level : float, optional
             Density level, by default .05
         sparse : bool, optional
@@ -638,8 +638,23 @@ class VarBayes(_AutoregBayes):
             "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
         }
 
-    def dynamic_spillover(self):
-        pass
+    def dynamic_spillover(self, window: int, n_ahead = 10, level = .05, sparse = True):
+        n_horizon = self.y_.shape[0] - window + 1
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltDynamicSpillover(
+                self.y_, window, n_ahead, self.lag_, self.chains_, self.iter_, self.burn_, self.thin_, sparse,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type, self._ggl,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                self.thread_
+            )
+        else:
+            fit_record = concat_params(self.param_, self.param_names_, False)
+            spo = SvDynamicSpillover(self.lag_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
+        out_spillover = spo.returnSpillover()
+        print(f"result: {out_spillover}")
 
 class VharBayes(_AutoregBayes):
     """Bayesian Vector Autoregressive Model
@@ -1068,5 +1083,20 @@ class VharBayes(_AutoregBayes):
             "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
         }
 
-    def dynamic_spillover(self):
-        pass
+    def dynamic_spillover(self, window: int, n_ahead = 10, level = .05, sparse = True):
+        n_horizon = self.y_.shape[0] - window + 1
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltDynamicSpillover(
+                self.y_, window, n_ahead, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_, sparse,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type, self._ggl,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                self.thread_
+            )
+        else:
+            fit_record = concat_params(self.param_, self.param_names_, False)
+            spo = SvDynamicSpillover(self.week_, self.month_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
+        out_spillover = spo.returnSpillover()
+        print(f"result: {out_spillover}")
