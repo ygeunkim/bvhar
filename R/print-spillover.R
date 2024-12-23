@@ -97,19 +97,19 @@ print.bvhardynsp <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
   if (is_mcmc) {
     dim_data <- nrow(x$to) / length(x$index)
     to_distn <-
-      x$to %>%
-      select("series", "mean") %>%
-      mutate(id = rep(x$index, each = dim_data)) %>%
+      x$to |>
+      select("series", "mean") |>
+      mutate(id = rep(x$index, each = dim_data)) |>
       pivot_wider(names_from = "series", values_from = "mean")
     from_distn <-
-      x$from %>%
-      select("series", "mean") %>%
-      mutate(id = rep(x$index, each = dim_data)) %>%
+      x$from |>
+      select("series", "mean") |>
+      mutate(id = rep(x$index, each = dim_data)) |>
       pivot_wider(names_from = "series", values_from = "mean")
     net_distn <-
-      x$net %>%
-      select("series", "mean") %>%
-      mutate(id = rep(x$index, each = dim_data)) %>%
+      x$net |>
+      select("series", "mean") |>
+      mutate(id = rep(x$index, each = dim_data)) |>
       pivot_wider(names_from = "series", values_from = "mean")
   } else {
     to_distn <- x$to

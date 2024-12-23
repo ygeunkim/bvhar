@@ -56,9 +56,9 @@ predict.varlse <- function(object, n_ahead, level = .05, ...) {
   pred_res <- forecast_var(object, n_ahead)
   colnames(pred_res) <- colnames(object$y0)
   SE <- 
-    compute_covmse(object, n_ahead) %>% # concatenated matrix
-    split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
-    sapply(diag) %>% 
+    compute_covmse(object, n_ahead) |> # concatenated matrix
+    split.data.frame(gl(n_ahead, object$m)) |> # list of forecast MSE covariance matrix
+    sapply(diag) |> 
     t() # extract only diagonal element to compute CIs
   SE <- sqrt(SE)
   colnames(SE) <- colnames(object$y0)
@@ -109,9 +109,9 @@ predict.vharlse <- function(object, n_ahead, level = .05, ...) {
   pred_res <- forecast_vhar(object, n_ahead)
   colnames(pred_res) <- colnames(object$y0)
   SE <- 
-    compute_covmse_har(object, n_ahead) %>% # concatenated matrix
-    split.data.frame(gl(n_ahead, object$m)) %>% # list of forecast MSE covariance matrix
-    sapply(diag) %>% 
+    compute_covmse_har(object, n_ahead) |> # concatenated matrix
+    split.data.frame(gl(n_ahead, object$m)) |> # list of forecast MSE covariance matrix
+    sapply(diag) |> 
     t() # extract only diagonal element to compute CIs
   SE <- sqrt(SE)
   colnames(SE) <- colnames(object$y0)
@@ -190,12 +190,12 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thre
   # Predictive distribution-------------------------
   dim_data <- ncol(pred_mean)
   y_distn <-
-    pred_res$predictive %>%
+    pred_res$predictive |>
     array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
   # num_draw <- nrow(alpha_record) # concatenate multiple chains
   # y_distn <-
-  #   pred_res %>%
-  #   unlist() %>%
+  #   pred_res |>
+  #   unlist() |>
   #   array(dim = c(n_ahead, dim_data, num_draw))
   # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
@@ -271,12 +271,12 @@ predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thr
   # Predictive distribution-------------------------
   dim_data <- ncol(pred_mean)
   y_distn <- 
-    pred_res$predictive %>% 
+    pred_res$predictive |> 
     array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
   # num_draw <- nrow(phi_record) # concatenate multiple chains
   # y_distn <-
-  #   pred_res %>%
-  #   unlist() %>%
+  #   pred_res |>
+  #   unlist() |>
   #   array(dim = c(n_ahead, dim_data, num_draw))
   # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
@@ -343,12 +343,12 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
   # Predictive distribution-------------------------
   dim_data <- ncol(pred_mean)
   y_distn <-
-    pred_res$predictive %>%
+    pred_res$predictive |>
     array(dim = c(n_ahead, dim_data, n_iter)) # 3d array: h x m x B
   # num_draw <- nrow(alpha_record) # concatenate multiple chains
   # y_distn <-
-  #   pred_res %>%
-  #   unlist() %>%
+  #   pred_res |>
+  #   unlist() |>
   #   array(dim = c(n_ahead, dim_data, num_draw))
   # pred_mean <- apply(y_distn, c(1, 2), mean)
   lower_quantile <- apply(y_distn, c(1, 2), quantile, probs = level / 2)
@@ -399,13 +399,11 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
       alpha_record,
       1,
       function(x) {
-        all(
-          matrix(x, ncol = object$m) %>%
-            compute_stablemat() %>%
-            eigen() %>%
-            .$values %>%
-            Mod() < 1
-        )
+        eigen_vals <-
+          matrix(x, ncol = object$m) |>
+          compute_stablemat() |>
+          eigen()
+        all(Mod(eigen_vals$values) < 1)
       }
     )
     if (any(!is_stable)) {
@@ -458,8 +456,8 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_t
   # Predictive distribution------------------------------------
   num_draw <- nrow(alpha_record) # concatenate multiple chains
   y_distn <-
-    pred_res %>%
-    unlist() %>%
+    pred_res |>
+    unlist() |>
     array(dim = c(n_ahead, dim_data, num_draw))
   if (med) {
     pred_mean <- apply(y_distn, c(1, 2), median)
@@ -512,13 +510,11 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
       1,
       function(x) {
         coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
-        all(
-          coef %>%
-            compute_stablemat() %>%
-            eigen() %>%
-            .$values %>%
-            Mod() < 1
-        )
+        eigen_vals <-
+          coef |>
+          compute_stablemat() |>
+          eigen()
+        all(Mod(eigen_vals$values) < 1)
       }
     )
     if (any(!is_stable)) {
@@ -571,8 +567,8 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, stable = FALSE, num_
   # Predictive distribution------------------------------------
   num_draw <- nrow(phi_record) # concatenate multiple chains
   y_distn <-
-    pred_res %>% 
-    unlist() %>% 
+    pred_res |> 
+    unlist() |> 
     array(dim = c(n_ahead, dim_data, num_draw))
   if (med) {
     pred_mean <- apply(y_distn, c(1, 2), median)
@@ -629,13 +625,11 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
       alpha_record,
       1,
       function(x) {
-        all(
-          matrix(x, ncol = object$m) %>%
-            compute_stablemat() %>%
-            eigen() %>%
-            .$values %>%
-            Mod() < 1
-        )
+        eigen_vals <-
+          matrix(x, ncol = object$m) |>
+          compute_stablemat() |>
+          eigen()
+        all(Mod(eigen_vals$values) < 1)
       }
     )
     if (any(!is_stable)) {
@@ -689,8 +683,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, stable = FALSE, num_thr
   # Predictive distribution------------------------------------
   num_draw <- nrow(alpha_record) # concatenate multiple chains
   y_distn <-
-    pred_res %>% 
-    unlist() %>% 
+    pred_res |> 
+    unlist() |> 
     array(dim = c(n_ahead, dim_data, num_draw))
   if (med) {
     pred_mean <- apply(y_distn, c(1, 2), median)
@@ -744,13 +738,11 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
       1,
       function(x) {
         coef <- t(object$HARtrans[1:(object$p * dim_data), 1:(object$month * dim_data)]) %*% matrix(x, ncol = object$m)
-        all(
-          coef %>%
-            compute_stablemat() %>%
-            eigen() %>%
-            .$values %>%
-            Mod() < 1
-        )
+        eigen_vals <-
+          coef |>
+          compute_stablemat() |>
+          eigen()
+        all(Mod(eigen_vals$values) < 1)
       }
     )
     if (any(!is_stable)) {
@@ -805,8 +797,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, stable = FALSE, num_th
   # Predictive distribution------------------------------------
   num_draw <- nrow(phi_record) # concatenate multiple chains
   y_distn <-
-    pred_res %>% 
-    unlist() %>% 
+    pred_res |> 
+    unlist() |> 
     array(dim = c(n_ahead, dim_data, num_draw))
   if (med) {
     pred_mean <- apply(y_distn, c(1, 2), median)

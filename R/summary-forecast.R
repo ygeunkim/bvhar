@@ -11,10 +11,10 @@ divide_ts <- function(y, n_ahead) {
   num_ts <- nrow(y)
   fac_train <- rep(1, num_ts - n_ahead)
   fac_test <- rep(2, n_ahead)
-  y %>% 
+  y |> 
     split.data.frame(
       factor(c(fac_train, fac_test))
-    ) %>% 
+    ) |> 
     setNames(c("train", "test"))
 }
 
@@ -160,11 +160,11 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
   #   fit_ls <- lapply(
   #     object$param_names,
   #     function(x) {
-  #       subset_draws(object$param, variable = x) %>%
-  #         as_draws_matrix() %>%
+  #       subset_draws(object$param, variable = x) |>
+  #         as_draws_matrix() |>
   #         split.data.frame(gl(num_chains, nrow(object$param) / num_chains))
   #     }
-  #   ) %>%
+  #   ) |>
   #     setNames(paste(object$param_names, "record", sep = "_"))
   # }
   res_mat <- switch(model_type,
@@ -174,7 +174,7 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     },
@@ -184,7 +184,7 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec$U, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     },
@@ -194,19 +194,19 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
       #   y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     }
   )
   # num_draw <- nrow(object$a_record) # concatenate multiple chains
   # res_mat <-
-  #   res_mat %>%
+  #   res_mat |>
   #   lapply(function(res) {
-  #     unlist(res) %>%
-  #       array(dim = c(1, object$m, num_draw)) %>%
+  #     unlist(res) |>
+  #       array(dim = c(1, object$m, num_draw)) |>
   #       apply(c(1, 2), mean)
-  #   }) %>%
+  #   }) |>
   #   do.call(rbind, .)
   colnames(res_mat) <- name_var
   res <- list(
@@ -305,7 +305,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -354,7 +354,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -366,61 +366,23 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  if (med) {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), median)
-      }) %>%
-      do.call(rbind, .)
-  } else {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), mean)
-      }) %>%
-      do.call(rbind, .)
-  }
-  colnames(pred_mean) <- name_var
-  est_se <- 
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), sd)
-    }) %>%
-    do.call(rbind, .)
-  colnames(est_se) <- name_var
-  lower_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(lower_quantile) <- name_var
-  upper_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(upper_quantile) <- name_var
+  y_distn <- process_forecast_draws(
+    draws = res_mat,
+    n_ahead = num_horizon,
+    dim_data = object$m,
+    num_draw = num_draw,
+    var_names = name_var,
+    roll = TRUE,
+    med = med
+  )
   res <- list(
     process = object$process,
-    forecast = pred_mean,
-    se = est_se,
-    lower = lower_quantile,
-    upper = upper_quantile,
-    lower_joint = lower_quantile,
-    upper_joint = upper_quantile,
+    forecast = y_distn$mean,
+    se = y_distn$sd,
+    lower = y_distn$lower,
+    upper = y_distn$upper,
+    lower_joint = y_distn$lower,
+    upper_joint = y_distn$upper,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -525,7 +487,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -574,7 +536,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -586,61 +548,23 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  if (med) {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), median)
-      }) %>%
-      do.call(rbind, .)
-  } else {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), mean)
-      }) %>%
-      do.call(rbind, .)
-  }
-  colnames(pred_mean) <- name_var
-  est_se <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), sd)
-    }) %>%
-    do.call(rbind, .)
-  colnames(est_se) <- name_var
-  lower_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(lower_quantile) <- name_var
-  upper_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(upper_quantile) <- name_var
+  y_distn <- process_forecast_draws(
+    draws = res_mat,
+    n_ahead = num_horizon,
+    dim_data = object$m,
+    num_draw = num_draw,
+    var_names = name_var,
+    roll = TRUE,
+    med = med
+  )
   res <- list(
     process = object$process,
-    forecast = pred_mean,
-    se = est_se,
-    lower = lower_quantile,
-    upper = upper_quantile,
-    lower_joint = lower_quantile,
-    upper_joint = upper_quantile,
+    forecast = y_distn$mean,
+    se = y_distn$sd,
+    lower = y_distn$lower,
+    upper = y_distn$upper,
+    lower_joint = y_distn$lower,
+    upper_joint = y_distn$upper,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -768,7 +692,7 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     },
@@ -778,7 +702,7 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec$U, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     },
@@ -788,19 +712,19 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
       #   y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
       #   object$spec, include_mean, n_ahead, y_test,
-      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+      #   sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
       #   num_thread, chunk_size
       # )
     }
   )
   # num_draw <- nrow(object$a_record) # concatenate multiple chains
   # res_mat <-
-  #   res_mat %>%
+  #   res_mat |>
   #   lapply(function(res) {
-  #     unlist(res) %>%
-  #       array(dim = c(1, object$m, num_draw)) %>%
+  #     unlist(res) |>
+  #       array(dim = c(1, object$m, num_draw)) |>
   #       apply(c(1, 2), mean)
-  #   }) %>%
+  #   }) |>
   #   do.call(rbind, .)
   colnames(res_mat) <- name_var
   res <- list(
@@ -900,7 +824,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -949,7 +873,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -961,70 +885,23 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  # res_mat <-
-  #   res_mat %>%
-  #   lapply(function(res) {
-  #     unlist(res) %>%
-  #       array(dim = c(1, object$m, num_draw)) %>%
-  #       apply(c(1, 2), mean)
-  #   }) %>%
-  #   do.call(rbind, .)
-  # colnames(res_mat) <- name_var
-  if (med) {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), median)
-      }) %>%
-      do.call(rbind, .)
-  } else {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), mean)
-      }) %>%
-      do.call(rbind, .)
-  }
-  colnames(pred_mean) <- name_var
-  est_se <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), sd)
-    }) %>%
-    do.call(rbind, .)
-  colnames(est_se) <- name_var
-  lower_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(lower_quantile) <- name_var
-  upper_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(upper_quantile) <- name_var
+  y_distn <- process_forecast_draws(
+    draws = res_mat,
+    n_ahead = num_horizon,
+    dim_data = object$m,
+    num_draw = num_draw,
+    var_names = name_var,
+    roll = TRUE,
+    med = med
+  )
   res <- list(
     process = object$process,
-    forecast = pred_mean,
-    se = est_se,
-    lower = lower_quantile,
-    upper = upper_quantile,
-    lower_joint = lower_quantile,
-    upper_joint = upper_quantile,
+    forecast = y_distn$mean,
+    se = y_distn$sd,
+    lower = y_distn$lower,
+    upper = y_distn$upper,
+    lower_joint = y_distn$lower,
+    upper_joint = y_distn$upper,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -1123,7 +1000,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -1172,7 +1049,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
         lpl,
-        sample.int(.Machine$integer.max, size = num_chains * num_horizon) %>% matrix(ncol = num_chains),
+        sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
         sample.int(.Machine$integer.max, size = num_chains),
         verbose, num_thread
       )
@@ -1184,70 +1061,23 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     lpl_val <- res_mat$lpl
     res_mat$lpl <- NULL
   }
-  # res_mat <-
-  #   res_mat %>%
-  #   lapply(function(res) {
-  #     unlist(res) %>%
-  #       array(dim = c(1, object$m, num_draw)) %>%
-  #       apply(c(1, 2), mean)
-  #   }) %>%
-  #   do.call(rbind, .)
-  # colnames(res_mat) <- name_var
-  if (med) {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), median)
-      }) %>%
-      do.call(rbind, .)
-  } else {
-    pred_mean <-
-      res_mat %>%
-      lapply(function(res) {
-        unlist(res) %>%
-          array(dim = c(num_horizon, object$m, num_draw)) %>%
-          apply(c(1, 2), mean)
-      }) %>%
-      do.call(rbind, .)
-  }
-  colnames(pred_mean) <- name_var
-  est_se <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), sd)
-    }) %>%
-    do.call(rbind, .)
-  colnames(est_se) <- name_var
-  lower_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(lower_quantile) <- name_var
-  upper_quantile <-
-    res_mat %>%
-    lapply(function(res) {
-      unlist(res) %>%
-        array(dim = c(num_horizon, object$m, num_draw)) %>%
-        apply(c(1, 2), quantile, probs = 1 - level / 2)
-    }) %>%
-    do.call(rbind, .)
-  colnames(upper_quantile) <- name_var
+  y_distn <- process_forecast_draws(
+    draws = res_mat,
+    n_ahead = num_horizon,
+    dim_data = object$m,
+    num_draw = num_draw,
+    var_names = name_var,
+    roll = TRUE,
+    med = med
+  )
   res <- list(
     process = object$process,
-    forecast = pred_mean,
-    se = est_se,
-    lower = lower_quantile,
-    upper = upper_quantile,
-    lower_joint = lower_quantile,
-    upper_joint = upper_quantile,
+    forecast = y_distn$mean,
+    se = y_distn$sd,
+    lower = y_distn$lower,
+    upper = y_distn$upper,
+    lower_joint = y_distn$lower,
+    upper_joint = y_distn$upper,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -1282,7 +1112,7 @@ mse <- function(x, y, ...) {
 #' @references Hyndman, R. J., & Koehler, A. B. (2006). *Another look at measures of forecast accuracy*. International Journal of Forecasting, 22(4), 679-688.
 #' @export
 mse.predbvhar <- function(x, y, ...) {
-  (y - x$forecast)^2 %>% 
+  (y - x$forecast)^2 |> 
     colMeans()
 }
 
@@ -1293,7 +1123,7 @@ mse.predbvhar <- function(x, y, ...) {
 #' @export
 mse.bvharcv <- function(x, y, ...) {
   y_test <- y[x$eval_id,]
-  (y_test - x$forecast)^2 %>% 
+  (y_test - x$forecast)^2 |> 
     colMeans()
 }
 
@@ -1431,9 +1261,9 @@ mase <- function(x, y, ...) {
 #' @export
 mase.predbvhar <- function(x, y, ...) {
   scaled_err <- 
-    x$y %>% 
-    diff() %>% 
-    abs() %>% 
+    x$y |> 
+    diff() |> 
+    abs() |> 
     colMeans()
   apply(
     100 * (y - x$forecast) / scaled_err, 
@@ -1451,9 +1281,9 @@ mase.predbvhar <- function(x, y, ...) {
 #' @export
 mase.bvharcv <- function(x, y, ...) {
   scaled_err <- 
-    x$y %>% 
-    diff() %>% 
-    abs() %>% 
+    x$y |> 
+    diff() |> 
+    abs() |> 
     colMeans()
   y_test <- y[x$eval_id,]
   apply(
