@@ -95,7 +95,7 @@ summary.normaliw <- function(object, num_chains = 1, num_iter = 1000,  num_burn 
   #   iw_scale, # scale of IW
   #   nu, # shape of IW
   #   TRUE
-  # ) %>%
+  # ) |>
   #   simplify2array()
   # # preprocess--------------------------------
   # dim_design <- object$df # k or h = 3m + 1 or 3m
@@ -122,16 +122,16 @@ summary.normaliw <- function(object, num_chains = 1, num_iter = 1000,  num_burn 
   # len_res <- length(thin_id)
   mn_name <- ifelse(grepl(pattern = "^BVAR_", object$process), "alpha", "phi")
   # # coef_record <-
-  # #   coef_and_sig$mn %>%
-  # #   t() %>%
-  # #   split.data.frame(gl(num_iter, object$m)) %>%
+  # #   coef_and_sig$mn |>
+  # #   t() |>
+  # #   split.data.frame(gl(num_iter, object$m)) |>
   # #   lapply(function(x) c(t(x)))
   # coef_record <- lapply(coef_and_sig[1,], c)
   # coef_record <- coef_record[thin_id]
   # coef_record <- do.call(rbind, coef_record)
   # colnames(coef_record) <- paste0(mn_name, "[", seq_len(ncol(coef_record)), "]")
   # res$coefficients <-
-  #   colMeans(coef_record) %>%
+  #   colMeans(coef_record) |>
   #   matrix(ncol = object$m)
   # # coef_and_sig$iw <- split_psirecord(t(coef_and_sig$iw), chain = 1, varname = "psi")
   # coef_and_sig$iw <- coef_and_sig[2,]
@@ -148,7 +148,7 @@ summary.normaliw <- function(object, num_chains = 1, num_iter = 1000,  num_burn 
   # prec_record <- lapply(coef_and_sig$iw, function(x) chol2inv(chol(x)))
   # res$covmat <- Reduce("+", coef_and_sig$iw) / length(coef_and_sig$iw)
   # res$omega_record <-
-  #   lapply(prec_record, diag) %>%
+  #   lapply(prec_record, diag) |>
   #   do.call(rbind, .)
   # colnames(res$omega_record) <- paste0("omega[", seq_len(ncol(res$omega_record)), "]")
   # res$omega_record <- as_draws_df(res$omega_record)

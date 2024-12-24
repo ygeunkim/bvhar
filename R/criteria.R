@@ -168,8 +168,8 @@ logLik.bvharmn <- function(object, ...) {
 #' @importFrom stats AIC
 #' @export
 AIC.varlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -178,8 +178,8 @@ AIC.varlse <- function(object, ...) {
 #' @param ... not used
 #' @export
 AIC.vharlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -188,8 +188,8 @@ AIC.vharlse <- function(object, ...) {
 #' @param ... not used
 #' @export
 AIC.bvarmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -198,8 +198,8 @@ AIC.bvarmn <- function(object, ...) {
 #' @param ... not used
 #' @export
 AIC.bvarflat <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -208,8 +208,8 @@ AIC.bvarflat <- function(object, ...) {
 #' @param ... not used
 #' @export
 AIC.bvharmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -265,40 +265,40 @@ FPE.vharlse <- function(object, ...) {
 #' @importFrom stats BIC
 #' @export
 BIC.varlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     BIC()
 }
 
 #' @rdname vhar_lm
 #' @export
 BIC.vharlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     BIC()
 }
 
 #' @rdname bvar_minnesota
 #' @export
 BIC.bvarmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     BIC()
 }
 
 #' @rdname bvar_flat
 #' @export
 BIC.bvarflat <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     BIC()
 }
 
 #' @rdname bvhar_minnesota
 #' @export
 BIC.bvharmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     BIC()
 }
 
@@ -351,40 +351,40 @@ HQ.logLik <- function(object, ...) {
 #' Quinn, B.G. (1980). *Order Determination for a Multivariate Autoregression*. Journal of the Royal Statistical Society: Series B (Methodological), 42: 182-185.
 #' @export
 HQ.varlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     HQ()
 }
 
 #' @rdname HQ
 #' @export
 HQ.vharlse <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     HQ()
 }
 
 #' @rdname HQ
 #' @export
 HQ.bvarmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     HQ()
 }
 
 #' @rdname HQ
 #' @export
 HQ.bvarflat <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     HQ()
 }
 
 #' @rdname HQ
 #' @export
 HQ.bvharmn <- function(object, ...) {
-  object %>% 
-    logLik() %>% 
+  object |> 
+    logLik() |> 
     AIC()
 }
 
@@ -427,8 +427,8 @@ compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
   bmat_gen <- rand_gen$coefficients
   covmat_gen <- rand_gen$covmat
   log_lik <- 
-    object %>% 
-    logLik() %>% 
+    object |> 
+    logLik() |> 
     as.numeric()
   obs <- object$obs
   m <- object$m
@@ -446,7 +446,7 @@ compute_dic.bvarmn <- function(object, n_iter = 100L, ...) {
             )
           ) / 2
       }
-    ) %>% 
+    ) |> 
     unlist()
   eff_num <- 2 * (log_lik - mean(post_mean))
   -2 * log_lik + 2 * eff_num

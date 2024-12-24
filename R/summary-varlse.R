@@ -45,15 +45,15 @@ summary.varlse <- function(object, ...) {
   term_name <- lapply(
     var_name,
     function(x) paste(rownames(coef_mat), x, sep = ".")
-  ) %>% 
+  ) |> 
     unlist()
   var_coef <- 
-    var_coef %>% 
-    as.data.frame() %>% 
+    var_coef |> 
+    as.data.frame() |> 
     add_column(
       term = term_name,
       .before = 1
-    ) %>% 
+    ) |> 
     mutate(p.value = 2 * (1 - pt(abs(statistic), df = var_stat$df)))
   log_lik <- logLik(object)
   res <- list(
