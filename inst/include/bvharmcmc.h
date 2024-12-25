@@ -889,12 +889,6 @@ public:
 		contem_local_lev(inits._init_contem_local), contem_global_lev(inits._init_conetm_global),
 		latent_contem_local(Eigen::VectorXd::Zero(num_lowerchol)) {
 		dl_record.assignRecords(0, local_lev, global_lev);
-		for (int j = 0; j < num_grp; j++) {
-			coef_var = (grp_vec.array() == grp_id[j]).select(
-				group_lev[j],
-				coef_var
-			);
-		}
 	}
 	virtual ~McmcDl() = default;
 	void appendRecords(LIST& list) override {
@@ -915,9 +909,7 @@ protected:
 	using BaseMcmc::contem_coef;
 	using BaseMcmc::updateCoefRecords;
 	void updateCoefPrec() override {
-		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
-		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, latent_local, shape, scl, coef_vec.head(num_alpha), rng);
-		// dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, scl, coef_vec.head(num_alpha), rng);
+		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, scl, coef_vec.head(num_alpha), rng);
 		for (int j = 0; j < num_grp; j++) {
 			coef_var = (grp_vec.array() == grp_id[j]).select(
 				group_lev[j],
@@ -930,7 +922,7 @@ protected:
 		if (is_group::value) {
 			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec.head(num_alpha), rng);
 		}
-		// dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
+		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec.head(num_alpha), rng);
 		prior_alpha_prec.head(num_alpha) = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
 	}
 	void updatePenalty() override {
