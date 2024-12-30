@@ -1096,6 +1096,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				num_iter, x, y,
 				param_reg,
 				own_id, cross_id,
+				grp_id, grp_mat,
 				param_prior,
 				param_intercept, include_mean
 			);
@@ -1145,7 +1146,8 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 			HierminnParams<PARAMS> minn_params(
 				num_iter, x, y,
 				param_reg,
-				own_id, cross_id, grp_mat,
+				own_id, cross_id,
+				grp_id, grp_mat,
 				param_prior,
 				param_intercept, include_mean
 			);
