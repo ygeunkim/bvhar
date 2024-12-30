@@ -218,7 +218,7 @@ protected:
 		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
 	}
 	void updateLpl(int h, const Eigen::VectorXd& valid_vec) override {
-		lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - (sv_update.cwiseInverse().array() * (contem_mat * (post_mean - valid_vec)).array()).matrix().squaredNorm() / 2;
+		lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (post_mean - valid_vec)).squaredNorm() / 2;
 	}
 };
 
@@ -650,7 +650,9 @@ public:
 		forecast();
 		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
 		if (get_lpl) {
-			res["lpl"] = CAST_DOUBLE(lpl_record.mean());
+			// res["lpl"] = CAST_DOUBLE(lpl_record.mean());
+			// res["lpl"] = CAST_VECTOR(lpl_record.rowwise().mean());
+			res["lpl"] = lpl_record;
 		}
 		return res;
 	}

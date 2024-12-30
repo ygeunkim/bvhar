@@ -506,7 +506,7 @@ class VarBayes(_AutoregBayes):
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
     def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
@@ -603,7 +603,7 @@ class VarBayes(_AutoregBayes):
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
     def spillover(self, n_ahead = 10, level = .05, sparse = True):
@@ -958,7 +958,7 @@ class VharBayes(_AutoregBayes):
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
     def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
@@ -1053,7 +1053,7 @@ class VharBayes(_AutoregBayes):
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
     def spillover(self, n_ahead: int, level = .05, sparse = True):
