@@ -778,7 +778,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
 										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	return sim_gig(1, coef.size() * (dir_concent - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 }
 
 // Generating Group Parameter of Dirichlet-Laplace Prior
