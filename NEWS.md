@@ -22,6 +22,8 @@
 
 * `set_gdp()` can use Generalized Double Pareto (GDP) shrinkage prior.
 
+* `alpl()` gives summary of LPL across every horizon.
+
 ## C++ Header file changes
 
 * Use template to avoid code duplicates among LDLT and SV models.
