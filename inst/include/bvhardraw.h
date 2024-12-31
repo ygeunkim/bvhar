@@ -372,7 +372,7 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
 	);
-  Eigen::VectorXd post_mean = llt_of_prec.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
+  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
 	coef = post_mean + llt_of_prec.matrixU().solve(res);
 }
 
