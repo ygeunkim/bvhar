@@ -363,7 +363,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    lpl_val <- res_mat$lpl
+    # lpl_val <- res_mat$lpl
+    if (med) {
+      lpl_val <- apply(res_mat$lpl, 1, median)
+    } else {
+      lpl_val <- rowMeans(res_mat$lpl)
+    }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -383,6 +388,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
     upper = y_distn$upper,
     lower_joint = y_distn$lower,
     upper_joint = y_distn$upper,
+    med = med,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -545,7 +551,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    lpl_val <- res_mat$lpl
+    # lpl_val <- res_mat$lpl
+    if (med) {
+      lpl_val <- apply(res_mat$lpl, 1, median)
+    } else {
+      lpl_val <- rowMeans(res_mat$lpl)
+    }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -565,6 +576,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
     upper = y_distn$upper,
     lower_joint = y_distn$lower,
     upper_joint = y_distn$upper,
+    med = med,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -882,7 +894,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    lpl_val <- res_mat$lpl
+    # lpl_val <- res_mat$lpl
+    if (med) {
+      lpl_val <- apply(res_mat$lpl, 1, median)
+    } else {
+      lpl_val <- rowMeans(res_mat$lpl)
+    }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -902,6 +919,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
     upper = y_distn$upper,
     lower_joint = y_distn$lower,
     upper_joint = y_distn$upper,
+    med = med,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -1058,7 +1076,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    lpl_val <- res_mat$lpl
+    # lpl_val <- res_mat$lpl
+    if (med) {
+      lpl_val <- apply(res_mat$lpl, 1, median)
+    } else {
+      lpl_val <- rowMeans(res_mat$lpl)
+    }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1078,6 +1101,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
     upper = y_distn$upper,
     lower_joint = y_distn$lower,
     upper_joint = y_distn$upper,
+    med = med,
     eval_id = n_ahead:nrow(y_test),
     y = y
   )
@@ -1357,6 +1381,26 @@ mrae.bvharcv <- function(x, pred_bench, y, ...) {
       mean(abs(r_t))
     }
   )
+}
+
+#' Evaluate the Density Forecast Based on Average Log Predictive Likelihood (APLP)
+#'
+#' This function computes ALPL given forecasting of Bayesian models.
+#'
+#' @param x Out-of-sample forecasting object to use
+#' @param ... Not used
+#' @export
+alpl <- function(x, ...) {
+  UseMethod("alpl", x)
+}
+
+#' @rdname alpl
+#' @export 
+alpl.bvharcv <- function(x, ...) {
+  if (x$med) {
+    return(median(x$lpl))
+  }
+  mean(x$lpl)
 }
 
 #' Evaluate the Model Based on RelMAE (Relative MAE)
