@@ -365,6 +365,10 @@ struct RegInits {
 	RegInits(LIST& init)
 	: _coef(CAST<Eigen::MatrixXd>(init["init_coef"])),
 		_contem(CAST<Eigen::VectorXd>(init["init_contem"])) {}
+	
+	RegInits(const RegRecords& record)
+	: _coef(record.coef_record.colwise().mean()),
+		_contem(record.contem_coef_record.colwise().mean()) {}
 };
 
 /**
@@ -381,6 +385,10 @@ struct LdltInits : public RegInits {
 	LdltInits(LIST& init, int num_design)
 	: RegInits(init),
 		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
+	
+	LdltInits(const LdltRecords& record)
+	: RegInits(record),
+		_diag(record.fac_record.colwise().mean()) {}
 };
 
 /**
@@ -412,6 +420,12 @@ struct SvInits : public RegInits {
 		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+	
+	SvInits(const SvRecords& record)
+	: RegInits(record),
+		_lvol_init(record.lvol_init_record.colwise().mean()),
+		_lvol(record.lvol_record.colwise().mean().transpose().replicate(record.lvol_record.rows() / record.getDim(), 1)),
+		_lvol_sig(record.lvol_sig_record.colwise().mean()) {}
 };
 
 /**
