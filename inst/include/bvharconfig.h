@@ -613,7 +613,7 @@ struct GlInits : public BaseRegInits {
 		_init_local(Eigen::VectorXd::Zero(num_alpha)),
 		_init_global(exp(unif_rand(-1, 1, rng))),
 		_init_contem_local(Eigen::VectorXd::Zero(num_lowerchol)),
-		_init_contem_global(Eigen::VectorXd::Zero(1)) {
+		_init_conetm_global(Eigen::VectorXd::Zero(1)) {
 		std::generate_n(
 			_init_local.data(),
 			num_alpha,
