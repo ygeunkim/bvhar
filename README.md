@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# bvhar <img src='man/figures/logo.png' align="right" height="139" />
+# bvhar <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 
@@ -290,7 +290,7 @@ Please cite this package with following BibTeX:
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.1.1},
+      note = {R package version 2.1.2.9008},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
