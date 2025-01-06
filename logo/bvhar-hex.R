@@ -72,3 +72,4 @@ sticker(
 )
 # usethis--------------------------------------
 usethis::use_logo("./logo/logo.png")
+pkgdown::build_favicons(pkg = ".", overwrite = TRUE)
