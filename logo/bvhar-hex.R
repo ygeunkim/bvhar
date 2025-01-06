@@ -66,10 +66,10 @@ sticker(
   u_angle = 30,
   # Save
   white_around_sticker = FALSE,
-  filename = "./logo/logo.png",
+  filename = "./logo/bvhar-logo.png",
   asp = 1,
   dpi = 300
 )
 # usethis--------------------------------------
-usethis::use_logo("./logo/logo.png")
-pkgdown::build_favicons(pkg = ".", overwrite = TRUE)
+usethis::use_logo("./logo/bvhar-logo.png")
+pkgdown::build_favicons(pkg = ".", overwrite = FALSE)
