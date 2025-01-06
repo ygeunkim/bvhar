@@ -17,4 +17,4 @@
 ^revdep$
 ^python$
 inst/doxygen
-logo
+^logo$
