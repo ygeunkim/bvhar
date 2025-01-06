@@ -180,8 +180,10 @@ var_bayes <- function(y,
   )
   grp_id <- unique(c(glob_idmat))
   if (minnesota) {
-    own_id <- 2
-    cross_id <- seq_len(p + 1)[-2]
+    # own_id <- 2
+    # cross_id <- seq_len(p + 1)[-2]
+    own_id <- seq(2, 2 * p, by = 2)
+    cross_id <- seq(1, 2 * p, by = 2)
   } else {
     own_id <- 1
     cross_id <- 2
