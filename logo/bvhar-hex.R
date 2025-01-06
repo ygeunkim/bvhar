@@ -70,3 +70,5 @@ sticker(
   asp = 1,
   dpi = 300
 )
+# usethis--------------------------------------
+usethis::use_logo("./logo/logo.png")
