@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 options(digits = 3)
 ```
 
-# bvhar <img src='man/figures/logo.png' align="right" height="139" />
+# bvhar <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Amaster)

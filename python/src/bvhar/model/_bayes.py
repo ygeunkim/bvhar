@@ -285,9 +285,11 @@ class VarBayes(_AutoregBayes):
         self.design_ = build_design(self.y_, lag, fit_intercept)
         self.response_ = build_response(self.y_, lag, lag + 1)
         if minnesota:
-            self._own_id = np.array([2], dtype=np.int32)
-            self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
-            self._cross_id = np.delete(self._cross_id, 1)
+            # self._own_id = np.array([2], dtype=np.int32)
+            # self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
+            # self._cross_id = np.delete(self._cross_id, 1)
+            self._own_id = np.arange(2, 2 * self.p_, 2, dtype=np.int32)
+            self._cross_id = np.arange(1, 2 * self.p_, 2, dtype=np.int32)
         else:
             self._own_id = np.array([2], dtype=np.int32)
             self._cross_id = np.array([2], dtype=np.int32)
