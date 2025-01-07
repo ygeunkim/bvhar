@@ -175,7 +175,7 @@ var_bayes <- function(y,
     dim_data = dim_data,
     dim_design = num_alpha / dim_data,
     num_coef = num_alpha,
-    minnesota = ifelse(minnesota, "short", "no"),
+    minnesota = ifelse(minnesota, "longrun", "no"),
     include_mean = FALSE
   )
   grp_id <- unique(c(glob_idmat))
