@@ -369,11 +369,11 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
-		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
-	);
-  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
-	coef = post_mean + llt_of_prec.matrixU().solve(res);
+	Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
+	double scl = pos_def.maxCoeff();
+	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(pos_def / scl); // (L / sqrt(scl)) * (L^T / sqrt(scl))
+  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve((prior_prec.cwiseProduct(prior_mean) + x.transpose() * y) / scl); // (pos_def / scl) * mean = () / scl
+	coef = post_mean + llt_of_prec.matrixU().solve(res) / sqrt(scl); // (L^T / sqrt(scl))^(-1) * res = sqrt(scl) * (L^T)^(-1) * res
 }
 
 // SAVS Algorithm for shirnkage prior
