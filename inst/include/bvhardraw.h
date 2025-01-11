@@ -369,11 +369,16 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-	Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
-	double scl = pos_def.maxCoeff();
-	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(pos_def / scl); // (L / sqrt(scl)) * (L^T / sqrt(scl))
-  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve((prior_prec.cwiseProduct(prior_mean) + x.transpose() * y) / scl); // (pos_def / scl) * mean = () / scl
-	coef = post_mean + llt_of_prec.matrixU().solve(res) / sqrt(scl); // (L^T / sqrt(scl))^(-1) * res = sqrt(scl) * (L^T)^(-1) * res
+	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
+		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
+	);
+  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
+	coef = post_mean + llt_of_prec.matrixU().solve(res);
+	// Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
+	// double scl = pos_def.maxCoeff();
+	// Eigen::LLT<Eigen::MatrixXd> llt_of_prec(pos_def / scl); // (L / sqrt(scl)) * (L^T / sqrt(scl))
+  // Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve((prior_prec.cwiseProduct(prior_mean) + x.transpose() * y) / scl); // (pos_def / scl) * mean = () / scl
+	// coef = post_mean + llt_of_prec.matrixU().solve(res) / sqrt(scl); // (L^T / sqrt(scl))^(-1) * res = sqrt(scl) * (L^T)^(-1) * res
 }
 
 // SAVS Algorithm for shirnkage prior
@@ -751,8 +756,8 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		// 	1, .5,
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
-		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
-		latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
+		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
 	}
 }
 
@@ -765,7 +770,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
+		local_param[i] = 1 / sim_gig(1, 1 - dir_concen, 1, 2 * abs(coef[i]), rng)[0];
 	}
 	local_param /= local_param.sum();
 }
@@ -778,7 +783,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
 										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	return 1 / sim_gig(1, coef.size() * (1 - dir_concen), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 }
 
 // Generating Group Parameter of Dirichlet-Laplace Prior
