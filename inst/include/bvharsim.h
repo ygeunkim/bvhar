@@ -514,41 +514,26 @@ inline void rgig_with_mode(Eigen::VectorXd& res, int num_sim, double lambda, dou
 // Generate Generalized Inverse Gaussian Distribution
 inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double chi, boost::random::mt19937& rng) {
 	Eigen::VectorXd res(num_sim);
-	double abs_lam = abs(lambda); // If lambda < 0, use 1 / X as the result
+	double abs_lam = abs(lambda); // GIG(lambda, psi, chi) == 1 / GIG(-lambda, chi, psi)
 	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
+	if (chi == 0 || std::isnan(chi)) {
+		chi = std::numeric_limits<double>::min();
+	}
 	double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (beta < 8 * std::numeric_limits<double>::epsilon()) {
 		// Handle round-off error following GIGrvg
 		if (lambda > 0) {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
+				res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(lambda, psi, 0) == Gamma(lambda, psi / 2)
 			}
 			return res;
 		} else if (lambda < 0) {
 			for (int i = 0; i < num_sim; ++i) {
-				res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale)
+				res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // 1 / GIG(abs(lambda), chi, 0) == 1 / Gamma(abs(lambda), chi / 2)
 			}
 			return res;
 		}
 	}
-	// if (chi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = gamma_rand(abs_lam, 2 / psi, rng); // GIG(shape, 2 * rate, 0) <=> Gamma(shape, rate)
-	// 	}
-	// 	if (lambda < 0) {
-	// 		return res.cwiseInverse();
-	// 	}
-	// 	return res;
-	// }
-	// if (psi < 8 * std::numeric_limits<double>::epsilon()) {
-	// 	for (int i = 0; i < num_sim; ++i) {
-	// 		res[i] = 1 / gamma_rand(abs_lam, 2 / chi, rng); // GIG(-shape, 0, 2 * scale) <=> Inverse-Gamma(shape, scale)
-	// 	}
-	// 	if (lambda < 0) {
-	// 		return res.cwiseInverse();
-	// 	}
-	// 	return res;
-	// }
 	// double alpha = sqrt(psi / chi); // rate parameter of quasi-density: scale the result by X / alpha
 	// double beta = sqrt(psi * chi); // second parameter of quasi-density
 	if (abs_lam > 2 || beta > 3) {

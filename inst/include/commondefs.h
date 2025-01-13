@@ -10,6 +10,7 @@
 #ifdef USE_RCPP
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
+	#include <cmath>
 	#include <string>
 	// #include <RcppSpdlog>
 	// #include <RcppThread.h>
