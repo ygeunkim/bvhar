@@ -990,7 +990,7 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 	nu = grid[cat_rand(weight, rng)];
 	for (int i = 0; i < coef.size(); ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec[i] *= (old_nu * old_nu) / (nu * nu);
+			coef_prec[i] *= old_nu / nu;
 		}
 	}
 }
