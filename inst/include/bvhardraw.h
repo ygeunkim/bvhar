@@ -901,37 +901,37 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 // @param grp_vec Group vector
 // @param lag_id id for own-lag or cross-lag
 // @param rng boost rng
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
-														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
-	int num_alpha = coef.size();
-	int mn_size = 0;
-	double gig_chi = 0;
-	for (int i = 0; i < num_alpha; ++i) {
-		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec(i, i) *= lambda;
-			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
-			mn_size++;
-		}
-	}
-	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
-}
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+// 														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+// 	int num_alpha = coef.size();
+// 	int mn_size = 0;
+// 	double gig_chi = 0;
+// 	for (int i = 0; i < num_alpha; ++i) {
+// 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+// 			coef_prec(i, i) *= lambda;
+// 			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+// 			mn_size++;
+// 		}
+// 	}
+// 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+// }
 
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
-	int num_alpha = coef.size();
-	int mn_size = 0;
-	double gig_chi = 0;
-	for (int i = 0; i < num_alpha; ++i) {
-		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec[i] *= lambda;
-			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
-			mn_size++;
-		}
-	}
-	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
-}
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+// 														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+// 	int num_alpha = coef.size();
+// 	int mn_size = 0;
+// 	double gig_chi = 0;
+// 	for (int i = 0; i < num_alpha; ++i) {
+// 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+// 			coef_prec[i] *= lambda;
+// 			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
+// 			mn_size++;
+// 		}
+// 	}
+// 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+// }
 
 // Generating contemporaneous lambda of Minnesota-SV
 // 
@@ -942,17 +942,16 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 // @param coef_mean Prior mean
 // @param coef_prec Prior precision matrix
 // @param rng boost rng
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
-														 boost::random::mt19937& rng) {
-	coef_prec.diagonal() *= lambda;
-	// double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
-	// double gig_chi = ((coef - coef_mean).array().square()).sum();
-	double gig_chi = (coef - coef_mean).squaredNorm();
-	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
-	coef_prec.diagonal() /= lambda;
-}
-
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+// 														 boost::random::mt19937& rng) {
+// 	coef_prec.diagonal() *= lambda;
+// 	// double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
+// 	// double gig_chi = ((coef - coef_mean).array().square()).sum();
+// 	double gig_chi = (coef - coef_mean).squaredNorm();
+// 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+// 	coef_prec.diagonal() /= lambda;
+// }
 inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
 														 boost::random::mt19937& rng) {
