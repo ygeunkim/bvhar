@@ -966,13 +966,11 @@ inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> co
 														 		 		Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
 														 		 		Eigen::VectorXi& grp_vec, std::set<int>& grp_id) {
 	double gaussian_kernel = 0;
-	int num_alpha = coef.size();
 	int mn_size = 0;
-	for (int i = 0; i < num_alpha; ++i) {
+	for (int i = 0; i < coef.size(); ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
 			mn_size++;
 			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
-			coef_prec[i] *= cand; // remove nu in prec -> update after drawing nu outside of the function
 		}
 	}
 	return -(mn_size * log(cand) + gaussian_kernel / cand) / 2;
@@ -983,6 +981,7 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
+	double old_nu = nu;
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = minnesota_logdens_scl(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);
 	}
@@ -991,7 +990,7 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 	nu = grid[cat_rand(weight, rng)];
 	for (int i = 0; i < coef.size(); ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec[i] /= (nu * nu);
+			coef_prec[i] *= (old_nu * old_nu) / (nu * nu);
 		}
 	}
 }
