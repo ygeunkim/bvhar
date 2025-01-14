@@ -378,7 +378,7 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
 	);
-  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
+  Eigen::VectorXd post_mean = llt_of_prec.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
 	coef = post_mean + llt_of_prec.matrixU().solve(res);
 	// Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
 	// double scl = pos_def.maxCoeff();
@@ -972,7 +972,8 @@ inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> co
 	for (int i = 0; i < num_alpha; ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
 			mn_size++;
-			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
+			coef_prec[i] *= cand; // remove nu in prec -> update after drawing nu outside of the function
 		}
 	}
 	return -(mn_size * log(cand) + gaussian_kernel / cand) / 2;
@@ -989,6 +990,11 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
 	nu = grid[cat_rand(weight, rng)];
+	for (int i = 0; i < coef.size(); ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			coef_prec[i] /= (nu * nu);
+		}
+	}
 }
 
 // Generating local shrinkage of Normal-Gamma prior
