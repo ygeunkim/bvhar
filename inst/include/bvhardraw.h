@@ -956,7 +956,8 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
 														 boost::random::mt19937& rng) {
 	coef_prec.array() *= lambda;
-	double gig_chi = (coef - coef_mean).squaredNorm();
+	// double gig_chi = (coef - coef_mean).squaredNorm();
+	double gig_chi = ((coef - coef_mean).array().square() / coef_prec.array()).sum();
 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
 	cut_param(lambda);
 	coef_prec.array() /= lambda;
