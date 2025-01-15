@@ -484,7 +484,7 @@ public:
 		prior_alpha_prec.head(num_alpha).array() /= own_lambda;
 		for (int i = 0; i < num_alpha; ++i) {
 			if (cross_id.find(grp_vec[i]) != cross_id.end()) {
-				prior_alpha_prec[i] /= cross_lambda;
+				prior_alpha_prec[i] /= cross_lambda; // nu
 			}
 		}
 		if (include_mean) {

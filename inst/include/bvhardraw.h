@@ -95,6 +95,12 @@ inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, const Eige
 // 	}
 // }
 
+inline void cut_param(double& param) {
+	if (param < std::numeric_limits<double>::min() || std::isnan(param)) {
+		param = std::numeric_limits<double>::min();
+	}
+}
+
 // Building Spike-and-slab SD Diagonal Matrix
 // 
 // In MCMC process of SSVS, this function computes diagonal matrix \eqn{D} or \eqn{D_j} defined by spike-and-slab sd.
@@ -369,11 +375,16 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
   for (int i = 0; i < dim; i++) {
 		res[i] = normal_rand(rng);
   }
-	Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
-	double scl = pos_def.maxCoeff();
-	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(pos_def / scl); // (L / sqrt(scl)) * (L^T / sqrt(scl))
-  Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve((prior_prec.cwiseProduct(prior_mean) + x.transpose() * y) / scl); // (pos_def / scl) * mean = () / scl
-	coef = post_mean + llt_of_prec.matrixU().solve(res) / sqrt(scl); // (L^T / sqrt(scl))^(-1) * res = sqrt(scl) * (L^T)^(-1) * res
+	Eigen::LLT<Eigen::MatrixXd> llt_of_prec(
+		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
+	);
+  Eigen::VectorXd post_mean = llt_of_prec.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
+	coef = post_mean + llt_of_prec.matrixU().solve(res);
+	// Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();
+	// double scl = pos_def.maxCoeff();
+	// Eigen::LLT<Eigen::MatrixXd> llt_of_prec(pos_def / scl); // (L / sqrt(scl)) * (L^T / sqrt(scl))
+  // Eigen::VectorXd post_mean = llt_of_prec.adjoint().solve((prior_prec.cwiseProduct(prior_mean) + x.transpose() * y) / scl); // (pos_def / scl) * mean = () / scl
+	// coef = post_mean + llt_of_prec.matrixU().solve(res) / sqrt(scl); // (L^T / sqrt(scl))^(-1) * res = sqrt(scl) * (L^T)^(-1) * res
 }
 
 // SAVS Algorithm for shirnkage prior
@@ -751,8 +762,9 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		// 	1, .5,
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
-		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
-		latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
+		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
+		cut_param(latent_param[i]);
 	}
 }
 
@@ -766,6 +778,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
+		cut_param(local_param[i]);
 	}
 	local_param /= local_param.sum();
 }
@@ -778,7 +791,10 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
 										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
-	return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	double tau = sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	cut_param(tau);
+	return tau;
 }
 
 // Generating Group Parameter of Dirichlet-Laplace Prior
@@ -812,6 +828,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			1 / (rate + mn_scl.sum()),
 			rng
 		);
+		cut_param(group_param[i]);
   }
 }
 
@@ -861,6 +878,7 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param global_param Global shrinkage
 inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
 	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
+	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), 1);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = dl_logdens_dir(grid[i], local_param, global_param);
@@ -883,37 +901,37 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 // @param grp_vec Group vector
 // @param lag_id id for own-lag or cross-lag
 // @param rng boost rng
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
-														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
-	int num_alpha = coef.size();
-	int mn_size = 0;
-	double gig_chi = 0;
-	for (int i = 0; i < num_alpha; ++i) {
-		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec(i, i) *= lambda;
-			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
-			mn_size++;
-		}
-	}
-	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
-}
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+// 														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+// 	int num_alpha = coef.size();
+// 	int mn_size = 0;
+// 	double gig_chi = 0;
+// 	for (int i = 0; i < num_alpha; ++i) {
+// 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+// 			coef_prec(i, i) *= lambda;
+// 			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+// 			mn_size++;
+// 		}
+// 	}
+// 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+// }
 
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
-	int num_alpha = coef.size();
-	int mn_size = 0;
-	double gig_chi = 0;
-	for (int i = 0; i < num_alpha; ++i) {
-		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
-			coef_prec[i] *= lambda;
-			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
-			mn_size++;
-		}
-	}
-	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
-}
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
+// 														 Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+// 	int num_alpha = coef.size();
+// 	int mn_size = 0;
+// 	double gig_chi = 0;
+// 	for (int i = 0; i < num_alpha; ++i) {
+// 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+// 			coef_prec[i] *= lambda;
+// 			gig_chi += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
+// 			mn_size++;
+// 		}
+// 	}
+// 	lambda = sim_gig(1, shape - mn_size / 2, 2 * rate, gig_chi, rng)[0];
+// }
 
 // Generating contemporaneous lambda of Minnesota-SV
 // 
@@ -924,23 +942,24 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 // @param coef_mean Prior mean
 // @param coef_prec Prior precision matrix
 // @param rng boost rng
-inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
-														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
-														 boost::random::mt19937& rng) {
-	coef_prec.diagonal() *= lambda;
-	// double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
-	// double gig_chi = ((coef - coef_mean).array().square()).sum();
-	double gig_chi = (coef - coef_mean).squaredNorm();
-	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
-	coef_prec.diagonal() /= lambda;
-}
-
+// inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
+// 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::MatrixXd& coef_prec,
+// 														 boost::random::mt19937& rng) {
+// 	coef_prec.diagonal() *= lambda;
+// 	// double gig_chi = ((coef - coef_mean).array().square() / coef_prec.diagonal().array()).sum();
+// 	// double gig_chi = ((coef - coef_mean).array().square()).sum();
+// 	double gig_chi = (coef - coef_mean).squaredNorm();
+// 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+// 	coef_prec.diagonal() /= lambda;
+// }
 inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
 														 boost::random::mt19937& rng) {
 	coef_prec.array() *= lambda;
-	double gig_chi = (coef - coef_mean).squaredNorm();
+	// double gig_chi = (coef - coef_mean).squaredNorm();
+	double gig_chi = ((coef - coef_mean).array().square() / coef_prec.array()).sum();
 	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+	cut_param(lambda);
 	coef_prec.array() /= lambda;
 }
 
@@ -948,12 +967,11 @@ inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> co
 														 		 		Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
 														 		 		Eigen::VectorXi& grp_vec, std::set<int>& grp_id) {
 	double gaussian_kernel = 0;
-	int num_alpha = coef.size();
 	int mn_size = 0;
-	for (int i = 0; i < num_alpha; ++i) {
+	for (int i = 0; i < coef.size(); ++i) {
 		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
 			mn_size++;
-			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec(i, i);
+			gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];
 		}
 	}
 	return -(mn_size * log(cand) + gaussian_kernel / cand) / 2;
@@ -964,12 +982,18 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
+	double old_nu = nu;
 	for (int i = 0; i < grid_size; ++i) {
 		log_wt[i] = minnesota_logdens_scl(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
 	nu = grid[cat_rand(weight, rng)];
+	for (int i = 0; i < coef.size(); ++i) {
+		if (grp_id.find(grp_vec[i]) != grp_id.end()) {
+			coef_prec[i] *= old_nu / nu;
+		}
+	}
 }
 
 // Generating local shrinkage of Normal-Gamma prior
@@ -988,6 +1012,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 			2 * shape / (global_param[i] * global_param[i]),
 			coef[i] * coef[i], rng
 		)[0]);
+		cut_param(local_param[i]);
 	}
 }
 // overloading
@@ -1000,6 +1025,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 			2 * shape[i] / (global_param[i] * global_param[i]),
 			coef[i] * coef[i], rng
 		)[0]);
+		cut_param(local_param[i]);
 	}
 }
 
@@ -1012,20 +1038,34 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param rng boost rng
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& hyper_gamma,
 																 double& shape, double& scl, boost::random::mt19937& rng) {
-	return sqrt(1 / gamma_rand(
+	// return sqrt(1 / gamma_rand(
+	// 	shape + local_param.size() * hyper_gamma,
+	// 	1 / (hyper_gamma * local_param.squaredNorm() + scl),
+	// 	rng
+	// ));
+	double tau = sqrt(1 / gamma_rand(
 		shape + local_param.size() * hyper_gamma,
 		1 / (hyper_gamma * local_param.squaredNorm() + scl),
 		rng
 	));
+	cut_param(tau);
+	return tau;
 }
 // overloading
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
 																 double& shape, double& scl, boost::random::mt19937& rng) {
-	return sqrt(1 / gamma_rand(
+	// return sqrt(1 / gamma_rand(
+	// 	shape + hyper_gamma.sum(),
+	// 	1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
+	// 	rng
+	// ));
+	double tau = sqrt(1 / gamma_rand(
 		shape + hyper_gamma.sum(),
 		1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
 		rng
 	));
+	cut_param(tau);
+	return tau;
 }
 
 // For MN structure
@@ -1049,6 +1089,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			}
 		}
 		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
+		cut_param(group_param[i]);
   }
 }
 

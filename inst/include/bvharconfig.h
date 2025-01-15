@@ -123,7 +123,10 @@ struct MinnParams : public BaseRegParams {
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
-		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
+		Eigen::MatrixXd coef_ols = (x.transpose() * x).selfadjointView<Eigen::Lower>().llt().solve(x.transpose() * y);
+		Eigen::MatrixXd resid = y - x * coef_ols;
+		Eigen::VectorXd _sigma = (y.rows() >= x.cols()) ? (resid.transpose() * resid).diagonal() / (y.rows() - x.cols()) : (resid.transpose() * resid).diagonal() / y.rows();
+		// Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
 		double _lambda = CAST_DOUBLE(priors["lambda"]);
 		double _eps = CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
@@ -178,7 +181,10 @@ struct HierminnParams : public BaseRegParams {
 		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])), _grid_size(CAST_INT(priors["grid_size"])),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
 		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
-		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
+		Eigen::MatrixXd coef_ols = (x.transpose() * x).selfadjointView<Eigen::Lower>().llt().solve(x.transpose() * y);
+		Eigen::MatrixXd resid = y - x * coef_ols;
+		Eigen::VectorXd _sigma = (y.rows() >= x.cols()) ? (resid.transpose() * resid).diagonal() / (y.rows() - x.cols()) : (resid.transpose() * resid).diagonal() / y.rows();
+		// Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
 		double _eps = CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
