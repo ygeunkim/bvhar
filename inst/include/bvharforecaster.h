@@ -450,45 +450,37 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
 	STRING a_name = sparse ? "a_sparse_record" : "a_record";
 	STRING c_name = sparse ? "c_sparse_record" : "c_record";
-#ifdef _OPENMP
-	#pragma omp parallel for num_threads(nthreads)
-#endif
 	for (int i = 0; i < num_chains; ++i) {
 		std::unique_ptr<Records> reg_record;
-	#ifdef _OPENMP
-		#pragma omp critical
-	#endif
-		{
-			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
-			if (har_trans && !activity) {
-				forecaster_ptr[i] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
-					*reg_record, step, response_mat,
-					*har_trans, ord,
-					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-					sv
-				);
-			} else if (!har_trans && !activity) {
-				forecaster_ptr[i] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
-					*reg_record, step, response_mat,
-					ord,
-					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-					sv
-				);
-			} else if (har_trans && activity) {
-				forecaster_ptr[i] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
-					*reg_record, level, step, response_mat,
-					*har_trans, ord,
-					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-					sv
-				);
-			} else {
-				forecaster_ptr[i] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
-					*reg_record, level, step, response_mat,
-					ord,
-					include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
-					sv
-				);
-			}
+		initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
+		if (har_trans && !activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVharForecaster<BaseForecaster>>(
+				*reg_record, step, response_mat,
+				*har_trans, ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else if (!har_trans && !activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVarForecaster<BaseForecaster>>(
+				*reg_record, step, response_mat,
+				ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else if (har_trans && activity) {
+			forecaster_ptr[i] = std::make_unique<McmcVharSelectForecaster<BaseForecaster>>(
+				*reg_record, level, step, response_mat,
+				*har_trans, ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
+		} else {
+			forecaster_ptr[i] = std::make_unique<McmcVarSelectForecaster<BaseForecaster>>(
+				*reg_record, level, step, response_mat,
+				ord,
+				include_mean, stable, static_cast<unsigned int>(seed_chain[i]),
+				sv
+			);
 		}
 	}
 	return forecaster_ptr;
