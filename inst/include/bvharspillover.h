@@ -410,6 +410,7 @@ protected:
 		model[window][chain].reset();
 	}
 	void getSpillover(int window, int chain) {
+		runGibbs(window, chain);
 		spillover[window][chain]->computeSpillover();
 		to_sp[window][chain] = spillover[window][chain]->returnTo();
 		from_sp[window][chain] = spillover[window][chain]->returnFrom();
@@ -423,7 +424,6 @@ protected:
 			#pragma omp parallel for num_threads(nthreads)
 		#endif
 			for (int window = 0; window < num_horizon; ++window) {
-				runGibbs(window, 0);
 				getSpillover(window, 0);
 			}
 		} else {
@@ -432,7 +432,6 @@ protected:
 		#endif
 			for (int window = 0; window < num_horizon; ++window) {
 				for (int chain = 0; chain < num_chains; ++chain) {
-					runGibbs(window, chain);
 					getSpillover(window, chain);
 				}
 			}
