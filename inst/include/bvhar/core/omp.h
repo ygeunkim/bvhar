@@ -1,5 +1,5 @@
-#ifndef BVHAROMP_H
-#define BVHAROMP_H
+#ifndef BVHAR_CORE_OMP_H
+#define BVHAR_CORE_OMP_H
 
 #ifdef _OPENMP
   #include <omp.h>
@@ -16,4 +16,4 @@
 #include <mutex>
 #include <vector> // std::vector in source file
 
-#endif // BVHAROMP_H
+#endif // BVHAR_CORE_OMP_H

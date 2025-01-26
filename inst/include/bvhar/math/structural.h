@@ -1,5 +1,5 @@
-#ifndef BVHARSTRUCTURAL_H
-#define BVHARSTRUCTURAL_H
+#ifndef BVHAR_MATH_STRUCTURAL_H
+#define BVHAR_MATH_STRUCTURAL_H
 
 // #ifdef USE_RCPP
 // 	#include <RcppEigen.h>
@@ -7,7 +7,7 @@
 // 	#include <Eigen/Dense>
 // 	#include <Eigen/Cholesky>
 // #endif
-#include "bvhareigen.h"
+#include "../core/eigen.h"
 
 namespace bvhar {
 
@@ -147,4 +147,4 @@ inline Eigen::MatrixXd compute_net(Eigen::Ref<Eigen::MatrixXd> spillover) {
 
 } // namespace bvhar
 
-#endif // BVHARSTRUCTURAL_H
+#endif // BVHAR_MATH_STRUCTURAL_H

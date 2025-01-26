@@ -1,7 +1,7 @@
 #ifndef OLS_H
 #define OLS_H
 
-#include "bvhardesign.h"
+#include "../math/design.h"
 #include <memory> // std::unique_ptr in source file
 
 namespace bvhar {

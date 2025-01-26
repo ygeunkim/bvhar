@@ -4,8 +4,8 @@
  * @brief Common header
  */
 
-#ifndef COMMONDEFS_H
-#define COMMONDEFS_H
+#ifndef BVHAR_CORE_COMMONDEFS_H
+#define BVHAR_CORE_COMMONDEFS_H
 
 #ifdef USE_RCPP
 	// #include <RcppEigen.h>
@@ -118,4 +118,4 @@ unique_ptr<T> make_unique(Args&&... args) {
 } // namespace std
 #endif
 
-#endif // COMMONDEFS_H
+#endif // BVHAR_CORE_COMMONDEFS_H

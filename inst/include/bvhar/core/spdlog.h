@@ -1,5 +1,5 @@
-#ifndef BVHARSPDLOG_H
-#define BVHARSPDLOG_H
+#ifndef BVHAR_CORE_SPDLOG_H
+#define BVHAR_CORE_SPDLOG_H
 
 #ifdef USE_RCPP
 
@@ -62,4 +62,4 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 
 #endif // USE_RCPP
 
-#endif // BVHARSPDLOG_H
+#endif // BVHAR_CORE_SPDLOG_H

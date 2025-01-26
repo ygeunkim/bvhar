@@ -1,5 +1,5 @@
-#ifndef BVHARPROGRESS_H
-#define BVHARPROGRESS_H
+#ifndef BVHAR_CORE_PROGRESS_H
+#define BVHAR_CORE_PROGRESS_H
 
 #include "commondefs.h"
 #include "omp.h"
@@ -47,4 +47,4 @@ private:
 
 } // namespace bvhar
 
-#endif // BVHARPROGRESS_H
+#endif // BVHAR_CORE_PROGRESS_H

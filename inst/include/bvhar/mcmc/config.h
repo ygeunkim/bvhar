@@ -1,11 +1,11 @@
 /**
- * @file bvharconfig.h
+ * @file config.h
  * @author your name (you@domain.com)
  * @brief Headers including MCMC configuration structs
  */
 
-#ifndef BVHARCONFIG_H
-#define BVHARCONFIG_H
+#ifndef BVHAR_MCMC_CONFIG_H
+#define BVHAR_MCMC_CONFIG_H
 
 #include "draw.h"
 #include "../math/design.h"
@@ -1401,4 +1401,4 @@ inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, 
 
 } // namespace bvhar
 
-#endif // BVHARCONFIG_H
+#endif // BVHAR_MCMC_CONFIG_H

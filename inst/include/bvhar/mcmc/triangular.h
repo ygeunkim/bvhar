@@ -1,10 +1,10 @@
 /**
- * @file bvharmcmc.h
+ * @file triangular.h
  * @brief Header including MCMC algorithm
  */
 
-#ifndef BVHARMCMC_H
-#define BVHARMCMC_H
+#ifndef BVHAR_MCMC_TRIANGULAR_H
+#define BVHAR_MCMC_TRIANGULAR_H
 
 #include "config.h"
 #include "../core/progress.h"
@@ -1293,4 +1293,4 @@ private:
 
 } // namespace bvhar
 
-#endif // BVHARMCMC_H
+#endif // BVHAR_MCMC_TRIANGULAR_H

@@ -1,5 +1,5 @@
-#ifndef BVHARCOMMON_H
-#define BVHARCOMMON_H
+#ifndef BVHAR_CORE_COMMON_H
+#define BVHAR_CORE_COMMON_H
 
 #include "eigen.h"
 #include "spdlog.h"
@@ -245,4 +245,4 @@ inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) 
 
 } // namespace bvhar
 
-#endif // BVHARCOMMON_H
+#endif // BVHAR_CORE_COMMON_H

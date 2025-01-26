@@ -1,5 +1,5 @@
-#ifndef MCMCREG_H
-#define MCMCREG_H
+#ifndef BVHAR_MCMC_REG_H
+#define BVHAR_MCMC_REG_H
 
 #include "./triangular.h"
 
@@ -15,4 +15,4 @@ using DlReg = McmcDl<McmcReg>;
 
 }; // namespace bvhar
 
-#endif // MCMCREG_H
+#endif // BVHAR_MCMC_REG_H

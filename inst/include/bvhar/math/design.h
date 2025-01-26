@@ -1,7 +1,7 @@
-#ifndef BVHARDESIGN_H
-#define BVHARDESIGN_H
+#ifndef BVHAR_MATH_DESIGN_H
+#define BVHAR_MATH_DESIGN_H
 
-#include "bvhareigen.h"
+#include "../core/eigen.h"
 
 namespace bvhar {
 
@@ -119,4 +119,4 @@ inline Eigen::MatrixXd build_xdummy(const Eigen::VectorXd& lag_seq,
 
 } // namespace bvhar
 
-#endif // BVHARDESIGN_H
+#endif // BVHAR_MATH_DESIGN_H

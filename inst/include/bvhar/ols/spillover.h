@@ -1,8 +1,8 @@
 #ifndef OLSSPILLOVER_H
 #define OLSSPILLOVER_H
 
-#include "ols.h"
-#include "bvharstructural.h"
+#include "./ols.h"
+#include "../math/structural.h"
 
 namespace bvhar {
 

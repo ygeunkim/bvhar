@@ -1,5 +1,5 @@
-#ifndef BVHARSIM_H
-#define BVHARSIM_H
+#ifndef BVHAR_MATH_RANDOM_H
+#define BVHAR_MATH_RANDOM_H
 
 #include "../core/common.h"
 #include <vector>
@@ -570,4 +570,4 @@ inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rn
 
 } //namespace bvhar
 
-#endif // BVHARSIM_H
+#endif // BVHAR_MATH_RANDOM_H

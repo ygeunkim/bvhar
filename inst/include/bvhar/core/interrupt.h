@@ -1,5 +1,5 @@
-#ifndef BVHARINTERRUPT_H
-#define BVHARINTERRUPT_H
+#ifndef BVHAR_CORE_INTERRUPT_H
+#define BVHAR_CORE_INTERRUPT_H
 
 #include <csignal>
 #include <atomic>
@@ -35,4 +35,4 @@ public:
 
 } // namespace bvhar
 
-#endif // BVHARINTERRUPT_H
+#endif // BVHAR_CORE_INTERRUPT_H

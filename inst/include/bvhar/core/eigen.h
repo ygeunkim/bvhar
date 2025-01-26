@@ -1,5 +1,5 @@
-#ifndef BVHAREIGEN_H
-#define BVHAREIGEN_H
+#ifndef BVHAR_CORE_EIGEN_H
+#define BVHAR_CORE_EIGEN_H
 
 #include "commondefs.h"
 
@@ -15,4 +15,4 @@
 	#include <pybind11/eigen.h>
 #endif
 
-#endif // BVHAREIGEN_H
+#endif // BVHAR_CORE_EIGEN_H
