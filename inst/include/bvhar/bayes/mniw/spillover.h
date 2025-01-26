@@ -1,9 +1,9 @@
-#ifndef MINNSPILLOVER_H
-#define MINNSPILLOVER_H
+#ifndef BVHAR_BAYES_MNIW_SPILLOVER_H
+#define BVHAR_BAYES_MNIW_SPILLOVER_H
 
-#include "minnesota.h"
-#include "bvharsim.h"
-#include "bvharstructural.h"
+#include "./minnesota.h"
+#include "../../math/random.h"
+#include "../../math/structural.h"
 
 namespace bvhar {
 
@@ -130,4 +130,4 @@ private:
 
 }; // namespace bvhar
 
-#endif // MINNSPILLOVER_H
+#endif // BVHAR_BAYES_MNIW_SPILLOVER_H

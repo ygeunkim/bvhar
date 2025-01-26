@@ -1,8 +1,8 @@
-#ifndef MINNFORECASTER_H
-#define MINNFORECASTER_H
+#ifndef BVHAR_BAYES_MNIW_FORECASTER_H
+#define BVHAR_BAYES_MNIW_FORECASTER_H
 
-#include "minnesota.h"
-#include "bvharsim.h"
+#include "./minnesota.h"
+#include "../../math/random.h"
 
 namespace bvhar {
 
@@ -185,4 +185,4 @@ private:
 
 } // namespace bvhar
 
-#endif // MINNFORECASTER_H
+#endif // BVHAR_BAYES_MNIW_FORECASTER_H

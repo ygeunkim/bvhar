@@ -1,11 +1,11 @@
-#ifndef MINNESOTA_H
-#define MINNESOTA_H
+#ifndef BVHAR_BAYES_MNIW_MINNESOTA_H
+#define BVHAR_BAYES_MNIW_MINNESOTA_H
 
 // #include <RcppEigen.h>
-#include "bvhardraw.h"
-#include "bvhardesign.h"
+#include "../misc/draw.h"
+#include "../../math/design.h"
 // #include <memory> // std::unique_ptr
-#include "bvharprogress.h"
+#include "../../core/progress.h"
 
 namespace bvhar {
 
@@ -647,4 +647,4 @@ protected:
 
 } // namespace bvhar
 
-#endif // MINNESOTA_H
+#endif // BVHAR_BAYES_MNIW_MINNESOTA_H
