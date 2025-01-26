@@ -1,0 +1,10 @@
+#ifndef BVHAR_MATH_H
+#define BVHAR_MATH_H
+
+#include "src/core/omp.h"
+#include "src/math/design.h"
+#include "src/math/structural.h"
+#include "src/math/random.h"
+#include "src/bayes/misc/draw.h"
+
+#endif // BVHAR_MATH_H
