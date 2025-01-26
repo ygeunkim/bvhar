@@ -1,8 +1,8 @@
 #ifndef BVHARCOMMON_H
 #define BVHARCOMMON_H
 
-#include "bvhareigen.h"
-#include "bvharspdlog.h"
+#include "eigen.h"
+#include "spdlog.h"
 
 namespace boost {
 

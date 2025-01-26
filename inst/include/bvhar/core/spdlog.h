@@ -6,7 +6,7 @@
 #include <RcppThread/Rcout.hpp>
 #include <RcppSpdlog>
 // #include <spdlog/pattern_formatter.h>
-#include "bvharomp.h"
+#include "omp.h"
 
 namespace bvhar {
 namespace sinks {

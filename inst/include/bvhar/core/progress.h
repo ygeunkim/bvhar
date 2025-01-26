@@ -2,7 +2,7 @@
 #define BVHARPROGRESS_H
 
 #include "commondefs.h"
-#include "bvharomp.h"
+#include "omp.h"
 
 namespace bvhar {
 
