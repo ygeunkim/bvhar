@@ -169,7 +169,7 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
   # }
   res_mat <- switch(model_type,
     "bvarmn" = {
-      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, num_thread)
+      roll_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # roll_bvar(
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
@@ -179,7 +179,7 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
       # )
     },
     "bvarflat" = {
-      roll_bvarflat(y, object$p, object$spec$U, include_mean, n_ahead, y_test, num_thread)
+      roll_bvarflat(y, object$p, object$spec$U, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # roll_bvarflat(
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
@@ -189,7 +189,7 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
       # )
     },
     "bvharmn" = {
-      roll_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, num_thread)
+      roll_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # roll_bvhar(
       #   y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
@@ -699,7 +699,7 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
   res_mat <- switch(
     model_type,
     "bvarmn" = {
-      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, num_thread)
+      expand_bvar(y, object$p, object$spec, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # expand_bvar(
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
@@ -709,7 +709,7 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
       # )
     },
     "bvarflat" = {
-      expand_bvarflat(y, object$p, object$spec$U, include_mean, n_ahead, y_test, num_thread)
+      expand_bvarflat(y, object$p, object$spec$U, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # expand_bvarflat(
       #   y, object$p, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,
@@ -719,7 +719,7 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
       # )
     },
     "bvharmn" = {
-      expand_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, num_thread)
+      expand_bvhar(y, object$week, object$month, object$spec, include_mean, n_ahead, y_test, sample.int(.Machine$integer.max, size = num_horizon), num_thread)
       # expand_bvhar(
       #   y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
       #   fit_ls,

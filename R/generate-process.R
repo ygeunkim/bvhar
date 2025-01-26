@@ -25,7 +25,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
   if (method == "eigen") {
     return( sim_mgaussian(num_sim, mu, sig) )
   }
-  sim_mgaussian_chol(num_sim, mu, sig)
+  sim_mgaussian_chol_export(num_sim, mu, sig)
 }
 
 #' Generate Multivariate t Random Vector

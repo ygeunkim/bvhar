@@ -1,6 +1,6 @@
 // #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
-#include <bvharsim.h>
+#include <bvhar/src/math/random.h>
 
 // namespace py = pybind11;
 

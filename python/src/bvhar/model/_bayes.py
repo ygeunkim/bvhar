@@ -1,12 +1,12 @@
 from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast, process_dens_spillover, process_dens_vector_spillover, process_dens_list_spillover
 from ..utils.checkomp import get_maxomp
-from .._src._design import build_response, build_design
-from .._src._ldlt import McmcLdlt, McmcLdltGrp
-from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand, LdltGrpVarRoll, LdltGrpVharRoll, LdltGrpVarExpand, LdltGrpVharExpand
-from .._src._ldltspillover import LdltSpillover, LdltDynamicSpillover
-from .._src._sv import SvMcmc, SvGrpMcmc
-from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand, SvGrpVarRoll, SvGrpVharRoll, SvGrpVarExpand, SvGrpVharExpand
-from .._src._svspillover import SvSpillover, SvDynamicSpillover
+from ..utils._utils import build_response, build_design
+from .._src._bayes import McmcLdlt, McmcLdltGrp
+from .._src._forecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand, LdltGrpVarRoll, LdltGrpVharRoll, LdltGrpVarExpand, LdltGrpVharExpand
+from .._src._spillover import LdltSpillover, LdltDynamicSpillover
+from .._src._bayes import SvMcmc, SvGrpMcmc
+from .._src._forecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand, SvGrpVarRoll, SvGrpVharRoll, SvGrpVarExpand, SvGrpVharExpand
+from .._src._spillover import SvSpillover, SvDynamicSpillover
 from ._spec import LdltConfig, SvConfig, InterceptConfig
 from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig, GdpConfig
 import numpy as np

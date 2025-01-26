@@ -29,23 +29,11 @@ library(bvhar)
 
 This package provides public C++ headers. Some might be implement these useful.
 
-- `bvharsim.h`: Rcpp random generation functions that are widely used in Bayesian statistics.
-- `ols.h`: OLS classes and structs
-- `minnesota.h`: Minnesota prior classes and structs
-- `mcmcsv.h`: Classes and structs for stochastic volatility models. It includes
-    - Minnesota prior
-    - SSVS prior
-    - Horseshoe prior
-- `mcmchs.h`: Horseshoe prior classes
-- `mcmcssvs.h`: SSVS prior classes
-- `olsforecaster.h`: Forecasting class for each VAR and VHAR
-- `minnforecaster.h`: Minnesota prior forecaster classes
-- `svforecaster.h`: SV models forecaster classes
-- `olsspillover.h`: FEVD and spillover class for each VAR and VHAR
-- `minnspillover.h`: FEVD and spillover class for Minnesota prior
-- `svspillover.h`: FEVD and spillover class for SV models
-- `bvharprogress.h`: Simple progress bar classes
-- `bvharinterrupt.h`: Interruption handler classes
+- `ols`: OLS classes and structs
+- `bayesfit`: Bayesian models classes and structs
+- `forecast`: Forecast classes
+- `spillover`: Spillover classes
+- `utils`: Inline functions used in the headers
 
 You can use these by writing in your R package DESCRIPTION:
 
@@ -60,7 +48,7 @@ LinkingTo:
 Also, you can use in your single `C++` source:
 
 ```
-// [[Rcpp::depends(BH, RcppEigen, bvhar)]]
+// [[Rcpp::depends(BH, RcppEigen, RcppSpdlog, RcppThread, bvhar)]]
 // [[Rcpp::plugins(bvhar)]]
 ```
 
@@ -72,19 +60,6 @@ Sys.setenv("PKG_CPPFLAGS" = "-DUSE_RCPP")
 ```
 
 without using plugins attribute.
-
-## MCMC headers
-
-`mcmc*.h` has classes that can conduct MCMC.
-Since it is designed thread-safe, you can OpenMP for parallel multiple chain loop.
-
-1. Initialize using smart pointer (in this package: `std::unique_ptr`)
-    - Since each class requires other structure as its parameter, you first initialize it.
-    - Each struct is inside the same header.
-2. `doPosteriorDraws()` updates MCMC draws, so use this inside loop.
-3. `returnRecords(burn, thin)` returns `Rcpp::List` of every MCMC record.
-
-In case of SV model, you can define your own prior by defining a derived class.
 
 ```{r resetopts, include=FALSE}
 options(orig_opts)

@@ -1,0 +1,10 @@
+#ifndef BVHAR_BAYESFIT_H
+#define BVHAR_BAYESFIT_H
+
+// MNIW
+#include "src/bayes/mniw/minnesota.h"
+
+// CTA
+#include "src/bayes/triangular/triangular.h"
+
+#endif // BVHAR_BAYESFIT_H
