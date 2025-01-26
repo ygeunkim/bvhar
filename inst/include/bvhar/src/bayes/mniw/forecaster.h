@@ -12,8 +12,8 @@ class BvharForecaster;
 
 class MinnForecaster {
 public:
-	MinnForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, int num_sim, bool include_mean)
-	: response(response_mat),
+	MinnForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, int num_sim, bool include_mean, unsigned int seed)
+	: rng(seed), response(response_mat),
 		posterior_mean(fit._coef), posterior_sig(fit._prec.inverse()),
 		posterior_iw_scale(fit._iw_scale), posterior_iw_shape(fit._iw_shape),
 	// MinnForecaster(const MinnRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean)
@@ -61,7 +61,7 @@ public:
 	void forecastDensity() {
 	// Eigen::MatrixXd forecastDensity() {
 		for (int i = 0; i < num_sim; ++i) {
-			coef_and_sig[i] = sim_mn_iw(posterior_mean, posterior_sig, posterior_iw_scale, posterior_iw_shape, false);
+			coef_and_sig[i] = sim_mn_iw(posterior_mean, posterior_sig, posterior_iw_scale, posterior_iw_shape, false, rng);
 		}
 		// std::lock_guard<std::mutex> lock(mtx);
 		for (int h = 0; h < step; ++h) {
@@ -81,10 +81,10 @@ public:
 		}
 		// return predictive_distn;
 	}
-	Rcpp::List returnForecast() const {
-		return Rcpp::List::create(
-			Rcpp::Named("posterior_mean") = pred_save,
-      Rcpp::Named("predictive") = predictive_distn
+	LIST returnForecast() const {
+		return CREATE_LIST(
+			NAMED("posterior_mean") = pred_save,
+      NAMED("predictive") = predictive_distn
 		);
 	}
 	Eigen::MatrixXd returnPoint() {
@@ -94,6 +94,7 @@ public:
 protected:
 	// MinnRecords mn_record;
 	// std::mutex mtx;
+	boost::random::mt19937 rng;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd posterior_mean;
 	Eigen::MatrixXd posterior_sig;
@@ -120,8 +121,8 @@ protected:
 
 class BvarForecaster : public MinnForecaster {
 public:
-	BvarForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int lag, int num_sim, bool include_mean)
-	: MinnForecaster(fit, step, response_mat, lag, num_sim, include_mean) {}
+	BvarForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int lag, int num_sim, bool include_mean, unsigned int seed)
+	: MinnForecaster(fit, step, response_mat, lag, num_sim, include_mean, seed) {}
 	// BvarForecaster(const MinnRecords& records, int step, const Eigen::MatrixXd& response_mat, int lag, bool include_mean)
 	// : MinnForecaster(records, step, response_mat, lag, include_mean) {}
 	virtual ~BvarForecaster() = default;
@@ -142,7 +143,8 @@ public:
 				// Eigen::Map<Eigen::MatrixXd>(sig_update.block(h, 0, 1, 1).data(), 1, 1), // -> Matrix but too complex
 				mn_scl,
 				coef_and_sig[i][1],
-				false
+				false,
+				rng
       );
 		}
 	}
@@ -150,8 +152,8 @@ public:
 
 class BvharForecaster : public MinnForecaster {
 public:
-	BvharForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, int num_sim, bool include_mean)
-	: MinnForecaster(fit, step, response_mat, month, num_sim, include_mean), har_trans(har_trans),
+	BvharForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, int num_sim, bool include_mean, unsigned int seed)
+	: MinnForecaster(fit, step, response_mat, month, num_sim, include_mean, seed), har_trans(har_trans),
 		transformed_sig(har_trans.transpose() * posterior_sig * har_trans) {}
 	// BvharForecaster(const MinnRecords& records, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean)
 	// : MinnForecaster(records, step, response_mat, month, include_mean), har_trans(har_trans) {}
@@ -174,7 +176,8 @@ public:
 				// Eigen::MatrixXd::Constant(1, 1, sig_update[h]),
 				mn_scl,
 				coef_and_sig[i][1],
-				false
+				false,
+				rng
       );
 		}
 	}

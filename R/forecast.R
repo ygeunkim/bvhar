@@ -182,7 +182,7 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thre
   #   include_mean = object$type == "const",
   #   nthreads = num_thread
   # )
-  pred_res <- forecast_bvar(object, n_ahead, n_iter)
+  pred_res <- forecast_bvar(object, n_ahead, n_iter, sample.int(.Machine$integer.max, size = 1))
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
   var_names <- colnames(object$y0)
@@ -243,7 +243,7 @@ predict.bvarmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thre
 #' @order 1
 #' @export
 predict.bvharmn <- function(object, n_ahead, n_iter = 100L, level = .05, num_thread = 1, ...) {
-  pred_res <- forecast_bvharmn(object, n_ahead, n_iter)
+  pred_res <- forecast_bvharmn(object, n_ahead, n_iter, sample.int(.Machine$integer.max, size = 1))
   # dim_data <- object$m
   # num_chains <- object$chain
   # if (num_thread > get_maxomp()) {
@@ -335,7 +335,7 @@ predict.bvarflat <- function(object, n_ahead, n_iter = 100L, level = .05, num_th
   #   include_mean = object$type == "const",
   #   nthreads = num_thread
   # )
-  pred_res <- forecast_bvar(object, n_ahead, n_iter)
+  pred_res <- forecast_bvar(object, n_ahead, n_iter, sample.int(.Machine$integer.max, size = 1))
   # Point forecasting (Posterior mean)--------------
   pred_mean <- pred_res$posterior_mean
   var_names <- colnames(object$y0)

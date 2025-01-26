@@ -44,6 +44,8 @@
 	#define NAMED Rcpp::Named
 	#define ACCESS_LIST(iterator, list) iterator
 	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
+	#define IS_VECTOR(element) Rcpp::is<Rcpp::NumericVector>(element)
+	#define IS_LOGICAL(element) Rcpp::is<Rcpp::LogicalVector>(element)
 	#define CAST_VECTOR(element) element
 	#define CAST_MATRIX(element) element
 #else
@@ -96,6 +98,8 @@
 	#define NAMED py::arg
 	#define ACCESS_LIST(iterator, list) list[iterator.first]
 	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
+	#define IS_VECTOR(element) py::detail::type_caster<Eigen::VectorXd>().load(element, false)
+	#define IS_LOGICAL(element) py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, 1>>().load(element, false)
 	#define CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
 	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
 

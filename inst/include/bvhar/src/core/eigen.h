@@ -1,7 +1,7 @@
 #ifndef BVHAR_CORE_EIGEN_H
 #define BVHAR_CORE_EIGEN_H
 
-#include "commondefs.h"
+#include "./commondefs.h"
 
 #undef eigen_assert
 #define eigen_assert(x) \

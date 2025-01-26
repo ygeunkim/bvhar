@@ -8,17 +8,28 @@
 #ifdef USE_RCPP
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
 
-Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
-
-Eigen::MatrixXd sim_mgaussian_chol(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig, boost::random::mt19937& rng);
-
 Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method);
 
 Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale_v);
 
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape);
 #endif
+
 namespace bvhar {
+
+inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, boost::random::mt19937& rng) {
+  int dim = sig.cols();
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim);
+  for (int i = 0; i < num_sim; i++) {
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = normal_rand(rng);
+    }
+  }
+  res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
+  res.rowwise() += mu.transpose();
+  return res;
+}
 
 // Log quasi-density of GIG
 // 
@@ -40,6 +51,23 @@ inline double dgig_mode(double lambda, double beta) {
 }
 
 #ifdef USE_RCPP
+
+inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
+  int dim = sig.cols();
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  for (int i = 0; i < num_sim; i++) {
+    for (int j = 0; j < standard_normal.cols(); j++) {
+      standard_normal(i, j) = norm_rand();
+    }
+  }
+  // Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
+  // Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
+  res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
 // Generate MN(M, U, V)
 // @param mat_mean Mean matrix M
 // @param mat_scale_u First scale matrix U
