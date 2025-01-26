@@ -1,7 +1,7 @@
 #ifndef MCMCSV_H
 #define MCMCSV_H
 
-#include "bvharmcmc.h"
+#include "./triangular.h"
 
 namespace bvhar {
 

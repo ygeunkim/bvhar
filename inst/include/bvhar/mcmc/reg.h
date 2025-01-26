@@ -1,7 +1,7 @@
 #ifndef MCMCREG_H
 #define MCMCREG_H
 
-#include "bvharmcmc.h"
+#include "./triangular.h"
 
 namespace bvhar {
 
