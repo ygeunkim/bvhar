@@ -1,7 +1,7 @@
 #ifndef BVHARSIM_H
 #define BVHARSIM_H
 
-#include "bvharcommon.h"
+#include "../core/common.h"
 #include <vector>
 #include <limits>
 

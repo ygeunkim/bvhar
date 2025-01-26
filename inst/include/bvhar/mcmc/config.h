@@ -7,8 +7,8 @@
 #ifndef BVHARCONFIG_H
 #define BVHARCONFIG_H
 
-#include "bvhardraw.h"
-#include "bvhardesign.h"
+#include "draw.h"
+#include "../math/design.h"
 #include <utility>
 
 namespace bvhar {

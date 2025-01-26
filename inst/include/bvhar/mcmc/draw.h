@@ -1,7 +1,7 @@
 #ifndef BVHARDRAW_H
 #define BVHARDRAW_H
 
-#include "bvharsim.h"
+#include "../math/random.h"
 #include <set>
 
 namespace bvhar {

@@ -6,9 +6,9 @@
 #ifndef BVHARMCMC_H
 #define BVHARMCMC_H
 
-#include "bvharconfig.h"
-#include "bvharprogress.h"
-#include "bvharinterrupt.h"
+#include "config.h"
+#include "../core/progress.h"
+#include "../core/interrupt.h"
 #include <type_traits>
 
 namespace bvhar {
