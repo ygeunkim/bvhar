@@ -1,5 +1,5 @@
-#ifndef OLS_H
-#define OLS_H
+#ifndef BVHAR_OLS_OLS_H
+#define BVHAR_OLS_OLS_H
 
 #include "../math/design.h"
 #include <memory> // std::unique_ptr in source file
@@ -242,4 +242,4 @@ protected:
 
 } // namespace bvhar
 
-#endif // OLS_H
+#endif // BVHAR_OLS_OLS_H

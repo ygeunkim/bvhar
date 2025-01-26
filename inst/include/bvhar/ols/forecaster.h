@@ -1,8 +1,8 @@
-#ifndef OLSFORECASTER_H
-#define OLSFORECASTER_H
+#ifndef BVHAR_OLS_FORECASTER_H
+#define BVHAR_OLS_FORECASTER_H
 
-#include "bvharcommon.h"
-#include "ols.h"
+#include "../core/common.h"
+#include "./ols.h"
 
 namespace bvhar {
 
@@ -74,4 +74,4 @@ private:
 
 } // namespace bvhar
 
-#endif // OLSFORECASTER_H
+#endif // BVHAR_OLS_FORECASTER_H

@@ -1,5 +1,5 @@
-#ifndef OLSSPILLOVER_H
-#define OLSSPILLOVER_H
+#ifndef BVHAR_OLS_SPILLOVER_H
+#define BVHAR_OLS_SPILLOVER_H
 
 #include "./ols.h"
 #include "../math/structural.h"
@@ -53,4 +53,4 @@ protected:
 
 }; // namespace bvhar
 
-#endif // OLSSPILLOVER_H
+#endif // BVHAR_OLS_SPILLOVER_H
