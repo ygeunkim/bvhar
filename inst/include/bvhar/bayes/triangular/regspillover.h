@@ -1,7 +1,7 @@
-#ifndef REGSPILLOVER_H
-#define REGSPILLOVER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_REGSPILLOVER_H
+#define BVHAR_BAYES_TRIANGULAR_REGSPILLOVER_H
 
-#include "bvharspillover.h"
+#include "./spillover.h"
 
 namespace bvhar {
 
@@ -10,4 +10,4 @@ using RegVharSpillover = McmcVharSpillover<LdltRecords>;
 
 }; // namespace bvhar
 
-#endif // REGSPILLOVER_H
+#endif // BVHAR_BAYES_TRIANGULAR_REGSPILLOVER_H

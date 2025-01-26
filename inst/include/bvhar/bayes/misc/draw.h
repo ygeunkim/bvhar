@@ -1,7 +1,7 @@
-#ifndef BVHAR_MCMC_DRAW_H
-#define BVHAR_MCMC_DRAW_H
+#ifndef BVHAR_BAYES_MISC_DRAW_H
+#define BVHAR_BAYES_MISC_DRAW_H
 
-#include "../math/random.h"
+#include "../../math/random.h"
 #include <set>
 
 namespace bvhar {
@@ -1310,4 +1310,4 @@ inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Deriv
 
 } // namespace bvhar
 
-#endif // BVHAR_MCMC_DRAW_H
+#endif // BVHAR_BAYES_MISC_DRAW_H

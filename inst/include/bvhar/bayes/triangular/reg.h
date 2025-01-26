@@ -1,5 +1,5 @@
-#ifndef BVHAR_MCMC_REG_H
-#define BVHAR_MCMC_REG_H
+#ifndef BVHAR_BAYES_TRIANGULAR_REG_H
+#define BVHAR_BAYES_TRIANGULAR_REG_H
 
 #include "./triangular.h"
 
@@ -15,4 +15,4 @@ using DlReg = McmcDl<McmcReg>;
 
 }; // namespace bvhar
 
-#endif // BVHAR_MCMC_REG_H
+#endif // BVHAR_BAYES_TRIANGULAR_REG_H

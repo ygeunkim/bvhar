@@ -1,7 +1,7 @@
-#ifndef REGFORECASTER_H
-#define REGFORECASTER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_REGFORECASTER_H
+#define BVHAR_BAYES_TRIANGULAR_REGFORECASTER_H
 
-#include "bvharforecaster.h"
+#include "./forecaster.h"
 
 namespace bvhar {
 
@@ -13,4 +13,4 @@ using RegVharSelectForecaster = McmcVharSelectForecaster<RegForecaster>;
 
 } // namespace bvhar
 
-#endif // REGFORECASTER_H
+#endif // BVHAR_BAYES_TRIANGULAR_REGFORECASTER_H

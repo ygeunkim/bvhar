@@ -1,8 +1,8 @@
-#ifndef BVHARSPILLOVER_H
-#define BVHARSPILLOVER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_SPILLOVER_H
+#define BVHAR_BAYES_TRIANGULAR_SPILLOVER_H
 
-#include "bvharmcmc.h"
-#include "bvharstructural.h"
+#include "./triangular.h"
+#include "../../math/structural.h"
 
 namespace bvhar {
 
@@ -505,4 +505,4 @@ protected:
 
 } // namespace bvhar
 
-#endif // BVHARSPILLOVER_H
+#endif // BVHAR_BAYES_TRIANGULAR_SPILLOVER_H

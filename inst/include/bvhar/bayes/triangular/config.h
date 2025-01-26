@@ -4,11 +4,11 @@
  * @brief Headers including MCMC configuration structs
  */
 
-#ifndef BVHAR_MCMC_CONFIG_H
-#define BVHAR_MCMC_CONFIG_H
+#ifndef BVHAR_BAYES_TRIANGULAR_CONFIG_H
+#define BVHAR_BAYES_TRIANGULAR_CONFIG_H
 
-#include "draw.h"
-#include "../math/design.h"
+#include "../misc/draw.h"
+#include "../../math/design.h"
 #include <utility>
 
 namespace bvhar {
@@ -1401,4 +1401,4 @@ inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, 
 
 } // namespace bvhar
 
-#endif // BVHAR_MCMC_CONFIG_H
+#endif // BVHAR_BAYES_TRIANGULAR_CONFIG_H

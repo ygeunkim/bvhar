@@ -1,7 +1,7 @@
-#ifndef BVHARFORECASTER_H
-#define BVHARFORECASTER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_FORECASTER_H
+#define BVHAR_BAYES_TRIANGULAR_FORECASTER_H
 
-#include "bvharmcmc.h"
+#include "./triangular.h"
 
 namespace bvhar {
 
@@ -1119,4 +1119,4 @@ protected:
 
 } // namespace bvhar
 
-#endif // BVHARFORECASTER_H
+#endif // BVHAR_BAYES_TRIANGULAR_FORECASTER_H

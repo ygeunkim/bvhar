@@ -1,5 +1,5 @@
-#ifndef BVHAR_MCMC_SV_H
-#define BVHAR_MCMC_SV_H
+#ifndef BVHAR_BAYES_TRIANGULAR_SV_H
+#define BVHAR_BAYES_TRIANGULAR_SV_H
 
 #include "./triangular.h"
 
@@ -15,4 +15,4 @@ using DirLaplaceSv = McmcDl<McmcSv>;
 
 } // namespace bvhar
 
-#endif // BVHAR_MCMC_SV_H
+#endif // BVHAR_BAYES_TRIANGULAR_SV_H

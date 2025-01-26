@@ -3,12 +3,12 @@
  * @brief Header including MCMC algorithm
  */
 
-#ifndef BVHAR_MCMC_TRIANGULAR_H
-#define BVHAR_MCMC_TRIANGULAR_H
+#ifndef BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H
+#define BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H
 
 #include "config.h"
-#include "../core/progress.h"
-#include "../core/interrupt.h"
+#include "../../core/progress.h"
+#include "../../core/interrupt.h"
 #include <type_traits>
 
 namespace bvhar {
@@ -1293,4 +1293,4 @@ private:
 
 } // namespace bvhar
 
-#endif // BVHAR_MCMC_TRIANGULAR_H
+#endif // BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H

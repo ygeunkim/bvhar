@@ -1,7 +1,7 @@
-#ifndef SVFORECASTER_H
-#define SVFORECASTER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_SVFORECASTER_H
+#define BVHAR_BAYES_TRIANGULAR_SVFORECASTER_H
 
-#include "bvharforecaster.h"
+#include "./forecaster.h"
 
 namespace bvhar {
 
@@ -13,4 +13,4 @@ using SvVharSelectForecaster = McmcVharSelectForecaster<SvForecaster>;
 
 } // namespace bvhar
 
-#endif // SVFORECASTER_H
+#endif // BVHAR_BAYES_TRIANGULAR_SVFORECASTER_H

@@ -1,7 +1,7 @@
-#ifndef SVSPILLOVER_H
-#define SVSPILLOVER_H
+#ifndef BVHAR_BAYES_TRIANGULAR_SVSPILLOVER_H
+#define BVHAR_BAYES_TRIANGULAR_SVSPILLOVER_H
 
-#include "bvharspillover.h"
+#include "./spillover.h"
 
 namespace bvhar {
 
@@ -10,4 +10,4 @@ using SvVharSpillover = McmcVharSpillover<SvRecords>;
 
 }; // namespace bvhar
 
-#endif // SVSPILLOVER_H
+#endif // BVHAR_BAYES_TRIANGULAR_SVSPILLOVER_H
