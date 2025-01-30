@@ -6,7 +6,7 @@
 #ifndef BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H
 #define BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H
 
-#include "config.h"
+#include "./config.h"
 #include "../../core/progress.h"
 #include "../../core/interrupt.h"
 #include <type_traits>
