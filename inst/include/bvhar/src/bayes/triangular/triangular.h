@@ -1240,7 +1240,10 @@ protected:
 	 */
 	void runGibbs(int chain) {
 		std::string log_name = fmt::format("Chain {}", chain + 1);
-		auto logger = SPDLOG_SINK_MT(log_name);
+		auto logger = spdlog::get(log_name);
+		if (logger == nullptr) {
+			logger = SPDLOG_SINK_MT(log_name);
+		}
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
 		int logging_freq = num_iter / 20; // 5 percent
 		if (logging_freq == 0) {
