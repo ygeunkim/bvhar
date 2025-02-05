@@ -28,6 +28,356 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
+#include <boost/version.hpp>
+
+// Remove after boost upgrade including inverse_gaussian and generalized_inverse_gaussian
+// https://github.com/boostorg/random/pull/124
+// https://github.com/boostorg/random/pull/126
+// Expected to be in the next release: 1.88.0
+#if BOOST_VERSION < 108800
+namespace boost {
+namespace random {
+
+template<class RealType> class inverse_gaussian_distribution;
+template<class RealType> class generalized_inverse_gaussian_distribution;
+
+/**
+ * @brief boost.Random's inverse_gaussian generator
+ * Will be included in the boost/random in the next release (1.88.0)
+ * Refer to my PR https://github.com/boostorg/random/pull/124
+ * This will be removed after the new release is available.
+ * 
+ * @tparam RealType 
+ */
+template<class RealType = double>
+class inverse_gaussian_distribution {
+public:
+	typedef RealType result_type;
+  typedef RealType input_type;
+
+	class param_type {
+	public:
+		typedef inverse_gaussian_distribution distribution_type;
+
+		explicit param_type(RealType alpha_arg = RealType(1.0),
+											  RealType beta_arg = RealType(1.0)) : _alpha(alpha_arg), _beta(beta_arg) {
+			BOOST_ASSERT(alpha_arg > 0);
+			BOOST_ASSERT(beta_arg > 0);
+		}
+
+    RealType alpha() const { return _alpha; }
+    RealType beta() const { return _beta; }
+
+    BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, param_type, parm) { os << parm._alpha << ' ' << parm._beta; return os; }
+
+    BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, param_type, parm) { is >> parm._alpha >> std::ws >> parm._beta; return is; }
+
+    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(param_type, lhs, rhs) { return lhs._alpha == rhs._alpha && lhs._beta == rhs._beta; }
+
+    BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(param_type)
+
+	private:
+		RealType _alpha;
+		RealType _beta;
+	};
+
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+
+	explicit inverse_gaussian_distribution(RealType alpha_arg = RealType(1.0),
+											 									 RealType beta_arg = RealType(1.0)) : _alpha(alpha_arg), _beta(beta_arg) {
+		BOOST_ASSERT(alpha_arg > 0);
+		BOOST_ASSERT(beta_arg > 0);
+		init();
+	}
+
+	explicit inverse_gaussian_distribution(const param_type& parm) : _alpha(parm.alpha()), _beta(parm.beta()) {
+		init();
+	}
+
+  template<class URNG>
+  RealType operator()(URNG& urng) const {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::sqrt;
+#endif
+		RealType w = _alpha * chi_squared_distribution<RealType>(result_type(1))(urng);
+		RealType cand = _alpha + _c * (w - sqrt(w * (result_type(4) * _beta + w)));
+		RealType u = uniform_01<RealType>()(urng);
+		if (u < _alpha / (_alpha + cand)) {
+			return cand;
+		}
+    return _alpha * _alpha / cand;
+  }
+
+  template<class URNG>
+  RealType operator()(URNG& urng, const param_type& parm) const {
+    return inverse_gaussian_distribution(parm)(urng);
+  }
+
+  RealType alpha() const { return _alpha; }
+  RealType beta() const { return _beta; }
+
+  RealType min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return RealType(0.0); }
+  RealType max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return (std::numeric_limits<RealType>::infinity)(); }
+
+  param_type param() const { return param_type(_alpha, _beta); }
+  void param(const param_type& parm) {
+    _alpha = parm.alpha();
+    _beta = parm.beta();
+		init();
+  }
+
+  void reset() { }
+
+  BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, inverse_gaussian_distribution, wd) {
+    os << wd.param();
+    return os;
+  }
+
+  BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, inverse_gaussian_distribution, wd) {
+    param_type parm;
+    if(is >> parm) {
+      wd.param(parm);
+    }
+    return is;
+  }
+
+  BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(inverse_gaussian_distribution, lhs, rhs) { return lhs._alpha == rhs._alpha && lhs._beta == rhs._beta; }
+
+  BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(inverse_gaussian_distribution)
+
+private:
+	result_type _alpha;
+	result_type _beta;
+	result_type _c;
+
+	void init() {
+		_c = _alpha / (result_type(2) * _beta);
+  }
+};
+
+/**
+ * @brief boost.Random's generalized_inverse_gaussian generator
+ * Will be included in the boost/random in the next release (1.88.0)
+ * Refer to my PR https://github.com/boostorg/random/pull/126
+ * This will be removed after the new release is available.
+ * 
+ * @tparam RealType 
+ */
+template<class RealType = double>
+class generalized_inverse_gaussian_distribution {
+public:
+	typedef RealType result_type;
+	typedef RealType input_type;
+
+	class param_type {
+	public:
+		typedef generalized_inverse_gaussian_distribution distribution_type;
+
+		explicit param_type(RealType p_arg = RealType(1.0),
+		                   	RealType a_arg = RealType(1.0),
+												RealType b_arg = RealType(1.0))
+		: _p(p_arg), _a(a_arg), _b(b_arg) {
+			BOOST_ASSERT(
+				(p_arg > RealType(0) && a_arg > RealType(0) && b_arg >= RealType(0)) ||
+				(p_arg == RealType(0) && a_arg > RealType(0) && b_arg > RealType(0)) ||
+				(p_arg < RealType(0) && a_arg >= RealType(0) && b_arg > RealType(0))
+			);
+		}
+
+		RealType p() const { return _p; }
+		RealType a() const { return _a; }
+		RealType b() const { return _b; }
+
+		BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, param_type, parm) {
+			os << parm._p << ' ' << parm._a << ' ' << parm._b;
+			return os;
+		}
+
+		BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, param_type, parm) {
+			is >> parm._p >> std::ws >> parm._a >> std::ws >> parm._b;
+			return is;
+		}
+
+		BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(param_type, lhs, rhs) { return lhs._p == rhs._p && lhs._a == rhs._a && lhs._b == rhs._b; }
+
+		BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(param_type)
+
+	private:
+		RealType _p;
+		RealType _a;
+		RealType _b;
+	};
+
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+	BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
+#endif
+
+	explicit generalized_inverse_gaussian_distribution(RealType p_arg = RealType(1.0),
+                       								   						 RealType a_arg = RealType(1.0),
+													   						 						 RealType b_arg = RealType(1.0))
+  : _p(p_arg), _a(a_arg), _b(b_arg) {
+		BOOST_ASSERT(
+			(p_arg > RealType(0) && a_arg > RealType(0) && b_arg >= RealType(0)) ||
+			(p_arg == RealType(0) && a_arg > RealType(0) && b_arg > RealType(0)) ||
+			(p_arg < RealType(0) && a_arg >= RealType(0) && b_arg > RealType(0))
+		);
+		init();
+	}
+
+	explicit generalized_inverse_gaussian_distribution(const param_type& parm)
+	: _p(parm.p()), _a(parm.a()), _b(parm.b()) {
+		init();
+	}
+
+	template<class URNG>
+	RealType operator()(URNG& urng) const {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::sqrt;
+		using std::log;
+		using std::min;
+		using std::exp;
+		using std::cosh;
+#endif
+		RealType t, s, t_deriv, s_deriv, eta, zeta, theta, xi, u, v, w, p, q, r, cand;
+		RealType log_concave = -psi(result_type(1));
+		if (log_concave >= result_type(.5) && log_concave <= result_type(2)) {
+			t = result_type(1);
+		} else if (log_concave > result_type(2)) {
+			t = sqrt(result_type(2) / (_alpha + _abs_p));
+		} else if (log_concave < result_type(.5)) {
+			t = log(result_type(4) / (_alpha + result_type(2) * _abs_p));
+		}
+		log_concave = -psi(result_type(-1));
+		if (log_concave >= result_type(.5) && log_concave <= result_type(2)) {
+			s = result_type(1);
+		} else if (log_concave > result_type(2)) {
+			s = sqrt(result_type(4) / (_alpha * cosh(1) + _abs_p));
+		} else if (log_concave < result_type(.5)) {
+			s = min(result_type(1) / _abs_p, log(result_type(1) + result_type(1) / _alpha + sqrt(result_type(1) / (_alpha * _alpha) + result_type(2) / _alpha)));
+		}
+		eta = -psi(t);
+		zeta = -psi_deriv(t);
+		theta = -psi(-s);
+		xi = psi_deriv(-s);
+		p = result_type(1) / xi;
+		r = result_type(1) / zeta;
+		t_deriv = t - r * eta;
+		s_deriv = s - p * theta;
+		q = t_deriv + s_deriv;
+		do {
+			u = uniform_01<RealType>()(urng);
+			v = uniform_01<RealType>()(urng);
+			w = uniform_01<RealType>()(urng);
+			if (u < q / (p + q + r)) {
+				cand = -s_deriv + q * v;
+			} else if (u < (q + r) / (p + q + r)) {
+				cand = t_deriv - r * log(v);
+			} else {
+				cand = -s_deriv + p * log(v);
+			}
+		} while (w * chi(cand, s, t, s_deriv, t_deriv, eta, zeta, theta, xi) > exp(psi(cand)));
+		cand = (_abs_p / _omega + sqrt(result_type(1) + _abs_p * _abs_p / (_omega * _omega))) * exp(cand);
+		return _p > 0 ? cand * sqrt(_b / _a) : sqrt(_b / _a) / cand;
+	}
+
+	template<class URNG>
+	result_type operator()(URNG& urng, const param_type& parm) const {
+		return generalized_inverse_gaussian_distribution(parm)(urng);
+	}
+
+	RealType p() const { return _p; }
+	RealType a() const { return _a; }
+	RealType b() const { return _b; }
+
+	RealType min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return RealType(0.0); }
+	RealType max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return (std::numeric_limits<RealType>::infinity)(); }
+
+	param_type param() const { return param_type(_p, _a, _b); }
+	void param(const param_type& parm) {
+		_p = parm.p();
+		_a = parm.a();
+		_b = parm.b();
+		init();
+	}
+
+	void reset() { }
+
+	BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, generalized_inverse_gaussian_distribution, wd) {
+		os << wd.param();
+		return os;
+	}
+
+	BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, generalized_inverse_gaussian_distribution, wd) {
+		param_type parm;
+		if(is >> parm) {
+			wd.param(parm);
+		}
+		return is;
+	}
+
+	BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(generalized_inverse_gaussian_distribution, lhs, rhs) { return lhs._p == rhs._p && lhs._a == rhs._a && lhs._b == rhs._b; }
+
+	BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(generalized_inverse_gaussian_distribution)
+
+private:
+	RealType _p;
+	RealType _a;
+	RealType _b;
+	RealType _abs_p;
+	RealType _omega;
+	RealType _alpha;
+
+	void init() {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::abs;
+		using std::sqrt;
+#endif
+    _abs_p = abs(_p);
+		_omega = sqrt(_a * _b); // two-parameter representation (p, omega)
+		_alpha = sqrt(_omega * _omega + _abs_p * _abs_p) - _abs_p;
+    }
+
+	result_type psi(const RealType& x) const {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::cosh;
+		using std::exp;
+#endif
+		return -_alpha * (cosh(x) - result_type(1)) - _abs_p * (exp(x) - x - result_type(1));
+	}
+
+	result_type psi_deriv(const RealType& x) const {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::sinh;
+		using std::exp;
+#endif
+		return -_alpha * sinh(x) - _abs_p * (exp(x) - result_type(1));
+	}
+
+	static result_type chi(const RealType& x,
+						   					 const RealType& s, const RealType& t,
+						   					 const RealType& s_deriv, const RealType& t_deriv,
+						   					 const RealType& eta, const RealType& zeta, const RealType& theta, const RealType& xi) {
+#ifndef BOOST_NO_STDC_NAMESPACE
+		using std::exp;
+#endif
+		if (x >= -s_deriv && x <= t_deriv) {
+			return result_type(1);
+		} else if (x > t_deriv) {
+			return exp(-eta - zeta * (x - t));
+		}
+		return exp(-theta + xi * (x + s));
+	}
+};
+
+} // namespace random
+
+using random::inverse_gaussian_distribution;
+using random::generalized_inverse_gaussian_distribution;
+
+} // namespace boost
+#endif
 
 #if defined(__cpp_lib_optional)
 
