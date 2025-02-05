@@ -777,7 +777,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sim_gig(1, dir_concen - 1, 1, 2 * abs(coef[i]), rng)[0];
+		local_param[i] = sim_gig(dir_concen - 1, 1, 2 * abs(coef[i]), rng);
 		cut_param(local_param[i]);
 	}
 	local_param /= local_param.sum();
@@ -792,7 +792,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
 										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
 	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
-	double tau = sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
+	double tau = sim_gig(coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng);
 	cut_param(tau);
 	return tau;
 }
@@ -958,7 +958,7 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 	coef_prec.array() *= lambda;
 	// double gig_chi = (coef - coef_mean).squaredNorm();
 	double gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();
-	lambda = sim_gig(1, shape - coef.size() / 2, 2 * rate, gig_chi, rng)[0];
+	lambda = sim_gig(shape - coef.size() / 2, 2 * rate, gig_chi, rng);
 	cut_param(lambda);
 	coef_prec.array() /= lambda;
 }
@@ -1008,10 +1008,10 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
-			1, shape - .5,
+			shape - .5,
 			2 * shape / (global_param[i] * global_param[i]),
 			coef[i] * coef[i], rng
-		)[0]);
+		));
 		cut_param(local_param[i]);
 	}
 }
@@ -1021,10 +1021,10 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 										 					boost::random::mt19937& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
-			1, shape[i] - .5,
+			shape[i] - .5,
 			2 * shape[i] / (global_param[i] * global_param[i]),
 			coef[i] * coef[i], rng
-		)[0]);
+		));
 		cut_param(local_param[i]);
 	}
 }

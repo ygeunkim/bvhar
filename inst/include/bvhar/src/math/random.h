@@ -580,20 +580,16 @@ inline Eigen::VectorXd sim_gig(int num_sim, double lambda, double psi, double ch
 	return res * sqrt(chi / psi);
 }
 
+inline double sim_gig(double lambda, double psi, double chi, boost::random::mt19937& rng) {
+	boost::random::generalized_inverse_gaussian_distribution<> rdist(lambda, psi, chi);
+	return rdist(rng);
+}
+
 // Generate Inverse Gaussian Distribution
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
 inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
-	double y = mean * chisq_rand(1, rng) / (2 * shape);
-	// double cand = mean + mean * y - mean * sqrt(2 * y + y * y);
-	double cand_fac = 1 + y - sqrt(2 * y + y * y);
-	// double cand = mean * (1 + y - sqrt(2 * y + y * y));
-	// if (unif_rand(0, 1, rng) <= mean / (mean + cand)) {
-	if (unif_rand(rng) <= 1 / (1 + cand_fac)) {
-		// return cand;
-		return mean * cand_fac;
-	}
-	// return mean * mean / cand;
-	return mean / cand_fac;
+	boost::random::inverse_gaussian_distribution<> rdist(mean, shape);
+	return rdist(rng);
 }
 
 } //namespace bvhar
