@@ -22,7 +22,10 @@ jobs:
 
           - {os: windows-latest, r: 'release'}
           # rtools40's older compiler: R-4.0.0 to to R-4.1.3
-          - {os: windows-latest, r: '4.1'}
+          - os: windows-latest
+            r: '4.1'
+            env:
+              MAKEFLAGS: "-j1"
 
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
