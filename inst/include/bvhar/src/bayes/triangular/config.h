@@ -739,13 +739,6 @@ struct RegRecords {
 	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) = 0;
 
 	/**
-	 * @copydoc subsetStable(int, double)
-	 * 
-	 * @param har_trans Sprase VHAR transformation matrix
-	 */
-	virtual void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) = 0;
-
-	/**
 	 * @brief Get sparse draw using credible interval
 	 * 
 	 * @param level Credible interval level
@@ -919,20 +912,6 @@ struct LdltRecords : public RegRecords {
 		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
 		fac_record = std::move(fac_record(stable_id, Eigen::all));
 	}
-
-	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) override {
-		int dim = fac_record.cols();
-		int nrow_coef = num_alpha / dim;
-		std::vector<int> stable_id;
-		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(har_trans.transpose() * coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
-				stable_id.push_back(i);
-			}
-		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		fac_record = std::move(fac_record(stable_id, Eigen::all));
-	}
 };
 
 struct SvRecords : public RegRecords {
@@ -1044,22 +1023,6 @@ struct SvRecords : public RegRecords {
 		Eigen::MatrixXd var_record = coef_record.leftCols(num_alpha) * kronecker_eigen(Eigen::MatrixXd::Identity(dim, dim), har_trans);
 		for (int i = 0; i < coef_record.rows(); ++i) {
 			if (is_stable(var_record.row(i).reshaped(nrow_coef, dim), threshold)) {
-				stable_id.push_back(i);
-			}
-		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
-		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
-		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
-	}
-
-	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::SparseMatrix<double>> har_trans) override {
-		int dim = lvol_sig_record.cols();
-		int nrow_coef = num_alpha / dim;
-		std::vector<int> stable_id;
-		for (int i = 0; i < coef_record.rows(); ++i) {
-			if (is_stable(har_trans.transpose() * coef_record.row(i).head(num_alpha).reshaped(nrow_coef, dim), threshold)) {
 				stable_id.push_back(i);
 			}
 		}
