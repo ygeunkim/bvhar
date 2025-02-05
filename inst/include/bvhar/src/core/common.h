@@ -21,6 +21,7 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/uniform_01.hpp>
 #include <boost/random/bernoulli_distribution.hpp>
 #include <boost/random/beta_distribution.hpp>
 #include <boost/random/discrete_distribution.hpp>
@@ -209,7 +210,7 @@ inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
 }
 
 inline double unif_rand(boost::random::mt19937& rng) {
-	boost::random::uniform_real_distribution<> rdist(0, 1);
+	boost::random::uniform_01<> rdist;
 	return rdist(rng);
 }
 
