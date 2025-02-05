@@ -314,9 +314,9 @@ public:
 		const typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type& records,
 		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, int month, bool include_mean, bool filter_stable, unsigned int seed, bool sv = true
 	)
-	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed, sv), har_trans(har_trans.sparseView()) {
+	: BaseForecaster(records, step, response_mat, month, include_mean, filter_stable, seed, sv), har_trans(har_trans) {
 		if (stable_filter) {
-			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim).sparseView());
+			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim));
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
 				STOP("No stable MCMC draws");
@@ -334,7 +334,7 @@ protected:
 	using BaseForecaster::post_mean;
 	using BaseForecaster::coef_mat;
 	using BaseForecaster::last_pvec;
-	Eigen::SparseMatrix<double> har_trans;
+	Eigen::MatrixXd har_trans;
 	void computeMean() override {
 		post_mean = coef_mat.transpose() * har_trans * last_pvec;
 	}
