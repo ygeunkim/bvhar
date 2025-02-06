@@ -8,21 +8,18 @@ In this version, we
 
 ## Test environments
 
-- Local: macOS 14.6.1 (x86_64-apple-darwin20), R 4.3.3
+- Local: macOS 15.3 (aarch64-apple-darwin20), R 4.4.2
 - Github actions
-    - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3, R 3.6
+    - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3
     - macOS-latest: R-release
-    - windows-latest: R-release, R-oldrel-4
+    - windows-latest: R-release, R 4.1
 - win-builder: devel
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note
 
-* NOTE for CRAN incoming feasibility (Days since last update: 6):
-The algorithms in the current version have some serious issues,
-so an update is needed ASAP.
-* NOTE only in local machine: HTML validation NOTE on local environment check. This note appears to be specific to my local machine and had no problem in previous CRAN checks.
+* NOTE regarding installed package size but not that large, which had no problem in previous CRAN acceptance.
 
 ## revdepcheck results
 
