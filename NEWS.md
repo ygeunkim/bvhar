@@ -2,11 +2,7 @@
 
 * Requires `R >= 4.1` following [tidyverse R version support schedule](https://www.tidyverse.org/blog/2019/04/r-version-support/)
 
-* Use `spdlog` (using `RcppSpdlog`) logger instead of custom progress bar (`bvharprogress`).
-
-* Use `RcppThread` to make the logger thread-safe ([eddelbuettel/rcppspdlog#22](https://github.com/eddelbuettel/rcppspdlog/issues/22))
-
-* Can filter MCMC draws where coefficient is stable when forecasting.
+* `stable = TRUE` can filter MCMC draws where coefficient is stable when forecasting.
 
 * Changed Eigen and boost assertion behavior (`eigen_assert` and `BOOST_ASSERT`) to give error instead of abort.
 
@@ -16,13 +12,25 @@
 
 * `var_bayes()` and `vhar_bayes()` can choose to use only group shrinkage parameters without global parameter with `ggl = FALSE` option.
 
+* `set_gdp()` can use Generalized Double Pareto (GDP) shrinkage prior.
+
+* `alpl()` gives summary of LPL across every horizon.
+
+### Internal changes
+
+* Apply Devroye (2014) to draw GIG instead of Hörmann and Leydold.
+
+* Use `spdlog` (using `RcppSpdlog`) logger instead of custom progress bar (`bvharprogress`).
+
+* Use `RcppThread` to make the logger thread-safe ([eddelbuettel/rcppspdlog#22](https://github.com/eddelbuettel/rcppspdlog/issues/22))
+
 * Use inverse-gamma prior for group parameters in DL.
 
 * SAVS penalty is zero in own-lag.
 
-* `set_gdp()` can use Generalized Double Pareto (GDP) shrinkage prior.
+### Removal or deprecation
 
-* `alpl()` gives summary of LPL across every horizon.
+* Removed `sim_gig()` R function.
 
 ## C++ Header file changes
 
