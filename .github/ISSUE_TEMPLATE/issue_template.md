@@ -1,14 +1,20 @@
 ---
-name: Bug report or feature request
+name: Issue
 about: Describe a bug you've seen or make a case for a new feature
 ---
 
-Please briefly describe your problem and what output you expect. If you have a question, please don't use this form. Instead, ask on <https://stackoverflow.com/> or <https://community.rstudio.com/>.
+## Type
 
-Please include a minimal reproducible example (AKA a reprex). If you've never heard of a [reprex](http://reprex.tidyverse.org/) before, start by reading <https://www.tidyverse.org/help/#reprex>.
+- [ ] Bug report: write "[bug]" at the first of the title.
+- [ ] Feature request: write "[feature]" at the first of the title.
+- [ ] Documentation: write "[document]" at the first of the title.
+- [ ] Others
 
-Brief description of the problem
+## Languages
+<!-- Check every element related to your issue. -->
 
-```r
-# insert reprex here
-```
+- [ ] C++: Header files in `inst/include` directory
+- [ ] R: R package files (including C++ codes in `src` directory).
+- [ ] Python: Files in `python` directory.
+
+## Description
