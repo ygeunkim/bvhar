@@ -67,19 +67,19 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |      function       |                  prior                  |
-|:-----:|:-------------------:|:---------------------------------------:|
-|  VAR  |     `var_lm()`      |                                         |
-| VHAR  |     `vhar_lm()`     |                                         |
-| BVAR  | `bvar_minnesota()`  | Minnesota (will move to `var_bayes()`)  |
-| BVHAR | `bvhar_minnesota()` | Minnesota (will move to `vhar_bayes()`) |
-| BVAR  |    `var_bayes()`    |   SSVS, Horseshoe, Minnesota, NG, DL    |
-| BVHAR |   `vhar_bayes()`    |   SSVS, Horseshoe, Minnesota, NG, DL    |
+| Model | function | prior |
+|:--:|:--:|:--:|
+| VAR | `var_lm()` |  |
+| VHAR | `vhar_lm()` |  |
+| BVAR | `bvar_minnesota()` and `choose_bvar()` | Minnesota (will move to `var_bayes()`) |
+| BVHAR | `bvhar_minnesota()` and `choose_bvhar()` | Minnesota (will move to `vhar_bayes()`) |
+| BVAR | `var_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
+| BVHAR | `vhar_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
 
 This readme document shows forecasting procedure briefly. Details about
 each function are in vignettes and help documents. Note that each
 `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into
-`var_bayes()` and `vhar_bayes()` and removed in the next version.
+`var_bayes()` and `vhar_bayes()` and removed in the near future.
 
 h-step ahead forecasting:
 
@@ -290,7 +290,7 @@ Please cite this package with following BibTeX:
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.1.2.9008},
+      note = {R package version 2.2.0},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
