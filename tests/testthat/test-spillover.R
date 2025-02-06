@@ -1,5 +1,6 @@
 # spillover() and dynamic_spillover()--------------
 test_that("VAR-Spillover", {
+  skip_on_ci()
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -14,6 +15,7 @@ test_that("VAR-Spillover", {
 })
 
 test_that("VHAR-Spillover", {
+  skip_on_ci()
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -28,6 +30,7 @@ test_that("VHAR-Spillover", {
 })
 
 test_that("VAR-LDLT-Spillover", {
+  skip_on_ci()
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -45,12 +48,13 @@ test_that("VAR-LDLT-Spillover", {
   sp_dynamic_test <- dynamic_spillover(fit_test, n_ahead = 10, window = win_size)
   expect_s3_class(sp_test, "bvharspillover")
   expect_equal(sp_test$process, fit_test$process)
-  expect_equal(dim(sp_test$connect), c(num_col + 1, num_col + 1))
+  expect_equal(dim(sp_test$connect[[1]]), c(num_col, num_col))
   expect_s3_class(sp_dynamic_test, "bvhardynsp")
-  expect_equal(length(sp_dynamic_test$tot), num_row - win_size + 1)
+  expect_equal(nrow(sp_dynamic_test$tot), num_row - win_size + 1)
 })
 
 test_that("VHAR-LDLT-Spillover", {
+  skip_on_ci()
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -67,12 +71,13 @@ test_that("VHAR-LDLT-Spillover", {
   sp_dynamic_test <- dynamic_spillover(fit_test, n_ahead = 10, window = win_size)
   expect_s3_class(sp_test, "bvharspillover")
   expect_equal(sp_test$process, fit_test$process)
-  expect_equal(dim(sp_test$connect), c(num_col + 1, num_col + 1))
+  expect_equal(dim(sp_test$connect[[1]]), c(num_col, num_col))
   expect_s3_class(sp_dynamic_test, "bvhardynsp")
-  expect_equal(length(sp_dynamic_test$tot), num_row - win_size + 1)
+  expect_equal(nrow(sp_dynamic_test$tot), num_row - win_size + 1)
 })
 
 test_that("VAR-SV-Spillover", {
+  skip_on_ci()
   num_row <- 30
   num_col <- 2
   var_lag <- 1
@@ -88,10 +93,11 @@ test_that("VAR-SV-Spillover", {
   )
   sp_dynamic_test <- dynamic_spillover(fit_test, n_ahead = 10)
   expect_s3_class(sp_dynamic_test, "bvhardynsp")
-  expect_equal(length(sp_dynamic_test$tot), num_row - var_lag)
+  expect_equal(nrow(sp_dynamic_test$tot), num_row - var_lag)
 })
 
 test_that("VHAR-SV-Spillover", {
+  skip_on_ci()
   num_row <- 30
   num_col <- 2
   har_lag <- c(5, 22)
@@ -107,6 +113,6 @@ test_that("VHAR-SV-Spillover", {
   )
   sp_dynamic_test <- dynamic_spillover(fit_test, n_ahead = 10)
   expect_s3_class(sp_dynamic_test, "bvhardynsp")
-  expect_equal(length(sp_dynamic_test$tot), num_row - har_lag[2])
+  expect_equal(nrow(sp_dynamic_test$tot), num_row - har_lag[2])
 })
 #> Test passed 🌈

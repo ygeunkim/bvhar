@@ -6,7 +6,7 @@
 \alias{is.dlspec}
 \title{Dirichlet-Laplace Hyperparameter for Coefficients and Contemporaneous Coefficients}
 \usage{
-set_dl(dir_grid = 100L, shape = 0.01, rate = 0.01)
+set_dl(dir_grid = 100L, shape = 0.01, scale = 0.01)
 
 \method{print}{dlspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -15,11 +15,11 @@ is.dlspec(x)
 \arguments{
 \item{dir_grid}{Griddy gibbs grid size for Dirichlet hyperparameter}
 
-\item{shape}{Gamma shape}
+\item{shape}{Inverse Gamma shape}
 
-\item{rate}{Gamma rate}
+\item{scale}{Inverse Gamma scale}
 
-\item{x}{\code{dlspec}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

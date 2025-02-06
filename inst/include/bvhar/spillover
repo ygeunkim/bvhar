@@ -1,0 +1,13 @@
+#ifndef BVHAR_SPILLOVER_H
+#define BVHAR_SPILLOVER_H
+
+// OLS
+#include "src/ols/spillover.h"
+
+// MNIW
+#include "src/bayes/mniw/spillover.h"
+
+// CTA
+#include "src/bayes/triangular/spillover.h"
+
+#endif // BVHAR_SPILLOVER_H

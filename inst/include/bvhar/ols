@@ -1,0 +1,8 @@
+#ifndef BVHAR_OLS_H
+#define BVHAR_OLS_H
+
+#include "src/ols/ols.h"
+#include "src/ols/forecaster.h"
+#include "src/ols/spillover.h"
+
+#endif // BVHAR_OLS_H

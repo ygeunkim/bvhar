@@ -1,152 +1,4 @@
-#' @rdname bvar_ssvs
-#' @param x `bvarssvs` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvarssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat(sprintf("BVAR(%i) with SSVS Prior\n", x$p))
-  cat("Fitted by Gibbs sampling\n")
-  if (x$chain > 1) {
-    cat(paste0("Number of chains: ", x$chain, "\n"))
-  }
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  cat("Parameter Record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvar_ssvs
-#' @exportS3Method knitr::knit_print
-knit_print.bvarssvs <- function(x, ...) {
-  print(x)
-}
-
-#' @rdname bvhar_ssvs
-#' @param x `bvharssvs` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvharssvs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat("BVHAR with SSVS Prior\n")
-  cat("Fitted by Gibbs sampling\n")
-  if (x$chain > 1) {
-    cat(paste0("Number of chains: ", x$chain, "\n"))
-  }
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  cat("Parameter Record:\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvhar_ssvs
-#' @exportS3Method knitr::knit_print
-knit_print.bvharssvs <- function(x, ...) {
-  print(x)
-}
-
-#' @rdname bvar_horseshoe
-#' @param x `bvarhs` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvarhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat(sprintf("BVAR(%i) with Horseshoe Prior\n", x$p))
-  cat("Fitted by blocked Gibbs sampling\n")
-  # cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
-  if (x$chain > 1) {
-    cat(paste0("Number of chains: ", x$chain, "\n"))
-  }
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvar_horseshoe
-#' @exportS3Method knitr::knit_print
-knit_print.bvarhs <- function(x, ...) {
-  print(x)
-}
-
-#' @rdname bvhar_horseshoe
-#' @param x `bvharhs` object
-#' @param digits digit option to print
-#' @param ... not used
-#' @order 2
-#' @export
-print.bvharhs <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(
-    "Call:\n",
-    paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep = ""
-  )
-  cat("BVHAR with Horseshoe Prior\n")
-  # cat("Fitted by Gibbs sampling\n")
-  cat(paste0("Fitted by ", x$algo, " sampling", "\n"))
-  if (x$chain > 1) {
-    cat(paste0("Number of chains: ", x$chain, "\n"))
-  }
-  cat(paste0("Total number of iteration: ", x$iter, "\n"))
-  cat(paste0("Number of burn-in: ", x$burn, "\n"))
-  if (x$thin > 1) {
-    cat(paste0("Thinning: ", x$thin, "\n"))
-  }
-  cat("====================================================\n\n")
-  print(
-    x$param,
-    digits = digits,
-    print.gap = 2L,
-    quote = FALSE
-  )
-}
-
-#' @rdname bvhar_horseshoe
-#' @exportS3Method knitr::knit_print
-knit_print.bvharhs <- function(x, ...) {
-  print(x)
-}
-
-#' @rdname bvar_sv
+#' @rdname var_bayes
 #' @param x `bvarsv` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -183,13 +35,13 @@ print.bvarsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
 }
 
-#' @rdname bvar_sv
+#' @rdname var_bayes
 #' @exportS3Method knitr::knit_print
 knit_print.bvarsv <- function(x, ...) {
   print(x)
 }
 
-#' @rdname bvhar_sv
+#' @rdname vhar_bayes
 #' @param x `bvarsv` object
 #' @param digits digit option to print
 #' @param ... not used
@@ -226,7 +78,7 @@ print.bvharsv <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   )
 }
 
-#' @rdname bvhar_sv
+#' @rdname vhar_bayes
 #' @exportS3Method knitr::knit_print
 knit_print.bvharsv <- function(x, ...) {
   print(x)

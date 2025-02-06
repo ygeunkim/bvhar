@@ -22,7 +22,7 @@ is.horseshoespec(x)
 
 \item{global_sparsity}{Initial global shrinkage hyperparameter}
 
-\item{x}{\code{horseshoespec}}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

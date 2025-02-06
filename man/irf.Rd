@@ -34,7 +34,7 @@ is.bvharirf(x)
 
 \item{...}{not used}
 
-\item{x}{\code{bvharirf} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 }

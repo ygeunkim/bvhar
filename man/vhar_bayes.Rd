@@ -2,7 +2,9 @@
 % Please edit documentation in R/vhar-bayes.R, R/print-bvharsp.R
 \name{vhar_bayes}
 \alias{vhar_bayes}
+\alias{print.bvharsv}
 \alias{print.bvharldlt}
+\alias{knit_print.bvharsv}
 \alias{knit_print.bvharldlt}
 \title{Fitting Bayesian VHAR with Coefficient and Covariance Prior}
 \usage{
@@ -18,13 +20,18 @@ vhar_bayes(
   intercept = set_intercept(),
   include_mean = TRUE,
   minnesota = c("longrun", "short", "no"),
+  ggl = TRUE,
   save_init = FALSE,
   convergence = NULL,
   verbose = FALSE,
   num_thread = 1
 )
 
+\method{print}{bvharsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
 \method{print}{bvharldlt}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{knit_print}{bvharsv}(x, ...)
 
 \method{knit_print}{bvharldlt}(x, ...)
 }
@@ -51,6 +58,10 @@ vhar_bayes(
 
 \item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). Two type: \code{short} type and \code{longrun} (default) type.
 You can also set \code{no}.}
+
+\item{ggl}{If \code{TRUE} (default), use additional group shrinkage parameter for group structure.
+Otherwise, use group shrinkage parameter instead of global shirnkage parameter.
+Applies to HS, NG, and DL priors.}
 
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.

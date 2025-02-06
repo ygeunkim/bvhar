@@ -75,17 +75,17 @@ irf.varlse <- function(object,
   )
   res <- list(coefficients = mat_irf)
   res$df_long <- 
-    mat_irf %>% 
-    as.data.frame() %>% 
+    mat_irf |> 
+    as.data.frame() |> 
     mutate(
       impulse = impulse_name,
       period = period_name
-    ) %>% 
+    ) |> 
     pivot_longer(
       -c(period, impulse),
       names_to = "response",
       values_to = "value"
-    ) %>% 
+    ) |> 
     filter(impulse %in% impulse_var, response %in% response_var)
   # return----------------------
   res$lag_max <- lag_max
@@ -144,17 +144,17 @@ irf.vharlse <- function(object,
   )
   res <- list(coefficients = mat_irf)
   res$df_long <- 
-    mat_irf %>% 
-    as.data.frame() %>% 
+    mat_irf |> 
+    as.data.frame() |> 
     mutate(
       impulse = impulse_name,
       period = period_name
-    ) %>% 
+    ) |> 
     pivot_longer(
       -c(period, impulse),
       names_to = "response",
       values_to = "value"
-    ) %>% 
+    ) |> 
     filter(impulse %in% impulse_var, response %in% response_var)
   # return----------------------
   res$lag_max <- lag_max

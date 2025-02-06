@@ -17,6 +17,8 @@ home:
   # see the configuration in .github/workflows/pkgdown.yaml
   - text: VERSION_TEXT
     href: VERSION_REF
+  - text: C++ headers
+    href: https://ygeunkim.github.io/package/bvhar/cpp/
   - text: bvhar for Python
     href: https://ygeunkim.github.io/package/bvhar/python/
 
@@ -51,6 +53,7 @@ reference:
   - set_horseshoe
   - set_ng
   - set_dl
+  - set_gdp
   - set_ldlt
   - set_sv
   - set_intercept
@@ -67,20 +70,20 @@ reference:
   - summary.normaliw
   - summary.bvharsp
 
-- title: Deprecated
-  desc: >
-    Deprecated functions that will be removed soon
-  contents:
-  - bvar_sv
-  - bvar_ssvs
-  - bvar_horseshoe
-  - bvhar_sv
-  - bvhar_ssvs
-  - bvhar_horseshoe
-  - init_ssvs
-  - choose_ssvs
-  - sim_ssvs_var
-  - sim_horseshoe_var
+# - title: Deprecated
+#   desc: >
+#     Deprecated functions that will be removed soon
+#   contents:
+#   - bvar_sv
+#   - bvar_ssvs
+#   - bvar_horseshoe
+#   - bvhar_sv
+#   - bvhar_ssvs
+#   - bvhar_horseshoe
+#   - init_ssvs
+#   - choose_ssvs
+#   - sim_ssvs_var
+#   - sim_horseshoe_var
 
 - title: Forecasting
   desc: ~
@@ -105,6 +108,7 @@ reference:
   - mape
   - mase
   - mrae
+  - alpl
   - relmae
   - rmsfe
   - rmafe
@@ -162,7 +166,6 @@ reference:
   - sim_iw
   - sim_mniw
   - sim_mvt
-  - sim_gig
 
 - title: Data
   desc: ~
@@ -223,3 +226,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.1.0
   - text: "Version 2.1.2"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.1.2
+  - text: "Version 2.2.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.2.0

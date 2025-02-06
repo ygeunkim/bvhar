@@ -1,4 +1,4 @@
-#include <ols.h>
+#include <bvhar/ols>
 
 PYBIND11_MODULE(_ols, m) {
 	m.doc() = "OLS for VAR and VHAR";

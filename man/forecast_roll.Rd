@@ -30,9 +30,12 @@ is.bvharcv(x)
   y_test,
   num_thread = 1,
   level = 0.05,
+  stable = FALSE,
   sparse = FALSE,
+  med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
+  verbose = FALSE,
   ...
 )
 
@@ -43,9 +46,12 @@ is.bvharcv(x)
   num_thread = 1,
   level = 0.05,
   use_sv = TRUE,
+  stable = FALSE,
   sparse = FALSE,
+  med = FALSE,
   lpl = FALSE,
   use_fit = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -60,7 +66,7 @@ is.bvharcv(x)
 
 \item{...}{not used}
 
-\item{x}{\code{bvharcv} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 
@@ -68,9 +74,15 @@ is.bvharcv(x)
 
 \item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
+\item{stable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Filter only stable coefficient draws in MCMC records.}
+
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 
+\item{med}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If \code{TRUE}, use median of forecast draws instead of mean (default).}
+
 \item{lpl}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Compute log-predictive likelihood (LPL). By default, \code{FALSE}.}
+
+\item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
 \item{use_sv}{Use SV term}
 }

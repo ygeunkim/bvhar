@@ -25,7 +25,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
   if (method == "eigen") {
     return( sim_mgaussian(num_sim, mu, sig) )
   }
-  sim_mgaussian_chol(num_sim, mu, sig)
+  sim_mgaussian_chol_export(num_sim, mu, sig)
 }
 
 #' Generate Multivariate t Random Vector
@@ -132,45 +132,11 @@ sim_var <- function(num_sim,
 #' @export
 sim_mniw <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec = FALSE) {
   res <-
-    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) %>%
-    simplify2array() %>%
+    sim_mniw_export(num_sim, mat_mean, mat_scale_u, mat_scale, shape, u_prec) |>
+    simplify2array() |>
     apply(1, function(x) x)
   names(res) <- c("mn", "iw")
   res
-}
-
-#' Generate Generalized Inverse Gaussian Distribution
-#' 
-#' This function samples \eqn{GIG(\lambda, \psi, \chi)} random variates.
-#' 
-#' @param num_sim Number to generate
-#' @param lambda Index of modified Bessel function of third kind.
-#' @param psi Second parameter of GIG. Should be positive.
-#' @param chi Third parameter of GIG. Should be positive.
-#' @details
-#' The density of \eqn{GIG(\lambda, \psi, \chi)} considered here is as follows.
-#' \deqn{f(x) = \frac{(\psi / \chi)^(\lambda / 2)}{2 K_{\lambda}(\sqrt{\psi \chi})} x^{\lambda - 1} \exp(-\frac{1}{2} (\frac{\chi}{x} + \psi x))}
-#' where \eqn{x > 0}.
-#' @references
-#' Hörmann, W., Leydold, J. *Generating generalized inverse Gaussian random variates*. Stat Comput 24, 547-557 (2014).
-#' 
-#' Leydold, J, Hörmann, W.. *GIGrvg: Random Variate Generator for the GIG Distribution*. R package version 0.8 (2023).
-#' @export
-sim_gig <- function(num_sim, lambda, psi, chi) {
-  if (lambda > 0) {
-    if (psi <= 0 || chi < 0) {
-      stop("When lambda > 0, it should be 'psi' > 0 and 'chi' >= 0.")
-    }
-  } else if (lambda == 0) {
-    if (psi <= 0 || chi <= 0) {
-      stop("When lambda == 0, it should be 'psi' > 0 and 'chi' > 0.")
-    }
-  } else {
-    if (psi < 0 || chi <= 0) {
-      stop("When lambda < 0, it should be 'psi' >= 0 and 'chi' > 0.")
-    }
-  }
-  sim_gig_export(num_sim, lambda, psi, chi)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)

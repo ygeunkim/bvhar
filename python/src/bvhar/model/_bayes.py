@@ -1,12 +1,14 @@
-from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast
+from ..utils._misc import make_fortran_array, check_np, build_grpmat, process_record, concat_chain, concat_params, process_dens_forecast, process_dens_spillover, process_dens_vector_spillover, process_dens_list_spillover
 from ..utils.checkomp import get_maxomp
-from .._src._design import build_response, build_design
-from .._src._ldlt import McmcLdlt
-from .._src._ldltforecast import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand
-from .._src._sv import SvMcmc
-from .._src._svforecast import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand
+from ..utils._utils import build_response, build_design
+from .._src._cta import McmcLdlt, McmcLdltGrp
+from .._src._cta import LdltForecast, LdltVarRoll, LdltVharRoll, LdltVarExpand, LdltVharExpand, LdltGrpVarRoll, LdltGrpVharRoll, LdltGrpVarExpand, LdltGrpVharExpand
+from .._src._cta import LdltSpillover, LdltDynamicSpillover
+from .._src._cta import SvMcmc, SvGrpMcmc
+from .._src._cta import SvForecast, SvVarRoll, SvVharRoll, SvVarExpand, SvVharExpand, SvGrpVarRoll, SvGrpVharRoll, SvGrpVarExpand, SvGrpVharExpand
+from .._src._cta import SvSpillover, SvDynamicSpillover
 from ._spec import LdltConfig, SvConfig, InterceptConfig
-from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig
+from ._spec import _BayesConfig, SsvsConfig, HorseshoeConfig, MinnesotaConfig, DlConfig, NgConfig, GdpConfig
 import numpy as np
 import pandas as pd
 import warnings
@@ -20,7 +22,7 @@ class _AutoregBayes:
         bayes_config = SsvsConfig(),
         cov_config = LdltConfig(),
         intercept_config = InterceptConfig(), fit_intercept = True,
-        minnesota = "longrun"
+        minnesota = "longrun", ggl = True, verbose = False
     ):
         self.y_ = check_np(data)
         self.n_features_in_ = self.y_.shape[1]
@@ -42,6 +44,8 @@ class _AutoregBayes:
         self._group_id = pd.unique(self.group_.flatten(order='F')).astype(np.int32)
         self._own_id = None
         self._cross_id = None
+        self._ggl = ggl
+        self._verbose = verbose
         n_grp = len(self._group_id)
         n_alpha = self.n_features_in_ * self.n_features_in_ * self.p_
         n_design = self.p_ * self.n_features_in_ + 1 if self.fit_intercept else self.p_ * self.n_features_in_
@@ -82,7 +86,9 @@ class _AutoregBayes:
                     'coef_mixture': coef_mixture,
                     'coef_slab': init_coef_slab,
                     'chol_mixture': chol_mixture,
-                    'contem_slab': init_contem_slab
+                    'contem_slab': init_contem_slab,
+                    'coef_spike_scl': np.random.uniform(0, 1),
+                    'chol_spike_scl': np.random.uniform(0, 1)
                 })
         elif type(self.spec_) == HorseshoeConfig:
             for init in self.init_:
@@ -135,6 +141,26 @@ class _AutoregBayes:
                     'contem_local_sparsity': contem_local_sparsity,
                     'contem_global_sparsity': np.array([contem_global_sparsity]) # used as VectorXd in C++
                 })
+        elif type(self.spec_) == GdpConfig:
+            for init in self.init_:
+                local_sparsity = np.exp(np.random.uniform(-1, 1, n_alpha))
+                group_rate = np.exp(np.random.uniform(-1, 1, n_grp))
+                contem_local_sparsity = np.exp(np.random.uniform(-1, 1, n_eta))
+                contem_local_rate = np.exp(np.random.uniform(-1, 1, n_eta))
+                coef_shape = np.random.uniform(0, 1)
+                coef_rate = np.random.uniform(0, 1)
+                contem_shape = np.random.uniform(0, 1)
+                contem_rate = np.random.uniform(0, 1)
+                init.update({
+                    'local_sparsity': local_sparsity,
+                    'group_rate': group_rate,
+                    'contem_local_sparsity': contem_local_sparsity,
+                    'contem_rate': contem_local_rate,
+                    'gamma_shape': coef_shape,
+                    'gamma_rate': coef_rate,
+                    'contem_gamma_shape': contem_shape,
+                    'contem_gamma_rate': contem_rate
+                })
         self.init_ = make_fortran_array(self.init_)
         self._prior_type = {
             "Minnesota": 1,
@@ -142,7 +168,8 @@ class _AutoregBayes:
             "Horseshoe": 3,
             "HMN": 4,
             "NG": 5,
-            "DL": 6
+            "DL": 6,
+            "GDP": 7
         }.get(self.spec_.prior)
         self.is_fitted_ = False
         self.coef_ = None
@@ -150,6 +177,7 @@ class _AutoregBayes:
         self.param_names_ = None
         self.param_ = None
         # self.cov_ = None
+        self.sparse_coef_ = None
     
     def _validate(self):
         if not isinstance(self.cov_spec_, LdltConfig):
@@ -169,6 +197,8 @@ class _AutoregBayes:
         elif type(self.spec_) == DlConfig:
             pass
         elif type(self.spec_) == NgConfig:
+            pass
+        elif type(self.spec_) == GdpConfig:
             pass
 
     def fit(self):
@@ -218,6 +248,8 @@ class VarBayes(_AutoregBayes):
         Include constant term in the model, by default True
     minnesota : bool
         If `True`, apply Minnesota-type group structure, by default True
+    ggl : bool
+        If `False`, use group shrinkage parameter instead of global, by default True
     verbose : bool
         If `True`, print progress bar for MCMC, by default False
     n_thread : int
@@ -231,16 +263,6 @@ class VarBayes(_AutoregBayes):
         VHAR model constant vector.
     n_features_in_ : int
         Number of variables.
-    
-    References
-    ----------
-    .. [1] Carriero, A., Chan, J., Clark, T. E., & Marcellino, M. (2022). *Corrigendum to “Large Bayesian vector autoregressions with stochastic volatility and non-conjugate priors” [J. Econometrics 212 (1)(2019) 137–154]*. Journal of Econometrics, 227(2), 506-512.
-    .. [2] Chan, J., Koop, G., Poirier, D., & Tobias, J. (2019). *Bayesian Econometric Methods (2nd ed., Econometric Exercises)*. Cambridge: Cambridge University Press.
-    .. [3] Cogley, T., & Sargent, T. J. (2005). *Drifts and volatilities: monetary policies and outcomes in the post WWII US*. Review of Economic Dynamics, 8(2), 262–302.
-    .. [4] Gruber, L., & Kastner, G. (2022). *Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!* arXiv.
-    .. [5] Huber, F., Koop, G., & Onorante, L. (2021). *Inducing Sparsity and Shrinkage in Time-Varying Parameter Models*. Journal of Business & Economic Statistics, 39(3), 669–683.
-    .. [6] Korobilis, D., & Shimizu, K. (2022). *Bayesian Approaches to Shrinkage and Sparse Estimation*. Foundations and Trends® in Econometrics, 11(4), 230–354.
-    .. [7] Ray, P., & Bhattacharya, A. (2018). *Signal Adaptive Variable Selector for the Horseshoe Prior*. arXiv.
     """
     def __init__(
         self,
@@ -255,16 +277,19 @@ class VarBayes(_AutoregBayes):
         intercept_config = InterceptConfig(),
         fit_intercept = True,
         minnesota = True,
+        ggl = True,
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no")
+        super().__init__(data, lag, lag, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, "short" if minnesota else "no", ggl, verbose)
         self.design_ = build_design(self.y_, lag, fit_intercept)
         self.response_ = build_response(self.y_, lag, lag + 1)
         if minnesota:
-            self._own_id = np.array([2], dtype=np.int32)
-            self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
-            self._cross_id = np.delete(self._cross_id, 1)
+            # self._own_id = np.array([2], dtype=np.int32)
+            # self._cross_id = np.arange(1, self.p_ + 2, dtype=np.int32)
+            # self._cross_id = np.delete(self._cross_id, 1)
+            self._own_id = np.arange(2, 2 * self.p_, 2, dtype=np.int32)
+            self._cross_id = np.arange(1, 2 * self.p_, 2, dtype=np.int32)
         else:
             self._own_id = np.array([2], dtype=np.int32)
             self._cross_id = np.array([2], dtype=np.int32)
@@ -275,27 +300,51 @@ class VarBayes(_AutoregBayes):
         if self.thread_ > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
-            self.__model = McmcLdlt(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = McmcLdlt(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
+            else:
+                self.__model = McmcLdltGrp(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
         else:
-            self.__model = SvMcmc(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = SvMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
+            else:
+                self.__model = SvGrpMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
 
     def fit(self):
         """Conduct MCMC and compute posterior mean
@@ -308,13 +357,15 @@ class VarBayes(_AutoregBayes):
         self.param_names_ = process_record(res)
         self.param_ = concat_chain(res)
         self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
+        self.sparse_coef_ = self.param_.filter(regex='^alpha_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
         if self.fit_intercept:
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
+            self.sparse_coef_ = np.concatenate([self.sparse_coef_, self.param_.filter(regex='^c_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, med = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -323,8 +374,12 @@ class VarBayes(_AutoregBayes):
             Forecast until next `n_ahead` time point.
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -340,26 +395,26 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.p_, n_ahead, self.response_, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sparse, 0.0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_, True
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.p_, n_ahead, self.response_, sv, sparse, fit_record,
+                self.chains_, self.p_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_, sv
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
-            "forecast": np.mean(y_distn, axis=0),
+            "forecast": np.median(y_distn, axis=0) if med else np.mean(y_distn, axis=0),
             "se": np.std(y_distn, axis=0, ddof=1),
             "lower": np.quantile(y_distn, level / 2, axis=0),
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -370,8 +425,12 @@ class VarBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -388,43 +447,71 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
+        # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVarRoll(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = LdltVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
         else:
-            forecaster = SvVarRoll(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = SvVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVarRoll(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -435,8 +522,12 @@ class VarBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -453,47 +544,124 @@ class VarBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
+        # chunk_size = n_horizon * self.chains_ // self.thread_
         # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVarExpand(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = LdltVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
         else:
-            forecaster = SvVarExpand(
-                self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = SvVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVarExpand(
+                    self.y_, self.p_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
-    def spillover(self):
-        pass
+    def spillover(self, n_ahead = 10, level = .05, sparse = True):
+        """Spillover
 
-    def dynamic_spillover(self):
-        pass
+        Parameters
+        ----------
+        n_ahead : int, optional
+            Forecast step, by default 10
+        level : float, optional
+            Density level, by default .05
+        sparse : bool, optional
+            Use sparse draw?, by default True
+
+        Returns
+        -------
+        _type_
+            Density for each directional and sample spillover effect
+        """
+        fit_record = concat_params(self.param_, self.param_names_, False)
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltSpillover(self.lag_, n_ahead, fit_record, sparse)
+        else:
+            spo = SvSpillover(self.lag_, n_ahead, fit_record, sparse)
+        out_spillover = spo.returnSpillover()
+        return {
+            "connect": process_dens_spillover(out_spillover['connect'], self.n_features_in_),
+            "net_pairwise": process_dens_spillover(out_spillover['net_pairwise'], self.n_features_in_, level),
+            "tot": process_dens_vector_spillover(out_spillover['tot'], self.n_features_in_, level),
+            "to": process_dens_vector_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_vector_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
+
+    def dynamic_spillover(self, window: int, n_ahead = 10, level = .05, sparse = True):
+        n_horizon = self.y_.shape[0] - window + 1
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltDynamicSpillover(
+                self.y_, window, n_ahead, self.lag_, self.chains_, self.iter_, self.burn_, self.thin_, sparse,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type, self._ggl,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                self.thread_
+            )
+        else:
+            fit_record = concat_params(self.param_, self.param_names_, False)
+            spo = SvDynamicSpillover(self.lag_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
+        out_spillover = spo.returnSpillover()
+        return {
+            "tot": process_dens_list_spillover(out_spillover['tot'], 1, level),
+            "to": process_dens_list_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_list_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_list_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
 
 class VharBayes(_AutoregBayes):
     """Bayesian Vector Autoregressive Model
@@ -529,6 +697,8 @@ class VharBayes(_AutoregBayes):
         - "no": Not use the group structure
         - "short": BVAR-minnesota structure
         - "longrun": BVHAR-minnesota structure
+    ggl : bool
+        If `False`, use group shrinkage parameter instead of global, by default True
     verbose : bool
         If `True`, print progress bar for MCMC, by default False
     n_thread : int
@@ -559,10 +729,11 @@ class VharBayes(_AutoregBayes):
         intercept_config = InterceptConfig(),
         fit_intercept = True,
         minnesota = "longrun",
+        ggl = True,
         verbose = False,
         n_thread = 1
     ):
-        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota)
+        super().__init__(data, month, 3, n_chain, n_iter, n_burn, n_thin, bayes_config, cov_config, intercept_config, fit_intercept, minnesota, ggl, verbose)
         self.design_ = build_design(self.y_, week, month, fit_intercept)
         self.response_ = build_response(self.y_, month, month + 1)
         self.week_ = week
@@ -583,27 +754,51 @@ class VharBayes(_AutoregBayes):
         if self.thread_ > n_chain and n_chain != 1:
             warnings.warn(f"'n_thread = {self.thread_} > 'n_chain' = {n_chain}' will not use every thread. Specify as 'n_thread <= 'n_chain'.")
         if type(self.cov_spec_) == LdltConfig:
-            self.__model = McmcLdlt(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = McmcLdlt(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
+            else:
+                self.__model = McmcLdltGrp(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
         else:
-            self.__model = SvMcmc(
-                self.chains_, self.iter_, self.burn_, self.thin_,
-                self.design_, self.response_,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, int(self._prior_type),
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                verbose, self.thread_
-            )
+            if self._ggl:
+                self.__model = SvMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
+            else:
+                self.__model = SvGrpMcmc(
+                    self.chains_, self.iter_, self.burn_, self.thin_,
+                    self.design_, self.response_,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, int(self._prior_type),
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_
+                )
 
     def fit(self):
         """Conduct MCMC and compute posterior mean
@@ -613,16 +808,18 @@ class VharBayes(_AutoregBayes):
             An instance of the estimator.
         """
         res = self.__model.returnRecords()
-        self.param_names_ = process_record(res)
-        self.param_ = concat_chain(res)
-        self.coef_ = self.param_.filter(regex='^alpha\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
+        self.param_names_ = process_record(res, True)
+        self.param_ = concat_chain(res, True)
+        self.coef_ = self.param_.filter(regex='^phi\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T # -> change name: alpha -> phi
+        self.sparse_coef_ = self.param_.filter(regex='^phi_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
         if self.fit_intercept:
             self.intercept_ = self.param_.filter(regex='^c\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T
             self.coef_ = np.concatenate([self.coef_, self.intercept_], axis=0)
+            self.sparse_coef_ = np.concatenate([self.sparse_coef_, self.param_.filter(regex='^c_sparse\\[[0-9]+\\]').mean().to_numpy().reshape(self.n_features_in_, -1).T], axis=0)
             self.intercept_ = self.intercept_.reshape(self.n_features_in_,)
         self.is_fitted_ = True
 
-    def predict(self, n_ahead: int, level = .05, sparse = False, sv = True):
+    def predict(self, n_ahead: int, level = .05, stable = False, sparse = False, med = False, sv = True):
         """'n_ahead'-step ahead forecasting
 
         Parameters
@@ -631,8 +828,12 @@ class VharBayes(_AutoregBayes):
             Forecast until next `n_ahead` time point.
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -648,26 +849,26 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         if type(self.cov_spec_) == LdltConfig:
             forecaster = LdltForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.response_, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_, True
             )
         else:
             forecaster = SvForecast(
-                self.chains_, self.week_, self.month_, n_ahead, self.response_, sv, sparse, fit_record,
+                self.chains_, self.week_, self.month_, n_ahead, self.y_, sparse, 0, fit_record,
                 np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.fit_intercept, self.thread_
+                self.fit_intercept, stable, self.thread_, sv
             )
         y_distn = forecaster.returnForecast()
         y_distn = process_dens_forecast(y_distn, self.n_features_in_)
         return {
-            "forecast": np.mean(y_distn, axis=0),
+            "forecast": np.median(y_distn, axis=0) if med else np.mean(y_distn, axis=0),
             "se": np.std(y_distn, axis=0, ddof=1),
             "lower": np.quantile(y_distn, level / 2, axis=0),
             "upper": np.quantile(y_distn, 1 - level / 2, axis=0)
         }
 
-    def roll_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def roll_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Rolling-window forecasting
 
         Parameters
@@ -678,8 +879,12 @@ class VharBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -696,43 +901,69 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
-        # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVharRoll(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = LdltVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
         else:
-            forecaster = SvVharRoll(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = SvVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVharRoll(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
-    def expand_forecast(self, n_ahead: int, test, level = .05, sparse = False, sv = True):
+    def expand_forecast(self, n_ahead: int, test, level = .05, stable = False, sparse = False, med = False, sv = True):
         """Expanding-window forecasting
 
         Parameters
@@ -743,8 +974,12 @@ class VharBayes(_AutoregBayes):
             Test set to forecast
         level : float
             Level for credible interval, by default .05
+        stable : bool
+            Filter stable coefficient draws, by default True
         sparse : bool
             Apply restriction to forecasting, by default False
+        med : bool
+            Use median instead of mean to get point forecast, by default False
         sv : bool
             Use SV term in case of SV model, by default True
 
@@ -761,44 +996,119 @@ class VharBayes(_AutoregBayes):
         fit_record = concat_params(self.param_, self.param_names_)
         test = check_np(test)
         n_horizon = test.shape[0] - n_ahead + 1
-        chunk_size = n_horizon * self.chains_ // self.thread_
-        # Check threads and chunk size
         if type(self.cov_spec_) == LdltConfig:
-            forecaster = LdltVharExpand(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = LdltVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
+            else:
+                forecaster = LdltGrpVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, True
+                )
         else:
-            forecaster = SvVharExpand(
-                self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
-                sv, sparse, fit_record,
-                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
-                self.init_, self._prior_type,
-                self._group_id, self._own_id, self._cross_id, self.group_,
-                self.fit_intercept, n_ahead, test,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
-                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
-                self.thread_, chunk_size
-            )
+            if self._ggl:
+                forecaster = SvVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
+            else:
+                forecaster = SvGrpVharExpand(
+                    self.y_, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_,
+                    sparse, 0, fit_record,
+                    self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                    self.init_, self._prior_type,
+                    self._group_id, self._own_id, self._cross_id, self.group_,
+                    self.fit_intercept, stable, n_ahead, test, True,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                    np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
+                    self._verbose, self.thread_, sv
+                )
         out_forecast = forecaster.returnForecast()
-        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        # y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), out_forecast.get('forecast')))
+        forecast_elem = next(iter(out_forecast.values()))
+        y_distn = list(map(lambda x: process_dens_forecast(x, self.n_features_in_), forecast_elem))
         return {
-            "forecast": np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
+            "forecast": np.concatenate(list(map(lambda x: np.median(x, axis = 0), y_distn)), axis = 0) if med else np.concatenate(list(map(lambda x: np.mean(x, axis = 0), y_distn)), axis = 0),
             "se": np.concatenate(list(map(lambda x: np.std(x, axis = 0, ddof=1), y_distn)), axis = 0),
             "lower": np.concatenate(list(map(lambda x: np.quantile(x, level / 2, axis = 0), y_distn)), axis = 0),
             "upper": np.concatenate(list(map(lambda x: np.quantile(x, 1 - level / 2, axis = 0), y_distn)), axis = 0),
-            "lpl": out_forecast.get('lpl')
+            "lpl": np.median(out_forecast.get('lpl'), axis = 1) if med else np.mean(out_forecast.get('lpl'), axis = 1) 
         }
 
-    def spillover(self):
-        pass
+    def spillover(self, n_ahead: int, level = .05, sparse = True):
+        """Spillover
 
-    def dynamic_spillover(self):
-        pass
+        Parameters
+        ----------
+        n_ahead : int
+            Forecast step
+        level : float, optional
+            Density level, by default .05
+        sparse : bool, optional
+            Use sparse draw?, by default True
+
+        Returns
+        -------
+        _type_
+            Density for each directional and sample spillover effect
+        """
+        fit_record = concat_params(self.param_, self.param_names_, False)
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltSpillover(self.week_, self.month_, n_ahead, fit_record, sparse)
+        else:
+            spo = SvSpillover(self.week_, self.month_, n_ahead, fit_record, sparse)
+        out_spillover = spo.returnSpillover()
+        return {
+            "connect": process_dens_spillover(out_spillover['connect'], self.n_features_in_),
+            "net_pairwise": process_dens_spillover(out_spillover['net_pairwise'], self.n_features_in_, level),
+            "tot": process_dens_vector_spillover(out_spillover['tot'], self.n_features_in_, level),
+            "to": process_dens_vector_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_vector_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_vector_spillover(out_spillover['net'], self.n_features_in_, level)
+        }
+
+    def dynamic_spillover(self, window: int, n_ahead = 10, level = .05, sparse = True):
+        n_horizon = self.y_.shape[0] - window + 1
+        if type(self.cov_spec_) == LdltConfig:
+            spo = LdltDynamicSpillover(
+                self.y_, window, n_ahead, self.week_, self.month_, self.chains_, self.iter_, self.burn_, self.thin_, sparse,
+                self.cov_spec_.to_dict(), self.spec_.to_dict(), self.intercept_spec_.to_dict(),
+                self.init_, self._prior_type, self._ggl,
+                self._group_id, self._own_id, self._cross_id, self.group_,
+                self.fit_intercept,
+                np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
+                self.thread_
+            )
+        else:
+            fit_record = concat_params(self.param_, self.param_names_, False)
+            spo = SvDynamicSpillover(self.week_, self.month_, n_ahead, self.y_.shape[0], fit_record, sparse, self.thread_)
+        out_spillover = spo.returnSpillover()
+        return {
+            "tot": process_dens_list_spillover(out_spillover['tot'], 1, level),
+            "to": process_dens_list_spillover(out_spillover['to'], self.n_features_in_, level),
+            "from": process_dens_list_spillover(out_spillover['from'], self.n_features_in_, level),
+            "net": process_dens_list_spillover(out_spillover['net'], self.n_features_in_, level)
+        }

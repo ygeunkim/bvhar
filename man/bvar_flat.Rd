@@ -57,7 +57,7 @@ is.bvarflat(x)
 
 \item{num_thread}{Number of threads}
 
-\item{x}{\code{bvarflat} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

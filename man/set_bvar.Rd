@@ -41,7 +41,7 @@ is.bvharspec(x)
 
 \item{monthly}{Fill the third part in the first block (Default: 1)}
 
-\item{x}{\code{bvharspec} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

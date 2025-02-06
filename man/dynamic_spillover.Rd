@@ -33,12 +33,20 @@ dynamic_spillover(object, n_ahead = 10L, ...)
   object,
   n_ahead = 10L,
   window,
+  level = 0.05,
   sparse = FALSE,
   num_thread = 1,
   ...
 )
 
-\method{dynamic_spillover}{svmod}(object, n_ahead = 10L, sparse = FALSE, num_thread = 1, ...)
+\method{dynamic_spillover}{svmod}(
+  object,
+  n_ahead = 10L,
+  level = 0.05,
+  sparse = FALSE,
+  num_thread = 1,
+  ...
+)
 }
 \arguments{
 \item{object}{Model object}
@@ -60,6 +68,8 @@ dynamic_spillover(object, n_ahead = 10L, ...)
 \item{num_burn}{Number of burn-in}
 
 \item{thinning}{Thinning every thinning-th iteration}
+
+\item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
 \item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.}
 }

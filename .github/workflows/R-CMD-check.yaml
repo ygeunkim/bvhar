@@ -2,7 +2,7 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master, 'hotfix/*', 'release/*', develop]
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/*-withci']
   pull_request:
     branches: [main, master, 'hotfix/*', 'release/*', develop]
 
@@ -21,14 +21,16 @@ jobs:
           - {os: macOS-latest,   r: 'release'}
 
           - {os: windows-latest, r: 'release'}
-          - {os: windows-latest, r: 'oldrel-4'}
+          # rtools40's older compiler: R-4.0.0 to to R-4.1.3
+          - {os: windows-latest, r: '4.1'}
 
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
           - {os: ubuntu-latest,  r: 'oldrel-2'}
           - {os: ubuntu-latest,  r: 'oldrel-3'}
-          - {os: ubuntu-latest,  r: '3.6'}
+          # add oldrel-4 in Spring 2025
+          # - {os: ubuntu-latest,  r: 'oldrel-4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -44,35 +46,10 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-      
-      - name: Determine evaluate package version on Windows
-        if: runner.os == 'Windows'
-        run: |
-          if ($Env:MATRIX_CONFIG_R -lt "4.0.0") {
-            echo "EVALUATE_PKG=evaluate@0.23" >> $Env:GITHUB_ENV
-          } else {
-            echo "EVALUATE_PKG=evaluate" >> $Env:GITHUB_ENV
-           }
-        shell: pwsh
-          
-      - name: Determine evaluate package version on non-Windows
-        if: runner.os != 'Windows'
-        run: |
-          if [ "${{ matrix.config.r }}" \< "4.0.0" ]; then
-            echo "EVALUATE_PKG=evaluate@0.23" >> $GITHUB_ENV
-          else
-            echo "EVALUATE_PKG=evaluate" >> $GITHUB_ENV
-          fi
-        shell: bash
-      
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, ${{ env.EVALUATE_PKG }}
-          # extra-packages: >
-          #    any::rcmdcheck,
-          #    knitr=?ignore-before-r=4.0.0,
-          #    rmarkdown=?ignore-before-r=4.0.0,
-          #    testthat=?ignore-before-r=4.0.0
+          extra-packages: any::rcmdcheck
           needs: check
 
 # do not build vignettes in github actions check and ignore warnings
@@ -84,7 +61,7 @@ jobs:
           error-on: '"warning"'
           check-dir: '"check"'
           upload-snapshots: false
-          upload-results: false
+          upload-results: 'never'
       
       - name: Run check for CRAN
         uses: r-lib/actions/check-r-package@v2

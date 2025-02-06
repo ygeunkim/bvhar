@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 options(digits = 3)
 ```
 
-# bvhar <img src='man/figures/logo.png' align="right" height="139" />
+# bvhar <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master)](https://github.com/ygeunkim/bvhar/actions/workflows/R-CMD-check.yaml?query=branch%3Amaster)
@@ -78,14 +78,14 @@ Repeatedly, `bvhar` is a research tool to analyze multivariate time series model
 |:-----:|:--------:|:-----:|  
 | VAR | `var_lm()` | |  
 | VHAR | `vhar_lm()` | |  
-| BVAR | `bvar_minnesota()` | Minnesota (will move to `var_bayes()`) |  
-| BVHAR | `bvhar_minnesota()` | Minnesota (will move to `vhar_bayes()`) |  
-| BVAR | `var_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL |  
-| BVHAR | `vhar_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL |  
+| BVAR | `bvar_minnesota()` and `choose_bvar()` | Minnesota (will move to `var_bayes()`) |  
+| BVHAR | `bvhar_minnesota()` and `choose_bvhar()` | Minnesota (will move to `vhar_bayes()`) |  
+| BVAR | `var_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |  
+| BVHAR | `vhar_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |  
 
 This readme document shows forecasting procedure briefly.
 Details about each function are in vignettes and help documents.
-Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the next version.
+Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the near future.
 
 h-step ahead forecasting:
 

@@ -20,7 +20,7 @@ is.interceptspec(x)
 
 \item{sd}{Normal standard deviance for constant term}
 
-\item{x}{\code{interceptspec} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 

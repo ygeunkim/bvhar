@@ -32,10 +32,10 @@ is.stable <- function(x, ...) {
 #' where \eqn{A} is VAR(1) coefficient matrix representation.
 #' @export
 stableroot.varlse <- function(x, ...) {
-  compute_var_stablemat(x) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
+  eigen_vals <-
+    compute_var_stablemat(x) |>
+    eigen()
+  Mod(eigen_vals$values)
 }
 
 #' @rdname is.stable
@@ -55,10 +55,10 @@ is.stable.varlse <- function(x, ...) {
 #' @rdname stableroot
 #' @export
 stableroot.vharlse <- function(x, ...) {
-  compute_vhar_stablemat(x) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
+  eigen_vals <-
+    compute_vhar_stablemat(x) |>
+    eigen()
+  Mod(eigen_vals$values)
 }
 
 #' @rdname is.stable
@@ -70,10 +70,10 @@ is.stable.vharlse <- function(x, ...) {
 #' @rdname stableroot
 #' @export
 stableroot.bvarmn <- function(x, ...) {
-  compute_var_stablemat(x) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
+  eigen_vals <- 
+    compute_var_stablemat(x) |> 
+    eigen()
+  Mod(eigen_vals$values)
 }
 
 #' @rdname is.stable
@@ -85,10 +85,10 @@ is.stable.bvarmn <- function(x, ...) {
 #' @rdname stableroot
 #' @export
 stableroot.bvarflat <- function(x, ...) {
-  compute_var_stablemat(x) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
+  eigen_vals <- 
+    compute_var_stablemat(x) |> 
+    eigen()
+  Mod(eigen_vals$values)
 }
 
 #' @rdname is.stable
@@ -100,10 +100,10 @@ is.stable.bvarflat <- function(x, ...) {
 #' @rdname stableroot
 #' @export
 stableroot.bvharmn <- function(x, ...) {
-  compute_vhar_stablemat(x) %>% 
-    eigen() %>% 
-    .$values %>% 
-    Mod()
+  eigen_vals <-
+    compute_vhar_stablemat(x) |>
+    eigen()
+  Mod(eigen_vals$values)
 }
 
 #' @rdname is.stable

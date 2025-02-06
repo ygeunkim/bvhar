@@ -2,7 +2,9 @@
 % Please edit documentation in R/var-bayes.R, R/print-bvharsp.R
 \name{var_bayes}
 \alias{var_bayes}
+\alias{print.bvarsv}
 \alias{print.bvarldlt}
+\alias{knit_print.bvarsv}
 \alias{knit_print.bvarldlt}
 \title{Fitting Bayesian VAR with Coefficient and Covariance Prior}
 \usage{
@@ -18,13 +20,18 @@ var_bayes(
   intercept = set_intercept(),
   include_mean = TRUE,
   minnesota = TRUE,
+  ggl = TRUE,
   save_init = FALSE,
   convergence = NULL,
   verbose = FALSE,
   num_thread = 1
 )
 
+\method{print}{bvarsv}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
 \method{print}{bvarldlt}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{knit_print}{bvarsv}(x, ...)
 
 \method{knit_print}{bvarldlt}(x, ...)
 }
@@ -50,6 +57,10 @@ var_bayes(
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
 \item{minnesota}{Apply cross-variable shrinkage structure (Minnesota-way). By default, \code{TRUE}.}
+
+\item{ggl}{If \code{TRUE} (default), use additional group shrinkage parameter for group structure.
+Otherwise, use group shrinkage parameter instead of global shirnkage parameter.
+Applies to HS, NG, and DL priors.}
 
 \item{save_init}{Save every record starting from the initial values (\code{TRUE}).
 By default, exclude the initial values in the record (\code{FALSE}), even when \code{num_burn = 0} and \code{thinning = 1}.

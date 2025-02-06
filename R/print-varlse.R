@@ -93,8 +93,8 @@ print.summary.varlse <- function(x, digits = max(3L, getOption("digits") - 3L), 
   dim_data <- ncol(x$covmat)
   dim_design <- nrow(coef_mat) / dim_data
   coef_mat <- 
-    coef_mat %>% 
-    separate(term, into = c("term", "variable"), sep = "\\.") %>% 
+    coef_mat |> 
+    separate(term, into = c("term", "variable"), sep = "\\.") |> 
     split.data.frame(f = gl(dim_data, dim_design))
   if (signif_code) {
     sig_star <- numeric(dim_design)

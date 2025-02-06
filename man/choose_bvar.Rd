@@ -59,7 +59,7 @@ is.bvharemp(x)
 
 \item{har}{Numeric vector for weekly and monthly order. By default, \code{c(5, 22)}.}
 
-\item{x}{\code{bvharemp} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 }

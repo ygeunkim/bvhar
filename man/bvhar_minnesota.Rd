@@ -69,7 +69,7 @@ is.bvharmn(x)
 
 \item{num_thread}{Number of threads}
 
-\item{x}{\code{bvharhm} object}
+\item{x}{Any object}
 
 \item{digits}{digit option to print}
 
