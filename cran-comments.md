@@ -1,10 +1,8 @@
-## Patch version update
+## Minor version update
 
-This is a quick fix for fatal algorithm fault.
-In this version, we
+## Round 2
 
-- Fixed MCMC algorithm when constant term exists.
-- Fixed Forecasting algorithm for MCMC objects.
+- Skipped some CPU-intensive tests on CRAN to prevent excessive resource usage in CRAN test environments.
 
 ## Test environments
 

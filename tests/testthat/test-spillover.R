@@ -1,6 +1,8 @@
 # spillover() and dynamic_spillover()--------------
 test_that("VAR-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -16,6 +18,8 @@ test_that("VAR-Spillover", {
 
 test_that("VHAR-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -31,6 +35,8 @@ test_that("VHAR-Spillover", {
 
 test_that("VAR-LDLT-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -55,6 +61,8 @@ test_that("VAR-LDLT-Spillover", {
 
 test_that("VHAR-LDLT-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+
   num_row <- 30
   win_size <- 29
   num_col <- 2
@@ -78,6 +86,8 @@ test_that("VHAR-LDLT-Spillover", {
 
 test_that("VAR-SV-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+
   num_row <- 30
   num_col <- 2
   var_lag <- 1
@@ -98,6 +108,8 @@ test_that("VAR-SV-Spillover", {
 
 test_that("VHAR-SV-Spillover", {
   skip_on_ci()
+  skip_on_cran()
+  
   num_row <- 30
   num_col <- 2
   har_lag <- c(5, 22)
