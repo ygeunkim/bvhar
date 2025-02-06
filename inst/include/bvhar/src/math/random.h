@@ -3,7 +3,6 @@
 
 #include "../core/common.h"
 #include <vector>
-#include <limits>
 
 #ifdef USE_RCPP
 Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
@@ -221,6 +220,13 @@ inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, c
 	return res;
 }
 
+// Generate Generalized Inverse Gaussian Distribution
+// 
+// This function samples GIG(lambda, psi, chi) random variate.
+// 
+// @param lambda Index of modified Bessel function of third kind.
+// @param psi Second parameter of GIG
+// @param chi Third parameter of GIG
 inline double sim_gig(double lambda, double psi, double chi, boost::random::mt19937& rng) {
 	boost::random::generalized_inverse_gaussian_distribution<> rdist(lambda, psi, chi);
 	return rdist(rng);

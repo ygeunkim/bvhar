@@ -3,6 +3,7 @@
 
 #include "../../math/random.h"
 #include <set>
+#include <limits>
 
 namespace bvhar {
 
