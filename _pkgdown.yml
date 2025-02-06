@@ -166,7 +166,6 @@ reference:
   - sim_iw
   - sim_mniw
   - sim_mvt
-  - sim_gig
 
 - title: Data
   desc: ~
