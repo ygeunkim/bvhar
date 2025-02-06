@@ -42,14 +42,9 @@ Eigen::MatrixXd generate_mnormal(int num_sim, Eigen::VectorXd mean, Eigen::Matri
 // MNIW
 
 // GIG
-Eigen::VectorXd generate_gig(int num_sim, double lambda, double psi, double chi, unsigned int seed) {
-	boost::random::mt19937 rng(seed);
-	return bvhar::sim_gig(num_sim, lambda, psi, chi, rng);
-}
 
 PYBIND11_MODULE(normal, m) {
 	m.doc() = "Random samplers related to Gaussain";
 
 	m.def("generate_mnormal", &generate_mnormal, "Generates multivariate gaussian random vectors");
-	m.def("generate_gig", &generate_gig, "A function that GIG random variates");
 }

@@ -91,7 +91,6 @@ quartodoc:
       package: bvhar.random
       contents:
         - normal.generate_mnormal
-        - normal.generate_gig
     - title: Datasets
       desc: "Datasets"
       package: bvhar.datasets
