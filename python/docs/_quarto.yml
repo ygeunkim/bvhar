@@ -24,11 +24,11 @@ website:
           - text: "bvhar"
             file: intro.qmd
           - text: "bvhar in R"
-            href: {{< var rref >}}
+            href: {{< env R_VERSION_REF >}}
             target: _blank
     right:
       - icon: github
-        href: {{< var pyref >}}
+        href: {{< env PY_VERSION_REF >}}
         aria-label: bvhar-python github
   sidebar:
     style: floating
