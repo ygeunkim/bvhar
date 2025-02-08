@@ -1,1 +1,5 @@
 version: QUARTODOC_VERSION
+
+ref:
+  py: PY_VERSION_REF
+  r: R_VERSION_REF
