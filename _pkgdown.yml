@@ -18,9 +18,9 @@ home:
   - text: VERSION_TEXT
     href: VERSION_REF
   - text: C++ headers
-    href: https://ygeunkim.github.io/package/bvhar/cpp/
+    href: CPP_REF
   - text: bvhar for Python
-    href: https://ygeunkim.github.io/package/bvhar/python/
+    href: PY_REF
 
 development:
   mode: auto

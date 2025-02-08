@@ -47,6 +47,18 @@ jobs:
             conda run -n bvhar-dev quartodoc build
             conda run -n bvhar-dev quarto render .
         working-directory: python/docs
+      
+      - name: Main and develop
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [ "$BRANCH" == "develop" ]; then
+            echo "TARGET_FOLDER=package/bvhar/dev/python" >> $GITHUB_ENV
+            sed -i 's|VERSION_REF|https://github.com/ygeunkim/bvhar/tree/develop/python|; s|R_VERSION_REF|https://ygeunkim.github.io/package/bvhar/|' _variables.yml
+          else
+            echo "TARGET_FOLDER=package/bvhar/python" >> $GITHUB_ENV
+            sed -i 's|VERSION_REF|https://github.com/ygeunkim/bvhar/tree/master/python|; s|R_VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|' _variables.yml
+          fi
+        working-directory: python/docs
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
@@ -57,4 +69,4 @@ jobs:
           clean: false
           branch: master
           folder: python/docs/_site
-          target-folder: package/bvhar/python
+          target-folder: ${{ env.TARGET_FOLDER }}

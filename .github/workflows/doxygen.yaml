@@ -35,6 +35,16 @@ jobs:
       - name: Create .nojekyll
         run: sudo touch inst/doxygen/html/.nojekyll
 
+      - name: Set target folder
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [ "$BRANCH" == "develop" ]; then
+            echo "TARGET_FOLDER=package/bvhar/dev/cpp" >> $GITHUB_ENV
+          else
+            echo "TARGET_FOLDER=package/bvhar/cpp" >> $GITHUB_ENV
+          fi
+        shell: bash
+
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.6.1
@@ -44,4 +54,5 @@ jobs:
           clean: false
           branch: master
           folder: inst/doxygen/html
-          target-folder: package/bvhar/cpp
+          # target-folder: package/bvhar/cpp
+          target-folder: ${{ env.TARGET_FOLDER }}
