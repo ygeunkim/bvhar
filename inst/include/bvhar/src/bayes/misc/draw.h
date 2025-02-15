@@ -99,6 +99,8 @@ inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, const Eige
 inline void cut_param(double& param) {
 	if (param < std::numeric_limits<double>::min() || std::isnan(param)) {
 		param = std::numeric_limits<double>::min();
+	} else if (param > std::numeric_limits<double>::max() || std::isinf(param)) {
+		param = std::numeric_limits<double>::max();
 	}
 }
 
