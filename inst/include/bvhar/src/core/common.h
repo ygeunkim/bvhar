@@ -30,6 +30,8 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 #include <boost/version.hpp>
 
+#define BHRNG boost::random::mt19937
+
 // Remove after boost upgrade including inverse_gaussian and generalized_inverse_gaussian
 // https://github.com/boostorg/random/pull/124
 // https://github.com/boostorg/random/pull/126
@@ -382,6 +384,11 @@ using random::inverse_gaussian_distribution;
 using random::generalized_inverse_gaussian_distribution;
 
 } // namespace boost
+#else
+
+#include <boost/random/inverse_gaussian_distribution.hpp>
+#include <boost/random/generalized_inverse_gaussian_distribution.hpp>
+
 #endif
 
 #if defined(__cpp_lib_optional)
@@ -539,42 +546,42 @@ inline double beta_rand(double s1, double s2) {
 }
 #endif
 
-inline double normal_rand(boost::random::mt19937& rng) {
+inline double normal_rand(BHRNG& rng) {
 	boost::random::normal_distribution<> rdist(0.0, 1.0);
 	return rdist(rng);
 }
 
-inline double chisq_rand(double df, boost::random::mt19937& rng) {
+inline double chisq_rand(double df, BHRNG& rng) {
 	boost::random::chi_squared_distribution<> rdist(df);
 	return rdist(rng);
 }
 
-inline double gamma_rand(double shp, double scl, boost::random::mt19937& rng) {
+inline double gamma_rand(double shp, double scl, BHRNG& rng) {
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
 
-inline double ber_rand(double prob, boost::random::mt19937& rng) {
+inline double ber_rand(double prob, BHRNG& rng) {
 	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> use this instead of binomial
 	return rdist(rng) * 1.0; // change to int later: now just use double to match Rf_rbinom
 }
 
-inline double unif_rand(double min, double max, boost::random::mt19937& rng) {
+inline double unif_rand(double min, double max, BHRNG& rng) {
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
 
-inline double unif_rand(boost::random::mt19937& rng) {
+inline double unif_rand(BHRNG& rng) {
 	boost::random::uniform_01<> rdist;
 	return rdist(rng);
 }
 
-inline double beta_rand(double s1, double s2, boost::random::mt19937& rng) {
+inline double beta_rand(double s1, double s2, BHRNG& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
 }
 
-inline int cat_rand(const Eigen::VectorXd& probabilities, boost::random::mt19937& rng) {
+inline int cat_rand(const Eigen::VectorXd& probabilities, BHRNG& rng) {
 	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
 	return rdist(rng);
 }

@@ -104,7 +104,7 @@ public:
 
 protected:
 	std::unique_ptr<RegRecords> reg_record;
-	boost::random::mt19937 rng;
+	BHRNG rng;
 	std::mutex mtx;
 	Eigen::MatrixXd response; // y0
 	bool include_mean;

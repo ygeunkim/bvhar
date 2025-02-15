@@ -204,7 +204,7 @@ protected:
 	std::unique_ptr<RegRecords> reg_record;
 	SparseRecords sparse_record;
 	std::atomic<int> mcmc_step; // MCMC step
-	boost::random::mt19937 rng; // RNG instance for multi-chain
+	BHRNG rng; // RNG instance for multi-chain
 	Eigen::VectorXd coef_vec;
 	Eigen::VectorXd contem_coef;
 	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha

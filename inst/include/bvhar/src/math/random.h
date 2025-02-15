@@ -6,7 +6,7 @@
 
 namespace bvhar {
 
-inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, boost::random::mt19937& rng) {
+inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BHRNG& rng) {
   int dim = sig.cols();
   Eigen::MatrixXd standard_normal(num_sim, dim);
   Eigen::MatrixXd res(num_sim, dim);
@@ -156,7 +156,7 @@ inline Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
 
 // Generate MN(M, U, V)
 inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u, const Eigen::MatrixXd& mat_scale_v,
-															bool prec, boost::random::mt19937& rng) {
+															bool prec, BHRNG& rng) {
   int num_rows = mat_mean.rows();
   int num_cols = mat_mean.cols();
   Eigen::MatrixXd chol_scale_v = mat_scale_v.llt().matrixU(); // V = U_vTU_v
@@ -174,7 +174,7 @@ inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::Matr
 }
 
 // Generate Lower Triangular Matrix of IW
-inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape, boost::random::mt19937& rng) {
+inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape, BHRNG& rng) {
   int dim = mat_scale.cols();
 	if (shape <= dim - 1) {
     STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
@@ -201,7 +201,7 @@ inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape
 
 // Generate MNIW(M, U, Psi, nu)
 inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, const Eigen::MatrixXd& mat_scale_u,
-																			 				const Eigen::MatrixXd& mat_scale, double shape, bool prec, boost::random::mt19937& rng) {
+																			 				const Eigen::MatrixXd& mat_scale, double shape, bool prec, BHRNG& rng) {
   Eigen::MatrixXd chol_res = sim_iw_tri(mat_scale, shape, rng);
   Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();
 	std::vector<Eigen::MatrixXd> res(2);
@@ -217,14 +217,14 @@ inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, c
 // @param lambda Index of modified Bessel function of third kind.
 // @param psi Second parameter of GIG
 // @param chi Third parameter of GIG
-inline double sim_gig(double lambda, double psi, double chi, boost::random::mt19937& rng) {
+inline double sim_gig(double lambda, double psi, double chi, BHRNG& rng) {
 	boost::random::generalized_inverse_gaussian_distribution<> rdist(lambda, psi, chi);
 	return rdist(rng);
 }
 
 // Generate Inverse Gaussian Distribution
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
-inline double sim_invgauss(double mean, double shape, boost::random::mt19937& rng) {
+inline double sim_invgauss(double mean, double shape, BHRNG& rng) {
 	boost::random::inverse_gaussian_distribution<> rdist(mean, shape);
 	return rdist(rng);
 }

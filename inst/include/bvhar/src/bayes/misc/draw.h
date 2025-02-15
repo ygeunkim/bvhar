@@ -173,7 +173,7 @@ inline void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat,
 // @param chol_diag Diagonal element of the cholesky factor
 // @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 inline void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat,
-													Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, boost::random::mt19937& rng) {
+													Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, BHRNG& rng) {
 	int dim = sse_mat.cols();
   int num_param = DRD.size();
   Eigen::MatrixXd normal_variance(dim - 1, dim - 1);
@@ -239,7 +239,7 @@ inline Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_d
 // @param chol_factor Cholesky factor of variance matrix
 inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd,
 											Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols,
-											Eigen::MatrixXd& chol_factor, boost::random::mt19937& rng) {
+											Eigen::MatrixXd& chol_factor, BHRNG& rng) {
 	int num_coef = prior_sd.size();
   Eigen::MatrixXd scaled_xtx = kronecker_eigen((chol_factor * chol_factor.transpose()).eval(), XtX); // Sigma^(-1) = chol * chol^T
   Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
@@ -268,7 +268,7 @@ inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen:
 // @param slab_weight Proportion of nonzero coefficients
 inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
 											 Eigen::VectorXd& sd_numer, Eigen::Ref<const Eigen::VectorXd> sd_denom,
-											 Eigen::VectorXd& slab_weight, boost::random::mt19937& rng) {
+											 Eigen::VectorXd& slab_weight, BHRNG& rng) {
   int num_latent = slab_weight.size();
 	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
 	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());
@@ -287,7 +287,7 @@ inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
 // @param param_obs Indicator variables
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
-inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, boost::random::mt19937& rng) {
+inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, BHRNG& rng) {
   int num_latent = param_obs.size();
   double post_s1 = prior_s1 + param_obs.sum(); // s1 + number of ones
   double post_s2 = prior_s2 + num_latent - param_obs.sum(); // s2 + number of zeros
@@ -306,7 +306,7 @@ inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, doub
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
 inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-  												 Eigen::VectorXd& param_obs, Eigen::VectorXd& prior_s1, Eigen::VectorXd& prior_s2, boost::random::mt19937& rng) {
+  												 Eigen::VectorXd& param_obs, Eigen::VectorXd& prior_s1, Eigen::VectorXd& prior_s2, BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_latent = param_obs.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
@@ -334,7 +334,7 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 // @param spike_scl scaling factor to make spike sd smaller than slab sd (spike_sd = spike_scl * slab_sd)
 // @param rng boost rng
 inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_param, Eigen::Ref<Eigen::VectorXd> coef_vec,
-														double& shp, double& scl, double& spike_scl, boost::random::mt19937& rng) {
+														double& shp, double& scl, double& spike_scl, BHRNG& rng) {
 	for (int i = 0; i < coef_vec.size(); ++i) {
 		slab_param[i] = sqrt(1 / gamma_rand(
 			shp + .5,
@@ -349,7 +349,7 @@ inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_ve
 }
 
 inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
-														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, boost::random::mt19937& rng) {
+														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -370,7 +370,7 @@ inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
 inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::VectorXd> y,
-											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, boost::random::mt19937& rng) {
+											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, BHRNG& rng) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -438,7 +438,7 @@ inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eig
 // @param sv_sig Variance of log-volatilities
 // @param latent_vec Auxiliary residual vector
 inline void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
-										 double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec, boost::random::mt19937& rng) {
+										 double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec, BHRNG& rng) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
   // 7-component normal mixutre
   Eigen::VectorXd pj(7); // p_t
@@ -496,7 +496,7 @@ inline void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
 // @param init_sv Initial log volatility
 // @param h1 Time-varying h1 matrix
 inline void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::VectorXd& scl,
-											 Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1, boost::random::mt19937& rng) {
+											 Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1, BHRNG& rng) {
   int dim = init_sv.size();
   int num_design = h1.rows();
   Eigen::MatrixXd h_slide(num_design, dim); // h_ij, j = 0, ..., n - 1
@@ -521,7 +521,7 @@ inline void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::Vec
 // @param h1 h1
 // @param sv_sig Variance of log volatility
 inline void varsv_h0(Eigen::VectorXd& h0, Eigen::VectorXd& prior_mean, Eigen::MatrixXd& prior_prec,
-              			 Eigen::VectorXd h1, Eigen::VectorXd& sv_sig, boost::random::mt19937& rng) {
+              			 Eigen::VectorXd h1, Eigen::VectorXd& sv_sig, BHRNG& rng) {
   int dim = h1.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -561,7 +561,7 @@ inline void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyper
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
-                    			 double var, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+                    			 double var, Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
 	int dim = coef.size();
 	Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -582,7 +582,7 @@ inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec,
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
-												 				Eigen::MatrixXd shrink_mat, boost::random::mt19937& rng) {
+												 				Eigen::MatrixXd shrink_mat, BHRNG& rng) {
   int num_coef = design_mat.cols(); // k^2 kp(+1)
   int num_sur = response_vec.size(); // nk-dim
   Eigen::MatrixXd sur_identity = Eigen::MatrixXd::Identity(num_sur, num_sur);
@@ -603,7 +603,7 @@ inline void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
-															 Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+															 Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
   int dim = design_mat.cols();
   int sample_size = response_vec.size();
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
@@ -630,7 +630,7 @@ inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& respo
 //   return 1 / gamma_rand(sample_size / 2, 2 / scl, rng);
 // }
 
-inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, boost::random::mt19937& rng) {
+inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
   return 1 / gamma_rand(
 		design_mat.size() / 2,
 		2 / ((response_vec - design_mat * coef_vec).squaredNorm() + coef_vec.transpose() * shrink_mat * coef_vec), rng
@@ -647,7 +647,7 @@ inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& desi
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam,
-                            				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
+                            				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
   int dim = coef_vec.size();
 	Eigen::VectorXd invgam_scl = (1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square())).cwiseInverse();
   for (int i = 0; i < dim; i++) {
@@ -664,7 +664,7 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
 inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const Eigen::VectorXd> local_hyperparam,
-                                 				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
+                                 				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
   int dim = coef_vec.size();
 	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
 	return sqrt(
@@ -689,7 +689,7 @@ inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const E
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
                                   			 Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam,
-																				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
+																				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
@@ -712,7 +712,7 @@ inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::Vec
 // For group shrinkage
 inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& group_latent, double& global_lev, Eigen::VectorXd& local_hyperparam,
-																	Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, boost::random::mt19937& rng) {
+																	Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
@@ -737,14 +737,14 @@ inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& g
 // In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
 // 
 // @param hyperparam sparsity hyperparameters vector
-inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, boost::random::mt19937& rng) {
+inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, BHRNG& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
 		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam[i] * hyperparam[i])), rng);
   }
 }
 // overloading
-inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::mt19937& rng) {
+inline void horseshoe_latent(double& latent, double& hyperparam, BHRNG& rng) {
   latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
 }
 
@@ -756,7 +756,7 @@ inline void horseshoe_latent(double& latent, double& hyperparam, boost::random::
 // @param coef_vec Coefficients vector
 // @param rng boost rng
 inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
-									 		Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+									 		Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
 	// int num_alpha = latent_param.size();
 	for (int i = 0; i < latent_param.size(); ++i) {
 		// latent_param[i] = sim_gig(
@@ -776,7 +776,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 // @param coef Coefficients vector
 // @param rng boost rng
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
-															Eigen::Ref<const Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+															Eigen::Ref<const Eigen::VectorXd> coef, BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(dir_concen - 1, 1, 2 * abs(coef[i]), rng);
 		cut_param(local_param[i]);
@@ -791,7 +791,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param coef Coefficients vector
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
-										 						 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+										 						 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
 	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 	double tau = sim_gig(coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng);
 	cut_param(tau);
@@ -807,7 +807,7 @@ inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 // @param rng boost rng
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& rate,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
   for (int i = 0; i < grp_id.size(); i++) {
@@ -836,7 +836,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
 													 double& shape, double& rate,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, boost::random::mt19937& rng) {
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
   for (int i = 0; i < grp_id.size(); i++) {
@@ -877,7 +877,7 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param grid_size Grid size
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
-inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, boost::random::mt19937& rng) {
+inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, BHRNG& rng) {
 	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
 	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), 1);
 	Eigen::VectorXd log_wt(grid_size);
@@ -955,7 +955,7 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 // }
 inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-														 boost::random::mt19937& rng) {
+														 BHRNG& rng) {
 	coef_prec.array() *= lambda;
 	// double gig_chi = (coef - coef_mean).squaredNorm();
 	double gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();
@@ -980,7 +980,7 @@ inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> co
 
 inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::VectorXd> coef,
 																Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, boost::random::mt19937& rng) {
+																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	double old_nu = nu;
@@ -1006,7 +1006,7 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 // @param rng boost rng
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
-										 					boost::random::mt19937& rng) {
+										 					BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
 			shape - .5,
@@ -1019,7 +1019,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 // overloading
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
-										 					boost::random::mt19937& rng) {
+										 					BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
 			shape[i] - .5,
@@ -1038,7 +1038,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param coef Coefficients vector
 // @param rng boost rng
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& hyper_gamma,
-																 double& shape, double& scl, boost::random::mt19937& rng) {
+																 double& shape, double& scl, BHRNG& rng) {
 	// return sqrt(1 / gamma_rand(
 	// 	shape + local_param.size() * hyper_gamma,
 	// 	1 / (hyper_gamma * local_param.squaredNorm() + scl),
@@ -1054,7 +1054,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 }
 // overloading
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
-																 double& shape, double& scl, boost::random::mt19937& rng) {
+																 double& shape, double& scl, BHRNG& rng) {
 	// return sqrt(1 / gamma_rand(
 	// 	shape + hyper_gamma.sum(),
 	// 	1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
@@ -1075,7 +1075,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 // @param grp_id Unique group id
 inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 Eigen::VectorXd& hyper_gamma, double& global_param, Eigen::VectorXd& local_param, double& shape, double& scl,
-													 boost::random::mt19937& rng) {
+													 BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = local_param.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
@@ -1096,7 +1096,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 
 // MH for shape parameter of Normal-Gamma Prior
 inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
-														double global_param, double lognormal_sd, boost::random::mt19937& rng) {
+														double global_param, double lognormal_sd, BHRNG& rng) {
   int num_coef = local_param.size();
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
@@ -1120,7 +1120,7 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 // 
 inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& local_param,
 														 Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-														 double& global_param, double lognormal_sd, boost::random::mt19937& rng) {
+														 double& global_param, double lognormal_sd, BHRNG& rng) {
   int num_coef = local_param.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
@@ -1145,7 +1145,7 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 // @param coef
 // @param rng
 inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<const Eigen::VectorXd> local_shape,
-															 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+															 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
 	for (int i = 0; i < local_param.size(); ++i) {
 		local_param[i] = 1 / sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
 		// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));
@@ -1158,7 +1158,7 @@ inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::R
 // @param coef
 // @param rng
 inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> rate_hyper, double prior_shape, double prior_rate,
-											 		 Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+											 		 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
 	for (int i = 0; i < rate_hyper.size(); ++i) {
 		rate_hyper[i] = gamma_rand(prior_shape + 1, 1 / (prior_rate + abs(coef[i])), rng);
 	}
@@ -1172,7 +1172,7 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> rate_hyper, double prior_sh
 // @param rng
 inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_shape, double prior_rate,
 												 Eigen::Ref<Eigen::VectorXd> coef,
-												 Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, boost::random::mt19937& rng) {
+												 Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
 	int num_coef = coef.size();
@@ -1210,7 +1210,7 @@ inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, do
 // @param grid_size
 // @param coef
 // @param rng
-inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -1222,7 +1222,7 @@ inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_si
 	shape_hyper = (1 - grid[id]) / grid[id];
 }
 
-inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, boost::random::mt19937& rng) {
+inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -1242,7 +1242,7 @@ inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_siz
 // @param ortho_latent Residual matrix of triangular equation
 // @param rng boost rng
 inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
-													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, boost::random::mt19937& rng) {
+													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, BHRNG& rng) {
 	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		// diag_vec[i] = 1 / gamma_rand(

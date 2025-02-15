@@ -102,7 +102,7 @@ protected:
 	Eigen::MatrixXd spillover;
 	std::vector<std::vector<Eigen::MatrixXd>> record_warm;
 	std::vector<std::vector<Eigen::MatrixXd>> record;
-	boost::random::mt19937 rng;
+	BHRNG rng;
 };
 
 class BvharSpillover : public MinnSpillover {

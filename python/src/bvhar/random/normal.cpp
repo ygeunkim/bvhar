@@ -6,7 +6,7 @@
 
 // MVN
 Eigen::MatrixXd generate_mnormal(int num_sim, Eigen::VectorXd mean, Eigen::MatrixXd covariance, unsigned int seed, int method) {
-	boost::random::mt19937 rng(seed);
+	BHRNG rng(seed);
 	int dim = covariance.cols();
 	if (covariance.rows() != dim) {
 		throw py::value_error("Invalid 'covariance' dimension.");
