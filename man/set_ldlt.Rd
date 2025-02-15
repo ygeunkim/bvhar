@@ -15,7 +15,7 @@ set_ldlt(ig_shape = 3, ig_scl = 0.01)
 
 set_sv(ig_shape = 3, ig_scl = 0.01, initial_mean = 1, initial_prec = 0.1)
 
-set_iw(sigma = NULL)
+set_iw()
 
 \method{print}{covspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 

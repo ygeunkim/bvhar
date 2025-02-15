@@ -791,7 +791,7 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
 #' 
 #' @order 1
 #' @export
-set_iw <- function(sigma = NULL) {
+set_iw <- function() {
   res <- list(
     process = "Homoskedastic",
     prior = "IW"
