@@ -273,3 +273,10 @@ is.svspec <- function(x) {
 is.ldltspec <- function(x) {
   inherits(x, "ldltspec")
 }
+
+#' @rdname set_ldlt
+#' @param x Any object
+#' @export
+is.iwspec <- function(x) {
+  inherits(x, "iwspec")
+}

@@ -94,12 +94,7 @@ var_bayes <- function(y,
                       convergence = NULL,
                       verbose = FALSE,
                       num_thread = 1) {
-  if (!all(apply(y, 2, is.numeric))) {
-    stop("Every column must be numeric class.")
-  }
-  if (!is.matrix(y)) {
-    y <- as.matrix(y)
-  }
+  y <- validate_input(y)
   dim_data <- ncol(y)
   # Y0 = X0 B + Z---------------------
   Y0 <- build_response(y, p, p + 1)
@@ -121,22 +116,7 @@ var_bayes <- function(y,
   num_alpha <- dim_data^2 * p
   num_eta <- dim_data * (dim_data - 1) / 2
   # model specification---------------
-  if (!(
-    is.bvharspec(bayes_spec) ||
-    is.ssvsinput(bayes_spec) ||
-    is.horseshoespec(bayes_spec) ||
-    is.ngspec(bayes_spec) ||
-    is.dlspec(bayes_spec) ||
-    is.gdpspec(bayes_spec)
-  )) {
-    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
-  }
-  if (!is.covspec(cov_spec)) {
-    stop("Provide 'covspec' for 'cov_spec'.")
-  }
-  if (!is.interceptspec(intercept)) {
-    stop("Provide 'interceptspec' for 'intercept'.")
-  }
+  validate_spec(bayes_spec = bayes_spec, cov_spec = cov_spec, intercept = intercept)
   if (length(cov_spec$shape) == 1) {
     cov_spec$shape <- rep(cov_spec$shape, dim_data)
     cov_spec$scale <- rep(cov_spec$scale, dim_data)
@@ -451,7 +431,7 @@ var_bayes <- function(y,
       }
     )
     param_cov <- cov_spec[c("shape", "scale", "initial_mean", "initial_prec")]
-  } else {
+  } else if (is.ldltspec(cov_spec)) {
     param_init <- lapply(
       param_init,
       function(init) {

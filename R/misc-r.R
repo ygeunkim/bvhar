@@ -1,3 +1,50 @@
+#' Validate Input matrix
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' 
+#' @noRd
+validate_input <- function(y) {
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    return(as.matrix(y))
+  }
+  y
+}
+
+#' Validate Bayesian configuration input
+#'
+#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) [set_weight_bvhar()], [set_ssvs()], or [set_horseshoe()].
+#' @param cov_spec SV specification by [set_sv()].
+#' @param intercept Prior for the constant term by [set_intercept()].
+#' @noRd
+validate_spec <- function(bayes_spec, cov_spec, intercept) {
+  if (!(
+    is.bvharspec(bayes_spec) ||
+      is.ssvsinput(bayes_spec) ||
+      is.horseshoespec(bayes_spec) ||
+      is.ngspec(bayes_spec) ||
+      is.dlspec(bayes_spec) ||
+      is.gdpspec(bayes_spec)
+  )) {
+    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
+  }
+  # Covariance-----------------
+  if (!is.covspec(cov_spec)) {
+    stop("Provide 'covspec' for 'cov_spec'.")
+  }
+  if (is.iwspec(cov_spec)) {
+    if (!is.bvharspec(bayes_spec)) {
+      stop("'iwspec' can be only used in MNIW or flat prior.")
+    }
+  }
+  # Intercept------------------
+  if (!is.interceptspec(intercept)) {
+    stop("Provide 'interceptspec' for 'intercept'.")
+  }
+}
+
 #' @noRd
 concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
   nm <- 

@@ -88,12 +88,7 @@ vhar_bayes <- function(y,
                        convergence = NULL,
                        verbose = FALSE,
                        num_thread = 1) {
-  if (!all(apply(y, 2, is.numeric))) {
-    stop("Every column must be numeric class.")
-  }
-  if (!is.matrix(y)) {
-    y <- as.matrix(y)
-  }
+  y <- validate_input(y)
   minnesota <- match.arg(minnesota)
   dim_data <- ncol(y)
   week <- har[1] # 5
@@ -120,26 +115,7 @@ vhar_bayes <- function(y,
   num_design <- nrow(Y0)
   dim_har <- ncol(X1) # 3 * dim_data + 1
   # model specification---------------
-  if (!(
-    is.bvharspec(bayes_spec) ||
-    is.ssvsinput(bayes_spec) ||
-    is.horseshoespec(bayes_spec) ||
-    is.ngspec(bayes_spec) ||
-    is.dlspec(bayes_spec) ||
-    is.gdpspec(bayes_spec)
-  )) {
-    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
-  }
-  if (!is.covspec(cov_spec)) {
-    stop("Provide 'covspec' for 'cov_spec'.")
-  }
-  # cov_sv <- FALSE
-  # if (is.svspec(cov_spec)) {
-  #   cov_sv <- TRUE
-  # }
-  if (!is.interceptspec(intercept)) {
-    stop("Provide 'interceptspec' for 'intercept'.")
-  }
+  validate_spec(bayes_spec = bayes_spec, cov_spec = cov_spec, intercept = intercept)
   if (length(cov_spec$shape) == 1) {
     cov_spec$shape <- rep(cov_spec$shape, dim_data)
     cov_spec$scale <- rep(cov_spec$scale, dim_data)
@@ -609,7 +585,7 @@ vhar_bayes <- function(y,
       res$h0_record,
       res$sigh_record
     )
-  } else {
+  } else if (is.ldltspec(cov_spec)) {
     res$param <- bind_draws(
       res$param,
       res$d_record
