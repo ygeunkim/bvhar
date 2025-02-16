@@ -294,13 +294,27 @@ public:
 		);
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
+	MinnBvar(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean)
+	: lag(lag), const_term(include_mean), dim(y.cols()),
+		design(x), response(y) {
+		dummy_response = build_ydummy(
+			lag, spec._sigma,
+			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+			const_term
+		);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
 	virtual ~MinnBvar() = default;
 	LIST returnMinnRes() {
 		LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = lag;
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
-		mn_res["y"] = data;
+		// mn_res["y"] = data;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() {
@@ -326,6 +340,18 @@ public:
 		response = build_y0(data, month, month + 1);
 		har_trans = bvhar::build_vhar(dim, week, month, const_term);
 		var_design = build_x0(data, month, const_term);
+		design = var_design * har_trans.transpose();
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
+	}
+	MinnBvhar(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
+	: week(week), month(month), const_term(include_mean),
+		dim(y.cols()), var_design(x), response(y) {
+		// response = build_y0(data, month, month + 1);
+		har_trans = bvhar::build_vhar(dim, week, month, const_term);
+		// var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		dummy_design = build_xdummy(
 			Eigen::VectorXd::LinSpaced(3, 1, 3),
@@ -359,6 +385,15 @@ public:
 		);
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
+	MinnBvharS(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, int week, int month, const BvarSpec& spec, const bool include_mean)
+	: MinnBvhar(x, y, week, month, spec, include_mean) {
+		dummy_response = build_ydummy(
+			3, spec._sigma, spec._lambda,
+			spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
+			const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
 	virtual ~MinnBvharS() noexcept = default;
 	LIST returnMinnRes() override {
 		LIST mn_res = _mn->returnMinnRes();
@@ -368,7 +403,7 @@ public:
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
-		mn_res["y"] = data;
+		// mn_res["y"] = data;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {
@@ -390,6 +425,15 @@ public:
 		);
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
+	MinnBvharL(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, int week, int month, const BvharSpec& spec, const bool include_mean)
+	: MinnBvhar(x, y, week, month, spec, include_mean) {
+		dummy_response = build_ydummy(
+			3, spec._sigma, spec._lambda,
+			spec._daily, spec._weekly, spec._monthly,
+			const_term
+		);
+		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+	}
 	virtual ~MinnBvharL() noexcept = default;
 	LIST returnMinnRes() override {
 		LIST mn_res = _mn->returnMinnRes();
@@ -399,7 +443,7 @@ public:
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
-		mn_res["y"] = data;
+		// mn_res["y"] = data;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {

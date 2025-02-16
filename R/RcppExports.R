@@ -11,8 +11,8 @@
 #' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
-    .Call(`_bvhar_estimate_bvar_mn`, y, lag, bayes_spec, include_mean)
+estimate_bvar_mn <- function(x, y, lag, bayes_spec, include_mean) {
+    .Call(`_bvhar_estimate_bvar_mn`, x, y, lag, bayes_spec, include_mean)
 }
 
 #' BVHAR Point Estimates based on Minnesota Prior
@@ -26,8 +26,8 @@ estimate_bvar_mn <- function(y, lag, bayes_spec, include_mean) {
 #' @param include_mean Constant term
 #' 
 #' @noRd
-estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean) {
-    .Call(`_bvhar_estimate_bvhar_mn`, y, week, month, bayes_spec, include_mean)
+estimate_bvhar_mn <- function(x, y, week, month, bayes_spec, include_mean) {
+    .Call(`_bvhar_estimate_bvhar_mn`, x, y, week, month, bayes_spec, include_mean)
 }
 
 #' @noRd

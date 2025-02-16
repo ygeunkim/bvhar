@@ -199,12 +199,21 @@ bvhar_minnesota <- function(y,
       bayes_spec$monthly <- rep(1, dim_data)
     }
   }
+  # Y0 = X0 A + Z---------------------
+  Y0 <- build_response(y, month, month + 1)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(dim_data))
+  }
+  colnames(Y0) <- name_var
+  X0 <- build_design(y, month, include_mean)
   if (minnesota_type != "MN_Hierarchical") {
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
     }
     # is_short <- minnesota_type == "MN_VAR"
-    res <- estimate_bvhar_mn(y, week, month, bayes_spec, include_mean)
+    res <- estimate_bvhar_mn(x = X0, y = Y0, week = week, month = month, bayes_spec = bayes_spec, include_mean = include_mean)
     # res <- estimate_bvhar_mn(
     #   y = y, week = week, month = month,
     #   num_chains = num_chains, num_iter = num_iter, num_burn = num_burn, thin = thinning,
@@ -257,7 +266,7 @@ bvhar_minnesota <- function(y,
     # )
     # res[rec_names] <- NULL
     # res$param_names <- param_names
-    colnames(res$y) <- name_var
+    # colnames(res$y) <- name_var
     colnames(res$y0) <- name_var
     # Prior-----------------------------
     colnames(res$prior_mean) <- name_var
@@ -281,15 +290,7 @@ bvhar_minnesota <- function(y,
     # delta <- bayes_spec$delta
     lambda <- bayes_spec$lambda$mode
     eps <- bayes_spec$eps
-    # Y0 = X0 A + Z---------------------
-    Y0 <- build_response(y, month, month + 1)
-    if (!is.null(colnames(y))) {
-      name_var <- colnames(y)
-    } else {
-      name_var <- paste0("y", seq_len(dim_data))
-    }
-    colnames(Y0) <- name_var
-    X0 <- build_design(y, month, include_mean)
+    # X1---------------------------------
     HARtrans <- scale_har(dim_data, week, month, include_mean)
     name_har <- concatenate_colnames(name_var, c("day", "week", "month"), include_mean) # in misc-r.R file
     X1 <- X0 %*% t(HARtrans)

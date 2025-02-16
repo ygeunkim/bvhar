@@ -11,9 +11,10 @@
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
+Rcpp::List estimate_bvar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
 	bvhar::BvarSpec mn_spec(bayes_spec);
-	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, mn_spec, include_mean));
+	// std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(x, y, lag, mn_spec, include_mean));
+	auto mn_obj = std::make_unique<bvhar::MinnBvar>(x, y, lag, mn_spec, include_mean);
 	return mn_obj->returnMinnRes();
 }
 
@@ -29,14 +30,16 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean) {
+Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd x, Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean) {
 	std::unique_ptr<bvhar::MinnBvhar> mn_obj;
 	if (bayes_spec.containsElementNamed("delta")) {
 		bvhar::BvarSpec bvhar_spec(bayes_spec);
-		mn_obj.reset(new bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
+		// mn_obj.reset(new bvhar::MinnBvharS(x, y, week, month, bvhar_spec, include_mean));
+		mn_obj = std::make_unique<bvhar::MinnBvharS>(x, y, week, month, bvhar_spec, include_mean);
 	} else {
 		bvhar::BvharSpec bvhar_spec(bayes_spec);
-		mn_obj.reset(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
+		// mn_obj.reset(new bvhar::MinnBvharL(x, y, week, month, bvhar_spec, include_mean));
+		mn_obj = std::make_unique<bvhar::MinnBvharL>(x, y, week, month, bvhar_spec, include_mean);
 	}
 	return mn_obj->returnMinnRes();
 }
