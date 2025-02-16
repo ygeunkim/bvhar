@@ -14,10 +14,6 @@ validate_input <- function(y) {
 }
 
 #' Validate Bayesian configuration input
-#'
-#' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) [set_weight_bvhar()], [set_ssvs()], or [set_horseshoe()].
-#' @param cov_spec SV specification by [set_sv()].
-#' @param intercept Prior for the constant term by [set_intercept()].
 #' @noRd
 validate_spec <- function(y, dim_data, p, num_grp, grp_id, own_id, cross_id,
                           bayes_spec, cov_spec, intercept, prior_nm, process = c("BVAR", "BVHAR")) {
@@ -31,10 +27,6 @@ validate_spec <- function(y, dim_data, p, num_grp, grp_id, own_id, cross_id,
       is.gdpspec(bayes_spec)
   )) {
     stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
-  }
-  # Covariance-----------------
-  if (!is.covspec(cov_spec)) {
-    stop("Provide 'covspec' for 'cov_spec'.")
   }
   if (!is.interceptspec(intercept)) {
     stop("Provide 'interceptspec' for 'intercept'.")
@@ -117,10 +109,37 @@ validate_spec <- function(y, dim_data, p, num_grp, grp_id, own_id, cross_id,
   )
 }
 
-#' Initialize MCMC (Temporarily used before moving into C++)
+#' Validate covspec input
 #' @noRd
-init_shrinkage_prior <- function(prior_nm, num_chains = 1, dim_data, dim_design, num_eta, num_alpha, num_grp) {
-  param_init <- lapply(
+validate_covspec <- function(cov_spec, dim_data) {
+  if (!is.covspec(cov_spec)) {
+    stop("Provide 'covspec' for 'cov_spec'.")
+  }
+  if (length(cov_spec$shape) == 1) {
+    cov_spec$shape <- rep(cov_spec$shape, dim_data)
+    cov_spec$scale <- rep(cov_spec$scale, dim_data)
+  }
+  if (is.svspec(cov_spec)) {
+    if (length(cov_spec$initial_mean) == 1) {
+      cov_spec$initial_mean <- rep(cov_spec$initial_mean, dim_data)
+    }
+    if (length(cov_spec$initial_prec) == 1) {
+      cov_spec$initial_prec <- cov_spec$initial_prec * diag(dim_data)
+    }
+    param_cov <- cov_spec[c("shape", "scale", "initial_mean", "initial_prec")]
+  } else if (is.ldltspec(cov_spec)) {
+    param_cov <- cov_spec[c("shape", "scale")]
+  }
+  list(
+    spec = cov_spec,
+    hyperparam = param_cov
+  )
+}
+
+#' Initialize Coefficients (Temporarily used before moving into C++)
+#' @noRd
+init_coef <- function(num_chains = 1, dim_data, dim_design, num_eta) {
+  lapply(
     seq_len(num_chains),
     function(x) {
       list(
@@ -129,6 +148,11 @@ init_shrinkage_prior <- function(prior_nm, num_chains = 1, dim_data, dim_design,
       )
     }
   )
+}
+
+#' Initialize Shrinkage levels (Temporarily used before moving into C++)
+#' @noRd
+init_shrinkage_prior <- function(param_init, prior_nm, num_eta, num_alpha, num_grp) {
   switch(
     prior_nm,
     "Minnesota" = {
@@ -270,6 +294,37 @@ init_shrinkage_prior <- function(prior_nm, num_chains = 1, dim_data, dim_design,
       )
     }
   )
+}
+
+#' Initialize covariance (Temporarily used before moving into C++)
+#' @noRd
+init_cov <- function(param_init, cov_spec, dim_data, num_design) {
+  if (is.svspec(cov_spec)) {
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(
+            lvol_init = runif(dim_data, -1, 1),
+            lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
+            lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
+          )
+        )
+      }
+    )
+  } else if (is.ldltspec(cov_spec)) {
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(init_diag = exp(runif(dim_data, -1, 1))) # always positive
+        )
+      }
+    )
+  }
+  param_init
 }
 
 #' @noRd

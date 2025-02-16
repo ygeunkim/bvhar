@@ -116,10 +116,7 @@ var_bayes <- function(y,
   num_alpha <- dim_data^2 * p
   num_eta <- dim_data * (dim_data - 1) / 2
   # model specification---------------
-  if (length(cov_spec$shape) == 1) {
-    cov_spec$shape <- rep(cov_spec$shape, dim_data)
-    cov_spec$scale <- rep(cov_spec$scale, dim_data)
-  }
+  param_cov <- validate_covspec(cov_spec = cov_spec, dim_data = dim_data)
   if (length(intercept$mean_non) == 1) {
     intercept$mean_non <- rep(intercept$mean_non, dim_data)
   }
@@ -134,7 +131,7 @@ var_bayes <- function(y,
     stop("'thinning' should be non-negative.")
   }
   prior_nm <- bayes_spec$prior
-  # Initialization--------------------
+  # Group structure-------------------
   glob_idmat <- build_grpmat(
     p = p,
     dim_data = dim_data,
@@ -155,14 +152,24 @@ var_bayes <- function(y,
   }
   num_grp <- length(grp_id)
   # Initialization--------------------
-  param_init <- init_shrinkage_prior(
-    prior_nm = prior_nm,
+  param_init <- init_coef(
     num_chains = num_chains,
     dim_data = dim_data,
     dim_design = dim_design,
+    num_eta = num_eta
+  )
+  param_init <- init_shrinkage_prior(
+    param_init = param_init,
+    prior_nm = prior_nm,
     num_eta = num_eta,
     num_alpha = num_alpha,
     num_grp = num_grp
+  )
+  param_init <- init_cov(
+    param_init = param_init,
+    cov_spec = cov_spec,
+    dim_data = dim_data,
+    num_design = num_design
   )
   param_prior <- validate_spec(
     y = y,
@@ -194,40 +201,7 @@ var_bayes <- function(y,
     warning("'num_thread' > 'num_chains' will not use every thread. Specify as 'num_thread' <= 'num_chains'.")
   }
   if (num_burn == 0 && thinning == 1 && save_init) {
-    num_burn <- -1
-  }
-  if (is.svspec(cov_spec)) {
-    if (length(cov_spec$initial_mean) == 1) {
-      cov_spec$initial_mean <- rep(cov_spec$initial_mean, dim_data)
-    }
-    if (length(cov_spec$initial_prec) == 1) {
-      cov_spec$initial_prec <- cov_spec$initial_prec * diag(dim_data)
-    }
-    param_init <- lapply(
-      param_init,
-      function(init) {
-        append(
-          init,
-          list(
-            lvol_init = runif(dim_data, -1, 1),
-            lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
-            lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
-          )
-        )
-      }
-    )
-    param_cov <- cov_spec[c("shape", "scale", "initial_mean", "initial_prec")]
-  } else if (is.ldltspec(cov_spec)) {
-    param_init <- lapply(
-      param_init,
-      function(init) {
-        append(
-          init,
-          list(init_diag = exp(runif(dim_data, -1, 1))) # always positive
-        )
-      }
-    )
-    param_cov <- cov_spec[c("shape", "scale")]
+    num_burn <- -1 # should fix this
   }
   res <- estimate_sur(
     num_chains = num_chains,
@@ -236,7 +210,7 @@ var_bayes <- function(y,
     thin = thinning,
     x = X0,
     y = Y0,
-    param_reg = param_cov,
+    param_reg = param_cov$hyperparam,
     param_prior = param_prior$hyperparam,
     param_intercept = intercept[c("mean_non", "sd_non")],
     param_init = param_init,
@@ -412,7 +386,7 @@ var_bayes <- function(y,
   res$process <- paste("VAR", bayes_spec$prior, cov_spec$process, sep = "_")
   res$type <- ifelse(include_mean, "const", "none")
   res$spec <- param_prior$spec
-  res$sv <- cov_spec
+  res$sv <- param_cov$spec
   res$intercept <- intercept
   res$init <- param_init
   res$chain <- num_chains
