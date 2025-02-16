@@ -96,12 +96,15 @@ inline void set_grp_id(std::set<int>& own_id, std::set<int> cross_id, const Eige
 // 	}
 // }
 
-inline void cut_param(double& param) {
-	if (param < std::numeric_limits<double>::min() || std::isnan(param)) {
-		param = std::numeric_limits<double>::min();
-	} else if (param > std::numeric_limits<double>::max() || std::isinf(param)) {
-		param = std::numeric_limits<double>::max();
-	}
+inline void cut_param(Eigen::Ref<Eigen::VectorXd> param) {
+	param = param.array().isNaN().select(
+		std::numeric_limits<double>::min(),
+		param.array().isInf().select(
+			std::numeric_limits<double>::max(),
+			param
+		)
+	);
+	param = param.cwiseMax(std::numeric_limits<double>::min()).cwiseMin(std::numeric_limits<double>::max());
 }
 
 // Building Spike-and-slab SD Diagonal Matrix
@@ -784,6 +787,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 		cut_param(local_param[i]);
 	}
 	local_param /= local_param.sum();
+	cut_param(local_param);
 }
 
 // Generating Global Parameter of Dirichlet-Laplace Prior

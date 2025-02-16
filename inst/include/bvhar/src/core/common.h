@@ -524,6 +524,14 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
 }
 
 // RNG----------------------------------------
+inline void cut_param(double& param) {
+	if (param < std::numeric_limits<double>::min() || std::isnan(param)) {
+		param = std::numeric_limits<double>::min();
+	} else if (param > std::numeric_limits<double>::max() || std::isinf(param)) {
+		param = std::numeric_limits<double>::max();
+	}
+}
+
 #ifdef USE_RCPP
 inline double bindom_rand(int n, double prob) {
 	return Rf_rbinom(n, prob);
@@ -557,6 +565,7 @@ inline double chisq_rand(double df, BHRNG& rng) {
 }
 
 inline double gamma_rand(double shp, double scl, BHRNG& rng) {
+	cut_param(scl);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
