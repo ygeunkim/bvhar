@@ -219,45 +219,18 @@ vhar_bayes <- function(y,
     display_progress = verbose,
     nthreads = num_thread
   )
-  res <- do.call(rbind, res)
-  colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
-  rec_names <- colnames(res) # *_record
-  param_names <- gsub(pattern = "_record$", replacement = "", rec_names) # phi, h, ...
-  res <- apply(
-    res,
-    2,
-    function(x) {
-      if (is.vector(x[[1]])) {
-        return(as.matrix(unlist(x)))
-      }
-      do.call(rbind, x)
-    }
+  # Process the results---------------
+  res <- process_cta(
+    res = res,
+    dim_data = dim_data,
+    num_chains = num_chains,
+    prior_nm = prior_nm,
+    process = "BVHAR",
+    cov_spec = cov_spec,
+    name_var = name_var,
+    name_lag = name_har,
+    include_mean = include_mean
   )
-  names(res) <- rec_names # *_record
-  # summary across chains--------------------------------
-  res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
-  res$sparse_coef <- matrix(colMeans(res$phi_sparse_record), ncol = dim_data)
-  if (include_mean) {
-    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
-    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_sparse_record))
-  }
-  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
-  diag(mat_lower) <- rep(1L, dim_data)
-  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
-  res$chol_posterior <- mat_lower
-  colnames(res$coefficients) <- name_var
-  rownames(res$coefficients) <- name_har
-  colnames(res$sparse_coef) <- name_var
-  rownames(res$sparse_coef) <- name_har
-  colnames(res$chol_posterior) <- name_var
-  rownames(res$chol_posterior) <- name_var
-  res$pip <- colMeans(res$phi_sparse_record != 0)
-  res$pip <- matrix(res$pip, ncol = dim_data)
-  if (include_mean) {
-    res$pip <- rbind(res$pip, rep(1L, dim_data))
-  }
-  colnames(res$pip) <- name_var
-  rownames(res$pip) <- name_har
   # if (bayes_spec$prior == "SSVS") {
   #   res$pip <- colMeans(res$gamma_record)
   #   res$pip <- matrix(res$pip, ncol = dim_data)
@@ -274,82 +247,6 @@ vhar_bayes <- function(y,
   #   colnames(res$pip) <- name_var
   #   rownames(res$pip) <- name_har
   # }
-  # Preprocess the results--------------------------------
-  if (num_chains > 1) {
-    res[rec_names] <- lapply(
-      seq_along(res[rec_names]),
-      function(id) {
-        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
-      }
-    )
-  } else {
-    res[rec_names] <- lapply(
-      seq_along(res[rec_names]),
-      function(id) {
-        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
-        res[rec_names][[id]]
-      }
-    )
-  }
-  res[rec_names] <- lapply(res[rec_names], as_draws_df)
-  # res$param <- bind_draws(res[rec_names])
-  res$param <- bind_draws(
-    res$phi_record,
-    res$a_record,
-    res$phi_sparse_record,
-    res$a_sparse_record
-  )
-  if (is.svspec(cov_spec)) {
-    res$param <- bind_draws(
-      res$param,
-      res$h_record,
-      res$h0_record,
-      res$sigh_record
-    )
-  } else if (is.ldltspec(cov_spec)) {
-    res$param <- bind_draws(
-      res$param,
-      res$d_record
-    )
-  }
-  if (include_mean) {
-    res$param <- bind_draws(
-      res$param,
-      res$c_record,
-      res$c_sparse_record
-    )
-  }
-  if (prior_nm == "SSVS") {
-    res$param <- bind_draws(
-      res$param,
-      res$gamma_record
-    )
-  } else if (prior_nm == "Horseshoe") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record,
-      res$kappa_record
-    )
-  } else if (prior_nm == "NG") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record
-    )
-  } else if (prior_nm == "DL") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$tau_record
-    )
-  } else if (prior_nm == "GDP") {
-    # 
-  }
-  res[rec_names] <- NULL
-  res$param_names <- param_names
   # if (bayes_spec$prior == "SSVS" || bayes_spec$prior == "Horseshoe") {
   #   res$group <- glob_idmat
   #   res$num_group <- length(grp_id)

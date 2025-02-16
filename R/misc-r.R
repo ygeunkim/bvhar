@@ -740,3 +740,141 @@ get_records <- function(object, split_chain = TRUE) {
   ) |>
     setNames(paste(object$param_names, "record", sep = "_"))
 }
+
+#' Process CTA results
+#' @importFrom posterior as_draws_df bind_draws
+#' @noRd
+process_cta <- function(res, dim_data, num_chains, prior_nm, process = c("BVAR", "BVHAR"), cov_spec, name_var, name_lag, include_mean) {
+  process <- match.arg(process)
+  res <- do.call(rbind, res)
+  if (process == "BVHAR") {
+    colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+  }
+  rec_names <- colnames(res)
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
+  names(res) <- rec_names
+  if (process == "BVAR") {
+    res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+    res$sparse_coef <- matrix(colMeans(res$alpha_sparse_record), ncol = dim_data)
+    res$pip <- colMeans(res$alpha_sparse_record != 0)
+  } else {
+    res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+    res$sparse_coef <- matrix(colMeans(res$phi_sparse_record), ncol = dim_data)
+    res$pip <- colMeans(res$phi_sparse_record != 0)
+  }
+  if (include_mean) {
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
+    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_sparse_record))
+  }
+  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  diag(mat_lower) <- rep(1L, dim_data)
+  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
+  res$chol_posterior <- mat_lower
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_lag
+  colnames(res$sparse_coef) <- name_var
+  rownames(res$sparse_coef) <- name_lag
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
+  # res$pip <- colMeans(res$alpha_sparse_record != 0)
+  res$pip <- matrix(res$pip, ncol = dim_data)
+  if (include_mean) {
+    res$pip <- rbind(res$pip, rep(1L, dim_data))
+  }
+  colnames(res$pip) <- name_var
+  rownames(res$pip) <- name_lag
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  if (process == "BVAR") {
+    res$param <- bind_draws(
+      res$alpha_record,
+      res$a_record,
+      res$alpha_sparse_record,
+      res$a_sparse_record
+    )
+  } else {
+    res$param <- bind_draws(
+      res$phi_record,
+      res$a_record,
+      res$phi_sparse_record,
+      res$a_sparse_record
+    )
+  }
+  if (is.svspec(cov_spec)) {
+    res$param <- bind_draws(
+      res$param,
+      res$h_record,
+      res$h0_record,
+      res$sigh_record
+    )
+  } else {
+    res$param <- bind_draws(
+      res$param,
+      res$d_record
+    )
+  }
+  if (include_mean) {
+    res$param <- bind_draws(
+      res$param,
+      res$c_record,
+      res$c_sparse_record
+    )
+  }
+  if (prior_nm == "SSVS") {
+    res$param <- bind_draws(
+      res$param,
+      res$gamma_record
+    )
+  } else if (prior_nm == "Horseshoe") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record,
+      res$kappa_record
+    )
+  } else if (prior_nm == "NG") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record
+    )
+  } else if (prior_nm == "DL") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$tau_record
+    )
+  } else if (prior_nm == "GDP") {
+    #
+  }
+  res[rec_names] <- NULL
+  res$param_names <- param_names
+  res
+}
