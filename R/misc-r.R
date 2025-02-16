@@ -19,7 +19,9 @@ validate_input <- function(y) {
 #' @param cov_spec SV specification by [set_sv()].
 #' @param intercept Prior for the constant term by [set_intercept()].
 #' @noRd
-validate_spec <- function(bayes_spec, cov_spec, intercept) {
+validate_spec <- function(y, dim_data, p, num_grp, grp_id, own_id, cross_id,
+                          bayes_spec, cov_spec, intercept, prior_nm, process = c("BVAR", "BVHAR")) {
+  process <- match.arg(process)
   if (!(
     is.bvharspec(bayes_spec) ||
       is.ssvsinput(bayes_spec) ||
@@ -34,15 +36,240 @@ validate_spec <- function(bayes_spec, cov_spec, intercept) {
   if (!is.covspec(cov_spec)) {
     stop("Provide 'covspec' for 'cov_spec'.")
   }
-  if (is.iwspec(cov_spec)) {
-    if (!is.bvharspec(bayes_spec)) {
-      stop("'iwspec' can be only used in MNIW or flat prior.")
-    }
-  }
-  # Intercept------------------
   if (!is.interceptspec(intercept)) {
     stop("Provide 'interceptspec' for 'intercept'.")
   }
+  if (prior_nm == "Minnesota" || prior_nm == "MN_Hierarchical") {
+    if (process == "BVAR") {
+      if (bayes_spec$process != process) {
+        stop("'bayes_spec' must be the result of 'set_bvar()'.")
+      }
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(0, dim_data)
+      }
+      if (length(bayes_spec$delta) == 1) {
+        bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+      }
+    } else {
+      if (bayes_spec$process != process) {
+        stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
+      }
+      if ("delta" %in% names(bayes_spec)) {
+        if (is.null(bayes_spec$delta)) {
+          bayes_spec$delta <- rep(0, dim_data)
+        }
+        if (length(bayes_spec$delta) == 1) {
+          bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+        }
+      } else {
+        if (is.null(bayes_spec$daily)) {
+          bayes_spec$daily <- rep(0, dim_data)
+        }
+        if (is.null(bayes_spec$weekly)) {
+          bayes_spec$weekly <- rep(0, dim_data)
+        }
+        if (is.null(bayes_spec$monthly)) {
+          bayes_spec$monthly <- rep(0, dim_data)
+        }
+        if (length(bayes_spec$daily) == 1) {
+          bayes_spec$daily <- rep(bayes_spec$daily, dim_data)
+        }
+        if (length(bayes_spec$weekly) == 1) {
+          bayes_spec$weekly <- rep(bayes_spec$weekly, dim_data)
+        }
+        if (length(bayes_spec$monthly) == 1) {
+          bayes_spec$monthly <- rep(bayes_spec$monthly, dim_data)
+        }
+      }
+      p <- 3
+    }
+    if (is.null(bayes_spec$sigma)) {
+      bayes_spec$sigma <- apply(y, 2, sd)
+    }
+    param_prior <- append(bayes_spec, list(p = p))
+    if (bayes_spec$hierarchical) {
+      param_prior$shape <- bayes_spec$lambda$param[1]
+      param_prior$rate <- bayes_spec$lambda$param[2]
+      param_prior$grid_size <- bayes_spec$lambda$grid_size
+    }
+  } else if (prior_nm == "SSVS") {
+    if (length(bayes_spec$coef_s1) == 2) {
+      coef_s1 <- numeric(num_grp)
+      coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
+      coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
+      bayes_spec$coef_s1 <- coef_s1
+    }
+    if (length(bayes_spec$coef_s2) == 2) {
+      coef_s2 <- numeric(num_grp)
+      coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
+      coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
+      bayes_spec$coef_s2 <- coef_s2
+    }
+    param_prior <- bayes_spec
+  } else if (prior_nm == "Horseshoe") {
+    param_prior <- list()
+  } else {
+    param_prior <- bayes_spec
+  }
+  list(
+    spec = bayes_spec,
+    hyperparam = param_prior
+  )
+}
+
+#' Initialize MCMC (Temporarily used before moving into C++)
+#' @noRd
+init_shrinkage_prior <- function(prior_nm, num_chains = 1, dim_data, dim_design, num_eta, num_alpha, num_grp) {
+  param_init <- lapply(
+    seq_len(num_chains),
+    function(x) {
+      list(
+        init_coef = matrix(runif(dim_data * dim_design, -1, 1), ncol = dim_data),
+        init_contem = exp(runif(num_eta, -1, 0)) # Cholesky factor
+      )
+    }
+  )
+  switch(
+    prior_nm,
+    "Minnesota" = {
+      param_init
+    },
+    "MN_Hierarchical" = {
+      lapply(
+        param_init,
+        function(init) {
+          append(
+            init,
+            list(
+              own_lambda = runif(1, 0, 1),
+              cross_lambda = runif(1, 0, 1),
+              contem_lambda = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    },
+    "SSVS" = {
+      lapply(
+        param_init,
+        function(init) {
+          coef_mixture <- runif(num_grp, -1, 1)
+          coef_mixture <- exp(coef_mixture) / (1 + exp(coef_mixture)) # minnesota structure?
+          init_coef_dummy <- rbinom(num_alpha, 1, .5) # minnesota structure?
+          chol_mixture <- runif(num_eta, -1, 1)
+          chol_mixture <- exp(chol_mixture) / (1 + exp(chol_mixture))
+          init_coef_slab <- exp(runif(num_alpha, -1, 1))
+          init_contem_slab <- exp(runif(num_eta, -1, 1))
+          append(
+            init,
+            list(
+              init_coef_dummy = init_coef_dummy,
+              coef_mixture = coef_mixture,
+              coef_slab = init_coef_slab,
+              chol_mixture = chol_mixture,
+              contem_slab = init_contem_slab,
+              coef_spike_scl = runif(1, 0, 1),
+              chol_spike_scl = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    },
+    "Horseshoe" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          group_sparsity <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              group_sparsity = group_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "NG" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          group_sparsity <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_shape = runif(num_grp, 0, 1),
+              contem_shape = runif(1, 0, 1),
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              group_sparsity = group_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "DL" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "GDP" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          group_rate <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_local_rate <- exp(runif(num_eta, -1, 1))
+          coef_shape <- runif(1, 0, 1)
+          coef_rate <- runif(1, 0, 1)
+          contem_shape <- runif(1, 0, 1)
+          contem_rate <- runif(1, 0, 1)
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              group_rate = group_rate,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_rate = contem_local_rate,
+              gamma_shape = coef_shape,
+              gamma_rate = coef_rate,
+              contem_gamma_shape = contem_shape,
+              contem_gamma_rate = contem_rate
+            )
+          )
+        }
+      )
+    }
+  )
 }
 
 #' @noRd
