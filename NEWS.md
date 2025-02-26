@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+# bvhar 2.2.1
+
 # bvhar 2.2.0
 
 * Requires `R >= 4.1` following [tidyverse R version support schedule](https://www.tidyverse.org/blog/2019/04/r-version-support/)
