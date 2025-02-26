@@ -3,27 +3,27 @@
 |field    |value                            |
 |:--------|:--------------------------------|
 |version  |R version 4.4.2 (2024-10-31)     |
-|os       |macOS Sequoia 15.3               |
+|os       |macOS Sequoia 15.3.1             |
 |system   |aarch64, darwin20                |
 |ui       |X11                              |
 |language |(EN)                             |
 |collate  |en_US.UTF-8                      |
 |ctype    |en_US.UTF-8                      |
 |tz       |US/Pacific                       |
-|date     |2025-02-06                       |
-|pandoc   |3.6.2 @ /opt/homebrew/bin/pandoc |
+|date     |2025-02-25                       |
+|pandoc   |3.6.3 @ /opt/homebrew/bin/pandoc |
 
 # Dependencies
 
 |package        |old        |new        |Δ  |
 |:--------------|:----------|:----------|:--|
-|bvhar          |2.1.2      |2.2.0      |*  |
+|bvhar          |2.2.0      |2.2.1      |*  |
 |abind          |1.4-8      |1.4-8      |   |
 |backports      |1.5.0      |1.5.0      |   |
 |bayesplot      |1.11.1     |1.11.1     |   |
 |BH             |1.87.0-1   |1.87.0-1   |   |
 |checkmate      |2.3.2      |2.3.2      |   |
-|cli            |3.6.3      |3.6.3      |   |
+|cli            |3.6.4      |3.6.4      |   |
 |colorspace     |2.1-1      |2.1-1      |   |
 |cpp11          |0.5.1      |0.5.1      |   |
 |distributional |0.5.0      |0.5.0      |   |
@@ -50,12 +50,12 @@
 |plyr           |1.8.9      |1.8.9      |   |
 |posterior      |1.6.0      |1.6.0      |   |
 |purrr          |1.0.4      |1.0.4      |   |
-|R6             |2.5.1      |2.5.1      |   |
+|R6             |2.6.1      |2.6.1      |   |
 |RColorBrewer   |1.1-3      |1.1-3      |   |
 |Rcpp           |1.0.14     |1.0.14     |   |
 |RcppEigen      |0.3.4.0.2  |0.3.4.0.2  |   |
-|RcppSpdlog     |NA         |0.0.20     |*  |
-|RcppThread     |NA         |2.2.0      |*  |
+|RcppSpdlog     |0.0.20     |0.0.20     |   |
+|RcppThread     |2.2.0      |2.2.0      |   |
 |reshape2       |1.4.4      |1.4.4      |   |
 |rlang          |1.1.5      |1.1.5      |   |
 |scales         |1.3.0      |1.3.0      |   |
