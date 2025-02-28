@@ -2,7 +2,7 @@
 
 In this version, we
 
-- Added `error = TRUE` chunk option in vignettes temporarily until investigating the cause of error in r-devel-linux.
+- Fixed wrong `unlist()` line for R development version (4.5).
 
 ## Test environments
 
@@ -15,11 +15,13 @@ In this version, we
 
 ## R CMD check results
 
-0 errors | 0 warnings | 2 note
+0 errors | 0 warnings | 3 note
 
-* NOTE in local machine: HTML validation NOTE on local environment (aarch64-apple-darwin20) check. This note appears to be specific to my local machine and had no problem in previous CRAN checks.
+* NOTE for CRAN incoming feasibility: This is an early but required fix due to wrong code line which can lead to an error in R development version (4.5).
 
 * NOTE regarding installed package size but not that large, which had no problem in previous CRAN acceptance.
+
+* NOTE in local machine: HTML validation NOTE on local environment (aarch64-apple-darwin20) check. This note appears to be specific to my local machine and had no problem in previous CRAN checks.
 
 ## revdepcheck results
 
