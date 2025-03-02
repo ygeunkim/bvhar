@@ -1,3 +1,332 @@
+#' Validate Input matrix
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' 
+#' @noRd
+validate_input <- function(y) {
+  if (!all(apply(y, 2, is.numeric))) {
+    stop("Every column must be numeric class.")
+  }
+  if (!is.matrix(y)) {
+    return(as.matrix(y))
+  }
+  y
+}
+
+#' Validate Bayesian configuration input
+#' @noRd
+validate_spec <- function(y, dim_data, p, num_grp, grp_id, own_id, cross_id,
+                          bayes_spec, cov_spec, intercept, prior_nm, process = c("BVAR", "BVHAR")) {
+  process <- match.arg(process)
+  if (!(
+    is.bvharspec(bayes_spec) ||
+      is.ssvsinput(bayes_spec) ||
+      is.horseshoespec(bayes_spec) ||
+      is.ngspec(bayes_spec) ||
+      is.dlspec(bayes_spec) ||
+      is.gdpspec(bayes_spec)
+  )) {
+    stop("Provide 'bvharspec', 'ssvsinput', 'horseshoespec', 'ngspec', 'dlspec', or 'gdpspec' for 'bayes_spec'.")
+  }
+  if (!is.interceptspec(intercept)) {
+    stop("Provide 'interceptspec' for 'intercept'.")
+  }
+  if (prior_nm == "Minnesota" || prior_nm == "MN_Hierarchical") {
+    if (process == "BVAR") {
+      if (bayes_spec$process != process) {
+        stop("'bayes_spec' must be the result of 'set_bvar()'.")
+      }
+      if (is.null(bayes_spec$delta)) {
+        bayes_spec$delta <- rep(0, dim_data)
+      }
+      if (length(bayes_spec$delta) == 1) {
+        bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+      }
+    } else {
+      if (bayes_spec$process != process) {
+        stop("'bayes_spec' must be the result of 'set_bvhar()' or 'set_weight_bvhar()'.")
+      }
+      if ("delta" %in% names(bayes_spec)) {
+        if (is.null(bayes_spec$delta)) {
+          bayes_spec$delta <- rep(0, dim_data)
+        }
+        if (length(bayes_spec$delta) == 1) {
+          bayes_spec$delta <- rep(bayes_spec$delta, dim_data)
+        }
+      } else {
+        if (is.null(bayes_spec$daily)) {
+          bayes_spec$daily <- rep(0, dim_data)
+        }
+        if (is.null(bayes_spec$weekly)) {
+          bayes_spec$weekly <- rep(0, dim_data)
+        }
+        if (is.null(bayes_spec$monthly)) {
+          bayes_spec$monthly <- rep(0, dim_data)
+        }
+        if (length(bayes_spec$daily) == 1) {
+          bayes_spec$daily <- rep(bayes_spec$daily, dim_data)
+        }
+        if (length(bayes_spec$weekly) == 1) {
+          bayes_spec$weekly <- rep(bayes_spec$weekly, dim_data)
+        }
+        if (length(bayes_spec$monthly) == 1) {
+          bayes_spec$monthly <- rep(bayes_spec$monthly, dim_data)
+        }
+      }
+      p <- 3
+    }
+    if (is.null(bayes_spec$sigma)) {
+      bayes_spec$sigma <- apply(y, 2, sd)
+    }
+    param_prior <- append(bayes_spec, list(p = p))
+    if (bayes_spec$hierarchical) {
+      param_prior$shape <- bayes_spec$lambda$param[1]
+      param_prior$rate <- bayes_spec$lambda$param[2]
+      param_prior$grid_size <- bayes_spec$lambda$grid_size
+    }
+  } else if (prior_nm == "SSVS") {
+    if (length(bayes_spec$coef_s1) == 2) {
+      coef_s1 <- numeric(num_grp)
+      coef_s1[grp_id %in% own_id] <- bayes_spec$coef_s1[1]
+      coef_s1[grp_id %in% cross_id] <- bayes_spec$coef_s1[2]
+      bayes_spec$coef_s1 <- coef_s1
+    }
+    if (length(bayes_spec$coef_s2) == 2) {
+      coef_s2 <- numeric(num_grp)
+      coef_s2[grp_id %in% own_id] <- bayes_spec$coef_s2[1]
+      coef_s2[grp_id %in% cross_id] <- bayes_spec$coef_s2[2]
+      bayes_spec$coef_s2 <- coef_s2
+    }
+    param_prior <- bayes_spec
+  } else if (prior_nm == "Horseshoe") {
+    param_prior <- list()
+  } else {
+    param_prior <- bayes_spec
+  }
+  list(
+    spec = bayes_spec,
+    hyperparam = param_prior
+  )
+}
+
+#' Validate covspec input
+#' @noRd
+validate_covspec <- function(cov_spec, dim_data) {
+  if (!is.covspec(cov_spec)) {
+    stop("Provide 'covspec' for 'cov_spec'.")
+  }
+  if (length(cov_spec$shape) == 1) {
+    cov_spec$shape <- rep(cov_spec$shape, dim_data)
+    cov_spec$scale <- rep(cov_spec$scale, dim_data)
+  }
+  if (is.svspec(cov_spec)) {
+    if (length(cov_spec$initial_mean) == 1) {
+      cov_spec$initial_mean <- rep(cov_spec$initial_mean, dim_data)
+    }
+    if (length(cov_spec$initial_prec) == 1) {
+      cov_spec$initial_prec <- cov_spec$initial_prec * diag(dim_data)
+    }
+    param_cov <- cov_spec[c("shape", "scale", "initial_mean", "initial_prec")]
+  } else if (is.ldltspec(cov_spec)) {
+    param_cov <- cov_spec[c("shape", "scale")]
+  }
+  list(
+    spec = cov_spec,
+    hyperparam = param_cov
+  )
+}
+
+#' Initialize Coefficients (Temporarily used before moving into C++)
+#' @noRd
+init_coef <- function(num_chains = 1, dim_data, dim_design, num_eta) {
+  lapply(
+    seq_len(num_chains),
+    function(x) {
+      list(
+        init_coef = matrix(runif(dim_data * dim_design, -1, 1), ncol = dim_data),
+        init_contem = exp(runif(num_eta, -1, 0)) # Cholesky factor
+      )
+    }
+  )
+}
+
+#' Initialize Shrinkage levels (Temporarily used before moving into C++)
+#' @noRd
+init_shrinkage_prior <- function(param_init, prior_nm, num_eta, num_alpha, num_grp) {
+  switch(
+    prior_nm,
+    "Minnesota" = {
+      param_init
+    },
+    "MN_Hierarchical" = {
+      lapply(
+        param_init,
+        function(init) {
+          append(
+            init,
+            list(
+              own_lambda = runif(1, 0, 1),
+              cross_lambda = runif(1, 0, 1),
+              contem_lambda = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    },
+    "SSVS" = {
+      lapply(
+        param_init,
+        function(init) {
+          coef_mixture <- runif(num_grp, -1, 1)
+          coef_mixture <- exp(coef_mixture) / (1 + exp(coef_mixture)) # minnesota structure?
+          init_coef_dummy <- rbinom(num_alpha, 1, .5) # minnesota structure?
+          chol_mixture <- runif(num_eta, -1, 1)
+          chol_mixture <- exp(chol_mixture) / (1 + exp(chol_mixture))
+          init_coef_slab <- exp(runif(num_alpha, -1, 1))
+          init_contem_slab <- exp(runif(num_eta, -1, 1))
+          append(
+            init,
+            list(
+              init_coef_dummy = init_coef_dummy,
+              coef_mixture = coef_mixture,
+              coef_slab = init_coef_slab,
+              chol_mixture = chol_mixture,
+              contem_slab = init_contem_slab,
+              coef_spike_scl = runif(1, 0, 1),
+              chol_spike_scl = runif(1, 0, 1)
+            )
+          )
+        }
+      )
+    },
+    "Horseshoe" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          group_sparsity <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              group_sparsity = group_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "NG" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          group_sparsity <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_shape = runif(num_grp, 0, 1),
+              contem_shape = runif(1, 0, 1),
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              group_sparsity = group_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "DL" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          global_sparsity <- exp(runif(1, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_global_sparsity <- exp(runif(1, -1, 1)) # sd = local * global
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              global_sparsity = global_sparsity,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_global_sparsity = contem_global_sparsity
+            )
+          )
+        }
+      )
+    },
+    "GDP" = {
+      lapply(
+        param_init,
+        function(init) {
+          local_sparsity <- exp(runif(num_alpha, -1, 1))
+          group_rate <- exp(runif(num_grp, -1, 1))
+          contem_local_sparsity <- exp(runif(num_eta, -1, 1)) # sd = local * global
+          contem_local_rate <- exp(runif(num_eta, -1, 1))
+          coef_shape <- runif(1, 0, 1)
+          coef_rate <- runif(1, 0, 1)
+          contem_shape <- runif(1, 0, 1)
+          contem_rate <- runif(1, 0, 1)
+          append(
+            init,
+            list(
+              local_sparsity = local_sparsity,
+              group_rate = group_rate,
+              contem_local_sparsity = contem_local_sparsity,
+              contem_rate = contem_local_rate,
+              gamma_shape = coef_shape,
+              gamma_rate = coef_rate,
+              contem_gamma_shape = contem_shape,
+              contem_gamma_rate = contem_rate
+            )
+          )
+        }
+      )
+    }
+  )
+}
+
+#' Initialize covariance (Temporarily used before moving into C++)
+#' @noRd
+init_cov <- function(param_init, cov_spec, dim_data, num_design) {
+  if (is.svspec(cov_spec)) {
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(
+            lvol_init = runif(dim_data, -1, 1),
+            lvol = matrix(exp(runif(dim_data * num_design, -1, 1)), ncol = dim_data), # log-volatilities
+            lvol_sig = exp(runif(dim_data, -1, 1)) # always positive
+          )
+        )
+      }
+    )
+  } else if (is.ldltspec(cov_spec)) {
+    param_init <- lapply(
+      param_init,
+      function(init) {
+        append(
+          init,
+          list(init_diag = exp(runif(dim_data, -1, 1))) # always positive
+        )
+      }
+    )
+  }
+  param_init
+}
+
 #' @noRd
 concatenate_colnames <- function(var_name, prefix, include_mean = TRUE) {
   nm <- 
@@ -410,4 +739,142 @@ get_records <- function(object, split_chain = TRUE) {
     }
   ) |>
     setNames(paste(object$param_names, "record", sep = "_"))
+}
+
+#' Process CTA results
+#' @importFrom posterior as_draws_df bind_draws
+#' @noRd
+process_cta <- function(res, dim_data, num_chains, prior_nm, process = c("BVAR", "BVHAR"), cov_spec, name_var, name_lag, include_mean) {
+  process <- match.arg(process)
+  res <- do.call(rbind, res)
+  if (process == "BVHAR") {
+    colnames(res) <- gsub(pattern = "^alpha", replacement = "phi", x = colnames(res)) # alpha to phi
+  }
+  rec_names <- colnames(res)
+  param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
+  res <- apply(
+    res,
+    2,
+    function(x) {
+      if (is.vector(x[[1]])) {
+        return(as.matrix(unlist(x)))
+      }
+      do.call(rbind, x)
+    }
+  )
+  names(res) <- rec_names
+  if (process == "BVAR") {
+    res$coefficients <- matrix(colMeans(res$alpha_record), ncol = dim_data)
+    res$sparse_coef <- matrix(colMeans(res$alpha_sparse_record), ncol = dim_data)
+    res$pip <- colMeans(res$alpha_sparse_record != 0)
+  } else {
+    res$coefficients <- matrix(colMeans(res$phi_record), ncol = dim_data)
+    res$sparse_coef <- matrix(colMeans(res$phi_sparse_record), ncol = dim_data)
+    res$pip <- colMeans(res$phi_sparse_record != 0)
+  }
+  if (include_mean) {
+    res$coefficients <- rbind(res$coefficients, colMeans(res$c_record))
+    res$sparse_coef <- rbind(res$sparse_coef, colMeans(res$c_sparse_record))
+  }
+  mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
+  diag(mat_lower) <- rep(1L, dim_data)
+  mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
+  res$chol_posterior <- mat_lower
+  colnames(res$coefficients) <- name_var
+  rownames(res$coefficients) <- name_lag
+  colnames(res$sparse_coef) <- name_var
+  rownames(res$sparse_coef) <- name_lag
+  colnames(res$chol_posterior) <- name_var
+  rownames(res$chol_posterior) <- name_var
+  # res$pip <- colMeans(res$alpha_sparse_record != 0)
+  res$pip <- matrix(res$pip, ncol = dim_data)
+  if (include_mean) {
+    res$pip <- rbind(res$pip, rep(1L, dim_data))
+  }
+  colnames(res$pip) <- name_var
+  rownames(res$pip) <- name_lag
+  if (num_chains > 1) {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        split_chain(res[rec_names][[id]], chain = num_chains, varname = param_names[id])
+      }
+    )
+  } else {
+    res[rec_names] <- lapply(
+      seq_along(res[rec_names]),
+      function(id) {
+        colnames(res[rec_names][[id]]) <- paste0(param_names[id], "[", seq_len(ncol(res[rec_names][[id]])), "]")
+        res[rec_names][[id]]
+      }
+    )
+  }
+  res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  if (process == "BVAR") {
+    res$param <- bind_draws(
+      res$alpha_record,
+      res$a_record,
+      res$alpha_sparse_record,
+      res$a_sparse_record
+    )
+  } else {
+    res$param <- bind_draws(
+      res$phi_record,
+      res$a_record,
+      res$phi_sparse_record,
+      res$a_sparse_record
+    )
+  }
+  if (is.svspec(cov_spec)) {
+    res$param <- bind_draws(
+      res$param,
+      res$h_record,
+      res$h0_record,
+      res$sigh_record
+    )
+  } else {
+    res$param <- bind_draws(
+      res$param,
+      res$d_record
+    )
+  }
+  if (include_mean) {
+    res$param <- bind_draws(
+      res$param,
+      res$c_record,
+      res$c_sparse_record
+    )
+  }
+  if (prior_nm == "SSVS") {
+    res$param <- bind_draws(
+      res$param,
+      res$gamma_record
+    )
+  } else if (prior_nm == "Horseshoe") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record,
+      res$kappa_record
+    )
+  } else if (prior_nm == "NG") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$eta_record,
+      res$tau_record
+    )
+  } else if (prior_nm == "DL") {
+    res$param <- bind_draws(
+      res$param,
+      res$lambda_record,
+      res$tau_record
+    )
+  } else if (prior_nm == "GDP") {
+    #
+  }
+  res[rec_names] <- NULL
+  res$param_names <- param_names
+  res
 }

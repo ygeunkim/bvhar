@@ -786,3 +786,16 @@ set_sv <- function(ig_shape = 3, ig_scl = .01, initial_mean = 1, initial_prec = 
   class(res) <- c("svspec", "covspec")
   res
 }
+
+#' @rdname set_ldlt
+#' 
+#' @order 1
+#' @export
+set_iw <- function() {
+  res <- list(
+    process = "Homoskedastic",
+    prior = "IW"
+  )
+  class(res) <- c("iwspec", "covspec")
+  res
+}

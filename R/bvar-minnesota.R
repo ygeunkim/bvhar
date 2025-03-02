@@ -159,6 +159,17 @@ bvar_minnesota <- function(y,
   if (is.null(bayes_spec$delta)) {
     bayes_spec$delta <- rep(1, dim_data)
   }
+  # Y0 = X0 A + Z---------------------
+  Y0 <- build_response(y, p, p + 1)
+  if (!is.null(colnames(y))) {
+    name_var <- colnames(y)
+  } else {
+    name_var <- paste0("y", seq_len(dim_data))
+  }
+  colnames(Y0) <- name_var
+  X0 <- build_design(y, p, include_mean)
+  name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
+  colnames(X0) <- name_lag
   if (bayes_spec$prior == "Minnesota") {
     if (is.null(bayes_spec$sigma)) {
       bayes_spec$sigma <- apply(y, 2, sd)
@@ -171,7 +182,7 @@ bvar_minnesota <- function(y,
     #   seed_chain = sample.int(.Machine$integer.max, size = num_chains),
     #   display_progress = verbose, nthreads = num_thread
     # )
-    res <- estimate_bvar_mn(y = y, lag = p, bayes_spec = bayes_spec, include_mean = include_mean)
+    res <- estimate_bvar_mn(x = X0, y = Y0, lag = p, bayes_spec = bayes_spec, include_mean = include_mean)
     # res$record <- do.call(rbind, res$record)
     # rec_names <- colnames(res$record)
     # param_names <- gsub(pattern = "_record$", replacement = "", rec_names)
@@ -215,7 +226,7 @@ bvar_minnesota <- function(y,
     # )
     # res[rec_names] <- NULL
     # res$param_names <- param_names
-    colnames(res$y) <- name_var
+    # colnames(res$y) <- name_var
     colnames(res$y0) <- name_var
     colnames(res$design) <- name_lag
     # Prior-----------------------------
@@ -240,17 +251,6 @@ bvar_minnesota <- function(y,
     delta <- bayes_spec$delta
     lambda <- bayes_spec$lambda$mode
     eps <- bayes_spec$eps
-    # Y0 = X0 A + Z---------------------
-    Y0 <- build_response(y, p, p + 1)
-    if (!is.null(colnames(y))) {
-      name_var <- colnames(y)
-    } else {
-      name_var <- paste0("y", seq_len(dim_data))
-    }
-    colnames(Y0) <- name_var
-    X0 <- build_design(y, p, include_mean)
-    name_lag <- concatenate_colnames(name_var, 1:p, include_mean)
-    colnames(X0) <- name_lag
     # prior selection-------------------
     lower_vec <- unlist(bayes_spec)
     lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])

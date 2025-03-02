@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/*-withci']
   pull_request:
-    branches: [main, master, 'hotfix/*', 'release/*', develop]
+    branches: [main, master, develop]
 
 name: R-CMD-check
 

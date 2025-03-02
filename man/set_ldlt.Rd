@@ -3,15 +3,19 @@
 \name{set_ldlt}
 \alias{set_ldlt}
 \alias{set_sv}
+\alias{set_iw}
 \alias{print.covspec}
 \alias{is.covspec}
 \alias{is.svspec}
 \alias{is.ldltspec}
+\alias{is.iwspec}
 \title{Covariance Matrix Prior Specification}
 \usage{
 set_ldlt(ig_shape = 3, ig_scl = 0.01)
 
 set_sv(ig_shape = 3, ig_scl = 0.01, initial_mean = 1, initial_prec = 0.1)
+
+set_iw()
 
 \method{print}{covspec}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -20,6 +24,8 @@ is.covspec(x)
 is.svspec(x)
 
 is.ldltspec(x)
+
+is.iwspec(x)
 }
 \arguments{
 \item{ig_shape}{Inverse-Gamma shape of Cholesky diagonal vector.
