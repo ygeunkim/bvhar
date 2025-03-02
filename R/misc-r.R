@@ -464,7 +464,7 @@ split_chain <- function(x, chain = 1, varname = "alpha") {
       # split.data.frame(t(x), gl(num_var, 1, ncol(x))) |>
       # lapply(t) |>
       split.data.frame(x, gl(chain, num_row)) |>
-      unlist(x) |>
+      unlist() |>
       array(
         # dim = c(nrow(x), chain, num_var),
         dim = c(num_row, chain, ncol(x)),

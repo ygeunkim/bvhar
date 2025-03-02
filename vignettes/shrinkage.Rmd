@@ -14,8 +14,7 @@ knitr::opts_chunk$set(
   out.width = "70%",
   fig.align = "center",
   fig.width = 6,
-  fig.asp = .618,
-  error = TRUE # temporarily until investigating the error: 'recursive' must be of length 1
+  fig.asp = .618
 )
 orig_opts <- options("digits")
 options(digits = 3)
