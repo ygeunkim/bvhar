@@ -1,7 +1,7 @@
 #ifndef BVHAR_BAYES_MNIW_FORECASTER_H
 #define BVHAR_BAYES_MNIW_FORECASTER_H
 
-#include "./minnesota.h"
+#include "./mniw.h"
 #include "../../math/random.h"
 
 namespace bvhar {

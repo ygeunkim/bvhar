@@ -3,7 +3,7 @@
 
 #include "src/core/interrupt.h"
 
-#include "src/bayes/mniw/minnesota.h"
+#include "src/bayes/mniw/mniw.h"
 #include "src/bayes/mniw/forecaster.h"
 #include "src/bayes/mniw/spillover.h"
 
