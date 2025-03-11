@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Added `mcmc` option in `forecast_roll()` and `forecast_expand()` for `ldltmod` and `svmod` classes.
+
 # bvhar 2.2.2
 
 * Fix `unlist()` error in print methods for `r-devel` (4.5.0).

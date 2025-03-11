@@ -14,11 +14,12 @@ template <typename BaseForecaster> class McmcVarSelectForecaster;
 template <typename BaseForecaster> class McmcVharSelectForecaster;
 // Running forecasters
 template <typename BaseForecaster> class McmcForecastRun;
-template <typename BaseForecaster> class McmcOutforecastRun;
-template <typename BaseForecaster, bool isGroup> class McmcRollforecastRun;
-template <typename BaseForecaster, bool isGroup> class McmcExpandforecastRun;
-template <template <typename, bool> class BaseOutForecast, typename BaseForecaster, bool isGroup> class McmcVarforecastRun;
-template <template <typename, bool> class BaseOutForecast, typename BaseForecaster, bool isGroup> class McmcVharforecastRun;
+template <typename BaseForecaster> class McmcOutforecastInterface;
+template <typename BaseForecaster, bool> class McmcOutforecastRun;
+template <typename BaseForecaster, bool, bool> class McmcRollforecastRun;
+template <typename BaseForecaster, bool, bool> class McmcExpandforecastRun;
+template <template <typename, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool> class McmcVarforecastRun;
+template <template <typename, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool> class McmcVharforecastRun;
 
 /**
  * @brief Forecast class for `McmcTriangular`
@@ -568,12 +569,37 @@ private:
 };
 
 /**
+ * @brief Interface class for Out-of-sample forecasting with MCMC
+ * 
+ * @tparam BaseForecaster 
+ */
+template <typename BaseForecaster = RegForecaster>
+class McmcOutforecastInterface {
+public:
+	virtual ~McmcOutforecastInterface() = default;
+
+	/**
+	 * @brief Out-of-sample forecasting
+	 * 
+	 */
+	virtual void forecast() = 0;
+
+	/**
+	 * @brief Return out-of-sample forecasting draws
+	 * 
+	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 */
+	virtual LIST returnForecast() = 0;
+};
+
+/**
  * @brief Out-of-sample forecasting class
  * 
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
+ * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster>
-class McmcOutforecastRun {
+template <typename BaseForecaster = RegForecaster, bool isUpdate = true>
+class McmcOutforecastRun : public McmcOutforecastInterface<BaseForecaster> {
 public:
 	McmcOutforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -609,11 +635,7 @@ public:
 	}
 	virtual ~McmcOutforecastRun() = default;
 
-	/**
-	 * @brief Out-of-sample forecasting
-	 * 
-	 */
-	void forecast() {
+	void forecast() override {
 		if (num_chains == 1) {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
@@ -633,12 +655,7 @@ public:
 		}
 	}
 
-	/**
-	 * @brief Return out-of-sample forecasting draws
-	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
-	 */
-	LIST returnForecast() {
+	LIST returnForecast() override {
 		forecast();
 		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
 		if (get_lpl) {
@@ -740,10 +757,13 @@ protected:
 	) {
 		initData(y);
 		initForecaster(fit_record);
-		initMcmc(
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			grp_id, own_id, cross_id, grp_mat, seed_chain
-		);
+		using is_mcmc = std::integral_constant<bool, isUpdate>;
+		if (is_mcmc::value) {
+			initMcmc(
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				grp_id, own_id, cross_id, grp_mat, seed_chain
+			);
+		}
 	}
 
 	/**
@@ -796,7 +816,8 @@ protected:
 	 * @param chain Chain index
 	 */
 	void forecastWindow(int window, int chain) {
-		if (window != 0) {
+		using is_mcmc = std::integral_constant<bool, isUpdate>;
+		if (window != 0 && is_mcmc::value) {
 			runGibbs(window, chain);
 		}
 		Eigen::VectorXd valid_vec = y_test.row(step);
@@ -811,9 +832,10 @@ protected:
  * 
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
  * @tparam isGroup If `true`, use group shrinkage parameter
+ * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster, bool isGroup = true>
-class McmcRollforecastRun : public McmcOutforecastRun<BaseForecaster> {
+template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
+class McmcRollforecastRun : public McmcOutforecastRun<BaseForecaster, isUpdate> {
 public:
 	McmcRollforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -823,7 +845,7 @@ public:
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
-	: McmcOutforecastRun<BaseForecaster>(
+	: McmcOutforecastRun<BaseForecaster, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
@@ -832,22 +854,22 @@ public:
 	virtual ~McmcRollforecastRun() = default;
 
 protected:
-	using typename McmcOutforecastRun<BaseForecaster>::BaseMcmc;
-	using McmcOutforecastRun<BaseForecaster>::num_window;
-	using McmcOutforecastRun<BaseForecaster>::dim;
-	using McmcOutforecastRun<BaseForecaster>::num_test;
-	using McmcOutforecastRun<BaseForecaster>::num_horizon;
-	using McmcOutforecastRun<BaseForecaster>::lag;
-	using McmcOutforecastRun<BaseForecaster>::num_chains;
-	using McmcOutforecastRun<BaseForecaster>::num_iter;
-	using McmcOutforecastRun<BaseForecaster>::num_burn;
-	using McmcOutforecastRun<BaseForecaster>::include_mean;
-	using McmcOutforecastRun<BaseForecaster>::roll_mat;
-	using McmcOutforecastRun<BaseForecaster>::roll_y0;
-	using McmcOutforecastRun<BaseForecaster>::y_test;
-	using McmcOutforecastRun<BaseForecaster>::model;
-	using McmcOutforecastRun<BaseForecaster>::buildDesign;
-	using McmcOutforecastRun<BaseForecaster>::initialize;
+	using typename McmcOutforecastRun<BaseForecaster, isUpdate>::BaseMcmc;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_window;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::dim;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_test;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_horizon;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::lag;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_chains;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_iter;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_burn;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::include_mean;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::y_test;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::model;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::buildDesign;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::initialize;
 	void initData(const Eigen::MatrixXd& y) override {
 		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 		tot_mat << y,
@@ -880,9 +902,10 @@ protected:
  * 
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
  * @tparam isGroup If `true`, use group shrinkage parameter
+ * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster, bool isGroup = true>
-class McmcExpandforecastRun : public McmcOutforecastRun<BaseForecaster> {
+template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
+class McmcExpandforecastRun : public McmcOutforecastRun<BaseForecaster, isUpdate> {
 public:
 	McmcExpandforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -892,7 +915,7 @@ public:
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
-	: McmcOutforecastRun<BaseForecaster>(
+	: McmcOutforecastRun<BaseForecaster, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
@@ -901,22 +924,22 @@ public:
 	virtual ~McmcExpandforecastRun() = default;
 
 protected:
-	using typename McmcOutforecastRun<BaseForecaster>::BaseMcmc;
-	using McmcOutforecastRun<BaseForecaster>::num_window;
-	using McmcOutforecastRun<BaseForecaster>::dim;
-	using McmcOutforecastRun<BaseForecaster>::num_test;
-	using McmcOutforecastRun<BaseForecaster>::num_horizon;
-	using McmcOutforecastRun<BaseForecaster>::lag;
-	using McmcOutforecastRun<BaseForecaster>::num_chains;
-	using McmcOutforecastRun<BaseForecaster>::num_iter;
-	using McmcOutforecastRun<BaseForecaster>::num_burn;
-	using McmcOutforecastRun<BaseForecaster>::include_mean;
-	using McmcOutforecastRun<BaseForecaster>::roll_mat;
-	using McmcOutforecastRun<BaseForecaster>::roll_y0;
-	using McmcOutforecastRun<BaseForecaster>::y_test;
-	using McmcOutforecastRun<BaseForecaster>::model;
-	using McmcOutforecastRun<BaseForecaster>::buildDesign;
-	using McmcOutforecastRun<BaseForecaster>::initialize;
+	using typename McmcOutforecastRun<BaseForecaster, isUpdate>::BaseMcmc;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_window;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::dim;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_test;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_horizon;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::lag;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_chains;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_iter;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::num_burn;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::include_mean;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::y_test;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::model;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::buildDesign;
+	using McmcOutforecastRun<BaseForecaster, isUpdate>::initialize;
 	void initData(const Eigen::MatrixXd& y) override {
 		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 		tot_mat << y,
@@ -962,9 +985,10 @@ protected:
  * @tparam BaseOutForecast `McmcRollforecastRun` or `McmcExpandforecastRun`
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
  * @tparam isGroup If `true`, use group shrinkage parameter
+ * @tparam isUpdate MCMC again in the new window
  */
-template <template <typename, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true>
-class McmcVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup> {
+template <template <typename, bool, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
+class McmcVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpdate> {
 public:
 	McmcVarforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -974,7 +998,7 @@ public:
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
-	: BaseOutForecast<BaseForecaster, isGroup>(
+	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
@@ -988,35 +1012,46 @@ public:
 	virtual ~McmcVarforecastRun() = default;
 
 protected:
-	using typename BaseOutForecast<BaseForecaster, isGroup>::BaseMcmc;
-	using typename BaseOutForecast<BaseForecaster, isGroup>::RecordType;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_horizon;
-	using BaseOutForecast<BaseForecaster, isGroup>::step;
-	using BaseOutForecast<BaseForecaster, isGroup>::lag;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_chains;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_iter;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_burn;
-	using BaseOutForecast<BaseForecaster, isGroup>::thin;
-	using BaseOutForecast<BaseForecaster, isGroup>::nthreads;
-	using BaseOutForecast<BaseForecaster, isGroup>::include_mean;
-	using BaseOutForecast<BaseForecaster, isGroup>::stable_filter;
-	using BaseOutForecast<BaseForecaster, isGroup>::sparse;
-	using BaseOutForecast<BaseForecaster, isGroup>::sv;
-	using BaseOutForecast<BaseForecaster, isGroup>::level;
-	using BaseOutForecast<BaseForecaster, isGroup>::seed_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup>::roll_mat;
-	using BaseOutForecast<BaseForecaster, isGroup>::roll_y0;
-	using BaseOutForecast<BaseForecaster, isGroup>::model;
-	using BaseOutForecast<BaseForecaster, isGroup>::forecaster;
-	using BaseOutForecast<BaseForecaster, isGroup>::out_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup>::lpl_record;
-	using BaseOutForecast<BaseForecaster, isGroup>::initialize;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::RecordType;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_horizon;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::step;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_chains;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_iter;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_burn;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::thin;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::nthreads;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::include_mean;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::stable_filter;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sparse;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sv;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::level;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::seed_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_y0;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::model;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::forecaster;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lpl_record;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::initialize;
 	void initForecaster(LIST& fit_record) override {
-		forecaster[0] = initialize_forecaster<BaseForecaster>(
-			num_chains, lag, step, roll_y0[0], sparse, level,
-			fit_record, seed_forecast, include_mean,
-			stable_filter, nthreads, sv
-		);
+		using is_mcmc = std::integral_constant<bool, isUpdate>;
+		if (is_mcmc::value) {
+			forecaster[0] = initialize_forecaster<BaseForecaster>(
+				num_chains, lag, step, roll_y0[0], sparse, level,
+				fit_record, seed_forecast, include_mean,
+				stable_filter, nthreads, sv
+			);
+		} else {
+			for (int i = 0; i < num_horizon; ++i) {
+				forecaster[i] = initialize_forecaster<BaseForecaster>(
+					num_chains, lag, step, roll_y0[i], sparse, level,
+					fit_record, seed_forecast, include_mean,
+					stable_filter, nthreads, sv
+				);
+			}
+		}
 	}
 	Eigen::MatrixXd buildDesign(int window) override {
 		return build_x0(roll_mat[window], lag, include_mean);
@@ -1042,9 +1077,10 @@ protected:
  * @tparam BaseOutForecast `McmcRollforecastRun` or `McmcExpandforecastRun`
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
  * @tparam isGroup If `true`, use group shrinkage parameter
+ * @tparam isUpdate MCMC again in the new window
  */
-template <template <typename, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true>
-class McmcVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup> {
+template <template <typename, bool, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
+class McmcVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpdate> {
 public:
 	McmcVharforecastRun(
 		const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thin,
@@ -1054,7 +1090,7 @@ public:
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true
 	)
-	: BaseOutForecast<BaseForecaster, isGroup>(
+	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
 			y, month, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl,
@@ -1069,38 +1105,50 @@ public:
 	virtual ~McmcVharforecastRun() = default;
 
 protected:
-	using typename BaseOutForecast<BaseForecaster, isGroup>::BaseMcmc;
-	using typename BaseOutForecast<BaseForecaster, isGroup>::RecordType;
-	using BaseOutForecast<BaseForecaster, isGroup>::dim;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_horizon;
-	using BaseOutForecast<BaseForecaster, isGroup>::step;
-	using BaseOutForecast<BaseForecaster, isGroup>::lag;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_chains;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_iter;
-	using BaseOutForecast<BaseForecaster, isGroup>::num_burn;
-	using BaseOutForecast<BaseForecaster, isGroup>::thin;
-	using BaseOutForecast<BaseForecaster, isGroup>::nthreads;
-	using BaseOutForecast<BaseForecaster, isGroup>::include_mean;
-	using BaseOutForecast<BaseForecaster, isGroup>::stable_filter;
-	using BaseOutForecast<BaseForecaster, isGroup>::sparse;
-	using BaseOutForecast<BaseForecaster, isGroup>::sv;
-	using BaseOutForecast<BaseForecaster, isGroup>::level;
-	using BaseOutForecast<BaseForecaster, isGroup>::seed_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup>::roll_mat;
-	using BaseOutForecast<BaseForecaster, isGroup>::roll_y0;
-	using BaseOutForecast<BaseForecaster, isGroup>::model;
-	using BaseOutForecast<BaseForecaster, isGroup>::forecaster;
-	using BaseOutForecast<BaseForecaster, isGroup>::out_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup>::lpl_record;
-	using BaseOutForecast<BaseForecaster, isGroup>::initialize;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::RecordType;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::dim;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_horizon;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::step;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_chains;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_iter;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_burn;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::thin;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::nthreads;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::include_mean;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::stable_filter;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sparse;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sv;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::level;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::seed_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_y0;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::model;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::forecaster;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lpl_record;
+	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::initialize;
 	Eigen::MatrixXd har_trans;
 	void initForecaster(LIST& fit_record) override {
-		forecaster[0] = initialize_forecaster<BaseForecaster>(
-			num_chains, lag, step, roll_y0[0], sparse, level,
-			fit_record, seed_forecast, include_mean,
-			stable_filter, nthreads, sv,
-			har_trans
-		);
+		using is_mcmc = std::integral_constant<bool, isUpdate>;
+		if (is_mcmc::value) {
+			forecaster[0] = initialize_forecaster<BaseForecaster>(
+				num_chains, lag, step, roll_y0[0], sparse, level,
+				fit_record, seed_forecast, include_mean,
+				stable_filter, nthreads, sv,
+				har_trans
+			);
+		} else {
+			for (int i = 0; i < num_horizon; ++i) {
+				forecaster[i] = initialize_forecaster<BaseForecaster>(
+					num_chains, lag, step, roll_y0[i], sparse, level,
+					fit_record, seed_forecast, include_mean,
+					stable_filter, nthreads, sv,
+					har_trans
+				);
+			}
+		}
 	}
 	Eigen::MatrixXd buildDesign(int window) override {
 		return build_x0(roll_mat[window], lag, include_mean) * har_trans.transpose();
@@ -1119,6 +1167,94 @@ protected:
 		}
 	}
 };
+
+template <template <typename, bool, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster>
+inline std::unique_ptr<McmcOutforecastInterface<BaseForecaster>> initialize_outforecaster(
+	const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
+	bool sparse, double level, LIST& fit_record, bool run_mcmc,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+	const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+	bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
+	bool get_lpl, const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
+	const bool sv
+) {
+	if (ggl && run_mcmc) {
+		return std::make_unique<McmcVarforecastRun<BaseOutForecast, BaseForecaster, true, true>>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	} else if (ggl && !run_mcmc) {
+		return std::make_unique<McmcVarforecastRun<BaseOutForecast, BaseForecaster, true, false>>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	} else if (!ggl && run_mcmc) {
+		return std::make_unique<McmcVarforecastRun<BaseOutForecast, BaseForecaster, false, true>>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}
+	return std::make_unique<McmcVarforecastRun<BaseOutForecast, BaseForecaster, false, false>>(
+		y, lag, num_chains, num_iter, num_burn, thinning,
+		sparse, level, fit_record,
+		param_reg, param_prior, param_intercept, param_init, prior_type,
+		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+	);
+}
+
+template <template <typename, bool, bool> class BaseOutForecast = McmcRollforecastRun, typename BaseForecaster = RegForecaster>
+inline std::unique_ptr<McmcOutforecastInterface<BaseForecaster>> initialize_outforecaster(
+	const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning,
+	bool sparse, double level, LIST& fit_record, bool run_mcmc,
+	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+	const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+	bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
+	bool get_lpl, const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
+	const bool sv
+) {
+	if (ggl && run_mcmc) {
+		return std::make_unique<McmcVharforecastRun<BaseOutForecast, BaseForecaster, true, true>>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	} else if (ggl && !run_mcmc) {
+		return std::make_unique<McmcVharforecastRun<BaseOutForecast, BaseForecaster, true, false>>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	} else if (!ggl && run_mcmc) {
+		return std::make_unique<McmcVharforecastRun<BaseOutForecast, BaseForecaster, false, true>>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record,
+			param_reg, param_prior, param_intercept, param_init, prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}
+	return std::make_unique<McmcVharforecastRun<BaseOutForecast, BaseForecaster, false, false>>(
+		y, week, month, num_chains, num_iter, num_burn, thinning,
+		sparse, level, fit_record,
+		param_reg, param_prior, param_intercept, param_init, prior_type,
+		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
+	);
+}
 
 } // namespace bvhar
 

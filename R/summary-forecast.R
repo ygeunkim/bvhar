@@ -225,10 +225,20 @@ forecast_roll.normaliw <- function(object, n_ahead, y_test, num_thread = 1, use_
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param mcmc `r lifecycle::badge("experimental")` If `TRUE`, run new MCMC in new windows. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
+forecast_roll.ldltmod <- function(object, n_ahead, y_test,
+                                  num_thread = 1,
+                                  level = .05,
+                                  stable = FALSE,
+                                  sparse = FALSE,
+                                  med = FALSE,
+                                  lpl = FALSE,
+                                  mcmc = TRUE,
+                                  use_fit = TRUE,
+                                  verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -300,7 +310,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
       }
       roll_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
-        sparse, ci_lev, fit_ls,
+        sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -349,7 +359,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
       }
       roll_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-        sparse, ci_lev, fit_ls,
+        sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -406,10 +416,21 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param mcmc `r lifecycle::badge("experimental")` If `TRUE`, run new MCMC in new windows. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
+forecast_roll.svmod <- function(object, n_ahead, y_test,
+                                num_thread = 1,
+                                level = .05,
+                                use_sv = TRUE,
+                                stable = FALSE,
+                                sparse = FALSE,
+                                med = FALSE,
+                                lpl = FALSE,
+                                mcmc = TRUE,
+                                use_fit = TRUE,
+                                verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -488,7 +509,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
       }
       roll_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
-        use_sv, sparse, ci_lev, fit_ls,
+        use_sv, sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -537,7 +558,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test, num_thread = 1, level =
       }
       roll_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-        use_sv, sparse, ci_lev, fit_ls,
+        use_sv, sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -755,10 +776,20 @@ forecast_expand.normaliw <- function(object, n_ahead, y_test, num_thread = 1, us
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param mcmc `r lifecycle::badge("experimental")` If `TRUE`, run new MCMC in new windows. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
+forecast_expand.ldltmod <- function(object, n_ahead, y_test,
+                                    num_thread = 1,
+                                    level = .05,
+                                    stable = FALSE,
+                                    sparse = FALSE,
+                                    med = FALSE,
+                                    lpl = FALSE,
+                                    mcmc = TRUE,
+                                    use_fit = TRUE,
+                                    verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -831,7 +862,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
       }
       expand_bvarldlt(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
-        sparse, ci_lev, fit_ls,
+        sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -880,7 +911,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
       }
       expand_bvharldlt(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-        sparse, ci_lev, fit_ls,
+        sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -937,10 +968,21 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test, num_thread = 1, lev
 #' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
 #' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
 #' @param lpl `r lifecycle::badge("experimental")` Compute log-predictive likelihood (LPL). By default, `FALSE`.
+#' @param mcmc `r lifecycle::badge("experimental")` If `TRUE`, run new MCMC in new windows. By default, `TRUE`.
 #' @param use_fit `r lifecycle::badge("experimental")` Use `object` result for the first window. By default, `TRUE`.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @export
-forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level = .05, use_sv = TRUE, stable = FALSE, sparse = FALSE, med = FALSE, lpl = FALSE, use_fit = TRUE, verbose = FALSE, ...) {
+forecast_expand.svmod <- function(object, n_ahead, y_test,
+                                  num_thread = 1,
+                                  level = .05,
+                                  use_sv = TRUE,
+                                  stable = FALSE,
+                                  sparse = FALSE,
+                                  med = FALSE,
+                                  lpl = FALSE,
+                                  mcmc = TRUE,
+                                  use_fit = TRUE,
+                                  verbose = FALSE, ...) {
   y <- object$y
   if (!is.null(colnames(y))) {
     name_var <- colnames(y)
@@ -1013,7 +1055,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
       }
       expand_bvarsv(
         y, object$p, num_chains, object$iter, object$burn, object$thin,
-        use_sv, sparse, ci_lev, fit_ls,
+        use_sv, sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
@@ -1062,7 +1104,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test, num_thread = 1, level
       }
       expand_bvharsv(
         y, object$week, object$month, num_chains, object$iter, object$burn, object$thin,
-        use_sv, sparse, ci_lev, fit_ls,
+        use_sv, sparse, ci_lev, fit_ls, mcmc,
         object$sv[c("shape", "scale", "initial_mean", "initial_prec")], param_prior, object$intercept, object$init, prior_type, object$ggl,
         grp_id, own_id, cross_id, grp_mat,
         include_mean, stable, n_ahead, y_test,
