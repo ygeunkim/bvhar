@@ -41,7 +41,19 @@ jobs:
       - name: Check quartodoc version
         run: sed -i "s|QUARTODOC_VERSION|$(python -c 'import importlib.metadata; print(importlib.metadata.version("quartodoc"))')|" _variables.yml
         working-directory: python/docs
-    
+      
+      - name: Main and develop
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [ "$BRANCH" == "develop" ]; then
+            echo "TARGET_FOLDER=package/bvhar/dev/python" >> $GITHUB_ENV
+            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/develop/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/dev/'|" _variables.yml
+          else
+            echo "TARGET_FOLDER=package/bvhar/python" >> $GITHUB_ENV
+            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/master/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/'|" _variables.yml
+          fi
+        working-directory: python/docs
+
       - name: Build site
         run: |
             conda run -n bvhar-dev quartodoc build
@@ -57,4 +69,4 @@ jobs:
           clean: false
           branch: master
           folder: python/docs/_site
-          target-folder: package/bvhar/python
+          target-folder: ${{ env.TARGET_FOLDER }}

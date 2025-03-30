@@ -1,0 +1,10 @@
+#ifndef BVHAR_MNIW_H
+#define BVHAR_MNIW_H
+
+#include "src/core/interrupt.h"
+
+#include "src/bayes/mniw/minnesota.h"
+#include "src/bayes/mniw/forecaster.h"
+#include "src/bayes/mniw/spillover.h"
+
+#endif // BVHAR_MNIW_H

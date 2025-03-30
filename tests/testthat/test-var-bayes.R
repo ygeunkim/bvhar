@@ -1,5 +1,7 @@
 # var_bayes()-------------------------
 test_that("VAR-Minn-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -14,6 +16,8 @@ test_that("VAR-Minn-LDLT", {
 })
 
 test_that("VAR-HS-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -29,6 +33,8 @@ test_that("VAR-HS-LDLT", {
 })
 
 test_that("VAR-SSVS-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -44,6 +50,8 @@ test_that("VAR-SSVS-LDLT", {
 })
 
 test_that("VAR-Hierminn-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -58,6 +66,8 @@ test_that("VAR-Hierminn-LDLT", {
 })
 
 test_that("VAR-NG-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -73,6 +83,8 @@ test_that("VAR-NG-LDLT", {
 })
 
 test_that("VAR-DL-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -88,6 +100,8 @@ test_that("VAR-DL-LDLT", {
 })
 
 test_that("VAR-GDP-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -103,6 +117,8 @@ test_that("VAR-GDP-LDLT", {
 })
 
 test_that("VAR-Minn-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -117,6 +133,8 @@ test_that("VAR-Minn-SV", {
 })
 
 test_that("VAR-HS-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -132,6 +150,8 @@ test_that("VAR-HS-LDLT", {
 })
 
 test_that("VAR-SSVS-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -147,6 +167,8 @@ test_that("VAR-SSVS-SV", {
 })
 
 test_that("VAR-Hierminn-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -161,6 +183,8 @@ test_that("VAR-Hierminn-SV", {
 })
 
 test_that("VAR-NG-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -176,6 +200,8 @@ test_that("VAR-NG-SV", {
 })
 
 test_that("VAR-DL-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -191,6 +217,8 @@ test_that("VAR-DL-SV", {
 })
 
 test_that("VAR-DL-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- var_bayes(
     etf_vix[1:50, 1:2],
@@ -206,6 +234,8 @@ test_that("VAR-DL-SV", {
 })
 
 test_that("Multi chain", {
+  skip_on_cran()
+  
   set.seed(1)
   iter_test <- 5
   chain_test <- 2

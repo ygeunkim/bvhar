@@ -18,9 +18,9 @@ home:
   - text: VERSION_TEXT
     href: VERSION_REF
   - text: C++ headers
-    href: https://ygeunkim.github.io/package/bvhar/cpp/
+    href: CPP_REF
   - text: bvhar for Python
-    href: https://ygeunkim.github.io/package/bvhar/python/
+    href: PY_REF
 
 development:
   mode: auto
@@ -166,7 +166,6 @@ reference:
   - sim_iw
   - sim_mniw
   - sim_mvt
-  - sim_gig
 
 - title: Data
   desc: ~
@@ -227,3 +226,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.1.0
   - text: "Version 2.1.2"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.1.2
+  - text: "Version 2.2.2"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.2.2

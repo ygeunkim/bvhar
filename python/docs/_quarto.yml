@@ -24,11 +24,11 @@ website:
           - text: "bvhar"
             file: intro.qmd
           - text: "bvhar in R"
-            href: https://ygeunkim.github.io/package/bvhar/
+            href: "{{< var myref.rref >}}"
             target: _blank
     right:
       - icon: github
-        href: https://github.com/ygeunkim/bvhar/tree/develop/python
+        href: "{{< var myref.pyref >}}"
         aria-label: bvhar-python github
   sidebar:
     style: floating
@@ -91,7 +91,6 @@ quartodoc:
       package: bvhar.random
       contents:
         - normal.generate_mnormal
-        - normal.generate_gig
     - title: Datasets
       desc: "Datasets"
       package: bvhar.datasets

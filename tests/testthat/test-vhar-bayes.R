@@ -1,5 +1,7 @@
 # vhar_bayes()-------------------------
 test_that("VHAR-Minn-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -13,6 +15,8 @@ test_that("VHAR-Minn-LDLT", {
 })
 
 test_that("VHAR-HS-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -27,6 +31,8 @@ test_that("VHAR-HS-LDLT", {
 })
 
 test_that("VHAR-SSVS-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -41,6 +47,8 @@ test_that("VHAR-SSVS-LDLT", {
 })
 
 test_that("VHAR-Hierminn-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -54,6 +62,8 @@ test_that("VHAR-Hierminn-LDLT", {
 })
 
 test_that("VHAR-NG-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -68,6 +78,8 @@ test_that("VHAR-NG-LDLT", {
 })
 
 test_that("VHAR-DL-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -82,6 +94,8 @@ test_that("VHAR-DL-LDLT", {
 })
 
 test_that("VHAR-GDP-LDLT", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -96,6 +110,8 @@ test_that("VHAR-GDP-LDLT", {
 })
 
 test_that("Members - VHAR-Minn-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -109,6 +125,8 @@ test_that("Members - VHAR-Minn-SV", {
 })
 
 test_that("Members - VHAR-HS-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -123,6 +141,8 @@ test_that("Members - VHAR-HS-SV", {
 })
 
 test_that("Members - VHAR-SSVS-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -137,6 +157,8 @@ test_that("Members - VHAR-SSVS-SV", {
 })
 
 test_that("Members - VHAR-Hierminn-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -150,6 +172,8 @@ test_that("Members - VHAR-Hierminn-SV", {
 })
 
 test_that("Members - VHAR-NG-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -164,6 +188,8 @@ test_that("Members - VHAR-NG-SV", {
 })
 
 test_that("Members - VHAR-DL-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -178,6 +204,8 @@ test_that("Members - VHAR-DL-SV", {
 })
 
 test_that("Members - VHAR-GDP-SV", {
+  skip_on_cran()
+
   set.seed(1)
   fit_test <- vhar_bayes(
     etf_vix[1:50, 1:2],
@@ -192,6 +220,8 @@ test_that("Members - VHAR-GDP-SV", {
 })
 
 test_that("Multi chain", {
+  skip_on_cran()
+  
   set.seed(1)
   iter_test <- 5
   chain_test <- 2

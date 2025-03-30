@@ -37,9 +37,9 @@ jobs:
         run: |
           BRANCH=${GITHUB_REF##*/}
           if [ "$BRANCH" == "develop" ]; then
-            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|' _pkgdown.yml
+            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/dev/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/dev/cpp/|' _pkgdown.yml
           else
-            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|' _pkgdown.yml
+            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/cpp/|' _pkgdown.yml
           fi
         shell: bash
       
