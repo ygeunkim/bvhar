@@ -428,69 +428,70 @@ vhar_bayes <- function(y,
     )
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  res$param <- Reduce(bind_draws, res[rec_names])
   # res$param <- bind_draws(res[rec_names])
-  res$param <- bind_draws(
-    res$phi_record,
-    res$a_record,
-    res$phi_sparse_record,
-    res$a_sparse_record
-  )
-  if (is.svspec(cov_spec)) {
-    res$param <- bind_draws(
-      res$param,
-      res$h_record,
-      res$h0_record,
-      res$sigh_record
-    )
-  } else {
-    res$param <- bind_draws(
-      res$param,
-      res$d_record
-    )
-  }
-  if (include_mean) {
-    res$param <- bind_draws(
-      res$param,
-      res$c_record,
-      res$c_sparse_record
-    )
-  }
-  if (!is.null(exogen)) {
-    res$param <- bind_draws(
-      res$param,
-      res$b_record,
-      res$b_sparse_record
-    )
-  }
-  if (coef_spec$prior == "SSVS") {
-    res$param <- bind_draws(
-      res$param,
-      res$gamma_record
-    )
-  } else if (coef_spec$prior == "Horseshoe") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record,
-      res$kappa_record
-    )
-  } else if (coef_spec$prior == "NG") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record
-    )
-  } else if (coef_spec$prior == "DL") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$tau_record
-    )
-  } else if (coef_spec$prior == "GDP") {
-    # 
-  }
+  # res$param <- bind_draws(
+  #   res$phi_record,
+  #   res$a_record,
+  #   res$phi_sparse_record,
+  #   res$a_sparse_record
+  # )
+  # if (is.svspec(cov_spec)) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$h_record,
+  #     res$h0_record,
+  #     res$sigh_record
+  #   )
+  # } else {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$d_record
+  #   )
+  # }
+  # if (include_mean) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$c_record,
+  #     res$c_sparse_record
+  #   )
+  # }
+  # if (!is.null(exogen)) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$b_record,
+  #     res$b_sparse_record
+  #   )
+  # }
+  # if (coef_spec$prior == "SSVS") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$gamma_record
+  #   )
+  # } else if (coef_spec$prior == "Horseshoe") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$eta_record,
+  #     res$tau_record,
+  #     res$kappa_record
+  #   )
+  # } else if (coef_spec$prior == "NG") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$eta_record,
+  #     res$tau_record
+  #   )
+  # } else if (coef_spec$prior == "DL") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$tau_record
+  #   )
+  # } else if (coef_spec$prior == "GDP") {
+  #   # 
+  # }
   res[rec_names] <- NULL
   res$param_names <- param_names
   # if (coef_spec$prior == "SSVS" || coef_spec$prior == "Horseshoe") {
