@@ -106,10 +106,13 @@ sim_var <- function(num_sim,
   if (!(nrow(init) == var_lag && ncol(init) == dim_data)) {
     stop("'init' is (var_lag, dim) matrix in order of y1, y2, ..., yp.")
   }
-  if (method == "eigen") {
-    return( sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param) )
-  }
-  sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param)
+  process_id <- ifelse(process == "gaussian", 1, 2)
+  method_id <- ifelse(method == "eigen", 1, 2)
+  sim_var_process(num_sim, num_burn, var_coef, var_lag, sig_error, t_param, init, process_id, method_id, sample.int(.Machine$integer.max, size = 1))
+  # if (method == "eigen") {
+  #   return( sim_var_eigen(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param) )
+  # }
+  # sim_var_chol(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, t_param)
 }
 
 #' Generate Normal-IW Random Family
@@ -201,8 +204,11 @@ sim_vhar <- function(num_sim,
   if (!(nrow(init) == month && ncol(init) == dim_data)) {
     stop("'init' is (month, dim) matrix in order of y1, y2, ..., y_month.")
   }
-  if (method == "eigen") {
-    return( sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param) )
-  }
-  sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param)
+  process_id <- ifelse(process == "gaussian", 1, 2)
+  method_id <- ifelse(method == "eigen", 1, 2)
+  sim_vhar_process(num_sim, num_burn, vhar_coef, week, month, sig_error, t_param, init, process_id, method_id, sample.int(.Machine$integer.max, size = 1))
+  # if (method == "eigen") {
+  #   return( sim_vhar_eigen(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param) )
+  # }
+  # sim_vhar_chol(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, t_param)
 }

@@ -174,10 +174,10 @@ public:
 		BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger, "Default Constructor");
 	}
-	AutoregGenerator(int num_iter, unsigned int seed)
-	: num_iter(num_iter), rng(seed), debug_logger(BVHAR_DEBUG_LOGGER("ExogenForecaster")) {
+	AutoregGenerator(unsigned int seed)
+	: rng(seed), debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
 		BVHAR_INIT_DEBUG(debug_logger);
-    BVHAR_DEBUG_LOG(debug_logger, "Constructor: num_iter={}", num_iter);
+    BVHAR_DEBUG_LOG(debug_logger, "Constructor: seed={}", seed);
 	}
 	virtual ~AutoregGenerator() = default;
 
@@ -190,12 +190,8 @@ public:
 	virtual void appendError(DataType& point_forecast) {}
 
 protected:
-	int num_iter;
 	BHRNG rng;
-	// int lag;
-	// ReturnType exogen;
-	// DataType last_pvec;
-	DataType error_term; // --> Change type
+	DataType error_term;
 	std::shared_ptr<spdlog::logger> debug_logger;
 };
 

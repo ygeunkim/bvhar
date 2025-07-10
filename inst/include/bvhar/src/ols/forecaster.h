@@ -47,18 +47,13 @@ private:
 class OlsErrorGenerator : public AutoregGenerator<Eigen::MatrixXd, Eigen::VectorXd> {
 public:
 	// OlsErrorGenerator() {}
-	OlsErrorGenerator(int num_iter, int dim, unsigned int seed)
-	: AutoregGenerator<Eigen::MatrixXd, Eigen::VectorXd>(num_iter, seed),
+	OlsErrorGenerator(int dim, unsigned int seed)
+	: AutoregGenerator<Eigen::MatrixXd, Eigen::VectorXd>(seed),
 		dim(dim) {
-		error_term = Eigen::MatrixXd::Zero(num_iter, dim);
+		// error_term = Eigen::MatrixXd::Zero(num_iter, dim);
+		error_term = Eigen::VectorXd::Zero(dim);
 	}
 	virtual ~OlsErrorGenerator() = default;
-
-	// void appendError(Eigen::VectorXd& point_forecast, const int h) override {
-	// 	// last_pvec = vectorize_eigen(exogen.middleRows(h, lag + 1).colwise().reverse().transpose().eval()); // x_(T + h), ..., x_(T + h - s)
-	// 	// point_forecast += last_pvec.transpose() * coef_mat;
-	// 	// point_forecast += coef_mat.transpose() * last_pvec;
-	// }
 
 protected:
 	int dim;
@@ -68,8 +63,8 @@ protected:
 
 class OlsGaussianGenerator : public OlsErrorGenerator {
 public:
-	OlsGaussianGenerator(int num_iter, const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, int method, unsigned int seed)
-	: OlsErrorGenerator(num_iter, error_sig.cols(), seed),
+	OlsGaussianGenerator(const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, int method, unsigned int seed)
+	: OlsErrorGenerator(error_sig.cols(), seed),
 		alg_type(method),
 		error_mean(error_mean), error_sig(error_sig) {}
 	virtual ~OlsGaussianGenerator() = default;
@@ -77,13 +72,15 @@ public:
 	void appendError(Eigen::VectorXd& point_forecast) override {
 		switch (alg_type) {
 			case 1: {
-				error_term = sim_mgaussian_eigen(num_iter, error_mean, error_sig, rng);
+				error_term = sim_mgaussian_eigen(1, error_mean, error_sig, rng).transpose();
+				break;
 			}
 			case 2: {
-				error_term = sim_mgaussian_chol(num_iter, error_mean, error_sig, rng);
+				error_term = sim_mgaussian_chol(1, error_mean, error_sig, rng).transpose();
+				break;
 			}
 		}
-		point_forecast += error_term;
+		point_forecast.array() += error_term.array();
 	}
 
 private:
@@ -94,8 +91,8 @@ private:
 
 class OlsStudentGenerator : public OlsErrorGenerator {
 public:
-	OlsStudentGenerator(int num_iter, const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, double mvt_df, int method, unsigned int seed)
-	: OlsErrorGenerator(num_iter, error_sig.cols(), seed),
+	OlsStudentGenerator(const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, double mvt_df, int method, unsigned int seed)
+	: OlsErrorGenerator(error_sig.cols(), seed),
 		alg_type(method),
 		mvt_df(mvt_df), error_mean(error_mean), error_sig(error_sig) {}
 	virtual ~OlsStudentGenerator() = default;
@@ -103,13 +100,15 @@ public:
 	void appendError(Eigen::VectorXd& point_forecast) override {
 		switch (alg_type) {
 			case 1: {
-				error_term = sim_mstudent_eigen(num_iter, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng);
+				error_term = sim_mstudent_eigen(1, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng).transpose();
+				break;
 			}
 			case 2: {
-				error_term = sim_mstudent_chol(num_iter, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng);
+				error_term = sim_mstudent_chol(1, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng).transpose();
+				break;
 			}
 		}
-		point_forecast += error_term;
+		point_forecast.array() += error_term.array();
 	}
 
 private:
@@ -251,13 +250,13 @@ public:
 		int lag, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& coef_mat, bool include_mean,
 		int exogen_lag, const Eigen::MatrixXd& exogen, const Eigen::MatrixXd& exogen_coef
 	) {
-		bvhar::OlsFit ols_fit(coef_mat, lag);
+		OlsFit ols_fit(coef_mat, lag);
 		auto exogen_updater = std::make_unique<OlsExogenForecaster>(exogen_lag, exogen, exogen_coef);
 		forecaster = std::make_unique<VarForecaster>(ols_fit, std::move(exogen_updater), step, response_mat, include_mean);
 	}
 	OlsForecastRun(int week, int month, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& coef_mat, bool include_mean) {
 		Eigen::MatrixXd har_trans = build_vhar(response_mat.cols(), week, month, include_mean);
-		bvhar::OlsFit ols_fit(coef_mat, month);
+		OlsFit ols_fit(coef_mat, month);
 		forecaster = std::make_unique<VharForecaster>(ols_fit, step, response_mat, har_trans, include_mean);
 	}
 	OlsForecastRun(
@@ -265,7 +264,7 @@ public:
 		int exogen_lag, const Eigen::MatrixXd& exogen, const Eigen::MatrixXd& exogen_coef
 	) {
 		Eigen::MatrixXd har_trans = build_vhar(response_mat.cols(), week, month, include_mean);
-		bvhar::OlsFit ols_fit(coef_mat, month);
+		OlsFit ols_fit(coef_mat, month);
 		auto exogen_updater = std::make_unique<OlsExogenForecaster>(exogen_lag, exogen, exogen_coef);
 		forecaster = std::make_unique<VharForecaster>(ols_fit, std::move(exogen_updater), step, response_mat, har_trans, include_mean);
 	}
