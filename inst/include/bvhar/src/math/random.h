@@ -15,7 +15,8 @@ inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& m
       standard_normal(i, j) = normal_rand(rng);
     }
   }
-  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+	Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(sig); // Sigma = P Lambda P^T
+	res = standard_normal * es.eigenvalues().cwiseSqrt().asDiagonal() * es.eigenvectors().transpose(); // epsilon(t) = Sigma^{1/2} Z(t)
   res.rowwise() += mu.transpose();
   return res;
 }
@@ -65,7 +66,8 @@ inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& m
       standard_normal(i, j) = norm_rand();
     }
   }
-  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+	Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(sig); // Sigma = P Lambda P^T
+	res = standard_normal * es.eigenvalues().cwiseSqrt().asDiagonal() * es.eigenvectors().transpose(); // epsilon(t) = Sigma^{1/2} Z(t)
   res.rowwise() += mu.transpose();
   return res;
 }
