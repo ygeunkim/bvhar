@@ -199,7 +199,7 @@ Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
 //' @param sig Variance matrix
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
+Eigen::MatrixXd sim_mgaussian_export(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
   int dim = sig.cols();
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
@@ -207,16 +207,17 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
-  Eigen::MatrixXd standard_normal(num_sim, dim);
-  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
-  for (int i = 0; i < num_sim; i++) {
-    for (int j = 0; j < standard_normal.cols(); j++) {
-      standard_normal(i, j) = norm_rand();
-    }
-  }
-  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
-  res.rowwise() += mu.transpose();
-  return res;
+  // Eigen::MatrixXd standard_normal(num_sim, dim);
+  // Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  // for (int i = 0; i < num_sim; i++) {
+  //   for (int j = 0; j < standard_normal.cols(); j++) {
+  //     standard_normal(i, j) = norm_rand();
+  //   }
+  // }
+  // res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+  // res.rowwise() += mu.transpose();
+  // return res;
+	return bvhar::sim_mgaussian_eigen(num_sim, mu, sig);
 }
 
 //' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -254,7 +255,7 @@ Eigen::MatrixXd sim_mgaussian_chol_export(int num_sim, Eigen::VectorXd mu, Eigen
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
+Eigen::MatrixXd sim_mstudent_export(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
   int dim = sig.cols();
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
@@ -265,18 +266,20 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
   Eigen::MatrixXd res(num_sim, dim);
   switch (method) {
   case 1:
-    res = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    // res = bvhar::sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = bvhar::sim_mstudent_eigen(num_sim, df, mu, sig);
     break;
   case 2:
-    res = bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    // res = bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = bvhar::sim_mstudent_chol(num_sim, df, mu, sig);
     break;
   default:
     Rcpp::stop("Invalid 'method' option.");
   }
-  for (int i = 0; i < num_sim; i++) {
-    res.row(i) *= sqrt(df / bvhar::chisq_rand(df));
-  }
-  res.rowwise() += mu.transpose();
+  // for (int i = 0; i < num_sim; i++) {
+  //   res.row(i) *= sqrt(df / bvhar::chisq_rand(df));
+  // }
+  // res.rowwise() += mu.transpose();
   return res;
 }
 
@@ -398,10 +401,10 @@ Eigen::MatrixXd sim_var_eigen(int num_sim,
   Eigen::MatrixXd error_term(num_rand, dim);
   switch (process) {
   case 1:
-    error_term = sim_mgaussian(num_rand, sig_mean, sig_error);
+    error_term = bvhar::sim_mgaussian_eigen(num_rand, sig_mean, sig_error);
     break;
   case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 1);
+    error_term = bvhar::sim_mstudent_eigen(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df);
     break;
   default:
     Rcpp::stop("Invalid 'process' option.");
@@ -457,7 +460,7 @@ Eigen::MatrixXd sim_var_chol(int num_sim,
     error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error);
     break;
   case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 2);
+    error_term = bvhar::sim_mstudent_chol(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df);
     break;
   default:
     Rcpp::stop("Invalid 'process' option.");
@@ -520,10 +523,10 @@ Eigen::MatrixXd sim_vhar_eigen(int num_sim,
   Eigen::MatrixXd error_term(num_rand, dim);
   switch (process) {
   case 1:
-    error_term = sim_mgaussian(num_rand, sig_mean, sig_error);
+    error_term = bvhar::sim_mgaussian_eigen(num_rand, sig_mean, sig_error);
     break;
   case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 1);
+    error_term = bvhar::sim_mstudent_eigen(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df);
     break;
   default:
     Rcpp::stop("Invalid 'process' option.");
@@ -597,7 +600,7 @@ Eigen::MatrixXd sim_vhar_chol(int num_sim,
     error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error);
     break;
   case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 2);
+    error_term = bvhar::sim_mstudent_chol(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df);
     break;
   default:
     Rcpp::stop("Invalid 'process' option.");

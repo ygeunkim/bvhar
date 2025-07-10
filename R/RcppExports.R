@@ -1163,8 +1163,8 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' @noRd
-sim_mgaussian <- function(num_sim, mu, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+sim_mgaussian_export <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian_export`, num_sim, mu, sig)
 }
 
 #' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -1193,8 +1193,8 @@ sim_mgaussian_chol_export <- function(num_sim, mu, sig) {
 #' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
 #' 
 #' @noRd
-sim_mstudent <- function(num_sim, df, mu, sig, method) {
-    .Call(`_bvhar_sim_mstudent`, num_sim, df, mu, sig, method)
+sim_mstudent_export <- function(num_sim, df, mu, sig, method) {
+    .Call(`_bvhar_sim_mstudent_export`, num_sim, df, mu, sig, method)
 }
 
 #' Generate Matrix Normal Random Matrix

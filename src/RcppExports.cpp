@@ -1877,16 +1877,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_mgaussian
-Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
-RcppExport SEXP _bvhar_sim_mgaussian(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
+// sim_mgaussian_export
+Eigen::MatrixXd sim_mgaussian_export(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig);
+RcppExport SEXP _bvhar_sim_mgaussian_export(SEXP num_simSEXP, SEXP muSEXP, SEXP sigSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type num_sim(num_simSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type mu(muSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_mgaussian(num_sim, mu, sig));
+    rcpp_result_gen = Rcpp::wrap(sim_mgaussian_export(num_sim, mu, sig));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1903,9 +1903,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sim_mstudent
-Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method);
-RcppExport SEXP _bvhar_sim_mstudent(SEXP num_simSEXP, SEXP dfSEXP, SEXP muSEXP, SEXP sigSEXP, SEXP methodSEXP) {
+// sim_mstudent_export
+Eigen::MatrixXd sim_mstudent_export(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method);
+RcppExport SEXP _bvhar_sim_mstudent_export(SEXP num_simSEXP, SEXP dfSEXP, SEXP muSEXP, SEXP sigSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1914,7 +1914,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type mu(muSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type sig(sigSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_mstudent(num_sim, df, mu, sig, method));
+    rcpp_result_gen = Rcpp::wrap(sim_mstudent_export(num_sim, df, mu, sig, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -2432,9 +2432,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_build_ydummy_export", (DL_FUNC) &_bvhar_build_ydummy_export, 7},
     {"_bvhar_build_xdummy_export", (DL_FUNC) &_bvhar_build_xdummy_export, 5},
     {"_bvhar_minnesota_prior", (DL_FUNC) &_bvhar_minnesota_prior, 2},
-    {"_bvhar_sim_mgaussian", (DL_FUNC) &_bvhar_sim_mgaussian, 3},
+    {"_bvhar_sim_mgaussian_export", (DL_FUNC) &_bvhar_sim_mgaussian_export, 3},
     {"_bvhar_sim_mgaussian_chol_export", (DL_FUNC) &_bvhar_sim_mgaussian_chol_export, 3},
-    {"_bvhar_sim_mstudent", (DL_FUNC) &_bvhar_sim_mstudent, 5},
+    {"_bvhar_sim_mstudent_export", (DL_FUNC) &_bvhar_sim_mstudent_export, 5},
     {"_bvhar_sim_matgaussian", (DL_FUNC) &_bvhar_sim_matgaussian, 4},
     {"_bvhar_sim_iw", (DL_FUNC) &_bvhar_sim_iw, 2},
     {"_bvhar_sim_mniw_export", (DL_FUNC) &_bvhar_sim_mniw_export, 6},

@@ -23,7 +23,7 @@ sim_mnormal <- function(num_sim, mu = rep(0, 5), sig = diag(5), method = c("eige
     stop("'sig' must be a symmetric matrix.")
   }
   if (method == "eigen") {
-    return( sim_mgaussian(num_sim, mu, sig) )
+    return( sim_mgaussian_export(num_sim, mu, sig) )
   }
   sim_mgaussian_chol_export(num_sim, mu, sig)
 }
@@ -47,9 +47,9 @@ sim_mvt <- function(num_sim, df, mu, sig, method = c("eigen", "chol")) {
     stop("'sig' must be a symmetric matrix.")
   }
   if (method == "eigen") {
-    return( sim_mstudent(num_sim, df, mu, sig, 1) )
+    return( sim_mstudent_export(num_sim, df, mu, sig, 1) )
   }
-  sim_mstudent(num_sim, df, mu, sig, 2)
+  sim_mstudent_export(num_sim, df, mu, sig, 2)
 }
 
 #' Generate Multivariate Time Series Process Following VAR(p)
