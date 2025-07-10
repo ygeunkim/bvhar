@@ -6,6 +6,20 @@
 
 namespace bvhar {
 
+inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BHRNG& rng) {
+	int dim = sig.cols();
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  for (int i = 0; i < num_sim; ++i) {
+    for (int j = 0; j < standard_normal.cols(); ++j) {
+      standard_normal(i, j) = normal_rand(rng);
+    }
+  }
+  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
 inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BHRNG& rng) {
   int dim = sig.cols();
   Eigen::MatrixXd standard_normal(num_sim, dim);
@@ -20,7 +34,41 @@ inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu
   return res;
 }
 
+inline Eigen::MatrixXd sim_mstudent_eigen(int num_sim, double df, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BHRNG& rng) {
+	int dim = sig.cols();
+  Eigen::MatrixXd res = sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig, rng);
+	for (int i = 0; i < num_sim; ++i) {
+    res.row(i) *= sqrt(df / chisq_rand(df, rng));
+  }
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+inline Eigen::MatrixXd sim_mstudent_chol(int num_sim, double df, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BHRNG& rng) {
+	int dim = sig.cols();
+  Eigen::MatrixXd res = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig, rng);
+	for (int i = 0; i < num_sim; ++i) {
+    res.row(i) *= sqrt(df / chisq_rand(df, rng));
+  }
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
 #ifdef USE_RCPP
+
+inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
+	int dim = sig.cols();
+  Eigen::MatrixXd standard_normal(num_sim, dim);
+  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  for (int i = 0; i < num_sim; ++i) {
+    for (int j = 0; j < standard_normal.cols(); ++j) {
+      standard_normal(i, j) = norm_rand();
+    }
+  }
+  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+  res.rowwise() += mu.transpose();
+  return res;
+}
 
 inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
   int dim = sig.cols();
@@ -34,6 +82,26 @@ inline Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd& mu
   // Eigen::LLT<Eigen::MatrixXd> lltOfscale(sig);
   // Eigen::MatrixXd sig_sqrt = lltOfscale.matrixU(); // use upper because now dealing with row vectors
   res = standard_normal * sig.llt().matrixU(); // use upper because now dealing with row vectors
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+inline Eigen::MatrixXd sim_mstudent_eigen(int num_sim, double df, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
+	int dim = sig.cols();
+  Eigen::MatrixXd res = sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig);
+	for (int i = 0; i < num_sim; ++i) {
+    res.row(i) *= sqrt(df / chisq_rand(df));
+  }
+  res.rowwise() += mu.transpose();
+  return res;
+}
+
+inline Eigen::MatrixXd sim_mstudent_chol(int num_sim, double df, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
+	int dim = sig.cols();
+  Eigen::MatrixXd res = sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+	for (int i = 0; i < num_sim; ++i) {
+    res.row(i) *= sqrt(df / chisq_rand(df));
+  }
   res.rowwise() += mu.transpose();
   return res;
 }

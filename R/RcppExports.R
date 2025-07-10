@@ -368,6 +368,43 @@ infer_vhar <- function(object) {
     .Call(`_bvhar_infer_vhar`, object)
 }
 
+#' Generate Multivariate Time Series Process Following VAR(p)
+#' 
+#' This function generates multivariate time series dataset that follows VAR(p).
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
+#' @param var_lag Lag of VAR
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_var_process <- function(num_sim, num_burn, var_coef, var_lag, sig_error, mvt_df, init, process, method, seed) {
+    .Call(`_bvhar_sim_var_process`, num_sim, num_burn, var_coef, var_lag, sig_error, mvt_df, init, process, method, seed)
+}
+
+#' Generate Multivariate Time Series Process Following VHAR
+#' 
+#' This function generates multivariate time series dataset that follows VHAR.
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+#' @param week Order for weekly term. Try `5L` by default.
+#' @param month Order for monthly term. Try `22L` by default.
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_vhar_process <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, mvt_df, init, process, method, seed) {
+    .Call(`_bvhar_sim_vhar_process`, num_sim, num_burn, vhar_coef, week, month, sig_error, mvt_df, init, process, method, seed)
+}
+
 #' Forecasting Vector Autoregression
 #' 
 #' @param object A `varlse` object
@@ -1163,8 +1200,8 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' @noRd
-sim_mgaussian <- function(num_sim, mu, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+sim_mgaussian_export <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian_export`, num_sim, mu, sig)
 }
 
 #' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -1193,8 +1230,8 @@ sim_mgaussian_chol_export <- function(num_sim, mu, sig) {
 #' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
 #' 
 #' @noRd
-sim_mstudent <- function(num_sim, df, mu, sig, method) {
-    .Call(`_bvhar_sim_mstudent`, num_sim, df, mu, sig, method)
+sim_mstudent_export <- function(num_sim, df, mu, sig, method) {
+    .Call(`_bvhar_sim_mstudent_export`, num_sim, df, mu, sig, method)
 }
 
 #' Generate Matrix Normal Random Matrix
@@ -1253,88 +1290,6 @@ sim_iw <- function(mat_scale, shape) {
 #' @noRd
 sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec) {
     .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec)
-}
-
-#' Generate Multivariate Time Series Process Following VAR(p)
-#' 
-#' This function generates multivariate time series dataset that follows VAR(p).
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-#' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_var_eigen`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
-#' 
-#' This function generates VAR(p) using Cholesky Decomposition.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-#' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_var_chol`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VHAR
-#' 
-#' This function generates multivariate time series dataset that follows VHAR.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-#' @param week Order for weekly term. Try `5L` by default.
-#' @param month Order for monthly term. Try `22L` by default.
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_vhar_eigen`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VHAR using Cholesky Decomposition
-#' 
-#' This function generates multivariate time series dataset that follows VHAR.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-#' @param week Order for weekly term. Try `5L` by default.
-#' @param month Order for monthly term. Try `22L` by default.
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @details
-#' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
-#' 
-#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-#' 2. For i = 1, ... n,
-#' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
-#' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
 #' @noRd

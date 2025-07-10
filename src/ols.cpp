@@ -169,6 +169,74 @@ Rcpp::List infer_vhar(Rcpp::List object) {
   );
 }
 
+//' Generate Multivariate Time Series Process Following VAR(p)
+//' 
+//' This function generates multivariate time series dataset that follows VAR(p).
+//' 
+//' @param num_sim Number to generated process
+//' @param num_burn Number of burn-in
+//' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
+//' @param var_lag Lag of VAR
+//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+//' @param process Process type. 1: Gaussian. 2: student-t.
+//' @param mvt_df DF of MVT
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_var_process(int num_sim, int num_burn,
+                                Eigen::MatrixXd var_coef,
+                                int var_lag,
+                                Eigen::MatrixXd sig_error,
+															  double mvt_df,
+                                Eigen::MatrixXd init,
+                                int process,
+                                int method,
+															  unsigned int seed) {
+	// auto var_generator = std::make_unique<bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed);
+	auto dgp_run = [&]() -> std::unique_ptr<bvhar::OlsSimulator> {
+		if (process == 1) {
+			return std::make_unique<bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed);
+		}
+		return std::make_unique<bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed, mvt_df);
+	}();
+	return dgp_run->returnDgp();
+}
+
+//' Generate Multivariate Time Series Process Following VHAR
+//' 
+//' This function generates multivariate time series dataset that follows VHAR.
+//' 
+//' @param num_sim Number to generated process
+//' @param num_burn Number of burn-in
+//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+//' @param week Order for weekly term. Try `5L` by default.
+//' @param month Order for monthly term. Try `22L` by default.
+//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+//' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+//' @param process Process type. 1: Gaussian. 2: student-t.
+//' @param mvt_df DF of MVT
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_vhar_process(int num_sim, int num_burn,
+                                 Eigen::MatrixXd vhar_coef, 
+                                 int week, int month,
+                                 Eigen::MatrixXd sig_error,
+															   double mvt_df,
+                                 Eigen::MatrixXd init,
+                                 int process,
+                                 int method,
+															   unsigned int seed) {
+	auto dgp_run = [&]() -> std::unique_ptr<bvhar::OlsSimulator> {
+		if (process == 1) {
+			return std::make_unique<bvhar::OlsSimulator>(num_sim, num_burn, week, month, init, vhar_coef, sig_error, method, seed);
+		}
+		return std::make_unique<bvhar::OlsSimulator>(num_sim, num_burn, week, month, init, vhar_coef, sig_error, method, seed, mvt_df);
+	}();
+	return dgp_run->returnDgp();
+}
+
 //' Forecasting Vector Autoregression
 //' 
 //' @param object A `varlse` object
