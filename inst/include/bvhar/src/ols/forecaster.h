@@ -3,12 +3,16 @@
 
 // #include "../core/common.h"
 #include "../core/forecaster.h"
+#include "../math/random.h"
 #include "./ols.h"
 #include <type_traits>
 
 namespace bvhar {
 
 class OlsExogenForecaster;
+class OlsErrorGenerator;
+class OlsGaussianGenerator;
+class OlsStudentGenerator;
 class OlsForecaster;
 class VarForecaster;
 class VharForecaster;
@@ -40,23 +44,108 @@ private:
 	Eigen::MatrixXd coef_mat;
 };
 
+class OlsErrorGenerator : public AutoregGenerator<Eigen::MatrixXd, Eigen::VectorXd> {
+public:
+	// OlsErrorGenerator() {}
+	OlsErrorGenerator(int num_iter, int dim, unsigned int seed)
+	: AutoregGenerator<Eigen::MatrixXd, Eigen::VectorXd>(num_iter, seed),
+		dim(dim) {
+		error_term = Eigen::MatrixXd::Zero(num_iter, dim);
+	}
+	virtual ~OlsErrorGenerator() = default;
+
+	// void appendError(Eigen::VectorXd& point_forecast, const int h) override {
+	// 	// last_pvec = vectorize_eigen(exogen.middleRows(h, lag + 1).colwise().reverse().transpose().eval()); // x_(T + h), ..., x_(T + h - s)
+	// 	// point_forecast += last_pvec.transpose() * coef_mat;
+	// 	// point_forecast += coef_mat.transpose() * last_pvec;
+	// }
+
+protected:
+	int dim;
+	// Eigen::VectorXd error_mean;
+	// Eigen::MatrixXd error_sig;
+};
+
+class OlsGaussianGenerator : public OlsErrorGenerator {
+public:
+	OlsGaussianGenerator(int num_iter, const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, int method, unsigned int seed)
+	: OlsErrorGenerator(num_iter, error_sig.cols(), seed),
+		alg_type(method),
+		error_mean(error_mean), error_sig(error_sig) {}
+	virtual ~OlsGaussianGenerator() = default;
+
+	void appendError(Eigen::VectorXd& point_forecast) override {
+		switch (alg_type) {
+			case 1: {
+				error_term = sim_mgaussian_eigen(num_iter, error_mean, error_sig, rng);
+			}
+			case 2: {
+				error_term = sim_mgaussian_chol(num_iter, error_mean, error_sig, rng);
+			}
+		}
+		point_forecast += error_term;
+	}
+
+private:
+	int alg_type;
+	Eigen::VectorXd error_mean;
+	Eigen::MatrixXd error_sig;
+};
+
+class OlsStudentGenerator : public OlsErrorGenerator {
+public:
+	OlsStudentGenerator(int num_iter, const Eigen::VectorXd& error_mean, const Eigen::MatrixXd& error_sig, double mvt_df, int method, unsigned int seed)
+	: OlsErrorGenerator(num_iter, error_sig.cols(), seed),
+		alg_type(method),
+		mvt_df(mvt_df), error_mean(error_mean), error_sig(error_sig) {}
+	virtual ~OlsStudentGenerator() = default;
+
+	void appendError(Eigen::VectorXd& point_forecast) override {
+		switch (alg_type) {
+			case 1: {
+				error_term = sim_mstudent_eigen(num_iter, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng);
+			}
+			case 2: {
+				error_term = sim_mstudent_chol(num_iter, mvt_df, error_mean, error_sig * (mvt_df - 2) / mvt_df, rng);
+			}
+		}
+		point_forecast += error_term;
+	}
+
+private:
+	int alg_type;
+	double mvt_df;
+	Eigen::VectorXd error_mean;
+	Eigen::MatrixXd error_sig;
+};
+
 class OlsForecaster : public MultistepForecaster<Eigen::MatrixXd, Eigen::VectorXd> {
 public:
-	OlsForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean)
+	OlsForecaster(
+		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+	)
 	: MultistepForecaster<Eigen::MatrixXd, Eigen::VectorXd>(step, response_mat, fit._ord),
 		coef_mat(fit._coef), include_mean(include_mean), dim(coef_mat.cols()),
 		dim_design(include_mean ? lag * dim + 1 : lag * dim) {
 		initLagged();
+		if (dgp_updater) {
+			error_updater = std::move(*dgp_updater);
+		}
 	}
 	OlsForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
-		int step, const Eigen::MatrixXd& response_mat, bool include_mean
+		int step, const Eigen::MatrixXd& response_mat, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
 	)
 	: MultistepForecaster<Eigen::MatrixXd, Eigen::VectorXd>(step, response_mat, fit._ord),
 		exogen_updater(std::move(exogen_updater)),
 		coef_mat(fit._coef), include_mean(include_mean), dim(coef_mat.cols()),
 		dim_design(include_mean ? lag * dim + 1 : lag * dim) {
 		initLagged();
+		if (dgp_updater) {
+			error_updater = std::move(*dgp_updater);
+		}
 	}
 	virtual ~OlsForecaster() = default;
 	Eigen::MatrixXd forecastPoint() {
@@ -69,6 +158,7 @@ public:
 
 protected:
 	std::unique_ptr<OlsExogenForecaster> exogen_updater;
+	std::unique_ptr<OlsErrorGenerator> error_updater;
 	Eigen::MatrixXd coef_mat;
 	bool include_mean;
 	int dim;
@@ -97,6 +187,9 @@ protected:
 		if (exogen_updater) {
 			exogen_updater->appendForecast(point_forecast, h);
 		}
+		if (error_updater) {
+			error_updater->appendError(point_forecast);
+		}
 		pred_save.row(h) = point_forecast.transpose();
 	}
 
@@ -105,13 +198,17 @@ protected:
 
 class VarForecaster : public OlsForecaster {
 public:
-	VarForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean)
-	: OlsForecaster(fit, step, response_mat, include_mean) {}
+	VarForecaster(
+		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+	)
+	: OlsForecaster(fit, step, response_mat, include_mean, std::move(dgp_updater)) {}
 	VarForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
-		int step, const Eigen::MatrixXd& response_mat, bool include_mean
+		int step, const Eigen::MatrixXd& response_mat, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
 	)
-	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean) {}
+	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean, std::move(dgp_updater)) {}
 	virtual ~VarForecaster() = default;
 
 protected:
@@ -122,13 +219,17 @@ protected:
 
 class VharForecaster : public OlsForecaster {
 public:
-	VharForecaster(const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean)
-	: OlsForecaster(fit, step, response_mat, include_mean), har_trans(har_trans) {}
+	VharForecaster(
+		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+	)
+	: OlsForecaster(fit, step, response_mat, include_mean, std::move(dgp_updater)), har_trans(har_trans) {}
 	VharForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
-		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean
+		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean,
+		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
 	)
-	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean), har_trans(har_trans) {}
+	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean, std::move(dgp_updater)), har_trans(har_trans) {}
 	virtual ~VharForecaster() = default;
 
 protected:
