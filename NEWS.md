@@ -1,5 +1,11 @@
 # bvhar (development version)
 
+## Internal changes (C++)
+
+* Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.
+
+* This gives different results due to boost RNG usage instead of R's RNG.
+
 # bvhar 2.3.0
 
 * Requires `R >= 4.2` due to Rtools 4.0 error with optional parameters in C++.
