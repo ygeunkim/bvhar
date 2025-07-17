@@ -105,7 +105,7 @@ public:
 
 protected:
 	std::unique_ptr<RegRecords> reg_record;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 	std::mutex mtx;
 	Eigen::MatrixXd response; // y0
 	bool include_mean;

@@ -61,7 +61,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) {}
 
 	/**
@@ -74,7 +74,7 @@ public:
 	virtual void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) {}
 
 	/**
@@ -161,7 +161,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
@@ -177,7 +177,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		minnesota_lambda(
 			own_lambda, own_shape, own_rate,
@@ -213,7 +213,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		ssvs_local_slab(slab, dummy, coef_vec, ig_shape, ig_scl, spike_scl, rng);
 		for (int j = 0; j < num_grp; ++j) {
@@ -231,7 +231,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		ssvs_local_slab(slab, dummy, contem_coef, ig_shape, ig_scl, spike_scl, rng);
 		ssvs_scl_griddy(spike_scl, grid_size, contem_coef, slab, rng);
@@ -287,7 +287,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		horseshoe_latent(latent_group, group_lev, rng);
 		horseshoe_mn_sparsity(group_lev, grp_vec, grp_id, latent_group, global_lev, local_lev, coef_vec, 1, rng);
@@ -311,7 +311,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		horseshoe_latent(latent_local, local_lev, rng);
 		horseshoe_latent(latent_group, group_lev, rng);
@@ -375,7 +375,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		ng_mn_shape_jump(local_shape, local_lev, group_lev, grp_vec, grp_id, global_lev, mh_sd, rng);
 		ng_mn_sparsity(group_lev, grp_vec, grp_id, local_shape, global_lev, local_lev, group_shape, group_scl, rng);
@@ -400,7 +400,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		local_shape[0] = ng_shape_jump(local_shape[0], local_lev, group_lev[0], mh_sd, rng);
 		group_lev[0] = ng_global_sparsity(local_lev, local_shape[0], group_shape, group_scl, rng);
@@ -454,7 +454,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		dl_mn_sparsity(group_lev, grp_vec, grp_id, global_lev, local_lev, shape, scl, coef_vec, rng);
 		for (int j = 0; j < num_grp; j++) {
@@ -476,7 +476,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		dl_dir_griddy(dir_concen, grid_size, local_lev, group_lev[0], rng);
 		dl_local_sparsity(local_lev, dir_concen, contem_coef, rng);
@@ -528,7 +528,7 @@ public:
 		Eigen::Ref<Eigen::VectorXd> prior_alpha_prec,
 		Eigen::Ref<Eigen::VectorXd> coef_vec,
 		int num_grp, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		gdp_shape_griddy(gamma_shape, gamma_rate, shape_grid, coef_vec, rng);
 		gdp_rate_griddy(gamma_rate, gamma_shape, rate_grid, coef_vec, rng);
@@ -546,7 +546,7 @@ public:
 	void updateImpactPrec(
 		Eigen::Ref<Eigen::VectorXd> prior_chol_prec,
 		Eigen::Ref<Eigen::VectorXd> contem_coef,
-		BHRNG& rng
+		BVHAR_BHRNG& rng
 	) override {
 		gdp_shape_griddy(gamma_shape, gamma_rate, shape_grid, contem_coef, rng);
 		gdp_rate_griddy(gamma_rate, gamma_shape, rate_grid, contem_coef, rng);

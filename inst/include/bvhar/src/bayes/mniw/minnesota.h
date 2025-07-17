@@ -273,7 +273,7 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 };
 
@@ -492,7 +492,7 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 	MhMinnRecords mh_record;
 	double gamma_shp;

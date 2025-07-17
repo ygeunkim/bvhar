@@ -94,7 +94,7 @@ public:
 protected:
 	// MinnRecords mn_record;
 	// std::mutex mtx;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd posterior_mean;
 	Eigen::MatrixXd posterior_sig;

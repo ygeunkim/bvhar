@@ -190,7 +190,7 @@ public:
 	virtual void appendError(DataType& point_forecast) {}
 
 protected:
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 	DataType error_term;
 	std::shared_ptr<spdlog::logger> debug_logger;
 };

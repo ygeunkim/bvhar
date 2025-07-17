@@ -72,7 +72,7 @@ protected:
 	std::mutex mtx;
 	int num_iter;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::shared_ptr<spdlog::logger> debug_logger;
 
 	/**

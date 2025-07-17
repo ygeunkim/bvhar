@@ -58,7 +58,7 @@ protected:
 	Eigen::VectorXd lpl;
 	std::mutex mtx;
 	int num_sim;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 
 	void forecast() override {
 		std::lock_guard<std::mutex> lock(mtx);

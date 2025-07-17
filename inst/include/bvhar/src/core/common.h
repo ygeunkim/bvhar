@@ -29,7 +29,7 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
-#define BHRNG boost::random::mt19937
+#define BVHAR_BHRNG boost::random::mt19937
 
 // Remove after boost upgrade including inverse_gaussian and generalized_inverse_gaussian
 // https://github.com/boostorg/random/pull/124
@@ -571,43 +571,43 @@ inline double beta_rand(double s1, double s2) {
 }
 #endif
 
-inline double normal_rand(BHRNG& rng) {
+inline double normal_rand(BVHAR_BHRNG& rng) {
 	boost::random::normal_distribution<> rdist(0.0, 1.0);
 	return rdist(rng);
 }
 
-inline double chisq_rand(double df, BHRNG& rng) {
+inline double chisq_rand(double df, BVHAR_BHRNG& rng) {
 	boost::random::chi_squared_distribution<> rdist(df);
 	return rdist(rng);
 }
 
-inline double gamma_rand(double shp, double scl, BHRNG& rng) {
+inline double gamma_rand(double shp, double scl, BVHAR_BHRNG& rng) {
 	cut_param(scl);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
 
-inline double ber_rand(double prob, BHRNG& rng) {
+inline double ber_rand(double prob, BVHAR_BHRNG& rng) {
 	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> use this instead of binomial
 	return rdist(rng) * 1.0; // change to int later: now just use double to match Rf_rbinom
 }
 
-inline double unif_rand(double min, double max, BHRNG& rng) {
+inline double unif_rand(double min, double max, BVHAR_BHRNG& rng) {
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
 
-inline double unif_rand(BHRNG& rng) {
+inline double unif_rand(BVHAR_BHRNG& rng) {
 	boost::random::uniform_01<> rdist;
 	return rdist(rng);
 }
 
-inline double beta_rand(double s1, double s2, BHRNG& rng) {
+inline double beta_rand(double s1, double s2, BVHAR_BHRNG& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
 }
 
-inline int cat_rand(const Eigen::VectorXd& probabilities, BHRNG& rng) {
+inline int cat_rand(const Eigen::VectorXd& probabilities, BVHAR_BHRNG& rng) {
 	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
 	return rdist(rng);
 }

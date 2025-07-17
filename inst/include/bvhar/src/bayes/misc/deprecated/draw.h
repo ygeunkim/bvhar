@@ -48,7 +48,7 @@ inline void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat,
 // @param chol_diag Diagonal element of the cholesky factor
 // @param DRD Inverse of matrix product between \eqn{D_j} and correlation matrix \eqn{R_j}
 inline void ssvs_chol_off(Eigen::VectorXd& chol_off, Eigen::MatrixXd& sse_mat,
-													Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, BHRNG& rng) {
+													Eigen::VectorXd& chol_diag, Eigen::VectorXd& DRD, BVHAR_BHRNG& rng) {
 	int dim = sse_mat.cols();
   int num_param = DRD.size();
   Eigen::MatrixXd normal_variance(dim - 1, dim - 1);
@@ -114,7 +114,7 @@ inline Eigen::MatrixXd build_cov(Eigen::VectorXd diag_vec, Eigen::VectorXd off_d
 // @param chol_factor Cholesky factor of variance matrix
 inline void ssvs_coef(Eigen::VectorXd& coef, Eigen::VectorXd& prior_mean, Eigen::VectorXd& prior_sd,
 											Eigen::MatrixXd& XtX, Eigen::VectorXd& coef_ols,
-											Eigen::MatrixXd& chol_factor, BHRNG& rng) {
+											Eigen::MatrixXd& chol_factor, BVHAR_BHRNG& rng) {
 	int num_coef = prior_sd.size();
   Eigen::MatrixXd scaled_xtx = kronecker_eigen((chol_factor * chol_factor.transpose()).eval(), XtX); // Sigma^(-1) = chol * chol^T
   Eigen::MatrixXd prior_prec = Eigen::MatrixXd::Zero(num_coef, num_coef);
@@ -156,7 +156,7 @@ inline void build_shrink_mat(Eigen::MatrixXd& cov, Eigen::VectorXd& global_hyper
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
-                    			 double var, Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
+                    			 double var, Eigen::MatrixXd& shrink_mat, BVHAR_BHRNG& rng) {
 	int dim = coef.size();
 	Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -177,7 +177,7 @@ inline void horseshoe_coef(Eigen::VectorXd& coef, Eigen::VectorXd& response_vec,
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_vec, Eigen::MatrixXd design_mat,
-												 				Eigen::MatrixXd shrink_mat, BHRNG& rng) {
+												 				Eigen::MatrixXd shrink_mat, BVHAR_BHRNG& rng) {
   int num_coef = design_mat.cols(); // k^2 kp(+1)
   int num_sur = response_vec.size(); // nk-dim
   Eigen::MatrixXd sur_identity = Eigen::MatrixXd::Identity(num_sur, num_sur);
@@ -198,7 +198,7 @@ inline void horseshoe_fast_coef(Eigen::VectorXd& coef, Eigen::VectorXd response_
 // @param design_mat Design matrix for vectorized formulation
 // @param shrink_mat Diagonal matrix made by global and local sparsity hyperparameters
 inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat,
-															 Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
+															 Eigen::MatrixXd& shrink_mat, BVHAR_BHRNG& rng) {
   int dim = design_mat.cols();
   int sample_size = response_vec.size();
   Eigen::MatrixXd prec_mat = (design_mat.transpose() * design_mat + shrink_mat).llt().solve(
@@ -225,7 +225,7 @@ inline void horseshoe_coef_var(Eigen::VectorXd& coef_var, Eigen::VectorXd& respo
 //   return 1 / gamma_rand(sample_size / 2, 2 / scl, rng);
 // }
 
-inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, BHRNG& rng) {
+inline double horseshoe_var(Eigen::VectorXd& response_vec, Eigen::MatrixXd& design_mat, Eigen::VectorXd& coef_vec, Eigen::MatrixXd& shrink_mat, BVHAR_BHRNG& rng) {
   return 1 / gamma_rand(
 		design_mat.size() / 2,
 		2 / ((response_vec - design_mat * coef_vec).squaredNorm() + coef_vec.transpose() * shrink_mat * coef_vec), rng
