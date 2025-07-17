@@ -26,11 +26,11 @@
 
 	// #include <RcppSpdlog>
 
-	// #define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
+	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
 
 	// #include <spdlog/spdlog.h>
 	// #include <spdlog/sinks/stdout_sinks.h>
-	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
+	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 	#define BVHAR_LIST Rcpp::List
 	#define BVHAR_LIST_OF_LIST Rcpp::List
@@ -85,7 +85,7 @@
 	#define BVHAR_ENDL std::endl
 	#define BVHAR_FLUSH std::cout.flush()
 	#define BVHAR_STRING py::str
-	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
+	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 	#define BVHAR_LIST py::dict
 	#define BVHAR_LIST_OF_LIST std::vector<py::dict>

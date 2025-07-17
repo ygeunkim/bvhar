@@ -50,15 +50,15 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 
 	// #include <RcppSpdlog>
 
-	// #define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
-	#define SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
+	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
+	#define BVHAR_SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
 
 #else
 
 	#include <spdlog/spdlog.h>
 	#include <spdlog/sinks/stdout_sinks.h>
 
-	#define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
+	#define BVHAR_SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 #endif // USE_RCPP
 
@@ -68,7 +68,7 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 #define BVHAR_DEBUG_LOGGER(value) \
 	([](const std::string& log_name) -> std::shared_ptr<spdlog::logger> { \
 		auto temp_logger = spdlog::get(log_name); \
-		return temp_logger ? temp_logger : SPDLOG_SINK_MT(log_name); \
+		return temp_logger ? temp_logger : BVHAR_SPDLOG_SINK_MT(log_name); \
 	})(value)
 #define BVHAR_INIT_DEBUG(logger) logger->set_level(spdlog::level::debug)
 #define BVHAR_DEBUG_LOG(logger, ...) logger->debug(__VA_ARGS__)

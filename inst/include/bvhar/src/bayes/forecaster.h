@@ -338,7 +338,7 @@ protected:
 		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
 		auto logger = spdlog::get(log_name);
 		if (logger == nullptr) {
-			logger = SPDLOG_SINK_MT(log_name);
+			logger = BVHAR_SPDLOG_SINK_MT(log_name);
 		}
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
 		int logging_freq = num_iter / 20; // 5 percent
