@@ -549,7 +549,7 @@ inline void cut_param(double& param) {
 	}
 }
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 inline double bindom_rand(int n, double prob) {
 	return Rf_rbinom(n, prob);
 }

@@ -55,7 +55,7 @@ inline Eigen::MatrixXd sim_mstudent_chol(int num_sim, double df, const Eigen::Ve
   return res;
 }
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 
 inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig) {
 	int dim = sig.cols();

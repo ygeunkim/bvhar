@@ -1,7 +1,7 @@
 #ifndef BVHAR_CORE_SPDLOG_H
 #define BVHAR_CORE_SPDLOG_H
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 
 #include <RcppThread/Rcout.hpp>
 #include <RcppSpdlog>
@@ -60,10 +60,10 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 
 	#define BVHAR_SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
-#endif // USE_RCPP
+#endif // BVHAR_USE_RCPP
 
-// Debug base classes by defining `USE_BVHAR_DEBUG`
-#ifdef USE_BVHAR_DEBUG
+// Debug base classes by defining `BVHAR_USE_BVHAR_DEBUG`
+#ifdef BVHAR_USE_BVHAR_DEBUG
 
 #define BVHAR_DEBUG_LOGGER(value) \
 	([](const std::string& log_name) -> std::shared_ptr<spdlog::logger> { \
@@ -81,6 +81,6 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 #define BVHAR_DEBUG_LOG(logger, ...) (void)0
 #define BVHAR_DEBUG_DROP(value) (void)0
 
-#endif // USE_BVHAR_DEBUG
+#endif // BVHAR_USE_BVHAR_DEBUG
 
 #endif // BVHAR_CORE_SPDLOG_H

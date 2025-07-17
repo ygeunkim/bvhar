@@ -7,7 +7,7 @@
 #ifndef BVHAR_CORE_COMMONDEFS_H
 #define BVHAR_CORE_COMMONDEFS_H
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
 	#include <cmath>

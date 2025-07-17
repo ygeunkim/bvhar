@@ -6,7 +6,7 @@
 
 namespace bvhar {
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 // Generating the Diagonal Component of Cholesky Factor in SSVS Gibbs Sampler
 // 
 // In MCMC process of SSVS, this function generates the diagonal component \eqn{\Psi} from variance matrix
