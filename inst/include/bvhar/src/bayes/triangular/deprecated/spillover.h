@@ -307,7 +307,7 @@ public:
 		model(num_horizon), spillover(num_horizon),
 		har_trans(build_vhar(y.cols(), week, month, include_mean)) {
 		if (num_horizon <= 0) {
-			STOP("Window size is too large");
+			BVHAR_STOP("Window size is too large");
 		}
 		initialize(
 			y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl,

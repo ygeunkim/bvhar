@@ -143,13 +143,13 @@ inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::Matr
 inline Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   int dim = mat_scale.cols();
 	if (shape <= dim - 1) {
-    STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+    BVHAR_STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
   }
   if (mat_scale.rows() != mat_scale.cols()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   if (dim != mat_scale.rows()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); // upper triangular bartlett decomposition
   // generate in row direction
@@ -200,13 +200,13 @@ inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, c
 inline Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape) {
   int dim = mat_scale.cols();
   if (shape <= dim - 1) {
-    STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+    BVHAR_STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
   }
   if (mat_scale.rows() != mat_scale.cols()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   if (dim != mat_scale.rows()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);
   for (int i = 0; i < dim; i++) {
@@ -247,13 +247,13 @@ inline Eigen::MatrixXd sim_mn(const Eigen::MatrixXd& mat_mean, const Eigen::Matr
 inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape, BHRNG& rng) {
   int dim = mat_scale.cols();
 	if (shape <= dim - 1) {
-    STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
+    BVHAR_STOP("Wrong 'shape'. shape > dim - 1 must be satisfied.");
   }
   if (mat_scale.rows() != mat_scale.cols()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   if (dim != mat_scale.rows()) {
-    STOP("Invalid 'mat_scale' dimension.");
+    BVHAR_STOP("Invalid 'mat_scale' dimension.");
   }
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); // upper triangular bartlett decomposition
   // generate in row direction

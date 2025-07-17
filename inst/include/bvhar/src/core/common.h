@@ -7,11 +7,11 @@
 namespace boost {
 
 inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
-	STOP("Boost assertion failed: %s in function %s at %s:%ld", expr, function, file, line);
+	BVHAR_STOP("Boost assertion failed: %s in function %s at %s:%ld", expr, function, file, line);
 }
 
 inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line) {
-  STOP("Boost assertion failed: %s (%s) in function %s at %s:%ld", expr, msg, function, file, line);
+  BVHAR_STOP("Boost assertion failed: %s (%s) in function %s at %s:%ld", expr, msg, function, file, line);
 }
 
 } // namespace boost
@@ -462,16 +462,16 @@ inline double gammafn(double x) {
 
 inline double mgammafn(double x, int p) {
   if (p < 1) {
-    STOP("'p' should be larger than or same as 1.");
+    BVHAR_STOP("'p' should be larger than or same as 1.");
   }
   if (x <= 0) {
-    STOP("'x' should be larger than 0.");
+    BVHAR_STOP("'x' should be larger than 0.");
   }
   if (p == 1) {
     return gammafn(x);
   }
   if (2 * x < p) {
-    STOP("'x / 2' should be larger than 'p'.");
+    BVHAR_STOP("'x / 2' should be larger than 'p'.");
   }
   double res = pow(M_PI, p * (p - 1) / 4.0);
   for (int i = 0; i < p; i++) {
@@ -525,13 +525,13 @@ inline double lmgammafn(double x, int p) {
 // @param lg If true, return log(f)
 inline double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (x < 0 ) {
-    STOP("'x' should be larger than 0.");
+    BVHAR_STOP("'x' should be larger than 0.");
   }
   if (shp <= 0 ) {
-    STOP("'shp' should be larger than 0.");
+    BVHAR_STOP("'shp' should be larger than 0.");
   }
   if (scl <= 0 ) {
-    STOP("'scl' should be larger than 0.");
+    BVHAR_STOP("'scl' should be larger than 0.");
   }
   double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
   if (lg) {

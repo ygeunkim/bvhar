@@ -5,7 +5,7 @@
 
 #undef eigen_assert
 #define eigen_assert(x) \
-  if (!(x)) { STOP("Eigen assertion failed: " #x); }
+  if (!(x)) { BVHAR_STOP("Eigen assertion failed: " #x); }
 
 #ifdef USE_RCPP
 	#include <RcppEigen.h>

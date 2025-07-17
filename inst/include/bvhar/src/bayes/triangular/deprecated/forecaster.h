@@ -284,7 +284,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1);
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 		}
 	}
@@ -320,7 +320,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim));
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 		}
 	}
@@ -444,7 +444,7 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 ) {
 	bool activity = (level > 0); // Optional<double> level = NULLOPT
 	if (sparse && activity) {
-		STOP("If 'level > 0', 'spare' should be false.");
+		BVHAR_STOP("If 'level > 0', 'spare' should be false.");
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);

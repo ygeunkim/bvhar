@@ -306,7 +306,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1);
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 			// Resize pred_save
 		}
@@ -348,7 +348,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim));
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 			// Resize pred_save
 		}
@@ -495,7 +495,7 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 ) {
 	bool activity = (level > 0); // Optional<double> level = NULLOPT
 	if (sparse && activity) {
-		STOP("If 'level > 0', 'sparse' should be false.");
+		BVHAR_STOP("If 'level > 0', 'sparse' should be false.");
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
@@ -1139,7 +1139,7 @@ protected:
 		// RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		auto* mcmc_triangular = dynamic_cast<McmcTriangular*>(model[window][chain].get());
 		if (!mcmc_triangular) {
-			STOP("Model is not a McmcTriangular.");
+			BVHAR_STOP("Model is not a McmcTriangular.");
 		}
 		RecordType reg_record = mcmc_triangular->template returnStructRecords<RecordType>(0, thin, sparse);
 		Optional<std::unique_ptr<CtaExogenForecaster>> exogen_updater = NULLOPT;
@@ -1285,7 +1285,7 @@ protected:
 		// RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		auto* mcmc_triangular = dynamic_cast<McmcTriangular*>(model[window][chain].get());
 		if (!mcmc_triangular) {
-			STOP("Model is not a McmcTriangular.");
+			BVHAR_STOP("Model is not a McmcTriangular.");
 		}
 		RecordType reg_record = mcmc_triangular->template returnStructRecords<RecordType>(0, thin, sparse);
 		Optional<std::unique_ptr<CtaExogenForecaster>> exogen_updater = NULLOPT;

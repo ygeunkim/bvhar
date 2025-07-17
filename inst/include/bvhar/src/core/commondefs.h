@@ -15,7 +15,7 @@
 	// #include <RcppSpdlog>
 	// #include <RcppThread.h>
 
-	#define STOP(...) Rcpp::stop(__VA_ARGS__)
+	#define BVHAR_STOP(...) Rcpp::stop(__VA_ARGS__)
 
 	#define COUT Rcpp::Rcout
 	#define ENDL "\n"
@@ -79,7 +79,7 @@
 		throw py::value_error(py::str(msg).format(std::forward<Args>(args)...));
 	}
 
-	#define STOP(...) stop_fmt(__VA_ARGS__)
+	#define BVHAR_STOP(...) stop_fmt(__VA_ARGS__)
 
 	#define COUT std::cout
 	#define ENDL std::endl
