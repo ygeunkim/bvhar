@@ -1315,7 +1315,7 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
  * @param a_name Element name for the contemporaneous coefficient in `fit_record`
  * @param c_name Element name for the constant term in `fit_record`
  */
-inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];
 	PY_LIST d_list = fit_record["d_record"];
@@ -1337,10 +1337,10 @@ inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id
 }
 
 /**
- * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, BVHAR_STRING&, BVHAR_STRING&, BVHAR_STRING&)
  * 
  */
-inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
+inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];
 	PY_LIST h_list = fit_record["h_record"];

@@ -213,9 +213,9 @@ inline std::unique_ptr<McmcSpillover> initialize_spillover(
 	Optional<Eigen::MatrixXd> har_trans = NULLOPT, Optional<int> week = NULLOPT
 ) {
 	std::unique_ptr<RecordType> reg_record;
-	STRING coef_name = (har_trans || week) ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
-	STRING a_name = sparse ? "a_sparse_record" : "a_record";
-	STRING c_name = sparse ? "c_sparse_record" : "c_record";
+	BVHAR_STRING coef_name = (har_trans || week) ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
+	BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 	initialize_record(reg_record, chain_id, fit_record, false, coef_name, a_name, c_name);
 	std::unique_ptr<McmcSpillover> spillover_ptr;
 	if (har_trans) {
@@ -450,18 +450,18 @@ public:
 	: num_horizon(num_design), lag(lag), step(step), nthreads(nthreads), sparse(sparse),
 		tot(num_design), to_sp(num_design), from_sp(num_design), net_sp(num_design),
 		spillover(num_horizon), har_trans(NULLOPT) {
-		STRING coef_name = sparse ? "alpha_sparse_record" : "alpha_record";
-		STRING a_name = sparse ? "a_sparse_record" : "a_record";
-		STRING c_name = sparse ? "c_sparse_record" : "c_record";
+		BVHAR_STRING coef_name = sparse ? "alpha_sparse_record" : "alpha_record";
+		BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
+		BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 		initialize_record(reg_record, 0, fit_record, include_mean, coef_name, a_name, c_name);
 	}
 	DynamicSvSpillover(int week, int month, int step, int num_design, LIST& fit_record, bool include_mean, bool sparse, int nthreads)
 	: num_horizon(num_design), lag(month), step(step), nthreads(nthreads), sparse(sparse),
 		tot(num_design), to_sp(num_design), from_sp(num_design), net_sp(num_design),
 		spillover(num_horizon) {
-		STRING coef_name = sparse ? "phi_sparse_record" : "phi_record";
-		STRING a_name = sparse ? "a_sparse_record" : "a_record";
-		STRING c_name = sparse ? "c_sparse_record" : "c_record";
+		BVHAR_STRING coef_name = sparse ? "phi_sparse_record" : "phi_record";
+		BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
+		BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 		initialize_record(reg_record, 0, fit_record, include_mean, coef_name, a_name, c_name);
 		har_trans = build_vhar(reg_record->getDim(), week, month, include_mean);
 	}

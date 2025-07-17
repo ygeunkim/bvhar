@@ -24,18 +24,18 @@ public:
 			return; // not display when verbose is false
 		}
 		int percent = _current * 100 / _total;
-		COUT << "\r";
+		BVHAR_COUT << "\r";
 		for (int i = 0; i < _width; i++) {
 			if (i < (percent * _width / 100)) {
-				COUT << "#";
+				BVHAR_COUT << "#";
 			} else {
-				COUT << " ";
+				BVHAR_COUT << " ";
 			}
 		}
-		COUT << " " << percent << "%";
-		FLUSH;
+		BVHAR_COUT << " " << percent << "%";
+		BVHAR_FLUSH;
 		if (_current >= _total) {
-			COUT << ENDL;
+			BVHAR_COUT << BVHAR_ENDL;
 		}
 	}
 private:

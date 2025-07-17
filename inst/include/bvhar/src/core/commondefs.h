@@ -17,12 +17,12 @@
 
 	#define BVHAR_STOP(...) Rcpp::stop(__VA_ARGS__)
 
-	#define COUT Rcpp::Rcout
-	#define ENDL "\n"
-	#define FLUSH Rcpp::Rcout.flush()
+	#define BVHAR_COUT Rcpp::Rcout
+	#define BVHAR_ENDL "\n"
+	#define BVHAR_FLUSH Rcpp::Rcout.flush()
 	// #define FLUSH std::cout.flush()
 	// #define FLUSH R_FlushConsole()
-	#define STRING std::string
+	#define BVHAR_STRING std::string
 
 	// #include <RcppSpdlog>
 
@@ -81,10 +81,10 @@
 
 	#define BVHAR_STOP(...) stop_fmt(__VA_ARGS__)
 
-	#define COUT std::cout
-	#define ENDL std::endl
-	#define FLUSH std::cout.flush()
-	#define STRING py::str
+	#define BVHAR_COUT std::cout
+	#define BVHAR_ENDL std::endl
+	#define BVHAR_FLUSH std::cout.flush()
+	#define BVHAR_STRING py::str
 	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
 	#define LIST py::dict

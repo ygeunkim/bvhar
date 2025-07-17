@@ -721,7 +721,7 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
  */
 inline void initialize_record(
 	std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean,
-	STRING& coef_name, STRING& a_name, STRING& c_name, Optional<STRING> b_name = NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, Optional<BVHAR_STRING> b_name = NULLOPT
 ) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];
@@ -762,12 +762,12 @@ inline void initialize_record(
 }
 
 /**
- * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, BVHAR_STRING&, BVHAR_STRING&, BVHAR_STRING&)
  * 
  */
 inline void initialize_record(
 	std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean,
-	STRING& coef_name, STRING& a_name, STRING& c_name, Optional<STRING> b_name = NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, Optional<BVHAR_STRING> b_name = NULLOPT
 ) {
 	PY_LIST coef_list = fit_record[coef_name];
 	PY_LIST a_list = fit_record[a_name];

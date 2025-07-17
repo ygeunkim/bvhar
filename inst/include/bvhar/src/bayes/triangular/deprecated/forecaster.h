@@ -448,9 +448,9 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
-	STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
-	STRING a_name = sparse ? "a_sparse_record" : "a_record";
-	STRING c_name = sparse ? "c_sparse_record" : "c_record";
+	BVHAR_STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
+	BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 	for (int i = 0; i < num_chains; ++i) {
 		std::unique_ptr<Records> reg_record;
 		initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
