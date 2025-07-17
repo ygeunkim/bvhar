@@ -6,6 +6,10 @@
 
 * This gives different results due to boost RNG usage instead of R's RNG.
 
+* Add `BVHAR_` prefix to every defined macros. For example, `LIST` to `BVHAR_LIST`.
+
+* Also, replace `USE_RCPP` and `USE_BVHAR_DEBUG` with `BVHAR_USE_RCPP` and `BVHAR_USE_BVHAR_DEBUG`.
+
 # bvhar 2.3.0
 
 * Requires `R >= 4.2` due to Rtools 4.0 error with optional parameters in C++.
