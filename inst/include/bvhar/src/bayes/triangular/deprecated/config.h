@@ -61,10 +61,10 @@ struct RegParams : McmcParams {
 
 	RegParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& spec,
+		BVHAR_LIST& spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& intercept,
+		BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: McmcParams(num_iter),
@@ -73,10 +73,10 @@ struct RegParams : McmcParams {
 		_dim(y.cols()), _dim_design(x.cols()), _num_design(y.rows()),
 		_num_lowerchol(_dim * (_dim - 1) / 2), _num_coef(_dim * _dim_design),
 		_num_alpha(_mean ? _num_coef - _dim : _num_coef), _nrow(_num_alpha / _dim),
-		_sig_shp(CAST<Eigen::VectorXd>(spec["shape"])),
-		_sig_scl(CAST<Eigen::VectorXd>(spec["scale"])),
-		_mean_non(CAST<Eigen::VectorXd>(intercept["mean_non"])),
-		_sd_non(CAST_DOUBLE(intercept["sd_non"])),
+		_sig_shp(BVHAR_CAST<Eigen::VectorXd>(spec["shape"])),
+		_sig_scl(BVHAR_CAST<Eigen::VectorXd>(spec["scale"])),
+		_mean_non(BVHAR_CAST<Eigen::VectorXd>(intercept["mean_non"])),
+		_sd_non(BVHAR_CAST_DOUBLE(intercept["sd_non"])),
 		_grp_id(grp_id), _grp_mat(grp_mat) {
 		set_grp_id(_own_id, _cross_id, own_id, cross_id);
 	}
@@ -92,15 +92,15 @@ struct SvParams : public RegParams {
 
 	SvParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& spec,
+		BVHAR_LIST& spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& intercept,
+		BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: RegParams(num_iter, x, y, spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
-		_init_mean(CAST<Eigen::VectorXd>(spec["initial_mean"])),
-		_init_prec(CAST<Eigen::MatrixXd>(spec["initial_prec"])) {}
+		_init_mean(BVHAR_CAST<Eigen::VectorXd>(spec["initial_mean"])),
+		_init_prec(BVHAR_CAST<Eigen::MatrixXd>(spec["initial_prec"])) {}
 };
 
 /**
@@ -115,33 +115,33 @@ struct MinnParams : public BaseRegParams {
 	Eigen::MatrixXd _prior_prec;
 	MinnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& priors, LIST& intercept,
+		BVHAR_LIST& priors, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		int lag = BVHAR_CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
 		// Eigen::MatrixXd coef_ols = (x.transpose() * x).selfadjointView<Eigen::Lower>().llt().solve(x.transpose() * y);
 		// Eigen::MatrixXd resid = y - x * coef_ols;
 		// Eigen::VectorXd _sigma = (y.rows() >= x.cols()) ? (resid.transpose() * resid).diagonal() / (y.rows() - x.cols()) : (resid.transpose() * resid).diagonal() / y.rows();
-		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
-		double _lambda = CAST_DOUBLE(priors["lambda"]);
-		double _eps = CAST_DOUBLE(priors["eps"]);
+		Eigen::VectorXd _sigma = BVHAR_CAST<Eigen::VectorXd>(priors["sigma"]);
+		double _lambda = BVHAR_CAST_DOUBLE(priors["lambda"]);
+		double _eps = BVHAR_CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
 		Eigen::VectorXd _weekly(dim);
 		Eigen::VectorXd _monthly(dim);
-		if (CONTAINS(priors, "delta")) {
-			_daily = CAST<Eigen::VectorXd>(priors["delta"]);
+		if (BVHAR_CONTAINS(priors, "delta")) {
+			_daily = BVHAR_CAST<Eigen::VectorXd>(priors["delta"]);
 			_weekly.setZero();
 			_monthly.setZero();
 		} else {
-			_daily = CAST<Eigen::VectorXd>(priors["daily"]);
-			_weekly = CAST<Eigen::VectorXd>(priors["weekly"]);
-			_monthly = CAST<Eigen::VectorXd>(priors["monthly"]);
+			_daily = BVHAR_CAST<Eigen::VectorXd>(priors["daily"]);
+			_weekly = BVHAR_CAST<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = BVHAR_CAST<Eigen::VectorXd>(priors["monthly"]);
 		}
 		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, _lambda, _daily, _weekly, _monthly, false);
 		Eigen::MatrixXd dummy_design = build_xdummy(
@@ -172,33 +172,33 @@ struct HierminnParams : public BaseRegParams {
 
 	HierminnParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& priors, LIST& intercept,
+		BVHAR_LIST& priors, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
-		shape(CAST_DOUBLE(priors["shape"])), rate(CAST_DOUBLE(priors["rate"])), _grid_size(CAST_INT(priors["grid_size"])),
+		shape(BVHAR_CAST_DOUBLE(priors["shape"])), rate(BVHAR_CAST_DOUBLE(priors["rate"])), _grid_size(BVHAR_CAST_INT(priors["grid_size"])),
 		_prec_diag(Eigen::MatrixXd::Zero(y.cols(), y.cols())) {
-		int lag = CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
+		int lag = BVHAR_CAST_INT(priors["p"]); // append to bayes_spec, p = 3 in VHAR
 		// Eigen::MatrixXd coef_ols = (x.transpose() * x).selfadjointView<Eigen::Lower>().llt().solve(x.transpose() * y);
 		// Eigen::MatrixXd resid = y - x * coef_ols;
 		// Eigen::VectorXd _sigma = (y.rows() >= x.cols()) ? (resid.transpose() * resid).diagonal() / (y.rows() - x.cols()) : (resid.transpose() * resid).diagonal() / y.rows();
-		Eigen::VectorXd _sigma = CAST<Eigen::VectorXd>(priors["sigma"]);
-		double _eps = CAST_DOUBLE(priors["eps"]);
+		Eigen::VectorXd _sigma = BVHAR_CAST<Eigen::VectorXd>(priors["sigma"]);
+		double _eps = BVHAR_CAST_DOUBLE(priors["eps"]);
 		int dim = _sigma.size();
 		Eigen::VectorXd _daily(dim);
 		Eigen::VectorXd _weekly(dim);
 		Eigen::VectorXd _monthly(dim);
-		if (CONTAINS(priors, "delta")) {
-			_daily = CAST<Eigen::VectorXd>(priors["delta"]);
+		if (BVHAR_CONTAINS(priors, "delta")) {
+			_daily = BVHAR_CAST<Eigen::VectorXd>(priors["delta"]);
 			_weekly.setZero();
 			_monthly.setZero();
 		} else {
-			_daily = CAST<Eigen::VectorXd>(priors["daily"]);
-			_weekly = CAST<Eigen::VectorXd>(priors["weekly"]);
-			_monthly = CAST<Eigen::VectorXd>(priors["monthly"]);
+			_daily = BVHAR_CAST<Eigen::VectorXd>(priors["daily"]);
+			_weekly = BVHAR_CAST<Eigen::VectorXd>(priors["weekly"]);
+			_monthly = BVHAR_CAST<Eigen::VectorXd>(priors["monthly"]);
 		}
 		Eigen::MatrixXd dummy_response = build_ydummy(lag, _sigma, 1, _daily, _weekly, _monthly, false);
 		Eigen::MatrixXd dummy_design = build_xdummy(
@@ -234,20 +234,20 @@ struct SsvsParams : public BaseRegParams {
 
 	SsvsParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& ssvs_spec, LIST& intercept,
+		BVHAR_LIST& ssvs_spec, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		// _grp_id(grp_id), _grp_mat(grp_mat),
-		_coef_s1(CAST<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(CAST<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
-		_contem_s1(CAST_DOUBLE(ssvs_spec["chol_s1"])), _contem_s2(CAST_DOUBLE(ssvs_spec["chol_s2"])),
-		// _coef_spike_scl(CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
-		_coef_slab_shape(CAST_DOUBLE(ssvs_spec["coef_slab_shape"])), _coef_slab_scl(CAST_DOUBLE(ssvs_spec["coef_slab_scl"])),
-		_contem_slab_shape(CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(CAST_DOUBLE(ssvs_spec["chol_slab_scl"])),
-		_coef_grid(CAST_INT(ssvs_spec["coef_grid"])), _contem_grid(CAST_INT(ssvs_spec["chol_grid"])) {}
+		_coef_s1(BVHAR_CAST<Eigen::VectorXd>(ssvs_spec["coef_s1"])), _coef_s2(BVHAR_CAST<Eigen::VectorXd>(ssvs_spec["coef_s2"])),
+		_contem_s1(BVHAR_CAST_DOUBLE(ssvs_spec["chol_s1"])), _contem_s2(BVHAR_CAST_DOUBLE(ssvs_spec["chol_s2"])),
+		// _coef_spike_scl(BVHAR_CAST_DOUBLE(ssvs_spec["coef_spike_scl"])), _contem_spike_scl(BVHAR_CAST_DOUBLE(ssvs_spec["chol_spike_scl"])),
+		_coef_slab_shape(BVHAR_CAST_DOUBLE(ssvs_spec["coef_slab_shape"])), _coef_slab_scl(BVHAR_CAST_DOUBLE(ssvs_spec["coef_slab_scl"])),
+		_contem_slab_shape(BVHAR_CAST_DOUBLE(ssvs_spec["chol_slab_shape"])), _contem_slab_scl(BVHAR_CAST_DOUBLE(ssvs_spec["chol_slab_scl"])),
+		_coef_grid(BVHAR_CAST_INT(ssvs_spec["coef_grid"])), _contem_grid(BVHAR_CAST_INT(ssvs_spec["chol_grid"])) {}
 };
 
 /**
@@ -262,10 +262,10 @@ struct HorseshoeParams : public BaseRegParams {
 
 	HorseshoeParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& intercept, bool include_mean
+		BVHAR_LIST& intercept, bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean) {}
 };
@@ -289,18 +289,18 @@ struct NgParams : public BaseRegParams {
 
 	NgParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& ng_spec, LIST& intercept,
+		BVHAR_LIST& ng_spec, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		// _grp_id(grp_id), _grp_mat(grp_mat),
-		_mh_sd(CAST_DOUBLE(ng_spec["shape_sd"])),
-		_group_shape(CAST_DOUBLE(ng_spec["group_shape"])), _group_scl(CAST_DOUBLE(ng_spec["group_scale"])),
-		_global_shape(CAST_DOUBLE(ng_spec["global_shape"])), _global_scl(CAST_DOUBLE(ng_spec["global_scale"])),
-		_contem_global_shape(CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(CAST_DOUBLE(ng_spec["contem_global_scale"])) {}
+		_mh_sd(BVHAR_CAST_DOUBLE(ng_spec["shape_sd"])),
+		_group_shape(BVHAR_CAST_DOUBLE(ng_spec["group_shape"])), _group_scl(BVHAR_CAST_DOUBLE(ng_spec["group_scale"])),
+		_global_shape(BVHAR_CAST_DOUBLE(ng_spec["global_shape"])), _global_scl(BVHAR_CAST_DOUBLE(ng_spec["global_scale"])),
+		_contem_global_shape(BVHAR_CAST_DOUBLE(ng_spec["contem_global_shape"])), _contem_global_scl(BVHAR_CAST_DOUBLE(ng_spec["contem_global_scale"])) {}
 };
 
 /**
@@ -318,15 +318,15 @@ struct DlParams : public BaseRegParams {
 
 	DlParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& dl_spec, LIST& intercept,
+		BVHAR_LIST& dl_spec, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		// _grp_id(grp_id), _grp_mat(grp_mat),
-		_grid_size(CAST_INT(dl_spec["grid_size"])), _shape(CAST_DOUBLE(dl_spec["shape"])), _scl(CAST_DOUBLE(dl_spec["scale"])) {}
+		_grid_size(BVHAR_CAST_INT(dl_spec["grid_size"])), _shape(BVHAR_CAST_DOUBLE(dl_spec["shape"])), _scl(BVHAR_CAST_DOUBLE(dl_spec["scale"])) {}
 };
 
 /**
@@ -343,15 +343,15 @@ struct GdpParams : public BaseRegParams {
 
 	GdpParams(
 		int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& reg_spec,
+		BVHAR_LIST& reg_spec,
 		const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id,
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
-		LIST& gdp_spec, LIST& intercept,
+		BVHAR_LIST& gdp_spec, BVHAR_LIST& intercept,
 		bool include_mean
 	)
 	: BaseRegParams(num_iter, x, y, reg_spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean),
 		// _grp_id(grp_id), _grp_mat(grp_mat),
-		_grid_shape(CAST_INT(gdp_spec["grid_shape"])), _grid_rate(CAST_INT(gdp_spec["grid_rate"])) {}
+		_grid_shape(BVHAR_CAST_INT(gdp_spec["grid_shape"])), _grid_rate(BVHAR_CAST_INT(gdp_spec["grid_rate"])) {}
 };
 
 
@@ -370,9 +370,9 @@ struct RegInits {
 		_contem = .001 * Eigen::VectorXd::Zero(num_lowerchol);
 	}
 
-	RegInits(LIST& init)
-	: _coef(CAST<Eigen::MatrixXd>(init["init_coef"])),
-		_contem(CAST<Eigen::VectorXd>(init["init_contem"])) {}
+	RegInits(BVHAR_LIST& init)
+	: _coef(BVHAR_CAST<Eigen::MatrixXd>(init["init_coef"])),
+		_contem(BVHAR_CAST<Eigen::VectorXd>(init["init_contem"])) {}
 };
 
 /**
@@ -382,13 +382,13 @@ struct RegInits {
 struct LdltInits : public RegInits {
 	Eigen::VectorXd _diag;
 
-	LdltInits(LIST& init)
+	LdltInits(BVHAR_LIST& init)
 	: RegInits(init),
-		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
+		_diag(BVHAR_CAST<Eigen::VectorXd>(init["init_diag"])) {}
 	
-	LdltInits(LIST& init, int num_design)
+	LdltInits(BVHAR_LIST& init, int num_design)
 	: RegInits(init),
-		_diag(CAST<Eigen::VectorXd>(init["init_diag"])) {}
+		_diag(BVHAR_CAST<Eigen::VectorXd>(init["init_diag"])) {}
 };
 
 /**
@@ -409,17 +409,17 @@ struct SvInits : public RegInits {
 		_lvol_sig = .1 * Eigen::VectorXd::Ones(dim);
 	}
 	
-	SvInits(LIST& init)
+	SvInits(BVHAR_LIST& init)
 	: RegInits(init),
-		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
-		_lvol(CAST<Eigen::MatrixXd>(init["lvol"])),
-		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+		_lvol_init(BVHAR_CAST<Eigen::VectorXd>(init["lvol_init"])),
+		_lvol(BVHAR_CAST<Eigen::MatrixXd>(init["lvol"])),
+		_lvol_sig(BVHAR_CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
 	
-	SvInits(LIST& init, int num_design)
+	SvInits(BVHAR_LIST& init, int num_design)
 	: RegInits(init),
-		_lvol_init(CAST<Eigen::VectorXd>(init["lvol_init"])),
+		_lvol_init(BVHAR_CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
-		_lvol_sig(CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+		_lvol_sig(BVHAR_CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
 };
 
 /**
@@ -433,13 +433,13 @@ struct HierminnInits : public BaseRegInits {
 	double _cross_lambda;
 	double _contem_lambda;
 
-	HierminnInits(LIST& init)
+	HierminnInits(BVHAR_LIST& init)
 	: BaseRegInits(init),
-		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
+		_own_lambda(BVHAR_CAST_DOUBLE(init["own_lambda"])), _cross_lambda(BVHAR_CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(BVHAR_CAST_DOUBLE(init["contem_lambda"])) {}
 	
-	HierminnInits(LIST& init, int num_design)
+	HierminnInits(BVHAR_LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
-		_own_lambda(CAST_DOUBLE(init["own_lambda"])), _cross_lambda(CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(CAST_DOUBLE(init["contem_lambda"])) {}
+		_own_lambda(BVHAR_CAST_DOUBLE(init["own_lambda"])), _cross_lambda(BVHAR_CAST_DOUBLE(init["cross_lambda"])), _contem_lambda(BVHAR_CAST_DOUBLE(init["contem_lambda"])) {}
 };
 
 /**
@@ -456,25 +456,25 @@ struct SsvsInits : public BaseRegInits {
 	Eigen::VectorXd _contem_slab;
 	double _coef_spike_scl, _contem_spike_scl;
 	
-	SsvsInits(LIST& init)
+	SsvsInits(BVHAR_LIST& init)
 	: BaseRegInits(init),
-		_coef_dummy(CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
-		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
-		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])),
-		_coef_spike_scl(CAST_DOUBLE(init["coef_spike_scl"])),
-		_contem_spike_scl(CAST_DOUBLE(init["chol_spike_scl"])) {}
+		_coef_dummy(BVHAR_CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
+		_coef_weight(BVHAR_CAST<Eigen::VectorXd>(init["coef_mixture"])),
+		_contem_weight(BVHAR_CAST<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(BVHAR_CAST<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(BVHAR_CAST<Eigen::VectorXd>(init["contem_slab"])),
+		_coef_spike_scl(BVHAR_CAST_DOUBLE(init["coef_spike_scl"])),
+		_contem_spike_scl(BVHAR_CAST_DOUBLE(init["chol_spike_scl"])) {}
 	
-	SsvsInits(LIST& init, int num_design)
+	SsvsInits(BVHAR_LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
-		_coef_dummy(CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
-		_coef_weight(CAST<Eigen::VectorXd>(init["coef_mixture"])),
-		_contem_weight(CAST<Eigen::VectorXd>(init["chol_mixture"])),
-		_coef_slab(CAST<Eigen::VectorXd>(init["coef_slab"])),
-		_contem_slab(CAST<Eigen::VectorXd>(init["contem_slab"])),
-		_coef_spike_scl(CAST_DOUBLE(init["coef_spike_scl"])),
-		_contem_spike_scl(CAST_DOUBLE(init["chol_spike_scl"])) {}
+		_coef_dummy(BVHAR_CAST<Eigen::VectorXd>(init["init_coef_dummy"])),
+		_coef_weight(BVHAR_CAST<Eigen::VectorXd>(init["coef_mixture"])),
+		_contem_weight(BVHAR_CAST<Eigen::VectorXd>(init["chol_mixture"])),
+		_coef_slab(BVHAR_CAST<Eigen::VectorXd>(init["coef_slab"])),
+		_contem_slab(BVHAR_CAST<Eigen::VectorXd>(init["contem_slab"])),
+		_coef_spike_scl(BVHAR_CAST_DOUBLE(init["coef_spike_scl"])),
+		_contem_spike_scl(BVHAR_CAST_DOUBLE(init["chol_spike_scl"])) {}
 };
 
 /**
@@ -490,19 +490,19 @@ struct GlInits : public BaseRegInits {
 	Eigen::VectorXd _init_contem_local;
 	Eigen::VectorXd _init_conetm_global;
 	
-	GlInits(LIST& init)
+	GlInits(BVHAR_LIST& init)
 	: BaseRegInits(init),
-		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(CAST_DOUBLE(init["global_sparsity"])),
-		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+		_init_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(BVHAR_CAST_DOUBLE(init["global_sparsity"])),
+		_init_contem_local(BVHAR_CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(BVHAR_CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 	
-	GlInits(LIST& init, int num_design)
+	GlInits(BVHAR_LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
-		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_global(CAST_DOUBLE(init["global_sparsity"])),
-		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_conetm_global(CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
+		_init_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_global(BVHAR_CAST_DOUBLE(init["global_sparsity"])),
+		_init_contem_local(BVHAR_CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_conetm_global(BVHAR_CAST<Eigen::VectorXd>(init["contem_global_sparsity"])) {}
 };
 
 /**
@@ -514,13 +514,13 @@ template <typename BaseRegInits = LdltInits>
 struct HsInits : public GlInits<BaseRegInits> {
 	Eigen::VectorXd _init_group;
 	
-	HsInits(LIST& init)
+	HsInits(BVHAR_LIST& init)
 	: GlInits<BaseRegInits>(init),
-		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
+		_init_group(BVHAR_CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
 	
-	HsInits(LIST& init, int num_design)
+	HsInits(BVHAR_LIST& init, int num_design)
 	: GlInits<BaseRegInits>(init, num_design),
-		_init_group(CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
+		_init_group(BVHAR_CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
 };
 
 /**
@@ -533,15 +533,15 @@ struct NgInits : public HsInits<BaseRegInits> {
 	Eigen::VectorXd _init_local_shape;
 	double _init_contem_shape;
 
-	NgInits(LIST& init)
+	NgInits(BVHAR_LIST& init)
 	: HsInits<BaseRegInits>(init),
-		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
-		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
+		_init_local_shape(BVHAR_CAST<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(BVHAR_CAST_DOUBLE(init["contem_shape"])) {}
 	
-	NgInits(LIST& init, int num_design)
+	NgInits(BVHAR_LIST& init, int num_design)
 	: HsInits<BaseRegInits>(init, num_design),
-		_init_local_shape(CAST<Eigen::VectorXd>(init["local_shape"])),
-		_init_contem_shape(CAST_DOUBLE(init["contem_shape"])) {}
+		_init_local_shape(BVHAR_CAST<Eigen::VectorXd>(init["local_shape"])),
+		_init_contem_shape(BVHAR_CAST_DOUBLE(init["contem_shape"])) {}
 };
 
 /**
@@ -557,23 +557,23 @@ struct GdpInits : public BaseRegInits {
 	Eigen::VectorXd _init_contem_rate;
 	double _init_gamma_shape, _init_gamma_rate, _init_contem_gamma_shape, _init_contem_gamma_rate;
 
-	GdpInits(LIST& init)
+	GdpInits(BVHAR_LIST& init)
 	: BaseRegInits(init),
-		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_group_rate(CAST<Eigen::VectorXd>(init["group_rate"])),
-		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_contem_rate(CAST<Eigen::VectorXd>(init["contem_rate"])),
-		_init_gamma_shape(CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(CAST_DOUBLE(init["gamma_rate"])),
-		_init_contem_gamma_shape(CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(CAST_DOUBLE(init["contem_gamma_rate"])) {}
+		_init_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_group_rate(BVHAR_CAST<Eigen::VectorXd>(init["group_rate"])),
+		_init_contem_local(BVHAR_CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_contem_rate(BVHAR_CAST<Eigen::VectorXd>(init["contem_rate"])),
+		_init_gamma_shape(BVHAR_CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(BVHAR_CAST_DOUBLE(init["gamma_rate"])),
+		_init_contem_gamma_shape(BVHAR_CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(BVHAR_CAST_DOUBLE(init["contem_gamma_rate"])) {}
 	
-	GdpInits(LIST& init, int num_design)
+	GdpInits(BVHAR_LIST& init, int num_design)
 	: BaseRegInits(init, num_design),
-		_init_local(CAST<Eigen::VectorXd>(init["local_sparsity"])),
-		_init_group_rate(CAST<Eigen::VectorXd>(init["group_rate"])),
-		_init_contem_local(CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
-		_init_contem_rate(CAST<Eigen::VectorXd>(init["contem_rate"])),
-		_init_gamma_shape(CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(CAST_DOUBLE(init["gamma_rate"])),
-		_init_contem_gamma_shape(CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(CAST_DOUBLE(init["contem_gamma_rate"])) {}
+		_init_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
+		_init_group_rate(BVHAR_CAST<Eigen::VectorXd>(init["group_rate"])),
+		_init_contem_local(BVHAR_CAST<Eigen::VectorXd>(init["contem_local_sparsity"])),
+		_init_contem_rate(BVHAR_CAST<Eigen::VectorXd>(init["contem_rate"])),
+		_init_gamma_shape(BVHAR_CAST_DOUBLE(init["gamma_shape"])), _init_gamma_rate(BVHAR_CAST_DOUBLE(init["gamma_rate"])),
+		_init_contem_gamma_shape(BVHAR_CAST_DOUBLE(init["contem_gamma_shape"])), _init_contem_gamma_rate(BVHAR_CAST_DOUBLE(init["contem_gamma_rate"])) {}
 };
 
 /**
@@ -631,30 +631,30 @@ struct RegRecords {
 	) = 0;
 
 	/**
-	 * @brief Return the MCMC record `LIST`
+	 * @brief Return the MCMC record `BVHAR_LIST`
 	 * 
 	 * @param dim Time series dimension
 	 * @param num_alpha The number of coefficient elements except constant term
 	 * @param include_mean If `true`, constant term is included
-	 * @return LIST A `LIST` containing MCMC records. If `include_mean` is `true`, it also includes a constant term record.
+	 * @return BVHAR_LIST A `BVHAR_LIST` containing MCMC records. If `include_mean` is `true`, it also includes a constant term record.
 	 */
-	LIST returnListRecords(int dim, int num_alpha, bool include_mean) const {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = coef_record.leftCols(num_alpha),
-			NAMED("a_record") = contem_coef_record
+	BVHAR_LIST returnListRecords(int dim, int num_alpha, bool include_mean) const {
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("alpha_record") = coef_record.leftCols(num_alpha),
+			BVHAR_NAMED("a_record") = contem_coef_record
 		);
 		if (include_mean) {
-			res["c_record"] = CAST_MATRIX(coef_record.rightCols(dim));
+			res["c_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(dim));
 		}
 		return res;
 	}
 
 	/**
-	 * @brief Append records to the MCMC record `LIST`
+	 * @brief Append records to the MCMC record `BVHAR_LIST`
 	 * 
-	 * @param list MCMC record `LIST`
+	 * @param list MCMC record `BVHAR_LIST`
 	 */
-	virtual void appendRecords(LIST& list) = 0;
+	virtual void appendRecords(BVHAR_LIST& list) = 0;
 
 	/**
 	 * @brief Return `LdltRecords`
@@ -806,18 +806,18 @@ struct SparseRecords {
 	}
 
 	/**
-	 * @brief Append sparse records to the MCMC record `LIST`
+	 * @brief Append sparse records to the MCMC record `BVHAR_LIST`
 	 * 
-	 * @param list MCMC record `LIST`
+	 * @param list MCMC record `BVHAR_LIST`
 	 * @param dim Time series dimension
 	 * @param num_alpha The number of coefficient elements except constant term
 	 * @param include_mean If `true`, constant term is included
 	 */
-	void appendRecords(LIST& list, int dim, int num_alpha, bool include_mean) {
-		list["alpha_sparse_record"] = CAST_MATRIX(coef_record.leftCols(num_alpha));
+	void appendRecords(BVHAR_LIST& list, int dim, int num_alpha, bool include_mean) {
+		list["alpha_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.leftCols(num_alpha));
 		list["a_sparse_record"] = contem_coef_record;
 		if (include_mean) {
-			list["c_sparse_record"] = CAST_MATRIX(coef_record.rightCols(dim));
+			list["c_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(dim));
 		}
 	}
 };
@@ -864,7 +864,7 @@ struct LdltRecords : public RegRecords {
 		const Eigen::MatrixXd& lvol_draw, const Eigen::VectorXd& lvol_sig, const Eigen::VectorXd& lvol_init
 	) override {}
 
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["d_record"] = fac_record;
 	}
 
@@ -966,7 +966,7 @@ struct SvRecords : public RegRecords {
 		lvol_init_record.row(id) = lvol_init;
 	}
 
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["h_record"] = lvol_record;
 		list["h0_record"] = lvol_init_record;
 		list["sigh_record"] = lvol_sig_record;
@@ -1309,57 +1309,57 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
  * 
  * @param record Smart pointer of `LdltRecords` or `SvRecords`
  * @param chain_id Chain id
- * @param fit_record `LIST` of MCMC draw
+ * @param fit_record `BVHAR_LIST` of MCMC draw
  * @param include_mean Include constant term?
  * @param coef_name Element name for the coefficient in `fit_record`
  * @param a_name Element name for the contemporaneous coefficient in `fit_record`
  * @param c_name Element name for the constant term in `fit_record`
  */
-inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
-	PY_LIST coef_list = fit_record[coef_name];
-	PY_LIST a_list = fit_record[a_name];
-	PY_LIST d_list = fit_record["d_record"];
+inline void initialize_record(std::unique_ptr<LdltRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean, BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name) {
+	BVHAR_PY_LIST coef_list = fit_record[coef_name];
+	BVHAR_PY_LIST a_list = fit_record[a_name];
+	BVHAR_PY_LIST d_list = fit_record["d_record"];
 	if (include_mean) {
-		PY_LIST c_list = fit_record[c_name];
+		BVHAR_PY_LIST c_list = fit_record[c_name];
 		record = std::make_unique<LdltRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
-			CAST<Eigen::MatrixXd>(c_list[chain_id]),
-			CAST<Eigen::MatrixXd>(a_list[chain_id]),
-			CAST<Eigen::MatrixXd>(d_list[chain_id])
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(d_list[chain_id])
 		);
 	} else {
 		record = std::make_unique<LdltRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
-			CAST<Eigen::MatrixXd>(a_list[chain_id]),
-			CAST<Eigen::MatrixXd>(d_list[chain_id])
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(d_list[chain_id])
 		);
 	}
 }
 
 /**
- * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, LIST&, bool, STRING&, STRING&, STRING&)
+ * @copydoc initialize_record(std::unique_ptr<LdltRecords>&, int, BVHAR_LIST&, bool, BVHAR_STRING&, BVHAR_STRING&, BVHAR_STRING&)
  * 
  */
-inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, LIST& fit_record, bool include_mean, STRING& coef_name, STRING& a_name, STRING& c_name) {
-	PY_LIST coef_list = fit_record[coef_name];
-	PY_LIST a_list = fit_record[a_name];
-	PY_LIST h_list = fit_record["h_record"];
-	PY_LIST sigh_list = fit_record["sigh_record"];
+inline void initialize_record(std::unique_ptr<SvRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean, BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name) {
+	BVHAR_PY_LIST coef_list = fit_record[coef_name];
+	BVHAR_PY_LIST a_list = fit_record[a_name];
+	BVHAR_PY_LIST h_list = fit_record["h_record"];
+	BVHAR_PY_LIST sigh_list = fit_record["sigh_record"];
 	if (include_mean) {
-		PY_LIST c_list = fit_record[c_name];
+		BVHAR_PY_LIST c_list = fit_record[c_name];
 		record = std::make_unique<SvRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
-			CAST<Eigen::MatrixXd>(c_list[chain_id]),
-			CAST<Eigen::MatrixXd>(h_list[chain_id]),
-			CAST<Eigen::MatrixXd>(a_list[chain_id]),
-			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
 		);
 	} else {
 		record = std::make_unique<SvRecords>(
-			CAST<Eigen::MatrixXd>(coef_list[chain_id]),
-			CAST<Eigen::MatrixXd>(h_list[chain_id]),
-			CAST<Eigen::MatrixXd>(a_list[chain_id]),
-			CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
 		);
 	}
 }

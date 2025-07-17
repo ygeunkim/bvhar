@@ -58,7 +58,7 @@ protected:
 	Eigen::VectorXd lpl;
 	std::mutex mtx;
 	int num_sim;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 
 	void forecast() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -199,9 +199,9 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	virtual LIST returnForecast() = 0;
+	virtual BVHAR_LIST returnForecast() = 0;
 };
 
 /**
@@ -282,11 +282,11 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	LIST returnForecast() override {
+	BVHAR_LIST returnForecast() override {
 		forecast();
-		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
+		BVHAR_LIST res = BVHAR_CREATE_LIST(BVHAR_NAMED("forecast") = BVHAR_WRAP(out_forecast));
 		if (get_lpl) {
 			res["lpl"] = lpl_record;
 		}
@@ -338,7 +338,7 @@ protected:
 		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
 		auto logger = spdlog::get(log_name);
 		if (logger == nullptr) {
-			logger = SPDLOG_SINK_MT(log_name);
+			logger = BVHAR_SPDLOG_SINK_MT(log_name);
 		}
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
 		int logging_freq = num_iter / 20; // 5 percent

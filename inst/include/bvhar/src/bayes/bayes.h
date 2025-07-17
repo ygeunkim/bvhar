@@ -64,15 +64,15 @@ public:
 	 * 
 	 * @param num_burn Number of burn-in
 	 * @param thin Thinning
-	 * @return LIST `LIST` containing every MCMC draws
+	 * @return BVHAR_LIST `BVHAR_LIST` containing every MCMC draws
 	 */
-	virtual LIST returnRecords(int num_burn, int thin) = 0;
+	virtual BVHAR_LIST returnRecords(int num_burn, int thin) = 0;
 
 protected:
 	std::mutex mtx;
 	int num_iter;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::shared_ptr<spdlog::logger> debug_logger;
 
 	/**
@@ -113,11 +113,11 @@ public:
 	/**
 	 * @brief Conduct multi-chain MCMC and return MCMC records of every chain
 	 * 
-	 * @return LIST_OF_LIST `LIST_OF_LIST`
+	 * @return BVHAR_LIST_OF_LIST `BVHAR_LIST_OF_LIST`
 	 */
-	LIST_OF_LIST returnRecords() {
+	BVHAR_LIST_OF_LIST returnRecords() {
 		fit();
-		return WRAP(res);
+		return BVHAR_WRAP(res);
 	}
 
 protected:
@@ -128,7 +128,7 @@ protected:
 	int nthreads;
 	bool display_progress;
 	std::vector<std::unique_ptr<McmcAlgo>> mcmc_ptr;
-	std::vector<LIST> res;
+	std::vector<BVHAR_LIST> res;
 
 	/**
 	 * @brief Single chain MCMC
@@ -139,7 +139,7 @@ protected:
 		std::string log_name = fmt::format("Chain {}", chain + 1);
 		auto logger = spdlog::get(log_name);
 		if (logger == nullptr) {
-			logger = SPDLOG_SINK_MT(log_name);
+			logger = BVHAR_SPDLOG_SINK_MT(log_name);
 		}
 		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
 		int logging_freq = num_iter / 20; // 5 percent

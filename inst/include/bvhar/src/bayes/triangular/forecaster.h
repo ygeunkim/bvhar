@@ -306,7 +306,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1);
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 			// Resize pred_save
 		}
@@ -348,7 +348,7 @@ public:
 			reg_record->subsetStable(num_alpha, 1, har_trans.topLeftCorner(3 * dim, month * dim));
 			num_sim = reg_record->coef_record.rows();
 			if (num_sim == 0) {
-				STOP("No stable MCMC draws");
+				BVHAR_STOP("No stable MCMC draws");
 			}
 			// Resize pred_save
 		}
@@ -476,7 +476,7 @@ private:
  * @param response_mat Response matrix of multivariate regression
  * @param sparse If `true`, use sparsified records
  * @param level CI level
- * @param fit_record `LIST` of MCMC draws
+ * @param fit_record `BVHAR_LIST` of MCMC draws
  * @param seed_chain Random seed for each chain
  * @param include_mean If `true`, include constant term
  * @param stable If `true`, filter stable draws
@@ -488,24 +488,24 @@ private:
 template <typename BaseForecaster = RegForecaster>
 inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 	int num_chains, int ord, int step, const Eigen::MatrixXd& response_mat,
-	bool sparse, double level, LIST& fit_record,
+	bool sparse, double level, BVHAR_LIST& fit_record,
 	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
 	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT,
 	Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 ) {
 	bool activity = (level > 0); // Optional<double> level = NULLOPT
 	if (sparse && activity) {
-		STOP("If 'level > 0', 'sparse' should be false.");
+		BVHAR_STOP("If 'level > 0', 'sparse' should be false.");
 	}
 	using Records = typename std::conditional<std::is_same<BaseForecaster, RegForecaster>::value, LdltRecords, SvRecords>::type;
 	std::vector<std::unique_ptr<BaseForecaster>> forecaster_ptr(num_chains);
-	STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
-	STRING a_name = sparse ? "a_sparse_record" : "a_record";
-	STRING c_name = sparse ? "c_sparse_record" : "c_record";
+	BVHAR_STRING coef_name = har_trans ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
+	BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
+	BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 	for (int i = 0; i < num_chains; ++i) {
 		std::unique_ptr<Records> reg_record;
 		if (exogen) {
-			STRING b_name = sparse ? "b_sparse_record" : "b_record";
+			BVHAR_STRING b_name = sparse ? "b_sparse_record" : "b_record";
 			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name, b_name);
 		} else {
 			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
@@ -563,7 +563,7 @@ class CtaForecastRun : public McmcForecastRun<Eigen::MatrixXd, Eigen::VectorXd> 
 public:
 	CtaForecastRun(
 		int num_chains, int lag, int step, const Eigen::MatrixXd& response_mat,
-		bool sparse, double level, LIST& fit_record,
+		bool sparse, double level, BVHAR_LIST& fit_record,
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
@@ -585,7 +585,7 @@ public:
 	}
 	CtaForecastRun(
 		int num_chains, int week, int month, int step, const Eigen::MatrixXd& response_mat,
-		bool sparse, double level, LIST& fit_record,
+		bool sparse, double level, BVHAR_LIST& fit_record,
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
@@ -608,7 +608,7 @@ public:
 	}
 	CtaForecastRun(
 		int num_chains, int month, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans,
-		bool sparse, double level, LIST& fit_record,
+		bool sparse, double level, BVHAR_LIST& fit_record,
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
@@ -659,13 +659,13 @@ class CtaOutforecastRun : public McmcOutForecastRun<Eigen::MatrixXd, Eigen::Vect
 public:
 	CtaOutforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
-		bool sparse, double level, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		bool sparse, double level, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	)
 	: McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>(
@@ -726,17 +726,17 @@ protected:
 	/**
 	 * @brief Initialize forecaster
 	 * 
-	 * @param fit_record MCMC draw `LIST`
+	 * @param fit_record MCMC draw `BVHAR_LIST`
 	 */
-	virtual void initForecaster(LIST& fit_record) = 0;
+	virtual void initForecaster(BVHAR_LIST& fit_record) = 0;
 
 	/**
 	 * @brief Initialize CTA
 	 * 
-	 * @param param_reg `LIST` of CTA hyperparameters
-	 * @param param_prior `LIST` of shrinkage prior hyperparameters
-	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
-	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param param_reg `BVHAR_LIST` of CTA hyperparameters
+	 * @param param_prior `BVHAR_LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `BVHAR_LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `BVHAR_LIST_OF_LIST` for initial values
 	 * @param prior_type Shrinkage prior number
 	 * @param grp_id Minnesota group unique id
 	 * @param own_id own-lag id
@@ -745,11 +745,11 @@ protected:
 	 * @param seed_chain Random seed for each chain
 	 */
 	virtual void initMcmc(
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
 	) = 0;
 
 	/**
@@ -764,11 +764,11 @@ protected:
 	 * @brief Initialize every member of `CtaOutforecastRun`
 	 * 
 	 * @param y Response matrix
-	 * @param fit_record `LIST` of MCMC draws
-	 * @param param_reg `LIST` of CTA hyperparameters
-	 * @param param_prior `LIST` of shrinkage prior hyperparameters
-	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
-	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param fit_record `BVHAR_LIST` of MCMC draws
+	 * @param param_reg `BVHAR_LIST` of CTA hyperparameters
+	 * @param param_prior `BVHAR_LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `BVHAR_LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `BVHAR_LIST_OF_LIST` for initial values
 	 * @param prior_type Shrinkage prior number
 	 * @param grp_id Minnesota group unique id
 	 * @param own_id own-lag id
@@ -777,12 +777,12 @@ protected:
 	 * @param seed_chain Random seed for each chain
 	 */
 	void initialize(
-		const Eigen::MatrixXd& y, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		const Eigen::MatrixXd& y, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	) {
 		BVHAR_DEBUG_LOG(debug_logger, "initialize(...) called");
@@ -817,13 +817,13 @@ class CtaRollforecastRun : public CtaOutforecastRun<BaseForecaster, isUpdate> {
 public:
 	CtaRollforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
-		bool sparse, double level, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		bool sparse, double level, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	)
 	: CtaOutforecastRun<BaseForecaster, isUpdate>(
@@ -879,11 +879,11 @@ protected:
 		}
 	}
 	void initMcmc(
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
 	) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initMcmc(...) called");
 		Optional<int> exogen_cols = NULLOPT;
@@ -920,13 +920,13 @@ class CtaExpandforecastRun : public CtaOutforecastRun<BaseForecaster, isUpdate> 
 public:
 	CtaExpandforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
-		bool sparse, double level, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		bool sparse, double level, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	)
 	: CtaOutforecastRun<BaseForecaster, isUpdate>(
@@ -982,11 +982,11 @@ protected:
 		}
 	}
 	void initMcmc(
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT
 	) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initMcmc(...) called");
 		Optional<int> exogen_cols = NULLOPT;
@@ -995,7 +995,7 @@ protected:
 			if (lag_exogen) {
 				exogen_cols = (*lag_exogen + 1) * roll_exogen[window]->cols();
 			}
-			if (CONTAINS(param_reg, "initial_mean")) {
+			if (BVHAR_CONTAINS(param_reg, "initial_mean")) {
 				// BaseMcmc == McmcSv
 				auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
 					num_chains, num_iter - num_burn, design, roll_y0[window],
@@ -1041,13 +1041,13 @@ class CtaVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpda
 public:
 	CtaVarforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
-		bool sparse, double level, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		bool sparse, double level, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	)
 	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
@@ -1098,7 +1098,7 @@ protected:
 	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag_exogen;
 	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::debug_logger;
 
-	void initForecaster(LIST& fit_record) override {
+	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
 		using is_mcmc = std::integral_constant<bool, isUpdate>;
 		if (is_mcmc::value) {
@@ -1139,7 +1139,7 @@ protected:
 		// RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		auto* mcmc_triangular = dynamic_cast<McmcTriangular*>(model[window][chain].get());
 		if (!mcmc_triangular) {
-			STOP("Model is not a McmcTriangular.");
+			BVHAR_STOP("Model is not a McmcTriangular.");
 		}
 		RecordType reg_record = mcmc_triangular->template returnStructRecords<RecordType>(0, thin, sparse);
 		Optional<std::unique_ptr<CtaExogenForecaster>> exogen_updater = NULLOPT;
@@ -1176,13 +1176,13 @@ class CtaVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpd
 public:
 	CtaVharforecastRun(
 		const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thin,
-		bool sparse, double level, LIST& fit_record,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		bool sparse, double level, BVHAR_LIST& fit_record,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads, bool sv = true,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 	)
 	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
@@ -1235,7 +1235,7 @@ protected:
 	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::debug_logger;
 	Eigen::MatrixXd har_trans;
 
-	void initForecaster(LIST& fit_record) override {
+	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
 		using is_mcmc = std::integral_constant<bool, isUpdate>;
 		if (is_mcmc::value) {
@@ -1285,7 +1285,7 @@ protected:
 		// RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		auto* mcmc_triangular = dynamic_cast<McmcTriangular*>(model[window][chain].get());
 		if (!mcmc_triangular) {
-			STOP("Model is not a McmcTriangular.");
+			BVHAR_STOP("Model is not a McmcTriangular.");
 		}
 		RecordType reg_record = mcmc_triangular->template returnStructRecords<RecordType>(0, thin, sparse);
 		Optional<std::unique_ptr<CtaExogenForecaster>> exogen_updater = NULLOPT;
@@ -1312,14 +1312,14 @@ protected:
 template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
 inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
-	bool sparse, double level, LIST& fit_record, bool run_mcmc,
-	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
-	LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+	bool sparse, double level, BVHAR_LIST& fit_record, bool run_mcmc,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type, bool ggl,
+	BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 	const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 	bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 	bool get_lpl, const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
 	const bool sv,
-	Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+	Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 	Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 ) {
 	if (ggl && run_mcmc) {
@@ -1367,14 +1367,14 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
 inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning,
-	bool sparse, double level, LIST& fit_record, bool run_mcmc,
-	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
-	LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+	bool sparse, double level, BVHAR_LIST& fit_record, bool run_mcmc,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type, bool ggl,
+	BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
 	const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 	bool include_mean, bool stable, int step, const Eigen::MatrixXd& y_test,
 	bool get_lpl, const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
 	const bool sv,
-	Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
+	Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT,
 	Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
 ) {
 	if (ggl && run_mcmc) {

@@ -69,11 +69,11 @@ public:
 	virtual ~McmcTriangular() = default;
 
 	/**
-	 * @brief Append each class's additional record to the result `LIST`
+	 * @brief Append each class's additional record to the result `BVHAR_LIST`
 	 * 
-	 * @param list `LIST` containing MCMC record result
+	 * @param list `BVHAR_LIST` containing MCMC record result
 	 */
-	virtual void appendRecords(LIST& list) = 0;
+	virtual void appendRecords(BVHAR_LIST& list) = 0;
 
 	void doWarmUp() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -103,14 +103,14 @@ public:
 		updateRecords();
 	}
 
-	LIST returnRecords(int num_burn, int thin) override {
-		LIST res = gatherRecords();
+	BVHAR_LIST returnRecords(int num_burn, int thin) override {
+		BVHAR_LIST res = gatherRecords();
 		appendRecords(res);
 		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			if (BVHAR_IS_MATRIX(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::VectorXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -316,10 +316,10 @@ protected:
 	/**
 	 * @brief Gather MCMC records
 	 * 
-	 * @return LIST 
+	 * @return BVHAR_LIST 
 	 */
-	LIST gatherRecords() {
-		LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
+	BVHAR_LIST gatherRecords() {
+		BVHAR_LIST res = reg_record->returnListRecords(dim, num_alpha, include_mean);
 		reg_record->appendRecords(res);
 		sparse_record.appendRecords(res, dim, num_alpha, include_mean);
 		return res;
@@ -414,7 +414,7 @@ public:
 		}
 	}
 	virtual ~McmcMinn() = default;
-	void appendRecords(LIST& list) override {}
+	void appendRecords(BVHAR_LIST& list) override {}
 
 protected:
 	using BaseMcmc::dim;
@@ -465,7 +465,7 @@ public:
 		prior_chol_prec.array() /= contem_lambda; // divide because it is precision
 	}
 	virtual ~McmcHierminn() = default;
-	void appendRecords(LIST& list) override {}
+	void appendRecords(BVHAR_LIST& list) override {}
 
 protected:
 	using BaseMcmc::own_id;
@@ -548,7 +548,7 @@ public:
 		ssvs_record.assignRecords(0, coef_dummy, coef_weight, contem_dummy, contem_weight);
 	}
 	virtual ~McmcSsvs() = default;
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["gamma_record"] = ssvs_record.coef_dummy_record;
 	}
 
@@ -640,7 +640,7 @@ public:
 		hs_record.assignRecords(0, shrink_fac, local_lev, group_lev, global_lev);
 	}
 	virtual ~McmcHorseshoe() = default;
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = hs_record.local_record;
 		list["eta_record"] = hs_record.group_record;
 		list["tau_record"] = hs_record.global_record;
@@ -741,7 +741,7 @@ public:
 		ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~McmcNg() = default;
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = ng_record.local_record;
 		list["eta_record"] = ng_record.group_record;
 		list["tau_record"] = ng_record.global_record;
@@ -834,7 +834,7 @@ public:
 		dl_record.assignRecords(0, local_lev, global_lev);
 	}
 	virtual ~McmcDl() = default;
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = dl_record.local_record;
 		list["tau_record"] = dl_record.global_record;
 	}
@@ -922,7 +922,7 @@ public:
 		// ng_record.assignRecords(0, local_lev, group_lev, global_lev);
 	}
 	virtual ~McmcGdp() = default;
-	void appendRecords(LIST& list) override {
+	void appendRecords(BVHAR_LIST& list) override {
 		// list["lambda_record"] = ng_record.local_record;
 		// list["eta_record"] = ng_record.group_record;
 		// list["tau_record"] = ng_record.global_record;
@@ -1005,7 +1005,7 @@ private:
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
   bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT
 ) {
@@ -1023,7 +1023,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// INITS ldlt_inits(init_spec);
 				INITS ldlt_inits = num_design ? INITS(init_spec, *num_design) : INITS(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcMinn<BaseMcmc>>(minn_params, ldlt_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1041,7 +1041,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// SsvsInits<INITS> ssvs_inits(init_spec);
 				SsvsInits<INITS> ssvs_inits = num_design ? SsvsInits<INITS>(init_spec, *num_design) : SsvsInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcSsvs<BaseMcmc>>(ssvs_params, ssvs_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1057,7 +1057,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// HsInits<INITS> hs_inits(init_spec);
 				HsInits<INITS> hs_inits = num_design ? HsInits<INITS>(init_spec, *num_design) : HsInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcHorseshoe<BaseMcmc, isGroup>>(hs_params, hs_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1074,7 +1074,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				param_intercept, include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// HierminnInits<INITS> minn_inits(init_spec);
 				HierminnInits<INITS> minn_inits = num_design ? HierminnInits<INITS>(init_spec, *num_design) : HierminnInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcHierminn<BaseMcmc>>(minn_params, minn_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1092,7 +1092,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// NgInits<INITS> ng_inits(init_spec);
 				NgInits<INITS> ng_inits = num_design ? NgInits<INITS>(init_spec, *num_design) : NgInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcNg<BaseMcmc, isGroup>>(ng_params, ng_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1110,7 +1110,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				// GlInits<INITS> dl_inits(init_spec);
 				GlInits<INITS> dl_inits = num_design ? GlInits<INITS>(init_spec, *num_design) : GlInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcDl<BaseMcmc, isGroup>>(dl_params, dl_inits, static_cast<unsigned int>(seed_chain[i]));
@@ -1128,7 +1128,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 				include_mean
 			);
 			for (int i = 0; i < num_chains; ++i) {
-				LIST init_spec = param_init[i];
+				BVHAR_LIST init_spec = param_init[i];
 				GdpInits<INITS> gdp_inits = num_design ? GdpInits<INITS>(init_spec, *num_design) : GdpInits<INITS>(init_spec);
 				mcmc_ptr[i] = std::make_unique<McmcGdp<BaseMcmc>>(gdp_params, gdp_inits, static_cast<unsigned int>(seed_chain[i]));
 			}
@@ -1150,8 +1150,8 @@ public:
 	CtaRun(
 		int num_chains, int num_iter, int num_burn, int thin,
     const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& param_cov, LIST& param_prior, LIST& param_intercept,
-		LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& param_cov, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept,
+		BVHAR_LIST_OF_LIST& param_init, int prior_type,
     const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
     bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads
 	)
