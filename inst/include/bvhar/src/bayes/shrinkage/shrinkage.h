@@ -84,18 +84,18 @@ public:
 	virtual void updateRecords(int id) {}
 
 	/**
-	 * @brief Append coefficient shrinkage prior's parameter record to the result `LIST`
+	 * @brief Append coefficient shrinkage prior's parameter record to the result `BVHAR_LIST`
 	 * 
 	 * @param list Contains MCMC record result
 	 */
-	virtual void appendCoefRecords(LIST& list) {}
+	virtual void appendCoefRecords(BVHAR_LIST& list) {}
 
 	/**
-	 * @brief Append contemporaneous coefficient shrinkage prior's parameter record to the result `LIST`
+	 * @brief Append contemporaneous coefficient shrinkage prior's parameter record to the result `BVHAR_LIST`
 	 * 
 	 * @param list Contains MCMC record result
 	 */
-	virtual void appendContemRecords(LIST& list) {}
+	virtual void appendContemRecords(BVHAR_LIST& list) {}
 };
 
 /**
@@ -245,7 +245,7 @@ public:
 		weight_record.row(id) = weight;
 	}
 
-	void appendCoefRecords(LIST& list) override {
+	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["gamma_record"] = dummy_record;
 	}
 
@@ -329,7 +329,7 @@ public:
 		global_record[id] = global_lev;
 	}
 
-	void appendCoefRecords(LIST& list) override {
+	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = local_record;
 		list["eta_record"] = group_record;
 		list["tau_record"] = global_record;
@@ -414,7 +414,7 @@ public:
 		global_record[id] = global_lev;
 	}
 
-	void appendCoefRecords(LIST& list) override {
+	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = local_record;
 		list["eta_record"] = group_record;
 		list["tau_record"] = global_record;
@@ -491,7 +491,7 @@ public:
 		global_record[id] = global_lev;
 	}
 
-	void appendCoefRecords(LIST& list) override {
+	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = local_record;
 		list["tau_record"] = global_record;
 	}
@@ -575,17 +575,17 @@ private:
  * @return std::unique_ptr<ShrinkageUpdater> 
  */
 template <bool isGroup = true>
-inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_iter, LIST& param_prior, LIST& param_init, int prior_type) {
+inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_iter, BVHAR_LIST& param_prior, BVHAR_LIST& param_init, int prior_type) {
 	std::unique_ptr<ShrinkageUpdater> shrinkage_ptr;
 	switch (prior_type) {
 		case 1: {
 			std::unique_ptr<MinnParams> params_ptr;
-			if (CONTAINS(param_prior, "p")) {
+			if (BVHAR_CONTAINS(param_prior, "p")) {
 				// p is only in coef_prior
 				params_ptr = std::make_unique<MinnParams>(param_prior);
 			} else {
 				// append num_lowerchol to param_prior when contem
-				params_ptr = std::make_unique<MinnParams>(param_prior, CAST_INT(param_prior["num"]));
+				params_ptr = std::make_unique<MinnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
 			}
 			ShrinkageInits inits(param_init);
 			shrinkage_ptr = std::make_unique<MinnUpdater>(num_iter, *params_ptr, inits);
@@ -605,10 +605,10 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_ite
 		}
 		case 4: {
 			std::unique_ptr<HierminnParams> params_ptr;
-			if (CONTAINS(param_prior, "p")) {
+			if (BVHAR_CONTAINS(param_prior, "p")) {
 				params_ptr = std::make_unique<HierminnParams>(param_prior);
 			} else {
-				params_ptr = std::make_unique<HierminnParams>(param_prior, CAST_INT(param_prior["num"]));
+				params_ptr = std::make_unique<HierminnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
 			}
 			HierminnInits inits(param_init);
 			shrinkage_ptr = std::make_unique<HierminnUpdater>(num_iter, *params_ptr, inits);

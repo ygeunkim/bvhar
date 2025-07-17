@@ -62,17 +62,17 @@ public:
 	/**
 	 * @brief Return spillover density
 	 * 
-	 * @return LIST Every spillover-related density
+	 * @return BVHAR_LIST Every spillover-related density
 	 */
-	LIST returnSpilloverDensity() {
+	BVHAR_LIST returnSpilloverDensity() {
 		computeSpillover();
-		LIST res = CREATE_LIST(
-			NAMED("connect") = spillover,
-			NAMED("to") = to_spillover,
-			NAMED("from") = from_spillover,
-			NAMED("tot") = tot_spillover,
-			NAMED("net") = to_spillover - from_spillover,
-			NAMED("net_pairwise") = net_spillover
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("connect") = spillover,
+			BVHAR_NAMED("to") = to_spillover,
+			BVHAR_NAMED("from") = from_spillover,
+			BVHAR_NAMED("tot") = tot_spillover,
+			BVHAR_NAMED("net") = to_spillover - from_spillover,
+			BVHAR_NAMED("net_pairwise") = net_spillover
 		);
 		return res;
 	}
@@ -209,7 +209,7 @@ private:
 
 template <typename RecordType = LdltRecords>
 inline std::unique_ptr<McmcSpillover> initialize_spillover(
-	int chain_id, int lag, int step, LIST& fit_record, bool sparse, int id = -1,
+	int chain_id, int lag, int step, BVHAR_LIST& fit_record, bool sparse, int id = -1,
 	Optional<Eigen::MatrixXd> har_trans = NULLOPT, Optional<int> week = NULLOPT
 ) {
 	std::unique_ptr<RecordType> reg_record;
@@ -252,12 +252,12 @@ inline std::unique_ptr<McmcSpillover> initialize_spillover(
 template <typename RecordType = LdltRecords>
 class McmcSpilloverRun {
 public:
-	McmcSpilloverRun(int lag, int step, LIST& fit_record, bool sparse)
+	McmcSpilloverRun(int lag, int step, BVHAR_LIST& fit_record, bool sparse)
 	: spillover_ptr(initialize_spillover<RecordType>(0, lag, step, fit_record, sparse, -1)) {}
-	McmcSpilloverRun(int week, int month, int step, LIST& fit_record, bool sparse)
+	McmcSpilloverRun(int week, int month, int step, BVHAR_LIST& fit_record, bool sparse)
 	: spillover_ptr(initialize_spillover<RecordType>(0, month, step, fit_record, sparse, -1, NULLOPT, week)) {}
 	virtual ~McmcSpilloverRun() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		return spillover_ptr->returnSpilloverDensity();
 	}
 
@@ -273,7 +273,7 @@ class DynamicLdltSpillover {
 public:
 	DynamicLdltSpillover(
 		const Eigen::MatrixXd& y, int window, int step, int lag, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, const Eigen::MatrixXi& seed_chain, int nthreads
 	)
@@ -293,7 +293,7 @@ public:
 	}
 	DynamicLdltSpillover(
 		const Eigen::MatrixXd& y, int window, int step, int week, int month, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
-		LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+		BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		bool include_mean, const Eigen::MatrixXi& seed_chain, int nthreads
 	)
@@ -316,13 +316,13 @@ public:
 		);
 	}
 	virtual ~DynamicLdltSpillover() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		fit();
-		LIST res = CREATE_LIST(
-			NAMED("to") = WRAP(to_sp),
-			NAMED("from") = WRAP(from_sp),
-			NAMED("tot") = WRAP(tot),
-			NAMED("net") = WRAP(net_sp)
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("to") = BVHAR_WRAP(to_sp),
+			BVHAR_NAMED("from") = BVHAR_WRAP(from_sp),
+			BVHAR_NAMED("tot") = BVHAR_WRAP(tot),
+			BVHAR_NAMED("net") = BVHAR_WRAP(net_sp)
 		);
 		return res;
 	}
@@ -342,10 +342,10 @@ protected:
 	 * @brief Initialize every member of `DynamicLdltSpillover`
 	 * 
 	 * @param y Response matrix
-	 * @param param_reg `LIST` of CTA hyperparameters
-	 * @param param_prior `LIST` of shrinkage prior hyperparameters
-	 * @param param_intercept `LIST` of Normal prior hyperparameters for constant term
-	 * @param param_init `LIST_OF_LIST` for initial values
+	 * @param param_reg `BVHAR_LIST` of CTA hyperparameters
+	 * @param param_prior `BVHAR_LIST` of shrinkage prior hyperparameters
+	 * @param param_intercept `BVHAR_LIST` of Normal prior hyperparameters for constant term
+	 * @param param_init `BVHAR_LIST_OF_LIST` for initial values
 	 * @param prior_type Shrinkage prior number
 	 * @param ggl Group parameter?
 	 * @param grp_id Minnesota group unique id
@@ -355,7 +355,7 @@ protected:
 	 * @param seed_chain Random seed for each window and chain
 	 */
 	void initialize(
-		const Eigen::MatrixXd& y, LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type, bool ggl,
+		const Eigen::MatrixXd& y, BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type, bool ggl,
 		const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
 		const Eigen::MatrixXi& seed_chain
 	) {
@@ -446,7 +446,7 @@ protected:
  */
 class DynamicSvSpillover {
 public:
-	DynamicSvSpillover(int lag, int step, int num_design, LIST& fit_record, bool include_mean, bool sparse, int nthreads)
+	DynamicSvSpillover(int lag, int step, int num_design, BVHAR_LIST& fit_record, bool include_mean, bool sparse, int nthreads)
 	: num_horizon(num_design), lag(lag), step(step), nthreads(nthreads), sparse(sparse),
 		tot(num_design), to_sp(num_design), from_sp(num_design), net_sp(num_design),
 		spillover(num_horizon), har_trans(NULLOPT) {
@@ -455,7 +455,7 @@ public:
 		BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 		initialize_record(reg_record, 0, fit_record, include_mean, coef_name, a_name, c_name);
 	}
-	DynamicSvSpillover(int week, int month, int step, int num_design, LIST& fit_record, bool include_mean, bool sparse, int nthreads)
+	DynamicSvSpillover(int week, int month, int step, int num_design, BVHAR_LIST& fit_record, bool include_mean, bool sparse, int nthreads)
 	: num_horizon(num_design), lag(month), step(step), nthreads(nthreads), sparse(sparse),
 		tot(num_design), to_sp(num_design), from_sp(num_design), net_sp(num_design),
 		spillover(num_horizon) {
@@ -466,13 +466,13 @@ public:
 		har_trans = build_vhar(reg_record->getDim(), week, month, include_mean);
 	}
 	virtual ~DynamicSvSpillover() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		fit();
-		LIST res = CREATE_LIST(
-			NAMED("to") = WRAP(to_sp),
-			NAMED("from") = WRAP(from_sp),
-			NAMED("tot") = WRAP(tot),
-			NAMED("net") = WRAP(net_sp)
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("to") = BVHAR_WRAP(to_sp),
+			BVHAR_NAMED("from") = BVHAR_WRAP(from_sp),
+			BVHAR_NAMED("tot") = BVHAR_WRAP(tot),
+			BVHAR_NAMED("net") = BVHAR_WRAP(net_sp)
 		);
 		return res;
 	}

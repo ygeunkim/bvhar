@@ -31,18 +31,18 @@ struct MinnSpec {
 	double _lambda;
 	double _eps;
 
-	MinnSpec(LIST& bayes_spec)
-	: _sigma(CAST<Eigen::VectorXd>(bayes_spec["sigma"])),
-		_lambda(CAST_DOUBLE(bayes_spec["lambda"])),
-		_eps(CAST_DOUBLE(bayes_spec["eps"])) {}
+	MinnSpec(BVHAR_LIST& bayes_spec)
+	: _sigma(BVHAR_CAST<Eigen::VectorXd>(bayes_spec["sigma"])),
+		_lambda(BVHAR_CAST_DOUBLE(bayes_spec["lambda"])),
+		_eps(BVHAR_CAST_DOUBLE(bayes_spec["eps"])) {}
 };
 
 struct BvarSpec : public MinnSpec {
 	Eigen::VectorXd _delta;
 
-	BvarSpec(LIST& bayes_spec)
+	BvarSpec(BVHAR_LIST& bayes_spec)
 	: MinnSpec(bayes_spec),
-		_delta(CAST<Eigen::VectorXd>(bayes_spec["delta"])) {}
+		_delta(BVHAR_CAST<Eigen::VectorXd>(bayes_spec["delta"])) {}
 };
 
 struct BvharSpec : public MinnSpec {
@@ -50,11 +50,11 @@ struct BvharSpec : public MinnSpec {
 	Eigen::VectorXd _weekly;
 	Eigen::VectorXd _monthly;
 
-	BvharSpec(LIST& bayes_spec)
+	BvharSpec(BVHAR_LIST& bayes_spec)
 	: MinnSpec(bayes_spec),
-		_daily(CAST<Eigen::VectorXd>(bayes_spec["daily"])),
-		_weekly(CAST<Eigen::VectorXd>(bayes_spec["weekly"])),
-		_monthly(CAST<Eigen::VectorXd>(bayes_spec["monthly"])) {}
+		_daily(BVHAR_CAST<Eigen::VectorXd>(bayes_spec["daily"])),
+		_weekly(BVHAR_CAST<Eigen::VectorXd>(bayes_spec["weekly"])),
+		_monthly(BVHAR_CAST<Eigen::VectorXd>(bayes_spec["monthly"])) {}
 };
 
 struct MinnFit {
@@ -74,13 +74,13 @@ struct MhMinnInits {
 	double _acc_scale;
 	// Eigen::VectorXd _delta;
 
-	MhMinnInits(LIST& init) {
-		Eigen::VectorXd par = CAST<Eigen::VectorXd>(init["par"]);
+	MhMinnInits(BVHAR_LIST& init) {
+		Eigen::VectorXd par = BVHAR_CAST<Eigen::VectorXd>(init["par"]);
 		_lambda = par[0];
 		_psi = par.tail(par.size() - 1);
-		_hess = CAST<Eigen::MatrixXd>(init["hessian"]);
-		_acc_scale = CAST_DOUBLE(init["scale_variance"]);
-		// _delta = CAST<Eigen::VectorXd>(spec["delta"]);
+		_hess = BVHAR_CAST<Eigen::MatrixXd>(init["hessian"]);
+		_acc_scale = BVHAR_CAST_DOUBLE(init["scale_variance"]);
+		// _delta = BVHAR_CAST<Eigen::VectorXd>(spec["delta"]);
 	}
 };
 
@@ -90,14 +90,14 @@ struct MhMinnSpec {
 	double _invgam_shape;
 	double _invgam_scl;
 
-	MhMinnSpec(LIST& lambda, LIST& psi) {
+	MhMinnSpec(BVHAR_LIST& lambda, BVHAR_LIST& psi) {
 		// Rcpp::List lambda = spec["lambda"];
 		// Rcpp::List psi = spec["sigma"];
 		// Rcpp::List param = lambda["param"];
-		Eigen::VectorXd lam_param = CAST<Eigen::VectorXd>(lambda["param"]);
+		Eigen::VectorXd lam_param = BVHAR_CAST<Eigen::VectorXd>(lambda["param"]);
 		_gam_shape = lam_param[0];
 		_gam_rate = lam_param[1];
-		Eigen::VectorXd psi_param = CAST<Eigen::VectorXd>(psi["param"]);
+		Eigen::VectorXd psi_param = BVHAR_CAST<Eigen::VectorXd>(psi["param"]);
 		_invgam_shape = psi_param[0];
 		_invgam_scl = psi_param[1];
 	}
@@ -184,27 +184,27 @@ public:
 		yhat_star = xstar * coef;
 		scale = (ystar - yhat_star).transpose() * (ystar - yhat_star);
 	}
-	LIST returnMinnRes() {
+	BVHAR_LIST returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return CREATE_LIST(
-			// NAMED("mn_mean") = coef,
-			NAMED("coefficients") = coef,
-			NAMED("fitted.values") = yhat,
-			NAMED("residuals") = resid,
-			NAMED("mn_prec") = prec,
-			NAMED("covmat") = scale,
-			NAMED("iw_shape") = prior_shape + num_design,
-			NAMED("df") = dim_design,
-			NAMED("m") = dim,
-			NAMED("obs") = num_design,
-			NAMED("prior_mean") = prior_mean,
-			NAMED("prior_precision") = prior_prec,
-			NAMED("prior_scale") = prior_scale,
-			NAMED("prior_shape") = prior_shape,
-			NAMED("y0") = response,
-			NAMED("design") = design
+		return BVHAR_CREATE_LIST(
+			// BVHAR_NAMED("mn_mean") = coef,
+			BVHAR_NAMED("coefficients") = coef,
+			BVHAR_NAMED("fitted.values") = yhat,
+			BVHAR_NAMED("residuals") = resid,
+			BVHAR_NAMED("mn_prec") = prec,
+			BVHAR_NAMED("covmat") = scale,
+			BVHAR_NAMED("iw_shape") = prior_shape + num_design,
+			BVHAR_NAMED("df") = dim_design,
+			BVHAR_NAMED("m") = dim,
+			BVHAR_NAMED("obs") = num_design,
+			BVHAR_NAMED("prior_mean") = prior_mean,
+			BVHAR_NAMED("prior_precision") = prior_prec,
+			BVHAR_NAMED("prior_scale") = prior_scale,
+			BVHAR_NAMED("prior_shape") = prior_shape,
+			BVHAR_NAMED("y0") = response,
+			BVHAR_NAMED("design") = design
 		);
 	}
 	MinnFit returnMinnFit() {
@@ -255,13 +255,13 @@ public:
 		updateMniw();
 		updateRecords();
 	}
-	LIST returnRecords(int num_burn, int thin) const {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = mn_record.coef_record,
-			NAMED("sigma_record") = mn_record.sig_record
+	BVHAR_LIST returnRecords(int num_burn, int thin) const {
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+			BVHAR_NAMED("sigma_record") = mn_record.sig_record
 		);
 		for (auto& record : res) {
-			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -295,8 +295,8 @@ public:
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
 	virtual ~MinnBvar() = default;
-	LIST returnMinnRes() {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = lag;
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
@@ -333,7 +333,7 @@ public:
 		);
 	}
 	virtual ~MinnBvhar() = default;
-	virtual LIST returnMinnRes() = 0;
+	virtual BVHAR_LIST returnMinnRes() = 0;
 	virtual MinnFit returnMinnFit() = 0;
 protected:
 	int week;
@@ -360,8 +360,8 @@ public:
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
 	virtual ~MinnBvharS() noexcept = default;
-	LIST returnMinnRes() override {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() override {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
 		mn_res["week"] = week;
 		mn_res["month"] = month;
@@ -391,8 +391,8 @@ public:
 		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
 	virtual ~MinnBvharL() noexcept = default;
-	LIST returnMinnRes() override {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() override {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
 		mn_res["week"] = week;
 		mn_res["month"] = month;
@@ -467,22 +467,22 @@ public:
 		updateMniw();
 		updateRecords();
 	}
-	LIST returnRecords(int num_burn, int thin) const {
-		LIST res = CREATE_LIST(
-			NAMED("lambda_record") = mh_record.lam_record,
-			NAMED("psi_record") = mh_record.psi_record,
-			NAMED("alpha_record") = mn_record.coef_record,
-			NAMED("sigma_record") = mn_record.sig_record,
-			// NAMED("accept_record") = thin_record(mn_record.accept_record, num_iter, num_burn, thin)
-			NAMED("accept_record") = mh_record.accept_record
+	BVHAR_LIST returnRecords(int num_burn, int thin) const {
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("lambda_record") = mh_record.lam_record,
+			BVHAR_NAMED("psi_record") = mh_record.psi_record,
+			BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+			BVHAR_NAMED("sigma_record") = mn_record.sig_record,
+			// BVHAR_NAMED("accept_record") = thin_record(mn_record.accept_record, num_iter, num_burn, thin)
+			BVHAR_NAMED("accept_record") = mh_record.accept_record
 		);
 		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else if (IS_VECTOR(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else if (IS_LOGICAL(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<VectorXb>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			if (BVHAR_IS_MATRIX(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			} else if (BVHAR_IS_VECTOR(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::VectorXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			} else if (BVHAR_IS_LOGICAL(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<VectorXb>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -568,37 +568,37 @@ public:
 	// 	updateRecords();
 	// }
 	// Rcpp::List returnRecords(int num_burn, int thin) const {
-	// 	Rcpp::List res = CREATE_LIST(
-	// 		NAMED("alpha_record") = mn_record.coef_record,
-	// 		NAMED("sigma_record") = mn_record.sig_record
+	// 	Rcpp::List res = BVHAR_CREATE_LIST(
+	// 		BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+	// 		BVHAR_NAMED("sigma_record") = mn_record.sig_record
 	// 	);
 	// 	for (auto& record : res) {
-	// 		record = thin_record(CAST<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+	// 		record = thin_record(BVHAR_CAST<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 	// 	}
 	// 	return res;
 	// }
-	LIST returnMinnRes() {
+	BVHAR_LIST returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return CREATE_LIST(
-			// NAMED("mn_mean") = coef,
-			NAMED("coefficients") = coef,
-			NAMED("fitted.values") = yhat,
-			NAMED("residuals") = resid,
-			NAMED("mn_prec") = prec,
-			// NAMED("iw_scale") = scale,
-			NAMED("covmat") = scale,
-			NAMED("iw_shape") = shape,
-			NAMED("df") = dim_design,
-			NAMED("m") = dim,
-			NAMED("obs") = num_design,
-			NAMED("prior_mean") = Eigen::MatrixXd::Zero(dim_design, dim),
-			NAMED("prior_precision") = prior_prec,
-			// NAMED("prior_scale") = prior_scale,
-			// NAMED("prior_shape") = prior_shape,
-			NAMED("y0") = response,
-			NAMED("design") = design
+		return BVHAR_CREATE_LIST(
+			// BVHAR_NAMED("mn_mean") = coef,
+			BVHAR_NAMED("coefficients") = coef,
+			BVHAR_NAMED("fitted.values") = yhat,
+			BVHAR_NAMED("residuals") = resid,
+			BVHAR_NAMED("mn_prec") = prec,
+			// BVHAR_NAMED("iw_scale") = scale,
+			BVHAR_NAMED("covmat") = scale,
+			BVHAR_NAMED("iw_shape") = shape,
+			BVHAR_NAMED("df") = dim_design,
+			BVHAR_NAMED("m") = dim,
+			BVHAR_NAMED("obs") = num_design,
+			BVHAR_NAMED("prior_mean") = Eigen::MatrixXd::Zero(dim_design, dim),
+			BVHAR_NAMED("prior_precision") = prior_prec,
+			// BVHAR_NAMED("prior_scale") = prior_scale,
+			// BVHAR_NAMED("prior_shape") = prior_shape,
+			BVHAR_NAMED("y0") = response,
+			BVHAR_NAMED("design") = design
 		);
 	}
 	// MinnRecords returnMinnRecords(int num_burn, int thin) const {

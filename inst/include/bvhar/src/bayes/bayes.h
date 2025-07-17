@@ -64,9 +64,9 @@ public:
 	 * 
 	 * @param num_burn Number of burn-in
 	 * @param thin Thinning
-	 * @return LIST `LIST` containing every MCMC draws
+	 * @return BVHAR_LIST `BVHAR_LIST` containing every MCMC draws
 	 */
-	virtual LIST returnRecords(int num_burn, int thin) = 0;
+	virtual BVHAR_LIST returnRecords(int num_burn, int thin) = 0;
 
 protected:
 	std::mutex mtx;
@@ -113,11 +113,11 @@ public:
 	/**
 	 * @brief Conduct multi-chain MCMC and return MCMC records of every chain
 	 * 
-	 * @return LIST_OF_LIST `LIST_OF_LIST`
+	 * @return BVHAR_LIST_OF_LIST `BVHAR_LIST_OF_LIST`
 	 */
-	LIST_OF_LIST returnRecords() {
+	BVHAR_LIST_OF_LIST returnRecords() {
 		fit();
-		return WRAP(res);
+		return BVHAR_WRAP(res);
 	}
 
 protected:
@@ -128,7 +128,7 @@ protected:
 	int nthreads;
 	bool display_progress;
 	std::vector<std::unique_ptr<McmcAlgo>> mcmc_ptr;
-	std::vector<LIST> res;
+	std::vector<BVHAR_LIST> res;
 
 	/**
 	 * @brief Single chain MCMC

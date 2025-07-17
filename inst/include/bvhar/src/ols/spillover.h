@@ -44,15 +44,15 @@ public:
 		net_spillover = compute_net(spillover);
 	}
 
-	LIST returnSpilloverResult() {
+	BVHAR_LIST returnSpilloverResult() {
 		computeSpillover();
-		LIST res = CREATE_LIST(
-			NAMED("connect") = spillover,
-			NAMED("to") = to_spillover,
-			NAMED("from") = from_spillover,
-			NAMED("tot") = tot_spillover,
-			NAMED("net") = to_spillover - from_spillover,
-			NAMED("net_pairwise") = net_spillover
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("connect") = spillover,
+			BVHAR_NAMED("to") = to_spillover,
+			BVHAR_NAMED("from") = from_spillover,
+			BVHAR_NAMED("tot") = tot_spillover,
+			BVHAR_NAMED("net") = to_spillover - from_spillover,
+			BVHAR_NAMED("net_pairwise") = net_spillover
 		);
 		return res;
 	}
@@ -134,7 +134,7 @@ public:
 	OlsSpilloverRun(int week, int month, int step, const Eigen::MatrixXd& coef_mat, const Eigen::MatrixXd& cov_mat)
 	: spillover_ptr(initialize_olsspillover(coef_mat, month, cov_mat, step, week)) {}
 	virtual ~OlsSpilloverRun() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		return spillover_ptr->returnSpilloverResult();
 	}
 	
@@ -167,13 +167,13 @@ public:
 		}
 	}
 	virtual ~OlsDynamicSpillover() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		fit();
-		LIST res = CREATE_LIST(
-			NAMED("to") = to_sp,
-			NAMED("from") = from_sp,
-			NAMED("tot") = tot,
-			NAMED("net") = to_sp - from_sp
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("to") = to_sp,
+			BVHAR_NAMED("from") = from_sp,
+			BVHAR_NAMED("tot") = tot,
+			BVHAR_NAMED("net") = to_sp - from_sp
 		);
 		return res;
 	}

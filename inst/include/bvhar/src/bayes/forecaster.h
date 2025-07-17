@@ -199,9 +199,9 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	virtual LIST returnForecast() = 0;
+	virtual BVHAR_LIST returnForecast() = 0;
 };
 
 /**
@@ -282,11 +282,11 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	LIST returnForecast() override {
+	BVHAR_LIST returnForecast() override {
 		forecast();
-		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
+		BVHAR_LIST res = BVHAR_CREATE_LIST(BVHAR_NAMED("forecast") = BVHAR_WRAP(out_forecast));
 		if (get_lpl) {
 			res["lpl"] = lpl_record;
 		}

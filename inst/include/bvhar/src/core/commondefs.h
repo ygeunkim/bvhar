@@ -32,23 +32,23 @@
 	// #include <spdlog/sinks/stdout_sinks.h>
 	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
-	#define LIST Rcpp::List
-	#define LIST_OF_LIST Rcpp::List
-	#define PY_LIST Rcpp::List
-	#define WRAP(value) Rcpp::wrap(value)
-	#define CAST Rcpp::as
-	#define CAST_DOUBLE(value) value
-	#define CAST_INT(value) value
-	#define CAST_BOOL(value) value
-	#define CONTAINS(container, key) container.containsElementNamed(key)
-	#define CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
-	#define NAMED Rcpp::Named
-	#define ACCESS_LIST(iterator, list) iterator
-	#define IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
-	#define IS_VECTOR(element) Rcpp::is<Rcpp::NumericVector>(element)
-	#define IS_LOGICAL(element) Rcpp::is<Rcpp::LogicalVector>(element)
-	#define CAST_VECTOR(element) element
-	#define CAST_MATRIX(element) element
+	#define BVHAR_LIST Rcpp::List
+	#define BVHAR_LIST_OF_LIST Rcpp::List
+	#define BVHAR_PY_LIST Rcpp::List
+	#define BVHAR_WRAP(value) Rcpp::wrap(value)
+	#define BVHAR_CAST Rcpp::as
+	#define BVHAR_CAST_DOUBLE(value) value
+	#define BVHAR_CAST_INT(value) value
+	#define BVHAR_CAST_BOOL(value) value
+	#define BVHAR_CONTAINS(container, key) container.containsElementNamed(key)
+	#define BVHAR_CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
+	#define BVHAR_NAMED Rcpp::Named
+	#define BVHAR_ACCESS_LIST(iterator, list) iterator
+	#define BVHAR_IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
+	#define BVHAR_IS_VECTOR(element) Rcpp::is<Rcpp::NumericVector>(element)
+	#define BVHAR_IS_LOGICAL(element) Rcpp::is<Rcpp::LogicalVector>(element)
+	#define BVHAR_CAST_VECTOR(element) element
+	#define BVHAR_CAST_MATRIX(element) element
 #else
 	#include <pybind11/pybind11.h>
 	#include <cmath>
@@ -87,23 +87,23 @@
 	#define BVHAR_STRING py::str
 	// #define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
-	#define LIST py::dict
-	#define LIST_OF_LIST std::vector<py::dict>
-	#define PY_LIST py::list
-	#define WRAP(value) value
-  #define CAST py::cast
-	#define CAST_DOUBLE(value) py::cast<double>(value)
-	#define CAST_INT(value) py::int_(value)
-	#define CAST_BOOL(value) py::cast<bool>(value)
-	#define CONTAINS(container, key) container.contains(key)
-	#define CREATE_LIST(...) py::dict(__VA_ARGS__)
-	#define NAMED py::arg
-	#define ACCESS_LIST(iterator, list) list[iterator.first]
-	#define IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
-	#define IS_VECTOR(element) py::detail::type_caster<Eigen::VectorXd>().load(element, false)
-	#define IS_LOGICAL(element) py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, 1>>().load(element, false)
-	#define CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
-	#define CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
+	#define BVHAR_LIST py::dict
+	#define BVHAR_LIST_OF_LIST std::vector<py::dict>
+	#define BVHAR_PY_LIST py::list
+	#define BVHAR_WRAP(value) value
+  #define BVHAR_CAST py::cast
+	#define BVHAR_CAST_DOUBLE(value) py::cast<double>(value)
+	#define BVHAR_CAST_INT(value) py::int_(value)
+	#define BVHAR_CAST_BOOL(value) py::cast<bool>(value)
+	#define BVHAR_CONTAINS(container, key) container.contains(key)
+	#define BVHAR_CREATE_LIST(...) py::dict(__VA_ARGS__)
+	#define BVHAR_NAMED py::arg
+	#define BVHAR_ACCESS_LIST(iterator, list) list[iterator.first]
+	#define BVHAR_IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
+	#define BVHAR_IS_VECTOR(element) py::detail::type_caster<Eigen::VectorXd>().load(element, false)
+	#define BVHAR_IS_LOGICAL(element) py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, 1>>().load(element, false)
+	#define BVHAR_CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
+	#define BVHAR_CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
 
 	#ifndef M_PI
 		// Some platform does not have M_PI defined - to the same value as in Rmath.h

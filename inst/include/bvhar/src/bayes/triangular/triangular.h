@@ -78,11 +78,11 @@ public:
 	virtual ~McmcTriangular() = default;
 
 	/**
-	 * @brief Append each class's additional record to the result `LIST`
+	 * @brief Append each class's additional record to the result `BVHAR_LIST`
 	 * 
-	 * @param list `LIST` containing MCMC record result
+	 * @param list `BVHAR_LIST` containing MCMC record result
 	 */
-	void appendRecords(LIST& list) {
+	void appendRecords(BVHAR_LIST& list) {
 		coef_updater->appendCoefRecords(list);
 		contem_updater->appendContemRecords(list);
 	}
@@ -115,14 +115,14 @@ public:
 		updateRecords();
 	}
 
-	LIST returnRecords(int num_burn, int thin) override {
-		LIST res = gatherRecords();
+	BVHAR_LIST returnRecords(int num_burn, int thin) override {
+		BVHAR_LIST res = gatherRecords();
 		appendRecords(res);
 		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			if (BVHAR_IS_MATRIX(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::VectorXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -366,10 +366,10 @@ protected:
 	/**
 	 * @brief Gather MCMC records
 	 * 
-	 * @return LIST 
+	 * @return BVHAR_LIST 
 	 */
-	LIST gatherRecords() {
-		LIST res = reg_record->returnListRecords(dim, num_alpha, num_exogen, include_mean);
+	BVHAR_LIST gatherRecords() {
+		BVHAR_LIST res = reg_record->returnListRecords(dim, num_alpha, num_exogen, include_mean);
 		reg_record->appendRecords(res);
 		sparse_record.appendRecords(res, dim, num_alpha, num_exogen, include_mean);
 		return res;
@@ -488,11 +488,11 @@ private:
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-	LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+	BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
   bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT,
-	Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+	Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
 ) {
 	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
 	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
@@ -512,16 +512,16 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	);
 	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr(num_chains);
 	for (int i = 0; i < num_chains; ++i) {
-		LIST init_spec = param_init[i];
+		BVHAR_LIST init_spec = param_init[i];
 		auto coef_updater = initialize_shrinkageupdater<isGroup>(num_iter, param_prior, init_spec, prior_type);
 		coef_updater->initCoefMean(base_params._alpha_mean.head(base_params._num_alpha));
 		coef_updater->initCoefPrec(base_params._alpha_prec.head(base_params._num_alpha), base_params._grp_vec, base_params._cross_id);
-		LIST contem_init_spec = contem_init[i];
+		BVHAR_LIST contem_init_spec = contem_init[i];
 		auto contem_updater = initialize_shrinkageupdater<false>(num_iter, contem_prior, contem_init_spec, contem_prior_type);
 		contem_updater->initImpactPrec(base_params._chol_prec);
 		INITS ldlt_inits = num_design ? INITS(init_spec, *num_design) : INITS(init_spec);
 		if (exogen_prior) {
-			LIST exogen_init_spec = (*exogen_init)[i];
+			BVHAR_LIST exogen_init_spec = (*exogen_init)[i];
 			auto exogen_updater = initialize_shrinkageupdater<false>(num_iter, *exogen_prior, exogen_init_spec, *exogen_prior_type);
 			exogen_updater->initCoefMean(base_params._alpha_mean.tail(base_params._num_exogen));
 			exogen_updater->initImpactPrec(base_params._alpha_prec.tail(base_params._num_exogen));
@@ -554,12 +554,12 @@ public:
 	CtaRun(
 		int num_chains, int num_iter, int num_burn, int thin,
     const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& param_cov, LIST& param_prior, LIST& param_intercept,
-		LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		BVHAR_LIST& param_cov, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept,
+		BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
     const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
     bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
 	)
 	: McmcRun(num_chains, num_iter, num_burn, thin, display_progress, nthreads) {
 		auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
