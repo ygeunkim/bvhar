@@ -163,7 +163,7 @@ inline Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape) {
   }
   Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();
   // return chol_scale * mat_bartlett.inverse().transpose(); // lower triangular
-	return chol_scale * mat_bartlett.transpose().triangularView<Eigen::Lower>().solve(Eigen::MatrixXd::Identity(dim, dim)); // lower triangular
+	return mat_bartlett.transpose().triangularView<Eigen::Lower>().solve<Eigen::OnTheRight>(chol_scale);
 }
 
 inline Eigen::MatrixXd sim_inv_wishart(const Eigen::MatrixXd& mat_scale, double shape) {
@@ -257,16 +257,16 @@ inline Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd& mat_scale, double shape
   }
   Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); // upper triangular bartlett decomposition
   // generate in row direction
-  for (int i = 0; i < dim; i++) {
+  for (int i = 0; i < dim; ++i) {
     mat_bartlett(i, i) = sqrt(bvhar::chisq_rand(shape - (double)i, rng)); // diagonal: qii^2 ~ chi^2(nu - i + 1)
   }
-  for (int i = 0; i < dim - 1; i ++) {
-    for (int j = i + 1; j < dim; j++) {
+  for (int i = 0; i < dim - 1; ++i) {
+    for (int j = i + 1; j < dim; ++j) {
       mat_bartlett(i, j) = normal_rand(rng); // upper triangular (j > i) ~ N(0, 1)
     }
   }
   Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();
-	return chol_scale * mat_bartlett.transpose().triangularView<Eigen::Lower>().solve(Eigen::MatrixXd::Identity(dim, dim)); // lower triangular
+	return mat_bartlett.transpose().triangularView<Eigen::Lower>().solve<Eigen::OnTheRight>(chol_scale);
 }
 
 // Generate MNIW(M, U, Psi, nu)
