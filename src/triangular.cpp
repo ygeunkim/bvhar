@@ -865,7 +865,7 @@ Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, b
 
 // [[Rcpp::export]]
 Rcpp::List compute_vharldlt_spillover(int week, int month, int step, Rcpp::List fit_record, bool sparse) {
-	// auto spillover = bvhar::initialize_spillover<bvhar::LdltRecords>(0, month, step, fit_record, sparse, 0, NULLOPT, week);
+	// auto spillover = bvhar::initialize_spillover<bvhar::LdltRecords>(0, month, step, fit_record, sparse, 0, BVHAR_NULLOPT, week);
 	// return spillover->returnSpilloverDensity();
 	auto spillover = std::make_unique<bvhar::McmcSpilloverRun<bvhar::LdltRecords>>(week, month, step, fit_record, sparse);
 	return spillover->returnSpillover();

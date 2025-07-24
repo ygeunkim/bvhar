@@ -11,7 +11,7 @@ inline std::unique_ptr<OlsErrorGenerator> initialize_olsgenerator(
 	int num_iter, int num_burn, const Eigen::MatrixXd& init,
 	const Eigen::MatrixXd sig_error,
 	int method, unsigned int seed,
-	Optional<int> mvt_df = NULLOPT
+	BVHAR_OPTIONAL<int> mvt_df = BVHAR_NULLOPT
 ) {
 	std::unique_ptr<OlsErrorGenerator> dgp_ptr;
 	Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(sig_error.cols());
@@ -28,7 +28,7 @@ public:
 		const Eigen::MatrixXd& init, const Eigen::MatrixXd& coef_mat,
 		const Eigen::MatrixXd sig_error,
 		int method, unsigned int seed,
-		Optional<int> mvt_df = NULLOPT
+		BVHAR_OPTIONAL<int> mvt_df = BVHAR_NULLOPT
 	) : num_iter(num_iter) {
 		auto dgp_updater = initialize_olsgenerator(num_iter, num_burn, init, sig_error, method, seed, mvt_df);
 		OlsFit ols_fit(coef_mat, lag);
@@ -41,7 +41,7 @@ public:
 		const Eigen::MatrixXd& init, const Eigen::MatrixXd& coef_mat,
 		const Eigen::MatrixXd sig_error,
 		int method, unsigned int seed,
-		Optional<int> mvt_df = NULLOPT
+		BVHAR_OPTIONAL<int> mvt_df = BVHAR_NULLOPT
 	) : num_iter(num_iter) {
 		auto dgp_updater = initialize_olsgenerator(num_iter, num_burn, init, sig_error, method, seed, mvt_df);
 		OlsFit ols_fit(coef_mat, month);

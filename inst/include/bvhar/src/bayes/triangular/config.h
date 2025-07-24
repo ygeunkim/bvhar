@@ -51,7 +51,7 @@ struct RegParams : McmcParams {
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		BVHAR_LIST& intercept,
 		bool include_mean,
-		Optional<int> exogen_cols = NULLOPT
+		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT
 	)
 	: McmcParams(num_iter),
 		_x(x), _y(y),
@@ -90,7 +90,7 @@ struct SvParams : public RegParams {
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		BVHAR_LIST& intercept,
 		bool include_mean,
-		Optional<int> exogen_cols = NULLOPT
+		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT
 	)
 	: RegParams(num_iter, x, y, spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean, exogen_cols),
 		_init_mean(BVHAR_CAST<Eigen::VectorXd>(spec["initial_mean"])),
@@ -721,7 +721,7 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
  */
 inline void initialize_record(
 	std::unique_ptr<LdltRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean,
-	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, Optional<BVHAR_STRING> b_name = NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT
 ) {
 	BVHAR_PY_LIST coef_list = fit_record[coef_name];
 	BVHAR_PY_LIST a_list = fit_record[a_name];
@@ -767,7 +767,7 @@ inline void initialize_record(
  */
 inline void initialize_record(
 	std::unique_ptr<SvRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean,
-	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, Optional<BVHAR_STRING> b_name = NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT
 ) {
 	BVHAR_PY_LIST coef_list = fit_record[coef_name];
 	BVHAR_PY_LIST a_list = fit_record[a_name];

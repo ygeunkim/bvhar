@@ -413,18 +413,18 @@ using random::generalized_inverse_gaussian_distribution;
 #include <optional>
 
 template <typename T>
-using Optional = std::optional<T>;
+using BVHAR_OPTIONAL = std::optional<T>;
 
-#define NULLOPT std::nullopt
+#define BVHAR_NULLOPT std::nullopt
 
 #else
 
 #include <boost/optional.hpp>
 
 template <typename T>
-using Optional = boost::optional<T>;
+using BVHAR_OPTIONAL = boost::optional<T>;
 
-#define NULLOPT boost::none
+#define BVHAR_NULLOPT boost::none
 
 #endif
 

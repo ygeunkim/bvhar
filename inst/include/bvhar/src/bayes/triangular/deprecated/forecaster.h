@@ -440,9 +440,9 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_forecaster(
 	int num_chains, int ord, int step, const Eigen::MatrixXd& response_mat,
 	bool sparse, double level, BVHAR_LIST& fit_record,
 	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
-	bool sv = true, Optional<Eigen::MatrixXd> har_trans = NULLOPT
+	bool sv = true, BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans = BVHAR_NULLOPT
 ) {
-	bool activity = (level > 0); // Optional<double> level = NULLOPT
+	bool activity = (level > 0); // BVHAR_OPTIONAL<double> level = BVHAR_NULLOPT
 	if (sparse && activity) {
 		BVHAR_STOP("If 'level > 0', 'spare' should be false.");
 	}

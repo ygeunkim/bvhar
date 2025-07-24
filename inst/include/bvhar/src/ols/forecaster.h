@@ -122,7 +122,7 @@ class OlsForecaster : public MultistepForecaster<Eigen::MatrixXd, Eigen::VectorX
 public:
 	OlsForecaster(
 		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: MultistepForecaster<Eigen::MatrixXd, Eigen::VectorXd>(step, response_mat, fit._ord),
 		coef_mat(fit._coef), include_mean(include_mean), dim(coef_mat.cols()),
@@ -135,7 +135,7 @@ public:
 	OlsForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
 		int step, const Eigen::MatrixXd& response_mat, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: MultistepForecaster<Eigen::MatrixXd, Eigen::VectorXd>(step, response_mat, fit._ord),
 		exogen_updater(std::move(exogen_updater)),
@@ -199,13 +199,13 @@ class VarForecaster : public OlsForecaster {
 public:
 	VarForecaster(
 		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: OlsForecaster(fit, step, response_mat, include_mean, std::move(dgp_updater)) {}
 	VarForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
 		int step, const Eigen::MatrixXd& response_mat, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean, std::move(dgp_updater)) {}
 	virtual ~VarForecaster() = default;
@@ -220,13 +220,13 @@ class VharForecaster : public OlsForecaster {
 public:
 	VharForecaster(
 		const OlsFit& fit, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: OlsForecaster(fit, step, response_mat, include_mean, std::move(dgp_updater)), har_trans(har_trans) {}
 	VharForecaster(
 		const OlsFit& fit, std::unique_ptr<OlsExogenForecaster> exogen_updater,
 		int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans, bool include_mean,
-		Optional<std::unique_ptr<OlsErrorGenerator>> dgp_updater = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<OlsErrorGenerator>> dgp_updater = BVHAR_NULLOPT
 	)
 	: OlsForecaster(fit, std::move(exogen_updater), step, response_mat, include_mean, std::move(dgp_updater)), har_trans(har_trans) {}
 	virtual ~VharForecaster() = default;
@@ -284,7 +284,7 @@ public:
 		const Eigen::MatrixXd& y, int lag,
 		bool include_mean, int step, const Eigen::MatrixXd& y_test,
 		int method, int nthreads,
-		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: dim(y.cols()), num_window(y.rows()), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
 		lag(lag), nthreads(nthreads), include_mean(include_mean),
@@ -339,9 +339,9 @@ protected:
 	std::vector<std::unique_ptr<MultiOls>> model;
 	std::vector<std::unique_ptr<OlsForecaster>> forecaster;
 	std::vector<Eigen::MatrixXd> out_forecast;
-	std::vector<Optional<Eigen::MatrixXd>> roll_exogen_mat;
-	std::vector<Optional<Eigen::MatrixXd>> roll_exogen;
-	Optional<int> lag_exogen;
+	std::vector<BVHAR_OPTIONAL<Eigen::MatrixXd>> roll_exogen_mat;
+	std::vector<BVHAR_OPTIONAL<Eigen::MatrixXd>> roll_exogen;
+	BVHAR_OPTIONAL<int> lag_exogen;
 
 	void initOls(int method) {
 		for (int window = 0; window < num_horizon; ++window) {
@@ -350,9 +350,9 @@ protected:
 		}
 	}
 
-	virtual void initData(const Eigen::MatrixXd& y, Optional<Eigen::MatrixXd> exogen = NULLOPT) = 0;
+	virtual void initData(const Eigen::MatrixXd& y, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) = 0;
 
-	void initialize(const Eigen::MatrixXd& y, int method, Optional<Eigen::MatrixXd> exogen = NULLOPT) {
+	void initialize(const Eigen::MatrixXd& y, int method, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) {
 		initData(y, exogen);
 		initOls(method);
 	}
@@ -369,13 +369,13 @@ public:
 		const Eigen::MatrixXd& y, int lag,
 		bool include_mean, int step, const Eigen::MatrixXd& y_test,
 		int method, int nthreads,
-		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: OlsOutforecastRun(y, lag, include_mean, step, y_test, method, nthreads, exogen, exogen_lag) {}
 	virtual ~OlsRollforecastRun() = default;
 
 protected:
-	void initData(const Eigen::MatrixXd& y, Optional<Eigen::MatrixXd> exogen = NULLOPT) override {
+	void initData(const Eigen::MatrixXd& y, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) override {
 		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 		tot_mat << y,
 							 y_test;
@@ -398,13 +398,13 @@ public:
 		const Eigen::MatrixXd& y, int lag,
 		bool include_mean, int step, const Eigen::MatrixXd& y_test,
 		int method, int nthreads,
-		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: OlsOutforecastRun(y, lag, include_mean, step, y_test, method, nthreads, exogen, exogen_lag) {}
 	virtual ~OlsExpandforecastRun() = default;
 	
 protected:
-	void initData(const Eigen::MatrixXd& y, Optional<Eigen::MatrixXd> exogen = NULLOPT) override {
+	void initData(const Eigen::MatrixXd& y, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) override {
 		Eigen::MatrixXd tot_mat(num_window + num_test, dim);
 		tot_mat << y,
 							 y_test;
@@ -428,7 +428,7 @@ public:
 		const Eigen::MatrixXd& y, int lag,
 		bool include_mean, int step, const Eigen::MatrixXd& y_test,
 		int method, int nthreads,
-		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: BaseOutForecast(y, lag, include_mean, step, y_test, method, nthreads, exogen, exogen_lag) {
 		initialize(y, method, exogen);
@@ -477,7 +477,7 @@ public:
 		const Eigen::MatrixXd& y, int week, int month,
 		bool include_mean, int step, const Eigen::MatrixXd& y_test,
 		int method, int nthreads,
-		Optional<Eigen::MatrixXd> exogen = NULLOPT, Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: BaseOutForecast(y, month, include_mean, step, y_test, method, nthreads, exogen, exogen_lag),
 		har_trans(build_vhar(dim, week, month, include_mean)) {

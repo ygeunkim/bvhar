@@ -210,7 +210,7 @@ private:
 template <typename RecordType = LdltRecords>
 inline std::unique_ptr<McmcSpillover> initialize_ctaspillover(
 	int chain_id, int lag, int step, BVHAR_LIST& fit_record, bool sparse, int id = -1,
-	Optional<Eigen::MatrixXd> har_trans = NULLOPT, Optional<int> week = NULLOPT
+	BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> week = BVHAR_NULLOPT
 ) {
 	std::unique_ptr<RecordType> reg_record;
 	BVHAR_STRING coef_name = (har_trans || week) ? (sparse ? "phi_sparse_record" : "phi_record") : (sparse ? "alpha_sparse_record" : "alpha_record");
@@ -231,7 +231,7 @@ inline std::unique_ptr<McmcSpillover> initialize_ctaspillover(
 template <typename RecordType = LdltRecords>
 inline std::unique_ptr<McmcSpillover> initialize_ctaspillover(
 	int lag, int step, RecordType& reg_record, int id = -1,
-	Optional<Eigen::MatrixXd> har_trans = NULLOPT, Optional<int> week = NULLOPT
+	BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> week = BVHAR_NULLOPT
 ) {
 	std::unique_ptr<McmcSpillover> spillover_ptr;
 	if (har_trans) {
@@ -255,7 +255,7 @@ public:
 	McmcSpilloverRun(int lag, int step, BVHAR_LIST& fit_record, bool sparse)
 	: spillover_ptr(initialize_ctaspillover<RecordType>(0, lag, step, fit_record, sparse, -1)) {}
 	McmcSpilloverRun(int week, int month, int step, BVHAR_LIST& fit_record, bool sparse)
-	: spillover_ptr(initialize_ctaspillover<RecordType>(0, month, step, fit_record, sparse, -1, NULLOPT, week)) {}
+	: spillover_ptr(initialize_ctaspillover<RecordType>(0, month, step, fit_record, sparse, -1, BVHAR_NULLOPT, week)) {}
 	virtual ~McmcSpilloverRun() = default;
 	BVHAR_LIST returnSpillover() {
 		return spillover_ptr->returnSpilloverDensity();
@@ -286,7 +286,7 @@ public:
 		from_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
 		net_sp(num_horizon, std::vector<Eigen::VectorXd>(num_chains)),
 		model(num_horizon), spillover(num_horizon),
-		har_trans(NULLOPT) {
+		har_trans(BVHAR_NULLOPT) {
 		initialize(
 			y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
 			contem_prior, contem_init, contem_prior_type,
@@ -340,7 +340,7 @@ protected:
 	std::vector<std::vector<Eigen::VectorXd>> net_sp;
 	std::vector<std::vector<std::unique_ptr<McmcReg>>> model;
 	std::vector<std::vector<std::unique_ptr<McmcSpillover>>> spillover;
-	Optional<Eigen::MatrixXd> har_trans;
+	BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans;
 
 	/**
 	 * @brief Initialize every member of `DynamicLdltSpillover`
@@ -399,7 +399,7 @@ protected:
 			}
 		}
 	}
-	Eigen::MatrixXd buildDesign(Eigen::Ref<Eigen::MatrixXd> sample_mat, Optional<Eigen::MatrixXd> har_trans = NULLOPT) {
+	Eigen::MatrixXd buildDesign(Eigen::Ref<Eigen::MatrixXd> sample_mat, BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans = BVHAR_NULLOPT) {
 		if (har_trans) {
 			return build_x0(sample_mat, lag, include_mean) * (*har_trans).transpose();
 		}
@@ -456,7 +456,7 @@ public:
 	DynamicSvSpillover(int lag, int step, int num_design, BVHAR_LIST& fit_record, bool include_mean, bool sparse, int nthreads)
 	: num_horizon(num_design), lag(lag), step(step), nthreads(nthreads), sparse(sparse),
 		tot(num_design), to_sp(num_design), from_sp(num_design), net_sp(num_design),
-		spillover(num_horizon), har_trans(NULLOPT) {
+		spillover(num_horizon), har_trans(BVHAR_NULLOPT) {
 		BVHAR_STRING coef_name = sparse ? "alpha_sparse_record" : "alpha_record";
 		BVHAR_STRING a_name = sparse ? "a_sparse_record" : "a_record";
 		BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
@@ -493,7 +493,7 @@ protected:
 	std::vector<Eigen::VectorXd> net_sp;
 	std::vector<std::unique_ptr<McmcSpillover>> spillover;
 	std::unique_ptr<SvRecords> reg_record;
-	Optional<Eigen::MatrixXd> har_trans;
+	BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans;
 	void fit() {
 	#ifdef _OPENMP
 		#pragma omp parallel for num_threads(nthreads)

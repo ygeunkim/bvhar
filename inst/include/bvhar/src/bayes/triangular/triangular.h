@@ -32,7 +32,7 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT
 	)
 	: McmcAlgo(params, seed),
 		include_mean(params._mean), x(params._x), y(params._y),
@@ -387,7 +387,7 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT
 	)
 	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior)), diag_vec(inits._diag) {
 		reg_record = std::make_unique<LdltRecords>(num_iter, dim, num_design, num_coef, num_lowerchol);
@@ -418,7 +418,7 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT
 	)
 	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior)),
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
@@ -491,8 +491,8 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
 	BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT,
-	Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, BVHAR_OPTIONAL<int> num_design = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT
 ) {
 	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
 	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
@@ -559,7 +559,7 @@ public:
 		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
     const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
     bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads,
-		Optional<BVHAR_LIST> exogen_prior = NULLOPT, Optional<BVHAR_LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+		BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT
 	)
 	: McmcRun(num_chains, num_iter, num_burn, thin, display_progress, nthreads) {
 		auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
@@ -568,7 +568,7 @@ public:
 			contem_prior, contem_init, contem_prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, seed_chain,
-			NULLOPT, exogen_prior, exogen_init, exogen_prior_type, exogen_cols
+			BVHAR_NULLOPT, exogen_prior, exogen_init, exogen_prior_type, exogen_cols
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			mcmc_ptr[i] = std::move(temp_mcmc[i]);

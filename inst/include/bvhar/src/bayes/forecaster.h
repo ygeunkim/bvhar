@@ -218,7 +218,7 @@ public:
 		int num_chains, int num_iter, int num_burn, int thin,
 		int step, const ReturnType& y_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
-		Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: num_window(num_window), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
 		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
@@ -248,8 +248,8 @@ public:
 			}
 		}
 		for (int i = 0; i < num_horizon; ++i) {
-			roll_exogen_mat[i] = NULLOPT;
-			roll_exogen[i] = NULLOPT;
+			roll_exogen_mat[i] = BVHAR_NULLOPT;
+			roll_exogen[i] = BVHAR_NULLOPT;
 		}
 	}
 	virtual ~McmcOutForecastRun() = default;
@@ -306,9 +306,9 @@ protected:
 	// std::vector<std::vector<ReturnType>> out_forecast;
 	std::vector<std::vector<DataType>> out_forecast;
 	Eigen::MatrixXd lpl_record;
-	std::vector<Optional<ReturnType>> roll_exogen_mat;
-	std::vector<Optional<ReturnType>> roll_exogen;
-	Optional<int> lag_exogen;
+	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen_mat;
+	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen;
+	BVHAR_OPTIONAL<int> lag_exogen;
 	std::shared_ptr<spdlog::logger> debug_logger;
 
 	/**

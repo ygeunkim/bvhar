@@ -1007,7 +1007,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, BVHAR_OPTIONAL<int> num_design = BVHAR_NULLOPT
 ) {
 	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
 	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
