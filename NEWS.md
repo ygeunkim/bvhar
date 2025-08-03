@@ -1,5 +1,10 @@
 # bvhar (development version)
 
+## Important changes
+
+`bvhar`-related packages now use `boost::random::mixmax` instead of `boost::random::mt19937` for pRNG, which is the same with Stan.
+This will affect every MCMC results of this library.
+
 ## Internal changes (C++)
 
 * Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.

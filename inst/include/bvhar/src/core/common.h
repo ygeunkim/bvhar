@@ -16,7 +16,8 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 
 } // namespace boost
 
-#include <boost/random/mersenne_twister.hpp>
+// #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/mixmax.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
@@ -29,7 +30,7 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
-#define BVHAR_BHRNG boost::random::mt19937
+#define BVHAR_BHRNG boost::random::mixmax
 
 // Remove after boost upgrade including inverse_gaussian and generalized_inverse_gaussian
 // https://github.com/boostorg/random/pull/124

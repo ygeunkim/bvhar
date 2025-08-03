@@ -17,7 +17,7 @@ namespace bvhar {
 // @param rate Gamma rate parameters for precision matrix
 // @param num_design The number of sample used, \eqn{n = T - p}
 inline void ssvs_chol_diag(Eigen::VectorXd& chol_diag, Eigen::MatrixXd& sse_mat, Eigen::VectorXd& DRD,
-													 Eigen::VectorXd& shape, Eigen::VectorXd& rate, int num_design, boost::mt19937& rng) {
+													 Eigen::VectorXd& shape, Eigen::VectorXd& rate, int num_design, BVHAR_BHRNG& rng) {
   int dim = sse_mat.cols();
   int num_param = DRD.size();
   Eigen::MatrixXd inv_DRD = Eigen::MatrixXd::Zero(num_param, num_param);
