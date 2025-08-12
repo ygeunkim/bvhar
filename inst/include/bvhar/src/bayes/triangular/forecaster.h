@@ -670,7 +670,7 @@ public:
 	)
 	: McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>(
 			y.rows(), lag,
-			num_chains, num_iter, num_burn, thin, step, y_test, get_lpl,
+			num_chains, num_iter, num_burn, thin, step, y_test, y_test.rows(), get_lpl,
 			seed_chain, seed_forecast, display_progress, nthreads,
 			exogen_lag
 		),

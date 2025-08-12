@@ -216,11 +216,11 @@ public:
 	McmcOutForecastRun(
 		int num_window, int lag,
 		int num_chains, int num_iter, int num_burn, int thin,
-		int step, const ReturnType& y_test, bool get_lpl,
+		int step, const ReturnType& y_test, int num_test, bool get_lpl,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
 		BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
-	: num_window(num_window), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
+	: num_window(num_window), num_test(num_test), num_horizon(num_test - step + 1), step(step),
 		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
 		get_lpl(get_lpl), display_progress(display_progress),
 		seed_forecast(seed_forecast), roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
