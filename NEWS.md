@@ -2,8 +2,10 @@
 
 ## Important changes
 
-`bvhar`-related packages now use `boost::random::mixmax` instead of `boost::random::mt19937` for pRNG, which is the same with Stan.
+* `bvhar`-related packages now use `boost::random::mixmax` instead of `boost::random::mt19937` for pRNG, which is the same with Stan.
 This will affect every MCMC results of this library.
+
+* Fixed DL prior's latent parameter sampling.
 
 ## Internal changes (C++)
 
