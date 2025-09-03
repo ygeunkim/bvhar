@@ -7,6 +7,9 @@ This will affect every MCMC results of this library.
 
 * Fixed DL prior's latent parameter sampling.
 
+* Fixed upper triangular Bartlett decomposition for inverse-Wishart rng.
+This change affects every results that uses MNIW in the posterior sampling.
+
 ## Internal changes (C++)
 
 * Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.
