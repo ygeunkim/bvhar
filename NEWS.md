@@ -2,6 +2,8 @@
 
 ## Important changes
 
+* License has been changed to [MIT](https://choosealicense.com/licenses/mit/).
+
 * `bvhar`-related packages now use `boost::random::mixmax` instead of `boost::random::mt19937` for pRNG, which is the same with Stan.
 This will affect every MCMC results of this library.
 
