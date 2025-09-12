@@ -70,7 +70,7 @@ test_that("Expanding windows - OLS VHAR", {
   expect_s3_class(var_expand, "bvharcv")
 })
 
-help_var_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE) {
+help_var_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE, use_fit = TRUE) {
   etf_train <- etf_vix[1:50, 1:2]
   etf_test <- etf_vix[51:53, 1:2]
   etf_exogen_train <- NULL
@@ -93,10 +93,10 @@ help_var_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE)
     include_mean = TRUE
   )
   set.seed(1)
-  forecast_roll(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE)
+  forecast_roll(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE, use_fit = use_fit)
 }
 
-help_vhar_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE) {
+help_vhar_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE, use_fit = TRUE) {
   etf_train <- etf_vix[1:50, 1:2]
   etf_test <- etf_vix[51:53, 1:2]
   etf_exogen_train <- NULL
@@ -118,10 +118,10 @@ help_vhar_bayes_roll <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE
     include_mean = TRUE
   )
   set.seed(1)
-  forecast_roll(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE)
+  forecast_roll(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE, use_fit = use_fit)
 }
 
-help_var_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE) {
+help_var_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE, use_fit = TRUE) {
   etf_train <- etf_vix[1:50, 1:2]
   etf_test <- etf_vix[51:53, 1:2]
   etf_exogen_train <- NULL
@@ -144,10 +144,10 @@ help_var_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FALS
     include_mean = TRUE
   )
   set.seed(1)
-  forecast_expand(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE)
+  forecast_expand(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE, use_fit = use_fit)
 }
 
-help_vhar_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE) {
+help_vhar_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FALSE, use_fit = TRUE) {
   etf_train <- etf_vix[1:50, 1:2]
   etf_test <- etf_vix[51:53, 1:2]
   etf_exogen_train <- NULL
@@ -169,7 +169,7 @@ help_vhar_bayes_expand <- function(bayes_spec, cov_spec, sparse, is_exogen = FAL
     include_mean = TRUE
   )
   set.seed(1)
-  forecast_expand(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE)
+  forecast_expand(fit_test, 1, etf_test, newxreg = etf_exogen_test, stable = FALSE, sparse = sparse, lpl = TRUE, use_fit = use_fit)
 }
 
 test_that("Rolling windows - VAR-Minn-LDLT", {
@@ -194,6 +194,9 @@ test_that("Rolling windows - VAR-HS-LDLT", {
   test_roll_sparse <- help_var_bayes_roll(set_horseshoe(), set_ldlt(), TRUE)
   test_roll_dense_x <- help_var_bayes_roll(set_horseshoe(), set_ldlt(), FALSE, TRUE)
   test_roll_sparse_x <- help_var_bayes_roll(set_horseshoe(), set_ldlt(), TRUE, TRUE)
+  expect_no_error({
+    help_var_bayes_roll(set_horseshoe(), set_ldlt(), FALSE, TRUE, FALSE)
+  })
 
   expect_s3_class(test_roll_dense, "predbvhar_roll")
   expect_s3_class(test_roll_dense, "bvharcv")
@@ -269,6 +272,9 @@ test_that("Rolling windows - VHAR-Minn-LDLT", {
   test_roll_sparse <- help_vhar_bayes_roll(set_bvhar(), set_ldlt(), TRUE)
   test_roll_dense_x <- help_vhar_bayes_roll(set_bvhar(), set_ldlt(), FALSE, TRUE)
   test_roll_sparse_x <- help_vhar_bayes_roll(set_bvhar(), set_ldlt(), TRUE, TRUE)
+  expect_no_error({
+    help_vhar_bayes_roll(set_bvhar(), set_ldlt(), FALSE, TRUE, FALSE)
+  })
 
   expect_s3_class(test_roll_dense, "predbvhar_roll")
   expect_s3_class(test_roll_dense, "bvharcv")
@@ -584,6 +590,9 @@ test_that("Expanding windows - VAR-Minn-LDLT", {
   test_expand_sparse <- help_var_bayes_expand(set_bvar(), set_ldlt(), TRUE)
   test_expand_dense_x <- help_var_bayes_expand(set_bvar(), set_ldlt(), FALSE, TRUE)
   test_expand_sparse_x <- help_var_bayes_expand(set_bvar(), set_ldlt(), TRUE, TRUE)
+  expect_no_error({
+    help_var_bayes_expand(set_bvar(), set_ldlt(), FALSE, TRUE, FALSE)
+  })
 
   expect_s3_class(test_expand_dense, "predbvhar_expand")
   expect_s3_class(test_expand_dense, "bvharcv")
@@ -689,6 +698,9 @@ test_that("Expanding windows - VHAR-Minn-LDLT", {
   test_expand_sparse <- help_vhar_bayes_expand(set_bvhar(), set_ldlt(), TRUE)
   test_expand_dense_x <- help_vhar_bayes_expand(set_bvhar(), set_ldlt(), FALSE, TRUE)
   test_expand_sparse_x <- help_vhar_bayes_expand(set_bvhar(), set_ldlt(), TRUE, TRUE)
+  expect_no_error({
+    help_vhar_bayes_expand(set_bvhar(), set_ldlt(), FALSE, TRUE, FALSE)
+  })
 
   expect_s3_class(test_expand_dense, "predbvhar_expand")
   expect_s3_class(test_expand_dense, "bvharcv")

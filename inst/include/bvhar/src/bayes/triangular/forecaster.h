@@ -700,6 +700,7 @@ protected:
 	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::thin;
 	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::nthreads;
 	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::get_lpl;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::use_fit;
 	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::display_progress;
 	bool include_mean, stable_filter, sparse, sv;
 	double level;
@@ -787,7 +788,9 @@ protected:
 	) {
 		BVHAR_DEBUG_LOG(debug_logger, "initialize(...) called");
 		initData(y, exogen);
-		initForecaster(fit_record);
+		if (use_fit) {
+			initForecaster(fit_record);
+		}
 		using is_mcmc = std::integral_constant<bool, isUpdate>;
 		if (is_mcmc::value) {
 			initMcmc(
@@ -849,6 +852,7 @@ protected:
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_chains;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_iter;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_burn;
+	using CtaOutforecastRun<BaseForecaster, isUpdate>::use_fit;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::include_mean;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
@@ -888,6 +892,9 @@ protected:
 		BVHAR_DEBUG_LOG(debug_logger, "initMcmc(...) called");
 		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT;
 		for (int window = 0; window < num_horizon; ++window) {
+			if (use_fit && window ==0) {
+				continue;
+			}
 			Eigen::MatrixXd design = buildDesign(window);
 			if (lag_exogen) {
 				exogen_cols = (*lag_exogen + 1) * roll_exogen_mat[window]->cols();
@@ -952,6 +959,7 @@ protected:
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_chains;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_iter;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_burn;
+	using CtaOutforecastRun<BaseForecaster, isUpdate>::use_fit;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::include_mean;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
 	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
@@ -991,6 +999,9 @@ protected:
 		BVHAR_DEBUG_LOG(debug_logger, "initMcmc(...) called");
 		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT;
 		for (int window = 0; window < num_horizon; ++window) {
+			if (use_fit && window ==0) {
+				continue;
+			}
 			Eigen::MatrixXd design = buildDesign(window);
 			if (lag_exogen) {
 				exogen_cols = (*lag_exogen + 1) * roll_exogen[window]->cols();
