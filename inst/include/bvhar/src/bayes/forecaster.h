@@ -216,13 +216,13 @@ public:
 	McmcOutForecastRun(
 		int num_window, int lag,
 		int num_chains, int num_iter, int num_burn, int thin,
-		int step, const ReturnType& y_test, int num_test, bool get_lpl,
+		int step, const ReturnType& y_test, int num_test, bool get_lpl, bool use_fit,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
 		BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: num_window(num_window), num_test(num_test), num_horizon(num_test - step + 1), step(step),
 		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
-		get_lpl(get_lpl), display_progress(display_progress),
+		get_lpl(get_lpl), use_fit(use_fit), display_progress(display_progress),
 		seed_forecast(seed_forecast), roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		// out_forecast(num_horizon, std::vector<ReturnType>(num_chains)),
@@ -296,7 +296,7 @@ public:
 protected:
 	int num_window, num_test, num_horizon, step;
 	int lag, num_chains, num_iter, num_burn, thin, nthreads;
-	bool get_lpl, display_progress;
+	bool get_lpl, use_fit, display_progress;
 	Eigen::VectorXi seed_forecast;
 	std::vector<ReturnType> roll_mat;
 	std::vector<ReturnType> roll_y0;
@@ -383,7 +383,7 @@ protected:
 	void forecastWindow(int window, int chain) {
 		BVHAR_DEBUG_LOG(debug_logger, "forecastWindow(window={}, chain={}) called", window, chain);
 		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (window != 0 && is_mcmc::value) {
+		if ((!use_fit || window != 0) && is_mcmc::value) {
 			runGibbs(window, chain);
 		}
 		// Eigen::VectorXd valid_vec = y_test.row(step);
