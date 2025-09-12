@@ -79,7 +79,10 @@ forecast_expand(
 
 \item{n_ahead}{Step to forecast in rolling window scheme}
 
-\item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.}
+\item{y_test}{Test data to be compared. Use \code{\link[=divide_ts]{divide_ts()}} if you don't have separate evaluation dataset.
+Use numeric, the length of test period, if \code{object} is the full sample result.
+Numeric \code{y_test} will automatically splits \code{object$y}.
+In this case, \code{use_fit} is forced to become \code{FALSE}.}
 
 \item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
 
