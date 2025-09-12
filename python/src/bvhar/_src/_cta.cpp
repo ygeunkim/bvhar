@@ -57,7 +57,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaRollforecastRun, bvhar::RegForecaster>::returnForecast);
@@ -69,7 +69,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>::returnForecast);
@@ -81,7 +81,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaRollforecastRun, bvhar::RegForecaster>::returnForecast);
@@ -93,7 +93,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>::returnForecast);
@@ -105,7 +105,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaRollforecastRun, bvhar::RegForecaster, false>::returnForecast);
@@ -117,7 +117,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaExpandforecastRun, bvhar::RegForecaster, false>::returnForecast);
@@ -129,7 +129,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaRollforecastRun, bvhar::RegForecaster, false>::returnForecast);
@@ -141,7 +141,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaExpandforecastRun, bvhar::RegForecaster, false>::returnForecast);
@@ -158,7 +158,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaRollforecastRun, bvhar::SvForecaster>::returnForecast);
@@ -170,7 +170,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>::returnForecast);
@@ -182,7 +182,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaRollforecastRun, bvhar::SvForecaster>::returnForecast);
@@ -194,7 +194,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>::returnForecast);
@@ -206,7 +206,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaRollforecastRun, bvhar::SvForecaster, false>::returnForecast);
@@ -218,7 +218,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVarforecastRun<bvhar::CtaExpandforecastRun, bvhar::SvForecaster, false>::returnForecast);
@@ -230,7 +230,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaRollforecastRun, bvhar::SvForecaster, false>::returnForecast);
@@ -242,7 +242,7 @@ PYBIND11_MODULE(_cta, m) {
 			py::dict&, std::vector<py::dict>&, int,
 			py::dict&, std::vector<py::dict>&, int,
 			const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::VectorXi&, const Eigen::MatrixXi&,
-			bool, bool, int, const Eigen::MatrixXd&, bool,
+			bool, bool, int, const Eigen::MatrixXd&, bool, bool,
 			const Eigen::MatrixXi&, const Eigen::VectorXi&, bool, int, bool>()
 		)
 		.def("returnForecast", &bvhar::CtaVharforecastRun<bvhar::CtaExpandforecastRun, bvhar::SvForecaster, false>::returnForecast);
