@@ -22,6 +22,9 @@ This change affects every results that uses MNIW in the posterior sampling.
 
 * Also, replace `USE_RCPP` and `USE_BVHAR_DEBUG` with `BVHAR_USE_RCPP` and `BVHAR_USE_BVHAR_DEBUG`.
 
+* Add `use_fit` parameter to `McmcOutForecastRun` in the case when full sample analysis.
+If `use_fit = false`, the first window will be evaluated.
+
 # bvhar 2.3.0
 
 * Requires `R >= 4.2` due to Rtools 4.0 error with optional parameters in C++.
