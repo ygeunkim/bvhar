@@ -32,7 +32,8 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_prior = BVHAR_NULLOPT
 	)
 	: McmcAlgo(params, seed),
 		include_mean(params._mean), x(params._x), y(params._y),
@@ -73,6 +74,10 @@ public:
 			exogen_updater = std::move(*exogen_prior);
 			// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
 			coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
+		}
+		if (factor_prior) {
+			factor_updater = std::move(*factor_prior);
+			coef_vec.tail(num_factor) = coef_mat.bottomRows(size_factor).reshaped();
 		}
 		// reg_record->assignRecords(0, coef_vec, contem_coef, diag_vec);
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
@@ -187,6 +192,8 @@ protected:
 	std::unique_ptr<ShrinkageUpdater> coef_updater;
 	std::unique_ptr<ShrinkageUpdater> contem_updater;
 	std::unique_ptr<ShrinkageUpdater> exogen_updater;
+	std::unique_ptr<ShrinkageUpdater> factor_updater;
+	// std::unique_ptr<FactorAugmenter>
 	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
@@ -242,6 +249,9 @@ protected:
 		if (exogen_updater) {
 			// exogen_updater->updateImpactPrec(prior_alpha_prec.tail(num_exogen), coef_vec.tail(num_exogen), rng);
 			exogen_updater->updateImpactPrec(prior_alpha_prec.segment(num_endog, num_exogen), coef_vec.segment(num_endog, num_exogen), rng);
+		}
+		if (factor_updater) {
+			factor_updater->updateImpactPrec(prior_alpha_prec.tail(num_factor), coef_vec.tail(num_factor), rng);
 		}
 	}
 
@@ -309,6 +319,10 @@ protected:
 					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
 					// penalty_j.tail(nrow_exogen): current alpha_penalty only covers VAR
 				}
+				if (factor_updater) {
+					prior_mean_j.tail(size_factor) = prior_alpha_mean.segment(num_endog + num_exogen + j * size_factor, size_factor);
+					prior_prec_j.tail(size_factor) = prior_alpha_prec.segment(num_endog + num_exogen + j * size_factor, size_factor);
+				}
 				draw_coef(
 					coef_mat.col(j), design_coef,
 					(((y - x * coef_mat) * chol_lower_j.transpose()).array() / sqrt_sv_j.array()).reshaped(), // Hadamard product between: (Y - X0 A(-j))L_(j:k)^T and D_(1:n, j:k)
@@ -326,6 +340,10 @@ protected:
 					prior_mean_j.segment(nrow_endog, nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
 					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
 				}
+				if (factor_updater) {
+					prior_mean_j.tail(size_factor) = prior_alpha_mean.segment(num_endog + num_exogen + j * size_factor, size_factor);
+					prior_prec_j.tail(size_factor) = prior_alpha_prec.segment(num_endog + num_exogen + j * size_factor, size_factor);
+				}
 				draw_coef(
 					coef_mat.col(j),
 					design_coef,
@@ -338,6 +356,9 @@ protected:
 			if (exogen_updater) {
 				// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
 				coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
+			}
+			if (factor_updater) {
+				coef_vec.tail(num_factor) = coef_mat.bottomRows(size_factor).reshaped();
 			}
 			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
