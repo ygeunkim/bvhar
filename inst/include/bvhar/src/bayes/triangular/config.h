@@ -37,6 +37,7 @@ struct RegParams : McmcParams {
 	int _dim, _dim_design, _num_design, _num_lowerchol, _num_coef, _num_alpha, _nrow;
 	int _nrow_exogen, _num_exogen;
 	int _size_factor, _num_factor;
+	int _num_endog;
 	Eigen::VectorXd _alpha_mean, _alpha_prec, _chol_mean, _chol_prec, _sig_shp, _sig_scl, _mean_non;
 	double _sd_non;
 	std::set<int> _own_id;
@@ -63,6 +64,7 @@ struct RegParams : McmcParams {
 		_num_alpha(_mean ? _num_coef - _dim : _num_coef), _nrow(_num_alpha / _dim),
 		_nrow_exogen(exogen_cols ? *exogen_cols : 0), _num_exogen(_nrow_exogen * _dim),
 		_size_factor(factor_size ? *factor_size : 0), _num_factor(_size_factor * _dim),
+		_num_endog(_num_coef - _num_exogen - _num_factor),
 		_alpha_mean(Eigen::VectorXd::Zero(_num_coef)),
 		_alpha_prec(Eigen::VectorXd::Ones(_num_coef)),
 		_chol_mean(Eigen::VectorXd::Zero(_num_lowerchol)),
@@ -93,9 +95,10 @@ struct SvParams : public RegParams {
 		const Eigen::VectorXi& grp_id, const Eigen::MatrixXi& grp_mat,
 		BVHAR_LIST& intercept,
 		bool include_mean,
-		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<int> factor_size = BVHAR_NULLOPT
 	)
-	: RegParams(num_iter, x, y, spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean, exogen_cols),
+	: RegParams(num_iter, x, y, spec, own_id, cross_id, grp_id, grp_mat, intercept, include_mean, exogen_cols, factor_size),
 		_init_mean(BVHAR_CAST<Eigen::VectorXd>(spec["initial_mean"])),
 		_init_prec(BVHAR_CAST<Eigen::VectorXd>(spec["initial_prec"])) {}
 };
