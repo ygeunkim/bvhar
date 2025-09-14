@@ -183,6 +183,7 @@ var_bayes <- function(y,
   num_alpha <- dim_data^2 * p
   num_eta <- dim_data * (dim_data - 1) / 2
   size_factor <- factor_spec$size_factor
+  lag_factor <- factor_spec$lag
   num_factor <- size_factor * dim_data
   factor_prior_type <- 0
   factor_prior <- list()
@@ -203,6 +204,12 @@ var_bayes <- function(y,
     )
     X0 <- cbind(X0, matrix(0L, nrow = num_design, ncol = size_factor))
     dim_design <- ncol(X0)
+    factor_id <- length(name_lag) + seq_len(size_factor)
+    name_lag <- c(
+      name_lag,
+      concatenate_colnames("factor", seq_len(size_factor), FALSE)
+    )
+    colnames(X0) <- name_lag
   }
   # model specification---------------
   validate_prior(coef_spec)
@@ -440,6 +447,16 @@ var_bayes <- function(y,
       matrix(colMeans(res$b_sparse_record), ncol = dim_data)
     )
   }
+  if (size_factor > 0) {
+    res$coefficients <- rbind(
+      res$coefficients,
+      matrix(colMeans(res$Lambda_record), ncol = dim_data)
+    )
+    res$sparse_coef <- rbind(
+      res$sparse_coef,
+      matrix(colMeans(res$Lambda_sparse_record), ncol = dim_data)
+    )
+  }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
   mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
@@ -459,6 +476,12 @@ var_bayes <- function(y,
     res$pip <- rbind(
       res$pip,
       matrix(colMeans(res$b_sparse_record != 0), ncol = dim_data)
+    )
+  }
+  if (size_factor > 0) {
+    res$pip <- rbind(
+      res$pip,
+      matrix(colMeans(res$Lambda_sparse_record != 0), ncol = dim_data)
     )
   }
   colnames(res$pip) <- name_var
@@ -612,6 +635,13 @@ var_bayes <- function(y,
     res$s <- s
     res$exogen_m <- dim_exogen
     res$exogen_id <- exogen_id
+  }
+  if (size_factor > 0) {
+    res$spec_factor <- loading_spec
+    res$init_factor <- factor_init
+    res$factor_size <- size_factor
+    res$factor_lag <- lag_factor
+    res$factor_id <- factor_id
   }
   res$y0 <- Y0
   res$design <- X0

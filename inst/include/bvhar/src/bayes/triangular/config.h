@@ -232,7 +232,7 @@ struct RegRecords {
 	 * @param include_mean If `true`, constant term is included
 	 * @return BVHAR_LIST A `BVHAR_LIST` containing MCMC records. If `include_mean` is `true`, it also includes a constant term record.
 	 */
-	BVHAR_LIST returnListRecords(int dim, int num_alpha, int num_exogen, bool include_mean) const {
+	BVHAR_LIST returnListRecords(int dim, int num_alpha, int num_endog, int num_exogen, int num_factor, bool include_mean) const {
 		BVHAR_LIST res = BVHAR_CREATE_LIST(
 			BVHAR_NAMED("alpha_record") = coef_record.leftCols(num_alpha),
 			BVHAR_NAMED("a_record") = contem_coef_record
@@ -241,7 +241,11 @@ struct RegRecords {
 			res["c_record"] = BVHAR_CAST_MATRIX(coef_record.middleCols(num_alpha, dim));
 		}
 		if (num_exogen > 0) {
-			res["b_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_exogen));
+			// res["b_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_exogen));
+			res["b_record"] = BVHAR_CAST_MATRIX(coef_record.middleCols(num_endog, num_exogen));
+		}
+		if (num_factor > 0) {
+			res["Lambda_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_factor));
 		}
 		return res;
 	}
@@ -417,14 +421,19 @@ struct SparseRecords {
 	 * @param num_alpha The number of coefficient elements except constant term
 	 * @param include_mean If `true`, constant term is included
 	 */
-	void appendRecords(BVHAR_LIST& list, int dim, int num_alpha, int num_exogen, bool include_mean) {
+	void appendRecords(BVHAR_LIST& list, int dim, int num_alpha, int num_endog, int num_exogen, int num_factor, bool include_mean) {
 		list["alpha_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.leftCols(num_alpha));
 		list["a_sparse_record"] = contem_coef_record;
 		if (include_mean) {
 			list["c_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.middleCols(num_alpha, dim));
 		}
 		if (num_exogen > 0) {
-			list["b_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_exogen));
+			// list["b_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_exogen));
+			list["b_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.middleCols(num_endog, num_exogen));
+		}
+		if (num_factor > 0) {
+			// list["b_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_exogen));
+			list["Lambda_sparse_record"] = BVHAR_CAST_MATRIX(coef_record.rightCols(num_factor));
 		}
 	}
 };

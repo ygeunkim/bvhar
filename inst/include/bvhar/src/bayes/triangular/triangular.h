@@ -449,9 +449,9 @@ protected:
 	 * @return BVHAR_LIST 
 	 */
 	BVHAR_LIST gatherRecords() {
-		BVHAR_LIST res = reg_record->returnListRecords(dim, num_alpha, num_exogen, include_mean);
+		BVHAR_LIST res = reg_record->returnListRecords(dim, num_alpha, num_endog, num_exogen, num_factor, include_mean);
 		reg_record->appendRecords(res);
-		sparse_record.appendRecords(res, dim, num_alpha, num_exogen, include_mean);
+		sparse_record.appendRecords(res, dim, num_alpha, num_endog, num_exogen, num_factor, include_mean);
 		return res;
 	}
 };
