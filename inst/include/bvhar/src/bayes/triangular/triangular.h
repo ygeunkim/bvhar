@@ -38,7 +38,10 @@ public:
 		include_mean(params._mean), x(params._x), y(params._y),
 		dim(params._dim), dim_design(params._dim_design), num_design(params._num_design),
 		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef), num_alpha(params._num_alpha), nrow_coef(params._nrow),
-		nrow_exogen(params._nrow_exogen), num_exogen(params._num_exogen), num_endog(num_coef - num_exogen),
+		nrow_exogen(params._nrow_exogen), num_exogen(params._num_exogen),// num_endog(num_coef - num_exogen), nrow_endog(num_endog / dim),
+		size_factor(params._size_factor), num_factor(params._num_factor),
+		num_endog(num_coef - num_exogen - size_factor), nrow_endog(num_endog / dim),
+		nrow_varx(nrow_endog + nrow_exogen),
 		coef_updater(std::move(coef_prior)), contem_updater(std::move(contem_prior)),
 		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_vec), num_grp(grp_id.size()),
 		// reg_record(std::make_unique<RegRecords>(num_iter, dim, num_design, num_coef, num_lowerchol)),
@@ -68,7 +71,8 @@ public:
 		}
 		if (exogen_prior) {
 			exogen_updater = std::move(*exogen_prior);
-			coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+			// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+			coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
 		}
 		// reg_record->assignRecords(0, coef_vec, contem_coef, diag_vec);
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
@@ -177,7 +181,9 @@ protected:
   int num_coef;
 	int num_alpha;
 	int nrow_coef;
-	int nrow_exogen, num_exogen, num_endog;
+	// int nrow_exogen, num_exogen, num_endog;
+	int nrow_exogen, num_exogen;
+	int size_factor, num_factor, num_endog, nrow_endog, nrow_varx;
 	std::unique_ptr<ShrinkageUpdater> coef_updater;
 	std::unique_ptr<ShrinkageUpdater> contem_updater;
 	std::unique_ptr<ShrinkageUpdater> exogen_updater;
@@ -234,7 +240,8 @@ protected:
       rng
 		);
 		if (exogen_updater) {
-			exogen_updater->updateImpactPrec(prior_alpha_prec.tail(num_exogen), coef_vec.tail(num_exogen), rng);
+			// exogen_updater->updateImpactPrec(prior_alpha_prec.tail(num_exogen), coef_vec.tail(num_exogen), rng);
+			exogen_updater->updateImpactPrec(prior_alpha_prec.segment(num_endog, num_exogen), coef_vec.segment(num_endog, num_exogen), rng);
 		}
 	}
 
@@ -296,8 +303,10 @@ protected:
 				prior_mean_j[nrow_coef] = prior_alpha_mean.segment(num_alpha, dim)[j];
 				prior_prec_j[nrow_coef] = prior_alpha_prec.segment(num_alpha, dim)[j];
 				if (exogen_updater) {
-					prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
-					prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_mean_j.segment(nrow_endog, nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
 					// penalty_j.tail(nrow_exogen): current alpha_penalty only covers VAR
 				}
 				draw_coef(
@@ -312,8 +321,10 @@ protected:
 				// prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
 				// penalty_j = alpha_penalty.segment(dim_design * j, dim_design);
 				if (exogen_updater) {
-					prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
-					prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_mean_j.segment(nrow_endog, nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
 				}
 				draw_coef(
 					coef_mat.col(j),
@@ -325,7 +336,8 @@ protected:
 				coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
 			}
 			if (exogen_updater) {
-				coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+				// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+				coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
 			}
 			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
