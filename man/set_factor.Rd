@@ -14,3 +14,6 @@ set_factor(size_factor = 0, factor_lag = 0)
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Set factor size and prior for factor.
 }
+\references{
+Korobilis, D. (2022). A new algorithm for structural restrictions in Bayesian vector autoregressions. European Economic Review, 148, 104241.
+}

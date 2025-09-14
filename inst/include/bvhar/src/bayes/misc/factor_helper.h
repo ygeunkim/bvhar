@@ -17,7 +17,7 @@ inline void draw_normal_factor(Eigen::Ref<Eigen::VectorXd> factor_t, Eigen::Ref<
 		(factor_loading.transpose() * sig_lower * sig_lower.transpose() * factor_loading + Eigen::MatrixXd::Identity(size_factor, size_factor)).selfadjointView<Eigen::Lower>()
 	);
 	Eigen::VectorXd post_mean = llt_of_prec.solve(
-		sig_lower.transpose().triangularView<Eigen::Upper>().solve<Eigen::OnTheRight>(factor_loading) *
+		sig_lower.transpose().triangularView<Eigen::Upper>().solve<Eigen::OnTheRight>(factor_loading.transpose()) *
 		sig_lower.triangularView<Eigen::Lower>().solve(y)
 	);
 	factor_t = post_mean + llt_of_prec.matrixU().solve(res);

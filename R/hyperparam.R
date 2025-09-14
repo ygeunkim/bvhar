@@ -708,6 +708,8 @@ set_gdp <- function(shape_grid = 100L, rate_grid = 100L) {
 #' @param size_factor Factor dimension. If `0`, factor is not used.
 #' @param factor_lag Lag for the factor autoregressions.
 #' 
+#' @references 
+#' Korobilis, D. (2022). A new algorithm for structural restrictions in Bayesian vector autoregressions. European Economic Review, 148, 104241.
 #' @order 1
 #' @export
 set_factor <- function(size_factor = 0, factor_lag = 0) {
