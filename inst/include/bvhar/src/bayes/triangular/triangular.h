@@ -551,7 +551,7 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
   bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, BVHAR_OPTIONAL<int> num_design = BVHAR_NULLOPT,
 	BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
 	BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
-	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
 ) {
 	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
 	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
@@ -649,7 +649,7 @@ public:
     bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads,
 		BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
-		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
 	)
 	: McmcRun(num_chains, num_iter, num_burn, thin, display_progress, nthreads) {
 		auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
@@ -659,7 +659,7 @@ public:
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, seed_chain,
 			BVHAR_NULLOPT, exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
-			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			factor_prior, factor_init, factor_prior_type, size_factor
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			mcmc_ptr[i] = std::move(temp_mcmc[i]);

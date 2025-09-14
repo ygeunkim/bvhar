@@ -29,9 +29,106 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 												Rcpp::List param_init, int prior_type, bool ggl,
 												Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
 												Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type, int exogen_cols,
+												Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor,
                         Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
                         bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
 	auto mcmc_run = [&]() -> std::unique_ptr<bvhar::McmcRun> {
+		if (factor_prior_type != 0) {
+			if (exogen_prior_type != 0) {
+				if (param_reg.containsElementNamed("initial_mean")) {
+					if (ggl) {
+						return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, true>>(
+							num_chains, num_iter, num_burn, thin, x, y,
+							param_reg, param_prior, param_intercept, param_init, prior_type,
+							contem_prior, contem_init, contem_prior_type,
+							grp_id, own_id, cross_id, grp_mat,
+							include_mean, seed_chain,
+							display_progress, nthreads,
+							exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+							factor_prior, factor_init, factor_prior_type, size_factor
+						);
+					}
+					return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, false>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				if (ggl) {
+					return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, true>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, false>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			if (param_reg.containsElementNamed("initial_mean")) {
+				if (ggl) {
+					return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, true>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, false>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			if (ggl) {
+				return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, true>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, false>>(
+				num_chains, num_iter, num_burn, thin, x, y,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain,
+				display_progress, nthreads,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor
+			);
+		}
 		if (exogen_prior_type != 0) {
 			if (param_reg.containsElementNamed("initial_mean")) {
 				if (ggl) {

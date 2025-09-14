@@ -16,7 +16,7 @@ struct DfmParams {
 	: _size_factor(dim_factor), _lag(lag), _dim(dim) {}
 
 	DfmParams(BVHAR_LIST& priors, int dim)
-	: _size_factor(BVHAR_CAST_INT(priors["dim_factor"])),
+	: _size_factor(BVHAR_CAST_INT(priors["size_factor"])),
 		_lag(BVHAR_CAST_INT(priors["lag"])),
 		_dim(dim) {}
 };

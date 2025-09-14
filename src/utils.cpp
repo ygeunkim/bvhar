@@ -551,7 +551,7 @@ Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef,
 
 //' h-step ahead Forecast Error Variance Decomposition
 //' 
-//' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+//' (w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...)
 //'
 //' @noRd
 // [[Rcpp::export]]

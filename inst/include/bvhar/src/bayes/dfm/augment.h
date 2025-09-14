@@ -22,7 +22,8 @@ public:
 	virtual ~FactorAugmenter() = default;
 
 	void appendDesign(Eigen::Ref<Eigen::MatrixXd> x) {
-		x.bottomRightCorner(num_design, size_factor) = factor_design.transpose(); // diag(X_0, F_0)
+		// x.bottomRightCorner(num_design, size_factor) = factor_design.transpose(); // diag(X_0, F_0)
+		x.rightCols(size_factor) = factor_design.transpose(); // diag(X_0, F_0)
 	}
 
 	void updateResid(
