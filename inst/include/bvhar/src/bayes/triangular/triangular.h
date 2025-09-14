@@ -64,6 +64,24 @@ public:
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: dim={}, dim_design={}, num_design={}, num_lowerchol={}, num_coef={}, num_alpha={}, nrow_coef={}",
+			dim, dim_design, num_design, num_lowerchol, num_coef, num_alpha, nrow_coef
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: nrow_exogen={}, num_exogen={}, size_factor={}, num_factor={}, num_endog={}, nrow_endog={}, nrow_varx={}",
+			nrow_exogen, num_exogen,
+			size_factor, num_factor,
+			num_endog, nrow_endog, nrow_varx
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: coef_mat: {}x{}, prior_alpha_mean: {}, prior_alpha_prec: {}",
+			coef_mat.rows(), coef_mat.cols(),
+			prior_alpha_mean.size(), prior_alpha_prec.size()
+		);
 		if (include_mean) {
 			prior_alpha_mean.segment(num_alpha, dim) = params._mean_non;
 			prior_alpha_prec.segment(num_alpha, dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
@@ -105,6 +123,7 @@ public:
 	}
 
 	void doWarmUp() override {
+		BVHAR_DEBUG_LOG(debug_logger, "doWarmUp() called");
 		std::lock_guard<std::mutex> lock(mtx);
 		updateCoefPrec();
 		updatePenalty();
@@ -118,6 +137,7 @@ public:
 	}
 
 	void doPosteriorDraws() override {
+		BVHAR_DEBUG_LOG(debug_logger, "doPosteriorDraws() called");
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
@@ -133,6 +153,7 @@ public:
 	}
 
 	BVHAR_LIST returnRecords(int num_burn, int thin) override {
+		BVHAR_DEBUG_LOG(debug_logger, "returnRecords(num_burn={}, thin={}) called", num_burn, thin);
 		BVHAR_LIST res = gatherRecords();
 		appendRecords(res);
 		for (auto& record : res) {
@@ -185,6 +206,7 @@ public:
 
 	template <typename RecordType>
 	RecordType returnFactorRecords(int num_burn, int thin) const {
+		BVHAR_DEBUG_LOG(debug_logger, "returnFactorRecords(num_burn={}, thin={}) called", num_burn, thin);
 		return favar_updater->returnStructRecords<RecordType>(num_burn, thin);
 	}
 
@@ -255,6 +277,7 @@ protected:
 	 * 
 	 */
 	void updateCoefPrec() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateCoefPrec() called");
 		coef_updater->updateCoefPrec(
 			prior_alpha_prec.head(num_alpha), coef_vec.head(num_alpha),
       num_grp, grp_vec, grp_id,
@@ -274,6 +297,7 @@ protected:
 	 * 
 	 */
 	void updatePenalty() {
+		BVHAR_DEBUG_LOG(debug_logger, "updatePenalty() called");
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -289,6 +313,7 @@ protected:
 	 * 
 	 */
 	void updateImpactPrec() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateImpactPrec() called");
 		contem_updater->updateImpactPrec(prior_chol_prec, contem_coef, rng);
 	}
 
@@ -297,6 +322,7 @@ protected:
 	 * 
 	 */
 	void updateRecords() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateRecords() called");
 		updateCoefRecords();
 		coef_updater->updateRecords(mcmc_step);
 		contem_updater->updateRecords(mcmc_step);
@@ -308,6 +334,7 @@ protected:
 	 * 
 	 */
 	void updateCoef() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateCoef() called");
 		if (favar_updater) {
 			favar_updater->updateResid(x, y, coef_mat);
 			favar_updater->updateFactor(coef_mat, chol_lower, sqrt_sv, rng);
@@ -388,6 +415,7 @@ protected:
 	 * 
 	 */
 	void updateImpact() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateImpact() called");
 		for (int j = 1; j < dim; ++j) {
 			response_contem = latent_innov.col(j).array() / sqrt_sv.col(j).array(); // n-dim
 			Eigen::MatrixXd design_contem = latent_innov.leftCols(j).array().colwise() / sqrt_sv.col(j).reshaped().array(); // n x (j - 1)

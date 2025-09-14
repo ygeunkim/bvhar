@@ -234,7 +234,10 @@ validate_spec <- function(bayes_spec,
       )
     }
     if (is.null(bayes_spec$sigma)) {
-      bayes_spec$sigma <- apply(y, 2, sd)
+      bayes_spec$sigma <- rep(1, dim_data)
+      if (!is.null(y)) {
+        bayes_spec$sigma <- apply(y, 2, sd)
+      }
     }
     if ("delta" %in% names(bayes_spec)) {
       if (is.null(bayes_spec$delta)) {

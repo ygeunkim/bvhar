@@ -23,14 +23,14 @@ public:
 
 	void appendDesign(Eigen::Ref<Eigen::MatrixXd> x) {
 		// x.bottomRightCorner(num_design, size_factor) = factor_design.transpose(); // diag(X_0, F_0)
-		x.rightCols(size_factor) = factor_design.transpose(); // diag(X_0, F_0)
+		x.rightCols(size_factor) = factor_design.transpose(); // (X_0, F_0)
 	}
 
 	void updateResid(
-		Eigen::Ref<Eigen::MatrixXd> x, Eigen::Ref<Eigen::MatrixXd> y,
+		Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::MatrixXd> y,
 		Eigen::Ref<const Eigen::MatrixXd> coef_mat
 	) {
-		resid = y - x.topLeftCorner(x.rows() - num_design, x.cols() - size_factor) * coef_mat.topRows(num_design - size_factor);
+		resid = y - x.leftCols(x.cols() - size_factor) * coef_mat.topRows(coef_mat.rows() - size_factor);
 	}
 	
 	// virtual void updateFactor(

@@ -9,6 +9,7 @@
 #' @param p VAR lag
 #' @param exogen Unmodeled variables
 #' @param s Lag of exogeneous variables in VARX(p, s). By default, `s = 0`.
+#' @param factor_spec `r lifecycle::badge("experimental")` Factor augmentation specification by [set_factor()].
 #' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
@@ -16,6 +17,7 @@
 #' @param coef_spec Coefficient prior specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
 #' @param contem_spec Contemporaneous coefficient prior specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
 #' @param exogen_spec Exogenous coefficient prior specification.
+#' @param loading_spec `r lifecycle::badge("experimental")` Factor loading prior specification.
 #' @param cov_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -86,6 +88,7 @@ var_bayes <- function(y,
                       p,
                       exogen = NULL,
                       s = 0,
+                      factor_spec = set_factor(),
                       num_chains = 1,
                       num_iter = 1000,
                       num_burn = floor(num_iter / 2),
@@ -95,6 +98,7 @@ var_bayes <- function(y,
                       cov_spec = set_ldlt(),
                       intercept = set_intercept(),
                       exogen_spec = coef_spec,
+                      loading_spec = coef_spec,
                       include_mean = TRUE,
                       minnesota = TRUE,
                       ggl = TRUE,
@@ -178,6 +182,28 @@ var_bayes <- function(y,
   dim_design <- ncol(X0)
   num_alpha <- dim_data^2 * p
   num_eta <- dim_data * (dim_data - 1) / 2
+  size_factor <- factor_spec$size_factor
+  num_factor <- size_factor * dim_data
+  factor_prior_type <- 0
+  factor_prior <- list()
+  factor_init <- list()
+  if (size_factor > 0) {
+    validate_prior(loading_spec)
+    factor_prior_type <- enumerate_prior(loading_spec$prior)
+    loading_spec <- validate_spec(
+      bayes_spec = loading_spec,
+      y = NULL,
+      dim_data = num_factor,
+      process = "BVAR"
+    )
+    factor_prior <- get_spec(
+      bayes_spec = loading_spec,
+      p = 0,
+      dim_data = num_factor
+    )
+    X0 <- cbind(X0, matrix(0L, nrow = num_design, ncol = size_factor))
+    dim_design <- ncol(X0)
+  }
   # model specification---------------
   validate_prior(coef_spec)
   validate_prior(contem_spec)
@@ -289,6 +315,14 @@ var_bayes <- function(y,
       num_grp = ifelse(exogen_spec$prior == "SSVS" || exogen_spec$prior == "GDP", num_exogen, 1)
     )
   }
+  if (size_factor > 0) {
+    factor_init <- get_init(
+      param_init = param_init,
+      prior_nm = loading_spec$prior,
+      num_alpha = num_factor,
+      num_grp = ifelse(loading_spec$prior == "SSVS" || loading_spec$prior == "GDP", num_factor, 1)
+    )
+  }
   param_init <- get_init(
     param_init = param_init,
     prior_nm = coef_spec$prior,
@@ -361,6 +395,10 @@ var_bayes <- function(y,
     exogen_init = exogen_init,
     exogen_prior_type = exogen_prior_type,
     exogen_cols = dim_exogen_design,
+    factor_prior = factor_prior,
+    factor_init = factor_init,
+    factor_prior_type = factor_prior_type,
+    size_factor = size_factor,
     grp_id = grp_id,
     own_id = own_id,
     cross_id = cross_id,
