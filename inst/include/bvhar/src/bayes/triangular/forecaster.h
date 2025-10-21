@@ -181,9 +181,9 @@ protected:
 
 	void forecastIn(const int i, const Eigen::MatrixXd& design) override {
 		Eigen::MatrixXd point_pred = design.leftCols(num_coef / dim) * coef_mat;
-		for (int i = 0; i < this->step; ++i) {
+		for (int h = 0; h < this->step; ++h) {
 			updateVariance();
-			point_pred.row(i) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
+			point_pred.row(h) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
 		}
 		if (exogen_updater) {
 			exogen_updater->appendPredict(point_pred, design);

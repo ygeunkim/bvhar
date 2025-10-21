@@ -156,10 +156,9 @@ protected:
 		}
 	}
 
-	virtual ReturnType getDesign() {
-		// Compute design matrix when insample-forecasting
-		// This class has "response" member -> can use this
-	}
+	// Compute design matrix when insample-forecasting
+	// This class has "response" member -> can use this
+	virtual ReturnType getDesign() = 0;
 
 	virtual void forecastIn(const int i, const ReturnType& design) {
 		// Different updateRecursion -> loop over num_design
