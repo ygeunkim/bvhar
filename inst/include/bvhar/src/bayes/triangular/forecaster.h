@@ -181,6 +181,10 @@ protected:
 
 	void forecastIn(const int i, const Eigen::MatrixXd& design) override {
 		Eigen::MatrixXd point_pred = design.leftCols(num_coef / dim) * coef_mat;
+		for (int i = 0; i < this->step; ++i) {
+			updateVariance();
+			point_pred.row(i) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
+		}
 		if (exogen_updater) {
 			exogen_updater->appendPredict(point_pred, design);
 		}
@@ -401,7 +405,7 @@ protected:
 			int dim_design = include_mean ? lag * dim + 1 : lag * dim;
 			int dim_har = include_mean ? 3 * dim + 1 : 3 * dim;
 			int dim_exogen = (exogen_updater->getLag() + 1) * (exogen_updater->getExogen()).cols();
-			Eigen::MatrixXd vhar_design(response.rows(), dim_har + dim_exogen);
+			Eigen::MatrixXd vhar_design(this->step, dim_har + dim_exogen);
 			Eigen::MatrixXd var_design = build_x0(response, exogen_updater->getExogen(), lag, exogen_updater->getLag(), include_mean);
 			vhar_design.leftCols(dim_har) = var_design.leftCols(dim_design) * har_trans.transpose();
 			vhar_design.rightCols(dim_exogen) = var_design.rightCols(dim_exogen);
