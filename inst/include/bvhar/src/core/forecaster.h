@@ -122,6 +122,12 @@ public:
 	 */
 	virtual void forecast() {}
 
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 */
+	virtual void predict() {}
+
 protected:
 	std::shared_ptr<spdlog::logger> debug_logger;
 };
@@ -145,6 +151,14 @@ public:
     BVHAR_DEBUG_LOG(debug_logger, "Constructor: lag={}", lag);
 	}
 	virtual ~ExogenForecaster() = default;
+
+	int getLag() {
+		return lag;
+	}
+
+	ReturnType getExogen() {
+		return exogen;
+	}
 
 	/**
 	 * @brief Add point forecast by exogenous terms
