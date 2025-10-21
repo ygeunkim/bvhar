@@ -153,12 +153,13 @@ var_bayes <- function(y,
     # num_exogen <- dim_data * dim_exogen_design
     # Might be better use group also in exogen!
     exogen_prior_type <- enumerate_prior(exogen_spec$prior)
+    exogen_id <- length(name_lag) + 1:((s + 1) * dim_exogen)
     name_lag <- c(
       name_lag,
       concatenate_colnames(name_exogen, 0:s, FALSE)
     )
     X0 <- build_exogen_design(y, exogen, p, s, include_mean)
-    exogen_id <- length(name_lag) + 1:((s + 1) * dim_exogen)
+    # exogen_id <- length(name_lag) + 1:((s + 1) * dim_exogen)
     dim_exogen_design <- length(exogen_id)
     num_exogen <- dim_data * dim_exogen_design
     exogen_spec <- validate_spec(

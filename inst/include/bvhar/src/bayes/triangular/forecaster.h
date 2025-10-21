@@ -41,6 +41,10 @@ public:
 		point_forecast += coef_mat.transpose() * last_pvec;
 	}
 
+	void appendPredict(Eigen::MatrixXd& pred, const Eigen::MatrixXd& design) {
+		pred += design.rightCols(nrow_exogen) * coef_mat;
+	}
+
 	Eigen::VectorXd getObs() {
 		BVHAR_DEBUG_LOG(debug_logger, "getObs() called");
 		return last_pvec;
@@ -173,6 +177,18 @@ protected:
 	void updateRecursion() override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateRecursion() called");
 		tmp_vec = last_pvec.head((lag - 1) * dim);
+	}
+
+	void forecastIn(const int i, const Eigen::MatrixXd& design) override {
+		Eigen::MatrixXd point_pred = design.leftCols(num_coef / dim) * coef_mat;
+		for (int i = 0; i < this->step; ++i) {
+			updateVariance();
+			point_pred.row(i) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
+		}
+		if (exogen_updater) {
+			exogen_updater->appendPredict(point_pred, design);
+		}
+		pred_save.middleCols(i * dim, dim) = point_pred;
 	}
 
 	/**
@@ -327,6 +343,14 @@ protected:
 		BVHAR_DEBUG_LOG(debug_logger, "computeMean() called");
 		point_forecast = coef_mat.transpose() * last_pvec;
 	}
+
+	Eigen::MatrixXd getDesign() override {
+		BVHAR_DEBUG_LOG(debug_logger, "getDesign() called");
+		if (this->exogen_updater) {
+			return build_x0(this->response, this->exogen_updater->getExogen(), this->lag, this->exogen_updater->getLag(), this->include_mean);
+		}
+		return build_x0(this->response, this->lag, this->include_mean);
+	}
 };
 
 /**
@@ -361,15 +385,33 @@ protected:
 	using BaseForecaster::dim;
 	using BaseForecaster::num_alpha;
 	using BaseForecaster::num_sim;
+	using BaseForecaster::lag;
+	using BaseForecaster::include_mean;
+	using BaseForecaster::response;
 	using BaseForecaster::point_forecast;
 	using BaseForecaster::coef_mat;
 	using BaseForecaster::last_pvec;
+	using BaseForecaster::exogen_updater;
 	using BaseForecaster::debug_logger;
 	Eigen::MatrixXd har_trans;
 
 	void computeMean() override {
 		BVHAR_DEBUG_LOG(debug_logger, "computeMean() called");
 		point_forecast = coef_mat.transpose() * har_trans * last_pvec;
+	}
+
+	Eigen::MatrixXd getDesign() override {
+		if (exogen_updater) {
+			int dim_design = include_mean ? lag * dim + 1 : lag * dim;
+			int dim_har = include_mean ? 3 * dim + 1 : 3 * dim;
+			int dim_exogen = (exogen_updater->getLag() + 1) * (exogen_updater->getExogen()).cols();
+			Eigen::MatrixXd vhar_design(this->step, dim_har + dim_exogen);
+			Eigen::MatrixXd var_design = build_x0(response, exogen_updater->getExogen(), lag, exogen_updater->getLag(), include_mean);
+			vhar_design.leftCols(dim_har) = var_design.leftCols(dim_design) * har_trans.transpose();
+			vhar_design.rightCols(dim_exogen) = var_design.rightCols(dim_exogen);
+			return vhar_design;
+		}
+		return build_x0(response, lag, include_mean) * har_trans.transpose();
 	}
 };
 
