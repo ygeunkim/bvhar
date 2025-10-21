@@ -768,6 +768,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_bvarldlt_insample
+Rcpp::List forecast_bvarldlt_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvarldlt_insample(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP response_matSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarldlt_insample(num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvarxldlt
 Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
 RcppExport SEXP _bvhar_forecast_bvarxldlt(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
@@ -788,6 +808,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(forecast_bvarxldlt(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forecast_bvarxldlt_insample
+Rcpp::List forecast_bvarxldlt_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvarxldlt_insample(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP response_matSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type exogen(exogenSEXP);
+    Rcpp::traits::input_parameter< int >::type exogen_lag(exogen_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarxldlt_insample(num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -813,6 +855,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_bvharldlt_insample
+Rcpp::List forecast_bvharldlt_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvharldlt_insample(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharldlt_insample(num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvharxldlt
 Rcpp::List forecast_bvharxldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
 RcppExport SEXP _bvhar_forecast_bvharxldlt(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
@@ -834,6 +897,29 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(forecast_bvharxldlt(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forecast_bvharxldlt_insample
+Rcpp::List forecast_bvharxldlt_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvharxldlt_insample(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type exogen(exogenSEXP);
+    Rcpp::traits::input_parameter< int >::type exogen_lag(exogen_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharxldlt_insample(num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1043,6 +1129,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_bvarsv_insample
+Rcpp::List forecast_bvarsv_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvarsv_insample(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP response_matSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type sv(svSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarsv_insample(num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvarxsv
 Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
 RcppExport SEXP _bvhar_forecast_bvarxsv(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
@@ -1064,6 +1171,29 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(forecast_bvarxsv(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forecast_bvarxsv_insample
+Rcpp::List forecast_bvarxsv_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvarxsv_insample(SEXP num_chainsSEXP, SEXP var_lagSEXP, SEXP response_matSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type var_lag(var_lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< bool >::type sv(svSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type exogen(exogenSEXP);
+    Rcpp::traits::input_parameter< int >::type exogen_lag(exogen_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvarxsv_insample(num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1090,6 +1220,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// forecast_bvharsv_insample
+Rcpp::List forecast_bvharsv_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvharsv_insample(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
+    Rcpp::traits::input_parameter< bool >::type sv(svSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharsv_insample(num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_bvharxsv
 Rcpp::List forecast_bvharxsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
 RcppExport SEXP _bvhar_forecast_bvharxsv(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
@@ -1112,6 +1264,30 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(forecast_bvharxsv(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// forecast_bvharxsv_insample
+Rcpp::List forecast_bvharxsv_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans, bool sv, bool sparse, double level, Rcpp::List fit_record, Eigen::VectorXi seed_chain, bool include_mean, Eigen::MatrixXd exogen, int exogen_lag, bool stable, int nthreads);
+RcppExport SEXP _bvhar_forecast_bvharxsv_insample(SEXP num_chainsSEXP, SEXP monthSEXP, SEXP response_matSEXP, SEXP HARtransSEXP, SEXP svSEXP, SEXP sparseSEXP, SEXP levelSEXP, SEXP fit_recordSEXP, SEXP seed_chainSEXP, SEXP include_meanSEXP, SEXP exogenSEXP, SEXP exogen_lagSEXP, SEXP stableSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type response_mat(response_matSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type HARtrans(HARtransSEXP);
+    Rcpp::traits::input_parameter< bool >::type sv(svSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type level(levelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type exogen(exogenSEXP);
+    Rcpp::traits::input_parameter< int >::type exogen_lag(exogen_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type stable(stableSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(forecast_bvharxsv_insample(num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -2382,17 +2558,25 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_dynamic_vhar_spillover", (DL_FUNC) &_bvhar_dynamic_vhar_spillover, 8},
     {"_bvhar_estimate_sur", (DL_FUNC) &_bvhar_estimate_sur, 31},
     {"_bvhar_forecast_bvarldlt", (DL_FUNC) &_bvhar_forecast_bvarldlt, 11},
+    {"_bvhar_forecast_bvarldlt_insample", (DL_FUNC) &_bvhar_forecast_bvarldlt_insample, 10},
     {"_bvhar_forecast_bvarxldlt", (DL_FUNC) &_bvhar_forecast_bvarxldlt, 13},
+    {"_bvhar_forecast_bvarxldlt_insample", (DL_FUNC) &_bvhar_forecast_bvarxldlt_insample, 12},
     {"_bvhar_forecast_bvharldlt", (DL_FUNC) &_bvhar_forecast_bvharldlt, 12},
+    {"_bvhar_forecast_bvharldlt_insample", (DL_FUNC) &_bvhar_forecast_bvharldlt_insample, 11},
     {"_bvhar_forecast_bvharxldlt", (DL_FUNC) &_bvhar_forecast_bvharxldlt, 14},
+    {"_bvhar_forecast_bvharxldlt_insample", (DL_FUNC) &_bvhar_forecast_bvharxldlt_insample, 13},
     {"_bvhar_roll_bvarldlt", (DL_FUNC) &_bvhar_roll_bvarldlt, 33},
     {"_bvhar_roll_bvarxldlt", (DL_FUNC) &_bvhar_roll_bvarxldlt, 38},
     {"_bvhar_roll_bvharldlt", (DL_FUNC) &_bvhar_roll_bvharldlt, 34},
     {"_bvhar_roll_bvharxldlt", (DL_FUNC) &_bvhar_roll_bvharxldlt, 39},
     {"_bvhar_forecast_bvarsv", (DL_FUNC) &_bvhar_forecast_bvarsv, 12},
+    {"_bvhar_forecast_bvarsv_insample", (DL_FUNC) &_bvhar_forecast_bvarsv_insample, 11},
     {"_bvhar_forecast_bvarxsv", (DL_FUNC) &_bvhar_forecast_bvarxsv, 14},
+    {"_bvhar_forecast_bvarxsv_insample", (DL_FUNC) &_bvhar_forecast_bvarxsv_insample, 13},
     {"_bvhar_forecast_bvharsv", (DL_FUNC) &_bvhar_forecast_bvharsv, 13},
+    {"_bvhar_forecast_bvharsv_insample", (DL_FUNC) &_bvhar_forecast_bvharsv_insample, 12},
     {"_bvhar_forecast_bvharxsv", (DL_FUNC) &_bvhar_forecast_bvharxsv, 15},
+    {"_bvhar_forecast_bvharxsv_insample", (DL_FUNC) &_bvhar_forecast_bvharxsv_insample, 14},
     {"_bvhar_roll_bvarsv", (DL_FUNC) &_bvhar_roll_bvarsv, 34},
     {"_bvhar_roll_bvarxsv", (DL_FUNC) &_bvhar_roll_bvarxsv, 39},
     {"_bvhar_roll_bvharsv", (DL_FUNC) &_bvhar_roll_bvharsv, 35},

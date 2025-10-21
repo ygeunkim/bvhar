@@ -27,6 +27,17 @@ public:
 	}
 	virtual ~BayesForecaster() = default;
 	// using MultistepForecaster<ReturnType, DataType>::returnForecast();
+
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 * @return ReturnType 
+	 */
+	ReturnType doPredict() {
+		BVHAR_DEBUG_LOG(debug_logger, "doPredict() called");
+		forecastInsample();
+		return pred_save;
+	}
 	
 	/**
 	 * @brief Return the draws of LPL
@@ -128,6 +139,32 @@ protected:
 			this->updateRecursion();
 		}
 	}
+
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 */
+	void forecastInsample() {
+		std::lock_guard<std::mutex> lock(mtx);
+		BVHAR_DEBUG_LOG(debug_logger, "forecastInsample() called");
+		// pred_save: step x num_sim * dim => step == num_design when in-sample forecasting
+		ReturnType design = getDesign();
+		for (int i = 0; i < num_sim; ++i) {
+			BVHAR_DEBUG_LOG(debug_logger, "i={} / num_sim={}", i, num_sim);
+			updateParams(i);
+			forecastIn(i, design);
+		}
+	}
+
+	// Compute design matrix when insample-forecasting
+	// This class has "response" member -> can use this
+	virtual ReturnType getDesign() = 0;
+
+	virtual void forecastIn(const int i, const ReturnType& design) {
+		// Different updateRecursion -> loop over num_design
+		// vs use X * coef_mat at once (might be more efficient but cannot use DataType last_pvec)
+		// design input for the second option
+	}
 };
 
 /**
@@ -173,6 +210,28 @@ public:
 	 */
 	std::vector<ReturnType> returnForecast() {
 		forecast();
+		return density_forecast;
+	}
+
+	void predict() override {
+		BVHAR_DEBUG_LOG(debug_logger, "predict() called");
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; ++chain) {
+			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
+			density_forecast[chain] = forecaster[chain]->doPredict();
+			forecaster[chain].reset();
+		}
+	}
+
+	/**
+	 * @brief Return forecast draws
+	 * 
+	 * @return std::vector<ReturnType> Forecast density of each chain
+	 */
+	std::vector<ReturnType> returnPredict() {
+		predict();
 		return density_forecast;
 	}
 
