@@ -12,6 +12,10 @@ This will affect every MCMC results of this library.
 * Fixed upper triangular Bartlett decomposition for inverse-Wishart rng.
 This change affects every results that uses MNIW in the posterior sampling.
 
+## New features
+
+* `predict()` can conduct in-sample forecasting when `n_ahead` is not specified (for now, only `*ldlt` and `*sv` can do this).
+
 ## Internal changes (C++)
 
 * Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.
