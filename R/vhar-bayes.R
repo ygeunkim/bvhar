@@ -140,11 +140,12 @@ vhar_bayes <- function(y,
     }
     dim_exogen <- ncol(exogen)
     exogen_prior_type <- enumerate_prior(exogen_spec$prior)
+    exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
     name_har <- c(
       name_har,
       concatenate_colnames(name_exogen, 0:s, FALSE)
     )
-    exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
+    # exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
     dim_exogen_design <- length(exogen_id)
     num_exogen <- dim_data * dim_exogen_design
     # X0 <- build_exogen_design(y, exogen, month, s, include_mean)
