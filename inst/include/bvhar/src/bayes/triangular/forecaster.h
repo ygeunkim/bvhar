@@ -86,10 +86,24 @@ public:
 	CtaFactorNormalForecaster(int step, int dim, int dim_factor)
 	: CtaFactorForecaster(step, 0, dim, dim_factor),
 		vec_normal(Eigen::VectorXd::Zero(size_factor)) {}
+
+	CtaFactorNormalForecaster(const DfmRecords& records, int step, int dim, int dim_factor)
+	: CtaFactorForecaster(step, 0, dim, dim_factor),
+		vec_normal(Eigen::VectorXd::Zero(size_factor)) {
+		dfm_record = std::make_unique<DfmRecords>(records); // Need record when in-sample forecasting
+	}
+
 	virtual ~CtaFactorNormalForecaster() = default;
 
 	void updateVarCoef(const int id, BVHAR_BHRNG& rng) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateVarCoef(id={}, rng) called", id);
+		if (dfm_record) {
+			for (int h = 0; h < step; ++h) {
+				// exogen = (f_{p + 1}, ..., f_T)^T
+				exogen.row(h) = dfm_record->factor_record.row(id).segment(h * size_factor, size_factor);
+			}
+			return;
+		}
 		for (int h = 0; h < step; ++h) {
 			for (int i = 0; i < size_factor; ++i) {
 				vec_normal[i] = normal_rand(rng);
@@ -282,8 +296,14 @@ protected:
 			coef_mat.bottomRows<1>() = reg_record->coef_record.row(i).segment(num_alpha, dim);
 			// coef_mat.middleRows<1>(nrow_coef) = reg_record->coef_record.row(i).segment(num_alpha, dim);
 		}
+		int num_nofactor = num_coef;
 		if (exogen_updater) {
 			exogen_updater->updateCoefmat(reg_record->coef_record.row(i).transpose(), num_coef);
+			num_nofactor += exogen_updater->getSize();
+		}
+		if (factor_updater) {
+			factor_updater->updateCoefmat(reg_record->coef_record.row(i).transpose(), num_nofactor);
+			factor_updater->updateVarCoef(i, rng);
 		}
 		reg_record->updateDiag(i, sv_update); // D^1/2
 		contem_mat = build_inv_lower(dim, reg_record->contem_coef_record.row(i)); // L
@@ -327,8 +347,14 @@ protected:
 		if (include_mean) {
 			coef_mat.bottomRows<1>() = reg_record->coef_record.row(i).segment(num_alpha, dim);
 		}
+		int num_nofactor = num_coef;
 		if (exogen_updater) {
 			exogen_updater->updateCoefmat(reg_record->coef_record.row(i).transpose(), num_coef);
+			num_nofactor += exogen_updater->getSize();
+		}
+		if (factor_updater) {
+			factor_updater->updateCoefmat(reg_record->coef_record.row(i).transpose(), num_nofactor);
+			factor_updater->updateVarCoef(i, rng);
 		}
 		reg_record->updateDiag(i, sv_update, sv_sig); // D^1/2
 		contem_mat = build_inv_lower(dim, reg_record->contem_coef_record.row(i)); // L
