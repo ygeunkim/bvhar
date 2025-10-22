@@ -236,26 +236,17 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
 													 	 bool sparse, double level, Rcpp::List fit_record,
-													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
+													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+														 bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
 		num_chains, var_lag, step, response_mat,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvarldlt_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat,
-													 	 					bool sparse, double level, Rcpp::List fit_record,
-													 	 					Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, response_mat.rows() - var_lag, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' @noRd
@@ -264,30 +255,18 @@ Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::Matr
 													 	  bool sparse, double level, Rcpp::List fit_record,
 													 	  Eigen::VectorXi seed_chain, bool include_mean,
 															Eigen::MatrixXd exogen, int exogen_lag,
-															bool stable, int nthreads) {
+															bool stable, int nthreads,
+															bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
 		num_chains, var_lag, step, response_mat,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		true, exogen, exogen_lag
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvarxldlt_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat,
-													 	 					bool sparse, double level, Rcpp::List fit_record,
-													 	 					Eigen::VectorXi seed_chain, bool include_mean,
-																			Eigen::MatrixXd exogen, int exogen_lag,
-																			bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, response_mat.rows() - var_lag, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' Forecasting Predictive Density of BVHAR
@@ -311,26 +290,17 @@ Rcpp::List forecast_bvarxldlt_insample(int num_chains, int var_lag, Eigen::Matri
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 															bool sparse, double level, Rcpp::List fit_record,
-															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
+															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+															bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
 		num_chains, month, step, response_mat, HARtrans,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvharldlt_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-													 	 					 bool sparse, double level, Rcpp::List fit_record,
-													 	 					 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, response_mat.rows() - month, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' @noRd
@@ -339,30 +309,18 @@ Rcpp::List forecast_bvharxldlt(int num_chains, int month, int step, Eigen::Matri
 													 	   bool sparse, double level, Rcpp::List fit_record,
 													 	   Eigen::VectorXi seed_chain, bool include_mean,
 															 Eigen::MatrixXd exogen, int exogen_lag,
-															 bool stable, int nthreads) {
+															 bool stable, int nthreads,
+															 bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
 		num_chains, month, step, response_mat, HARtrans,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		true, exogen, exogen_lag
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvharxldlt_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-													 	 					  bool sparse, double level, Rcpp::List fit_record,
-													 	 					  Eigen::VectorXi seed_chain, bool include_mean,
-																				Eigen::MatrixXd exogen, int exogen_lag,
-																				bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, response_mat.rows() - month, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -523,28 +481,18 @@ Rcpp::List roll_bvharxldlt(Eigen::MatrixXd y, int week, int month, int num_chain
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
 													 bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
+													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+													 bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
 		num_chains, var_lag, step, response_mat,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		sv
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvarsv_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat,
-													 	 				bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 	 				Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, response_mat.rows() - var_lag, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' @noRd
@@ -553,30 +501,18 @@ Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::Matrix
 													 	bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	Eigen::VectorXi seed_chain, bool include_mean,
 														Eigen::MatrixXd exogen, int exogen_lag,
-														bool stable, int nthreads) {
+														bool stable, int nthreads,
+														bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
 		num_chains, var_lag, step, response_mat,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		sv, exogen, exogen_lag
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvarxsv_insample(int num_chains, int var_lag, Eigen::MatrixXd response_mat,
-													 	 				 bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 	 				 Eigen::VectorXi seed_chain, bool include_mean,
-																		 Eigen::MatrixXd exogen, int exogen_lag,
-																		 bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, response_mat.rows() - var_lag, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' Forecasting Predictive Density of VHAR-SV
@@ -600,28 +536,18 @@ Rcpp::List forecast_bvarxsv_insample(int num_chains, int var_lag, Eigen::MatrixX
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
 														bool sv, bool sparse, double level, Rcpp::List fit_record,
-														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
+														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+													  bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
 		num_chains, month, step, response_mat, HARtrans,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		sv
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvharsv_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-													 	 				 bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 	 				 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, response_mat.rows() - month, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' @noRd
@@ -630,30 +556,18 @@ Rcpp::List forecast_bvharxsv(int num_chains, int month, int step, Eigen::MatrixX
 													 	 bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	 Eigen::VectorXi seed_chain, bool include_mean,
 														 Eigen::MatrixXd exogen, int exogen_lag,
-														 bool stable, int nthreads) {
+														 bool stable, int nthreads,
+														 bool insample) {
 	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
 		num_chains, month, step, response_mat, HARtrans,
 		sparse, level, fit_record,
 		seed_chain, include_mean, stable, nthreads,
 		sv, exogen, exogen_lag
 	);
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
-}
-
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::List forecast_bvharxsv_insample(int num_chains, int month, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
-													 	 					bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 	 					Eigen::VectorXi seed_chain, bool include_mean,
-																			Eigen::MatrixXd exogen, int exogen_lag,
-																			bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, response_mat.rows() - month, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
-	return Rcpp::wrap(forecaster->returnPredict());
 }
 
 //' Out-of-Sample Forecasting of VAR-SV based on Rolling Window

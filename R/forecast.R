@@ -486,71 +486,44 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, newxreg, stable = FAL
   #   "DL" = 6,
   #   "GDP" = 7
   # )
-  if (is_insample) {
-    if (!is.null(eval.parent(object$call$exogen))) {
-      pred_res <- forecast_bvarxldlt_insample(
-        num_chains = num_chains,
-        var_lag = object$p,
-        response_mat = object$y,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        # exogen = tail(object$exogen_data, object$s),
-        # exogen = object$design[,object$exogen_id],
-        exogen = object$exogen_data,
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
+  if (!is.null(eval.parent(object$call$exogen))) {
+    if (is_insample) {
+      exogen_design <- object$exogen_data
     } else {
-      pred_res <- forecast_bvarldlt_insample(
-        num_chains = num_chains,
-        var_lag = object$p,
-        response_mat = object$y,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
-    }
-  } else {
-    if (!is.null(eval.parent(object$call$exogen))) {
       newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
-      pred_res <- forecast_bvarxldlt(
-        num_chains = num_chains,
-        var_lag = object$p,
-        step = n_ahead,
-        response_mat = object$y,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = rbind(tail(object$exogen_data, object$s), newxreg),
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
-    } else {
-      pred_res <- forecast_bvarldlt(
-        num_chains = num_chains,
-        var_lag = object$p,
-        step = n_ahead,
-        response_mat = object$y,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
+      exogen_design <- rbind(tail(object$exogen_data, object$s), newxreg)
     }
+    pred_res <- forecast_bvarxldlt(
+      num_chains = num_chains,
+      var_lag = object$p,
+      step = n_ahead,
+      response_mat = object$y,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      exogen = exogen_design,
+      exogen_lag = object$s,
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
+  } else {
+    pred_res <- forecast_bvarldlt(
+      num_chains = num_chains,
+      var_lag = object$p,
+      step = n_ahead,
+      response_mat = object$y,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
   }
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
@@ -654,73 +627,46 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, newxreg, stable = FA
   #   "DL" = 6,
   #   "GDP" = 7
   # )
-  if (is_insample) {
-    if (!is.null(eval.parent(object$call$exogen))) {
-      pred_res <- forecast_bvharxldlt_insample(
-        num_chains = num_chains,
-        month = object$month,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = object$exogen_data,
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
+  if (!is.null(eval.parent(object$call$exogen))) {
+    if (is_insample) {
+      exogen_design <- object$exogen_data
     } else {
-      pred_res <- forecast_bvharldlt_insample(
-        num_chains = num_chains,
-        month = object$month,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
-    }
-  } else {
-    if (!is.null(eval.parent(object$call$exogen))) {
       newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
-      pred_res <- forecast_bvharxldlt(
-        num_chains = num_chains,
-        month = object$month,
-        step = n_ahead,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = rbind(tail(object$exogen_data, object$s), newxreg),
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
-    } else {
-      pred_res <- forecast_bvharldlt(
-        num_chains = num_chains,
-        month = object$month,
-        step = n_ahead,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
+      exogen_design <- rbind(tail(object$exogen_data, object$s), newxreg)
     }
+    pred_res <- forecast_bvharxldlt(
+      num_chains = num_chains,
+      month = object$month,
+      step = n_ahead,
+      response_mat = object$y,
+      HARtrans = object$HARtrans,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      exogen = exogen_design,
+      exogen_lag = object$s,
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
+  } else {
+    pred_res <- forecast_bvharldlt(
+      num_chains = num_chains,
+      month = object$month,
+      step = n_ahead,
+      response_mat = object$y,
+      HARtrans = object$HARtrans,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
   }
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
@@ -829,73 +775,46 @@ predict.bvarsv <- function(object, n_ahead, level = .05, newxreg, stable = FALSE
   #   "DL" = 6,
   #   "GDP" = 7
   # )
-  if (is_insample) {
-    if (!is.null(eval.parent(object$call$exogen))) {
-      pred_res <- forecast_bvarxsv_insample(
-        num_chains = num_chains,
-        var_lag = object$p,
-        response_mat = object$y,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = object$exogen_data,
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
+  if (!is.null(eval.parent(object$call$exogen))) {
+    if (is_insample) {
+      exogen_design <- object$exogen_data
     } else {
-      pred_res <- forecast_bvarsv_insample(
-        num_chains = num_chains,
-        var_lag = object$p,
-        response_mat = object$y,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
-    }
-  } else {
-    if (!is.null(eval.parent(object$call$exogen))) {
       newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
-      pred_res <- forecast_bvarxsv(
-        num_chains = num_chains,
-        var_lag = object$p,
-        step = n_ahead,
-        response_mat = object$y,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = rbind(tail(object$exogen_data, object$s), newxreg),
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
-    } else {
-      pred_res <- forecast_bvarsv(
-        num_chains = num_chains,
-        var_lag = object$p,
-        step = n_ahead,
-        response_mat = object$y,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
+      exogen_design <- rbind(tail(object$exogen_data, object$s), newxreg)
     }
+    pred_res <- forecast_bvarxsv(
+      num_chains = num_chains,
+      var_lag = object$p,
+      step = n_ahead,
+      response_mat = object$y,
+      sv = use_sv,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      exogen = exogen_design,
+      exogen_lag = object$s,
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
+  } else {
+    pred_res <- forecast_bvarsv(
+      num_chains = num_chains,
+      var_lag = object$p,
+      step = n_ahead,
+      response_mat = object$y,
+      sv = use_sv,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
   }
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------
@@ -1001,78 +920,48 @@ predict.bvharsv <- function(object, n_ahead, level = .05, newxreg, stable = FALS
   #   "DL" = 6,
   #   "GDP" = 7
   # )
-  if (is_insample) {
-    if (!is.null(eval.parent(object$call$exogen))) {
-      newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
-      pred_res <- forecast_bvharxsv_insample(
-        num_chains = num_chains,
-        month = object$month,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = object$exogen_data,
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
+  if (!is.null(eval.parent(object$call$exogen))) {
+    if (is_insample) {
+      exogen_design <- object$exogen_data
     } else {
-      pred_res <- forecast_bvharsv_insample(
-        num_chains = num_chains,
-        month = object$month,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
+      newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
+      exogen_design <- rbind(tail(object$exogen_data, object$s), newxreg)
     }
+    pred_res <- forecast_bvharxsv(
+      num_chains = num_chains,
+      month = object$month,
+      step = n_ahead,
+      response_mat = object$y,
+      HARtrans = object$HARtrans,
+      sv = use_sv,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      exogen = exogen_design,
+      exogen_lag = object$s,
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
   } else {
-    if (!is.null(eval.parent(object$call$exogen))) {
-      newxreg <- validate_newxreg(newxreg = newxreg, n_ahead = n_ahead)
-      pred_res <- forecast_bvharxsv(
-        num_chains = num_chains,
-        month = object$month,
-        step = n_ahead,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        exogen = rbind(tail(object$exogen_data, object$s), newxreg),
-        exogen_lag = object$s,
-        stable = stable,
-        nthreads = num_thread
-      )
-    } else {
-      pred_res <- forecast_bvharsv(
-        num_chains = num_chains,
-        month = object$month,
-        step = n_ahead,
-        response_mat = object$y,
-        HARtrans = object$HARtrans,
-        sv = use_sv,
-        sparse = sparse,
-        level = ci_lev,
-        fit_record = fit_ls,
-        seed_chain = sample.int(.Machine$integer.max, size = num_chains),
-        include_mean = object$type == "const",
-        stable = stable,
-        nthreads = num_thread
-      )
-    }
+    pred_res <- forecast_bvharsv(
+      num_chains = num_chains,
+      month = object$month,
+      step = n_ahead,
+      response_mat = object$y,
+      HARtrans = object$HARtrans,
+      sv = use_sv,
+      sparse = sparse,
+      level = ci_lev,
+      fit_record = fit_ls,
+      seed_chain = sample.int(.Machine$integer.max, size = num_chains),
+      include_mean = object$type == "const",
+      stable = stable,
+      nthreads = num_thread,
+      insample = is_insample
+    )
   }
   var_names <- colnames(object$y0)
   # Predictive distribution------------------------------------

@@ -614,23 +614,13 @@ estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, 
 #' @param nthreads OpenMP number of threads
 #' 
 #' @noRd
-forecast_bvarldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvarldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvarldlt_insample <- function(num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarldlt_insample`, num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvarxldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvarxldlt_insample <- function(num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxldlt_insample`, num_chains, var_lag, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvarxldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarxldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Forecasting Predictive Density of BVHAR
@@ -651,23 +641,13 @@ forecast_bvarxldlt_insample <- function(num_chains, var_lag, response_mat, spars
 #' @param nthreads OpenMP number of threads 
 #'
 #' @noRd
-forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvharldlt_insample <- function(num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharldlt_insample`, num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvharxldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvharxldlt_insample <- function(num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxldlt_insample`, num_chains, month, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvharxldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharxldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -759,23 +739,13 @@ roll_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thin
 #' @param nthreads OpenMP number of threads
 #' 
 #' @noRd
-forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvarsv_insample <- function(num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarsv_insample`, num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvarxsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvarxsv_insample <- function(num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxsv_insample`, num_chains, var_lag, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvarxsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarxsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
@@ -796,23 +766,13 @@ forecast_bvarxsv_insample <- function(num_chains, var_lag, response_mat, sv, spa
 #' @param nthreads OpenMP number of threads 
 #'
 #' @noRd
-forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvharsv_insample <- function(num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharsv_insample`, num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvharxsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
-}
-
-#' @noRd
-forecast_bvharxsv_insample <- function(num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxsv_insample`, num_chains, month, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvharxsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharxsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
