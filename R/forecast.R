@@ -441,6 +441,12 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, newxreg, stable = FAL
   if (is_insample) {
     n_ahead <- nrow(object$y0)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   if (warn) {
     is_stable <- apply(
@@ -498,6 +504,8 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, newxreg, stable = FAL
       var_lag = object$p,
       step = n_ahead,
       response_mat = object$y,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sparse = sparse,
       level = ci_lev,
       fit_record = fit_ls,
@@ -515,6 +523,8 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, newxreg, stable = FAL
       var_lag = object$p,
       step = n_ahead,
       response_mat = object$y,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sparse = sparse,
       level = ci_lev,
       fit_record = fit_ls,
@@ -582,6 +592,12 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, newxreg, stable = FA
   if (is_insample) {
     n_ahead <- nrow(object$y0)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   if (warn) {
     is_stable <- apply(
@@ -640,6 +656,8 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, newxreg, stable = FA
       step = n_ahead,
       response_mat = object$y,
       HARtrans = object$HARtrans,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sparse = sparse,
       level = ci_lev,
       fit_record = fit_ls,
@@ -658,6 +676,8 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, newxreg, stable = FA
       step = n_ahead,
       response_mat = object$y,
       HARtrans = object$HARtrans,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sparse = sparse,
       level = ci_lev,
       fit_record = fit_ls,
@@ -730,6 +750,12 @@ predict.bvarsv <- function(object, n_ahead, level = .05, newxreg, stable = FALSE
   if (is_insample) {
     n_ahead <- nrow(object$y0)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   alpha_record <- as_draws_matrix(subset_draws(object$param, variable = "alpha"))
   if (warn) {
     is_stable <- apply(
@@ -787,6 +813,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, newxreg, stable = FALSE
       var_lag = object$p,
       step = n_ahead,
       response_mat = object$y,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sv = use_sv,
       sparse = sparse,
       level = ci_lev,
@@ -805,6 +833,8 @@ predict.bvarsv <- function(object, n_ahead, level = .05, newxreg, stable = FALSE
       var_lag = object$p,
       step = n_ahead,
       response_mat = object$y,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sv = use_sv,
       sparse = sparse,
       level = ci_lev,
@@ -874,6 +904,12 @@ predict.bvharsv <- function(object, n_ahead, level = .05, newxreg, stable = FALS
   if (is_insample) {
     n_ahead <- nrow(object$y0)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   phi_record <- as_draws_matrix(subset_draws(object$param, variable = "phi"))
   if (warn) {
     is_stable <- apply(
@@ -933,6 +969,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, newxreg, stable = FALS
       step = n_ahead,
       response_mat = object$y,
       HARtrans = object$HARtrans,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sv = use_sv,
       sparse = sparse,
       level = ci_lev,
@@ -952,6 +990,8 @@ predict.bvharsv <- function(object, n_ahead, level = .05, newxreg, stable = FALS
       step = n_ahead,
       response_mat = object$y,
       HARtrans = object$HARtrans,
+      size_factor = size_factor,
+      factor_lag = factor_lag,
       sv = use_sv,
       sparse = sparse,
       level = ci_lev,

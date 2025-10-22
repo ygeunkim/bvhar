@@ -620,10 +620,10 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 			exogen_updater = std::make_unique<CtaExogenForecaster>(*exogen_lag, *exogen, response_mat.cols());
 		}
 		if (size_factor) {
-			if (factor_lag) {
-				// 
-			} else {
+			if (*factor_lag == 0) {
 				factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+			} else {
+				// factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
 			}
 		}
 		// std::unique_ptr<CtaExogenForecaster> exogen_updater;

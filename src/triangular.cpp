@@ -235,14 +235,32 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+														 int size_factor, int factor_lag,
 													 	 bool sparse, double level, Rcpp::List fit_record,
 													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
 														 bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -252,17 +270,36 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+															int size_factor, int factor_lag,
 													 	  bool sparse, double level, Rcpp::List fit_record,
 													 	  Eigen::VectorXi seed_chain, bool include_mean,
 															Eigen::MatrixXd exogen, int exogen_lag,
 															bool stable, int nthreads,
 															bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	true, exogen, exogen_lag
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -289,14 +326,32 @@ Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::Matr
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+															int size_factor, int factor_lag,
 															bool sparse, double level, Rcpp::List fit_record,
 															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
 															bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -306,17 +361,36 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharxldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+															 int size_factor, int factor_lag,
 													 	   bool sparse, double level, Rcpp::List fit_record,
 													 	   Eigen::VectorXi seed_chain, bool include_mean,
 															 Eigen::MatrixXd exogen, int exogen_lag,
 															 bool stable, int nthreads,
 															 bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	true, exogen, exogen_lag
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -480,15 +554,34 @@ Rcpp::List roll_bvharxldlt(Eigen::MatrixXd y, int week, int month, int num_chain
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+													 int size_factor, int factor_lag,
 													 bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
 													 bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -498,17 +591,36 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+														int size_factor, int factor_lag,
 													 	bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	Eigen::VectorXi seed_chain, bool include_mean,
 														Eigen::MatrixXd exogen, int exogen_lag,
 														bool stable, int nthreads,
 														bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv, exogen, exogen_lag
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -535,15 +647,34 @@ Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::Matrix
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+														int size_factor, int factor_lag,
 														bool sv, bool sparse, double level, Rcpp::List fit_record,
 														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
 													  bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
@@ -553,17 +684,36 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharxsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+														 int size_factor, int factor_lag,
 													 	 bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	 Eigen::VectorXi seed_chain, bool include_mean,
 														 Eigen::MatrixXd exogen, int exogen_lag,
 														 bool stable, int nthreads,
 														 bool insample) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<bvhar::CtaForecastRun<bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag,
+				size_factor, factor_lag
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv, exogen, exogen_lag
+	// );
 	if (insample) {
 		return Rcpp::wrap(forecaster->returnPredict());
 	}
