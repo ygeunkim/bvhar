@@ -14,6 +14,10 @@ This change affects every results that uses MNIW in the posterior sampling.
 
 ## New features
 
+* `var_bayes()` and `vhar_bayes()` can augment factor term with `factor_spec` argument.
+
+* `set_factor()` determines the factor size.
+
 * `predict()` can conduct in-sample forecasting when `n_ahead` is not specified (for now, only `*ldlt` and `*sv` can do this).
 
 ## Internal changes (C++)
