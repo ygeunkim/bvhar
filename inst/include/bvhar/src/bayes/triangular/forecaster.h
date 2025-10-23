@@ -43,9 +43,14 @@ public:
 		point_forecast += coef_mat.transpose() * last_pvec;
 	}
 
-	void appendPredict(Eigen::MatrixXd& pred, const Eigen::MatrixXd& design, int nrow_endog) {
+	void appendPredict(Eigen::MatrixXd& pred, const Eigen::MatrixXd& design) {
+		pred += design.rightCols(nrow_exogen) * coef_mat;
+		// pred += design.middleCols(nrow_endog, nrow_exogen) * coef_mat;
+	}
+
+	void appendPredict(Eigen::MatrixXd& pred) {
 		// pred += design.rightCols(nrow_exogen) * coef_mat;
-		pred += design.middleCols(nrow_endog, nrow_exogen) * coef_mat;
+		pred += exogen * coef_mat;
 	}
 
 	Eigen::VectorXd getObs() {
@@ -249,10 +254,11 @@ protected:
 			point_pred.row(h) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
 		}
 		if (exogen_updater) {
-			exogen_updater->appendPredict(point_pred, design, num_coef / dim);
+			exogen_updater->appendPredict(point_pred, design);
+			// exogen_updater->appendPredict(point_pred, design, num_coef / dim);
 		}
 		if (factor_updater) {
-			factor_updater->appendPredict(point_pred, design, nrow_coef + num_coef / dim);
+			factor_updater->appendPredict(point_pred);
 		}
 		pred_save.middleCols(i * dim, dim) = point_pred;
 	}
@@ -492,6 +498,7 @@ protected:
 			Eigen::MatrixXd var_design = build_x0(response, exogen_updater->getExogen(), lag, exogen_updater->getLag(), include_mean);
 			vhar_design.leftCols(dim_har) = var_design.leftCols(dim_design) * har_trans.transpose();
 			vhar_design.rightCols(dim_exogen) = var_design.rightCols(dim_exogen);
+			// vhar_design.middleCols(dim_har, dim_exogen) = var_design.rightCols(dim_exogen);
 			return vhar_design;
 		}
 		return build_x0(response, lag, include_mean) * har_trans.transpose();
@@ -621,7 +628,7 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 	Eigen::Ref<const Eigen::VectorXi> seed_chain, bool include_mean, bool stable, int nthreads,
 	bool sv = true, BVHAR_OPTIONAL<Eigen::MatrixXd> har_trans = BVHAR_NULLOPT,
 	BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT,
-	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT, BVHAR_OPTIONAL<bool> factor_insample = BVHAR_NULLOPT
 ) {
 	bool activity = (level > 0); // BVHAR_OPTIONAL<double> level = BVHAR_NULLOPT
 	if (sparse && activity) {
@@ -653,10 +660,21 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 			exogen_updater = std::make_unique<CtaExogenForecaster>(*exogen_lag, *exogen, response_mat.cols());
 		}
 		if (size_factor) {
-			if (*factor_lag == 0) {
-				factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+			std::unique_ptr<DfmRecords> dfm_record;
+			if (*factor_insample) {
+				BVHAR_STRING f_name = "F_record";
+				initialize_dfmrecord(dfm_record, i, fit_record, f_name);
+				if (*factor_lag == 0) {
+					factor_updater = std::make_unique<CtaFactorNormalForecaster>(*dfm_record, step, response_mat.cols(), *size_factor);
+				} else {
+					// factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+				}
 			} else {
-				// factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+				if (*factor_lag == 0) {
+					factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+				} else {
+					// factor_updater = std::make_unique<CtaFactorNormalForecaster>(step, response_mat.cols(), *size_factor);
+				}
 			}
 		}
 		// std::unique_ptr<CtaExogenForecaster> exogen_updater;
@@ -712,7 +730,8 @@ public:
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT,
-		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<bool> factor_insample = BVHAR_NULLOPT
 	)
 	: McmcForecastRun<Eigen::MatrixXd, Eigen::VectorXd>(num_chains, lag, step, nthreads) {
 		BVHAR_DEBUG_LOG(
@@ -724,19 +743,21 @@ public:
 			num_chains, lag, step, response_mat, sparse, level,
 			fit_record, seed_chain, include_mean,
 			stable, nthreads, sv, BVHAR_NULLOPT, exogen, exogen_lag,
-			size_factor, factor_lag
+			size_factor, factor_lag, factor_insample
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			forecaster[i] = std::move(temp_forecaster[i]);
 		}
 	}
+
 	CtaForecastRun(
 		int num_chains, int week, int month, int step, const Eigen::MatrixXd& response_mat,
 		bool sparse, double level, BVHAR_LIST& fit_record,
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT,
-		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<bool> factor_insample = BVHAR_NULLOPT
 	)
 	: McmcForecastRun<Eigen::MatrixXd, Eigen::VectorXd>(num_chains, month, step, nthreads) {
 		BVHAR_DEBUG_LOG(
@@ -749,19 +770,21 @@ public:
 			num_chains, month, step, response_mat, sparse, level,
 			fit_record, seed_chain, include_mean,
 			stable, nthreads, sv, har_trans, exogen, exogen_lag,
-			size_factor, factor_lag
+			size_factor, factor_lag, factor_insample
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			forecaster[i] = std::move(temp_forecaster[i]);
 		}
 	}
+
 	CtaForecastRun(
 		int num_chains, int month, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& har_trans,
 		bool sparse, double level, BVHAR_LIST& fit_record,
 		const Eigen::VectorXi& seed_chain, bool include_mean, bool stable, int nthreads,
 		bool sv = true,
 		BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT,
-		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<bool> factor_insample = BVHAR_NULLOPT
 	)
 	: McmcForecastRun<Eigen::MatrixXd, Eigen::VectorXd>(num_chains, month, step, nthreads) {
 		BVHAR_DEBUG_LOG(
@@ -773,12 +796,13 @@ public:
 			num_chains, month, step, response_mat, sparse, level,
 			fit_record, seed_chain, include_mean,
 			stable, nthreads, sv, har_trans, exogen, exogen_lag,
-			size_factor, factor_lag
+			size_factor, factor_lag, factor_insample
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			forecaster[i] = std::move(temp_forecaster[i]);
 		}
 	}
+
 	virtual ~CtaForecastRun() = default;
 };
 

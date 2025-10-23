@@ -108,39 +108,14 @@ help_var_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
   predict(fit_bvarx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
   set.seed(1)
   predict(fit_bfavarx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
-}
-
-help_var_bayes_insample <- function(bayes_spec, cov_spec, sparse) {
-  etf_train <- etf_vix[1:50, 1:2]
-  etf_exog_train <- etf_vix[1:50, 3:4]
-
-  set.seed(1)
-  fit_test <- var_bayes(
-    etf_train,
-    p = 1,
-    num_iter = 3,
-    num_burn = 0,
-    coef_spec = bayes_spec,
-    contem_spec = bayes_spec,
-    cov_spec = cov_spec,
-    include_mean = TRUE
-  )
-  set.seed(1)
-  fit_bvarx <- var_bayes(
-    etf_train,
-    p = 1,
-    exogen = etf_exog_train,
-    num_iter = 3,
-    num_burn = 0,
-    coef_spec = bayes_spec,
-    contem_spec = bayes_spec,
-    cov_spec = cov_spec,
-    include_mean = TRUE
-  )
   set.seed(1)
   predict(fit_test, sparse = sparse)
   set.seed(1)
+  predict(fit_bfavar, sparse = sparse)
+  set.seed(1)
   predict(fit_bvarx, sparse = sparse)
+  set.seed(1)
+  predict(fit_bfavarx, newxreg = etf_exog_new, sparse = sparse)
 }
 
 test_that("Forecast - VAR-HS-LDLT", {
@@ -152,11 +127,6 @@ test_that("Forecast - VAR-HS-LDLT", {
   expect_s3_class(test_pred_dense, "predbvhar")
 
   expect_s3_class(test_pred_sparse, "predbvhar")
-
-  expect_no_error({
-    test_insample_dense <- help_var_bayes_insample(set_horseshoe(), set_ldlt(), FALSE)
-    test_insample_sparse <- help_var_bayes_insample(set_horseshoe(), set_ldlt(), TRUE)
-  })
 })
 
 help_vhar_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
@@ -219,38 +189,12 @@ help_vhar_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
   predict(fit_bvharx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
   set.seed(1)
   predict(fit_bfavharx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
-}
-
-help_vhar_bayes_insample <- function(bayes_spec, cov_spec, sparse) {
-  etf_train <- etf_vix[1:50, 1:2]
-  etf_exog_train <- etf_vix[1:50, 3:4]
-
-  set.seed(1)
-  fit_test <- vhar_bayes(
-    etf_train,
-    num_iter = 3,
-    num_burn = 0,
-    coef_spec = bayes_spec,
-    contem_spec = bayes_spec,
-    cov_spec = cov_spec,
-    include_mean = TRUE
-  )
-  set.seed(1)
-  fit_bvharx <- vhar_bayes(
-    etf_train,
-    exogen = etf_exog_train,
-    num_iter = 3,
-    num_burn = 0,
-    coef_spec = bayes_spec,
-    contem_spec = bayes_spec,
-    cov_spec = cov_spec,
-    include_mean = TRUE
-  )
-
   set.seed(1)
   predict(fit_test, sparse = sparse)
+  predict(fit_bfavhar, sparse = sparse)
   set.seed(1)
   predict(fit_bvharx, sparse = sparse)
+  predict(fit_bfavharx, sparse = sparse)
 }
 
 test_that("Forecast - VHAR-Minn-LDLT", {
@@ -262,10 +206,5 @@ test_that("Forecast - VHAR-Minn-LDLT", {
   expect_s3_class(test_pred_dense, "predbvhar")
 
   expect_s3_class(test_pred_sparse, "predbvhar")
-
-  expect_no_error({
-    test_insample_dense <- help_vhar_bayes_insample(set_bvhar(), set_ldlt(), FALSE)
-    test_insample_sparse <- help_vhar_bayes_insample(set_bvhar(), set_ldlt(), TRUE)
-  })
 })
 #> Test passed 🌈

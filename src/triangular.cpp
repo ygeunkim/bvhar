@@ -252,7 +252,7 @@ Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::Matri
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -290,7 +290,7 @@ Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::Matr
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				true, exogen, exogen_lag,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -343,7 +343,7 @@ Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::Matrix
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -381,7 +381,7 @@ Rcpp::List forecast_bvharxldlt(int num_chains, int month, int step, Eigen::Matri
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				true, exogen, exogen_lag,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -572,7 +572,7 @@ Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixX
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -611,7 +611,7 @@ Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::Matrix
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				sv, exogen, exogen_lag,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -665,7 +665,7 @@ Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
@@ -704,7 +704,7 @@ Rcpp::List forecast_bvharxsv(int num_chains, int month, int step, Eigen::MatrixX
 				sparse, level, fit_record,
 				seed_chain, include_mean, stable, nthreads,
 				sv, exogen, exogen_lag,
-				size_factor, factor_lag
+				size_factor, factor_lag, insample
 			);
 		}
 	}();
