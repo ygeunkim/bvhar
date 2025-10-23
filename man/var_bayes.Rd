@@ -152,6 +152,8 @@ Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Baye
 
 Huber, F., Koop, G., & Onorante, L. (2021). \emph{Inducing Sparsity and Shrinkage in Time-Varying Parameter Models}. Journal of Business & Economic Statistics, 39(3), 669-683.
 
+Korobilis, D. (2022). A new algorithm for structural restrictions in Bayesian vector autoregressions. European Economic Review, 148, 104241.
+
 Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230-354.
 
 Ray, P., & Bhattacharya, A. (2018). \emph{Signal Adaptive Variable Selector for the Horseshoe Prior}. arXiv.
