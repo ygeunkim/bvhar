@@ -63,6 +63,19 @@ help_var_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
     include_mean = TRUE
   )
   set.seed(1)
+  fit_bfavar <- var_bayes(
+    etf_train,
+    p = 1,
+    factor_spec = set_factor(size_factor = 1),
+    num_iter = 3,
+    num_burn = 0,
+    coef_spec = bayes_spec,
+    contem_spec = bayes_spec,
+    loading_spec = bayes_spec,
+    cov_spec = cov_spec,
+    include_mean = TRUE
+  )
+  set.seed(1)
   fit_bvarx <- var_bayes(
     etf_train,
     p = 1,
@@ -75,9 +88,26 @@ help_var_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
     include_mean = TRUE
   )
   set.seed(1)
+  fit_bfavarx <- var_bayes(
+    etf_train,
+    p = 1,
+    exogen = etf_exog_train,
+    factor_spec = set_factor(size_factor = 1),
+    num_iter = 3,
+    num_burn = 0,
+    coef_spec = bayes_spec,
+    contem_spec = bayes_spec,
+    cov_spec = cov_spec,
+    include_mean = TRUE
+  )
+  set.seed(1)
   predict(fit_test, num_forecast, sparse = sparse)
   set.seed(1)
-  predict(fit_bvarx, num_forecast, newxreg = etf_exog_new)
+  predict(fit_bfavar, num_forecast, sparse = sparse)
+  set.seed(1)
+  predict(fit_bvarx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
+  set.seed(1)
+  predict(fit_bfavarx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
 }
 
 help_var_bayes_insample <- function(bayes_spec, cov_spec, sparse) {
@@ -146,9 +176,33 @@ help_vhar_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
     include_mean = TRUE
   )
   set.seed(1)
+  fit_bfavhar <- vhar_bayes(
+    etf_train,
+    factor_spec = set_factor(size_factor = 1),
+    num_iter = 3,
+    num_burn = 0,
+    coef_spec = bayes_spec,
+    contem_spec = bayes_spec,
+    loading_spec = bayes_spec,
+    cov_spec = cov_spec,
+    include_mean = TRUE
+  )
+  set.seed(1)
   fit_bvharx <- vhar_bayes(
     etf_train,
     exogen = etf_exog_train,
+    num_iter = 3,
+    num_burn = 0,
+    coef_spec = bayes_spec,
+    contem_spec = bayes_spec,
+    cov_spec = cov_spec,
+    include_mean = TRUE
+  )
+  set.seed(1)
+  fit_bfavharx <- vhar_bayes(
+    etf_train,
+    exogen = etf_exog_train,
+    factor_spec = set_factor(size_factor = 1),
     num_iter = 3,
     num_burn = 0,
     coef_spec = bayes_spec,
@@ -160,7 +214,11 @@ help_vhar_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
   set.seed(1)
   predict(fit_test, num_forecast, sparse = sparse)
   set.seed(1)
-  predict(fit_bvharx, num_forecast, newxreg = etf_exog_new)
+  predict(fit_bfavhar, num_forecast, sparse = sparse)
+  set.seed(1)
+  predict(fit_bvharx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
+  set.seed(1)
+  predict(fit_bfavharx, num_forecast, newxreg = etf_exog_new, sparse = sparse)
 }
 
 help_vhar_bayes_insample <- function(bayes_spec, cov_spec, sparse) {

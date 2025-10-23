@@ -634,9 +634,16 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 	BVHAR_STRING c_name = sparse ? "c_sparse_record" : "c_record";
 	for (int i = 0; i < num_chains; ++i) {
 		std::unique_ptr<Records> reg_record;
-		if (exogen) {
+		if (exogen && size_factor) {
+			BVHAR_STRING b_name = sparse ? "b_sparse_record" : "b_record";
+			BVHAR_STRING lam_name = sparse ? "Lambda_sparse_record" : "Lambda_record";
+			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name, b_name, lam_name);
+		} else if (exogen && !size_factor) {
 			BVHAR_STRING b_name = sparse ? "b_sparse_record" : "b_record";
 			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name, b_name);
+		} else if (size_factor && !exogen) {
+			BVHAR_STRING lam_name = sparse ? "Lambda_sparse_record" : "Lambda_record";
+			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name, lam_name);
 		} else {
 			initialize_record(reg_record, i, fit_record, include_mean, coef_name, a_name, c_name);
 		}

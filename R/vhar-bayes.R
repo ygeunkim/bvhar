@@ -185,7 +185,7 @@ vhar_bayes <- function(y,
       bayes_spec = loading_spec,
       y = NULL,
       dim_data = num_factor,
-      process = "BVAR"
+      process = "BVHAR"
     )
     factor_prior <- get_spec(
       bayes_spec = loading_spec,

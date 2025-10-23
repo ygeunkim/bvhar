@@ -472,6 +472,15 @@ struct LdltRecords : public RegRecords {
 		coef_record << alpha_record, c_record, b_record;
 	}
 
+	LdltRecords(
+		const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& c_record, const Eigen::MatrixXd& b_record, const Eigen::MatrixXd& l_record,
+		const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& d_record
+	)
+	: RegRecords(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols() + b_record.cols() + l_record.cols()), a_record),
+		fac_record(d_record) {
+		coef_record << alpha_record, c_record, b_record, l_record;
+	}
+
 	virtual ~LdltRecords() = default;
 
 	void assignRecords(
@@ -580,6 +589,16 @@ struct SvRecords : public RegRecords {
 		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
 		lvol_record(h_record) {
 		coef_record << alpha_record, c_record, b_record;
+	}
+
+	SvRecords(
+		const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& c_record, const Eigen::MatrixXd& b_record, const Eigen::MatrixXd& l_record,
+		const Eigen::MatrixXd& h_record, const Eigen::MatrixXd& a_record, const Eigen::MatrixXd& sigh_record
+	)
+	: RegRecords(Eigen::MatrixXd::Zero(alpha_record.rows(), alpha_record.cols() + c_record.cols() + b_record.cols() + l_record.cols()), a_record),
+		lvol_sig_record(sigh_record), lvol_init_record(Eigen::MatrixXd::Zero(coef_record.rows(), lvol_sig_record.cols())),
+		lvol_record(h_record) {
+		coef_record << alpha_record, c_record, b_record, l_record;
 	}
 
 	virtual ~SvRecords() = default;
@@ -736,12 +755,25 @@ inline SvRecords RegRecords::returnRecords(const SparseRecords& sparse_record, i
  */
 inline void initialize_record(
 	std::unique_ptr<LdltRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean,
-	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_STRING> lam_name = BVHAR_NULLOPT
 ) {
 	BVHAR_PY_LIST coef_list = fit_record[coef_name];
 	BVHAR_PY_LIST a_list = fit_record[a_name];
 	BVHAR_PY_LIST d_list = fit_record["d_record"];
-	if (include_mean && b_name) {
+	if (include_mean && b_name && lam_name) {
+		BVHAR_PY_LIST c_list = fit_record[c_name];
+		BVHAR_PY_LIST b_list = fit_record[*b_name];
+		BVHAR_PY_LIST l_list = fit_record[*lam_name];
+		record = std::make_unique<LdltRecords>(
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(b_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(l_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	} else if (include_mean && b_name) {
 		BVHAR_PY_LIST c_list = fit_record[c_name];
 		BVHAR_PY_LIST b_list = fit_record[*b_name];
 		record = std::make_unique<LdltRecords>(
@@ -756,6 +788,16 @@ inline void initialize_record(
 		record = std::make_unique<LdltRecords>(
 			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(d_list[chain_id])
+		);
+	} else if (!include_mean && b_name && lam_name) {
+		BVHAR_PY_LIST b_list = fit_record[*b_name];
+		BVHAR_PY_LIST l_list = fit_record[*lam_name];
+		record = std::make_unique<LdltRecords>(
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(b_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(l_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(d_list[chain_id])
 		);
@@ -782,13 +824,26 @@ inline void initialize_record(
  */
 inline void initialize_record(
 	std::unique_ptr<SvRecords>& record, int chain_id, BVHAR_LIST& fit_record, bool include_mean,
-	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT
+	BVHAR_STRING& coef_name, BVHAR_STRING& a_name, BVHAR_STRING& c_name, BVHAR_OPTIONAL<BVHAR_STRING> b_name = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_STRING> lam_name = BVHAR_NULLOPT
 ) {
 	BVHAR_PY_LIST coef_list = fit_record[coef_name];
 	BVHAR_PY_LIST a_list = fit_record[a_name];
 	BVHAR_PY_LIST h_list = fit_record["h_record"];
 	BVHAR_PY_LIST sigh_list = fit_record["sigh_record"];
-	if (include_mean && b_name) {
+	if (include_mean && b_name && lam_name) {
+		BVHAR_PY_LIST c_list = fit_record[c_name];
+		BVHAR_PY_LIST b_list = fit_record[*b_name];
+		BVHAR_PY_LIST l_list = fit_record[*lam_name];
+		record = std::make_unique<SvRecords>(
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(b_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(l_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	} else if (include_mean && b_name) {
 		BVHAR_PY_LIST c_list = fit_record[c_name];
 		BVHAR_PY_LIST b_list = fit_record[*b_name];
 		record = std::make_unique<SvRecords>(
@@ -804,6 +859,17 @@ inline void initialize_record(
 		record = std::make_unique<SvRecords>(
 			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(h_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
+		);
+	} else if (!include_mean && b_name && lam_name) {
+		BVHAR_PY_LIST b_list = fit_record[*b_name];
+		BVHAR_PY_LIST l_list = fit_record[*lam_name];
+		record = std::make_unique<SvRecords>(
+			BVHAR_CAST<Eigen::MatrixXd>(coef_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(b_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(l_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(h_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
