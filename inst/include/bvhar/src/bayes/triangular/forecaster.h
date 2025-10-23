@@ -681,7 +681,7 @@ inline std::vector<std::unique_ptr<BaseForecaster>> initialize_ctaforecaster(
 		}
 		if (size_factor) {
 			std::unique_ptr<DfmRecords> dfm_record;
-			if (*factor_insample) {
+			if (factor_insample && *factor_insample) {
 				BVHAR_STRING f_name = "F_record";
 				initialize_dfmrecord(dfm_record, i, fit_record, f_name);
 				if (*factor_lag == 0) {

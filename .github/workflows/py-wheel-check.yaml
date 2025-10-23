@@ -10,6 +10,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
+    if: ${{ !contains(github.event.head_commit.message, '[skip py]') }}
+
     strategy:
       fail-fast: false
       matrix:
