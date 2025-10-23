@@ -642,8 +642,8 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 		if (factor_prior) {
 			BVHAR_LIST factor_init_spec = (*factor_init)[i];
 			factor_updater = initialize_shrinkageupdater<false>(num_iter, *factor_prior, factor_init_spec, *factor_prior_type);
-			(*exogen_updater)->initCoefMean(base_params._alpha_mean.tail(base_params._num_factor));
-			(*exogen_updater)->initImpactPrec(base_params._alpha_prec.tail(base_params._num_factor));
+			(*factor_updater)->initCoefMean(base_params._alpha_mean.tail(base_params._num_factor));
+			(*factor_updater)->initImpactPrec(base_params._alpha_prec.tail(base_params._num_factor));
 			DfmParams dfm_params(0, *size_factor, base_params._dim);
 			favar_updater = std::make_unique<FactorNormalAugmenter>(num_iter, base_params._num_design, dfm_params);
 		}
