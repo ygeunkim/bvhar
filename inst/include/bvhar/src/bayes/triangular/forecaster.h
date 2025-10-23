@@ -854,8 +854,8 @@ public:
 			seed_chain, seed_forecast, display_progress, nthreads,
 			exogen_lag
 		),
-		dim(y.cols()), include_mean(include_mean), stable_filter(stable), sparse(sparse), sv(sv), level(level),
-		size_factor(size_factor), factor_lag(factor_lag) {
+		dim(y.cols()), size_factor(size_factor), factor_lag(factor_lag),
+		include_mean(include_mean), stable_filter(stable), sparse(sparse), sv(sv), level(level) {
 		BVHAR_DEBUG_LOG(
 			debug_logger, "CtaOutforecastRun Constructor: prior_type={}, contem_prior_type={}",
 			prior_type, contem_prior_type
