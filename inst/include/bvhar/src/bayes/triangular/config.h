@@ -840,6 +840,7 @@ inline void initialize_record(
 			BVHAR_CAST<Eigen::MatrixXd>(c_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(b_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(l_list[chain_id]),
+			BVHAR_CAST<Eigen::MatrixXd>(h_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(a_list[chain_id]),
 			BVHAR_CAST<Eigen::MatrixXd>(sigh_list[chain_id])
 		);

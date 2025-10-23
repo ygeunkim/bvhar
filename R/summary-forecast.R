@@ -269,6 +269,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   is_full <- is.numeric(y_test) && length(y_test) == 1
   if (is_full) {
     num_test <- y_test
@@ -317,6 +323,14 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
     exogen_prior <- get_exogenspec(object)
     exogen_prior_type <- enumerate_prior(object$spec_exogen$prior)
   }
+  factor_prior <- list()
+  factor_prior_type <- 0
+  factor_init <- list()
+  if (!is.null(object$spec_factor)) {
+    factor_prior <- get_factorspec(object)
+    factor_prior_type <- enumerate_prior(object$spec_factor$prior)
+    factor_init <- object$init_factor
+  }
   res_mat <- switch(model_type,
     "bvarldlt" = {
       grp_mat <- object$group
@@ -330,6 +344,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -346,6 +361,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -372,6 +388,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test,
           get_lpl = lpl, use_fit = use_fit,
@@ -389,6 +406,7 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test,
           get_lpl = lpl, use_fit = use_fit,
@@ -472,6 +490,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   is_full <- is.numeric(y_test) && length(y_test) == 1
   if (is_full) {
     num_test <- y_test
@@ -533,6 +557,14 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
     exogen_prior <- get_exogenspec(object)
     exogen_prior_type <- enumerate_prior(object$spec_exogen$prior)
   }
+  factor_prior <- list()
+  factor_prior_type <- 0
+  factor_init <- list()
+  if (!is.null(object$spec_factor)) {
+    factor_prior <- get_factorspec(object)
+    factor_prior_type <- enumerate_prior(object$spec_factor$prior)
+    factor_init <- object$init_factor
+  }
   res_mat <- switch(model_type,
     "bvarsv" = {
       grp_mat <- object$group
@@ -546,6 +578,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -562,6 +595,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -587,6 +621,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -602,6 +637,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -862,6 +898,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   is_full <- is.numeric(y_test) && length(y_test) == 1
   if (is_full) {
     num_test <- y_test
@@ -910,6 +952,14 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
     exogen_prior <- get_exogenspec(object)
     exogen_prior_type <- enumerate_prior(object$spec_exogen$prior)
   }
+  factor_prior <- list()
+  factor_prior_type <- 0
+  factor_init <- list()
+  if (!is.null(object$spec_factor)) {
+    factor_prior <- get_factorspec(object)
+    factor_prior_type <- enumerate_prior(object$spec_factor$prior)
+    factor_init <- object$init_factor
+  }
   res_mat <- switch(model_type,
     "bvarldlt" = {
       grp_mat <- object$group
@@ -923,6 +973,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -939,6 +990,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -965,6 +1017,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test,
           get_lpl = lpl, use_fit = use_fit,
@@ -982,6 +1035,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
           param_reg = object$sv[c("shape", "scale")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test,
           get_lpl = lpl, use_fit = use_fit,
@@ -1065,6 +1119,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
   if (!is.matrix(y)) {
     y <- as.matrix(y)
   }
+  size_factor <- 0
+  factor_lag <- 0
+  if (!is.null(object$spec_factor)) {
+    size_factor <- object$factor_size
+    factor_lag <- object$factor_lag
+  }
   is_full <- is.numeric(y_test) && length(y_test) == 1
   if (is_full) {
     num_test <- y_test
@@ -1120,6 +1180,14 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
     exogen_prior <- get_exogenspec(object)
     exogen_prior_type <- enumerate_prior(object$spec_exogen$prior)
   }
+  factor_prior <- list()
+  factor_prior_type <- 0
+  factor_init <- list()
+  if (!is.null(object$spec_factor)) {
+    factor_prior <- get_factorspec(object)
+    factor_prior_type <- enumerate_prior(object$spec_factor$prior)
+    factor_init <- object$init_factor
+  }
   res_mat <- switch(model_type,
     "bvarsv" = {
       grp_mat <- object$group
@@ -1133,6 +1201,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -1149,6 +1218,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -1174,6 +1244,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),
@@ -1189,6 +1260,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
           param_sv = object$sv[c("shape", "scale", "initial_mean", "initial_prec")],
           param_prior = param_prior, param_intercept = object$intercept, param_init = object$init_coef, prior_type = prior_type, ggl = object$ggl,
           contem_prior = contem_prior, contem_init = object$init_contem, contem_prior_type = contem_prior_type,
+          factor_prior = factor_prior, factor_init = factor_init, factor_prior_type = factor_prior_type, size_factor = size_factor, factor_lag = factor_lag,
           grp_id = grp_id, own_id = own_id, cross_id = cross_id, grp_mat = grp_mat,
           include_mean = include_mean, stable = stable, step = n_ahead, y_test = y_test, get_lpl = lpl, use_fit = use_fit,
           seed_chain = sample.int(.Machine$integer.max, size = num_chains * num_horizon) |> matrix(ncol = num_chains),

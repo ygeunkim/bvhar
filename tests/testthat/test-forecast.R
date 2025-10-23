@@ -129,6 +129,15 @@ test_that("Forecast - VAR-HS-LDLT", {
   expect_s3_class(test_pred_sparse, "predbvhar")
 })
 
+test_that("Forecast - VAR-HS-SV", {
+  skip_on_cran()
+
+  expect_no_error({
+    test_pred_dense <- help_var_bayes_pred(set_horseshoe(), set_sv(), FALSE)
+    test_pred_sparse <- help_var_bayes_pred(set_horseshoe(), set_sv(), TRUE)
+  })
+})
+
 help_vhar_bayes_pred <- function(bayes_spec, cov_spec, sparse) {
   num_forecast <- 3
   etf_train <- etf_vix[1:50, 1:2]
@@ -206,5 +215,14 @@ test_that("Forecast - VHAR-Minn-LDLT", {
   expect_s3_class(test_pred_dense, "predbvhar")
 
   expect_s3_class(test_pred_sparse, "predbvhar")
+})
+
+test_that("Forecast - VHAR-Minn-SV", {
+  skip_on_cran()
+
+  expect_no_error({
+    test_pred_dense <- help_vhar_bayes_pred(set_bvhar(), set_sv(), FALSE)
+    test_pred_sparse <- help_vhar_bayes_pred(set_bvhar(), set_sv(), TRUE)
+  })
 })
 #> Test passed 🌈
