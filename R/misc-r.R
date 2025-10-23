@@ -234,7 +234,10 @@ validate_spec <- function(bayes_spec,
       )
     }
     if (is.null(bayes_spec$sigma)) {
-      bayes_spec$sigma <- apply(y, 2, sd)
+      bayes_spec$sigma <- rep(1, dim_data)
+      if (!is.null(y)) {
+        bayes_spec$sigma <- apply(y, 2, sd)
+      }
     }
     if ("delta" %in% names(bayes_spec)) {
       if (is.null(bayes_spec$delta)) {
@@ -504,6 +507,21 @@ get_exogenspec <- function(object) {
     }
   } else {
     param_prior <- object$spec_exogen
+  }
+  param_prior
+}
+
+#' @noRd
+get_factorspec <- function(object) {
+  if (is.bvharspec(object$spec_factor)) {
+    param_prior <- append(object$spec_factor, list(num = object$m * object$factor_size))
+    if (object$spec_factor$hierarchical) {
+      param_prior$shape <- object$spec_factor$lambda$param[1]
+      param_prior$rate <- object$spec_factor$lambda$param[2]
+      param_prior$grid_size <- object$spec_factor$lambda$grid_size
+    }
+  } else {
+    param_prior <- object$spec_factor
   }
   param_prior
 }

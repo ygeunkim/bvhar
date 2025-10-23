@@ -701,6 +701,26 @@ set_gdp <- function(shape_grid = 100L, rate_grid = 100L) {
   res
 }
 
+#' Factor Specification
+#' 
+#' `r lifecycle::badge("experimental")` Set factor size and prior for factor.
+#' 
+#' @param size_factor Factor dimension. If `0`, factor is not used.
+#' @param factor_lag Lag for the factor autoregressions.
+#' 
+#' @references 
+#' Korobilis, D. (2022). A new algorithm for structural restrictions in Bayesian vector autoregressions. European Economic Review, 148, 104241.
+#' @order 1
+#' @export
+set_factor <- function(size_factor = 0, factor_lag = 0) {
+  res <- list(
+    size_factor = size_factor,
+    lag = factor_lag
+  )
+  class(res) <- "factorspec"
+  res
+}
+
 #' Covariance Matrix Prior Specification
 #'
 #' `r lifecycle::badge("experimental")` Set prior for covariance matrix.

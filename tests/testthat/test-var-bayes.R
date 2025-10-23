@@ -1,8 +1,12 @@
-help_var_bayes <- function(coef_spec, contem_spec = coef_spec, cov_spec, exogen_spec = NULL, include_mean = FALSE) {
+help_var_bayes <- function(coef_spec, contem_spec = coef_spec, cov_spec, exogen_spec = NULL, loading_spec = NULL, include_mean = FALSE) {
   vix_endog <- etf_vix[1:50, 1:2]
   vix_exog <- NULL
   if (!is.null(exogen_spec)) {
     vix_exog <- etf_vix[1:50, 3:4]
+  }
+  factor_spec <- set_factor(size_factor = 0, factor_lag = 0)
+  if (!is.null(loading_spec)) {
+    factor_spec <- set_factor(size_factor = 1)
   }
   set.seed(1)
   var_bayes(
@@ -10,12 +14,14 @@ help_var_bayes <- function(coef_spec, contem_spec = coef_spec, cov_spec, exogen_
     p = 1,
     exogen = vix_exog,
     s = 0,
+    factor_spec = factor_spec,
     num_iter = 5,
     num_burn = 0,
     coef_spec = coef_spec,
     contem_spec = contem_spec,
-    cov_spec = cov_spec,
     exogen_spec = exogen_spec,
+    loading_spec = loading_spec,
+    cov_spec = cov_spec,
     include_mean = include_mean
   )
 }
@@ -33,6 +39,16 @@ test_that("VAR-Minn-LDLT", {
     include_mean = FALSE
   )
   expect_s3_class(fit_test, "ldltmod")
+  expect_no_error({
+    fit_test <- help_var_bayes(
+      coef_spec = set_bvar(),
+      contem_spec = set_bvar(),
+      cov_spec = set_ldlt(),
+      exogen_spec = NULL,
+      loading_spec = set_bvar(),
+      include_mean = FALSE
+    )
+  })
 })
 
 test_that("VAR-HS-LDLT", {
@@ -48,6 +64,16 @@ test_that("VAR-HS-LDLT", {
   )
   expect_s3_class(fit_test, "hsmod")
   expect_true(all(c("lambda", "tau", "kappa") %in% fit_test$param_names))
+  expect_no_error({
+    fit_test <- help_var_bayes(
+      coef_spec = set_horseshoe(),
+      contem_spec = set_horseshoe(),
+      cov_spec = set_ldlt(),
+      exogen_spec = NULL,
+      loading_spec = set_horseshoe(),
+      include_mean = FALSE
+    )
+  })
 })
 
 test_that("VARX-HS-LDLT", {
@@ -63,6 +89,16 @@ test_that("VARX-HS-LDLT", {
   )
   expect_s3_class(fit_test, "hsmod")
   expect_true(all(c("lambda", "tau", "kappa") %in% fit_test$param_names))
+  expect_no_error({
+    fit_test <- help_var_bayes(
+      coef_spec = set_horseshoe(),
+      contem_spec = set_horseshoe(),
+      cov_spec = set_ldlt(),
+      exogen_spec = set_horseshoe(),
+      loading_spec = set_horseshoe(),
+      include_mean = TRUE
+    )
+  })
 })
 
 test_that("VAR-SSVS-LDLT", {

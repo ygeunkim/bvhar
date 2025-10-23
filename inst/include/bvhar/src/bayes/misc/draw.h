@@ -3,6 +3,7 @@
 
 #include "./coef_helper.h"
 #include "./sv_helper.h"
+#include "./factor_helper.h"
 #include "./minn_helper.h"
 #include "./ssvs_helper.h"
 #include "./hs_helper.h"
