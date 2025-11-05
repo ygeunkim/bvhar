@@ -44,8 +44,8 @@
 	#define BVHAR_CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
 	#define BVHAR_NAMED Rcpp::Named
 	#define BVHAR_ACCESS_LIST(iterator, list) iterator
-	#define BVHAR_IS_MATRIX(element) Rcpp::is<Rcpp::NumericMatrix>(element)
-	#define BVHAR_IS_VECTOR(element) Rcpp::is<Rcpp::NumericVector>(element)
+	#define BVHAR_IS_MATRIX(element) (Rcpp::is<Rcpp::NumericMatrix>(element) || Rcpp::is<Rcpp::IntegerMatrix>(element) || Rcpp::is<Rcpp::LogicalMatrix>(element))
+	#define BVHAR_IS_VECTOR(element) (Rcpp::is<Rcpp::NumericVector>(element) || Rcpp::is<Rcpp::IntegerVector>(element) || Rcpp::is<Rcpp::LogicalVector>(element))
 	#define BVHAR_IS_LOGICAL(element) Rcpp::is<Rcpp::LogicalVector>(element)
 	#define BVHAR_CAST_VECTOR(element) element
 	#define BVHAR_CAST_MATRIX(element) element
@@ -99,8 +99,8 @@
 	#define BVHAR_CREATE_LIST(...) py::dict(__VA_ARGS__)
 	#define BVHAR_NAMED py::arg
 	#define BVHAR_ACCESS_LIST(iterator, list) list[iterator.first]
-	#define BVHAR_IS_MATRIX(element) py::detail::type_caster<Eigen::MatrixXd>().load(element, false)
-	#define BVHAR_IS_VECTOR(element) py::detail::type_caster<Eigen::VectorXd>().load(element, false)
+	#define BVHAR_IS_MATRIX(element) (py::detail::type_caster<Eigen::MatrixXd>().load(element, false) || py::detail::type_caster<Eigen::MatrixXi>().load(element, false) || py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>().load(element, false))
+	#define BVHAR_IS_VECTOR(element) (py::detail::type_caster<Eigen::VectorXd>().load(element, false) || py::detail::type_caster<Eigen::VectorXi>().load(element, false) || py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, 1>>().load(element, false))
 	#define BVHAR_IS_LOGICAL(element) py::detail::type_caster<Eigen::Matrix<bool, Eigen::Dynamic, 1>>().load(element, false)
 	#define BVHAR_CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
 	#define BVHAR_CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
