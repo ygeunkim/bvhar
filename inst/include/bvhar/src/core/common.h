@@ -3,6 +3,7 @@
 
 #include "./eigen.h"
 #include "./spdlog.h"
+#include "./lbfgspp.h"
 
 namespace boost {
 
