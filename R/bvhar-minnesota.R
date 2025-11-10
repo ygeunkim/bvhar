@@ -506,6 +506,17 @@ bvhar_minnesota <- function(y,
   # S3--------------------------------
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, minnesota_type, sep = "_")
+  if (bayes_spec$prior == "MN_VAR") {
+    bayes_spec$sigma <- res$spec[1:dim_data]
+    bayes_spec$lambda <- res$spec[dim_data + 1]
+    bayes_spec$delta <- res$spec[(dim_data + 2):(2 * dim_data + 1)]
+  } else if (bayes_spec$prior == "MN_VHAR") {
+    bayes_spec$sigma <- res$spec[1:dim_data]
+    bayes_spec$lambda <- res$spec[dim_data + 1]
+    bayes_spec$daily <- res$spec[(dim_data + 2):(2 * dim_data + 1)]
+    bayes_spec$weekly <- res$spec[(2 * dim_data + 2):(3 * dim_data + 1)]
+    bayes_spec$daily <- res$spec[(3 * dim_data + 2):(4 * dim_data + 1)]
+  }
   res$spec <- bayes_spec
   # class(res) <- c("bvharmn", "normaliw", "bvharmod")
   if (minnesota_type == "MN_Hierarchical") {

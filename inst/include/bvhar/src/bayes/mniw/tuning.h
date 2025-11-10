@@ -11,7 +11,7 @@ namespace bvhar {
 inline double minnesota_logml(const Eigen::VectorXd& param_vec,
 															const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 															double eps, int lag, bool include_mean) {
-	int dim_design = x.cols();
+	// int dim_design = x.cols();
 	int num_design = y.rows();
 	int dim = y.cols();
 	Eigen::VectorXd sigma = param_vec.head(dim);

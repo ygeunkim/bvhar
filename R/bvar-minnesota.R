@@ -412,6 +412,11 @@ bvar_minnesota <- function(y,
   # model-----------------------------
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, bayes_spec$prior, sep = "_")
+  if (bayes_spec$prior == "Minnesota") {
+    bayes_spec$sigma <- res$spec[1:dim_data]
+    bayes_spec$lambda <- res$spec[dim_data + 1]
+    bayes_spec$delta <- res$spec[(dim_data + 2):(2 * dim_data + 1)]
+  }
   res$spec <- bayes_spec
   # class(res) <- c("bvarmn", "normaliw", "bvharmod")
   if (bayes_spec$prior == "Minnesota") {

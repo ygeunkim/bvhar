@@ -6,6 +6,7 @@
 #include "../../math/design.h"
 // #include <memory> // std::unique_ptr
 #include "../../core/progress.h"
+#include "./tuning.h"
 
 namespace bvhar {
 
@@ -279,10 +280,19 @@ private:
 
 class MinnBvar {
 public:
-	MinnBvar(const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean)
-	: lag(lag), const_term(include_mean), data(y), dim(data.cols()) {
+	MinnBvar(const Eigen::MatrixXd& y, int lag, BvarSpec& spec, const bool include_mean)
+	: lag(lag), const_term(include_mean), data(y), dim(data.cols()),
+		hyperparam(2 * dim + 1) {
 		response = build_y0(data, lag, lag + 1);
 		design = build_x0(data, lag, const_term);
+		hyperparam << spec._sigma, spec._lambda, spec._delta;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, lag, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._delta = hyperparam.segment(dim + 1, dim);
 		dummy_response = build_ydummy(
 			lag, spec._sigma,
 			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
@@ -292,7 +302,8 @@ public:
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			spec._lambda, spec._sigma, spec._eps, const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
 	virtual ~MinnBvar() = default;
 	BVHAR_LIST returnMinnRes() {
@@ -301,6 +312,7 @@ public:
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() {
@@ -311,6 +323,7 @@ private:
 	bool const_term;
 	Eigen::MatrixXd data;
 	int dim;
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
@@ -320,17 +333,17 @@ private:
 
 class MinnBvhar {
 public:
-	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
+	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, MinnSpec& spec, const bool include_mean)
 	: week(week), month(month), const_term(include_mean),
 		data(y), dim(data.cols()) {
 		response = build_y0(data, month, month + 1);
 		har_trans = bvhar::build_vhar(dim, week, month, const_term);
 		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
-		dummy_design = build_xdummy(
-			Eigen::VectorXd::LinSpaced(3, 1, 3),
-			spec._lambda, spec._sigma, spec._eps, const_term
-		);
+		// dummy_design = build_xdummy(
+		// 	Eigen::VectorXd::LinSpaced(3, 1, 3),
+		// 	spec._lambda, spec._sigma, spec._eps, const_term
+		// );
 	}
 	virtual ~MinnBvhar() = default;
 	virtual BVHAR_LIST returnMinnRes() = 0;
@@ -350,14 +363,28 @@ protected:
 
 class MinnBvharS : public MinnBvhar {
 public:
-	MinnBvharS(const Eigen::MatrixXd& y, int week, int month, const BvarSpec& spec, const bool include_mean)
-	: MinnBvhar(y, week, month, spec, include_mean) {
+	MinnBvharS(const Eigen::MatrixXd& y, int week, int month, BvarSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean),
+		hyperparam(2 * dim + 1) {
+		hyperparam << spec._sigma, spec._lambda, spec._delta;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, 3, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._delta = hyperparam.segment(dim + 1, dim);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
 		dummy_response = build_ydummy(
 			3, spec._sigma, spec._lambda,
 			spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
 			const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
 	}
 	virtual ~MinnBvharS() noexcept = default;
 	BVHAR_LIST returnMinnRes() override {
@@ -369,26 +396,44 @@ public:
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {
 		return _mn->returnMinnFit();
 	}
 private:
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd dummy_response;
 	std::unique_ptr<Minnesota> _mn;
 };
 
 class MinnBvharL : public MinnBvhar {
 public:
-	MinnBvharL(const Eigen::MatrixXd& y, int week, int month, const BvharSpec& spec, const bool include_mean)
-	: MinnBvhar(y, week, month, spec, include_mean) {
+	MinnBvharL(const Eigen::MatrixXd& y, int week, int month, BvharSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean),
+		hyperparam(4 * dim + 1) {
+		hyperparam << spec._sigma, spec._lambda, spec._daily, spec._weekly, spec._monthly;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, 3, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._daily = hyperparam.segment(dim + 1, dim);
+		spec._weekly = hyperparam.segment(2 * dim + 1, dim);
+		spec._monthly = hyperparam.segment(3 * dim + 1, dim);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
 		dummy_response = build_ydummy(
 			3, spec._sigma, spec._lambda,
 			spec._daily, spec._weekly, spec._monthly,
 			const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
 	}
 	virtual ~MinnBvharL() noexcept = default;
 	BVHAR_LIST returnMinnRes() override {
@@ -400,12 +445,14 @@ public:
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {
 		return _mn->returnMinnFit();
 	}
 private:
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd dummy_response;
 	std::unique_ptr<Minnesota> _mn;
 };
