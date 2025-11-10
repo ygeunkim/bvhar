@@ -5,20 +5,20 @@
 
 namespace bvhar {
 
-class LogLik;
-class OptimEmpBayes;
+class FuncMin;
+class OptimLbfgsb;
 
-class LogLik {
+class FuncMin {
 public:
-	LogLik() {}
-	virtual ~LogLik() = default;
+	FuncMin() {}
+	virtual ~FuncMin() = default;
 	virtual double operator()(const Eigen::VectorXd& x, Eigen::VectorXd& grad) = 0;
 };
 
-class OptimEmpBayes {
+class OptimLbfgsb {
 public:
-	OptimEmpBayes(
-		std::unique_ptr<LogLik>& log_lik,
+	OptimLbfgsb(
+		std::unique_ptr<FuncMin>& log_lik,
 		const Eigen::VectorXd& inits,
 		double lower = .01, double upper = 10,
 		const int max_iter = 300, const double& eps_f = 1e-6, const double& eps_g = 1e-5
@@ -37,8 +37,8 @@ public:
 		lbfgs_solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(lbfgs_param);
 	}
 
-	OptimEmpBayes(
-		std::unique_ptr<LogLik>& log_lik,
+	OptimLbfgsb(
+		std::unique_ptr<FuncMin>& log_lik,
 		const Eigen::VectorXd& inits,
 		const Eigen::VectorXd& lower, const Eigen::VectorXd& upper,
 		const int max_iter = 300, const double& eps_f = 1e-6, const double& eps_g = 1e-5
@@ -56,7 +56,7 @@ public:
 		lbfgs_solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(lbfgs_param);
 	}
 
-	virtual ~OptimEmpBayes() = default;
+	virtual ~OptimLbfgsb() = default;
 	
 	void doOptim() {
 		double fx;
@@ -69,7 +69,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<LogLik> log_lik;
+	std::unique_ptr<FuncMin> log_lik;
 	int param_size;
 	Eigen::VectorXd param_vec, lower_bound, upper_bound;
 	LBFGSpp::LBFGSBParam<double> lbfgs_param;

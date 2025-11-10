@@ -1,7 +1,7 @@
 #ifndef BVHAR_BAYES_MNIW_TUNING_H
 #define BVHAR_BAYES_MNIW_TUNING_H
 
-#include "../optim.h"
+#include "../../math/optim.h"
 #include "../misc/minn_helper.h"
 #include "../../math/design.h"
 
@@ -48,7 +48,7 @@ inline double minnesota_logml(const Eigen::VectorXd& param_vec,
 	return compute_logml(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_df);
 }
 
-class MinnesotaLogLik : public LogLik {
+class MinnesotaLogLik : public FuncMin {
 public:
 	MinnesotaLogLik(
 		const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
