@@ -27,14 +27,14 @@ public:
 		param_size(inits.size()), param_vec(inits),
 		lower_bound(Eigen::VectorXd::Constant(param_size, lower)),
 		upper_bound(Eigen::VectorXd::Constant(param_size, upper)) {
-		lbfgs_param.epsilon = eps_g;
-		lbfgs_param.epsilon_rel = eps_g;
-		lbfgs_param.past = 1;
-		lbfgs_param.delta = eps_f;
-		lbfgs_param.max_iterations = max_iter;
-    lbfgs_param.max_linesearch = 100;
+		param.epsilon = eps_g;
+		param.epsilon_rel = eps_g;
+		param.past = 1;
+		param.delta = eps_f;
+		param.max_iterations = max_iter;
+    param.max_linesearch = 100;
 		// lbfgs_param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE;
-		lbfgs_solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(lbfgs_param);
+		solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(param);
 	}
 
 	OptimLbfgsb(
@@ -46,21 +46,21 @@ public:
 	: log_lik(std::move(log_lik)),
 		param_size(inits.size()), param_vec(inits),
 		lower_bound(lower), upper_bound(upper) {
-		lbfgs_param.epsilon = eps_g;
-		lbfgs_param.epsilon_rel = eps_g;
-		lbfgs_param.past = 1;
-		lbfgs_param.delta = eps_f;
-		lbfgs_param.max_iterations = max_iter;
-    lbfgs_param.max_linesearch = 100;
-		lbfgs_param.max_linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE;
-		lbfgs_solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(lbfgs_param);
+		param.epsilon = eps_g;
+		param.epsilon_rel = eps_g;
+		param.past = 1;
+		param.delta = eps_f;
+		param.max_iterations = max_iter;
+    param.max_linesearch = 100;
+		// param.linesearch = LBFGSpp::LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE;
+		solver = std::make_unique<LBFGSpp::LBFGSBSolver<double>>(param);
 	}
 
 	virtual ~OptimLbfgsb() = default;
 	
 	void doOptim() {
 		double fx;
-		int niter = lbfgs_solver->minimize(*log_lik, param_vec, fx, lower_bound, upper_bound);
+		solver->minimize(*log_lik, param_vec, fx, lower_bound, upper_bound);
 	}
 
 	Eigen::VectorXd returnParams() {
@@ -72,8 +72,8 @@ private:
 	std::unique_ptr<FuncMin> log_lik;
 	int param_size;
 	Eigen::VectorXd param_vec, lower_bound, upper_bound;
-	LBFGSpp::LBFGSBParam<double> lbfgs_param;
-	std::unique_ptr<LBFGSpp::LBFGSBSolver<double>> lbfgs_solver;
+	LBFGSpp::LBFGSBParam<double> param;
+	std::unique_ptr<LBFGSpp::LBFGSBSolver<double>> solver;
 };
 
 } // namespace bvhar
