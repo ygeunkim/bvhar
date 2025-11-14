@@ -43,8 +43,8 @@ public:
 		const Eigen::VectorXd& lower, const Eigen::VectorXd& upper,
 		const int max_iter = 300, const double& eps_f = 1e-6, const double& eps_g = 1e-5
 	)
-	: log_lik(std::move(log_lik)),
-		param_size(inits.size()), param_vec(inits),
+	: log_lik(std::move(log_lik)), value(0.0),
+		param_size(inits.size()), niter(0), status(0), param_vec(inits),
 		lower_bound(lower), upper_bound(upper) {
 		param.epsilon = eps_g;
 		param.epsilon_rel = eps_g;
@@ -59,8 +59,11 @@ public:
 	virtual ~OptimLbfgsb() = default;
 	
 	void doOptim() {
-		double fx;
-		solver->minimize(*log_lik, param_vec, fx, lower_bound, upper_bound);
+		try {
+			niter = solver->minimize(*log_lik, param_vec, value, lower_bound, upper_bound);
+		} catch (const std::exception& e) {
+			status = -1;
+		}
 	}
 
 	Eigen::VectorXd returnParams() {
@@ -68,9 +71,22 @@ public:
 		return param_vec;
 	}
 
+	double getValue() {
+		return value;
+	}
+
+	int getNiter() {
+		return niter;
+	}
+
+	int getStatus() {
+		return status;
+	}
+
 private:
 	std::unique_ptr<FuncMin> log_lik;
-	int param_size;
+	double value;
+	int param_size, niter, status;
 	Eigen::VectorXd param_vec, lower_bound, upper_bound;
 	LBFGSpp::LBFGSBParam<double> param;
 	std::unique_ptr<LBFGSpp::LBFGSBSolver<double>> solver;

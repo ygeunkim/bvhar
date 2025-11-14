@@ -76,7 +76,7 @@ public:
 			double f_h_minus = minnesota_logml(x_h_minus, design, response, eps, lag, include_mean);
 			grad[i] = (f_h - f_h_minus) / (2 * step_size);
 		}
-    return -fx;
+    return fx;
 	}
 
 private:
