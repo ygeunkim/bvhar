@@ -12,6 +12,10 @@ This will affect every MCMC results of this library.
 * Fixed upper triangular Bartlett decomposition for inverse-Wishart rng.
 This change affects every results that uses MNIW in the posterior sampling.
 
+* `bvar_minnesota()` and `bvhar_minnesota()` will find hyperparameters in C++ using L-BFGS-B of `LBFGSpp` library.
+And these functions will be integrated into `var_bayes()` and `vhar_bayes()` with new spec functions.
+Be careful when using these functions before the changes.
+
 ## New features
 
 * `var_bayes()` and `vhar_bayes()` can augment factor term with `factor_spec` argument.
