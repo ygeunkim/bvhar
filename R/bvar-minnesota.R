@@ -42,7 +42,6 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param bayes_spec A BVAR model specification by [set_bvar()].
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread Number of threads
 #' @details 
@@ -104,8 +103,7 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
-#' @importFrom stats sd optim
-#' @importFrom optimParallel optimParallel
+#' @importFrom stats sd
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1
 #' @export
@@ -118,7 +116,6 @@ bvar_minnesota <- function(y,
                            bayes_spec = set_bvar(),
                            scale_variance = .05,
                            include_mean = TRUE,
-                           parallel = list(),
                            verbose = FALSE,
                            num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -254,44 +251,47 @@ bvar_minnesota <- function(y,
     # prior selection-------------------
     lower_vec <- unlist(bayes_spec)
     lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])
-    lower_vec <- c(lower_vec[2], rep(lower_vec[1], dim_data))
+    # lower_vec <- c(lower_vec[2], rep(lower_vec[1], dim_data))
+    lower_vec <- c(rep(lower_vec[1], dim_data), lower_vec[2])
     upper_vec <- unlist(bayes_spec)
     upper_vec <- as.numeric(upper_vec[grepl(pattern = "upper$", x = names(unlist(bayes_spec)))])
-    upper_vec <- c(upper_vec[2], rep(upper_vec[1], dim_data))
-    if (length(parallel) > 0) {
-      init_par <-
-        optimParallel(
-          par = c(lambda, psi),
-          fn = logml_bvarhm,
-          lower = lower_vec,
-          upper = upper_vec,
-          hessian = TRUE,
-          delta = delta,
-          eps = bayes_spec$eps,
-          y = y,
-          p = p,
-          include_mean = include_mean,
-          parallel = parallel
-        )
-    } else {
-      init_par <-
-        optim(
-          par = c(lambda, psi),
-          fn = logml_bvarhm,
-          method = "L-BFGS-B",
-          lower = lower_vec,
-          upper = upper_vec,
-          hessian = TRUE,
-          delta = delta,
-          eps = bayes_spec$eps,
-          y = y,
-          p = p,
-          include_mean = include_mean
-        )
-    }
-    lambda <- init_par$par[1]
-    psi <- init_par$par[2:(1 + dim_data)]
-    hess <- init_par$hessian
+    # upper_vec <- c(upper_vec[2], rep(upper_vec[1], dim_data))
+    upper_vec <- c(rep(upper_vec[1], dim_data), upper_vec[2])
+    # if (length(parallel) > 0) {
+    #   init_par <-
+    #     optimParallel(
+    #       par = c(lambda, psi),
+    #       fn = logml_bvarhm,
+    #       lower = lower_vec,
+    #       upper = upper_vec,
+    #       hessian = TRUE,
+    #       delta = delta,
+    #       eps = bayes_spec$eps,
+    #       y = y,
+    #       p = p,
+    #       include_mean = include_mean,
+    #       parallel = parallel
+    #     )
+    # } else {
+    #   init_par <-
+    #     optim(
+    #       par = c(lambda, psi),
+    #       fn = logml_bvarhm,
+    #       method = "L-BFGS-B",
+    #       lower = lower_vec,
+    #       upper = upper_vec,
+    #       hessian = TRUE,
+    #       delta = delta,
+    #       eps = bayes_spec$eps,
+    #       y = y,
+    #       p = p,
+    #       include_mean = include_mean
+    #     )
+    # }
+    # lambda <- init_par$par[1]
+    # psi <- init_par$par[2:(1 + dim_data)]
+    # hess <- init_par$hessian
+    init_par <- list(par = c(psi, lambda))
     # dummy-----------------------------
     Yp <- build_ydummy_export(p, psi, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
     colnames(Yp) <- name_var
@@ -309,6 +309,10 @@ bvar_minnesota <- function(y,
       y_dummy = Yp,
       param_prior = bayes_spec,
       param_init = param_init,
+      lower = lower_vec,
+      upper = upper_vec,
+      lag = p,
+      include_mean = include_mean,
       seed_chain = sample.int(.Machine$integer.max, size = num_chains),
       display_progress = verbose,
       nthreads = num_thread

@@ -42,8 +42,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // estimate_bvar_mh
-Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy, Rcpp::List param_prior, Rcpp::List param_init, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
-RcppExport SEXP _bvhar_estimate_bvar_mh(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP, SEXP param_priorSEXP, SEXP param_initSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
+Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin, Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy, Rcpp::List param_prior, Rcpp::List param_init, Eigen::VectorXd lower, Eigen::VectorXd upper, int lag, bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads);
+RcppExport SEXP _bvhar_estimate_bvar_mh(SEXP num_chainsSEXP, SEXP num_iterSEXP, SEXP num_burnSEXP, SEXP thinSEXP, SEXP xSEXP, SEXP ySEXP, SEXP x_dummySEXP, SEXP y_dummySEXP, SEXP param_priorSEXP, SEXP param_initSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lagSEXP, SEXP include_meanSEXP, SEXP seed_chainSEXP, SEXP display_progressSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -57,10 +57,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type y_dummy(y_dummySEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_prior(param_priorSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type param_init(param_initSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_mean(include_meanSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXi >::type seed_chain(seed_chainSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_bvar_mh(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads));
+    rcpp_result_gen = Rcpp::wrap(estimate_bvar_mh(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, lower, upper, lag, include_mean, seed_chain, display_progress, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -2445,7 +2449,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_estimate_bvar_mn", (DL_FUNC) &_bvhar_estimate_bvar_mn, 4},
     {"_bvhar_estimate_bvhar_mn", (DL_FUNC) &_bvhar_estimate_bvhar_mn, 5},
-    {"_bvhar_estimate_bvar_mh", (DL_FUNC) &_bvhar_estimate_bvar_mh, 13},
+    {"_bvhar_estimate_bvar_mh", (DL_FUNC) &_bvhar_estimate_bvar_mh, 17},
     {"_bvhar_estimate_mn_flat", (DL_FUNC) &_bvhar_estimate_mn_flat, 3},
     {"_bvhar_estimate_mniw", (DL_FUNC) &_bvhar_estimate_mniw, 11},
     {"_bvhar_forecast_bvar", (DL_FUNC) &_bvhar_forecast_bvar, 4},

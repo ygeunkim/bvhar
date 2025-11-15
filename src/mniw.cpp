@@ -46,16 +46,47 @@ Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin,
 														Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy,
 														Rcpp::List param_prior, Rcpp::List param_init,
+														Eigen::VectorXd lower, Eigen::VectorXd upper,
+														int lag, bool include_mean,
 														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
 	std::vector<std::unique_ptr<bvhar::MhMinnesota>> mn_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	Rcpp::List lambda_spec = param_prior["lambda"];
 	Rcpp::List psi_spec = param_prior["sigma"];
+	int dim = y.cols();
+	Eigen::VectorXd hyperparam(dim + 1);
+	Eigen::VectorXd delta_vec = Eigen::VectorXd::Zero(3 * dim);
+	if (BVHAR_CONTAINS(param_prior, "delta")) {
+		delta_vec.head(dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["delta"]);
+	} else {
+		delta_vec.head(dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["daily"]);
+		delta_vec.segment(dim, dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["weekly"]);
+		delta_vec.segment(2 * dim, dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["monthly"]);
+	}
+	double eps = param_prior["eps"];
 	bvhar::MhMinnSpec mn_spec(lambda_spec, psi_spec);
   for (int i = 0; i < num_chains; ++i) {
+		std::unique_ptr<bvhar::FuncMin> logml_lik;
+		logml_lik = std::make_unique<bvhar::MhMinnLogLik>(x, y, delta_vec, lag, include_mean, eps);
 		Rcpp::List init_spec = param_init[i];
 		bvhar::MhMinnInits mn_init(init_spec);
-		mn_objs[i].reset(new bvhar::MhMinnesota(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+		hyperparam.head(dim) = mn_init._psi;
+		hyperparam[dim - 1] = mn_init._lambda;
+		auto solver = std::make_unique<bvhar::OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		mn_init._psi = hyperparam.head(dim);
+		mn_init._lambda = hyperparam[dim - 1];
+		y_dummy = bvhar::build_ydummy(
+			lag, mn_init._psi, mn_init._lambda,
+			delta_vec.head(dim), delta_vec.segment(dim, dim), delta_vec.segment(2 * dim, dim),
+			include_mean
+		);
+		x_dummy = bvhar::build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			mn_init._lambda, mn_init._psi,
+			eps, include_mean
+		);
+		// mn_objs[i].reset(new bvhar::MhMinnesota(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+		mn_objs[i] = std::make_unique<bvhar::MhMinnesota>(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i]));
 		mn_objs[i]->computePosterior();
 	}
 	auto run_mh = [&](int chain) {
