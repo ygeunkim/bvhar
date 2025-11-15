@@ -39,7 +39,7 @@ choose_bayes(
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This function chooses the set of hyperparameters of Bayesian model using \code{\link[stats:optim]{stats::optim()}} function.
 }
 \references{
 Giannone, D., Lenza, M., & Primiceri, G. E. (2015). \emph{Prior Selection for Vector Autoregressions}. Review of Economics and Statistics, 97(2).

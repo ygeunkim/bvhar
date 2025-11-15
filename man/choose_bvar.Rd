@@ -78,7 +78,7 @@ is.bvharemp(x)
 }
 }
 \description{
-Instead of these functions, you can use \code{\link[=choose_bayes]{choose_bayes()}}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Instead of these functions, you can use \code{\link[=choose_bayes]{choose_bayes()}}.
 }
 \details{
 Empirical Bayes method maximizes marginal likelihood and selects the set of hyperparameters.

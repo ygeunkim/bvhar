@@ -78,14 +78,16 @@ Repeatedly, `bvhar` is a research tool to analyze multivariate time series model
 |:-----:|:--------:|:-----:|  
 | VAR | `var_lm()` | |  
 | VHAR | `vhar_lm()` | |  
-| BVAR | `bvar_minnesota()` and `choose_bvar()` | Minnesota (will move to `var_bayes()`) |  
-| BVHAR | `bvhar_minnesota()` and `choose_bvhar()` | Minnesota (will move to `vhar_bayes()`) |  
+| BVAR | `bvar_minnesota()` | Minnesota (will move to `var_bayes()`) |  
+| BVHAR | `bvhar_minnesota()` | Minnesota (will move to `vhar_bayes()`) |  
 | BVAR | `var_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |  
 | BVHAR | `vhar_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |  
 
 This readme document shows forecasting procedure briefly.
 Details about each function are in vignettes and help documents.
-Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the near future.
+<!-- Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the near future. -->
+Details will be updated after the function integration works are done.
+Until then, we remove Bayesian model sections here.
 
 h-step ahead forecasting:
 
@@ -131,66 +133,11 @@ forecast_vhar <- predict(mod_vhar, h)
 
 ### BVAR
 
-Minnesota prior:
-
-```{r specbvar}
-lam <- .3
-delta <- rep(1, ncol(etf_vix)) # litterman
-sig <- apply(etf_tr, 2, sd)
-eps <- 1e-04
-(bvar_spec <- set_bvar(sig, lam, delta, eps))
-```
-
-```{r fitbvar}
-mod_bvar <- bvar_minnesota(y = etf_tr, p = 5, bayes_spec = bvar_spec)
-```
-
-MSE:
-
-```{r }
-forecast_bvar <- predict(mod_bvar, h)
-(msebvar <- mse(forecast_bvar, etf_te))
-```
+<!-- var_bayes() -->
 
 ### BVHAR
 
-BVHAR-S:
-
-```{r specbvhars}
-(bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
-```
-
-```{r fitbvhars}
-mod_bvhar_v1 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v1)
-```
-
-MSE:
-
-```{r predbvhars}
-forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
-(msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
-```
-
-BVHAR-L:
-
-```{r specbvharl}
-day <- rep(.1, ncol(etf_vix))
-week <- rep(.1, ncol(etf_vix))
-month <- rep(.1, ncol(etf_vix))
-#----------------------------------
-(bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, day, week, month))
-```
-
-```{r fitbvharl}
-mod_bvhar_v2 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v2)
-```
-
-MSE:
-
-```{r predbvharl}
-forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
-(msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
-```
+<!-- vhar_bayes() -->
 
 ## Citation
 

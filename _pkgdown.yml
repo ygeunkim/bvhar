@@ -71,20 +71,14 @@ reference:
   - summary.normaliw
   - summary.bvharsp
 
-# - title: Deprecated
-#   desc: >
-#     Deprecated functions that will be removed soon
-#   contents:
-#   - bvar_sv
-#   - bvar_ssvs
-#   - bvar_horseshoe
-#   - bvhar_sv
-#   - bvhar_ssvs
-#   - bvhar_horseshoe
-#   - init_ssvs
-#   - choose_ssvs
-#   - sim_ssvs_var
-#   - sim_horseshoe_var
+- title: Deprecated
+  desc: >
+    Deprecated functions that will be removed soon
+  contents:
+  - choose_bvar
+  - choose_bvhar
+  - bound_bvhar
+  - choose_bayes
 
 - title: Forecasting
   desc: ~
@@ -124,23 +118,28 @@ reference:
   - fromse
   - spne
   - relspne
-
-- title: Tuning
-  desc: ~
-  contents:
   - compute_logml
-  - choose_bvar
-  - choose_bvhar
-  - bound_bvhar
-  - choose_bayes
-
-- title: Information criteria
-  desc: ~
-  contents:
   - FPE
   - HQ
   - choose_var
   - compute_dic
+
+# - title: Tuning
+#   desc: ~
+#   contents:
+#   - compute_logml
+#   - choose_bvar
+#   - choose_bvhar
+#   - bound_bvhar
+#   - choose_bayes
+
+# - title: Information criteria
+#   desc: ~
+#   contents:
+#   - FPE
+#   - HQ
+#   - choose_var
+#   - compute_dic
 
 - title: Plots
   desc: ~
