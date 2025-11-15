@@ -34,7 +34,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev
+          sudo apt-get install -y libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev liblbfgspp-dev
           echo $(sudo apt list --installed)
           echo "EIGEN_INCLUDE_DIR=/usr/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> $GITHUB_ENV
@@ -45,7 +45,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install llvm libomp boost eigen fmt spdlog
+          brew install llvm libomp boost eigen fmt spdlog lbfgspp
           EIGEN_LOC=$(brew --prefix eigen)
           BOOST_LOC=$(brew --prefix boost)
           SPDLOG_LOC=$(brew --prefix spdlog)
@@ -71,6 +71,7 @@ jobs:
           vcpkg install boost | Out-Null
           vcpkg install fmt | Out-Null
           vcpkg install spdlog | Out-Null
+          vcpkg install lbfgspp | Out-Null
           $installPath = $null
           $tripletCand = @(
             "$vcpkgRoot\installed\x64-windows",
