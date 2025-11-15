@@ -31,8 +31,8 @@ estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean) {
 }
 
 #' @noRd
-estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads)
+estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, lower, upper, lag, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, lower, upper, lag, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior

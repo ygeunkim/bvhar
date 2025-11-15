@@ -83,7 +83,7 @@ logml_bvar <- function(param, eps = 1e-04, y, p, include_mean = TRUE, ...) {
 
 #' Finding the Set of Hyperparameters of Individual Bayesian Model
 #' 
-#' Instead of these functions, you can use [choose_bayes()].
+#' `r lifecycle::badge("deprecated")` Instead of these functions, you can use [choose_bayes()].
 #' 
 #' @param bayes_spec Initial Bayes model specification.
 #' @param lower `r lifecycle::badge("experimental")` Lower bound. By default, `.01`.
@@ -130,6 +130,11 @@ choose_bvar <- function(bayes_spec = set_bvar(),
                         p, 
                         include_mean = TRUE,
                         parallel = list()) {
+  deprecate_warn(
+    "2.3.0.9012",
+    "choose_bvar()",
+    "bvar_minnesota()"
+  )
   dim_data <- ncol(y)
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -294,6 +299,11 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
                          har = c(5, 22),
                          include_mean = TRUE,
                          parallel = list()) {
+  deprecate_warn(
+    "2.3.0.9012",
+    "choose_bvhar()",
+    "bvhar_minnesota()"
+  )
   dim_data <- ncol(y)
   if (!is.bvharspec(bayes_spec)) {
     stop("Provide 'bvharspec' for 'bayes_spec'.")
@@ -427,7 +437,7 @@ choose_bvhar <- function(bayes_spec = set_bvhar(),
 
 #' Setting Empirical Bayes Optimization Bounds
 #' 
-#' `r lifecycle::badge("experimental")` This function sets lower and upper bounds for [set_bvar()], [set_bvhar()], or [set_weight_bvhar()].
+#' `r lifecycle::badge("deprecated")` This function sets lower and upper bounds for [set_bvar()], [set_bvhar()], or [set_weight_bvhar()].
 #' 
 #' @param init_spec Initial Bayes model specification
 #' @param lower_spec Lower bound Bayes model specification
@@ -501,7 +511,7 @@ bound_bvhar <- function(init_spec = set_bvhar(),
 
 #' Finding the Set of Hyperparameters of Bayesian Model
 #' 
-#' `r lifecycle::badge("experimental")` This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
+#' `r lifecycle::badge("deprecated")` This function chooses the set of hyperparameters of Bayesian model using [stats::optim()] function.
 #' 
 #' @param bayes_bound Empirical Bayes optimization bound specification defined by [bound_bvhar()].
 #' @param ... Additional arguments for [stats::optim()].
@@ -534,6 +544,11 @@ choose_bayes <- function(bayes_bound = bound_bvhar(),
                          order = c(5, 22),
                          include_mean = TRUE,
                          parallel = list()) {
+  deprecate_warn(
+    "2.3.0.9012",
+    "choose_bayes()",
+    "Hyperparameter selection in Minnesota prior will be automatically done"
+  )
   dim_data <- ncol(y)
   if (!is.boundbvharemp(bayes_bound)) {
     stop("Provide 'bayes_bound' for 'boundbvharemp'. See ?bound_bvhar.")

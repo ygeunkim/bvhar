@@ -23,7 +23,6 @@ bvhar_minnesota(
   bayes_spec = set_bvhar(),
   scale_variance = 0.05,
   include_mean = TRUE,
-  parallel = list(),
   verbose = FALSE,
   num_thread = 1
 )
@@ -62,8 +61,6 @@ is.bvharmn(x)
 \item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
-
-\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 

@@ -75,7 +75,6 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 #' @param bayes_spec A BVHAR model specification by [set_bvhar()] (default) or [set_weight_bvhar()].
 #' @param scale_variance Proposal distribution scaling constant to adjust an acceptance rate
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
-#' @param parallel List the same argument of [optimParallel::optimParallel()]. By default, this is empty, and the function does not execute parallel computation.
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread Number of threads
 #' @details 
@@ -146,7 +145,6 @@ bvhar_minnesota <- function(y,
                             bayes_spec = set_bvhar(),
                             scale_variance = .05,
                             include_mean = TRUE,
-                            parallel = list(),
                             verbose = FALSE,
                             num_thread = 1) {
   if (!all(apply(y, 2, is.numeric))) {
@@ -300,84 +298,87 @@ bvhar_minnesota <- function(y,
     # prior selection-------------------
     lower_vec <- unlist(bayes_spec)
     lower_vec <- as.numeric(lower_vec[grepl(pattern = "lower$", x = names(unlist(bayes_spec)))])
-    lower_vec <- c(lower_vec[2], rep(lower_vec[1], dim_data))
+    # lower_vec <- c(lower_vec[2], rep(lower_vec[1], dim_data))
+    lower_vec <- c(rep(lower_vec[1], dim_data), lower_vec[2])
     upper_vec <- unlist(bayes_spec)
     upper_vec <- as.numeric(upper_vec[grepl(pattern = "upper$", x = names(unlist(bayes_spec)))])
-    upper_vec <- c(upper_vec[2], rep(upper_vec[1], dim_data))
+    # upper_vec <- c(upper_vec[2], rep(upper_vec[1], dim_data))
+    upper_vec <- c(rep(upper_vec[1], dim_data), upper_vec[2])
     is_short <- is.null(bayes_spec$daily)
-    if (is_short) {
-      # delta <- bayes_spec$delta
-      if (length(parallel) > 0) {
-        init_par <-
-          optimParallel(
-            par = c(lambda, psi),
-            fn = logml_bvharhm,
-            lower = lower_vec,
-            upper = upper_vec,
-            hessian = TRUE,
-            delta = bayes_spec$delta,
-            eps = bayes_spec$eps,
-            y = y,
-            har = har,
-            include_mean = include_mean,
-            parallel = parallel
-          )
-      } else {
-        init_par <-
-          optim(
-            par = c(lambda, psi),
-            fn = logml_bvharhm,
-            method = "L-BFGS-B",
-            lower = lower_vec,
-            upper = upper_vec,
-            hessian = TRUE,
-            delta = bayes_spec$delta,
-            eps = bayes_spec$eps,
-            y = y,
-            har = har,
-            include_mean = include_mean
-          )
-      }
-    } else {
-      if (length(parallel) > 0) {
-        init_par <-
-          optimParallel(
-            par = c(lambda, psi),
-            fn = logml_weight_bvharhm,
-            lower = lower_vec,
-            upper = upper_vec,
-            hessian = TRUE,
-            daily = bayes_spec$daily,
-            weekly = bayes_spec$weekly,
-            monthly = bayes_spec$monthly,
-            eps = bayes_spec$eps,
-            y = y,
-            har = har,
-            include_mean = include_mean,
-            parallel = parallel
-          )
-      } else {
-        init_par <-
-          optim(
-            par = c(lambda, psi),
-            fn = logml_weight_bvharhm,
-            method = "L-BFGS-B",
-            lower = lower_vec,
-            upper = upper_vec,
-            hessian = TRUE,
-            daily = bayes_spec$daily,
-            weekly = bayes_spec$weekly,
-            monthly = bayes_spec$monthly,
-            eps = bayes_spec$eps,
-            y = y,
-            har = har,
-            include_mean = include_mean
-          )
-      }
-    }
-    lambda <- init_par$par[1]
-    psi <- init_par$par[2:(1 + dim_data)]
-    hess <- init_par$hessian
+    # if (is_short) {
+    #   # delta <- bayes_spec$delta
+    #   if (length(parallel) > 0) {
+    #     init_par <-
+    #       optimParallel(
+    #         par = c(lambda, psi),
+    #         fn = logml_bvharhm,
+    #         lower = lower_vec,
+    #         upper = upper_vec,
+    #         hessian = TRUE,
+    #         delta = bayes_spec$delta,
+    #         eps = bayes_spec$eps,
+    #         y = y,
+    #         har = har,
+    #         include_mean = include_mean,
+    #         parallel = parallel
+    #       )
+    #   } else {
+    #     init_par <-
+    #       optim(
+    #         par = c(lambda, psi),
+    #         fn = logml_bvharhm,
+    #         method = "L-BFGS-B",
+    #         lower = lower_vec,
+    #         upper = upper_vec,
+    #         hessian = TRUE,
+    #         delta = bayes_spec$delta,
+    #         eps = bayes_spec$eps,
+    #         y = y,
+    #         har = har,
+    #         include_mean = include_mean
+    #       )
+    #   }
+    # } else {
+    #   if (length(parallel) > 0) {
+    #     init_par <-
+    #       optimParallel(
+    #         par = c(lambda, psi),
+    #         fn = logml_weight_bvharhm,
+    #         lower = lower_vec,
+    #         upper = upper_vec,
+    #         hessian = TRUE,
+    #         daily = bayes_spec$daily,
+    #         weekly = bayes_spec$weekly,
+    #         monthly = bayes_spec$monthly,
+    #         eps = bayes_spec$eps,
+    #         y = y,
+    #         har = har,
+    #         include_mean = include_mean,
+    #         parallel = parallel
+    #       )
+    #   } else {
+    #     init_par <-
+    #       optim(
+    #         par = c(lambda, psi),
+    #         fn = logml_weight_bvharhm,
+    #         method = "L-BFGS-B",
+    #         lower = lower_vec,
+    #         upper = upper_vec,
+    #         hessian = TRUE,
+    #         daily = bayes_spec$daily,
+    #         weekly = bayes_spec$weekly,
+    #         monthly = bayes_spec$monthly,
+    #         eps = bayes_spec$eps,
+    #         y = y,
+    #         har = har,
+    #         include_mean = include_mean
+    #       )
+    #   }
+    # }
+    # lambda <- init_par$par[1]
+    # psi <- init_par$par[2:(1 + dim_data)]
+    # hess <- init_par$hessian
+    init_par <- list(par = c(psi, lambda))
     # dummy-----------------------------
     # Yp <- build_ydummy_export(3, psi, lambda, delta, numeric(dim_data), numeric(dim_data), include_mean)
     if (is_short) {
@@ -400,6 +401,10 @@ bvhar_minnesota <- function(y,
       y_dummy = Yp,
       param_prior = bayes_spec,
       param_init = param_init,
+      lower = lower_vec,
+      upper = upper_vec,
+      lag = 3,
+      include_mean = include_mean,
       seed_chain = sample.int(.Machine$integer.max, size = num_chains),
       display_progress = verbose,
       nthreads = num_thread
@@ -506,6 +511,17 @@ bvhar_minnesota <- function(y,
   # S3--------------------------------
   res$call <- match.call()
   res$process <- paste(bayes_spec$process, minnesota_type, sep = "_")
+  if (bayes_spec$prior == "MN_VAR") {
+    bayes_spec$sigma <- res$spec[1:dim_data]
+    bayes_spec$lambda <- res$spec[dim_data + 1]
+    bayes_spec$delta <- res$spec[(dim_data + 2):(2 * dim_data + 1)]
+  } else if (bayes_spec$prior == "MN_VHAR") {
+    bayes_spec$sigma <- res$spec[1:dim_data]
+    bayes_spec$lambda <- res$spec[dim_data + 1]
+    bayes_spec$daily <- res$spec[(dim_data + 2):(2 * dim_data + 1)]
+    bayes_spec$weekly <- res$spec[(2 * dim_data + 2):(3 * dim_data + 1)]
+    bayes_spec$daily <- res$spec[(3 * dim_data + 2):(4 * dim_data + 1)]
+  }
   res$spec <- bayes_spec
   # class(res) <- c("bvharmn", "normaliw", "bvharmod")
   if (minnesota_type == "MN_Hierarchical") {
