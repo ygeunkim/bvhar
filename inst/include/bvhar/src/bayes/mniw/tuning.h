@@ -31,7 +31,7 @@ inline double minnesota_logml(const Eigen::VectorXd& param_vec,
 		Eigen::VectorXd::LinSpaced(lag, 1, lag),
 		lam, sigma, eps, include_mean
 	);
-	int num_dummy = dummy_design.rows();
+	// int num_dummy = dummy_design.rows();
 	Eigen::MatrixXd prior_prec = dummy_design.transpose() * dummy_design;
 	Eigen::MatrixXd prior_mean = prior_prec.selfadjointView<Eigen::Lower>().llt().solve(dummy_design.transpose() * dummy_response);
 	Eigen::MatrixXd prior_scale = (dummy_response - dummy_design * prior_mean).transpose() * (dummy_response - dummy_design * prior_mean);
@@ -71,7 +71,7 @@ inline double minnesota_logml(const Eigen::VectorXd& param_vec, const Eigen::Vec
 		Eigen::VectorXd::LinSpaced(lag, 1, lag),
 		lam, sigma, eps, include_mean
 	);
-	int num_dummy = dummy_design.rows();
+	// int num_dummy = dummy_design.rows();
 	Eigen::MatrixXd prior_prec = dummy_design.transpose() * dummy_design;
 	Eigen::MatrixXd prior_mean = prior_prec.selfadjointView<Eigen::Lower>().llt().solve(dummy_design.transpose() * dummy_response);
 	Eigen::MatrixXd prior_scale = (dummy_response - dummy_design * prior_mean).transpose() * (dummy_response - dummy_design * prior_mean);
