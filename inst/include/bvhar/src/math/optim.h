@@ -41,7 +41,7 @@ public:
 		std::unique_ptr<FuncMin>& log_lik,
 		const Eigen::VectorXd& inits,
 		const Eigen::VectorXd& lower, const Eigen::VectorXd& upper,
-		const int max_iter = 300, const double& eps_f = 1e-6, const double& eps_g = 1e-5
+		const int max_iter = 100, const double& eps_f = 1e-6, const double& eps_g = 1e-8
 	)
 	: log_lik(std::move(log_lik)), value(0.0),
 		param_size(inits.size()), niter(0), status(0), param_vec(inits),
