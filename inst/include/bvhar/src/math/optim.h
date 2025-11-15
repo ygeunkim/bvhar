@@ -1,5 +1,5 @@
-#ifndef BVHAR_BAYES_OPTIM_H
-#define BVHAR_BAYES_OPTIM_H
+#ifndef BVHAR_MATH_OPTIM_H
+#define BVHAR_MATH_OPTIM_H
 
 #include "../core/common.h"
 
@@ -94,4 +94,4 @@ private:
 
 } // namespace bvhar
 
-#endif // BVHAR_BAYES_OPTIM_H
+#endif // BVHAR_MATH_OPTIM_H
