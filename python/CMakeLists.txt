@@ -5,6 +5,17 @@ project(bvhar)
 find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
 find_package(pybind11 REQUIRED)
 
+# Prioritize conda
+if(DEFINED ENV{CONDA_PREFIX})
+    set(CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}" ${CMAKE_PREFIX_PATH})
+    set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
+    set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
+    set(CMAKE_FIND_ROOT_PATH "$ENV{CONDA_PREFIX}")
+    # set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+    # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    message(STATUS "Using conda environment: $ENV{CONDA_PREFIX}")
+endif()
+
 # External libraries
 include(FetchContent)
 
@@ -133,11 +144,14 @@ foreach(CPP_FILE ${CPP_SOURCES})
 endforeach()
 
 # Install Python source files
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bvhar
-    DESTINATION .
-    FILES_MATCHING 
-    PATTERN "*.py"
-    PATTERN "__pycache__" EXCLUDE
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bvhar
+#     DESTINATION .
+#     FILES_MATCHING 
+#     PATTERN "*.py"
+#     PATTERN "__pycache__" EXCLUDE
+# )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+    DESTINATION "${SKBUILD_HEADERS_DIR}"
 )
 
 # bvhar header
