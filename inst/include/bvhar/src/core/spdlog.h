@@ -68,6 +68,10 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 // Debug base classes by defining `BVHAR_USE_BVHAR_DEBUG`
 #ifdef BVHAR_USE_BVHAR_DEBUG
 
+#ifndef BVHAR_USE_SPDLOG
+	#define BVHAR_USE_SPDLOG
+#endif // BVHAR_USE_SPDLOG
+
 #define BVHAR_DEBUG_LOGGER(value) \
 	([](const std::string& log_name) -> std::shared_ptr<spdlog::logger> { \
 		auto temp_logger = spdlog::get(log_name); \

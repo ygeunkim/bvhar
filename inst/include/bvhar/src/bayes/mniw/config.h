@@ -2,6 +2,7 @@
 #define BVHAR_BAYES_MNIW_CONFIG_H
 
 #include "../misc/draw.h"
+#include "../bayes.h"
 #include "../../math/design.h"
 // #include <memory> // std::unique_ptr
 #include "../../core/progress.h"

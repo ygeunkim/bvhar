@@ -10,7 +10,7 @@ namespace bvhar {
 class ProgressInterface;
 class BarProgress;
 class SpdlogProgress;
-class bvharprogress;
+// class bvharprogress;
 
 class ProgressInterface {
 public:
@@ -46,14 +46,12 @@ protected:
 class BarProgress : public ProgressInterface {
 public:
 	BarProgress(
-		int total, int width, bool verbose,
-		const char& default_bar = '-',
-		const std::string& bar_shape = "=",
-		const std::string& prefix = "",
-		const std::string& suffix = ""
+		int total, int len, bool verbose,
+		const std::string& prefix = "", const std::string& suffix = "",
+		const char& default_bar = '-', const std::string& bar_shape = "="
 	)
 	: ProgressInterface(total, verbose, prefix, suffix),
-		width(width), percent(0),// current(0),
+		width(len), percent(0),// current(0),
 		progress_str(width + bar_shape.length() - 1, default_bar), bar_shape(bar_shape) {}
 
 	virtual ~BarProgress() = default;
@@ -108,7 +106,8 @@ class SpdlogProgress : public ProgressInterface {
 public:
 	SpdlogProgress(
 		int total, int len, bool verbose,
-		const std::string& prefix = "", const std::string& suffix = ""
+		const std::string& prefix = "", const std::string& suffix = "",
+		const char& default_bar = '-', const std::string& bar_shape = "="
 	)
 	: ProgressInterface(total, verbose, prefix, suffix),
 		logging_freq(total / len) {
@@ -146,42 +145,52 @@ private:
 	int logging_freq;
 };
 
-class bvharprogress {
-public:
-	bvharprogress(int total, bool verbose) : _current(0), _total(total), _width(50), _verbose(verbose) {}
-	virtual ~bvharprogress() = default;
-	void increment() {
-		if (omp_get_thread_num() == 0) {
-			_current++;
-		} else {
-			_current.fetch_add(1, std::memory_order_relaxed);
-		}
-	}
-	void update() {
-		if (!_verbose || omp_get_thread_num() != 0) {
-			return; // not display when verbose is false
-		}
-		int percent = _current * 100 / _total;
-		BVHAR_COUT << "\r";
-		for (int i = 0; i < _width; i++) {
-			if (i < (percent * _width / 100)) {
-				BVHAR_COUT << "#";
-			} else {
-				BVHAR_COUT << " ";
-			}
-		}
-		BVHAR_COUT << " " << percent << "%";
-		BVHAR_FLUSH;
-		if (_current >= _total) {
-			BVHAR_COUT << BVHAR_ENDL;
-		}
-	}
-private:
-	std::atomic<int> _current;
-	int _total;
-	int _width;
-	bool _verbose;
-};
+// class bvharprogress {
+// public:
+// 	bvharprogress(int total, bool verbose) : _current(0), _total(total), _width(50), _verbose(verbose) {}
+// 	virtual ~bvharprogress() = default;
+// 	void increment() {
+// 		if (omp_get_thread_num() == 0) {
+// 			_current++;
+// 		} else {
+// 			_current.fetch_add(1, std::memory_order_relaxed);
+// 		}
+// 	}
+// 	void update() {
+// 		if (!_verbose || omp_get_thread_num() != 0) {
+// 			return; // not display when verbose is false
+// 		}
+// 		int percent = _current * 100 / _total;
+// 		BVHAR_COUT << "\r";
+// 		for (int i = 0; i < _width; i++) {
+// 			if (i < (percent * _width / 100)) {
+// 				BVHAR_COUT << "#";
+// 			} else {
+// 				BVHAR_COUT << " ";
+// 			}
+// 		}
+// 		BVHAR_COUT << " " << percent << "%";
+// 		BVHAR_FLUSH;
+// 		if (_current >= _total) {
+// 			BVHAR_COUT << BVHAR_ENDL;
+// 		}
+// 	}
+// private:
+// 	std::atomic<int> _current;
+// 	int _total;
+// 	int _width;
+// 	bool _verbose;
+// };
+
+#ifdef BVHAR_USE_SPDLOG
+
+using BvharProgress = SpdlogProgress;
+
+#else
+
+using BvharProgress = BarProgress;
+
+#endif // BVHAR_USE_SPDLOG
 
 } // namespace bvhar
 

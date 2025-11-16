@@ -90,7 +90,9 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 		mn_objs[i]->computePosterior();
 	}
 	auto run_mh = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
+		// bvhar::bvharprogress bar(num_iter, display_progress);
+		std::string log_name = fmt::format("Chain {}", chain + 1);
+		auto logger = std::make_unique<bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
 		bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
 			if (bvhar::bvharinterrupt::is_interrupted()) {
@@ -102,11 +104,12 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 				}
 				break;
 			}
-			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
+			// bar.increment();
+			// if (display_progress) {
+			// 	bar.update();
+			// }
 			mn_objs[chain]->doPosteriorDraws();
+			logger->update(i + 1);
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
@@ -114,6 +117,8 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 		{
 			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
 		}
+		logger->flush();
+		logger->drop();
 	};
 	if (num_chains == 1) {
 		run_mh(0);
@@ -169,10 +174,13 @@ Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
 	}
 	std::vector<Rcpp::List> res(num_chains);
 	auto run_conj = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
+		// bvhar::bvharprogress bar(num_iter, display_progress);
+		std::string log_name = fmt::format("Chain {}", chain + 1);
+		auto logger = std::make_unique<bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
 		for (int i = 0; i < num_iter; ++i) {
-			bar.increment();
-			bar.update();
+			// bar.increment();
+			// bar.update();
+			logger->update(i + 1);
 			mn_objs[chain]->doPosteriorDraws();
 		}
 	#ifdef _OPENMP
@@ -181,6 +189,8 @@ Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
 		{
 			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
 		}
+		logger->flush();
+		logger->drop();
 	};
 	if (num_chains == 1) {
 		run_conj(0);

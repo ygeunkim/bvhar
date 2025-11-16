@@ -774,39 +774,45 @@ protected:
 	 */
 	void runGibbs(int window, int chain) {
 		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
-		auto logger = spdlog::get(log_name);
-		if (logger == nullptr) {
-			logger = BVHAR_SPDLOG_SINK_MT(log_name);
-		}
-		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
-		int logging_freq = num_iter / 20; // 5 percent
-		if (logging_freq == 0) {
-			logging_freq = 1;
-		}
+		// auto logger = spdlog::get(log_name);
+		// if (logger == nullptr) {
+		// 	logger = BVHAR_SPDLOG_SINK_MT(log_name);
+		// }
+		// logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
+		// int logging_freq = num_iter / 20; // 5 percent
+		// if (logging_freq == 0) {
+		// 	logging_freq = 1;
+		// }
+		auto logger = std::make_unique<BvharProgress>(num_iter, 50, display_progress, log_name, "Warmup", '-', "=>");
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
 			model[window][chain]->doWarmUp();
-			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {} (Warmup)", i + 1, num_iter);
-			}
+			// if (display_progress && (i + 1) % logging_freq == 0) {
+			// 	logger->info("{} / {} (Warmup)", i + 1, num_iter);
+			// }
+			logger->update(i + 1);
 		}
 		logger->flush();
+		logger->setSuffix("Sampling");
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
 				RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
-				logger->warn("User interrupt in {} / {}", i + 1, num_iter);
+				// logger->warn("User interrupt in {} / {}", i + 1, num_iter);
+				logger->warnInterrupt(i + 1);
 				break;
 			}
 			model[window][chain]->doPosteriorDraws();
-			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {} (Sampling)", i + 1, num_iter);
-			}
+			// if (display_progress && (i + 1) % logging_freq == 0) {
+			// 	logger->info("{} / {} (Sampling)", i + 1, num_iter);
+			// }
+			logger->update(i + 1);
 		}
 		RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		updateForecaster(reg_record, window, chain);
 		model[window][chain].reset();
 		logger->flush();
-		spdlog::drop(log_name);
+		// spdlog::drop(log_name);
+		logger->drop();
 	}
 
 	/**
