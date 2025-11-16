@@ -16,6 +16,9 @@ This change affects every results that uses MNIW in the posterior sampling.
 And these functions will be integrated into `var_bayes()` and `vhar_bayes()` with new spec functions.
 Be careful when using these functions before the changes.
 
+* `spdlog` loggers are replaced with custom progress bar (for master thread) by default.
+If defining `BVHAR_USE_SPDLOG`, spdlog will be used.
+
 ## New features
 
 * `var_bayes()` and `vhar_bayes()` can augment factor term with `factor_spec` argument.
