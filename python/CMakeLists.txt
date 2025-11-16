@@ -32,7 +32,7 @@ endfunction()
 # Eigen
 find_or_fetch_package(
     Eigen3
-    3.4.0
+    3.4
     https://gitlab.com/libeigen/eigen.git
     "3.4.1"
 )
@@ -102,14 +102,10 @@ foreach(CPP_FILE ${CPP_SOURCES})
     # )
     if(TARGET Eigen3::Eigen)
         target_link_libraries(${FULL_MODULE_NAME} PRIVATE Eigen3::Eigen)
-    else()
-        target_include_directories(${FULL_MODULE_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR})
     endif()
 
     if(TARGET Boost::boost)
         target_link_libraries(${FULL_MODULE_NAME} PRIVATE Boost::boost)
-    else()
-        target_include_directories(${FULL_MODULE_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
     endif()
 
     if(TARGET spdlog::spdlog)
