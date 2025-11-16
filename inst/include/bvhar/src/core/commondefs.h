@@ -14,12 +14,14 @@
 	#include <string>
 	// #include <RcppSpdlog>
 	// #include <RcppThread.h>
+	#include <RcppThread/Rcout.hpp>
 
 	#define BVHAR_STOP(...) Rcpp::stop(__VA_ARGS__)
 
-	#define BVHAR_COUT Rcpp::Rcout
-	#define BVHAR_ENDL "\n"
-	#define BVHAR_FLUSH Rcpp::Rcout.flush()
+	#define BVHAR_COUT RcppThread::Rcout
+	#define BVHAR_ENDL "\n" << std::flush
+	// #define BVHAR_FLUSH Rcpp::Rcout.flush()
+	#define BVHAR_FLUSH RcppThread::Rcout << std::flush
 	// #define FLUSH std::cout.flush()
 	// #define FLUSH R_FlushConsole()
 	#define BVHAR_STRING std::string

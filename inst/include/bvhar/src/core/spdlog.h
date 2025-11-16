@@ -1,12 +1,15 @@
 #ifndef BVHAR_CORE_SPDLOG_H
 #define BVHAR_CORE_SPDLOG_H
 
+#include "./commondefs.h"
+#include "./omp.h"
+
 #ifdef BVHAR_USE_RCPP
 
-#include <RcppThread/Rcout.hpp>
+// #include <RcppThread/Rcout.hpp>
 #include <RcppSpdlog>
 // #include <spdlog/pattern_formatter.h>
-#include "omp.h"
+// #include "omp.h"
 
 namespace bvhar {
 namespace sinks {
