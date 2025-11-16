@@ -1,12 +1,15 @@
 #ifndef BVHAR_CORE_SPDLOG_H
 #define BVHAR_CORE_SPDLOG_H
 
+#include "./commondefs.h"
+#include "./omp.h"
+
 #ifdef BVHAR_USE_RCPP
 
-#include <RcppThread/Rcout.hpp>
+// #include <RcppThread/Rcout.hpp>
 #include <RcppSpdlog>
 // #include <spdlog/pattern_formatter.h>
-#include "omp.h"
+// #include "omp.h"
 
 namespace bvhar {
 namespace sinks {
@@ -64,6 +67,10 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 
 // Debug base classes by defining `BVHAR_USE_BVHAR_DEBUG`
 #ifdef BVHAR_USE_BVHAR_DEBUG
+
+#ifndef BVHAR_USE_SPDLOG
+	#define BVHAR_USE_SPDLOG
+#endif // BVHAR_USE_SPDLOG
 
 #define BVHAR_DEBUG_LOGGER(value) \
 	([](const std::string& log_name) -> std::shared_ptr<spdlog::logger> { \
