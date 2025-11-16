@@ -37,6 +37,7 @@ class HeaderInclude(object):
     def __str__(self):
         conda_prefix = sys.prefix
         print(f"Current environment path: {conda_prefix}")
+        self.lib = 'LBFGSpp' if self.lib == 'lbfgspp' else self.lib
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
                 lib_header = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
