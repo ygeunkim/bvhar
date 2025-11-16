@@ -118,7 +118,8 @@ def find_module(base_dir):
     inc_dir.extend([
         str(HeaderInclude('spdlog')),
         str(HeaderInclude('eigen3')),
-        str(HeaderInclude('boost'))
+        str(HeaderInclude('boost')),
+        str(HeaderInclude('lbfgspp'))
     ])
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:

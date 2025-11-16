@@ -40,6 +40,7 @@ jobs:
           echo "BOOST_INCLUDE_DIR=/usr/include/boost" >> $GITHUB_ENV
           echo "SPDLOG_INCLUDE_DIR=/usr/include/spdlog" >> $GITHUB_ENV
           echo "FMT_INCLUDE_DIR=/usr/include/fmt" >> $GITHUB_ENV
+          echo "LBFGSPP_INCLUDE_DIR=/usr/include/lbfgspp" >> $GITHUB_ENV
       
       - name: Set system dependencies on macOS
         if: runner.os == 'macOS'
@@ -52,10 +53,12 @@ jobs:
           FMT_LOC=$(brew --prefix fmt)
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
+          LBFGSPP_LOC=$(brew --prefix lbfgspp)
           echo "EIGEN_INCLUDE_DIR=$EIGEN_LOC/include/eigen3" >> $GITHUB_ENV
           echo "BOOST_INCLUDE_DIR=$BOOST_LOC/include" >> $GITHUB_ENV
           echo "SPDLOG_INCLUDE_DIR=$SPDLOG_LOC/include" >> $GITHUB_ENV
           echo "FMT_INCLUDE_DIR=$FMT_LOC/include" >> $GITHUB_ENV
+          echo "LBFGSPP_INCLUDE_DIR=$LBFGSPP_LOC/include" >> $GITHUB_ENV
           echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
           echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
           echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
@@ -95,6 +98,7 @@ jobs:
             "boost" = "$installPath\include"
             "spdlog" = "$installPath\include"
             "fmt" = "$installPath\include"
+            "lbfgspp" = "$installPath\include"
           }
           foreach ($lib in $libPath.Keys) {
             if (Test-Path $libPath[$lib]) {
