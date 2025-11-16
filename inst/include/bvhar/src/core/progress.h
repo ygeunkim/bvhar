@@ -194,4 +194,20 @@ using BvharProgress = BarProgress;
 
 } // namespace bvhar
 
+#ifndef BVHAR_DEFAULT_PROGRESS_LEN
+	#ifdef BVHAR_USE_SPDLOG
+		#define BVHAR_DEFAULT_PROGRESS_LEN 20
+	#else
+		#define BVHAR_DEFAULT_PROGRESS_LEN 50
+	#endif
+#endif
+
+#ifndef BVHAR_DEFAULT_BAR
+	#define BVHAR_DEFAULT_BAR '-'
+#endif
+
+#ifndef BVHAR_DEFAULT_PROGRESS
+	#define BVHAR_DEFAULT_PROGRESS "=>"
+#endif
+
 #endif // BVHAR_CORE_PROGRESS_H

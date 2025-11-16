@@ -404,7 +404,11 @@ protected:
 		// if (logging_freq == 0) {
 		// 	logging_freq = 1;
 		// }
-		auto logger = std::make_unique<BvharProgress>(num_iter, 50, display_progress, log_name, "Warmup", '-', "=>");
+		auto logger = std::make_unique<BvharProgress>(
+			num_iter, BVHAR_DEFAULT_PROGRESS_LEN,
+			display_progress, log_name, "Warmup",
+			BVHAR_DEFAULT_BAR, BVHAR_DEFAULT_PROGRESS
+		);
 		// BVHAR_INIT_DEBUG(logger);
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
