@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...4.0)
 project(bvhar)
 
 # Pybind11
-find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
-find_package(pybind11 REQUIRED)
+# find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+# find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+# find_package(pybind11 REQUIRED)
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
 
 # Prioritize conda
 if(DEFINED ENV{CONDA_PREFIX})
@@ -11,6 +15,8 @@ if(DEFINED ENV{CONDA_PREFIX})
     set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
     set(CMAKE_FIND_ROOT_PATH "$ENV{CONDA_PREFIX}")
+    set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
+    set(CMAKE_INSTALL_INCLUDEDIR "$ENV{CONDA_PREFIX}/include")
     # set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
     message(STATUS "Using conda environment: $ENV{CONDA_PREFIX}")
@@ -84,7 +90,6 @@ endif()
 #     OUTPUT_STRIP_TRAILING_WHITESPACE
 # )
 
-# pybind11_add_module(bvhar ${CPP_SOURCES})
 foreach(CPP_FILE ${CPP_SOURCES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src ${CPP_FILE})
     get_filename_component(MODULE_DIR ${REL_PATH} DIRECTORY)
@@ -99,7 +104,8 @@ foreach(CPP_FILE ${CPP_SOURCES})
         set(INSTALL_DIR ".")
     endif()
 
-    pybind11_add_module(${FULL_MODULE_NAME} ${CPP_FILE})
+    # pybind11_add_module(${FULL_MODULE_NAME} ${CPP_FILE})
+    pybind11_add_module(${FULL_MODULE_NAME} MODULE ${CPP_FILE})
     
     target_include_directories(${FULL_MODULE_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include
@@ -137,9 +143,12 @@ foreach(CPP_FILE ${CPP_SOURCES})
         target_link_libraries(${FULL_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
     endif()
 
+    # install(TARGETS ${FULL_MODULE_NAME}
+    #     LIBRARY DESTINATION ${MODULE_DIR}
+    #     RUNTIME DESTINATION ${MODULE_DIR}
+    # )
     install(TARGETS ${FULL_MODULE_NAME}
-        LIBRARY DESTINATION ${MODULE_DIR}
-        RUNTIME DESTINATION ${MODULE_DIR}
+        DESTINATION ${INSTALL_DIR}
     )
 endforeach()
 
@@ -150,16 +159,15 @@ endforeach()
 #     PATTERN "*.py"
 #     PATTERN "__pycache__" EXCLUDE
 # )
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-    DESTINATION "${SKBUILD_HEADERS_DIR}"
-)
-
-# bvhar header
-# # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../inst/include)
-# target_include_directories(bvhar PUBLIC
-#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../inst/include>
-#     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+#     DESTINATION "${SKBUILD_HEADERS_DIR}"
 # )
+
+# bvhar header in site-packages/bvhar/include
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
     DESTINATION include
+)
+# bvhar header in include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
