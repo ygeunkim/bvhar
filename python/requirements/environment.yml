@@ -6,7 +6,8 @@ dependencies:
   - libboost-headers>=1.84.0
   - eigen>=3.4.0
   - spdlog
-  - pybind11
+  - pybind11>=2.11.0
+  - scikit-build-core>=0.8.0
   - lbfgspp
   - numpy
   - pandas

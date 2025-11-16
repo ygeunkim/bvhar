@@ -11,7 +11,6 @@ keywords = [
     "time series"
 ]
 dependencies = [
-    "pybind11",
     "numpy",
     "pandas"
 ]
@@ -38,18 +37,6 @@ license = {file = "LICENSE"}
 "Bug Reports" = "https://github.com/ygeunkim/bvhar/issues"
 "Source" = "https://github.com/ygeunkim/bvhar/tree/develop/python"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["bvhar", "bvhar.*"]
-
-[tool.setuptools.package-data]
-bvhar = [
-    "**/*.cpp",
-    "datasets/data/*.csv"
-]
-
-[tool.setuptools_scm]
-
 [project.optional-dependencies]
 doc = [
     "ipykernel",
@@ -66,11 +53,20 @@ dev = [
 
 [build-system]
 requires = [
-    "setuptools>=42",
-    "wheel",
-    "pybind11"
+    "scikit-build-core>=0.8.0",
+    "pybind11>=2.11.0"
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+cmake.minimum-version = "3.10"
+cmake.build-type = "Release"
+wheel.install-dir = "bvhar"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "../DESCRIPTION"
+regex = "^Version:\\s*(?P<value>.+)$"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
