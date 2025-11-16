@@ -16,9 +16,10 @@ function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
             ${PackageName}
             GIT_REPOSITORY ${GIT_REPOSITORY}
             GIT_TAG ${GIT_TAG}
+            GIT_SHALLOW TRUE
         )
         FetchContent_MakeAvailable(${PackageName})
-        if(PackageName STREQUAL "lbfgspp" AND NOT TARGET LBFGSpp::LBFGSpp)
+        if(${PackageName} STREQUAL "lbfgspp" AND NOT TARGET LBFGSpp::LBFGSpp)
             add_library(LBFGSpp INTERFACE)
             target_include_directories(LBFGSpp INTERFACE ${${PackageName}_SOURCE_DIR}/include)
             add_library(LBFGSpp::LBFGSpp ALIAS LBFGSpp)
