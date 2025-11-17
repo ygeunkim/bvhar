@@ -36,11 +36,18 @@ function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
             GIT_SHALLOW TRUE
         )
         FetchContent_MakeAvailable(${PackageName})
-        if(${PackageName} STREQUAL "lbfgspp" AND NOT TARGET LBFGSpp::LBFGSpp)
-            add_library(LBFGSpp INTERFACE)
-            target_include_directories(LBFGSpp INTERFACE ${${PackageName}_SOURCE_DIR}/include)
-            add_library(LBFGSpp::LBFGSpp ALIAS LBFGSpp)
-        endif()
+        # if(${PackageName} STREQUAL "lbfgspp" AND NOT TARGET LBFGSpp::LBFGSpp)
+        #     FetchContent_GetProperties(${PackageName})
+        #     if(NOT ${PackageName}_POPULATED)
+        #         FetchContent_Populate(${PackageName})
+        #         add_library(LBFGSpp INTERFACE)
+        #         # target_include_directories(LBFGSpp INTERFACE ${${PackageName}_SOURCE_DIR}/include)
+        #         target_include_directories(LBFGSpp INTERFACE ${lbfgspp_SOURCE_DIR}/include)
+        #         add_library(LBFGSpp::LBFGSpp ALIAS LBFGSpp)
+        #     endif()
+        # else()
+        #     FetchContent_MakeAvailable(${PackageName})
+        # endif()
     else()
         message(STATUS "Found ${PackageName}")
     endif()
@@ -77,6 +84,22 @@ find_or_fetch_package(
 
 find_package(OpenMP QUIET)
 
+add_library(bvhar INTERFACE)
+
+target_include_directories(bvhar INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../inst/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+# bvhar header in site-packages/bvhar/include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
+    DESTINATION include
+)
+# bvhar header in include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
 # Pybind11 sources
 file(GLOB_RECURSE CPP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp")
 
@@ -95,14 +118,27 @@ foreach(CPP_FILE ${CPP_SOURCES})
     get_filename_component(MODULE_DIR ${REL_PATH} DIRECTORY)
     get_filename_component(MODULE_NAME ${CPP_FILE} NAME_WE)
 
+    if(MODULE_DIR MATCHES "^bvhar/(.*)$")
+        set(MODULE_DIR "${CMAKE_MATCH_1}")
+    elseif(MODULE_DIR STREQUAL "bvhar")
+        set(MODULE_DIR "")
+    endif()
+
     if(MODULE_DIR)
         string(REPLACE "/" "." MODULE_PATH ${MODULE_DIR})
-        set(FULL_MODULE_NAME "${MODULE_PATH}.${MODULE_NAME}")
-        set(INSTALL_DIR "${MODULE_DIR}")
+        set(FULL_MODULE_NAME "bvhar.${MODULE_PATH}.${MODULE_NAME}")
+        set(INSTALL_DIR "bvhar/${MODULE_DIR}")
     else()
-        set(FULL_MODULE_NAME ${MODULE_NAME})
-        set(INSTALL_DIR ".")
+        set(FULL_MODULE_NAME "bvhar.${MODULE_NAME}")
+        set(INSTALL_DIR "bvhar")
     endif()
+
+    # message(STATUS "FULL_MODULE_NAME: ${FULL_MODULE_NAME}")
+    # message(STATUS "MODULE_NAME: ${MODULE_NAME}")
+    # message(STATUS "MODULE_DIR: ${MODULE_DIR}")
+    # message(STATUS "INSTALL_DIR: ${INSTALL_DIR}")
+    # message(STATUS "CPP_FILE: ${CPP_FILE}")
+    # message(STATUS "REL_PATH: ${REL_PATH}")
 
     # pybind11_add_module(${FULL_MODULE_NAME} ${CPP_FILE})
     pybind11_add_module(${FULL_MODULE_NAME} MODULE ${CPP_FILE})
@@ -129,8 +165,11 @@ foreach(CPP_FILE ${CPP_SOURCES})
         target_link_libraries(${FULL_MODULE_NAME} PRIVATE spdlog::spdlog)
     endif()
 
-    if(TARGET LBFGSpp::LBFGSpp)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
+    # if(TARGET LBFGSpp::LBFGSpp)
+    #     target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
+    # endif()
+    if(TARGET lbfgspp)
+        target_link_libraries(${FULL_MODULE_NAME} PRIVATE lbfgspp)
     endif()
 
     target_compile_definitions(${FULL_MODULE_NAME} PRIVATE
@@ -147,9 +186,9 @@ foreach(CPP_FILE ${CPP_SOURCES})
     #     LIBRARY DESTINATION ${MODULE_DIR}
     #     RUNTIME DESTINATION ${MODULE_DIR}
     # )
-    install(TARGETS ${FULL_MODULE_NAME}
-        DESTINATION ${INSTALL_DIR}
-    )
+    # install(TARGETS ${FULL_MODULE_NAME}
+    #     LIBRARY DESTINATION ${INSTALL_DIR}
+    # )
 endforeach()
 
 # Install Python source files
@@ -163,11 +202,11 @@ endforeach()
 #     DESTINATION "${SKBUILD_HEADERS_DIR}"
 # )
 
-# bvhar header in site-packages/bvhar/include
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
-    DESTINATION include
-)
-# bvhar header in include
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+# # bvhar header in site-packages/bvhar/include
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
+#     DESTINATION include
+# )
+# # bvhar header in include
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
+#     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# )
