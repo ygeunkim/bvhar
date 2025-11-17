@@ -137,6 +137,9 @@ foreach(CPP_FILE ${CPP_SOURCES})
     #     set(INSTALL_DIR "bvhar")
     # endif()
 
+    string(REPLACE "/" "_" TARGET_NAME "${MODULE_DIR}_${MODULE_NAME}")
+    string(REPLACE "." "_" TARGET_NAME "${TARGET_NAME}")
+
     # message(STATUS "FULL_MODULE_NAME: ${FULL_MODULE_NAME}")
     # message(STATUS "MODULE_NAME: ${MODULE_NAME}")
     # message(STATUS "MODULE_DIR: ${MODULE_DIR}")
@@ -149,12 +152,14 @@ foreach(CPP_FILE ${CPP_SOURCES})
     message(STATUS "    Install dir: ${INSTALL_DIR}")
 
     # pybind11_add_module(${FULL_MODULE_NAME} ${CPP_FILE})
-    pybind11_add_module(${FULL_MODULE_NAME} MODULE ${CPP_FILE})
+    pybind11_add_module(${TARGET_NAME} MODULE ${CPP_FILE})
     
     # target_include_directories(${FULL_MODULE_NAME} PRIVATE
     #     ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include
     # )
-    target_link_libraries(${FULL_MODULE_NAME} PRIVATE bvhar)
+    set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME ${MODULE_NAME})
+    
+    target_link_libraries(${TARGET_NAME} PRIVATE bvhar)
 
     # target_link_libraries(${FULL_MODULE_NAME} PRIVATE
     #     Eigen3::Eigen
@@ -163,39 +168,39 @@ foreach(CPP_FILE ${CPP_SOURCES})
     #     LBFGSpp::LBFGSpp
     # )
     if(TARGET Eigen3::Eigen)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE Eigen3::Eigen)
+        target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
     endif()
 
     if(TARGET Boost::boost)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE Boost::boost)
+        target_link_libraries(${TARGET_NAME} PRIVATE Boost::boost)
     endif()
 
     if(TARGET spdlog::spdlog)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE spdlog::spdlog)
+        target_link_libraries(${TARGET_NAME} PRIVATE spdlog::spdlog)
     endif()
 
     # if(TARGET LBFGSpp::LBFGSpp)
     #     target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
     # endif()
     if(TARGET lbfgspp)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE lbfgspp)
+        target_link_libraries(${TARGET_NAME} PRIVATE lbfgspp)
     endif()
 
-    target_compile_definitions(${FULL_MODULE_NAME} PRIVATE
+    target_compile_definitions(${TARGET_NAME} PRIVATE
         EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
         BOOST_ENABLE_ASSERT_HANDLER
         FMT_HEADER_ONLY
     )
 
     if(OpenMP_CXX_FOUND)
-        target_link_libraries(${FULL_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+        target_link_libraries(${TARGET_NAME} PRIVATE OpenMP::OpenMP_CXX)
     endif()
 
     # install(TARGETS ${FULL_MODULE_NAME}
     #     LIBRARY DESTINATION ${MODULE_DIR}
     #     RUNTIME DESTINATION ${MODULE_DIR}
     # )
-    install(TARGETS ${FULL_MODULE_NAME}
+    install(TARGETS ${TARGET_NAME}
         LIBRARY DESTINATION ${INSTALL_DIR}
         COMPONENT python_modules
     )
