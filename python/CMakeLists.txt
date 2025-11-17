@@ -87,8 +87,8 @@ find_package(OpenMP QUIET)
 add_library(bvhar INTERFACE)
 
 target_include_directories(bvhar INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../inst/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../inst/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 # bvhar header in site-packages/bvhar/include
@@ -143,9 +143,10 @@ foreach(CPP_FILE ${CPP_SOURCES})
     # pybind11_add_module(${FULL_MODULE_NAME} ${CPP_FILE})
     pybind11_add_module(${FULL_MODULE_NAME} MODULE ${CPP_FILE})
     
-    target_include_directories(${FULL_MODULE_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include
-    )
+    # target_include_directories(${FULL_MODULE_NAME} PRIVATE
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include
+    # )
+    target_link_libraries(${FULL_MODULE_NAME} PRIVATE bvhar)
 
     # target_link_libraries(${FULL_MODULE_NAME} PRIVATE
     #     Eigen3::Eigen
@@ -186,18 +187,21 @@ foreach(CPP_FILE ${CPP_SOURCES})
     #     LIBRARY DESTINATION ${MODULE_DIR}
     #     RUNTIME DESTINATION ${MODULE_DIR}
     # )
-    # install(TARGETS ${FULL_MODULE_NAME}
-    #     LIBRARY DESTINATION ${INSTALL_DIR}
-    # )
+    install(TARGETS ${FULL_MODULE_NAME}
+        LIBRARY DESTINATION ${INSTALL_DIR}
+        COMPONENT python_modules
+    )
 endforeach()
 
 # Install Python source files
-# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bvhar
-#     DESTINATION .
-#     FILES_MATCHING 
-#     PATTERN "*.py"
-#     PATTERN "__pycache__" EXCLUDE
-# )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bvhar
+    DESTINATION .
+    FILES_MATCHING 
+    PATTERN "*.py"
+    PATTERN "*.csv"
+    PATTERN "__pycache__" EXCLUDE
+    PATTERN "*.cpp" EXCLUDE
+)
 # install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
 #     DESTINATION "${SKBUILD_HEADERS_DIR}"
 # )
