@@ -37,7 +37,7 @@ jobs:
       - name: Test coverage
         run: conda run -n bvhar-dev pytest --cov=./ --cov-report=xml | tee pytest_output.txt
     
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
