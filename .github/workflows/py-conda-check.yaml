@@ -82,6 +82,4 @@ jobs:
       
       - name: Test
         working-directory: ${{ runner.temp }}
-        run: |
-          echo "[pytest]" > dummy.ini
-          conda run -n bvhar-env pytest -c dummy.ini ${{ github.workspace }}/python/tests
+        run: conda run -n bvhar-env python -X faulthandler -m pytest ${{ github.workspace }}/python/tests
