@@ -38,12 +38,13 @@ jobs:
           brew install llvm libomp
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
+          SDK_PATH=$(xcrun --show-sdk-path)
           echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
           echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
           echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
           echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include -isysroot $SDK_PATH" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib -lomp" >> $GITHUB_ENV
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
