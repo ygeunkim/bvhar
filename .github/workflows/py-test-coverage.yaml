@@ -35,7 +35,8 @@ jobs:
         run: conda run -n bvhar-dev pip install -e . -v
       
       - name: Test coverage
-        run: conda run -n bvhar-dev pytest --cov=./ --cov-report=xml | tee pytest_output.txt
+        working-directory: ${{ runner.temp }}
+        run: conda run -n bvhar-dev pytest ${{ github.workspace }}/python/tests --cov=./ --cov-report=xml | tee pytest_output.txt
     
       - uses: codecov/codecov-action@v4
         with:
@@ -47,6 +48,7 @@ jobs:
     
       - name: Show pytest output
         if: always()
+        working-directory: ${{ runner.temp }}
         run: |
           ## --------------------------------------------------------------------
           find . -name 'pytest_output.txt' -exec cat '{}' \; || true

@@ -39,12 +39,21 @@ jobs:
           LLVM_LOC=$(brew --prefix llvm)
           OMP_LOC=$(brew --prefix libomp)
           SDK_PATH=$(xcrun --show-sdk-path)
-          echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
-          echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
-          echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
-          echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include -isysroot $SDK_PATH" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib -lomp" >> $GITHUB_ENV
+          # echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
+          # echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
+          # echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
+          # echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
+          # echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include -isysroot $SDK_PATH" >> $GITHUB_ENV
+          # echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib -lomp" >> $GITHUB_ENV
+          CMAKE_ARGS="\
+            -D CMAKE_C_COMPILER=$LLVM_LOC/bin/clang \
+            -D CMAKE_CXX_COMPILER=$LLVM_LOC/bin/clang++ \
+            -D CMAKE_OSX_SYSROOT=$SDK_PATH \
+            -D CMAKE_PREFIX_PATH=$LLVM_LOC \
+            -D CMAKE_INCLUDE_PATH=$OMP_LOC/include \
+            -D CMAKE_LIBRARY_PATH=$OMP_LOC/lib"
+          
+          echo "CMAKE_ARGS=$CMAKE_ARGS" >> $GITHUB_ENV
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
@@ -72,4 +81,5 @@ jobs:
         run: conda run -n bvhar-env python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
       
       - name: Test
-        run: conda run -n bvhar-env pytest
+        working-directory: ${{ runner.temp }}
+        run: conda run -n bvhar-env pytest ${{ github.workspace }}/python/tests
