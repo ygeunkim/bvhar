@@ -81,5 +81,4 @@ jobs:
         run: conda run -n bvhar-env python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
       
       - name: Test
-        working-directory: ${{ runner.temp }}
-        run: conda run -n bvhar-env python -X faulthandler -m pytest ${{ github.workspace }}/python/tests
+        run: conda run -n bvhar-env pytest
