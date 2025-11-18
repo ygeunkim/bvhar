@@ -170,7 +170,10 @@ foreach(CPP_FILE ${CPP_SOURCES})
 
     target_link_libraries(${TARGET_NAME} PRIVATE
         Eigen3::Eigen
-        Boost::headers
+        Boost::random
+        Boost::math
+        Boost::accumulators
+        Boost::optional
         spdlog::spdlog
         lbfgspp
     )

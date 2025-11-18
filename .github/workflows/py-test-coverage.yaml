@@ -44,6 +44,8 @@ jobs:
           working-directory: python
           codecov_yml_path: ../codecov.yml
           flags: python
+          files: ./coverage.xml
+          disable_search: true
     
       - name: Show pytest output
         if: always()
