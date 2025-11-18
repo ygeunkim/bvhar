@@ -37,15 +37,14 @@ jobs:
       - name: Test coverage
         run: conda run -n bvhar-dev pytest --cov=./ --cov-report=xml | tee pytest_output.txt
     
-      - uses: codecov/codecov-action@v4.6.0
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           working-directory: python
           codecov_yml_path: ../codecov.yml
           flags: python
-          files: ./coverage.xml
-          disable_search: true
+          skip_validation: true
     
       - name: Show pytest output
         if: always()

@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.10...4.0)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 project(bvhar)
 
 # Pybind11
