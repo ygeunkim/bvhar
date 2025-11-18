@@ -168,30 +168,30 @@ foreach(CPP_FILE ${CPP_SOURCES})
     
     target_link_libraries(${TARGET_NAME} PRIVATE bvhar)
 
-    # target_link_libraries(${FULL_MODULE_NAME} PRIVATE
-    #     Eigen3::Eigen
-    #     Boost::boost
-    #     spdlog::spdlog
-    #     LBFGSpp::LBFGSpp
-    # )
-    if(TARGET Eigen3::Eigen)
-        target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
-    endif()
-
-    if(TARGET Boost::boost)
-        target_link_libraries(${TARGET_NAME} PRIVATE Boost::boost)
-    endif()
-
-    if(TARGET spdlog::spdlog)
-        target_link_libraries(${TARGET_NAME} PRIVATE spdlog::spdlog)
-    endif()
-
-    # if(TARGET LBFGSpp::LBFGSpp)
-    #     target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
+    target_link_libraries(${TARGET_NAME} PRIVATE
+        Eigen3::Eigen
+        Boost::headers
+        spdlog::spdlog
+        lbfgspp
+    )
+    # if(TARGET Eigen3::Eigen)
+    #     target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
     # endif()
-    if(TARGET lbfgspp)
-        target_link_libraries(${TARGET_NAME} PRIVATE lbfgspp)
-    endif()
+
+    # if(TARGET Boost::headers)
+    #     target_link_libraries(${TARGET_NAME} PRIVATE Boost::headers)
+    # endif()
+
+    # if(TARGET spdlog::spdlog)
+    #     target_link_libraries(${TARGET_NAME} PRIVATE spdlog::spdlog)
+    # endif()
+
+    # # if(TARGET LBFGSpp::LBFGSpp)
+    # #     target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
+    # # endif()
+    # if(TARGET lbfgspp)
+    #     target_link_libraries(${TARGET_NAME} PRIVATE lbfgspp)
+    # endif()
 
     target_compile_definitions(${TARGET_NAME} PRIVATE
         EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
