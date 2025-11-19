@@ -5,10 +5,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 project(bvhar)
 
 # Pybind11
-# find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
-# find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
-# find_package(pybind11 REQUIRED)
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 
@@ -24,8 +21,6 @@ if(DEFINED ENV{CONDA_PREFIX})
     # set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
     set(BOOST_ROOT "$ENV{CONDA_PREFIX}")
-    # set(BOOST_INCLUDEDIR "$ENV{CONDA_PREFIX}/include")
-    # set(BOOST_LIBRARYDIR "$ENV{CONDA_PREFIX}/lib")
 endif()
 
 # External libraries
@@ -33,11 +28,6 @@ include(FetchContent)
 
 function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
     find_package(${PackageName} ${version} QUIET)
-    # string(TOLOWER "${PackageName}" PackageNameLower)
-    # if(${PackageName}_FOUND OR ${PackageNameLower}_FOUND)
-    #     message(STATUS "Found ${PackageName}")
-    #     return()
-    # endif()
     if(NOT ${PackageName}_FOUND)
         message(STATUS "Could not find ${PackageName}, fetching from ${GIT_REPOSITORY}")
         FetchContent_Declare(
@@ -47,7 +37,6 @@ function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
             GIT_SHALLOW TRUE
             OVERRIDE_FIND_PACKAGE
         )
-        # FetchContent_MakeAvailable(${PackageName})
         # lbfgspp uses find_package(Eigen3 3.0 REQUIRED)
         if(${PackageName} STREQUAL "lbfgspp")
             FetchContent_GetProperties(lbfgspp)
@@ -125,12 +114,6 @@ if(NOT CPP_SOURCES)
     message(FATAL_ERROR "No C++ source files found in src/")
 endif()
 
-# execute_process(
-#     COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_path('purelib'))"
-#     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-#     OUTPUT_STRIP_TRAILING_WHITESPACE
-# )
-
 foreach(CPP_FILE ${CPP_SOURCES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src ${CPP_FILE})
     get_filename_component(MODULE_DIR ${REL_PATH} DIRECTORY)
@@ -181,17 +164,9 @@ foreach(CPP_FILE ${CPP_SOURCES})
 
     target_link_libraries(${TARGET_NAME} PRIVATE
         Eigen3::Eigen
-        # Boost::boost
-        # Boost::random
-        # Boost::math
-        # Boost::accumulators
-        # Boost::optional
         spdlog::spdlog
         lbfgspp
     )
-    # if(TARGET Eigen3::Eigen)
-    #     target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
-    # endif()
 
     # Only Boost::boost works on mac
     if(TARGET Boost::boost)
@@ -207,17 +182,6 @@ foreach(CPP_FILE ${CPP_SOURCES})
             Boost::optional
         )
     endif()
-
-    # if(TARGET spdlog::spdlog)
-    #     target_link_libraries(${TARGET_NAME} PRIVATE spdlog::spdlog)
-    # endif()
-
-    # # if(TARGET LBFGSpp::LBFGSpp)
-    # #     target_link_libraries(${FULL_MODULE_NAME} PRIVATE LBFGSpp::LBFGSpp)
-    # # endif()
-    # if(TARGET lbfgspp)
-    #     target_link_libraries(${TARGET_NAME} PRIVATE lbfgspp)
-    # endif()
 
     target_compile_definitions(${TARGET_NAME} PRIVATE
         EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
@@ -248,15 +212,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bvhar
     PATTERN "__pycache__" EXCLUDE
     PATTERN "*.cpp" EXCLUDE
 )
-# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-#     DESTINATION "${SKBUILD_HEADERS_DIR}"
-# )
-
-# # bvhar header in site-packages/bvhar/include
-# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
-#     DESTINATION include
-# )
-# # bvhar header in include
-# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../inst/include/
-#     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-# )
