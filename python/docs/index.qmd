@@ -37,6 +37,12 @@ Otherwise, you should set their paths by yourself; at this stage.
 From GitHub:
 
 ```bash
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git#egg=bvhar&subdirectory=python'
+```
+
+Development version:
+
+```bash
 python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
 ```
 
