@@ -73,7 +73,7 @@ find_or_fetch_package(
 # boost
 find_or_fetch_package(
     Boost
-    1.88.0
+    1.84.0
     https://github.com/boostorg/boost.git
     "boost-1.88.0"
 )
