@@ -74,12 +74,17 @@ find_or_fetch_package(
     "3.4.1"
 )
 # boost
+cmake_policy(PUSH)
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
 find_or_fetch_package(
     Boost
     1.84.0
     https://github.com/boostorg/boost.git
     "boost-1.88.0"
 )
+cmake_policy(POP)
 # LBFGSpp
 find_or_fetch_package(
     lbfgspp
@@ -176,10 +181,11 @@ foreach(CPP_FILE ${CPP_SOURCES})
 
     target_link_libraries(${TARGET_NAME} PRIVATE
         Eigen3::Eigen
-        Boost::random
-        Boost::math
-        Boost::accumulators
-        Boost::optional
+        Boost::boost
+        # Boost::random
+        # Boost::math
+        # Boost::accumulators
+        # Boost::optional
         spdlog::spdlog
         lbfgspp
     )
