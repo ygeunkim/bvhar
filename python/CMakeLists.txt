@@ -14,6 +14,7 @@ find_package(pybind11 CONFIG REQUIRED)
 
 # Prioritize conda
 if(DEFINED ENV{CONDA_PREFIX})
+    message(STATUS "Using conda environment: $ENV{CONDA_PREFIX}")
     set(CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}" ${CMAKE_PREFIX_PATH})
     set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
@@ -22,19 +23,14 @@ if(DEFINED ENV{CONDA_PREFIX})
     set(CMAKE_INSTALL_INCLUDEDIR "$ENV{CONDA_PREFIX}/include")
     # set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    message(STATUS "Using conda environment: $ENV{CONDA_PREFIX}")
+    set(BOOST_ROOT "$ENV{CONDA_PREFIX}")
 endif()
 
 # External libraries
 include(FetchContent)
 
 function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
-    string(TOLOWER "${PackageName}" PackageNameLower)
     find_package(${PackageName} ${version} QUIET)
-    if(${PackageName}_FOUND OR ${PackageNameLower}_FOUND)
-        message(STATUS "Found ${PackageName}")
-        return()
-    endif()
     if(NOT ${PackageName}_FOUND)
         message(STATUS "Could not find ${PackageName}, fetching from ${GIT_REPOSITORY}")
         FetchContent_Declare(
