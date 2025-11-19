@@ -33,6 +33,11 @@ include(FetchContent)
 
 function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
     find_package(${PackageName} ${version} QUIET)
+    string(TOLOWER "${PackageName}" PackageNameLower)
+    if(${PackageName}_FOUND OR ${PackageNameLower}_FOUND)
+        message(STATUS "Found ${PackageName}")
+        return()
+    endif()
     if(NOT ${PackageName}_FOUND)
         message(STATUS "Could not find ${PackageName}, fetching from ${GIT_REPOSITORY}")
         FetchContent_Declare(
@@ -74,17 +79,12 @@ find_or_fetch_package(
     "3.4.1"
 )
 # boost
-cmake_policy(PUSH)
-if(POLICY CMP0167)
-    cmake_policy(SET CMP0167 OLD)
-endif()
 find_or_fetch_package(
     Boost
     1.84.0
     https://github.com/boostorg/boost.git
     "boost-1.88.0"
 )
-cmake_policy(POP)
 # LBFGSpp
 find_or_fetch_package(
     lbfgspp
@@ -181,7 +181,7 @@ foreach(CPP_FILE ${CPP_SOURCES})
 
     target_link_libraries(${TARGET_NAME} PRIVATE
         Eigen3::Eigen
-        Boost::boost
+        # Boost::boost
         # Boost::random
         # Boost::math
         # Boost::accumulators
@@ -193,9 +193,20 @@ foreach(CPP_FILE ${CPP_SOURCES})
     #     target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
     # endif()
 
-    # if(TARGET Boost::headers)
-    #     target_link_libraries(${TARGET_NAME} PRIVATE Boost::headers)
-    # endif()
+    # Only Boost::boost works on mac
+    if(TARGET Boost::boost)
+        target_link_libraries(${TARGET_NAME} PRIVATE Boost::boost)
+    endif()
+
+    # Boost::boost does not work on linux and windows
+    if(TARGET Boost::random)
+        target_link_libraries(${TARGET_NAME} PRIVATE
+            Boost::random
+            Boost::math
+            Boost::accumulators
+            Boost::optional
+        )
+    endif()
 
     # if(TARGET spdlog::spdlog)
     #     target_link_libraries(${TARGET_NAME} PRIVATE spdlog::spdlog)
