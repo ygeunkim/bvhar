@@ -88,7 +88,7 @@ def test_var_bayes():
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True, True, win_size = win_size
+        data_out, n_ahead, True, True, True, False, win_size = win_size
     )
     help_var_bayes(
         dim_data, var_lag, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
@@ -217,7 +217,7 @@ def test_vhar_bayes():
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,
         SsvsConfig(), SsvsConfig(), LdltConfig(),
-        data_out, n_ahead, True, True, True, True, win_size
+        data_out, n_ahead, True, True, True, False, win_size
     )
     help_vhar_bayes(
         dim_data, week, month, data, num_chains, num_threads, num_iter, num_burn, thin, intercept, minnesota, ggl,

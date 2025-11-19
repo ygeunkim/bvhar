@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     
     defaults:
       run:
@@ -31,19 +31,29 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       
-      - name: Set LLVM on macOS
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install llvm libomp
-          LLVM_LOC=$(brew --prefix llvm)
-          OMP_LOC=$(brew --prefix libomp)
-          echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
-          echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
-          echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
-          echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib" >> $GITHUB_ENV
+      # - name: Set LLVM on macOS
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     brew update
+      #     brew install llvm libomp
+      #     LLVM_LOC=$(brew --prefix llvm)
+      #     OMP_LOC=$(brew --prefix libomp)
+      #     SDK_PATH=$(xcrun --show-sdk-path)
+      #     # echo "LLVM_LOC=$LLVM_LOC" >> $GITHUB_ENV
+      #     # echo "OMP_LOC=$OMP_LOC" >> $GITHUB_ENV
+      #     # echo "CC=$LLVM_LOC/bin/clang" >> $GITHUB_ENV
+      #     # echo "CXX=$LLVM_LOC/bin/clang++" >> $GITHUB_ENV
+      #     # echo "CPPFLAGS=-I$LLVM_LOC/include -I$OMP_LOC/include -isysroot $SDK_PATH" >> $GITHUB_ENV
+      #     # echo "LDFLAGS=-L$LLVM_LOC/lib -L$OMP_LOC/lib -lomp" >> $GITHUB_ENV
+      #     CMAKE_ARGS="\
+      #       -D CMAKE_C_COMPILER=$LLVM_LOC/bin/clang \
+      #       -D CMAKE_CXX_COMPILER=$LLVM_LOC/bin/clang++ \
+      #       -D CMAKE_OSX_SYSROOT=$SDK_PATH \
+      #       -D CMAKE_PREFIX_PATH=$LLVM_LOC \
+      #       -D CMAKE_INCLUDE_PATH=$OMP_LOC/include \
+      #       -D CMAKE_LIBRARY_PATH=$OMP_LOC/lib"
+          
+      #     echo "CMAKE_ARGS=$CMAKE_ARGS" >> $GITHUB_ENV
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
@@ -52,6 +62,7 @@ jobs:
           environment-file: python/requirements/environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
+          use-mamba: false
       
       - name: Verify conda
         run: |

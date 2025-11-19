@@ -37,6 +37,7 @@ class HeaderInclude(object):
     def __str__(self):
         conda_prefix = sys.prefix
         print(f"Current environment path: {conda_prefix}")
+        self.lib = 'LBFGSpp' if self.lib == 'lbfgspp' else self.lib
         if os.path.exists(os.path.join(conda_prefix, 'conda-meta')):
             if sys.platform.startswith('win'):
                 lib_header = '' if self.lib == 'boost' else self.lib # should use include/ in windows-conda
@@ -118,7 +119,8 @@ def find_module(base_dir):
     inc_dir.extend([
         str(HeaderInclude('spdlog')),
         str(HeaderInclude('eigen3')),
-        str(HeaderInclude('boost'))
+        str(HeaderInclude('boost')),
+        str(HeaderInclude('lbfgspp'))
     ])
     for root, dirs, files in os.walk(base_dir):
         for cpp_file in files:

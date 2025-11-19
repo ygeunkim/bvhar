@@ -1,3 +1,16 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.8.0",
+    "pybind11>=2.11.0"
+]
+build-backend = "scikit_build_core.build"
+# requires = [
+#     "setuptools>=42",
+#     "wheel",
+#     "pybind11>=2.11.0"
+# ]
+# build-backend = "setuptools.build_meta"
+
 [project]
 name = "bvhar"
 dynamic = ["version"]
@@ -11,24 +24,22 @@ keywords = [
     "time series"
 ]
 dependencies = [
-    "pybind11",
     "numpy",
     "pandas"
 ]
 classifiers=[
-  "Development Status :: 2 - Pre-Alpha",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: C++",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Topic :: Scientific/Engineering :: Mathematics"
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Mathematics"
 ]
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -37,18 +48,6 @@ license = {file = "LICENSE"}
 "Homepage" = "https://ygeunkim.github.io/package/bvhar/python/"
 "Bug Reports" = "https://github.com/ygeunkim/bvhar/issues"
 "Source" = "https://github.com/ygeunkim/bvhar/tree/develop/python"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["bvhar", "bvhar.*"]
-
-[tool.setuptools.package-data]
-bvhar = [
-    "**/*.cpp",
-    "datasets/data/*.csv"
-]
-
-[tool.setuptools_scm]
 
 [project.optional-dependencies]
 doc = [
@@ -64,13 +63,29 @@ dev = [
     "quartodoc"
 ]
 
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "pybind11"
+# Remove after migration from setuptools done
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bvhar", "bvhar.*"]
+
+[tool.setuptools.package-data]
+bvhar = [
+    "**/*.cpp",
+    "datasets/data/*.csv"
 ]
-build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.scikit-build]
+cmake.minimum-version = "3.10"
+cmake.build-type = "Release"
+wheel.packages = ["src/bvhar"]
+# wheel.install-dir = "bvhar"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "../DESCRIPTION"
+regex = "^Version:\\s*(?P<value>.+)$"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
