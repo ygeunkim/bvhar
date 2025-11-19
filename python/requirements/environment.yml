@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.10
-  - libboost>=1.84.0
+  - libboost-devel>=1.84.0
   - eigen>=3.4.0
   - spdlog
   - pybind11>=2.11.0
