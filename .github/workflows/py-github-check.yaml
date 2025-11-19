@@ -18,6 +18,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     
+    defaults:
+      run:
+        working-directory: ${{ runner.temp }}
+    
     name: ${{ matrix.os }} (${{ matrix.python-version }})
 
     steps:
@@ -30,30 +34,20 @@ jobs:
       - name: Verify git
         run: git --version
 
-      - name: Verify C++ libraries on non-Windows
-        if: runner.os != 'Windows'
-        run: mkdir temp-dir
-      
-      - name: Verify C++ libraries on Windows
-        if: runner.os == 'Windows'
-        run: New-Item -ItemType Directory -Force -Path temp-dir
-
       - name: Install package from github
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: |
           pip install --upgrade pip
           python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git#egg=bvhar&subdirectory=python'
-        working-directory: temp-dir
 
       - name: Install dev version from github
+        if: github.ref == 'refs/heads/develop'
         run: |
           pip install --upgrade pip
           python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
-        working-directory: temp-dir
       
       - name: Verify installation
         run: pip list
-        working-directory: temp-dir
       
       - name: OpenMP check
         run: python -c "from bvhar.utils import checkomp; checkomp.check_omp()"
-        working-directory: temp-dir
