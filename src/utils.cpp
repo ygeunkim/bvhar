@@ -45,7 +45,7 @@ bool is_omp() {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_response(Eigen::MatrixXd y, int var_lag, int index) {
-	return bvhar::build_y0(y, var_lag, index);
+	return baecon::bvhar::build_y0(y, var_lag, index);
 }
 
 //' Build Design Matrix of VAR(p)
@@ -66,13 +66,13 @@ Eigen::MatrixXd build_response(Eigen::MatrixXd y, int var_lag, int index) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean) {
-	return bvhar::build_x0(y, var_lag, include_mean);
+	return baecon::bvhar::build_x0(y, var_lag, include_mean);
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_exogen_design(Eigen::MatrixXd y, Eigen::MatrixXd exogen, int var_lag, int exogen_lag, bool include_mean) {
-	return bvhar::build_x0(y, exogen, var_lag, exogen_lag, include_mean);
+	return baecon::bvhar::build_x0(y, exogen, var_lag, exogen_lag, include_mean);
 }
 
 //' Building a Linear Transformation Matrix for Vector HAR
@@ -97,7 +97,7 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
   if (week > month) {
     Rcpp::stop("'month' should be larger than 'week'.");
   }
-	return bvhar::build_vhar(dim, week, month, include_mean);
+	return baecon::bvhar::build_vhar(dim, week, month, include_mean);
 }
 
 //' Construct Dummy response for Minnesota Prior
@@ -123,7 +123,7 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean) {
-	return bvhar::build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean);
+	return baecon::bvhar::build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean);
 }
 
 //' Construct Dummy design matrix for Minnesota Prior
@@ -146,7 +146,7 @@ Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_xdummy_export(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
-	return bvhar::build_xdummy(lag_seq, lambda, sigma, eps, include_mean);
+	return baecon::bvhar::build_xdummy(lag_seq, lambda, sigma, eps, include_mean);
 }
 
 //' Parameters of Normal Inverted Wishart Prior
@@ -217,7 +217,7 @@ Eigen::MatrixXd sim_mgaussian_export(int num_sim, Eigen::VectorXd mu, Eigen::Mat
   // res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
   // res.rowwise() += mu.transpose();
   // return res;
-	return bvhar::sim_mgaussian_eigen(num_sim, mu, sig);
+	return baecon::bvhar::sim_mgaussian_eigen(num_sim, mu, sig);
 }
 
 //' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -240,7 +240,7 @@ Eigen::MatrixXd sim_mgaussian_chol_export(int num_sim, Eigen::VectorXd mu, Eigen
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
-  return bvhar::sim_mgaussian_chol(num_sim, mu, sig);
+  return baecon::bvhar::sim_mgaussian_chol(num_sim, mu, sig);
 }
 
 //' Generate Multivariate t Random Vector
@@ -266,12 +266,12 @@ Eigen::MatrixXd sim_mstudent_export(int num_sim, double df, Eigen::VectorXd mu, 
   Eigen::MatrixXd res(num_sim, dim);
   switch (method) {
   case 1:
-    // res = bvhar::sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig);
-		res = bvhar::sim_mstudent_eigen(num_sim, df, mu, sig);
+    // res = baecon::bvhar::sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = baecon::bvhar::sim_mstudent_eigen(num_sim, df, mu, sig);
     break;
   case 2:
-    // res = bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
-		res = bvhar::sim_mstudent_chol(num_sim, df, mu, sig);
+    // res = baecon::bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = baecon::bvhar::sim_mstudent_chol(num_sim, df, mu, sig);
     break;
   default:
     Rcpp::stop("Invalid 'method' option.");
@@ -315,7 +315,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_sc
   if (mat_mean.cols() != mat_scale_v.rows()) {
     Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   }
-	return bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v, u_prec);
+	return baecon::bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v, u_prec);
 }
 
 //' Generate Inverse-Wishart Random Matrix
@@ -337,10 +337,10 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_sc
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
-  // Eigen::MatrixXd chol_res = bvhar::sim_iw_tri(mat_scale, shape);
+  // Eigen::MatrixXd chol_res = baecon::bvhar::sim_iw_tri(mat_scale, shape);
   // Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
   // return res;
-	return bvhar::sim_inv_wishart(mat_scale, shape);
+	return baecon::bvhar::sim_inv_wishart(mat_scale, shape);
 }
 
 //' Generate Normal-IW Random Family
@@ -358,7 +358,7 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
 Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape, bool prec) {
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_sim, std::vector<Eigen::MatrixXd>(2));
 	for (int i = 0; i < num_sim; i++) {
-		res[i] = bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape, prec);
+		res[i] = baecon::bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape, prec);
   }
 	return Rcpp::wrap(res);
 }
@@ -366,7 +366,7 @@ Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixX
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
-  return bvhar::convert_var_to_vma(var_coef, var_lag, lag_max);
+  return baecon::bvhar::convert_var_to_vma(var_coef, var_lag, lag_max);
 }
 
 //' Convert VAR to VMA(infinite)
@@ -395,7 +395,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
   }
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat(k, m) = [B1^T, B2^T, ..., Bp^T, c^T]^T
   int var_lag = object["p"];
-  Eigen::MatrixXd ma = bvhar::convert_var_to_vma(coef_mat, var_lag, lag_max);
+  Eigen::MatrixXd ma = baecon::bvhar::convert_var_to_vma(coef_mat, var_lag, lag_max);
   return ma;
 }
 
@@ -403,7 +403,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_var_mse_export(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coef, int var_lag, int step) {
   // int dim = cov_mat.cols(); // dimension of time series
-  // Eigen::MatrixXd vma_mat = bvhar::convert_var_to_vma(var_coef, var_lag, step);
+  // Eigen::MatrixXd vma_mat = baecon::bvhar::convert_var_to_vma(var_coef, var_lag, step);
   // Eigen::MatrixXd innov_account = Eigen::MatrixXd::Zero(dim, dim);
   // Eigen::MatrixXd mse = Eigen::MatrixXd::Zero(dim * step, dim);
   // for (int i = 0; i < step; i++) {
@@ -411,7 +411,7 @@ Eigen::MatrixXd compute_var_mse_export(Eigen::MatrixXd cov_mat, Eigen::MatrixXd 
   //   mse.block(i * dim, 0, dim, dim) = innov_account;
   // }
   // return mse;
-	return bvhar::compute_var_mse(cov_mat, var_coef, var_lag, step);
+	return baecon::bvhar::compute_var_mse(cov_mat, var_coef, var_lag, step);
 }
 
 //' Compute Forecast MSE Matrices
@@ -449,13 +449,13 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA_ortho(Eigen::MatrixXd var_coef, Eigen::MatrixXd var_covmat, int var_lag, int lag_max) {
-  return bvhar::convert_vma_ortho(var_coef, var_covmat, var_lag, lag_max);
+  return baecon::bvhar::convert_vma_ortho(var_coef, var_covmat, var_lag, lag_max);
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month) {
-  return bvhar::convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
+  return baecon::bvhar::convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
 }
 
 //' Convert VHAR to VMA(infinite)
@@ -485,7 +485,7 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
   Eigen::MatrixXd har_mat = object["coefficients"]; // Phihat(3m + 1, m) = [Phi(d)^T, Phi(w)^T, Phi(m)^T, c^T]^T
   Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // tilde(T): (3m + 1, 22m + 1)
   int month = object["month"];
-  Eigen::MatrixXd ma = bvhar::convert_vhar_to_vma(har_mat, hartrans_mat, lag_max, month);
+  Eigen::MatrixXd ma = baecon::bvhar::convert_vhar_to_vma(har_mat, hartrans_mat, lag_max, month);
   return ma;
 }
 
@@ -496,7 +496,7 @@ Eigen::MatrixXd compute_vhar_mse_export(Eigen::MatrixXd cov_mat,
                                 				Eigen::MatrixXd har_trans,
                                 				int month,
                                 				int step) {
-	return bvhar::compute_vhar_mse(cov_mat, vhar_coef, har_trans, month, step);
+	return baecon::bvhar::compute_vhar_mse(cov_mat, vhar_coef, har_trans, month, step);
 }
 
 //' Compute Forecast MSE Matrices for VHAR
@@ -546,7 +546,7 @@ Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef,
                                     Eigen::MatrixXd HARtrans_mat, 
                                     int lag_max, 
                                     int month) {
-  return bvhar::convert_vhar_vma_ortho(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month);
+  return baecon::bvhar::convert_vhar_vma_ortho(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month);
 }
 
 //' h-step ahead Forecast Error Variance Decomposition
@@ -556,7 +556,7 @@ Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize) {
-  return bvhar::compute_vma_fevd(vma_coef, cov_mat, normalize);
+  return baecon::bvhar::compute_vma_fevd(vma_coef, cov_mat, normalize);
 }
 
 //' h-step ahead Normalized Spillover
@@ -572,7 +572,7 @@ Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_to(spillover);
+  return baecon::bvhar::compute_to(spillover);
 }
 
 //' From-others Spillovers
@@ -580,7 +580,7 @@ Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_from(spillover);
+  return baecon::bvhar::compute_from(spillover);
 }
 
 //' Total Spillovers
@@ -588,7 +588,7 @@ Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 double compute_tot_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_tot(spillover);
+  return baecon::bvhar::compute_tot(spillover);
 }
 
 //' Net Pairwise Spillovers
@@ -596,7 +596,7 @@ double compute_tot_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_net(spillover);
+  return baecon::bvhar::compute_net(spillover);
 }
 
 //' VAR(1) Representation Given VAR Coefficient Matrix
@@ -631,7 +631,7 @@ Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x) {
-  return bvhar::build_companion(x);
+  return baecon::bvhar::build_companion(x);
 }
 
 //' VAR(1) Representation of VAR(p)
@@ -652,7 +652,7 @@ Eigen::MatrixXd compute_var_stablemat(Eigen::MatrixXd coef_mat, int var_lag) {
   // int var_lag = object["p"]; // p
   // Eigen::MatrixXd coef_mat = object["coefficients"]; // Ahat
   Eigen::MatrixXd coef_without_const = coef_mat.topLeftCorner(dim * var_lag, dim);
-  Eigen::MatrixXd res = bvhar::build_companion(coef_without_const);
+  Eigen::MatrixXd res = baecon::bvhar::build_companion(coef_without_const);
   return res;
 }
 
@@ -678,7 +678,7 @@ Eigen::MatrixXd compute_vhar_stablemat(Eigen::MatrixXd coef_mat, Eigen::MatrixXd
   // Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // HAR transformation: (3m + 1, 22m + 1)
   Eigen::MatrixXd coef_without_const = coef_mat.topLeftCorner(3 * dim, dim);
   Eigen::MatrixXd hartrans_without_const = hartrans_mat.topLeftCorner(3 * dim, 22 * dim); // 3m x 22m
-  Eigen::MatrixXd res = bvhar::build_companion(hartrans_without_const.transpose() * coef_without_const);
+  Eigen::MatrixXd res = baecon::bvhar::build_companion(hartrans_without_const.transpose() * coef_without_const);
   return res;
 }
 
@@ -698,12 +698,12 @@ double log_mgammafn(double x, int p) {
     Rcpp::stop("'x' should be larger than 0.");
   }
   if (p == 1) {
-    return bvhar::lgammafn(x);
+    return baecon::bvhar::lgammafn(x);
   }
   if (2 * x < p) {
     Rcpp::stop("'x / 2' should be larger than 'p'.");
   }
-  return bvhar::lmgammafn(x, p);
+  return baecon::bvhar::lmgammafn(x, p);
 }
 
 //' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
@@ -719,7 +719,7 @@ double logml_stable(Rcpp::List object) {
   if (!object.inherits("bvarmn") && !object.inherits("bvharmn")) {
     Rcpp::stop("'object' must be bvarmn or bvharmn object.");
   }
-  return bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["covmat"], object["iw_shape"]);
+  return baecon::bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["covmat"], object["iw_shape"]);
 }
 
 //' AIC of VAR(p) using RSS

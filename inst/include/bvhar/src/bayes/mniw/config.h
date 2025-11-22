@@ -7,6 +7,7 @@
 // #include <memory> // std::unique_ptr
 #include "../../core/progress.h"
 
+namespace baecon {
 namespace bvhar {
 
 struct MinnSpec;
@@ -141,5 +142,6 @@ struct MhMinnRecords {
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_CONFIG_H

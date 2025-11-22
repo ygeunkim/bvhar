@@ -11,6 +11,7 @@
 // #include <spdlog/pattern_formatter.h>
 // #include "omp.h"
 
+namespace baecon {
 namespace bvhar {
 namespace sinks {
 
@@ -43,6 +44,7 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 	// #define Rcout RcppThreadRcout
 	// namespace Rcpp {
@@ -54,7 +56,7 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 	// #include <RcppSpdlog>
 
 	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
-	#define BVHAR_SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
+	#define BVHAR_SPDLOG_SINK_MT(value) baecon::bvhar::bvhar_sink_mt(value)
 
 #else
 

@@ -11,6 +11,7 @@
 #include "./dl_helper.h"
 #include "./gdp_helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 template<typename Derived>
@@ -29,5 +30,6 @@ inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Deriv
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_DRAW_H

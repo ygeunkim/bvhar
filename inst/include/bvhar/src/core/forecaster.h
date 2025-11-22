@@ -4,6 +4,7 @@
 #include "./common.h"
 #include "./omp.h"
 
+namespace baecon {
 namespace bvhar {
 
 template <typename ReturnType, typename DataType> class MultistepForecaster;
@@ -210,5 +211,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_CORE_FORECASTER_H

@@ -3,6 +3,7 @@
 
 #include "../core/common.h"
 
+namespace baecon {
 namespace bvhar {
 
 class FuncMin;
@@ -93,5 +94,6 @@ private:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_MATH_OPTIM_H

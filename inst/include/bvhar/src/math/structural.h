@@ -4,6 +4,7 @@
 // #include "../core/eigen.h"
 #include "../core/common.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Build coefficient in VAR(1) companion form of VAR(p)
@@ -220,5 +221,6 @@ inline Eigen::MatrixXd compute_net(Eigen::Ref<Eigen::MatrixXd> spillover) {
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_MATH_STRUCTURAL_H

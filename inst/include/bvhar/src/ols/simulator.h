@@ -3,6 +3,7 @@
 
 #include "./forecaster.h"
 
+namespace baecon {
 namespace bvhar {
 
 class OlsSimulator;
@@ -62,5 +63,6 @@ private:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_SIMULATOR_H

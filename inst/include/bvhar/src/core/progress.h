@@ -5,6 +5,7 @@
 // #include "./omp.h"
 #include "./common.h"
 
+namespace baecon {
 namespace bvhar {
 
 class ProgressInterface;
@@ -193,6 +194,7 @@ using BvharProgress = BarProgress;
 #endif // BVHAR_USE_SPDLOG
 
 } // namespace bvhar
+} // namespace baecon
 
 #ifndef BVHAR_DEFAULT_PROGRESS_LEN
 	#ifdef BVHAR_USE_SPDLOG

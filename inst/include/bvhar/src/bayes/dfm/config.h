@@ -4,6 +4,7 @@
 #include "../misc/draw.h"
 #include "../../math/design.h"
 
+namespace baecon {
 namespace bvhar {
 
 struct DfmParams;
@@ -65,5 +66,6 @@ inline void initialize_dfmrecord(
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_DFM_CONFIG_H

@@ -3,6 +3,7 @@
 
 #include "./forecaster.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Until updating cpp sources
@@ -12,5 +13,6 @@ using SvVarSelectForecaster = CtaVarSelectForecaster<SvForecaster>;
 using SvVharSelectForecaster = CtaVharSelectForecaster<SvForecaster>;
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_SVFORECASTER_H

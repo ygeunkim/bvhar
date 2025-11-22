@@ -4,6 +4,7 @@
 #include "./triangular.h"
 #include "../../math/structural.h"
 
+namespace baecon {
 namespace bvhar {
 
 class McmcSpillover;
@@ -511,5 +512,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_SPILLOVER_H

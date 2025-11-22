@@ -7,6 +7,7 @@
 
 #include "./config.h"
 
+namespace baecon {
 namespace bvhar {
 
 class FactorAugmenter;
@@ -100,5 +101,6 @@ public:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_DFM_AUGMENT_H

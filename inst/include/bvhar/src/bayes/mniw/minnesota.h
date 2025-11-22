@@ -9,6 +9,7 @@
 #include "./config.h"
 #include "./tuning.h"
 
+namespace baecon {
 namespace bvhar {
 
 class Minnesota;
@@ -208,7 +209,7 @@ public:
 	: week(week), month(month), const_term(include_mean),
 		data(y), dim(data.cols()) {
 		response = build_y0(data, month, month + 1);
-		har_trans = bvhar::build_vhar(dim, week, month, const_term);
+		har_trans = build_vhar(dim, week, month, const_term);
 		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		// dummy_design = build_xdummy(
@@ -564,5 +565,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_MINNESOTA_H

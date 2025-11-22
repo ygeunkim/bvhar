@@ -4,6 +4,7 @@
 #include "./ols.h"
 #include "../math/structural.h"
 
+namespace baecon {
 namespace bvhar {
 
 // class OlsSpillover;
@@ -208,6 +209,7 @@ private:
 	}
 };
 
-}; // namespace bvhar
+} // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_SPILLOVER_H

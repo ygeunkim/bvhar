@@ -3,6 +3,7 @@
 
 #include "./config.h"
 
+namespace baecon {
 namespace bvhar {
 
 class ShrinkageUpdater;
@@ -637,5 +638,6 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_ite
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_SHRINKAGE_SHRINKAGE_H
