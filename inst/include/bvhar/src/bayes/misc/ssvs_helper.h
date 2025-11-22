@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Building Spike-and-slab SD Diagonal Matrix
@@ -121,5 +122,6 @@ inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_SSVS_HELPER_H

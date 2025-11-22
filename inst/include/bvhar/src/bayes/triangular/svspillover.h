@@ -3,11 +3,13 @@
 
 #include "./spillover.h"
 
+namespace baecon {
 namespace bvhar {
 
 using SvSpillover = McmcVarSpillover<SvRecords>;
 using SvVharSpillover = McmcVharSpillover<SvRecords>;
 
-}; // namespace bvhar
+} // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_SVSPILLOVER_H

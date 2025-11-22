@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating Latent Scaling Factor of Dirichlet-Laplace Prior
@@ -149,5 +150,6 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_DL_HELPER_H

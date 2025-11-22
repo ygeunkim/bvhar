@@ -4,6 +4,7 @@
 #include <csignal>
 #include <atomic>
 
+namespace baecon {
 namespace bvhar {
 
 class bvharinterrupt;
@@ -34,5 +35,6 @@ public:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_CORE_INTERRUPT_H

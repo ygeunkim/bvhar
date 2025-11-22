@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Draw Local sparsity in GDP prior
@@ -102,5 +103,6 @@ inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_siz
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_GDP_HELPER_H

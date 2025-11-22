@@ -4,6 +4,7 @@
 #include "./helper.h"
 #include <set>
 
+namespace baecon {
 namespace bvhar {
 
 // Numerically Stable Log Marginal Likelihood Excluding Constant Term
@@ -167,5 +168,6 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_MINN_HELPER_H_H

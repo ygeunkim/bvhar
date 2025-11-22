@@ -11,6 +11,7 @@
 #include "../dfm/augment.h"
 #include <type_traits>
 
+namespace baecon {
 namespace bvhar {
 
 // MCMC algorithms
@@ -697,5 +698,6 @@ public:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H

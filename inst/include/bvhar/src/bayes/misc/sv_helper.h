@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating log-volatilities in MCMC
@@ -108,5 +109,6 @@ inline void varsv_h0(Eigen::Ref<Eigen::VectorXd> h0, Eigen::Ref<Eigen::VectorXd>
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_SV_HELPER_H_H

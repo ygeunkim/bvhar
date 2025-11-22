@@ -5,6 +5,7 @@
 #include "../../math/random.h"
 #include "../../math/structural.h"
 
+namespace baecon {
 namespace bvhar {
 
 class MinnSpillover;
@@ -128,6 +129,7 @@ private:
 };
 
 
-}; // namespace bvhar
+} // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_SPILLOVER_H

@@ -13,6 +13,7 @@
 #include "../core/progress.h"
 #include "../core/interrupt.h"
 
+namespace baecon {
 namespace bvhar {
 
 struct McmcParams;
@@ -197,5 +198,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_BAYES_H

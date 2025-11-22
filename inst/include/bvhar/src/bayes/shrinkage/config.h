@@ -4,6 +4,7 @@
 #include "../misc/draw.h"
 #include "../../math/design.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Parameters
@@ -276,5 +277,6 @@ struct GdpInits : public ShrinkageInits {
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_SHRINKAGE_CONFIG_H

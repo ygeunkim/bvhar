@@ -4,6 +4,7 @@
 #include "../core/common.h"
 #include <vector>
 
+namespace baecon {
 namespace bvhar {
 
 inline Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd& mu, const Eigen::MatrixXd& sig, BVHAR_BHRNG& rng) {
@@ -329,5 +330,6 @@ inline double sim_invgauss(double mean, double shape, BVHAR_BHRNG& rng) {
 }
 
 } //namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_MATH_RANDOM_H

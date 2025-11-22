@@ -5,6 +5,7 @@
 #include "../misc/minn_helper.h"
 #include "../../math/design.h"
 
+namespace baecon {
 namespace bvhar {
 
 class MinnesotaLogLik;
@@ -163,5 +164,6 @@ private:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_TUNING_H

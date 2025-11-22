@@ -4,6 +4,7 @@
 #include "../core/forecaster.h"
 #include "./bayes.h"
 
+namespace baecon {
 namespace bvhar {
 
 template <typename ReturnType, typename DataType> class BayesForecaster;
@@ -465,5 +466,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_FORECASTER_H

@@ -430,6 +430,7 @@ using BVHAR_OPTIONAL = boost::optional<T>;
 
 #endif
 
+namespace baecon {
 namespace bvhar {
 
 using ColMajorMatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
@@ -535,7 +536,7 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (scl <= 0 ) {
     BVHAR_STOP("'scl' should be larger than 0.");
   }
-  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
   if (lg) {
     return log(res);
   }
@@ -635,5 +636,6 @@ inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) 
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_CORE_COMMON_H

@@ -4,6 +4,7 @@
 #include "../math/design.h"
 #include <memory> // std::unique_ptr in source file
 
+namespace baecon {
 namespace bvhar {
 
 struct OlsFit;
@@ -229,7 +230,7 @@ public:
 	OlsVhar(const Eigen::MatrixXd& y, int week, int month, const bool include_mean, int method)
 	: week(week), month(month), const_term(include_mean), data(y) {
 		response = build_y0(data, month, month + 1);
-		har_trans = bvhar::build_vhar(response.cols(), week, month, const_term);
+		har_trans = build_vhar(response.cols(), week, month, const_term);
 		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		_ols = initialize_ols(design, response, method);
@@ -290,5 +291,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_OLS_H

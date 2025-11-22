@@ -12,6 +12,7 @@
 #include "../../math/design.h"
 #include <utility>
 
+namespace baecon {
 namespace bvhar {
 
 // Parameters
@@ -895,5 +896,6 @@ inline void initialize_record(
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_CONFIG_H

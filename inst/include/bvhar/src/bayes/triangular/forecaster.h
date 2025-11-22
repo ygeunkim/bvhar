@@ -4,6 +4,7 @@
 #include "./triangular.h"
 #include "../forecaster.h"
 
+namespace baecon {
 namespace bvhar {
 
 class CtaExogenForecaster;
@@ -1700,5 +1701,6 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_FORECASTER_H

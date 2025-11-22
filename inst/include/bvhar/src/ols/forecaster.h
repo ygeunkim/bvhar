@@ -7,6 +7,7 @@
 #include "./ols.h"
 #include <type_traits>
 
+namespace baecon {
 namespace bvhar {
 
 class OlsExogenForecaster;
@@ -243,7 +244,7 @@ private:
 class OlsForecastRun : public MultistepForecastRun<Eigen::MatrixXd, Eigen::VectorXd> {
 public:
 	OlsForecastRun(int lag, int step, const Eigen::MatrixXd& response_mat, const Eigen::MatrixXd& coef_mat, bool include_mean) {
-		bvhar::OlsFit ols_fit(coef_mat, lag);
+		OlsFit ols_fit(coef_mat, lag);
 		forecaster = std::make_unique<VarForecaster>(ols_fit, step, response_mat, include_mean);
 	}
 	OlsForecastRun(
@@ -531,5 +532,6 @@ private:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_FORECASTER_H

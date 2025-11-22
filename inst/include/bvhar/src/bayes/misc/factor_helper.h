@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 inline void draw_normal_factor(Eigen::Ref<Eigen::VectorXd> factor_t, Eigen::Ref<const Eigen::VectorXd> y,
@@ -24,5 +25,6 @@ inline void draw_normal_factor(Eigen::Ref<Eigen::VectorXd> factor_t, Eigen::Ref<
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_FACTOR_HELPER_H
