@@ -29,6 +29,9 @@ If defining `BVHAR_USE_SPDLOG`, spdlog will be used.
 
 ## Internal changes (C++)
 
+* Add `baecon` namespace wrapper around `bvhar` namespace in preparation for `baecon` verse-package integration.
+C++ users must update namespace references from `bvhar::` to `baecon::bvhar::`.
+
 * Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.
 
 * This gives different results due to boost RNG usage instead of R's RNG.
