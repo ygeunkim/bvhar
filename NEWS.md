@@ -29,6 +29,8 @@ If defining `BVHAR_USE_SPDLOG`, spdlog will be used.
 
 ## Internal changes (C++)
 
+* Pseudo out-of-sample forecast classes have `isPath` template, which can give the path forecasting also in the rolling and expanding windows.
+
 * Add `baecon` namespace wrapper around `bvhar` namespace in preparation for `baecon` verse-package integration.
 C++ users must update namespace references from `bvhar::` to `baecon::bvhar::`.
 
