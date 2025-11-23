@@ -1594,7 +1594,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 ) {
 	if (ggl && run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, false, true>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, true, true>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1605,7 +1605,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (ggl && !run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, false, false>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, true, false>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1616,7 +1616,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (!ggl && run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, false, true>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, true, true>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1627,7 +1627,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	}
-	return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, false, false>>(
+	return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, true, false>>(
 		y, lag, num_chains, num_iter, num_burn, thinning,
 		sparse, level, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1655,7 +1655,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 ) {
 	if (ggl && run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, false, true>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, true, true>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1666,7 +1666,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (ggl && !run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, false, false>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, true, false>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1677,7 +1677,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (!ggl && run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, false, true>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, true, true>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1688,7 +1688,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	}
-	return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, false, false>>(
+	return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, true, false>>(
 		y, week, month, num_chains, num_iter, num_burn, thinning,
 		sparse, level, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
