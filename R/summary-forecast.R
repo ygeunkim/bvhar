@@ -428,17 +428,25 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
     }
     res_mat$lpl <- NULL
   }
+  # If path, res_mat$forecast = list(windows) -> list(chains) -> matrix(n_ahead, dim * draws)
+  # If last point, res_mat$forecast = list(windows) -> list(chains) -> vector(dim * draws)
   y_distn <- process_forecast_draws(
-    draws = res_mat,
-    n_ahead = num_horizon,
+    draws = res_mat$forecast,
+    n_ahead = n_ahead, # 1 when isPath = false while n_ahead when isPath = true
     dim_data = object$m,
     num_draw = num_draw,
     var_names = name_var,
     roll = TRUE,
     med = med
   )
+  # Temporarily same results when isPath = false
+  y_distn <- lapply(
+    y_distn,
+    function(x) x[,,dim(x)[3]]
+  )
   res <- list(
     process = object$process,
+    draws = res_mat$forecast,
     forecast = y_distn$mean,
     se = y_distn$sd,
     lower = y_distn$lower,
@@ -659,8 +667,8 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
-    draws = res_mat,
-    n_ahead = num_horizon,
+    draws = res_mat$forecast,
+    n_ahead = n_ahead,
     dim_data = object$m,
     num_draw = num_draw,
     var_names = name_var,
@@ -669,6 +677,7 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
   )
   res <- list(
     process = object$process,
+    draws = res_mat$forecast,
     forecast = y_distn$mean,
     se = y_distn$sd,
     lower = y_distn$lower,
@@ -1058,8 +1067,8 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
-    draws = res_mat,
-    n_ahead = num_horizon,
+    draws = res_mat$forecast,
+    n_ahead = n_ahead,
     dim_data = object$m,
     num_draw = num_draw,
     var_names = name_var,
@@ -1068,6 +1077,7 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
   )
   res <- list(
     process = object$process,
+    draws = res_mat$forecast,
     forecast = y_distn$mean,
     se = y_distn$sd,
     lower = y_distn$lower,
@@ -1282,8 +1292,8 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
-    draws = res_mat,
-    n_ahead = num_horizon,
+    draws = res_mat$forecast,
+    n_ahead = n_ahead,
     dim_data = object$m,
     num_draw = num_draw,
     var_names = name_var,
@@ -1292,6 +1302,7 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
   )
   res <- list(
     process = object$process,
+    draws = res_mat$forecast,
     forecast = y_distn$mean,
     se = y_distn$sd,
     lower = y_distn$lower,
@@ -1343,7 +1354,16 @@ mse.predbvhar <- function(x, y, ...) {
 #' @param ... not used
 #' @export
 mse.bvharcv <- function(x, y, ...) {
-  y_test <- y[x$eval_id,]
+  y_test <- y[x$eval_id, ]
+  # if (length(dim(x$forecast)) == 3) {
+  #   return(
+  #     apply(
+  #       x$forecast, 3,
+  #       function(est) colMeans((est - y_test)^2)
+  #     ) |>
+  #       rowMeans()
+  #   )
+  # }
   (y_test - x$forecast)^2 |> 
     colMeans()
 }
@@ -1390,7 +1410,16 @@ mae.predbvhar <- function(x, y, ...) {
 #' @param ... not used
 #' @export
 mae.bvharcv <- function(x, y, ...) {
-  y_test <- y[x$eval_id,]
+  y_test <- y[x$eval_id, ]
+  # if (length(dim(x$forecast)) == 3) {
+  #   return(
+  #     apply(
+  #       x$forecast, 3,
+  #       function(est) colMeans(abs(est - y_test))
+  #     ) |>
+  #       rowMeans()
+  #   )
+  # }
   apply(
     y_test - x$forecast,
     2,
@@ -1440,7 +1469,16 @@ mape.predbvhar <- function(x, y, ...) {
 #' @param ... not used
 #' @export
 mape.bvharcv <- function(x, y, ...) {
-  y_test <- y[x$eval_id,]
+  y_test <- y[x$eval_id, ]
+  # if (length(dim(x$forecast)) == 3) {
+  #   return(
+  #     apply(
+  #       x$forecast, 3,
+  #       function(est) colMeans(abs(100 * (est - y_test) / y_test))
+  #     ) |>
+  #       rowMeans()
+  #   )
+  # }
   apply(
     100 * (y_test - x$forecast) / y_test,
     2,
@@ -1501,12 +1539,21 @@ mase.predbvhar <- function(x, y, ...) {
 #' @param ... not used
 #' @export
 mase.bvharcv <- function(x, y, ...) {
-  scaled_err <- 
-    x$y |> 
-    diff() |> 
-    abs() |> 
+  scaled_err <-
+    x$y |>
+    diff() |>
+    abs() |>
     colMeans()
   y_test <- y[x$eval_id,]
+  # if (length(dim(x$forecast)) == 3) {
+  #   return(
+  #     apply(
+  #       x$forecast, 3,
+  #       function(est) colMeans(abs(100 * (y_test - est) / scaled_err))
+  #     ) |>
+  #       rowMeans()
+  #   )
+  # }
   apply(
     100 * (y_test - x$forecast) / scaled_err, 
     2, 
@@ -1571,6 +1618,9 @@ mrae.bvharcv <- function(x, pred_bench, y, ...) {
     stop("'pred_bench' should be 'bvharcv' class.")
   }
   y_test <- y[x$eval_id,]
+  # if (length(dim(x$forecast)) == 3) {
+  #   stop("Not defined yet")
+  # }
   apply(
     (y_test - x$forecast) / (y_test - pred_bench$forecast),
     2,

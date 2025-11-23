@@ -10,7 +10,7 @@ namespace bvhar {
 template <typename ReturnType, typename DataType> class BayesForecaster;
 template <typename ReturnType, typename DataType> class McmcForecastRun;
 class McmcOutforecastInterface;
-template <typename ReturnType, typename DataType, bool isUpdate> class McmcOutforecastRun;
+template <typename, typename, bool, bool> class McmcOutforecastRun;
 
 /**
  * @brief Base class for forecaster of Bayesian methods
@@ -270,7 +270,7 @@ public:
  * @tparam ReturnType 
  * @tparam DataType 
  */
-template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd, bool isUpdate = true>
+template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd, bool isPath = false, bool isUpdate = true>
 class McmcOutForecastRun : public McmcOutforecastInterface {
 public:
 	McmcOutForecastRun(
@@ -286,7 +286,7 @@ public:
 		seed_forecast(seed_forecast), roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		// out_forecast(num_horizon, std::vector<ReturnType>(num_chains)),
-		out_forecast(num_horizon, std::vector<DataType>(num_chains)),
+		out_forecast(num_horizon, std::vector<ForecastType>(num_chains)),
 		lpl_record(Eigen::MatrixXd::Zero(num_horizon, num_chains)),
 		roll_exogen_mat(num_horizon), roll_exogen(num_horizon), lag_exogen(exogen_lag),
 		debug_logger(BVHAR_DEBUG_LOGGER("McmcOutForecastRun")) {
@@ -354,6 +354,7 @@ public:
 	}
 	
 protected:
+	using ForecastType = typename std::conditional<isPath, ReturnType, DataType>::type;
 	int num_window, num_test, num_horizon, step;
 	int lag, num_chains, num_iter, num_burn, thin, nthreads;
 	bool get_lpl, use_fit, display_progress;
@@ -364,7 +365,7 @@ protected:
 	std::vector<std::vector<std::unique_ptr<McmcAlgo>>> model;
 	std::vector<std::vector<std::unique_ptr<BayesForecaster<ReturnType, DataType>>>> forecaster;
 	// std::vector<std::vector<ReturnType>> out_forecast;
-	std::vector<std::vector<DataType>> out_forecast;
+	std::vector<std::vector<ForecastType>> out_forecast;
 	Eigen::MatrixXd lpl_record;
 	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen_mat;
 	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen;
@@ -459,9 +460,19 @@ protected:
 		// Eigen::VectorXd valid_vec = y_test.row(step);
 		DataType valid_vec = getValid();
 		// out_forecast[window][chain] = forecaster[window][chain]->doForecast(valid_vec).bottomRows(1);
-		out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
+		storeForecast(window, chain, valid_vec, std::integral_constant<bool, isPath>());
+		// out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
 		lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 		forecaster[window][chain].reset(); // free the memory by making nullptr
+	}
+
+private:
+	void storeForecast(int window, int chain, const DataType& valid_vec, std::false_type) {
+		out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
+	}
+
+	void storeForecast(int window, int chain, const DataType& valid_vec, std::true_type) {
+		out_forecast[window][chain] = forecaster[window][chain]->doForecast(valid_vec);
 	}
 };
 

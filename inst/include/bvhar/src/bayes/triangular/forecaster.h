@@ -19,11 +19,11 @@ template <typename BaseForecaster> class CtaVarSelectForecaster;
 template <typename BaseForecaster> class CtaVharSelectForecaster;
 // Running forecasters
 template <typename BaseForecaster> class CtaForecastRun;
-template <typename BaseForecaster, bool> class CtaOutforecastRun;
-template <typename BaseForecaster, bool, bool> class CtaRollforecastRun;
-template <typename BaseForecaster, bool, bool> class CtaExpandforecastRun;
-template <template <typename, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool> class CtaVarforecastRun;
-template <template <typename, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool> class CtaVharforecastRun;
+template <typename BaseForecaster, bool, bool> class CtaOutforecastRun;
+template <typename BaseForecaster, bool, bool, bool> class CtaRollforecastRun;
+template <typename BaseForecaster, bool, bool, bool> class CtaExpandforecastRun;
+template <template <typename, bool, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool, bool> class CtaVarforecastRun;
+template <template <typename, bool, bool, bool> class BaseOutForecast, typename BaseForecaster, bool, bool, bool> class CtaVharforecastRun;
 
 class CtaExogenForecaster : public ExogenForecaster<Eigen::MatrixXd, Eigen::VectorXd> {
 public:
@@ -833,8 +833,8 @@ public:
  * @tparam BaseForecaster `RegForecaster` or `SvForecaster`
  * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster, bool isUpdate = true>
-class CtaOutforecastRun : public McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate> {
+template <typename BaseForecaster = RegForecaster, bool isPath = false, bool isUpdate = true>
+class CtaOutforecastRun : public McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate> {
 public:
 	CtaOutforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -849,7 +849,7 @@ public:
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 	)
-	: McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>(
+	: McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>(
 			y.rows(), lag,
 			num_chains, num_iter, num_burn, thin, step, y_test, y_test.rows(), get_lpl, use_fit,
 			seed_chain, seed_forecast, display_progress, nthreads,
@@ -873,33 +873,33 @@ protected:
 	int dim;
 	BVHAR_OPTIONAL<int> size_factor, factor_lag;
 
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_window;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_test;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_horizon;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::step;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::lag;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_chains;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_iter;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::num_burn;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::thin;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::nthreads;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::get_lpl;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::use_fit;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::display_progress;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_window;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_test;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_horizon;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::step;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::lag;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_chains;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_iter;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::num_burn;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::thin;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::nthreads;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::get_lpl;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::use_fit;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::display_progress;
 	bool include_mean, stable_filter, sparse, sv;
 	double level;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::seed_forecast;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::roll_mat;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::roll_y0;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::y_test;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::model;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::forecaster;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::out_forecast;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::lpl_record;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::roll_exogen_mat;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::roll_exogen;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::lag_exogen;
-	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isUpdate>::debug_logger;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::seed_forecast;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::roll_mat;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::roll_y0;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::y_test;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::model;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::forecaster;
+	// using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::out_forecast;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::lpl_record;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::roll_exogen_mat;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::roll_exogen;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::lag_exogen;
+	using McmcOutForecastRun<Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate>::debug_logger;
 
 	/**
 	 * @brief Define input in each window
@@ -1003,8 +1003,8 @@ protected:
  * @tparam isGroup If `true`, use group shrinkage parameter
  * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
-class CtaRollforecastRun : public CtaOutforecastRun<BaseForecaster, isUpdate> {
+template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isPath = false, bool isUpdate = true>
+class CtaRollforecastRun : public CtaOutforecastRun<BaseForecaster, isPath, isUpdate> {
 public:
 	CtaRollforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -1019,7 +1019,7 @@ public:
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 	)
-	: CtaOutforecastRun<BaseForecaster, isUpdate>(
+	: CtaOutforecastRun<BaseForecaster, isPath, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			contem_prior, contem_init, contem_prior_type,
@@ -1033,31 +1033,31 @@ public:
 	virtual ~CtaRollforecastRun() = default;
 
 protected:
-	using typename CtaOutforecastRun<BaseForecaster, isUpdate>::BaseMcmc;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_window;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::dim;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::size_factor;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::factor_lag;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_test;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_horizon;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::step;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::lag;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_chains;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_iter;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_burn;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::use_fit;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::include_mean;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::y_test;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::model;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::forecaster;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::buildDesign;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::initialize;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_exogen_mat;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_exogen;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::lag_exogen;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::debug_logger;
+	using typename CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::BaseMcmc;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_window;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::dim;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::size_factor;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::factor_lag;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_test;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_horizon;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::step;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::lag;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_chains;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_iter;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_burn;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::use_fit;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::include_mean;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_mat;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_y0;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::y_test;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::model;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::forecaster;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::buildDesign;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::initialize;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_exogen_mat;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_exogen;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::lag_exogen;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::debug_logger;
 
 	void initData(const Eigen::MatrixXd& y, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initData(y, ...) called");
@@ -1118,8 +1118,8 @@ protected:
  * @tparam isGroup If `true`, use group shrinkage parameter
  * @tparam isUpdate MCMC again in the new window
  */
-template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
-class CtaExpandforecastRun : public CtaOutforecastRun<BaseForecaster, isUpdate> {
+template <typename BaseForecaster = RegForecaster, bool isGroup = true, bool isPath = false, bool isUpdate = true>
+class CtaExpandforecastRun : public CtaOutforecastRun<BaseForecaster, isPath, isUpdate> {
 public:
 	CtaExpandforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -1134,7 +1134,7 @@ public:
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 	)
-	: CtaOutforecastRun<BaseForecaster, isUpdate>(
+	: CtaOutforecastRun<BaseForecaster, isPath, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			contem_prior, contem_init, contem_prior_type,
@@ -1148,31 +1148,31 @@ public:
 	virtual ~CtaExpandforecastRun() = default;
 
 protected:
-	using typename CtaOutforecastRun<BaseForecaster, isUpdate>::BaseMcmc;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_window;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::dim;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::size_factor;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::factor_lag;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_test;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_horizon;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::step;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::lag;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_chains;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_iter;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::num_burn;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::use_fit;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::include_mean;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_mat;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_y0;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::y_test;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::model;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::forecaster;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::buildDesign;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::initialize;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_exogen_mat;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::roll_exogen;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::lag_exogen;
-	using CtaOutforecastRun<BaseForecaster, isUpdate>::debug_logger;
+	using typename CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::BaseMcmc;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_window;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::dim;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::size_factor;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::factor_lag;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_test;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_horizon;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::step;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::lag;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_chains;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_iter;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::num_burn;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::use_fit;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::include_mean;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_mat;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_y0;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::y_test;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::model;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::forecaster;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::buildDesign;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::initialize;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_exogen_mat;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::roll_exogen;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::lag_exogen;
+	using CtaOutforecastRun<BaseForecaster, isPath, isUpdate>::debug_logger;
 
 	void initData(const Eigen::MatrixXd& y, BVHAR_OPTIONAL<Eigen::MatrixXd> exogen = BVHAR_NULLOPT) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initData(y, ...) called");
@@ -1252,8 +1252,8 @@ protected:
  * @tparam isGroup If `true`, use group shrinkage parameter
  * @tparam isUpdate MCMC again in the new window
  */
-template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
-class CtaVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpdate> {
+template <template <typename, bool, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isPath = false, bool isUpdate = true>
+class CtaVarforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate> {
 public:
 	CtaVarforecastRun(
 		const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thin,
@@ -1268,7 +1268,7 @@ public:
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 	)
-	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
+	: BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>(
 			y, lag, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			contem_prior, contem_init, contem_prior_type,
@@ -1289,36 +1289,36 @@ public:
 	virtual ~CtaVarforecastRun() = default;
 
 protected:
-	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::BaseMcmc;
-	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::RecordType;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::dim;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::size_factor;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::factor_lag;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_horizon;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::step;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_chains;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_iter;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_burn;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::thin;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::nthreads;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::include_mean;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::stable_filter;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sparse;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sv;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::level;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::seed_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_mat;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_y0;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::model;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::forecaster;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lpl_record;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::initialize;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_exogen_mat;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_exogen;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag_exogen;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::debug_logger;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::RecordType;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::dim;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::size_factor;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::factor_lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_horizon;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::step;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_chains;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_iter;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_burn;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::thin;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::nthreads;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::include_mean;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::stable_filter;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::sparse;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::sv;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::level;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::seed_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_y0;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::model;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::forecaster;
+	// using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lpl_record;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::initialize;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_exogen_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_exogen;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lag_exogen;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::debug_logger;
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
@@ -1412,8 +1412,8 @@ protected:
  * @tparam isGroup If `true`, use group shrinkage parameter
  * @tparam isUpdate MCMC again in the new window
  */
-template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isUpdate = true>
-class CtaVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isUpdate> {
+template <template <typename, bool, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster, bool isGroup = true, bool isPath = false, bool isUpdate = true>
+class CtaVharforecastRun : public BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate> {
 public:
 	CtaVharforecastRun(
 		const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thin,
@@ -1428,7 +1428,7 @@ public:
 		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
 		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 	)
-	: BaseOutForecast<BaseForecaster, isGroup, isUpdate>(
+	: BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>(
 			y, month, num_chains, num_iter, num_burn, thin, sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			contem_prior, contem_init, contem_prior_type,
@@ -1450,36 +1450,36 @@ public:
 	virtual ~CtaVharforecastRun() = default;
 
 protected:
-	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::BaseMcmc;
-	using typename BaseOutForecast<BaseForecaster, isGroup, isUpdate>::RecordType;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::dim;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::size_factor;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::factor_lag;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_horizon;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::step;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_chains;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_iter;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::num_burn;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::thin;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::nthreads;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::include_mean;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::stable_filter;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sparse;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::sv;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::level;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::seed_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_mat;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_y0;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::model;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::forecaster;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lpl_record;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::initialize;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_exogen_mat;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::roll_exogen;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::lag_exogen;
-	using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::debug_logger;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::BaseMcmc;
+	using typename BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::RecordType;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::dim;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::size_factor;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::factor_lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_horizon;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::step;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lag;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_chains;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_iter;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::num_burn;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::thin;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::nthreads;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::include_mean;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::stable_filter;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::sparse;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::sv;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::level;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::seed_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_y0;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::model;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::forecaster;
+	// using BaseOutForecast<BaseForecaster, isGroup, isUpdate>::out_forecast;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lpl_record;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::initialize;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_exogen_mat;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::roll_exogen;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::lag_exogen;
+	using BaseOutForecast<BaseForecaster, isGroup, isPath, isUpdate>::debug_logger;
 	Eigen::MatrixXd har_trans;
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
@@ -1578,7 +1578,7 @@ protected:
 	}
 };
 
-template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
+template <template <typename, bool, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
 inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	const Eigen::MatrixXd& y, int lag, int num_chains, int num_iter, int num_burn, int thinning,
 	bool sparse, double level, BVHAR_LIST& fit_record, bool run_mcmc,
@@ -1594,7 +1594,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 ) {
 	if (ggl && run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, true>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, true, true>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1605,7 +1605,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (ggl && !run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, false>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, true, true, false>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1616,7 +1616,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (!ggl && run_mcmc) {
-		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, true>>(
+		return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, true, true>>(
 			y, lag, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1627,7 +1627,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	}
-	return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, false>>(
+	return std::make_unique<CtaVarforecastRun<BaseOutForecast, BaseForecaster, false, true, false>>(
 		y, lag, num_chains, num_iter, num_burn, thinning,
 		sparse, level, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1639,7 +1639,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	);
 }
 
-template <template <typename, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
+template <template <typename, bool, bool, bool> class BaseOutForecast = CtaRollforecastRun, typename BaseForecaster = RegForecaster>
 inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	const Eigen::MatrixXd& y, int week, int month, int num_chains, int num_iter, int num_burn, int thinning,
 	bool sparse, double level, BVHAR_LIST& fit_record, bool run_mcmc,
@@ -1655,7 +1655,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_lag = BVHAR_NULLOPT
 ) {
 	if (ggl && run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, true>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, true, true>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1666,7 +1666,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (ggl && !run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, false>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, true, true, false>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1677,7 +1677,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	} else if (!ggl && run_mcmc) {
-		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, true>>(
+		return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, true, true>>(
 			y, week, month, num_chains, num_iter, num_burn, thinning,
 			sparse, level, fit_record,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
@@ -1688,7 +1688,7 @@ inline std::unique_ptr<McmcOutforecastInterface> initialize_ctaoutforecaster(
 			factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
 		);
 	}
-	return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, false>>(
+	return std::make_unique<CtaVharforecastRun<BaseOutForecast, BaseForecaster, false, true, false>>(
 		y, week, month, num_chains, num_iter, num_burn, thinning,
 		sparse, level, fit_record,
 		param_reg, param_prior, param_intercept, param_init, prior_type,
