@@ -185,8 +185,6 @@ protected:
 template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
 class AutoregGenerator {
 public:
-	BVHAR_BHRNG rng;
-	
 	AutoregGenerator() : debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
 		BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger, "Default Constructor");
@@ -207,6 +205,7 @@ public:
 	virtual void appendError(DataType& point_forecast) {}
 
 protected:
+	BVHAR_BHRNG rng;
 	DataType error_term;
 	std::shared_ptr<spdlog::logger> debug_logger;
 };
