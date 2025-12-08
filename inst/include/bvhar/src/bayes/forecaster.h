@@ -200,7 +200,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doForecast();
-			forecaster[chain].reset();
+			// forecaster[chain].reset();
 		}
 	}
 
@@ -222,7 +222,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doPredict();
-			forecaster[chain].reset();
+			// forecaster[chain].reset();
 		}
 	}
 
