@@ -62,7 +62,7 @@ public:
 	}
 
 	void update(int curr_it) override {
-		if (!verbose) {
+		if (!verbose || omp_get_thread_num() != 0) {
 			return;
 		}
 		percent = curr_it * 100 / total;
@@ -75,15 +75,10 @@ public:
 		// if (curr_it >= total) {
 		// 	BVHAR_COUT << BVHAR_ENDL;
 		// }
-	#ifdef _OPENMP
-		#pragma omp master
-	#endif
-		{
-			BVHAR_COUT << "\r" << bar_prefix << " ["
-				<< progress_str << "] " << percent << "% (" << bar_suffix << ")" << std::flush;
-			if (curr_it >= total) {
-				BVHAR_COUT << BVHAR_ENDL;
-			}
+		BVHAR_COUT << "\r" << bar_prefix << " ["
+			<< progress_str << "] " << percent << "% (" << bar_suffix << ")" << std::flush;
+		if (curr_it >= total) {
+			BVHAR_COUT << BVHAR_ENDL;
 		}
 	}
 
