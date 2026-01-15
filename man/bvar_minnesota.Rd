@@ -117,13 +117,17 @@ Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma
 }
 \examples{
 # Perform the function using etf_vix dataset
-fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)
+\dontrun{
+fit <- bvar_minnesota(y = etf_vix[, 1:3], p = 2)
 class(fit)
+}
 
 # Extract coef, fitted values, and residuals
+\dontrun{
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
+}
 }
 \references{
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).

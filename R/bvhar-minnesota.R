@@ -63,9 +63,9 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 }
 
 #' Fitting Bayesian VHAR of Minnesota Prior
-#' 
+#'
 #' This function fits BVHAR with Minnesota prior.
-#' 
+#'
 #' @param y Time series data of which columns indicate the variables
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param num_chains Number of MCMC chains
@@ -77,20 +77,20 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread Number of threads
-#' @details 
+#' @details
 #' Apply Minnesota prior to Vector HAR: \eqn{\Phi} (VHAR matrices) and \eqn{\Sigma_e} (residual covariance).
-#' 
+#'
 #' \deqn{\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(\Psi_0, \nu_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
-#' 
+#'
 #' There are two types of Minnesota priors for BVHAR:
-#' 
+#'
 #' * VAR-type Minnesota prior specified by [set_bvhar()], so-called BVHAR-S model.
 #' * VHAR-type Minnesota prior specified by [set_weight_bvhar()], so-called BVHAR-L model.
 #' @return `bvhar_minnesota()` returns an object `bvharmn` [class].
 #' It is a list with the following components:
-#' 
+#'
 #' \describe{
 #'   \item{coefficients}{Posterior Mean}
 #'   \item{fitted.values}{Fitted values}
@@ -121,19 +121,23 @@ logml_weight_bvharhm <- function(param, daily, weekly, monthly, eps = 1e-04, y, 
 #' }
 #' It is also `normaliw` and `bvharmod` class.
 #' @references Kim, Y. G., and Baek, C. (2024). *Bayesian vector heterogeneous autoregressive modeling*. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
-#' @seealso 
+#' @seealso
 #' * [set_bvhar()] to specify the hyperparameters of BVHAR-S
 #' * [set_weight_bvhar()] to specify the hyperparameters of BVHAR-L
 #' * [summary.normaliw()] to summarize BVHAR model
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' fit <- bvhar_minnesota(y = etf_vix[,1:3])
+#' \dontrun{
+#' fit <- bvhar_minnesota(y = etf_vix[, 1:3])
 #' class(fit)
+#' }
 #' 
 #' # Extract coef, fitted values, and residuals
+#' \dontrun{
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
+#' }
 #' @order 1
 #' @export
 bvhar_minnesota <- function(y,

@@ -30,9 +30,9 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 }
 
 #' Fitting Bayesian VAR(p) of Minnesota Prior
-#' 
+#'
 #' This function fits BVAR(p) with Minnesota prior.
-#' 
+#'
 #' @param y Time series data of which columns indicate the variables
 #' @param p VAR lag (Default: 1)
 #' @param num_chains Number of MCMC chains
@@ -44,15 +44,15 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
 #' @param verbose Print the progress bar in the console. By default, `FALSE`.
 #' @param num_thread Number of threads
-#' @details 
+#' @details
 #' Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma_e} (residual covariance).
-#' 
+#'
 #' \deqn{A \mid \Sigma_e \sim MN(A_0, \Omega_0, \Sigma_e)}
 #' \deqn{\Sigma_e \sim IW(S_0, \alpha_0)}
 #' (MN: [matrix normal](https://en.wikipedia.org/wiki/Matrix_normal_distribution), IW: [inverse-wishart](https://en.wikipedia.org/wiki/Inverse-Wishart_distribution))
 #' @return `bvar_minnesota()` returns an object `bvarmn` [class].
 #' It is a list with the following components:
-#' 
+#'
 #' \describe{
 #'   \item{coefficients}{Posterior Mean}
 #'   \item{fitted.values}{Fitted values}
@@ -79,30 +79,34 @@ logml_bvarhm <- function(param, delta, eps = 1e-04, y, p, include_mean = TRUE, .
 #'   \item{spec}{Model specification (`bvharspec`)}
 #' }
 #' It is also `normaliw` and `bvharmod` class.
-#' @references 
+#' @references
 #' Bańbura, M., Giannone, D., & Reichlin, L. (2010). *Large Bayesian vector auto regressions*. Journal of Applied Econometrics, 25(1).
-#' 
+#'
 #' Giannone, D., Lenza, M., & Primiceri, G. E. (2015). *Prior Selection for Vector Autoregressions*. Review of Economics and Statistics, 97(2).
-#' 
+#'
 #' Litterman, R. B. (1986). *Forecasting with Bayesian Vector Autoregressions: Five Years of Experience*. Journal of Business & Economic Statistics, 4(1), 25.
-#' 
+#'
 #' KADIYALA, K.R. and KARLSSON, S. (1997), *NUMERICAL METHODS FOR ESTIMATION AND INFERENCE IN BAYESIAN VAR-MODELS*. J. Appl. Econ., 12: 99-132.
-#' 
+#'
 #' Karlsson, S. (2013). *Chapter 15 Forecasting with Bayesian Vector Autoregression*. Handbook of Economic Forecasting, 2, 791-897.
-#' 
+#'
 #' Sims, C. A., & Zha, T. (1998). *Bayesian Methods for Dynamic Multivariate Models*. International Economic Review, 39(4), 949-968.
-#' @seealso 
+#' @seealso
 #' * [set_bvar()] to specify the hyperparameters of Minnesota prior.
 #' * [summary.normaliw()] to summarize BVAR model
 #' @examples
 #' # Perform the function using etf_vix dataset
-#' fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)
+#' \dontrun{
+#' fit <- bvar_minnesota(y = etf_vix[, 1:3], p = 2)
 #' class(fit)
-#' 
+#' }
+#'
 #' # Extract coef, fitted values, and residuals
+#' \dontrun{
 #' coef(fit)
 #' head(residuals(fit))
 #' head(fitted(fit))
+#' }
 #' @importFrom stats sd
 #' @importFrom posterior as_draws_df bind_draws
 #' @order 1

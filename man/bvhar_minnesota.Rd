@@ -126,13 +126,17 @@ There are two types of Minnesota priors for BVHAR:
 }
 \examples{
 # Perform the function using etf_vix dataset
-fit <- bvhar_minnesota(y = etf_vix[,1:3])
+\dontrun{
+fit <- bvhar_minnesota(y = etf_vix[, 1:3])
 class(fit)
+}
 
 # Extract coef, fitted values, and residuals
+\dontrun{
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
+}
 }
 \references{
 Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.
