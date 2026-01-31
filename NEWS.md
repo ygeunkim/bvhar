@@ -1,4 +1,4 @@
-# bvhar (development version)
+# bvhar 2.4.0
 
 ## Important changes
 
@@ -87,7 +87,7 @@ If `use_fit = false`, the first window will be evaluated.
 
 # bvhar 2.2.0
 
-* Requires `R >= 4.1` following [tidyverse R version support schedule](https://www.tidyverse.org/blog/2019/04/r-version-support/)
+* Requires `R >= 4.1` following [tidyverse R version support schedule](https://tidyverse.org/blog/2019/04/r-version-support/)
 
 * `stable = TRUE` can filter MCMC draws where coefficient is stable when forecasting.
 
