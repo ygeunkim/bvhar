@@ -1,0 +1,45 @@
+# Evaluate the Estimation Based on Relative Spectral Norm Error
+
+This function computes relative estimation error given estimated model
+and true coefficient.
+
+## Usage
+
+``` r
+relspne(x, y, ...)
+
+# S3 method for class 'bvharsp'
+relspne(x, y, ...)
+```
+
+## Arguments
+
+- x:
+
+  Estimated model.
+
+- y:
+
+  Coefficient matrix to be compared.
+
+- ...:
+
+  not used
+
+## Value
+
+Spectral norm value
+
+## Details
+
+Let \\\lVert \cdot \rVert_2\\ be the spectral norm of a matrix, let
+\\\hat{\Phi}\\ be the estimates, and let \\\Phi\\ be the true
+coefficients matrix. Then the function computes relative estimation
+error by \$\$\frac{\lVert \hat{\Phi} - \Phi \rVert_2}{\lVert \Phi
+\rVert_2}\$\$
+
+## References
+
+Ghosh, S., Khare, K., & Michailidis, G. (2018). *High-Dimensional
+Posterior Consistency in Bayesian Vector Autoregressive Models*. Journal
+of the American Statistical Association, 114(526).
