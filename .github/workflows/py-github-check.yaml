@@ -45,6 +45,15 @@ jobs:
           python -m pip install -e 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
         working-directory: ${{ runner.temp }}
       
+      - name: Install release/hotfix version from github
+        if: startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: |
+          pip install --upgrade pip
+          python -m pip install -e "git+https://github.com/ygeunkim/bvhar.git@${TARGET_BRANCH}#egg=bvhar&subdirectory=python"
+        working-directory: ${{ runner.temp }}
+      
       - name: Verify installation
         run: pip list
         working-directory: ${{ runner.temp }}
