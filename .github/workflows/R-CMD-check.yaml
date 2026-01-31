@@ -12,6 +12,8 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
+    if: ${{ !contains(github.event.head_commit.message, '[only pages]') }}
+
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:

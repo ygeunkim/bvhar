@@ -59,7 +59,8 @@ jobs:
         run: echo "bvhar.baeconverse.org" > docs/CNAME
 
       - name: Deploy to GitHub pages 🚀
-        if: "github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/release/')"
+        # if: "github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/release/')"
+        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
           # token: ${{ secrets.YGEUNKIM_PAGE_PAT }}

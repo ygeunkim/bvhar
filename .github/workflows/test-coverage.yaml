@@ -11,6 +11,9 @@ name: test-coverage
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
+
+    if: ${{ !contains(github.event.head_commit.message, '[only pages]') }}
+    
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
