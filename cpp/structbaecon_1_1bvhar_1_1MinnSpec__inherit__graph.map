@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::MinnSpec" name="baecon::bvhar::MinnSpec">
+<area shape="rect" id="Node000001" title=" " alt="" coords="109,5,295,31"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1BvarSpec.html" title=" " alt="" coords="5,79,188,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,41,115,81,112,76,172,36"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1BvharSpec.html" title=" " alt="" coords="212,79,403,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,36,292,76,289,81,229,41"/>
+</map>

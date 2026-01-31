@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::McmcTriangular::McmcTriangular" name="baecon::bvhar::McmcTriangular::McmcTriangular">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,231,87"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1SparseRecords.html#a522a8fe46019a97e8db708fd40cf706e" title="Assign MCMC draw to the draw matrix." alt="" coords="279,5,497,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,47,265,41,265,47,231,52"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="319,94,457,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,81,306,92,305,97,230,86"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="345,96,335,86,340,76,358,69,388,67,427,71,437,76,441,82,436,85,434,80,425,77,388,73,359,75,343,80,340,85,348,92"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::McmcReg" name="baecon::bvhar::McmcReg">
+<area shape="rect" id="Node000001" title="MCMC for homoskedastic LDLT parameterization." alt="" coords="122,168,309,193"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html" title="Corrected Triangular Algorithm (CTA)" alt="" coords="103,93,328,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,133,218,168,213,168,213,133"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcAlgo.html" title="Base class for MCMC algorithm." alt="" coords="5,5,196,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="129,37,201,91,198,95,125,41"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1SparseRecords.html" title="Signal adaptive variable selector records." alt="" coords="221,5,439,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="305,41,233,95,229,91,302,37"/>
+</map>

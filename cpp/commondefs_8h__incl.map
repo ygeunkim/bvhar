@@ -1,0 +1,15 @@
+<map id="commondefs.h" name="commondefs.h">
+<area shape="rect" id="Node000001" title="Common header." alt="" coords="222,5,341,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,72,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,33,86,79,85,74,242,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="97,79,159,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,33,166,75,164,70,256,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="184,79,243,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,33,236,70,232,67,268,29"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="267,79,435,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="295,29,332,67,328,71,291,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="459,79,536,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="317,28,450,72,449,77,315,33"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="561,79,653,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="334,28,548,74,546,80,333,33"/>
+</map>

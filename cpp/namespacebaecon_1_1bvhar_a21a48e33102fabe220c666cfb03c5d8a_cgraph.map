@@ -1,0 +1,6 @@
+<map id="baecon::bvhar::initialize_mcmc" name="baecon::bvhar::initialize_mcmc">
+<area shape="rect" id="Node000001" title="Function to initialize McmcReg or McmcSv" alt="" coords="5,29,231,55"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="279,29,416,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,39,265,39,265,45,231,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="310,31,302,21,306,11,322,5,347,3,380,7,392,16,389,20,378,11,347,8,323,10,310,15,307,20,314,27"/>
+</map>

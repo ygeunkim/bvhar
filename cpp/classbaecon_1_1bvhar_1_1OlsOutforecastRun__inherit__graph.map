@@ -1,0 +1,11 @@
+<map id="baecon::bvhar::OlsOutforecastRun" name="baecon::bvhar::OlsOutforecastRun">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,249,56"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsExpandforecastRun.html" title=" " alt="" coords="297,5,567,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="263,29,297,27,297,32,264,35"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1OlsRollforecastRun.html" title=" " alt="" coords="309,55,555,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="264,51,309,55,308,60,263,57"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1VarOutforecastRun.html" title=" " alt="" coords="619,15,838,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="563,51,619,44,619,50,564,56"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1VharOutforecastRun.html" title=" " alt="" coords="615,79,843,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="564,79,615,84,614,90,563,84"/>
+</map>

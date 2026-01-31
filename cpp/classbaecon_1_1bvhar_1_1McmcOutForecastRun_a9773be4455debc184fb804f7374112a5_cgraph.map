@@ -1,0 +1,17 @@
+<map id="baecon::bvhar::McmcOutForecastRun::forecast" name="baecon::bvhar::McmcOutForecastRun::forecast">
+<area shape="rect" id="Node000001" title="Out&#45;of&#45;sample forecasting." alt="" coords="5,63,244,103"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa2c7b2c2558bfbe2923255afb431ed90" title="Forecast." alt="" coords="292,63,531,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,80,278,80,278,85,244,85"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ac3aa680b1c791fb6ade8abeae7bb94d6" title="Get valid_vec." alt="" coords="579,5,817,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="511,60,584,45,585,51,513,65"/>
+<area shape="rect" id="Node000004" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="916,70,1053,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="531,80,902,80,902,85,531,85"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa1420ab4fe116bd0814ea0879c42baf5" title="Conduct MCMC and update forecast pointer." alt="" coords="579,120,817,160"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="513,100,585,115,584,120,511,105"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="939,72,929,62,934,52,953,45,985,43,1026,48,1037,53,1041,59,1036,61,1033,57,1025,53,985,49,954,51,937,56,934,61,943,68"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="798,117,907,95,908,101,799,123"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1bvharinterrupt.html#ac26925990b6337326d0f974eb38ca871" title=" " alt="" coords="877,120,1092,160"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="818,137,863,137,863,143,818,143"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ad8939fc92796392f699c5a3cfe817325" title="Replace the forecast smart pointer given MCMC result." alt="" coords="865,184,1104,224"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="789,157,882,178,881,184,788,163"/>
+</map>

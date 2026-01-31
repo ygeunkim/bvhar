@@ -1,0 +1,14 @@
+<map id="baecon::bvhar::HierminnUpdater::updateCoefPrec" name="baecon::bvhar::HierminnUpdater::updateCoefPrec">
+<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,59,240,99"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7" title=" " alt="" coords="288,27,479,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,62,274,57,274,63,240,67"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b" title=" " alt="" coords="288,91,479,131"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="240,90,274,95,274,100,240,96"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="765,5,908,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="478,28,526,23,644,18,751,19,751,25,644,24,527,28,479,33"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="535,38,709,63"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="479,46,522,46,522,52,479,51"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="709,38,751,33,752,38,709,43"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95" title=" " alt="" coords="527,91,717,131"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="479,108,513,108,513,113,479,113"/>
+</map>

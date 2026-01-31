@@ -1,0 +1,5 @@
+<map id="baecon::bvhar::LdltRecords" name="baecon::bvhar::LdltRecords">
+<area shape="rect" id="Node000001" title="MCMC records for McmcReg" alt="" coords="5,79,204,104"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1RegRecords.html" title="MCMC records for McmcTriangular" alt="" coords="5,5,204,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,44,107,79,102,79,102,44"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::McmcTriangular::returnLdltRecords" name="baecon::bvhar::McmcTriangular::returnLdltRecords">
+<area shape="rect" id="Node000001" title="Return LdltRecords" alt="" coords="5,37,231,77"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1LdltRecords.html#ab30da63671554e119f13ea140aff33dc" title="Return LdltRecords" alt="" coords="279,37,477,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,55,265,55,265,60,231,60"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1LdltRecords.html#a3536aa55e40b88d68780033bb680196d" title=" " alt="" coords="525,5,724,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="477,42,511,37,512,43,478,47"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#ad137bcdf4655b746f69c7b509a771708" title=" " alt="" coords="551,69,698,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="478,68,538,75,538,81,477,73"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="baecon::bvhar::DynamicLdltSpillover::fit" name="baecon::bvhar::DynamicLdltSpillover::fit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,209,77"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a8a0aae114063570279d2f7b711ccc39d" title=" " alt="" coords="257,5,461,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,42,243,37,244,43,210,47"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a5eda83617f01fdefbdc73398fbf407cf" title=" " alt="" coords="257,69,461,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,68,244,72,243,77,209,73"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1LdltRecords.html#ab30da63671554e119f13ea140aff33dc" title="Return LdltRecords" alt="" coords="509,69,708,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="461,87,495,87,495,92,461,92"/>
+<area shape="rect" id="Node000005" href="$structbaecon_1_1bvhar_1_1LdltRecords.html#a3536aa55e40b88d68780033bb680196d" title=" " alt="" coords="756,37,955,77"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="708,74,742,69,743,75,709,79"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ad137bcdf4655b746f69c7b509a771708" title=" " alt="" coords="782,101,929,141"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="709,100,769,107,768,113,708,105"/>
+</map>

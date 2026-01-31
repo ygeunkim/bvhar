@@ -1,0 +1,15 @@
+<map id="forecaster.h" name="forecaster.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="148,5,247,31"/>
+<area shape="rect" id="Node000002" href="$bayes_2forecaster_8h.html" title=" " alt="" coords="87,79,185,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,43,148,80,144,77,176,40"/>
+<area shape="rect" id="Node000006" href="$ols_2forecaster_8h.html" title=" " alt="" coords="209,79,308,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="218,40,251,77,247,80,214,43"/>
+<area shape="rect" id="Node000003" href="$bayes_2triangular_2forecaster_8h.html" title=" " alt="" coords="87,152,185,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="139,118,139,152,133,152,133,118"/>
+<area shape="rect" id="Node000004" href="$regforecaster_8h.html" title=" " alt="" coords="5,225,125,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="117,189,79,227,75,223,113,185"/>
+<area shape="rect" id="Node000005" href="$svforecaster_8h.html" title=" " alt="" coords="149,225,264,251"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="159,185,197,223,193,227,155,189"/>
+<area shape="rect" id="Node000007" href="$simulator_8h.html" title=" " alt="" coords="211,152,306,177"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="261,118,261,152,256,152,256,118"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="baecon::bvhar::initialize_record" name="baecon::bvhar::initialize_record">
+<area shape="rect" id="Node000001" title="Initialize MCMC record used in forecast classes." alt="" coords="5,22,184,62"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="232,29,369,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,39,218,39,218,45,184,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="267,31,260,21,263,11,277,5,301,3,329,6,341,15,337,20,327,11,301,8,279,10,267,15,265,20,271,28"/>
+</map>

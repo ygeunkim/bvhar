@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::dl_local_sparsity" name="baecon::bvhar::dl_local_sparsity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,177,45"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="447,5,589,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,23,433,23,433,28,177,28"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="225,38,399,63"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,33,212,37,212,42,177,38"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="399,37,433,33,433,38,399,43"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::McmcSpillover" name="baecon::bvhar::McmcSpillover">
+<area shape="rect" id="Node000001" title="Spillover class for McmcTriangular" alt="" coords="5,45,224,70"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcVarSpillover.html" title="Spillover class for VAR with McmcTriangular" alt="" coords="277,5,515,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,41,276,36,277,42,238,46"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcVharSpillover.html" title="Spillover class for VHAR with McmcTriangular" alt="" coords="272,69,520,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,69,272,73,271,78,237,74"/>
+</map>

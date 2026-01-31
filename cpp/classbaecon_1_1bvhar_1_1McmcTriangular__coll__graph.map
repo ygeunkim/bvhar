@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::McmcTriangular" name="baecon::bvhar::McmcTriangular">
+<area shape="rect" id="Node000001" title="Corrected Triangular Algorithm (CTA)" alt="" coords="103,93,328,119"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcAlgo.html" title="Base class for MCMC algorithm." alt="" coords="5,5,196,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,37,201,91,198,95,125,41"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1SparseRecords.html" title="Signal adaptive variable selector records." alt="" coords="221,5,439,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="305,41,233,95,229,91,302,37"/>
+</map>

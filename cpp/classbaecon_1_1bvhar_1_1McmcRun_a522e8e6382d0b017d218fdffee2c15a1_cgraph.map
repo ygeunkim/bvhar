@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::McmcRun::runGibbs" name="baecon::bvhar::McmcRun::runGibbs">
+<area shape="rect" id="Node000001" title="Single chain MCMC." alt="" coords="5,47,192,87"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1bvharinterrupt.html#ac26925990b6337326d0f974eb38ca871" title=" " alt="" coords="240,5,455,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,49,226,43,227,48,193,54"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="279,94,416,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,79,266,91,265,96,192,84"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="307,96,298,86,303,76,320,70,347,67,382,71,392,76,396,82,392,85,389,80,381,76,347,73,321,75,307,80,304,85,311,92"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="baecon::bvhar::McmcTriangular::returnRecords" name="baecon::bvhar::McmcTriangular::returnRecords">
+<area shape="rect" id="Node000001" title="Return posterior sampling records." alt="" coords="5,69,231,109"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#aee4c72172a996b153230a6e9e890cbd7" title="Append each class&#39;s additional record to the result BVHAR_LIST" alt="" coords="279,5,504,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,67,292,46,293,51,205,72"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#ad780bc6601d0903cf55011978c8a87f1" title="Gather MCMC records." alt="" coords="279,69,504,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,87,265,87,265,92,231,92"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ad137bcdf4655b746f69c7b509a771708" title=" " alt="" coords="318,133,465,173"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="205,107,305,131,304,136,204,112"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1SparseRecords.html#a94bfd9638156e30699322c5f01a88914" title="Append sparse records to the MCMC record BVHAR_LIST" alt="" coords="552,69,771,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="504,87,538,87,538,92,504,92"/>
+</map>

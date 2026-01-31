@@ -1,0 +1,16 @@
+<map id="baecon::bvhar::VarOutforecastRun::VarOutforecastRun" name="baecon::bvhar::VarOutforecastRun::VarOutforecastRun">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,224,77"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#afa79bf346321af5fd9a0adc06c063a89" title=" " alt="" coords="272,37,491,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,55,258,55,258,60,224,60"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#ae65ea50b24380c01a18b672495fd5544" title=" " alt="" coords="539,5,757,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,42,525,37,525,43,491,47"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#a721cd8ade7d5b9650677014c2c3112cb" title=" " alt="" coords="539,69,757,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="491,68,525,72,525,77,490,73"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#ac7b7cfc1e8fa0d35b6c5706361187e06" title=" " alt="" coords="805,40,1024,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="757,75,791,71,792,76,758,80"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ab50c6936ac11b6e9bcb72267d3c58b19" title=" " alt="" coords="813,105,1017,130"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="758,98,799,103,799,108,757,103"/>
+<area shape="rect" id="Node000007" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="1072,105,1209,130"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1017,115,1058,115,1058,120,1017,120"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1104,106,1096,96,1100,86,1116,80,1141,78,1172,82,1184,91,1181,95,1170,87,1141,83,1117,85,1104,90,1101,96,1108,103"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="baecon::bvhar::OlsStudentGenerator::appendError" name="baecon::bvhar::OlsStudentGenerator::appendError">
+<area shape="rect" id="Node000001" title="Add error term to point forecast." alt="" coords="5,37,199,77"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a9134fb4cff9daaecfac6b649593a233c" title=" " alt="" coords="247,5,393,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,40,233,35,233,41,199,46"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a7d7fef395053d7e0a5dc90c257c3e4c1" title=" " alt="" coords="247,69,393,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="199,69,233,74,233,79,199,74"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426" title=" " alt="" coords="441,5,588,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="393,23,427,23,427,28,393,28"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634" title=" " alt="" coords="441,69,588,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="393,87,427,87,427,92,393,92"/>
+</map>

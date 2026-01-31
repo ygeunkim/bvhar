@@ -1,0 +1,15 @@
+<map id="baecon::bvhar::HorseshoeUpdater::updateCoefPrec" name="baecon::bvhar::HorseshoeUpdater::updateCoefPrec">
+<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,98,196,138"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a33007008c2898151a5a21e940de369f5" title=" " alt="" coords="481,70,671,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,96,174,54,207,34,243,19,296,6,338,3,381,8,434,19,486,37,533,60,530,65,484,42,433,25,380,13,338,8,296,12,245,24,210,39,177,59,125,100"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a24455367e038368878d3d9f7abf59191" title=" " alt="" coords="244,34,433,74"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,95,250,75,251,80,177,100"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#ae897a6c79d0d50080b6fbecc6c9a6a6a" title=" " alt="" coords="244,98,433,138"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="196,115,230,115,230,121,196,121"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ab6303980b223a7c8fd339c52de3a14cf" title=" " alt="" coords="244,162,433,202"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="177,135,251,156,250,161,175,141"/>
+<area shape="rect" id="Node000006" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="270,251,407,276"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="131,136,245,212,300,242,298,247,243,216,128,140"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="400,159,432,147,516,113,518,118,434,152,401,164"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="300,252,292,242,296,232,312,226,339,224,372,228,385,237,381,241,370,233,339,229,313,231,300,236,297,242,304,249"/>
+</map>

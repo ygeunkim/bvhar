@@ -1,0 +1,14 @@
+<map id="baecon::bvhar::BayesForecaster::doPredict" name="baecon::bvhar::BayesForecaster::doPredict">
+<area shape="rect" id="Node000001" title="In&#45;sample forecasting." alt="" coords="5,111,236,151"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html#a3bb4a5066e64a6964572983fb4bfc483" title="In&#45;sample forecasting." alt="" coords="284,111,515,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,128,270,128,270,133,236,133"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html#a88d3303f6d7c250f71f64df733df69de" title=" " alt="" coords="563,5,793,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,108,497,81,562,55,585,47,587,52,564,60,499,86,442,113"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html#acaa63a9ce09b32c615a80beab351271d" title=" " alt="" coords="563,69,793,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="515,111,549,106,550,111,515,116"/>
+<area shape="rect" id="Node000005" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="609,158,747,183"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="515,145,596,156,595,162,515,150"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html#a5c4f05f861889e40afd54debbb96b6ad" title="Update members with corresponding MCMC draw." alt="" coords="563,208,793,248"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="449,148,564,192,592,201,590,206,562,197,447,153"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="633,160,624,150,629,140,647,133,678,131,718,136,729,141,732,147,728,149,725,145,717,141,678,137,648,139,632,144,629,149,637,156"/>
+</map>

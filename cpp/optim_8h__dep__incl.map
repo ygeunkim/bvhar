@@ -1,0 +1,11 @@
+<map id="optim.h" name="optim.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="77,5,149,31"/>
+<area shape="rect" id="Node000002" href="$tuning_8h.html" title=" " alt="" coords="76,79,151,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,44,116,79,111,79,111,44"/>
+<area shape="rect" id="Node000003" href="$minnesota_8h.html" title=" " alt="" coords="62,152,165,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="116,118,116,152,111,152,111,118"/>
+<area shape="rect" id="Node000004" href="$bayes_2mniw_2forecaster_8h.html" title=" " alt="" coords="5,225,104,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="97,190,66,227,62,224,93,186"/>
+<area shape="rect" id="Node000005" href="$bayes_2mniw_2spillover_8h.html" title=" " alt="" coords="129,225,218,251"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="134,186,166,223,162,227,130,190"/>
+</map>

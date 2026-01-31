@@ -1,0 +1,18 @@
+<map id="baecon::bvhar::NgUpdater::updateImpactPrec" name="baecon::bvhar::NgUpdater::updateImpactPrec">
+<area shape="rect" id="Node000001" title="Draw precision of contemporaneous coefficient based on each shrinkage priors." alt="" coords="5,101,197,141"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54" title=" " alt="" coords="517,5,703,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,99,245,87,503,40,504,45,246,92,189,104"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#acfa9262b58e938856c51e680c3c1010f" title=" " alt="" coords="269,101,445,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="197,119,255,119,255,124,197,124"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171" title=" " alt="" coords="245,174,469,199"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="181,139,294,168,293,173,180,144"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="751,63,893,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="685,43,738,57,737,62,684,48"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="445,111,517,105,737,87,737,92,518,111,446,117"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="523,121,697,146"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="446,123,509,126,509,131,445,128"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="664,118,737,100,738,105,665,123"/>
+<area shape="rect" id="Node000007" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="541,194,679,219"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="470,193,527,197,527,203,469,198"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="575,196,568,186,572,176,586,170,610,167,639,171,651,180,648,184,637,176,610,173,588,175,576,179,573,185,580,192"/>
+</map>

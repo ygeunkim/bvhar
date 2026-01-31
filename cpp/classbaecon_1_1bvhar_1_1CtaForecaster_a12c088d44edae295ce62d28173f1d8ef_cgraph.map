@@ -1,0 +1,13 @@
+<map id="baecon::bvhar::CtaForecaster::forecastDensity" name="baecon::bvhar::CtaForecaster::forecastDensity">
+<area shape="rect" id="Node000001" title="Draw density forecast." alt="" coords="5,69,217,109"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#a930f382733b3aa3a99697e234f1f285b" title="Return the forecast result. Bayes methods return density forecast while frequentist methods return po..." alt="" coords="265,69,448,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,87,251,87,251,92,217,92"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#ac123aad1979250c4824bceaab202710b" title="Multi&#45;step forecasting." alt="" coords="496,69,679,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,87,482,87,482,92,448,92"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#afe47739fe27380b520d5c757907c6291" title="Set the initial lagged unit." alt="" coords="739,5,921,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="663,67,740,46,741,51,665,72"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#a128d82adc1c963e82696972eeaba6590" title="Compute Linear predictor." alt="" coords="739,69,921,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="679,87,725,87,725,92,679,92"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#a7b4cffb38b3f85d17fee09db08045408" title="Move the lagged unit element based on one&#45;step ahead forecasting." alt="" coords="727,133,933,173"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="665,107,741,127,740,132,663,112"/>
+</map>

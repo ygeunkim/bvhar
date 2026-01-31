@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::McmcTriangular::returnSvRecords" name="baecon::bvhar::McmcTriangular::returnSvRecords">
+<area shape="rect" id="Node000001" title="Return SvRecords" alt="" coords="5,37,231,77"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1SvRecords.html#a3696cac66f2a0e53fc721987d1928f7a" title="Return SvRecords" alt="" coords="279,37,469,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,55,265,55,265,60,231,60"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1SvRecords.html#ad61c8f6ed4deacc38404ef59dd2d4625" title=" " alt="" coords="517,5,708,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="469,42,504,37,504,43,470,47"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#ad137bcdf4655b746f69c7b509a771708" title=" " alt="" coords="539,69,686,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="470,67,526,75,525,80,469,73"/>
+</map>

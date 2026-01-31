@@ -1,0 +1,9 @@
+<map id="config.h" name="config.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="77,5,150,31"/>
+<area shape="rect" id="Node000002" href="$minnesota_8h.html" title=" " alt="" coords="62,79,165,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,44,116,79,111,79,111,44"/>
+<area shape="rect" id="Node000003" href="$bayes_2mniw_2forecaster_8h.html" title=" " alt="" coords="5,152,104,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,116,66,154,62,150,93,113"/>
+<area shape="rect" id="Node000004" href="$bayes_2mniw_2spillover_8h.html" title=" " alt="" coords="129,152,218,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="134,113,166,150,162,154,130,116"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="baecon::bvhar::McmcSpillover::computeSpillover" name="baecon::bvhar::McmcSpillover::computeSpillover">
+<area shape="rect" id="Node000001" title="Generate spillover density." alt="" coords="5,199,224,239"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda" title=" " alt="" coords="304,5,459,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,197,185,128,225,89,271,55,290,45,292,50,273,60,229,93,189,131,132,200"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a514b1d75671b93e1522f7f1628408b21" title=" " alt="" coords="273,70,490,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="136,196,194,150,232,125,271,104,290,97,292,102,273,109,234,130,198,154,140,200"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a86449262d1ca15bc132fb4e70eee38f7" title=" " alt="" coords="278,119,485,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,196,271,155,305,145,307,150,273,160,163,201"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#a9898a694bb3d1d5a0af0e19dbab372d9" title=" " alt="" coords="292,169,471,209"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="224,204,278,198,279,203,224,209"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ac33f25c14dc94265e99393bd85d53133" title=" " alt="" coords="282,234,481,259"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="224,227,269,232,268,237,224,233"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#a293496d02d596c310562cf3cc2eacffc" title=" " alt="" coords="279,283,483,309"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="173,236,273,268,309,278,308,283,271,273,171,241"/>
+<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#a0ace15e90c946f97544f058308fe1c9e" title=" " alt="" coords="292,333,471,373"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="144,237,202,277,273,318,294,326,291,331,271,322,199,282,141,241"/>
+<area shape="rect" id="Node000009" href="$classbaecon_1_1bvhar_1_1McmcSpillover.html#af2258080e5bd6d7c2c27bf1d9f335881" title="VMA representation." alt="" coords="272,397,491,437"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="131,237,188,309,228,349,273,383,284,389,282,394,271,388,224,353,184,312,127,241"/>
+</map>

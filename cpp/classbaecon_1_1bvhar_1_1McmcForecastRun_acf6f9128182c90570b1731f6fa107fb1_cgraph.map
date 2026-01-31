@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::McmcForecastRun::returnPredict" name="baecon::bvhar::McmcForecastRun::returnPredict">
+<area shape="rect" id="Node000001" title="Return forecast draws." alt="" coords="5,22,221,62"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcForecastRun.html#acd45e83e94a14694fff7a022982b3ac4" title="In&#45;sample forecasting." alt="" coords="269,22,485,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,39,256,39,256,45,221,45"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="533,29,671,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="486,39,520,39,520,45,486,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="565,31,558,21,562,11,577,5,602,3,634,7,646,16,642,20,632,11,602,8,578,10,565,15,563,20,570,27"/>
+</map>

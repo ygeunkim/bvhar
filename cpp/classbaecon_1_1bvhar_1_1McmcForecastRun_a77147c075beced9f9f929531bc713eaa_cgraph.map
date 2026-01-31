@@ -1,0 +1,6 @@
+<map id="baecon::bvhar::McmcForecastRun::forecast" name="baecon::bvhar::McmcForecastRun::forecast">
+<area shape="rect" id="Node000001" title="Forecast." alt="" coords="5,22,221,62"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="269,29,407,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,39,256,39,256,45,222,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="301,31,294,21,298,11,313,5,338,3,370,7,382,16,378,20,368,11,338,8,314,10,301,15,299,20,306,27"/>
+</map>

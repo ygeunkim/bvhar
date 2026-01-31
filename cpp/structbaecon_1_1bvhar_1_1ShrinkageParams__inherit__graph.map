@@ -1,0 +1,15 @@
+<map id="baecon::bvhar::ShrinkageParams" name="baecon::bvhar::ShrinkageParams">
+<area shape="rect" id="Node000001" title="Hyperparameters for shrinkage priors ShrinkageUpdater" alt="" coords="5,97,192,137"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1DlParams.html" title="Hyperparameters for Dirichlet&#45;Laplace prior DlUpdater" alt="" coords="249,5,433,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,87,188,62,239,40,276,28,277,33,241,44,191,67,145,92"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1GdpParams.html" title="Hyperparameters for GDP prior GdpUpdater" alt="" coords="243,55,439,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,92,278,77,279,83,206,98"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1MinnParams.html" title="Hyperparameters for Minnesota prior MinnUpdater" alt="" coords="240,104,443,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="206,114,240,114,240,119,206,119"/>
+<area shape="rect" id="Node000006" href="$structbaecon_1_1bvhar_1_1NgParams.html" title="Hyperparameters for Normal&#45;gamma prior NgUpdater" alt="" coords="247,153,435,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="206,136,279,151,278,156,205,141"/>
+<area shape="rect" id="Node000007" href="$structbaecon_1_1bvhar_1_1SsvsParams.html" title="Hyperparameters for SSVS prior SsvsUpdater" alt="" coords="241,203,441,228"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="146,141,191,165,241,188,281,200,279,205,239,192,189,170,143,146"/>
+<area shape="rect" id="Node000005" href="$structbaecon_1_1bvhar_1_1HierminnParams.html" title="Hyperparameters for hierarchical Minnesota prior HierminnUpdater" alt="" coords="491,104,721,129"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,114,491,114,491,119,457,119"/>
+</map>

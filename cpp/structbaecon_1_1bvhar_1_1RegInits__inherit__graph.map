@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::RegInits" name="baecon::bvhar::RegInits">
+<area shape="rect" id="Node000001" title="MCMC initial values for McmcTriangular" alt="" coords="103,5,277,31"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1LdltInits.html" title="MCMC initial values for McmcReg" alt="" coords="5,79,180,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,41,110,81,107,76,162,37"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1SvInits.html" title="MCMC initial values for McmcSv" alt="" coords="204,79,371,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,37,273,76,270,81,215,41"/>
+</map>
