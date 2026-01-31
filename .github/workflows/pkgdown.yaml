@@ -34,12 +34,19 @@ jobs:
           needs: website
       
       - name: Choose between CRAN and dev
+        # run: |
+        #   BRANCH=${GITHUB_REF##*/}
+        #   if [ "$BRANCH" == "develop" ]; then
+        #     sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/dev/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/dev/cpp/|' _pkgdown.yml
+        #   else
+        #     sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/cpp/|' _pkgdown.yml
+        #   fi
         run: |
           BRANCH=${GITHUB_REF##*/}
           if [ "$BRANCH" == "develop" ]; then
-            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/dev/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/dev/cpp/|' _pkgdown.yml
+            sed -i 's|VERSION_TEXT|CRAN version|; s|VERSION_REF|https://bvhar.baeconverse.org/|; s|PY_REF|https://bvhar.baeconverse.org/dev/python/|; s|CPP_REF|https://bvhar.baeconverse.org/dev/cpp/|' _pkgdown.yml
           else
-            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://ygeunkim.github.io/package/bvhar/dev/|; s|PY_REF|https://ygeunkim.github.io/package/bvhar/python/|; s|CPP_REF|https://ygeunkim.github.io/package/bvhar/cpp/|' _pkgdown.yml
+            sed -i 's|VERSION_TEXT|Development version|; s|VERSION_REF|https://bvhar.baeconverse.org/dev/|; s|PY_REF|https://bvhar.baeconverse.org/python/|; s|CPP_REF|https://bvhar.baeconverse.org/cpp/|' _pkgdown.yml
           fi
         shell: bash
       
@@ -47,15 +54,19 @@ jobs:
         # run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         run: pkgdown::build_site()
         shell: Rscript {0}
+      
+      - name: Create CNAME
+        run: echo "bvhar.baeconverse.org" > docs/CNAME
 
       - name: Deploy to GitHub pages 🚀
         if: "github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/release/')"
         uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
-          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
-          repository-name: ygeunkim/ygeunkim.github.io
+          # token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          # repository-name: ygeunkim/ygeunkim.github.io
           clean: false
-          branch: master
+          # branch: master
+          branch: gh-pages
           folder: docs
-          target-folder: package/bvhar
+          # target-folder: package/bvhar
           # target-folder: ${{ github.ref == 'refs/heads/develop' && 'package/dev/bvhar' || 'package/bvhar' }}
