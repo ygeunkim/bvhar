@@ -29,6 +29,8 @@ If defining `BVHAR_USE_SPDLOG`, spdlog will be used.
 
 ## Internal changes (C++)
 
+* Remove `fmt::format()` which gave an error in C++20.
+
 * Pseudo out-of-sample forecast classes have `isPath` template, which can give the path forecasting also in the rolling and expanding windows.
 
 * Add `baecon` namespace wrapper around `bvhar` namespace in preparation for `baecon` verse-package integration.
