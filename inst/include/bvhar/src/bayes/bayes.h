@@ -137,7 +137,8 @@ protected:
 	 * @param chain Chain id
 	 */
 	void runGibbs(int chain) {
-		std::string log_name = fmt::format("Chain {}", chain + 1);
+		// std::string log_name = fmt::format("Chain {}", chain + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1);
 		// auto logger = spdlog::get(log_name);
 		// if (logger == nullptr) {
 		// 	logger = BVHAR_SPDLOG_SINK_MT(log_name);

@@ -396,7 +396,8 @@ protected:
 	 */
 	void runGibbs(int window, int chain) {
 		BVHAR_DEBUG_LOG(debug_logger, "runGibbs(window={}, chain={}) called", window, chain);
-		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
+		// std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1) + " / Window " + std::to_string(window + 1);
 		// auto logger = spdlog::get(log_name);
 		// if (logger == nullptr) {
 		// 	logger = BVHAR_SPDLOG_SINK_MT(log_name);

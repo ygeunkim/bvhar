@@ -91,7 +91,8 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 	}
 	auto run_mh = [&](int chain) {
 		// bvhar::bvharprogress bar(num_iter, display_progress);
-		std::string log_name = fmt::format("Chain {}", chain + 1);
+		// std::string log_name = fmt::format("Chain {}", chain + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1);
 		auto logger = std::make_unique<baecon::bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
 		baecon::bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
@@ -175,7 +176,8 @@ Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
 	std::vector<Rcpp::List> res(num_chains);
 	auto run_conj = [&](int chain) {
 		// bvhar::bvharprogress bar(num_iter, display_progress);
-		std::string log_name = fmt::format("Chain {}", chain + 1);
+		// std::string log_name = fmt::format("Chain {}", chain + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1);
 		auto logger = std::make_unique<baecon::bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
 		for (int i = 0; i < num_iter; ++i) {
 			// bar.increment();
