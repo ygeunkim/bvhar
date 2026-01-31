@@ -149,7 +149,7 @@ Please cite this package with following BibTeX:
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.3.0.9011},
+      note = {R package version 2.4.0},
       url = {https://cran.r-project.org/package=bvhar},
     }
 
