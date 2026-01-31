@@ -58,6 +58,9 @@ jobs:
       - name: Create CNAME
         run: echo "bvhar.baeconverse.org" > docs/CNAME
 
+      - name: Disable Jekyll processing
+        run: touch docs/.nojekyll
+
       - name: Deploy to GitHub pages 🚀
         # if: "github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/release/')"
         if: github.event_name != 'pull_request'
