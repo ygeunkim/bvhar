@@ -57,7 +57,7 @@ sticker(
   l_height = 3,
   l_alpha = 0.4,
   # URL
-  url = "ygeunkim.github.io/package/bvhar",
+  url = "bvhar.baeconverse.org",
   u_x = 1,
   u_y = 0.08,
   u_color = "black",

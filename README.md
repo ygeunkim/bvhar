@@ -54,7 +54,7 @@ remotes::install_github("ygeunkim/bvhar@develop")
 
 We started to develop a Python version in python directory.
 
-- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [bvhar for Python](https://bvhar.baeconverse.org/python/)
 - [Source code](https://github.com/ygeunkim/bvhar/tree/master/python)
 
 ## Models
