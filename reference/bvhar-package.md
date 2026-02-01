@@ -33,7 +33,7 @@ Kim, Y. G., and Baek, C. (n.d.). Working paper.
 
 Useful links:
 
-- <https://ygeunkim.github.io/package/bvhar/>
+- <https://bvhar.baeconverse.org>
 
 - <https://github.com/ygeunkim/bvhar>
 
