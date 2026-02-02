@@ -3,8 +3,8 @@
 This package provides public `C++` header.
 It is used in both `R` and `Python`.
 
-- [bvhar for R](https://ygeunkim.github.io/package/bvhar/)
-- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [bvhar for R](https://bvhar.baeconverse.org)
+- [bvhar for Python](https://bvhar.baeconverse.org/python/)
 
 ## For R package developers
 
@@ -31,11 +31,11 @@ Also, you can use in your single `C++` source:
 // Your C++ code
 ```
 
-You need to add `plugins` attribute because the header in this package should define `USE_RCPP` macro.
+You need to add `plugins` attribute because the header in this package should define `BVHAR_USE_RCPP` macro.
 Or you can use instead:
 
 ```r
-Sys.setenv("PKG_CPPFLAGS" = "-DUSE_RCPP")
+Sys.setenv("PKG_CPPFLAGS" = "-DBVHAR_USE_RCPP")
 ```
 
-If the `USE_RCPP` macro is not defined, the headers are compiled for [`pybind11`](https://pybind11.readthedocs.io/en/stable/index.html) of `Python`.
+If the `BVHAR_USE_RCPP` macro is not defined, the headers are compiled for [`pybind11`](https://pybind11.readthedocs.io/en/stable/index.html) of `Python`.

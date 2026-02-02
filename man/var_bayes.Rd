@@ -13,6 +13,7 @@ var_bayes(
   p,
   exogen = NULL,
   s = 0,
+  factor_spec = set_factor(),
   num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
@@ -22,6 +23,7 @@ var_bayes(
   cov_spec = set_ldlt(),
   intercept = set_intercept(),
   exogen_spec = coef_spec,
+  loading_spec = coef_spec,
   include_mean = TRUE,
   minnesota = TRUE,
   ggl = TRUE,
@@ -48,6 +50,8 @@ var_bayes(
 
 \item{s}{Lag of exogeneous variables in VARX(p, s). By default, \code{s = 0}.}
 
+\item{factor_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Factor augmentation specification by \code{\link[=set_factor]{set_factor()}}.}
+
 \item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
@@ -65,6 +69,8 @@ var_bayes(
 \item{intercept}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Prior for the constant term by \code{\link[=set_intercept]{set_intercept()}}.}
 
 \item{exogen_spec}{Exogenous coefficient prior specification.}
+
+\item{loading_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Factor loading prior specification.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 
@@ -145,6 +151,8 @@ Cogley, T., & Sargent, T. J. (2005). \emph{Drifts and volatilities: monetary pol
 Gruber, L., & Kastner, G. (2022). \emph{Forecasting macroeconomic data with Bayesian VARs: Sparse or dense? It depends!} arXiv.
 
 Huber, F., Koop, G., & Onorante, L. (2021). \emph{Inducing Sparsity and Shrinkage in Time-Varying Parameter Models}. Journal of Business & Economic Statistics, 39(3), 669-683.
+
+Korobilis, D. (2022). A new algorithm for structural restrictions in Bayesian vector autoregressions. European Economic Review, 148, 104241.
 
 Korobilis, D., & Shimizu, K. (2022). \emph{Bayesian Approaches to Shrinkage and Sparse Estimation}. Foundations and Trends® in Econometrics, 11(4), 230-354.
 

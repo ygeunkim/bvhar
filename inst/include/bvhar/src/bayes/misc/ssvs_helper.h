@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Building Spike-and-slab SD Diagonal Matrix
@@ -28,7 +29,7 @@ inline Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd s
 // @param slab_weight Proportion of nonzero coefficients
 inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
 											 Eigen::VectorXd& sd_numer, Eigen::Ref<const Eigen::VectorXd> sd_denom,
-											 Eigen::VectorXd& slab_weight, BHRNG& rng) {
+											 Eigen::VectorXd& slab_weight, BVHAR_BHRNG& rng) {
   int num_latent = slab_weight.size();
 	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
 	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());
@@ -47,7 +48,7 @@ inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
 // @param param_obs Indicator variables
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
-inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, BHRNG& rng) {
+inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, BVHAR_BHRNG& rng) {
   int num_latent = param_obs.size();
   double post_s1 = prior_s1 + param_obs.sum(); // s1 + number of ones
   double post_s2 = prior_s2 + num_latent - param_obs.sum(); // s2 + number of zeros
@@ -66,7 +67,7 @@ inline void ssvs_weight(Eigen::VectorXd& weight, Eigen::VectorXd param_obs, doub
 // @param prior_s1 First prior shape of Beta distribution
 // @param prior_s2 Second prior shape of Beta distribution
 inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-  												 Eigen::VectorXd& param_obs, Eigen::VectorXd& prior_s1, Eigen::VectorXd& prior_s2, BHRNG& rng) {
+  												 Eigen::VectorXd& param_obs, Eigen::VectorXd& prior_s1, Eigen::VectorXd& prior_s2, BVHAR_BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_latent = param_obs.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
@@ -94,7 +95,7 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 // @param spike_scl scaling factor to make spike sd smaller than slab sd (spike_sd = spike_scl * slab_sd)
 // @param rng boost rng
 inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_param, Eigen::Ref<Eigen::VectorXd> coef_vec,
-														double& shp, double& scl, double& spike_scl, BHRNG& rng) {
+														double& shp, double& scl, double& spike_scl, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef_vec.size(); ++i) {
 		slab_param[i] = sqrt(1 / gamma_rand(
 			shp + .5,
@@ -109,7 +110,7 @@ inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_ve
 }
 
 inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
-														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, BHRNG& rng) {
+														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -121,5 +122,6 @@ inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_SSVS_HELPER_H

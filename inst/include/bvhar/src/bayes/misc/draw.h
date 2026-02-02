@@ -3,6 +3,7 @@
 
 #include "./coef_helper.h"
 #include "./sv_helper.h"
+#include "./factor_helper.h"
 #include "./minn_helper.h"
 #include "./ssvs_helper.h"
 #include "./hs_helper.h"
@@ -10,6 +11,7 @@
 #include "./dl_helper.h"
 #include "./gdp_helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 template<typename Derived>
@@ -28,5 +30,6 @@ inline Eigen::Matrix<typename Derived::Scalar, Derived::RowsAtCompileTime, Deriv
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_DRAW_H

@@ -8,6 +8,6 @@
 #include "src/bayes/mniw/forecaster.h"
 
 // CTA
-#include "src/bayes/triangular/deprecated/forecaster.h"
+#include "src/bayes/triangular/forecaster.h"
 
 #endif // BVHAR_FORECAST_H

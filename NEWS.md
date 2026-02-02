@@ -1,3 +1,52 @@
+# bvhar 2.4.0
+
+## Important changes
+
+* License has been changed to [MIT](https://choosealicense.com/licenses/mit/).
+
+* `bvhar`-related packages now use `boost::random::mixmax` instead of `boost::random::mt19937` for pRNG, which is the same with Stan.
+This will affect every MCMC results of this library.
+
+* Fixed DL prior's latent parameter sampling.
+
+* Fixed upper triangular Bartlett decomposition for inverse-Wishart rng.
+This change affects every results that uses MNIW in the posterior sampling.
+
+* `bvar_minnesota()` and `bvhar_minnesota()` will find hyperparameters in C++ using L-BFGS-B of `LBFGSpp` library.
+And these functions will be integrated into `var_bayes()` and `vhar_bayes()` with new spec functions.
+Be careful when using these functions before the changes.
+
+* `spdlog` loggers are replaced with custom progress bar (for master thread) by default.
+If defining `BVHAR_USE_SPDLOG`, spdlog will be used.
+
+## New features
+
+* `var_bayes()` and `vhar_bayes()` can augment factor term with `factor_spec` argument.
+
+* `set_factor()` determines the factor size.
+
+* `predict()` can conduct in-sample forecasting when `n_ahead` is not specified (for now, only `*ldlt` and `*sv` can do this).
+
+## Internal changes (C++)
+
+* Remove `fmt::format()` which gave an error in C++20.
+
+* Pseudo out-of-sample forecast classes have `isPath` template, which can give the path forecasting also in the rolling and expanding windows.
+
+* Add `baecon` namespace wrapper around `bvhar` namespace in preparation for `baecon` verse-package integration.
+C++ users must update namespace references from `bvhar::` to `baecon::bvhar::`.
+
+* Use forecaster classes with new `AutoregGenerator` class for VAR/VHAR generation.
+
+* This gives different results due to boost RNG usage instead of R's RNG.
+
+* Add `BVHAR_` prefix to every defined macros. For example, `LIST` to `BVHAR_LIST`.
+
+* Also, replace `USE_RCPP` and `USE_BVHAR_DEBUG` with `BVHAR_USE_RCPP` and `BVHAR_USE_BVHAR_DEBUG`.
+
+* Add `use_fit` parameter to `McmcOutForecastRun` in the case when full sample analysis.
+If `use_fit = false`, the first window will be evaluated.
+
 # bvhar 2.3.0
 
 * Requires `R >= 4.2` due to Rtools 4.0 error with optional parameters in C++.
@@ -38,7 +87,7 @@
 
 # bvhar 2.2.0
 
-* Requires `R >= 4.1` following [tidyverse R version support schedule](https://www.tidyverse.org/blog/2019/04/r-version-support/)
+* Requires `R >= 4.1` following [tidyverse R version support schedule](https://tidyverse.org/blog/2019/04/r-version-support/)
 
 * `stable = TRUE` can filter MCMC draws where coefficient is stable when forecasting.
 

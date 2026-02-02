@@ -1,22 +1,17 @@
 #ifndef BVHAR_BAYES_MNIW_MINNESOTA_H
 #define BVHAR_BAYES_MNIW_MINNESOTA_H
 
-// #include <RcppEigen.h>
-#include "../misc/draw.h"
-#include "../../math/design.h"
-// #include <memory> // std::unique_ptr
-#include "../../core/progress.h"
+// // #include <RcppEigen.h>
+// #include "../misc/draw.h"
+// #include "../../math/design.h"
+// // #include <memory> // std::unique_ptr
+// #include "../../core/progress.h"
+#include "./config.h"
+#include "./tuning.h"
 
+namespace baecon {
 namespace bvhar {
 
-struct MinnSpec;
-struct BvarSpec;
-struct BvharSpec;
-struct MinnFit;
-struct MhMinnInits;
-struct MhMinnSpec;
-struct MinnRecords;
-struct MhMinnRecords;
 class Minnesota;
 class McmcMniw;
 class MinnBvar;
@@ -25,128 +20,6 @@ class MinnBvharS;
 class MinnBvharL;
 class MhMinnesota;
 class MinnFlat;
-
-struct MinnSpec {
-	Eigen::VectorXd _sigma;
-	double _lambda;
-	double _eps;
-
-	MinnSpec(LIST& bayes_spec)
-	: _sigma(CAST<Eigen::VectorXd>(bayes_spec["sigma"])),
-		_lambda(CAST_DOUBLE(bayes_spec["lambda"])),
-		_eps(CAST_DOUBLE(bayes_spec["eps"])) {}
-};
-
-struct BvarSpec : public MinnSpec {
-	Eigen::VectorXd _delta;
-
-	BvarSpec(LIST& bayes_spec)
-	: MinnSpec(bayes_spec),
-		_delta(CAST<Eigen::VectorXd>(bayes_spec["delta"])) {}
-};
-
-struct BvharSpec : public MinnSpec {
-	Eigen::VectorXd _daily;
-	Eigen::VectorXd _weekly;
-	Eigen::VectorXd _monthly;
-
-	BvharSpec(LIST& bayes_spec)
-	: MinnSpec(bayes_spec),
-		_daily(CAST<Eigen::VectorXd>(bayes_spec["daily"])),
-		_weekly(CAST<Eigen::VectorXd>(bayes_spec["weekly"])),
-		_monthly(CAST<Eigen::VectorXd>(bayes_spec["monthly"])) {}
-};
-
-struct MinnFit {
-	Eigen::MatrixXd _coef;
-	Eigen::MatrixXd _prec;
-	Eigen::MatrixXd _iw_scale;
-	double _iw_shape;
-	
-	MinnFit(const Eigen::MatrixXd& coef_mat, const Eigen::MatrixXd& prec_mat, const Eigen::MatrixXd& iw_scale, double iw_shape)
-	: _coef(coef_mat), _prec(prec_mat), _iw_scale(iw_scale), _iw_shape(iw_shape) {}
-};
-
-struct MhMinnInits {
-	double _lambda;
-	Eigen::VectorXd _psi;
-	Eigen::MatrixXd _hess;
-	double _acc_scale;
-	// Eigen::VectorXd _delta;
-
-	MhMinnInits(LIST& init) {
-		Eigen::VectorXd par = CAST<Eigen::VectorXd>(init["par"]);
-		_lambda = par[0];
-		_psi = par.tail(par.size() - 1);
-		_hess = CAST<Eigen::MatrixXd>(init["hessian"]);
-		_acc_scale = CAST_DOUBLE(init["scale_variance"]);
-		// _delta = CAST<Eigen::VectorXd>(spec["delta"]);
-	}
-};
-
-struct MhMinnSpec {
-	double _gam_shape;
-	double _gam_rate;
-	double _invgam_shape;
-	double _invgam_scl;
-
-	MhMinnSpec(LIST& lambda, LIST& psi) {
-		// Rcpp::List lambda = spec["lambda"];
-		// Rcpp::List psi = spec["sigma"];
-		// Rcpp::List param = lambda["param"];
-		Eigen::VectorXd lam_param = CAST<Eigen::VectorXd>(lambda["param"]);
-		_gam_shape = lam_param[0];
-		_gam_rate = lam_param[1];
-		Eigen::VectorXd psi_param = CAST<Eigen::VectorXd>(psi["param"]);
-		_invgam_shape = psi_param[0];
-		_invgam_scl = psi_param[1];
-	}
-};
-
-struct MinnRecords {
-	Eigen::MatrixXd coef_record; // alpha in VAR
-	Eigen::MatrixXd sig_record;
-
-	MinnRecords(int num_iter, int dim, int dim_design)
-	: coef_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim_design)),
-		sig_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim)) {}
-	
-	MinnRecords(const Eigen::MatrixXd& alpha_record, const Eigen::MatrixXd& sig_record)
-	: coef_record(alpha_record), sig_record(sig_record) {}
-	
-	void assignRecords(int id, std::vector<Eigen::MatrixXd>& mniw_draw) {
-		coef_record.row(id) = vectorize_eigen(mniw_draw[0]);
-		sig_record.row(id) = vectorize_eigen(mniw_draw[1]);
-	}
-};
-
-struct MhMinnRecords {
-	// Eigen::MatrixXd coef_record; // alpha in VAR
-	// Eigen::MatrixXd sig_record;
-	Eigen::VectorXd lam_record;
-	Eigen::MatrixXd psi_record;
-	VectorXb accept_record;
-	// int _dim;
-	
-	// MhMinnRecords(int num_iter, int dim, int dim_design)
-	MhMinnRecords(int num_iter, int dim)
-	// : coef_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim_design)),
-	// 	sig_record(Eigen::MatrixXd::Zero(num_iter + 1, dim * dim)),
-	: lam_record(Eigen::VectorXd::Zero(num_iter + 1)),
-		psi_record(Eigen::MatrixXd::Zero(num_iter + 1, dim)),
-		accept_record(VectorXb(num_iter + 1)) {}
-	void assignRecords(
-		int id,
-		// std::vector<Eigen::MatrixXd>& mniw_draw,
-		double lambda, Eigen::Ref<Eigen::VectorXd> psi, bool is_accept
-	) {
-		// coef_record.row(id) = vectorize_eigen(mniw_draw[0]);
-		// sig_record.row(id) = vectorize_eigen(mniw_draw[1]);
-		lam_record[id] = lambda;
-		psi_record.row(id) = psi;
-		accept_record[id] = is_accept;
-	}
-};
 
 class Minnesota {
 public:
@@ -184,27 +57,27 @@ public:
 		yhat_star = xstar * coef;
 		scale = (ystar - yhat_star).transpose() * (ystar - yhat_star);
 	}
-	LIST returnMinnRes() {
+	BVHAR_LIST returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return CREATE_LIST(
-			// NAMED("mn_mean") = coef,
-			NAMED("coefficients") = coef,
-			NAMED("fitted.values") = yhat,
-			NAMED("residuals") = resid,
-			NAMED("mn_prec") = prec,
-			NAMED("covmat") = scale,
-			NAMED("iw_shape") = prior_shape + num_design,
-			NAMED("df") = dim_design,
-			NAMED("m") = dim,
-			NAMED("obs") = num_design,
-			NAMED("prior_mean") = prior_mean,
-			NAMED("prior_precision") = prior_prec,
-			NAMED("prior_scale") = prior_scale,
-			NAMED("prior_shape") = prior_shape,
-			NAMED("y0") = response,
-			NAMED("design") = design
+		return BVHAR_CREATE_LIST(
+			// BVHAR_NAMED("mn_mean") = coef,
+			BVHAR_NAMED("coefficients") = coef,
+			BVHAR_NAMED("fitted.values") = yhat,
+			BVHAR_NAMED("residuals") = resid,
+			BVHAR_NAMED("mn_prec") = prec,
+			BVHAR_NAMED("covmat") = scale,
+			BVHAR_NAMED("iw_shape") = prior_shape + num_design,
+			BVHAR_NAMED("df") = dim_design,
+			BVHAR_NAMED("m") = dim,
+			BVHAR_NAMED("obs") = num_design,
+			BVHAR_NAMED("prior_mean") = prior_mean,
+			BVHAR_NAMED("prior_precision") = prior_prec,
+			BVHAR_NAMED("prior_scale") = prior_scale,
+			BVHAR_NAMED("prior_shape") = prior_shape,
+			BVHAR_NAMED("y0") = response,
+			BVHAR_NAMED("design") = design
 		);
 	}
 	MinnFit returnMinnFit() {
@@ -255,13 +128,13 @@ public:
 		updateMniw();
 		updateRecords();
 	}
-	LIST returnRecords(int num_burn, int thin) const {
-		LIST res = CREATE_LIST(
-			NAMED("alpha_record") = mn_record.coef_record,
-			NAMED("sigma_record") = mn_record.sig_record
+	BVHAR_LIST returnRecords(int num_burn, int thin) const {
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+			BVHAR_NAMED("sigma_record") = mn_record.sig_record
 		);
 		for (auto& record : res) {
-			ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 		}
 		return res;
 	}
@@ -273,16 +146,25 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 };
 
 class MinnBvar {
 public:
-	MinnBvar(const Eigen::MatrixXd& y, int lag, const BvarSpec& spec, const bool include_mean)
-	: lag(lag), const_term(include_mean), data(y), dim(data.cols()) {
+	MinnBvar(const Eigen::MatrixXd& y, int lag, BvarSpec& spec, const bool include_mean)
+	: lag(lag), const_term(include_mean), data(y), dim(data.cols()),
+		hyperparam(2 * dim + 1) {
 		response = build_y0(data, lag, lag + 1);
 		design = build_x0(data, lag, const_term);
+		hyperparam << spec._sigma, spec._lambda, spec._delta;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, lag, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._delta = hyperparam.segment(dim + 1, dim);
 		dummy_response = build_ydummy(
 			lag, spec._sigma,
 			spec._lambda, spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
@@ -292,15 +174,17 @@ public:
 			Eigen::VectorXd::LinSpaced(lag, 1, lag),
 			spec._lambda, spec._sigma, spec._eps, const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
 	}
 	virtual ~MinnBvar() = default;
-	LIST returnMinnRes() {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = lag;
 		mn_res["totobs"] = data.rows();
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() {
@@ -311,6 +195,7 @@ private:
 	bool const_term;
 	Eigen::MatrixXd data;
 	int dim;
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd design;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd dummy_design;
@@ -320,20 +205,20 @@ private:
 
 class MinnBvhar {
 public:
-	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, const MinnSpec& spec, const bool include_mean)
+	MinnBvhar(const Eigen::MatrixXd& y, int week, int month, MinnSpec& spec, const bool include_mean)
 	: week(week), month(month), const_term(include_mean),
 		data(y), dim(data.cols()) {
 		response = build_y0(data, month, month + 1);
-		har_trans = bvhar::build_vhar(dim, week, month, const_term);
+		har_trans = build_vhar(dim, week, month, const_term);
 		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
-		dummy_design = build_xdummy(
-			Eigen::VectorXd::LinSpaced(3, 1, 3),
-			spec._lambda, spec._sigma, spec._eps, const_term
-		);
+		// dummy_design = build_xdummy(
+		// 	Eigen::VectorXd::LinSpaced(3, 1, 3),
+		// 	spec._lambda, spec._sigma, spec._eps, const_term
+		// );
 	}
 	virtual ~MinnBvhar() = default;
-	virtual LIST returnMinnRes() = 0;
+	virtual BVHAR_LIST returnMinnRes() = 0;
 	virtual MinnFit returnMinnFit() = 0;
 protected:
 	int week;
@@ -350,18 +235,32 @@ protected:
 
 class MinnBvharS : public MinnBvhar {
 public:
-	MinnBvharS(const Eigen::MatrixXd& y, int week, int month, const BvarSpec& spec, const bool include_mean)
-	: MinnBvhar(y, week, month, spec, include_mean) {
+	MinnBvharS(const Eigen::MatrixXd& y, int week, int month, BvarSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean),
+		hyperparam(2 * dim + 1) {
+		hyperparam << spec._sigma, spec._lambda, spec._delta;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, 3, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._delta = hyperparam.segment(dim + 1, dim);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
 		dummy_response = build_ydummy(
 			3, spec._sigma, spec._lambda,
 			spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
 			const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
 	}
 	virtual ~MinnBvharS() noexcept = default;
-	LIST returnMinnRes() override {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() override {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
 		mn_res["week"] = week;
 		mn_res["month"] = month;
@@ -369,30 +268,48 @@ public:
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {
 		return _mn->returnMinnFit();
 	}
 private:
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd dummy_response;
 	std::unique_ptr<Minnesota> _mn;
 };
 
 class MinnBvharL : public MinnBvhar {
 public:
-	MinnBvharL(const Eigen::MatrixXd& y, int week, int month, const BvharSpec& spec, const bool include_mean)
-	: MinnBvhar(y, week, month, spec, include_mean) {
+	MinnBvharL(const Eigen::MatrixXd& y, int week, int month, BvharSpec& spec, const bool include_mean)
+	: MinnBvhar(y, week, month, spec, include_mean),
+		hyperparam(4 * dim + 1) {
+		hyperparam << spec._sigma, spec._lambda, spec._daily, spec._weekly, spec._monthly;
+		std::unique_ptr<FuncMin> logml_lik;
+		logml_lik = std::make_unique<MinnesotaLogLik>(design, response, 3, include_mean, spec._eps);
+		auto solver = std::make_unique<OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		hyperparam = solver->returnParams();
+		spec._sigma = hyperparam.head(dim);
+		spec._lambda = hyperparam[dim];
+		spec._daily = hyperparam.segment(dim + 1, dim);
+		spec._weekly = hyperparam.segment(2 * dim + 1, dim);
+		spec._monthly = hyperparam.segment(3 * dim + 1, dim);
+		dummy_design = build_xdummy(
+			Eigen::VectorXd::LinSpaced(3, 1, 3),
+			spec._lambda, spec._sigma, spec._eps, const_term
+		);
 		dummy_response = build_ydummy(
 			3, spec._sigma, spec._lambda,
 			spec._daily, spec._weekly, spec._monthly,
 			const_term
 		);
-		_mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		// _mn.reset(new Minnesota(design, response, dummy_design, dummy_response));
+		_mn = std::make_unique<Minnesota>(design, response, dummy_design, dummy_response);
 	}
 	virtual ~MinnBvharL() noexcept = default;
-	LIST returnMinnRes() override {
-		LIST mn_res = _mn->returnMinnRes();
+	BVHAR_LIST returnMinnRes() override {
+		BVHAR_LIST mn_res = _mn->returnMinnRes();
 		mn_res["p"] = 3;
 		mn_res["week"] = week;
 		mn_res["month"] = month;
@@ -400,12 +317,14 @@ public:
 		mn_res["type"] = const_term ? "const" : "none";
 		mn_res["HARtrans"] = har_trans;
 		mn_res["y"] = data;
+		mn_res["spec"] = hyperparam;
 		return mn_res;
 	}
 	MinnFit returnMinnFit() override {
 		return _mn->returnMinnFit();
 	}
 private:
+	Eigen::VectorXd hyperparam;
 	Eigen::MatrixXd dummy_response;
 	std::unique_ptr<Minnesota> _mn;
 };
@@ -467,22 +386,22 @@ public:
 		updateMniw();
 		updateRecords();
 	}
-	LIST returnRecords(int num_burn, int thin) const {
-		LIST res = CREATE_LIST(
-			NAMED("lambda_record") = mh_record.lam_record,
-			NAMED("psi_record") = mh_record.psi_record,
-			NAMED("alpha_record") = mn_record.coef_record,
-			NAMED("sigma_record") = mn_record.sig_record,
-			// NAMED("accept_record") = thin_record(mn_record.accept_record, num_iter, num_burn, thin)
-			NAMED("accept_record") = mh_record.accept_record
+	BVHAR_LIST returnRecords(int num_burn, int thin) const {
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("lambda_record") = mh_record.lam_record,
+			BVHAR_NAMED("psi_record") = mh_record.psi_record,
+			BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+			BVHAR_NAMED("sigma_record") = mn_record.sig_record,
+			// BVHAR_NAMED("accept_record") = thin_record(mn_record.accept_record, num_iter, num_burn, thin)
+			BVHAR_NAMED("accept_record") = mh_record.accept_record
 		);
 		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else if (IS_VECTOR(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
-			} else if (IS_LOGICAL(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<VectorXb>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			if (BVHAR_IS_MATRIX(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			} else if (BVHAR_IS_VECTOR(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::VectorXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			} else if (BVHAR_IS_LOGICAL(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<VectorXb>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -492,7 +411,7 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BHRNG rng; // RNG instance for multi-chain
+	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 	MhMinnRecords mh_record;
 	double gamma_shp;
@@ -568,37 +487,37 @@ public:
 	// 	updateRecords();
 	// }
 	// Rcpp::List returnRecords(int num_burn, int thin) const {
-	// 	Rcpp::List res = CREATE_LIST(
-	// 		NAMED("alpha_record") = mn_record.coef_record,
-	// 		NAMED("sigma_record") = mn_record.sig_record
+	// 	Rcpp::List res = BVHAR_CREATE_LIST(
+	// 		BVHAR_NAMED("alpha_record") = mn_record.coef_record,
+	// 		BVHAR_NAMED("sigma_record") = mn_record.sig_record
 	// 	);
 	// 	for (auto& record : res) {
-	// 		record = thin_record(CAST<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
+	// 		record = thin_record(BVHAR_CAST<Eigen::MatrixXd>(record), num_iter, num_burn, thin);
 	// 	}
 	// 	return res;
 	// }
-	LIST returnMinnRes() {
+	BVHAR_LIST returnMinnRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return CREATE_LIST(
-			// NAMED("mn_mean") = coef,
-			NAMED("coefficients") = coef,
-			NAMED("fitted.values") = yhat,
-			NAMED("residuals") = resid,
-			NAMED("mn_prec") = prec,
-			// NAMED("iw_scale") = scale,
-			NAMED("covmat") = scale,
-			NAMED("iw_shape") = shape,
-			NAMED("df") = dim_design,
-			NAMED("m") = dim,
-			NAMED("obs") = num_design,
-			NAMED("prior_mean") = Eigen::MatrixXd::Zero(dim_design, dim),
-			NAMED("prior_precision") = prior_prec,
-			// NAMED("prior_scale") = prior_scale,
-			// NAMED("prior_shape") = prior_shape,
-			NAMED("y0") = response,
-			NAMED("design") = design
+		return BVHAR_CREATE_LIST(
+			// BVHAR_NAMED("mn_mean") = coef,
+			BVHAR_NAMED("coefficients") = coef,
+			BVHAR_NAMED("fitted.values") = yhat,
+			BVHAR_NAMED("residuals") = resid,
+			BVHAR_NAMED("mn_prec") = prec,
+			// BVHAR_NAMED("iw_scale") = scale,
+			BVHAR_NAMED("covmat") = scale,
+			BVHAR_NAMED("iw_shape") = shape,
+			BVHAR_NAMED("df") = dim_design,
+			BVHAR_NAMED("m") = dim,
+			BVHAR_NAMED("obs") = num_design,
+			BVHAR_NAMED("prior_mean") = Eigen::MatrixXd::Zero(dim_design, dim),
+			BVHAR_NAMED("prior_precision") = prior_prec,
+			// BVHAR_NAMED("prior_scale") = prior_scale,
+			// BVHAR_NAMED("prior_shape") = prior_shape,
+			BVHAR_NAMED("y0") = response,
+			BVHAR_NAMED("design") = design
 		);
 	}
 	// MinnRecords returnMinnRecords(int num_burn, int thin) const {
@@ -646,5 +565,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_MINNESOTA_H

@@ -354,7 +354,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -367,7 +367,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -381,7 +381,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -394,7 +394,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -455,7 +455,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -468,7 +468,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -482,7 +482,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -495,7 +495,7 @@ class VarBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -822,7 +822,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -835,7 +835,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -849,7 +849,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -862,7 +862,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -921,7 +921,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -934,7 +934,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, True
@@ -948,7 +948,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv
@@ -961,7 +961,7 @@ class VharBayes(_AutoregBayes):
                     self.init_, self._coef_prior_type,
                     self.contem_spec_.to_dict(), self.contem_init_, self._contem_prior_type,
                     self._group_id, self._own_id, self._cross_id, self.group_,
-                    self.fit_intercept, stable, n_ahead, test, True,
+                    self.fit_intercept, stable, n_ahead, test, True, True,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_ * n_horizon).reshape(self.chains_, -1).T,
                     np.random.randint(low = 1, high = np.iinfo(np.int32).max, size = self.chains_),
                     self._verbose, self.thread_, sv

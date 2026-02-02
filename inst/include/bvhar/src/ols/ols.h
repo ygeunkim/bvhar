@@ -4,6 +4,7 @@
 #include "../math/design.h"
 #include <memory> // std::unique_ptr in source file
 
+namespace baecon {
 namespace bvhar {
 
 struct OlsFit;
@@ -68,19 +69,19 @@ public:
 	void estimateCov() {
 		cov = resid.transpose() * resid / (num_design - dim_design);
 	}
-	LIST returnOlsRes() {
+	BVHAR_LIST returnOlsRes() {
 		estimateCoef();
 		fitObs();
 		estimateCov();
-		return CREATE_LIST(
-			NAMED("coefficients") = coef,
-			NAMED("fitted.values") = yhat,
-			NAMED("residuals") = resid,
-			NAMED("covmat") = cov,
-			NAMED("df") = dim_design,
-			NAMED("m") = dim,
-			NAMED("obs") = num_design,
-			NAMED("y0") = response
+		return BVHAR_CREATE_LIST(
+			BVHAR_NAMED("coefficients") = coef,
+			BVHAR_NAMED("fitted.values") = yhat,
+			BVHAR_NAMED("residuals") = resid,
+			BVHAR_NAMED("covmat") = cov,
+			BVHAR_NAMED("df") = dim_design,
+			BVHAR_NAMED("m") = dim,
+			BVHAR_NAMED("obs") = num_design,
+			BVHAR_NAMED("y0") = response
 		);
 	}
 	Eigen::MatrixXd returnCoef() {
@@ -173,7 +174,7 @@ class OlsInterface {
 public:
 	OlsInterface() {}
 	virtual ~OlsInterface() = default;
-	virtual LIST returnOlsRes() = 0;
+	virtual BVHAR_LIST returnOlsRes() = 0;
 	virtual Eigen::MatrixXd returnCoef() = 0;
 	virtual OlsFit returnOlsFit() = 0;
 	virtual StructuralFit returnStructuralFit() = 0;
@@ -194,8 +195,8 @@ public:
 		_ols = initialize_ols(design, response, method);
 	}
 	virtual ~OlsVar() = default;
-	LIST returnOlsRes() override {
-		LIST ols_res = _ols->returnOlsRes();
+	BVHAR_LIST returnOlsRes() override {
+		BVHAR_LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = lag;
 		ols_res["totobs"] = data.rows();
 		ols_res["process"] = "VAR";
@@ -229,7 +230,7 @@ public:
 	OlsVhar(const Eigen::MatrixXd& y, int week, int month, const bool include_mean, int method)
 	: week(week), month(month), const_term(include_mean), data(y) {
 		response = build_y0(data, month, month + 1);
-		har_trans = bvhar::build_vhar(response.cols(), week, month, const_term);
+		har_trans = build_vhar(response.cols(), week, month, const_term);
 		var_design = build_x0(data, month, const_term);
 		design = var_design * har_trans.transpose();
 		_ols = initialize_ols(design, response, method);
@@ -251,8 +252,8 @@ public:
 		_ols = initialize_ols(design, response, method);
 	}
 	virtual ~OlsVhar() = default;
-	LIST returnOlsRes() override {
-		LIST ols_res = _ols->returnOlsRes();
+	BVHAR_LIST returnOlsRes() override {
+		BVHAR_LIST ols_res = _ols->returnOlsRes();
 		ols_res["p"] = 3;
 		ols_res["week"] = week;
 		ols_res["month"] = month;
@@ -290,5 +291,6 @@ protected:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_OLS_H

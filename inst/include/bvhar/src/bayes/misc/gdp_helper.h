@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Draw Local sparsity in GDP prior
@@ -12,7 +13,7 @@ namespace bvhar {
 // @param coef
 // @param rng
 inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<const Eigen::VectorXd> local_shape,
-															 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
+															 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < local_param.size(); ++i) {
 		local_param[i] = 1 / sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
 		// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));
@@ -25,7 +26,7 @@ inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::R
 // @param coef
 // @param rng
 inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> rate_hyper, double prior_shape, double prior_rate,
-											 		 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
+											 		 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < rate_hyper.size(); ++i) {
 		rate_hyper[i] = gamma_rand(prior_shape + 1, 1 / (prior_rate + abs(coef[i])), rng);
 	}
@@ -39,7 +40,7 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> rate_hyper, double prior_sh
 // @param rng
 inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_shape, double prior_rate,
 												 Eigen::Ref<Eigen::VectorXd> coef,
-												 Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, BHRNG& rng) {
+												 Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, BVHAR_BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
 	int num_coef = coef.size();
@@ -77,7 +78,7 @@ inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, do
 // @param grid_size
 // @param coef
 // @param rng
-inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
+inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -89,7 +90,7 @@ inline void gdp_shape_griddy(double& shape_hyper, double rate_hyper, int grid_si
 	shape_hyper = (1 - grid[id]) / grid[id];
 }
 
-inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
+inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_size, Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
@@ -102,5 +103,6 @@ inline void gdp_rate_griddy(double& rate_hyper, double shape_hyper, int grid_siz
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_GDP_HELPER_H

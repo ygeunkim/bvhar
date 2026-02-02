@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating log-volatilities in MCMC
@@ -14,7 +15,7 @@ namespace bvhar {
 // @param sv_sig Variance of log-volatilities
 // @param latent_vec Auxiliary residual vector
 inline void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
-										 double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec, BHRNG& rng) {
+										 double sv_sig, Eigen::Ref<Eigen::VectorXd> latent_vec, BVHAR_BHRNG& rng) {
   int num_design = sv_vec.size(); // h_i1, ..., h_in for i = 1, .., k
   // 7-component normal mixutre
 	using Vector7d = Eigen::Matrix<double, 7, 1>;
@@ -71,7 +72,7 @@ inline void varsv_ht(Eigen::Ref<Eigen::VectorXd> sv_vec, double init_sv,
 // @param init_sv Initial log volatility
 // @param h1 Time-varying h1 matrix
 inline void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::VectorXd& scl,
-											 Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1, BHRNG& rng) {
+											 Eigen::VectorXd& init_sv, Eigen::MatrixXd& h1, BVHAR_BHRNG& rng) {
   int dim = init_sv.size();
   int num_design = h1.rows();
   Eigen::MatrixXd h_slide(num_design, dim); // h_ij, j = 0, ..., n - 1
@@ -96,7 +97,7 @@ inline void varsv_sigh(Eigen::VectorXd& sv_sig, Eigen::VectorXd& shp, Eigen::Vec
 // @param h1 h1
 // @param sv_prec Precision of log volatility
 inline void varsv_h0(Eigen::Ref<Eigen::VectorXd> h0, Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec,
-										 Eigen::Ref<const Eigen::VectorXd> h1, Eigen::Ref<const Eigen::VectorXd> sv_prec, BHRNG& rng) {
+										 Eigen::Ref<const Eigen::VectorXd> h1, Eigen::Ref<const Eigen::VectorXd> sv_prec, BVHAR_BHRNG& rng) {
   int dim = h1.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; ++i) {
@@ -108,5 +109,6 @@ inline void varsv_h0(Eigen::Ref<Eigen::VectorXd> h0, Eigen::Ref<Eigen::VectorXd>
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_SV_HELPER_H_H

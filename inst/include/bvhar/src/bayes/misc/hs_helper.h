@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating the Squared Grouped Global Sparsity Hyperparameter in Horseshoe Gibbs Sampler
@@ -14,7 +15,7 @@ namespace bvhar {
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
 inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const Eigen::VectorXd> local_hyperparam,
-                                 				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
+                                 				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int dim = coef_vec.size();
 	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
 	return sqrt(
@@ -39,7 +40,7 @@ inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const E
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
                                   			 Eigen::VectorXd& global_latent, Eigen::VectorXd& local_hyperparam,
-																				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
+																				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> global_id;
@@ -62,7 +63,7 @@ inline void horseshoe_mn_global_sparsity(Eigen::VectorXd& global_lev, Eigen::Vec
 // For group shrinkage
 inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
                                   Eigen::VectorXd& group_latent, double& global_lev, Eigen::VectorXd& local_hyperparam,
-																	Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
+																	Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = coef_vec.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
@@ -87,14 +88,14 @@ inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& g
 // In MCMC process of Horseshoe prior, this function generates the latent vector for local sparsity hyperparameters.
 // 
 // @param hyperparam sparsity hyperparameters vector
-inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, BHRNG& rng) {
+inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, BVHAR_BHRNG& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
 		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam[i] * hyperparam[i])), rng);
   }
 }
 // overloading
-inline void horseshoe_latent(double& latent, double& hyperparam, BHRNG& rng) {
+inline void horseshoe_latent(double& latent, double& hyperparam, BVHAR_BHRNG& rng) {
   latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
 }
 
@@ -107,7 +108,7 @@ inline void horseshoe_latent(double& latent, double& hyperparam, BHRNG& rng) {
 // @param coef_vec Coefficients vector
 // @param prior_var Variance constant of the likelihood
 inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam,
-                            				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BHRNG& rng) {
+                            				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int dim = coef_vec.size();
 	Eigen::VectorXd invgam_scl = (1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square())).cwiseInverse();
   for (int i = 0; i < dim; i++) {
@@ -116,5 +117,6 @@ inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_HS_HELPER_H

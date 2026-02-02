@@ -4,6 +4,7 @@
 #include "./minnesota.h"
 #include "../../math/random.h"
 
+namespace baecon {
 namespace bvhar {
 
 class MinnForecaster;
@@ -81,10 +82,10 @@ public:
 		}
 		// return predictive_distn;
 	}
-	LIST returnForecast() const {
-		return CREATE_LIST(
-			NAMED("posterior_mean") = pred_save,
-      NAMED("predictive") = predictive_distn
+	BVHAR_LIST returnForecast() const {
+		return BVHAR_CREATE_LIST(
+			BVHAR_NAMED("posterior_mean") = pred_save,
+      BVHAR_NAMED("predictive") = predictive_distn
 		);
 	}
 	Eigen::MatrixXd returnPoint() {
@@ -94,7 +95,7 @@ public:
 protected:
 	// MinnRecords mn_record;
 	// std::mutex mtx;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd posterior_mean;
 	Eigen::MatrixXd posterior_sig;
@@ -187,5 +188,6 @@ private:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_FORECASTER_H

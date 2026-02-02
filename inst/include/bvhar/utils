@@ -2,6 +2,7 @@
 #define BVHAR_MATH_H
 
 #include "src/core/omp.h"
+#include "src/math/optim.h"
 #include "src/math/design.h"
 #include "src/math/structural.h"
 #include "src/math/random.h"

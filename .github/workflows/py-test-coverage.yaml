@@ -10,6 +10,8 @@ jobs:
   py-test-coverage:
     runs-on: ubuntu-latest
 
+    if: ${{ !contains(github.event.head_commit.message, '[skip py]') && !contains(github.event.head_commit.message, '[only pages]') }}
+
     defaults:
       run:
         working-directory: python
@@ -35,13 +37,14 @@ jobs:
       - name: Test coverage
         run: conda run -n bvhar-dev pytest --cov=./ --cov-report=xml | tee pytest_output.txt
     
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           working-directory: python
           codecov_yml_path: ../codecov.yml
           flags: python
+          skip_validation: true
     
       - name: Show pytest output
         if: always()

@@ -6,6 +6,7 @@
 #include <set>
 #include <limits>
 
+namespace baecon {
 namespace bvhar {
 
 // Build std::set own-id and cross-id based on VectorXd
@@ -61,5 +62,6 @@ inline Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_HELPER_H_H

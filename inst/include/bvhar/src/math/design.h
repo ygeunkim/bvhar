@@ -3,6 +3,7 @@
 
 #include "../core/eigen.h"
 
+namespace baecon {
 namespace bvhar {
 
 inline Eigen::MatrixXd build_y0(const Eigen::MatrixXd& y, int var_lag, int index) {
@@ -138,5 +139,6 @@ inline Eigen::MatrixXd build_xdummy(const Eigen::VectorXd& lag_seq,
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_MATH_DESIGN_H

@@ -3,20 +3,22 @@
 
 #include "./eigen.h"
 #include "./spdlog.h"
+#include "./lbfgspp.h"
 
 namespace boost {
 
 inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
-	STOP("Boost assertion failed: %s in function %s at %s:%ld", expr, function, file, line);
+	BVHAR_STOP("Boost assertion failed: %s in function %s at %s:%ld", expr, function, file, line);
 }
 
 inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line) {
-  STOP("Boost assertion failed: %s (%s) in function %s at %s:%ld", expr, msg, function, file, line);
+  BVHAR_STOP("Boost assertion failed: %s (%s) in function %s at %s:%ld", expr, msg, function, file, line);
 }
 
 } // namespace boost
 
-#include <boost/random/mersenne_twister.hpp>
+// #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/mixmax.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
@@ -29,7 +31,7 @@ inline void assertion_failed_msg(char const * expr, char const * msg, char const
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 
-#define BHRNG boost::random::mt19937
+#define BVHAR_BHRNG boost::random::mixmax
 
 // Remove after boost upgrade including inverse_gaussian and generalized_inverse_gaussian
 // https://github.com/boostorg/random/pull/124
@@ -413,21 +415,22 @@ using random::generalized_inverse_gaussian_distribution;
 #include <optional>
 
 template <typename T>
-using Optional = std::optional<T>;
+using BVHAR_OPTIONAL = std::optional<T>;
 
-#define NULLOPT std::nullopt
+#define BVHAR_NULLOPT std::nullopt
 
 #else
 
 #include <boost/optional.hpp>
 
 template <typename T>
-using Optional = boost::optional<T>;
+using BVHAR_OPTIONAL = boost::optional<T>;
 
-#define NULLOPT boost::none
+#define BVHAR_NULLOPT boost::none
 
 #endif
 
+namespace baecon {
 namespace bvhar {
 
 using ColMajorMatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
@@ -462,16 +465,16 @@ inline double gammafn(double x) {
 
 inline double mgammafn(double x, int p) {
   if (p < 1) {
-    STOP("'p' should be larger than or same as 1.");
+    BVHAR_STOP("'p' should be larger than or same as 1.");
   }
   if (x <= 0) {
-    STOP("'x' should be larger than 0.");
+    BVHAR_STOP("'x' should be larger than 0.");
   }
   if (p == 1) {
     return gammafn(x);
   }
   if (2 * x < p) {
-    STOP("'x / 2' should be larger than 'p'.");
+    BVHAR_STOP("'x / 2' should be larger than 'p'.");
   }
   double res = pow(M_PI, p * (p - 1) / 4.0);
   for (int i = 0; i < p; i++) {
@@ -525,15 +528,15 @@ inline double lmgammafn(double x, int p) {
 // @param lg If true, return log(f)
 inline double invgamma_dens(double x, double shp, double scl, bool lg) {
   if (x < 0 ) {
-    STOP("'x' should be larger than 0.");
+    BVHAR_STOP("'x' should be larger than 0.");
   }
   if (shp <= 0 ) {
-    STOP("'shp' should be larger than 0.");
+    BVHAR_STOP("'shp' should be larger than 0.");
   }
   if (scl <= 0 ) {
-    STOP("'scl' should be larger than 0.");
+    BVHAR_STOP("'scl' should be larger than 0.");
   }
-  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / bvhar::gammafn(shp);
+  double res = pow(scl, shp) * pow(x, -shp - 1) * exp(-scl / x) / gammafn(shp);
   if (lg) {
     return log(res);
   }
@@ -549,7 +552,7 @@ inline void cut_param(double& param) {
 	}
 }
 
-#ifdef USE_RCPP
+#ifdef BVHAR_USE_RCPP
 inline double bindom_rand(int n, double prob) {
 	return Rf_rbinom(n, prob);
 }
@@ -571,43 +574,43 @@ inline double beta_rand(double s1, double s2) {
 }
 #endif
 
-inline double normal_rand(BHRNG& rng) {
+inline double normal_rand(BVHAR_BHRNG& rng) {
 	boost::random::normal_distribution<> rdist(0.0, 1.0);
 	return rdist(rng);
 }
 
-inline double chisq_rand(double df, BHRNG& rng) {
+inline double chisq_rand(double df, BVHAR_BHRNG& rng) {
 	boost::random::chi_squared_distribution<> rdist(df);
 	return rdist(rng);
 }
 
-inline double gamma_rand(double shp, double scl, BHRNG& rng) {
+inline double gamma_rand(double shp, double scl, BVHAR_BHRNG& rng) {
 	cut_param(scl);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
 
-inline double ber_rand(double prob, BHRNG& rng) {
+inline double ber_rand(double prob, BVHAR_BHRNG& rng) {
 	boost::random::bernoulli_distribution<> rdist(prob); // Bernoulli supported -> use this instead of binomial
 	return rdist(rng) * 1.0; // change to int later: now just use double to match Rf_rbinom
 }
 
-inline double unif_rand(double min, double max, BHRNG& rng) {
+inline double unif_rand(double min, double max, BVHAR_BHRNG& rng) {
 	boost::random::uniform_real_distribution<> rdist(min, max);
 	return rdist(rng);
 }
 
-inline double unif_rand(BHRNG& rng) {
+inline double unif_rand(BVHAR_BHRNG& rng) {
 	boost::random::uniform_01<> rdist;
 	return rdist(rng);
 }
 
-inline double beta_rand(double s1, double s2, BHRNG& rng) {
+inline double beta_rand(double s1, double s2, BVHAR_BHRNG& rng) {
 	boost::random::beta_distribution<> rdist(s1, s2);
 	return rdist(rng);
 }
 
-inline int cat_rand(const Eigen::VectorXd& probabilities, BHRNG& rng) {
+inline int cat_rand(const Eigen::VectorXd& probabilities, BVHAR_BHRNG& rng) {
 	boost::random::discrete_distribution<> rdist(probabilities.data(), probabilities.data() + probabilities.size());
 	return rdist(rng);
 }
@@ -633,5 +636,6 @@ inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) 
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_CORE_COMMON_H

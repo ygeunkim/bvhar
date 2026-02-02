@@ -234,7 +234,10 @@ validate_spec <- function(bayes_spec,
       )
     }
     if (is.null(bayes_spec$sigma)) {
-      bayes_spec$sigma <- apply(y, 2, sd)
+      bayes_spec$sigma <- rep(1, dim_data)
+      if (!is.null(y)) {
+        bayes_spec$sigma <- apply(y, 2, sd)
+      }
     }
     if ("delta" %in% names(bayes_spec)) {
       if (is.null(bayes_spec$delta)) {
@@ -508,6 +511,21 @@ get_exogenspec <- function(object) {
   param_prior
 }
 
+#' @noRd
+get_factorspec <- function(object) {
+  if (is.bvharspec(object$spec_factor)) {
+    param_prior <- append(object$spec_factor, list(num = object$m * object$factor_size))
+    if (object$spec_factor$hierarchical) {
+      param_prior$shape <- object$spec_factor$lambda$param[1]
+      param_prior$rate <- object$spec_factor$lambda$param[2]
+      param_prior$grid_size <- object$spec_factor$lambda$grid_size
+    }
+  } else {
+    param_prior <- object$spec_factor
+  }
+  param_prior
+}
+
 #' @noRd 
 validate_newxreg <- function(newxreg, n_ahead) {
   if (missing(newxreg) || is.null(newxreg)) {
@@ -520,6 +538,12 @@ validate_newxreg <- function(newxreg, n_ahead) {
     stop("Wrong row number of 'newxreg'")
   }
   newxreg
+}
+
+#' @noRd 
+process_predict_draws <- function(draws, n_ahead, dim_data, num_draw) {
+  unlist(draws) |> 
+    array(dim = c(n_ahead, dim_data, num_draw))
 }
 
 #' Compute Summaries from Forecast Draws
@@ -536,53 +560,43 @@ validate_newxreg <- function(newxreg, n_ahead) {
 #' @noRd 
 process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names, level = .05, roll = FALSE, med = FALSE) {
   if (roll) {
+    mcmc_distn <- lapply(
+      draws,
+      process_predict_draws,
+      n_ahead = n_ahead,
+      dim_data = dim_data,
+      num_draw = num_draw
+    )
     if (med) {
       pred_mean <-
-        draws |>
-        lapply(function(res) {
-          unlist(res) |>
-            array(dim = c(n_ahead, dim_data, num_draw)) |>
-            apply(c(1, 2), median)
-        })
+        lapply(mcmc_distn, function(x) apply(x, c(1, 2), median)) |>
+        simplify2array() |>
+        aperm(c(3, 2, 1))
     } else {
       pred_mean <-
-        draws |>
-        lapply(function(res) {
-          unlist(res) |>
-            array(dim = c(n_ahead, dim_data, num_draw)) |>
-            apply(c(1, 2), mean)
-        })
+        lapply(mcmc_distn, function(x) apply(x, c(1, 2), mean)) |>
+        simplify2array() |>
+        aperm(c(3, 2, 1))
     }
-    pred_mean <- do.call(rbind, pred_mean)
     pred_se <-
-      draws |>
-      lapply(function(res) {
-        unlist(res) |>
-          array(dim = c(n_ahead, dim_data, num_draw)) |>
-          apply(c(1, 2), sd)
-      })
-    pred_se <- do.call(rbind, pred_se)
+      lapply(mcmc_distn, function(x) apply(x, c(1, 2), sd)) |>
+      simplify2array() |>
+      aperm(c(3, 2, 1))
     pred_lower <-
-      draws |> 
-      lapply(function(res) {
-        unlist(res) |> 
-          array(dim = c(n_ahead, dim_data, num_draw)) |> 
-          apply(c(1, 2), quantile, probs = level / 2)
-      })
-    pred_lower <- do.call(rbind, pred_lower)
+      lapply(mcmc_distn, function(x) apply(x, c(1, 2), quantile, probs = level / 2)) |>
+      simplify2array() |>
+      aperm(c(3, 2, 1))
     pred_upper <-
-      draws |>
-      lapply(function(res) {
-        unlist(res) |>
-          array(dim = c(n_ahead, dim_data, num_draw)) |>
-          apply(c(1, 2), quantile, probs = 1 - level / 2)
-      })
-    pred_upper <- do.call(rbind, pred_upper)
+      lapply(mcmc_distn, function(x) apply(x, c(1, 2), quantile, probs = 1 - level / 2)) |>
+      simplify2array() |>
+      aperm(c(3, 2, 1))
   } else {
-    mcmc_distn <-
-      draws |>
-      unlist() |>
-      array(dim = c(n_ahead, dim_data, num_draw))
+    mcmc_distn <- process_predict_draws(
+      draws = draws,
+      n_ahead = n_ahead,
+      dim_data = dim_data,
+      num_draw = num_draw
+    )
     if (med) {
       pred_mean <- apply(mcmc_distn, c(1, 2), median)
     } else {
@@ -592,16 +606,20 @@ process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names
     pred_lower <- apply(mcmc_distn, c(1, 2), quantile, probs = level / 2)
     pred_upper <- apply(mcmc_distn, c(1, 2), quantile, probs = 1 - level / 2)
   }
-  colnames(pred_mean) <- var_names
-  colnames(pred_se) <- var_names
-  colnames(pred_lower) <- var_names
-  colnames(pred_upper) <- var_names
-  if (nrow(pred_mean) == ncol(pred_mean)) {
-    rownames(pred_mean) <- var_names
-    rownames(pred_se) <- var_names
-    rownames(pred_lower) <- var_names
-    rownames(pred_upper) <- var_names
-  }
+  # colnames(pred_mean) <- var_names
+  # colnames(pred_se) <- var_names
+  # colnames(pred_lower) <- var_names
+  # colnames(pred_upper) <- var_names
+  # if (nrow(pred_mean) == ncol(pred_mean)) {
+  #   rownames(pred_mean) <- var_names
+  #   rownames(pred_se) <- var_names
+  #   rownames(pred_lower) <- var_names
+  #   rownames(pred_upper) <- var_names
+  # }
+  dimnames(pred_mean)[[2]] <- var_names
+  dimnames(pred_se)[[2]] <- var_names
+  dimnames(pred_lower)[[2]] <- var_names
+  dimnames(pred_upper)[[2]] <- var_names
   list(
     mean = pred_mean,
     sd = pred_se,

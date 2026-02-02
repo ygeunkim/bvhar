@@ -23,7 +23,6 @@ bvar_minnesota(
   bayes_spec = set_bvar(),
   scale_variance = 0.05,
   include_mean = TRUE,
-  parallel = list(),
   verbose = FALSE,
   num_thread = 1
 )
@@ -62,8 +61,6 @@ is.bvarmn(x)
 \item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
-
-\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -120,13 +117,17 @@ Minnesota prior gives prior to parameters \eqn{A} (VAR matrices) and \eqn{\Sigma
 }
 \examples{
 # Perform the function using etf_vix dataset
-fit <- bvar_minnesota(y = etf_vix[,1:3], p = 2)
+\dontrun{
+fit <- bvar_minnesota(y = etf_vix[, 1:3], p = 2)
 class(fit)
+}
 
 # Extract coef, fitted values, and residuals
+\dontrun{
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
+}
 }
 \references{
 Bańbura, M., Giannone, D., & Reichlin, L. (2010). \emph{Large Bayesian vector auto regressions}. Journal of Applied Econometrics, 25(1).

@@ -3,31 +3,31 @@
 PYBIND11_MODULE(_ols, m) {
 	m.doc() = "OLS for VAR and VHAR";
 
-  // py::class_<bvhar::MultiOls>(m, "MultiOls")
+  // py::class_<baecon::bvhar::MultiOls>(m, "MultiOls")
   //   .def(py::init<const Eigen::MatrixXd&, const Eigen::MatrixXd&>())
-  //   .def("returnOlsRes", &bvhar::MultiOls::returnOlsRes);
+  //   .def("returnOlsRes", &baecon::bvhar::MultiOls::returnOlsRes);
 	
-	// py::class_<bvhar::LltOls, bvhar::MultiOls>(m, "LltOls")
+	// py::class_<baecon::bvhar::LltOls, baecon::bvhar::MultiOls>(m, "LltOls")
   //   .def(py::init<const Eigen::MatrixXd&, const Eigen::MatrixXd&>());
 	
-	// py::class_<bvhar::QrOls, bvhar::MultiOls>(m, "QrOls")
+	// py::class_<baecon::bvhar::QrOls, baecon::bvhar::MultiOls>(m, "QrOls")
   //   .def(py::init<const Eigen::MatrixXd&, const Eigen::MatrixXd&>());
 	
-	py::class_<bvhar::OlsVar>(m, "OlsVar")
+	py::class_<baecon::bvhar::OlsVar>(m, "OlsVar")
 		.def(
 			py::init<const Eigen::MatrixXd&, int, const bool, int>(),
 			py::arg("y"), py::arg("lag") = 1, py::arg("include_mean") = true, py::arg("method") = 1
 		)
-		.def("returnOlsRes", &bvhar::OlsVar::returnOlsRes);
+		.def("returnOlsRes", &baecon::bvhar::OlsVar::returnOlsRes);
 	
-	py::class_<bvhar::OlsVhar>(m, "OlsVhar")
+	py::class_<baecon::bvhar::OlsVhar>(m, "OlsVhar")
 		.def(
 			py::init<const Eigen::MatrixXd&, int, int, const bool, int>(),
 			py::arg("y"), py::arg("week") = 5, py::arg("month") = 22, py::arg("include_mean") = true, py::arg("method") = 1
 		)
-		.def("returnOlsRes", &bvhar::OlsVhar::returnOlsRes);
+		.def("returnOlsRes", &baecon::bvhar::OlsVhar::returnOlsRes);
 
-	py::class_<bvhar::OlsForecastRun>(m, "OlsForecast")
+	py::class_<baecon::bvhar::OlsForecastRun>(m, "OlsForecast")
 		.def(
 			py::init<int, int, const Eigen::MatrixXd&, const Eigen::MatrixXd&, bool>(),
 			py::arg("lag"), py::arg("step"), py::arg("response_mat"), py::arg("coef_mat"), py::arg("include_mean")
@@ -36,31 +36,31 @@ PYBIND11_MODULE(_ols, m) {
 			py::init<int, int, int, const Eigen::MatrixXd&, const Eigen::MatrixXd&, bool>(),
 			py::arg("week") = 5, py::arg("month") = 22, py::arg("step"), py::arg("response_mat"), py::arg("coef_mat"), py::arg("include_mean")
 		)
-		.def("returnForecast", &bvhar::OlsForecastRun::returnForecast);
+		.def("returnForecast", &baecon::bvhar::OlsForecastRun::returnForecast);
 	
-	py::class_<bvhar::VarOutforecastRun<bvhar::OlsRollforecastRun>>(m, "OlsVarRoll")
+	py::class_<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(m, "OlsVarRoll")
 		.def(py::init<const Eigen::MatrixXd&, int, bool, int, const Eigen::MatrixXd&, int, int>())
-		.def("returnForecast", &bvhar::VarOutforecastRun<bvhar::OlsRollforecastRun>::returnForecast);
+		.def("returnForecast", &baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsRollforecastRun>::returnForecast);
 	
-	py::class_<bvhar::VarOutforecastRun<bvhar::OlsExpandforecastRun>>(m, "OlsVarExpand")
+	py::class_<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(m, "OlsVarExpand")
 		.def(py::init<const Eigen::MatrixXd&, int, bool, int, const Eigen::MatrixXd&, int, int>())
-		.def("returnForecast", &bvhar::VarOutforecastRun<bvhar::OlsExpandforecastRun>::returnForecast);
+		.def("returnForecast", &baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsExpandforecastRun>::returnForecast);
 	
-	py::class_<bvhar::VharOutforecastRun<bvhar::OlsRollforecastRun>>(m, "OlsVharRoll")
+	py::class_<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(m, "OlsVharRoll")
 		.def(py::init<const Eigen::MatrixXd&, int, int, bool, int, const Eigen::MatrixXd&, int, int>())
-		.def("returnForecast", &bvhar::VharOutforecastRun<bvhar::OlsRollforecastRun>::returnForecast);
+		.def("returnForecast", &baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsRollforecastRun>::returnForecast);
 	
-	py::class_<bvhar::VharOutforecastRun<bvhar::OlsExpandforecastRun>>(m, "OlsVharExpand")
+	py::class_<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(m, "OlsVharExpand")
 		.def(py::init<const Eigen::MatrixXd&, int, int, bool, int, const Eigen::MatrixXd&, int, int>())
-		.def("returnForecast", &bvhar::VharOutforecastRun<bvhar::OlsExpandforecastRun>::returnForecast);
+		.def("returnForecast", &baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsExpandforecastRun>::returnForecast);
 
-	py::class_<bvhar::OlsSpilloverRun>(m, "OlsSpillover")
+	py::class_<baecon::bvhar::OlsSpilloverRun>(m, "OlsSpillover")
 		.def(py::init<int, int, const Eigen::MatrixXd&, const Eigen::MatrixXd&>())
 		.def(py::init<int, int, int, const Eigen::MatrixXd&, const Eigen::MatrixXd&>())
-		.def("returnSpillover", &bvhar::OlsSpilloverRun::returnSpillover);
+		.def("returnSpillover", &baecon::bvhar::OlsSpilloverRun::returnSpillover);
 	
-	py::class_<bvhar::OlsDynamicSpillover>(m, "OlsDynamicSpillover")
+	py::class_<baecon::bvhar::OlsDynamicSpillover>(m, "OlsDynamicSpillover")
 		.def(py::init<const Eigen::MatrixXd&, int, int, int, bool, int, int>())
 		.def(py::init<const Eigen::MatrixXd&, int, int, int, bool, int, int, int>())
-		.def("returnSpillover", &bvhar::OlsDynamicSpillover::returnSpillover);
+		.def("returnSpillover", &baecon::bvhar::OlsDynamicSpillover::returnSpillover);
 }

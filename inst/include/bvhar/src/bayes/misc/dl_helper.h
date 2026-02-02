@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating Latent Scaling Factor of Dirichlet-Laplace Prior
@@ -13,15 +14,15 @@ namespace bvhar {
 // @param coef_vec Coefficients vector
 // @param rng boost rng
 inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::VectorXd> local_param,
-									 		Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
+									 		Eigen::Ref<Eigen::VectorXd> coef_vec, BVHAR_BHRNG& rng) {
 	// int num_alpha = latent_param.size();
 	for (int i = 0; i < latent_param.size(); ++i) {
 		// latent_param[i] = sim_gig(
 		// 	1, .5,
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
-		// latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
-		latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		// latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
 		cut_param(latent_param[i]);
 	}
@@ -34,7 +35,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 // @param coef Coefficients vector
 // @param rng boost rng
 inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
-															Eigen::Ref<const Eigen::VectorXd> coef, BHRNG& rng) {
+															Eigen::Ref<const Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(dir_concen - 1, 1, 2 * abs(coef[i]), rng);
 		cut_param(local_param[i]);
@@ -50,7 +51,7 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 // @param coef Coefficients vector
 // @param rng boost rng
 inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& dir_concen,
-										 						 Eigen::Ref<Eigen::VectorXd> coef, BHRNG& rng) {
+										 						 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 	double tau = sim_gig(coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng);
 	cut_param(tau);
@@ -66,7 +67,7 @@ inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 // @param rng boost rng
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 double& global_param, Eigen::VectorXd& local_param, double& shape, double& rate,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, BVHAR_BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
   for (int i = 0; i < grp_id.size(); i++) {
@@ -95,7 +96,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
 													 double& shape, double& rate,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, BHRNG& rng) {
+													 Eigen::Ref<Eigen::VectorXd> coef_vec, BVHAR_BHRNG& rng) {
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
   for (int i = 0; i < grp_id.size(); i++) {
@@ -136,7 +137,7 @@ inline double dl_logdens_dir(double cand, Eigen::Ref<Eigen::VectorXd> local_para
 // @param grid_size Grid size
 // @param local_param Local shrinkage
 // @param global_param Global shrinkage
-inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, BHRNG& rng) {
+inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::VectorXd> local_param, double global_param, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = 1 / local_param.size() < .5 ? Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), .5) : Eigen::VectorXd::LinSpaced(grid_size, .5, 1 / local_param.size());
 	// Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size, 1 / local_param.size(), 1);
 	Eigen::VectorXd log_wt(grid_size);
@@ -149,5 +150,6 @@ inline void dl_dir_griddy(double& dir_concen, int grid_size, Eigen::Ref<Eigen::V
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_DL_HELPER_H

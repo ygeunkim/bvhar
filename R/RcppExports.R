@@ -31,8 +31,8 @@ estimate_bvhar_mn <- function(y, week, month, bayes_spec, include_mean) {
 }
 
 #' @noRd
-estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, seed_chain, display_progress, nthreads)
+estimate_bvar_mh <- function(num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, lower, upper, lag, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_bvar_mh`, num_chains, num_iter, num_burn, thin, x, y, x_dummy, y_dummy, param_prior, param_init, lower, upper, lag, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' BVAR(p) Point Estimates based on Nonhierarchical Matrix Normal Prior
@@ -368,6 +368,43 @@ infer_vhar <- function(object) {
     .Call(`_bvhar_infer_vhar`, object)
 }
 
+#' Generate Multivariate Time Series Process Following VAR(p)
+#' 
+#' This function generates multivariate time series dataset that follows VAR(p).
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
+#' @param var_lag Lag of VAR
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_var_process <- function(num_sim, num_burn, var_coef, var_lag, sig_error, mvt_df, init, process, method, seed) {
+    .Call(`_bvhar_sim_var_process`, num_sim, num_burn, var_coef, var_lag, sig_error, mvt_df, init, process, method, seed)
+}
+
+#' Generate Multivariate Time Series Process Following VHAR
+#' 
+#' This function generates multivariate time series dataset that follows VHAR.
+#' 
+#' @param num_sim Number to generated process
+#' @param num_burn Number of burn-in
+#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+#' @param week Order for weekly term. Try `5L` by default.
+#' @param month Order for monthly term. Try `22L` by default.
+#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+#' @param process Process type. 1: Gaussian. 2: student-t.
+#' @param mvt_df DF of MVT
+#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+#' @noRd
+sim_vhar_process <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, mvt_df, init, process, method, seed) {
+    .Call(`_bvhar_sim_vhar_process`, num_sim, num_burn, vhar_coef, week, month, sig_error, mvt_df, init, process, method, seed)
+}
+
 #' Forecasting Vector Autoregression
 #' 
 #' @param object A `varlse` object
@@ -556,8 +593,8 @@ dynamic_vhar_spillover <- function(y, window, step, week, month, include_mean, m
 #' @param nthreads Number of threads for openmp
 #' 
 #' @noRd
-estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, exogen_prior, exogen_init, exogen_prior_type, exogen_cols, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
-    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, exogen_prior, exogen_init, exogen_prior_type, exogen_cols, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
+estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, exogen_prior, exogen_init, exogen_prior_type, exogen_cols, factor_prior, factor_init, factor_prior_type, size_factor, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads) {
+    .Call(`_bvhar_estimate_sur`, num_chains, num_iter, num_burn, thin, x, y, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, exogen_prior, exogen_init, exogen_prior_type, exogen_cols, factor_prior, factor_init, factor_prior_type, size_factor, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, display_progress, nthreads)
 }
 
 #' Forecasting predictive density of BVAR
@@ -577,13 +614,13 @@ estimate_sur <- function(num_chains, num_iter, num_burn, thin, x, y, param_reg, 
 #' @param nthreads OpenMP number of threads
 #' 
 #' @noRd
-forecast_bvarldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvarldlt <- function(num_chains, var_lag, step, response_mat, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarldlt`, num_chains, var_lag, step, response_mat, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvarxldlt <- function(num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxldlt`, num_chains, var_lag, step, response_mat, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvarxldlt <- function(num_chains, var_lag, step, response_mat, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarxldlt`, num_chains, var_lag, step, response_mat, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Forecasting Predictive Density of BVHAR
@@ -604,13 +641,13 @@ forecast_bvarxldlt <- function(num_chains, var_lag, step, response_mat, sparse, 
 #' @param nthreads OpenMP number of threads 
 #'
 #' @noRd
-forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvharldlt <- function(num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharldlt`, num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvharxldlt <- function(num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxldlt`, num_chains, month, step, response_mat, HARtrans, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvharxldlt <- function(num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharxldlt`, num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -640,13 +677,13 @@ forecast_bvharxldlt <- function(num_chains, month, step, response_mat, HARtrans,
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_roll_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
+roll_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_roll_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
 }
 
 #' @noRd
-roll_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_roll_bvarxldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+roll_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_roll_bvarxldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -676,13 +713,13 @@ roll_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, spa
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_roll_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
+roll_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_roll_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
 }
 
 #' @noRd
-roll_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_roll_bvharxldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+roll_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_roll_bvharxldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
 #' Forecasting predictive density of VAR-SV
@@ -702,13 +739,13 @@ roll_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thin
 #' @param nthreads OpenMP number of threads
 #' 
 #' @noRd
-forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvarsv <- function(num_chains, var_lag, step, response_mat, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarsv`, num_chains, var_lag, step, response_mat, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvarxsv <- function(num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvarxsv`, num_chains, var_lag, step, response_mat, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
+forecast_bvarxsv <- function(num_chains, var_lag, step, response_mat, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvarxsv`, num_chains, var_lag, step, response_mat, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Forecasting Predictive Density of VHAR-SV
@@ -729,49 +766,13 @@ forecast_bvarxsv <- function(num_chains, var_lag, step, response_mat, sv, sparse
 #' @param nthreads OpenMP number of threads 
 #'
 #' @noRd
-forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads)
+forecast_bvharsv <- function(num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharsv`, num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, stable, nthreads, insample)
 }
 
 #' @noRd
-forecast_bvharxsv <- function(num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads) {
-    .Call(`_bvhar_forecast_bvharxsv`, num_chains, month, step, response_mat, HARtrans, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads)
-}
-
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVAR-SV.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param lag VAR order
-#' @param num_chains Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thinning Thinning
-#' @param param_sv SV specification list
-#' @param param_prior Prior specification list
-#' @param param_intercept Intercept specification list
-#' @param param_init Initialization specification list
-#' @param get_lpl Compute LPL
-#' @param seed_chain Seed for each window and chain in the form of matrix
-#' @param seed_forecast Seed for each window forecast
-#' @param nthreads Number of threads for openmp
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param include_mean Constant term
-#' @param stable Filter stable draws
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' @param nthreads Number of threads
-#' 
-#' @noRd
-roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
-}
-
-#' @noRd
-roll_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_roll_bvarxsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+forecast_bvharxsv <- function(num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample) {
+    .Call(`_bvhar_forecast_bvharxsv`, num_chains, month, step, response_mat, HARtrans, size_factor, factor_lag, sv, sparse, level, fit_record, seed_chain, include_mean, exogen, exogen_lag, stable, nthreads, insample)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -801,49 +802,13 @@ roll_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, s
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
+roll_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_roll_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
 }
 
 #' @noRd
-roll_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_roll_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
-}
-
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVAR-SV.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param lag VAR order
-#' @param num_chains Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thinning Thinning
-#' @param param_sv SV specification list
-#' @param param_prior Prior specification list
-#' @param param_intercept Intercept specification list
-#' @param param_init Initialization specification list
-#' @param get_lpl Compute LPL
-#' @param seed_chain Seed for each window and chain in the form of matrix
-#' @param seed_forecast Seed for each window forecast
-#' @param nthreads Number of threads for openmp
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param include_mean Constant term
-#' @param stable Filter stable draws
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' @param nthreads Number of threads
-#' 
-#' @noRd
-expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_expand_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
-}
-
-#' @noRd
-expand_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_expand_bvarxldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+roll_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_roll_bvarxsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -873,49 +838,13 @@ expand_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, s
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
+roll_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_roll_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
 }
 
 #' @noRd
-expand_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_expand_bvharxldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
-}
-
-#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
-#' 
-#' This function conducts an rolling window forecasting of BVAR-SV.
-#' 
-#' @param y Time series data of which columns indicate the variables
-#' @param lag VAR order
-#' @param num_chains Number of MCMC chains
-#' @param num_iter Number of iteration for MCMC
-#' @param num_burn Number of burn-in (warm-up) for MCMC
-#' @param thinning Thinning
-#' @param param_sv SV specification list
-#' @param param_prior Prior specification list
-#' @param param_intercept Intercept specification list
-#' @param param_init Initialization specification list
-#' @param get_lpl Compute LPL
-#' @param seed_chain Seed for each window and chain in the form of matrix
-#' @param seed_forecast Seed for each window forecast
-#' @param nthreads Number of threads for openmp
-#' @param grp_id Unique group id
-#' @param grp_mat Group matrix
-#' @param include_mean Constant term
-#' @param stable Filter stable draws
-#' @param step Integer, Step to forecast
-#' @param y_test Evaluation time series data period after `y`
-#' @param nthreads Number of threads
-#' 
-#' @noRd
-expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
-}
-
-#' @noRd
-expand_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_expand_bvarxsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+roll_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_roll_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
 #' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
@@ -945,13 +874,121 @@ expand_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv,
 #' @param nthreads Number of threads
 #' 
 #' @noRd
-expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads) {
-    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads)
+expand_bvarldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_expand_bvarldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
 }
 
 #' @noRd
-expand_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
-    .Call(`_bvhar_expand_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+expand_bvarxldlt <- function(y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_expand_bvarxldlt`, y, lag, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param stable Filter stable draws
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' 
+#' @noRd
+expand_bvharldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_expand_bvharldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
+}
+
+#' @noRd
+expand_bvharxldlt <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_expand_bvharxldlt`, y, week, month, num_chains, num_iter, num_burn, thinning, sparse, level, fit_record, run_mcmc, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param stable Filter stable draws
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' 
+#' @noRd
+expand_bvarsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_expand_bvarsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
+}
+
+#' @noRd
+expand_bvarxsv <- function(y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_expand_bvarxsv`, y, lag, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
+}
+
+#' Out-of-Sample Forecasting of VAR-SV based on Rolling Window
+#' 
+#' This function conducts an rolling window forecasting of BVAR-SV.
+#' 
+#' @param y Time series data of which columns indicate the variables
+#' @param lag VAR order
+#' @param num_chains Number of MCMC chains
+#' @param num_iter Number of iteration for MCMC
+#' @param num_burn Number of burn-in (warm-up) for MCMC
+#' @param thinning Thinning
+#' @param param_sv SV specification list
+#' @param param_prior Prior specification list
+#' @param param_intercept Intercept specification list
+#' @param param_init Initialization specification list
+#' @param get_lpl Compute LPL
+#' @param seed_chain Seed for each window and chain in the form of matrix
+#' @param seed_forecast Seed for each window forecast
+#' @param nthreads Number of threads for openmp
+#' @param grp_id Unique group id
+#' @param grp_mat Group matrix
+#' @param include_mean Constant term
+#' @param stable Filter stable draws
+#' @param step Integer, Step to forecast
+#' @param y_test Evaluation time series data period after `y`
+#' @param nthreads Number of threads
+#' 
+#' @noRd
+expand_bvharsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads) {
+    .Call(`_bvhar_expand_bvharsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads)
+}
+
+#' @noRd
+expand_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type) {
+    .Call(`_bvhar_expand_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
 compute_varldlt_spillover <- function(lag, step, fit_record, sparse) {
@@ -1163,8 +1200,8 @@ minnesota_prior <- function(x_dummy, y_dummy) {
 #' @param mu Mean vector
 #' @param sig Variance matrix
 #' @noRd
-sim_mgaussian <- function(num_sim, mu, sig) {
-    .Call(`_bvhar_sim_mgaussian`, num_sim, mu, sig)
+sim_mgaussian_export <- function(num_sim, mu, sig) {
+    .Call(`_bvhar_sim_mgaussian_export`, num_sim, mu, sig)
 }
 
 #' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -1193,8 +1230,8 @@ sim_mgaussian_chol_export <- function(num_sim, mu, sig) {
 #' @param method Method to compute \eqn{\Sigma^{1/2}}. 1: spectral decomposition, 2: Cholesky.
 #' 
 #' @noRd
-sim_mstudent <- function(num_sim, df, mu, sig, method) {
-    .Call(`_bvhar_sim_mstudent`, num_sim, df, mu, sig, method)
+sim_mstudent_export <- function(num_sim, df, mu, sig, method) {
+    .Call(`_bvhar_sim_mstudent_export`, num_sim, df, mu, sig, method)
 }
 
 #' Generate Matrix Normal Random Matrix
@@ -1253,88 +1290,6 @@ sim_iw <- function(mat_scale, shape) {
 #' @noRd
 sim_mniw_export <- function(num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec) {
     .Call(`_bvhar_sim_mniw_export`, num_sim, mat_mean, mat_scale_u, mat_scale, shape, prec)
-}
-
-#' Generate Multivariate Time Series Process Following VAR(p)
-#' 
-#' This function generates multivariate time series dataset that follows VAR(p).
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-#' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_var_eigen <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_var_eigen`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
-#' 
-#' This function generates VAR(p) using Cholesky Decomposition.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-#' @param var_lag Lag of VAR
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_var_chol <- function(num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_var_chol`, num_sim, num_burn, var_coef, var_lag, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VHAR
-#' 
-#' This function generates multivariate time series dataset that follows VHAR.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-#' @param week Order for weekly term. Try `5L` by default.
-#' @param month Order for monthly term. Try `22L` by default.
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_vhar_eigen <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_vhar_eigen`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
-}
-
-#' Generate Multivariate Time Series Process Following VHAR using Cholesky Decomposition
-#' 
-#' This function generates multivariate time series dataset that follows VHAR.
-#' 
-#' @param num_sim Number to generated process
-#' @param num_burn Number of burn-in
-#' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-#' @param week Order for weekly term. Try `5L` by default.
-#' @param month Order for monthly term. Try `22L` by default.
-#' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-#' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-#' @param process Process type. 1: Gaussian. 2: student-t.
-#' @param mvt_df DF of MVT
-#' @details
-#' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
-#' 
-#' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-#' 2. For i = 1, ... n,
-#' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
-#' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
-#' 
-#' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-#' @noRd
-sim_vhar_chol <- function(num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df) {
-    .Call(`_bvhar_sim_vhar_chol`, num_sim, num_burn, vhar_coef, week, month, sig_error, init, process, mvt_df)
 }
 
 #' @noRd
@@ -1473,7 +1428,7 @@ VHARcoeftoVMA_ortho <- function(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, m
 
 #' h-step ahead Forecast Error Variance Decomposition
 #' 
-#' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+#' (w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...)
 #'
 #' @noRd
 compute_fevd <- function(vma_coef, cov_mat, normalize) {

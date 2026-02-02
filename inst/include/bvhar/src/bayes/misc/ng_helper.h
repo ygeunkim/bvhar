@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating local shrinkage of Normal-Gamma prior
@@ -14,7 +15,7 @@ namespace bvhar {
 // @param rng boost rng
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
-										 					BHRNG& rng) {
+										 					BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
 			shape - .5,
@@ -27,7 +28,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 // overloading
 inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
-										 					BHRNG& rng) {
+										 					BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sqrt(sim_gig(
 			shape[i] - .5,
@@ -46,7 +47,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 // @param coef Coefficients vector
 // @param rng boost rng
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, double& hyper_gamma,
-																 double& shape, double& scl, BHRNG& rng) {
+																 double& shape, double& scl, BVHAR_BHRNG& rng) {
 	// return sqrt(1 / gamma_rand(
 	// 	shape + local_param.size() * hyper_gamma,
 	// 	1 / (hyper_gamma * local_param.squaredNorm() + scl),
@@ -62,7 +63,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 }
 // overloading
 inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, Eigen::VectorXd& hyper_gamma,
-																 double& shape, double& scl, BHRNG& rng) {
+																 double& shape, double& scl, BVHAR_BHRNG& rng) {
 	// return sqrt(1 / gamma_rand(
 	// 	shape + hyper_gamma.sum(),
 	// 	1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
@@ -83,7 +84,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 // @param grp_id Unique group id
 inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
 													 Eigen::VectorXd& hyper_gamma, double& global_param, Eigen::VectorXd& local_param, double& shape, double& scl,
-													 BHRNG& rng) {
+													 BVHAR_BHRNG& rng) {
   int num_grp = grp_id.size();
   int num_coef = local_param.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
@@ -104,7 +105,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 
 // MH for shape parameter of Normal-Gamma Prior
 inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
-														double global_param, double lognormal_sd, BHRNG& rng) {
+														double global_param, double lognormal_sd, BVHAR_BHRNG& rng) {
   int num_coef = local_param.size();
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
@@ -128,7 +129,7 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 // 
 inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& local_param,
 														 Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-														 double& global_param, double lognormal_sd, BHRNG& rng) {
+														 double& global_param, double lognormal_sd, BVHAR_BHRNG& rng) {
   int num_coef = local_param.size();
 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
   int mn_size = 0;
@@ -147,5 +148,6 @@ inline void ng_mn_shape_jump(Eigen::VectorXd& gamma_hyper, Eigen::VectorXd& loca
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_NG_HELPER_H

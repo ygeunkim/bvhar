@@ -13,6 +13,7 @@ vhar_bayes(
   har = c(5, 22),
   exogen = NULL,
   s = 0,
+  factor_spec = set_factor(),
   num_chains = 1,
   num_iter = 1000,
   num_burn = floor(num_iter/2),
@@ -22,6 +23,7 @@ vhar_bayes(
   cov_spec = set_ldlt(),
   intercept = set_intercept(),
   exogen_spec = coef_spec,
+  loading_spec = coef_spec,
   include_mean = TRUE,
   minnesota = c("longrun", "short", "no"),
   ggl = TRUE,
@@ -48,6 +50,8 @@ vhar_bayes(
 
 \item{s}{Lag of exogeneous variables in VARX(p, s). By default, \code{s = 0}.}
 
+\item{factor_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Factor augmentation specification by \code{\link[=set_factor]{set_factor()}}.}
+
 \item{num_chains}{Number of MCMC chains}
 
 \item{num_iter}{MCMC iteration number}
@@ -65,6 +69,8 @@ vhar_bayes(
 \item{intercept}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Prior for the constant term by \code{\link[=set_intercept]{set_intercept()}}.}
 
 \item{exogen_spec}{Exogenous coefficient prior specification.}
+
+\item{loading_spec}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Factor loading prior specification.}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
 

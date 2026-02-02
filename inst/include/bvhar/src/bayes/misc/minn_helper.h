@@ -4,6 +4,7 @@
 #include "./helper.h"
 #include <set>
 
+namespace baecon {
 namespace bvhar {
 
 // Numerically Stable Log Marginal Likelihood Excluding Constant Term
@@ -81,7 +82,7 @@ inline double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invga
 // @param rng boost rng
 inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen::Ref<Eigen::VectorXd> coef,
 														 Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-														 BHRNG& rng) {
+														 BVHAR_BHRNG& rng) {
 	coef_prec.array() *= lambda;
 	// double gig_chi = (coef - coef_mean).squaredNorm();
 	double gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();
@@ -125,7 +126,7 @@ inline double minnesota_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> co
 
 inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::VectorXd> coef,
 																Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, BHRNG& rng) {
+																Eigen::VectorXi& grp_vec, std::set<int>& grp_id, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	double old_nu = nu;
@@ -144,7 +145,7 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 
 inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::VectorXd> coef,
 																Eigen::Ref<Eigen::VectorXd> coef_mean, Eigen::Ref<Eigen::VectorXd> coef_prec,
-																Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, BHRNG& rng) {
+																Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	double old_nu = nu;
@@ -167,5 +168,6 @@ inline void minnesota_nu_griddy(double& nu, int grid_size, Eigen::Ref<Eigen::Vec
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_MINN_HELPER_H_H

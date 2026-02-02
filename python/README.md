@@ -49,21 +49,3 @@ Develop branch:
 ``` bash
 python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
 ```
-
-### Eigen and boost usage
-
-`bvhar` uses Eigen, boost, and spdlog headers in C++ sources. If you use
-`eigen`, `libboost-headers`, and `spdlog` in conda with the conda
-environment, you don’t have to take care of them.
-
-``` bash
-conda env create -f requirements/environment.yml
-conda activate bvhar-env
-```
-
-Otherwise, you should set their paths by yourself; at this stage.
-
-- `EIGEN_INCLUDE_DIR`: Eigen path that includes the eigen headers
-- `BOOST_INCLUDE_DIR`: boost path that includes the boost headers
-- `SPDLOG_INCLUDE_DIR`: spdlog path that includes the spdlog headers
-- `FMT_INCLUDE_DIR`: fmt path that includes the fmt headers

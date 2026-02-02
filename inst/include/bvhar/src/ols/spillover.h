@@ -4,6 +4,7 @@
 #include "./ols.h"
 #include "../math/structural.h"
 
+namespace baecon {
 namespace bvhar {
 
 // class OlsSpillover;
@@ -44,15 +45,15 @@ public:
 		net_spillover = compute_net(spillover);
 	}
 
-	LIST returnSpilloverResult() {
+	BVHAR_LIST returnSpilloverResult() {
 		computeSpillover();
-		LIST res = CREATE_LIST(
-			NAMED("connect") = spillover,
-			NAMED("to") = to_spillover,
-			NAMED("from") = from_spillover,
-			NAMED("tot") = tot_spillover,
-			NAMED("net") = to_spillover - from_spillover,
-			NAMED("net_pairwise") = net_spillover
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("connect") = spillover,
+			BVHAR_NAMED("to") = to_spillover,
+			BVHAR_NAMED("from") = from_spillover,
+			BVHAR_NAMED("tot") = tot_spillover,
+			BVHAR_NAMED("net") = to_spillover - from_spillover,
+			BVHAR_NAMED("net_pairwise") = net_spillover
 		);
 		return res;
 	}
@@ -105,7 +106,7 @@ private:
 
 inline std::unique_ptr<OlsVarSpillover> initialize_olsspillover(
 	const Eigen::MatrixXd& coef_mat, int lag, const Eigen::MatrixXd& cov_mat, int step,
-	Optional<int> week = NULLOPT
+	BVHAR_OPTIONAL<int> week = BVHAR_NULLOPT
 ) {
 	StructuralFit fit(coef_mat, lag, cov_mat);
 	std::unique_ptr<OlsVarSpillover> spillvoer_ptr;
@@ -117,7 +118,7 @@ inline std::unique_ptr<OlsVarSpillover> initialize_olsspillover(
 	return spillvoer_ptr;
 }
 
-inline std::unique_ptr<OlsVarSpillover> initialize_olsspillover(const StructuralFit& fit, int step, Optional<int> week = NULLOPT) {
+inline std::unique_ptr<OlsVarSpillover> initialize_olsspillover(const StructuralFit& fit, int step, BVHAR_OPTIONAL<int> week = BVHAR_NULLOPT) {
 	std::unique_ptr<OlsVarSpillover> spillvoer_ptr;
 	if (week) {
 		spillvoer_ptr = std::make_unique<OlsVharSpillover>(fit, *week, step);
@@ -134,7 +135,7 @@ public:
 	OlsSpilloverRun(int week, int month, int step, const Eigen::MatrixXd& coef_mat, const Eigen::MatrixXd& cov_mat)
 	: spillover_ptr(initialize_olsspillover(coef_mat, month, cov_mat, step, week)) {}
 	virtual ~OlsSpilloverRun() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		return spillover_ptr->returnSpilloverResult();
 	}
 	
@@ -146,7 +147,7 @@ class OlsDynamicSpillover {
 public:
 	OlsDynamicSpillover(
 		const Eigen::MatrixXd& y, int window, int step, int lag, bool include_mean, int method, int nthreads,
-		Optional<int> week = NULLOPT
+		BVHAR_OPTIONAL<int> week = BVHAR_NULLOPT
 	)
 	: num_horizon(y.rows() - window + 1), win_size(window), lag(lag), step(step), nthreads(nthreads),
 		ols_ptr(num_horizon), spillover(num_horizon),
@@ -167,13 +168,13 @@ public:
 		}
 	}
 	virtual ~OlsDynamicSpillover() = default;
-	LIST returnSpillover() {
+	BVHAR_LIST returnSpillover() {
 		fit();
-		LIST res = CREATE_LIST(
-			NAMED("to") = to_sp,
-			NAMED("from") = from_sp,
-			NAMED("tot") = tot,
-			NAMED("net") = to_sp - from_sp
+		BVHAR_LIST res = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("to") = to_sp,
+			BVHAR_NAMED("from") = from_sp,
+			BVHAR_NAMED("tot") = tot,
+			BVHAR_NAMED("net") = to_sp - from_sp
 		);
 		return res;
 	}
@@ -185,7 +186,7 @@ private:
 	std::vector<std::unique_ptr<OlsVarSpillover>> spillover;
 	Eigen::VectorXd tot;
 	Eigen::MatrixXd to_sp, from_sp;
-	Optional<int> har_week;
+	BVHAR_OPTIONAL<int> har_week;
 
 	void getSpillover(int window) {
 		StructuralFit ols_fit = ols_ptr[window]->returnStructuralFit();
@@ -208,6 +209,7 @@ private:
 	}
 };
 
-}; // namespace bvhar
+} // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_OLS_SPILLOVER_H

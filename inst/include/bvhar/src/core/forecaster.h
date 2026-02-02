@@ -4,11 +4,13 @@
 #include "./common.h"
 #include "./omp.h"
 
+namespace baecon {
 namespace bvhar {
 
 template <typename ReturnType, typename DataType> class MultistepForecaster;
 template <typename ReturnType, typename DataType> class MultistepForecastRun;
 template <typename ReturnType, typename DataType> class ExogenForecaster;
+template <typename ReturnType, typename DataType> class AutoregGenerator;
 
 /**
  * @brief Base class for Recursive multi-step forecasting
@@ -121,6 +123,12 @@ public:
 	 */
 	virtual void forecast() {}
 
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 */
+	virtual void predict() {}
+
 protected:
 	std::shared_ptr<spdlog::logger> debug_logger;
 };
@@ -145,6 +153,14 @@ public:
 	}
 	virtual ~ExogenForecaster() = default;
 
+	int getLag() {
+		return lag;
+	}
+
+	ReturnType getExogen() {
+		return exogen;
+	}
+
 	/**
 	 * @brief Add point forecast by exogenous terms
 	 * 
@@ -160,6 +176,41 @@ protected:
 	std::shared_ptr<spdlog::logger> debug_logger;
 };
 
+/**
+ * @brief Base class for DGP feature in forecaster classes
+ * 
+ * @tparam ReturnType 
+ * @tparam DataType 
+ */
+template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
+class AutoregGenerator {
+public:
+	AutoregGenerator() : debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
+		BVHAR_INIT_DEBUG(debug_logger);
+    BVHAR_DEBUG_LOG(debug_logger, "Default Constructor");
+	}
+	AutoregGenerator(unsigned int seed)
+	: rng(seed), debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
+		BVHAR_INIT_DEBUG(debug_logger);
+    BVHAR_DEBUG_LOG(debug_logger, "Constructor: seed={}", seed);
+	}
+	virtual ~AutoregGenerator() = default;
+
+	/**
+	 * @brief Add error term to point forecast
+	 * 
+	 * @param point_forecast 
+	 * @param h 
+	 */
+	virtual void appendError(DataType& point_forecast) {}
+
+protected:
+	BVHAR_BHRNG rng;
+	DataType error_term;
+	std::shared_ptr<spdlog::logger> debug_logger;
+};
+
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_CORE_FORECASTER_H

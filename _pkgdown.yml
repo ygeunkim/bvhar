@@ -56,6 +56,7 @@ reference:
   - set_gdp
   - set_ldlt
   - set_sv
+  - set_factor
   - set_intercept
 
 - title: Bayesian modeling
@@ -70,20 +71,14 @@ reference:
   - summary.normaliw
   - summary.bvharsp
 
-# - title: Deprecated
-#   desc: >
-#     Deprecated functions that will be removed soon
-#   contents:
-#   - bvar_sv
-#   - bvar_ssvs
-#   - bvar_horseshoe
-#   - bvhar_sv
-#   - bvhar_ssvs
-#   - bvhar_horseshoe
-#   - init_ssvs
-#   - choose_ssvs
-#   - sim_ssvs_var
-#   - sim_horseshoe_var
+- title: Deprecated
+  desc: >
+    Deprecated functions that will be removed soon
+  contents:
+  - choose_bvar
+  - choose_bvhar
+  - bound_bvhar
+  - choose_bayes
 
 - title: Forecasting
   desc: ~
@@ -123,23 +118,28 @@ reference:
   - fromse
   - spne
   - relspne
-
-- title: Tuning
-  desc: ~
-  contents:
   - compute_logml
-  - choose_bvar
-  - choose_bvhar
-  - bound_bvhar
-  - choose_bayes
-
-- title: Information criteria
-  desc: ~
-  contents:
   - FPE
   - HQ
   - choose_var
   - compute_dic
+
+# - title: Tuning
+#   desc: ~
+#   contents:
+#   - compute_logml
+#   - choose_bvar
+#   - choose_bvhar
+#   - bound_bvhar
+#   - choose_bayes
+
+# - title: Information criteria
+#   desc: ~
+#   contents:
+#   - FPE
+#   - HQ
+#   - choose_var
+#   - compute_dic
 
 - title: Plots
   desc: ~
@@ -184,7 +184,8 @@ reference:
 navbar:
   structure:
     left: [intro, reference, articles, tutorials, news, publication, research, accepted]
-    right: [github, goback]
+    # right: [github, goback]
+    right: [github]
   components:
     publication:
       icon: fa-newspaper
@@ -196,11 +197,11 @@ navbar:
       href: https://github.com/ygeunkim/paper-bvhar
       aria-label: Reproducible code
       text: Reproducible code
-    goback:
-      icon: fa-home
-      href: /software/
-      aria-label: Back to the page
-      text: Go back to the Software page
+    # goback:
+    #   icon: fa-home
+    #   href: /software/
+    #   aria-label: Back to the page
+    #   text: Go back to the Software page
 
 news:
   releases:
@@ -230,3 +231,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.2.2
   - text: "Version 2.3.0"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.3.0
+  - text: "Version 2.4.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.4.0

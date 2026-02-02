@@ -23,7 +23,6 @@ bvhar_minnesota(
   bayes_spec = set_bvhar(),
   scale_variance = 0.05,
   include_mean = TRUE,
-  parallel = list(),
   verbose = FALSE,
   num_thread = 1
 )
@@ -62,8 +61,6 @@ is.bvharmn(x)
 \item{scale_variance}{Proposal distribution scaling constant to adjust an acceptance rate}
 
 \item{include_mean}{Add constant term (Default: \code{TRUE}) or not (\code{FALSE})}
-
-\item{parallel}{List the same argument of \code{\link[optimParallel:optimParallel]{optimParallel::optimParallel()}}. By default, this is empty, and the function does not execute parallel computation.}
 
 \item{verbose}{Print the progress bar in the console. By default, \code{FALSE}.}
 
@@ -129,13 +126,17 @@ There are two types of Minnesota priors for BVHAR:
 }
 \examples{
 # Perform the function using etf_vix dataset
-fit <- bvhar_minnesota(y = etf_vix[,1:3])
+\dontrun{
+fit <- bvhar_minnesota(y = etf_vix[, 1:3])
 class(fit)
+}
 
 # Extract coef, fitted values, and residuals
+\dontrun{
 coef(fit)
 head(residuals(fit))
 head(fitted(fit))
+}
 }
 \references{
 Kim, Y. G., and Baek, C. (2024). \emph{Bayesian vector heterogeneous autoregressive modeling}. Journal of Statistical Computation and Simulation, 94(6), 1139-1157.

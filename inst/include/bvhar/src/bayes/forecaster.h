@@ -4,12 +4,13 @@
 #include "../core/forecaster.h"
 #include "./bayes.h"
 
+namespace baecon {
 namespace bvhar {
 
 template <typename ReturnType, typename DataType> class BayesForecaster;
 template <typename ReturnType, typename DataType> class McmcForecastRun;
 class McmcOutforecastInterface;
-template <typename ReturnType, typename DataType, bool isUpdate> class McmcOutforecastRun;
+template <typename, typename, bool, bool> class McmcOutforecastRun;
 
 /**
  * @brief Base class for forecaster of Bayesian methods
@@ -27,6 +28,17 @@ public:
 	}
 	virtual ~BayesForecaster() = default;
 	// using MultistepForecaster<ReturnType, DataType>::returnForecast();
+
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 * @return ReturnType 
+	 */
+	ReturnType doPredict() {
+		BVHAR_DEBUG_LOG(debug_logger, "doPredict() called");
+		forecastInsample();
+		return pred_save;
+	}
 	
 	/**
 	 * @brief Return the draws of LPL
@@ -58,7 +70,7 @@ protected:
 	Eigen::VectorXd lpl;
 	std::mutex mtx;
 	int num_sim;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 
 	void forecast() override {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -128,6 +140,32 @@ protected:
 			this->updateRecursion();
 		}
 	}
+
+	/**
+	 * @brief In-sample forecasting
+	 * 
+	 */
+	void forecastInsample() {
+		std::lock_guard<std::mutex> lock(mtx);
+		BVHAR_DEBUG_LOG(debug_logger, "forecastInsample() called");
+		// pred_save: step x num_sim * dim => step == num_design when in-sample forecasting
+		ReturnType design = getDesign();
+		for (int i = 0; i < num_sim; ++i) {
+			BVHAR_DEBUG_LOG(debug_logger, "i={} / num_sim={}", i, num_sim);
+			updateParams(i);
+			forecastIn(i, design);
+		}
+	}
+
+	// Compute design matrix when insample-forecasting
+	// This class has "response" member -> can use this
+	virtual ReturnType getDesign() = 0;
+
+	virtual void forecastIn(const int i, const ReturnType& design) {
+		// Different updateRecursion -> loop over num_design
+		// vs use X * coef_mat at once (might be more efficient but cannot use DataType last_pvec)
+		// design input for the second option
+	}
 };
 
 /**
@@ -162,7 +200,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doForecast();
-			forecaster[chain].reset();
+			// forecaster[chain].reset();
 		}
 	}
 
@@ -173,6 +211,28 @@ public:
 	 */
 	std::vector<ReturnType> returnForecast() {
 		forecast();
+		return density_forecast;
+	}
+
+	void predict() override {
+		BVHAR_DEBUG_LOG(debug_logger, "predict() called");
+	#ifdef _OPENMP
+		#pragma omp parallel for num_threads(nthreads)
+	#endif
+		for (int chain = 0; chain < num_chains; ++chain) {
+			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
+			density_forecast[chain] = forecaster[chain]->doPredict();
+			// forecaster[chain].reset();
+		}
+	}
+
+	/**
+	 * @brief Return forecast draws
+	 * 
+	 * @return std::vector<ReturnType> Forecast density of each chain
+	 */
+	std::vector<ReturnType> returnPredict() {
+		predict();
 		return density_forecast;
 	}
 
@@ -199,9 +259,9 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	virtual LIST returnForecast() = 0;
+	virtual BVHAR_LIST returnForecast() = 0;
 };
 
 /**
@@ -210,23 +270,23 @@ public:
  * @tparam ReturnType 
  * @tparam DataType 
  */
-template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd, bool isUpdate = true>
+template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd, bool isPath = false, bool isUpdate = true>
 class McmcOutForecastRun : public McmcOutforecastInterface {
 public:
 	McmcOutForecastRun(
 		int num_window, int lag,
 		int num_chains, int num_iter, int num_burn, int thin,
-		int step, const ReturnType& y_test, bool get_lpl,
+		int step, const ReturnType& y_test, int num_test, bool get_lpl, bool use_fit,
 		const Eigen::MatrixXi& seed_chain, const Eigen::VectorXi& seed_forecast, bool display_progress, int nthreads,
-		Optional<int> exogen_lag = NULLOPT
+		BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
-	: num_window(num_window), num_test(y_test.rows()), num_horizon(num_test - step + 1), step(step),
+	: num_window(num_window), num_test(num_test), num_horizon(num_test - step + 1), step(step),
 		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
-		get_lpl(get_lpl), display_progress(display_progress),
+		get_lpl(get_lpl), use_fit(use_fit), display_progress(display_progress),
 		seed_forecast(seed_forecast), roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		// out_forecast(num_horizon, std::vector<ReturnType>(num_chains)),
-		out_forecast(num_horizon, std::vector<DataType>(num_chains)),
+		out_forecast(num_horizon, std::vector<ForecastType>(num_chains)),
 		lpl_record(Eigen::MatrixXd::Zero(num_horizon, num_chains)),
 		roll_exogen_mat(num_horizon), roll_exogen(num_horizon), lag_exogen(exogen_lag),
 		debug_logger(BVHAR_DEBUG_LOGGER("McmcOutForecastRun")) {
@@ -248,8 +308,8 @@ public:
 			}
 		}
 		for (int i = 0; i < num_horizon; ++i) {
-			roll_exogen_mat[i] = NULLOPT;
-			roll_exogen[i] = NULLOPT;
+			roll_exogen_mat[i] = BVHAR_NULLOPT;
+			roll_exogen[i] = BVHAR_NULLOPT;
 		}
 	}
 	virtual ~McmcOutForecastRun() = default;
@@ -282,11 +342,11 @@ public:
 	/**
 	 * @brief Return out-of-sample forecasting draws
 	 * 
-	 * @return LIST `LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
+	 * @return BVHAR_LIST `BVHAR_LIST` containing forecast draws. Include ALPL when `get_lpl` is `true`.
 	 */
-	LIST returnForecast() override {
+	BVHAR_LIST returnForecast() override {
 		forecast();
-		LIST res = CREATE_LIST(NAMED("forecast") = WRAP(out_forecast));
+		BVHAR_LIST res = BVHAR_CREATE_LIST(BVHAR_NAMED("forecast") = BVHAR_WRAP(out_forecast));
 		if (get_lpl) {
 			res["lpl"] = lpl_record;
 		}
@@ -294,9 +354,10 @@ public:
 	}
 	
 protected:
+	using ForecastType = typename std::conditional<isPath, ReturnType, DataType>::type;
 	int num_window, num_test, num_horizon, step;
 	int lag, num_chains, num_iter, num_burn, thin, nthreads;
-	bool get_lpl, display_progress;
+	bool get_lpl, use_fit, display_progress;
 	Eigen::VectorXi seed_forecast;
 	std::vector<ReturnType> roll_mat;
 	std::vector<ReturnType> roll_y0;
@@ -304,11 +365,11 @@ protected:
 	std::vector<std::vector<std::unique_ptr<McmcAlgo>>> model;
 	std::vector<std::vector<std::unique_ptr<BayesForecaster<ReturnType, DataType>>>> forecaster;
 	// std::vector<std::vector<ReturnType>> out_forecast;
-	std::vector<std::vector<DataType>> out_forecast;
+	std::vector<std::vector<ForecastType>> out_forecast;
 	Eigen::MatrixXd lpl_record;
-	std::vector<Optional<ReturnType>> roll_exogen_mat;
-	std::vector<Optional<ReturnType>> roll_exogen;
-	Optional<int> lag_exogen;
+	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen_mat;
+	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen;
+	BVHAR_OPTIONAL<int> lag_exogen;
 	std::shared_ptr<spdlog::logger> debug_logger;
 
 	/**
@@ -335,43 +396,54 @@ protected:
 	 */
 	void runGibbs(int window, int chain) {
 		BVHAR_DEBUG_LOG(debug_logger, "runGibbs(window={}, chain={}) called", window, chain);
-		std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
-		auto logger = spdlog::get(log_name);
-		if (logger == nullptr) {
-			logger = SPDLOG_SINK_MT(log_name);
-		}
-		logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
-		int logging_freq = num_iter / 20; // 5 percent
-		if (logging_freq == 0) {
-			logging_freq = 1;
-		}
-		BVHAR_INIT_DEBUG(logger);
+		// std::string log_name = fmt::format("Chain {} / Window {}", chain + 1, window + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1) + " / Window " + std::to_string(window + 1);
+		// auto logger = spdlog::get(log_name);
+		// if (logger == nullptr) {
+		// 	logger = BVHAR_SPDLOG_SINK_MT(log_name);
+		// }
+		// logger->set_pattern("[%n] [Thread " + std::to_string(omp_get_thread_num()) + "] %v");
+		// int logging_freq = num_iter / 20; // 5 percent
+		// if (logging_freq == 0) {
+		// 	logging_freq = 1;
+		// }
+		auto logger = std::make_unique<BvharProgress>(
+			num_iter, BVHAR_DEFAULT_PROGRESS_LEN,
+			display_progress, log_name, "Warmup",
+			BVHAR_DEFAULT_BAR, BVHAR_DEFAULT_PROGRESS
+		);
+		// BVHAR_INIT_DEBUG(logger);
 		bvharinterrupt();
 		for (int i = 0; i < num_burn; ++i) {
 			model[window][chain]->doWarmUp();
-			BVHAR_DEBUG_LOG(logger, "{} / {} (Warmup)", i + 1, num_iter);
-			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {} (Warmup)", i + 1, num_iter);
-			}
+			// BVHAR_DEBUG_LOG(logger, "{} / {} (Warmup)", i + 1, num_iter);
+			// if (display_progress && (i + 1) % logging_freq == 0) {
+			// 	logger->info("{} / {} (Warmup)", i + 1, num_iter);
+			// }
+			logger->update(i + 1);
 		}
 		logger->flush();
+		logger->setSuffix("Sampling");
 		for (int i = num_burn; i < num_iter; ++i) {
 			if (bvharinterrupt::is_interrupted()) {
-				logger->warn("User interrupt in {} / {}", i + 1, num_iter);
+				// logger->warn("User interrupt in {} / {}", i + 1, num_iter);
+				logger->warnInterrupt(i + 1);
 				break;
 			}
 			model[window][chain]->doPosteriorDraws();
-			BVHAR_DEBUG_LOG(logger, "{} / {} (Sampling)", i + 1, num_iter);
-			if (display_progress && (i + 1) % logging_freq == 0) {
-				logger->info("{} / {} (Sampling)", i + 1, num_iter);
-			}
+			logger->update(i + 1);
+			// BVHAR_DEBUG_LOG(logger, "{} / {} (Sampling)", i + 1, num_iter);
+			// if (display_progress && (i + 1) % logging_freq == 0) {
+			// 	logger->info("{} / {} (Sampling)", i + 1, num_iter);
+			// }
 		}
 		// RecordType reg_record = model[window][chain]->template returnStructRecords<RecordType>(0, thin, sparse);
 		// updateForecaster(reg_record, window, chain);
 		// model[window][chain].reset();
 		updateForecaster(window, chain);
 		logger->flush();
-		spdlog::drop(log_name);
+		// spdlog::drop(log_name);
+		logger->drop();
 	}
 
 	/**
@@ -383,18 +455,29 @@ protected:
 	void forecastWindow(int window, int chain) {
 		BVHAR_DEBUG_LOG(debug_logger, "forecastWindow(window={}, chain={}) called", window, chain);
 		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (window != 0 && is_mcmc::value) {
+		if ((!use_fit || window != 0) && is_mcmc::value) {
 			runGibbs(window, chain);
 		}
 		// Eigen::VectorXd valid_vec = y_test.row(step);
 		DataType valid_vec = getValid();
 		// out_forecast[window][chain] = forecaster[window][chain]->doForecast(valid_vec).bottomRows(1);
-		out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
+		storeForecast(window, chain, valid_vec, std::integral_constant<bool, isPath>());
+		// out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
 		lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
 		forecaster[window][chain].reset(); // free the memory by making nullptr
+	}
+
+private:
+	void storeForecast(int window, int chain, const DataType& valid_vec, std::false_type) {
+		out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
+	}
+
+	void storeForecast(int window, int chain, const DataType& valid_vec, std::true_type) {
+		out_forecast[window][chain] = forecaster[window][chain]->doForecast(valid_vec);
 	}
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_FORECASTER_H

@@ -5,6 +5,7 @@
 #include "../../math/random.h"
 #include "../../math/structural.h"
 
+namespace baecon {
 namespace bvhar {
 
 class MinnSpillover;
@@ -102,7 +103,7 @@ protected:
 	Eigen::MatrixXd spillover;
 	std::vector<std::vector<Eigen::MatrixXd>> record_warm;
 	std::vector<std::vector<Eigen::MatrixXd>> record;
-	BHRNG rng;
+	BVHAR_BHRNG rng;
 };
 
 class BvharSpillover : public MinnSpillover {
@@ -128,6 +129,7 @@ private:
 };
 
 
-}; // namespace bvhar
+} // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MNIW_SPILLOVER_H

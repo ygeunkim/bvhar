@@ -1,7 +1,7 @@
 # Render doxygen to github page repo
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main, master, develop, release/*]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -36,12 +36,19 @@ jobs:
         run: sudo touch inst/doxygen/html/.nojekyll
 
       - name: Set target folder
+        # run: |
+        #   BRANCH=${GITHUB_REF##*/}
+        #   if [ "$BRANCH" == "develop" ]; then
+        #     echo "TARGET_FOLDER=package/bvhar/dev/cpp" >> $GITHUB_ENV
+        #   else
+        #     echo "TARGET_FOLDER=package/bvhar/cpp" >> $GITHUB_ENV
+        #   fi
         run: |
           BRANCH=${GITHUB_REF##*/}
           if [ "$BRANCH" == "develop" ]; then
-            echo "TARGET_FOLDER=package/bvhar/dev/cpp" >> $GITHUB_ENV
+            echo "TARGET_FOLDER=dev/cpp" >> $GITHUB_ENV
           else
-            echo "TARGET_FOLDER=package/bvhar/cpp" >> $GITHUB_ENV
+            echo "TARGET_FOLDER=cpp" >> $GITHUB_ENV
           fi
         shell: bash
 
@@ -49,10 +56,11 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
-          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
-          repository-name: ygeunkim/ygeunkim.github.io
+          # token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          # repository-name: ygeunkim/ygeunkim.github.io
           clean: false
-          branch: master
+          # branch: master
+          branch: gh-pages
           folder: inst/doxygen/html
           # target-folder: package/bvhar/cpp
           target-folder: ${{ env.TARGET_FOLDER }}

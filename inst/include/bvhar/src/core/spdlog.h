@@ -1,13 +1,17 @@
 #ifndef BVHAR_CORE_SPDLOG_H
 #define BVHAR_CORE_SPDLOG_H
 
-#ifdef USE_RCPP
+#include "./commondefs.h"
+#include "./omp.h"
 
-#include <RcppThread/Rcout.hpp>
+#ifdef BVHAR_USE_RCPP
+
+// #include <RcppThread/Rcout.hpp>
 #include <RcppSpdlog>
 // #include <spdlog/pattern_formatter.h>
-#include "omp.h"
+// #include "omp.h"
 
+namespace baecon {
 namespace bvhar {
 namespace sinks {
 
@@ -40,6 +44,7 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 	// #define Rcout RcppThreadRcout
 	// namespace Rcpp {
@@ -50,25 +55,29 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 
 	// #include <RcppSpdlog>
 
-	// #define SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
-	#define SPDLOG_SINK_MT(value) bvhar::bvhar_sink_mt(value)
+	// #define BVHAR_SPDLOG_SINK_MT(value) spdlog::r_sink_mt(value)
+	#define BVHAR_SPDLOG_SINK_MT(value) baecon::bvhar::bvhar_sink_mt(value)
 
 #else
 
 	#include <spdlog/spdlog.h>
 	#include <spdlog/sinks/stdout_sinks.h>
 
-	#define SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
+	#define BVHAR_SPDLOG_SINK_MT(value) spdlog::stdout_logger_mt(value)
 
-#endif // USE_RCPP
+#endif // BVHAR_USE_RCPP
 
-// Debug base classes by defining `USE_BVHAR_DEBUG`
-#ifdef USE_BVHAR_DEBUG
+// Debug base classes by defining `BVHAR_USE_BVHAR_DEBUG`
+#ifdef BVHAR_USE_BVHAR_DEBUG
+
+#ifndef BVHAR_USE_SPDLOG
+	#define BVHAR_USE_SPDLOG
+#endif // BVHAR_USE_SPDLOG
 
 #define BVHAR_DEBUG_LOGGER(value) \
 	([](const std::string& log_name) -> std::shared_ptr<spdlog::logger> { \
 		auto temp_logger = spdlog::get(log_name); \
-		return temp_logger ? temp_logger : SPDLOG_SINK_MT(log_name); \
+		return temp_logger ? temp_logger : BVHAR_SPDLOG_SINK_MT(log_name); \
 	})(value)
 #define BVHAR_INIT_DEBUG(logger) logger->set_level(spdlog::level::debug)
 #define BVHAR_DEBUG_LOG(logger, ...) logger->debug(__VA_ARGS__)
@@ -81,6 +90,6 @@ inline std::shared_ptr<spdlog::logger> bvhar_sink_mt(const std::string &logger_n
 #define BVHAR_DEBUG_LOG(logger, ...) (void)0
 #define BVHAR_DEBUG_DROP(value) (void)0
 
-#endif // USE_BVHAR_DEBUG
+#endif // BVHAR_USE_BVHAR_DEBUG
 
 #endif // BVHAR_CORE_SPDLOG_H

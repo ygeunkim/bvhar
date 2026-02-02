@@ -3,6 +3,7 @@
 
 #include "src/ols/ols.h"
 #include "src/ols/forecaster.h"
+#include "src/ols/simulator.h"
 #include "src/ols/spillover.h"
 
 #endif // BVHAR_OLS_H

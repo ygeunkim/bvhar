@@ -15,15 +15,15 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_var(Eigen::MatrixXd y, int lag, bool include_mean, int method) {
-	// std::unique_ptr<bvhar::OlsVar> ols_obj(new bvhar::OlsVar(y, lag, include_mean, method));
-	auto ols_obj = std::make_unique<bvhar::OlsVar>(y, lag, include_mean, method);
+	// std::unique_ptr<baecon::bvhar::OlsVar> ols_obj(new bvhar::OlsVar(y, lag, include_mean, method));
+	auto ols_obj = std::make_unique<baecon::bvhar::OlsVar>(y, lag, include_mean, method);
 	return ols_obj->returnOlsRes();
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_varx(Eigen::MatrixXd y, Eigen::MatrixXd exogen, int lag, int exogen_lag, bool include_mean, int method) {
-	auto ols_obj = std::make_unique<bvhar::OlsVar>(y, exogen, lag, exogen_lag, include_mean, method);
+	auto ols_obj = std::make_unique<baecon::bvhar::OlsVar>(y, exogen, lag, exogen_lag, include_mean, method);
 	return ols_obj->returnOlsRes();
 }
 
@@ -48,14 +48,14 @@ Rcpp::List estimate_varx(Eigen::MatrixXd y, Eigen::MatrixXd exogen, int lag, int
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_har(Eigen::MatrixXd y, int week, int month, bool include_mean, int method) {
-	auto ols_obj = std::make_unique<bvhar::OlsVhar>(y, week, month, include_mean, method);
+	auto ols_obj = std::make_unique<baecon::bvhar::OlsVhar>(y, week, month, include_mean, method);
 	return ols_obj->returnOlsRes();
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_harx(Eigen::MatrixXd y, Eigen::MatrixXd exogen, int week, int month, int exogen_lag, bool include_mean, int method) {
-	auto ols_obj = std::make_unique<bvhar::OlsVhar>(y, exogen, week, month, exogen_lag, include_mean, method);
+	auto ols_obj = std::make_unique<baecon::bvhar::OlsVhar>(y, exogen, week, month, exogen_lag, include_mean, method);
 	return ols_obj->returnOlsRes();
 }
 
@@ -169,6 +169,74 @@ Rcpp::List infer_vhar(Rcpp::List object) {
   );
 }
 
+//' Generate Multivariate Time Series Process Following VAR(p)
+//' 
+//' This function generates multivariate time series dataset that follows VAR(p).
+//' 
+//' @param num_sim Number to generated process
+//' @param num_burn Number of burn-in
+//' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
+//' @param var_lag Lag of VAR
+//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
+//' @param process Process type. 1: Gaussian. 2: student-t.
+//' @param mvt_df DF of MVT
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_var_process(int num_sim, int num_burn,
+                                Eigen::MatrixXd var_coef,
+                                int var_lag,
+                                Eigen::MatrixXd sig_error,
+															  double mvt_df,
+                                Eigen::MatrixXd init,
+                                int process,
+                                int method,
+															  unsigned int seed) {
+	// auto var_generator = std::make_unique<baecon::bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed);
+	auto dgp_run = [&]() -> std::unique_ptr<baecon::bvhar::OlsSimulator> {
+		if (process == 1) {
+			return std::make_unique<baecon::bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed);
+		}
+		return std::make_unique<baecon::bvhar::OlsSimulator>(num_sim, num_burn, var_lag, init, var_coef, sig_error, method, seed, mvt_df);
+	}();
+	return dgp_run->returnDgp();
+}
+
+//' Generate Multivariate Time Series Process Following VHAR
+//' 
+//' This function generates multivariate time series dataset that follows VHAR.
+//' 
+//' @param num_sim Number to generated process
+//' @param num_burn Number of burn-in
+//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
+//' @param week Order for weekly term. Try `5L` by default.
+//' @param month Order for monthly term. Try `22L` by default.
+//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
+//' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
+//' @param process Process type. 1: Gaussian. 2: student-t.
+//' @param mvt_df DF of MVT
+//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd sim_vhar_process(int num_sim, int num_burn,
+                                 Eigen::MatrixXd vhar_coef, 
+                                 int week, int month,
+                                 Eigen::MatrixXd sig_error,
+															   double mvt_df,
+                                 Eigen::MatrixXd init,
+                                 int process,
+                                 int method,
+															   unsigned int seed) {
+	auto dgp_run = [&]() -> std::unique_ptr<baecon::bvhar::OlsSimulator> {
+		if (process == 1) {
+			return std::make_unique<baecon::bvhar::OlsSimulator>(num_sim, num_burn, week, month, init, vhar_coef, sig_error, method, seed);
+		}
+		return std::make_unique<baecon::bvhar::OlsSimulator>(num_sim, num_burn, week, month, init, vhar_coef, sig_error, method, seed, mvt_df);
+	}();
+	return dgp_run->returnDgp();
+}
+
 //' Forecasting Vector Autoregression
 //' 
 //' @param object A `varlse` object
@@ -188,9 +256,9 @@ Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
   int var_lag = object["p"]; // VAR(p)
 	bool include_mean = Rcpp::as<std::string>(object["type"]) == "const";
 	// bvhar::OlsFit ols_fit(coef_mat, var_lag);
-	// std::unique_ptr<bvhar::VarForecaster> forecaster(new bvhar::VarForecaster(ols_fit, step, response_mat, include_mean));
+	// std::unique_ptr<baecon::bvhar::VarForecaster> forecaster(new bvhar::VarForecaster(ols_fit, step, response_mat, include_mean));
 	// return forecaster->forecastPoint();
-	auto forecaster = std::make_unique<bvhar::OlsForecastRun>(var_lag, step, response_mat, coef_mat, include_mean);
+	auto forecaster = std::make_unique<baecon::bvhar::OlsForecastRun>(var_lag, step, response_mat, coef_mat, include_mean);
 	return forecaster->returnForecast();
 }
 
@@ -198,8 +266,8 @@ Eigen::MatrixXd forecast_var(Rcpp::List object, int step) {
 // [[Rcpp::export]]
 Eigen::MatrixXd forecast_varx(Eigen::MatrixXd response, Eigen::MatrixXd coef_mat, int lag, int step,
 															bool include_mean, Eigen::MatrixXd exogen, Eigen::MatrixXd exogen_coef, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::OlsForecastRun>(lag, step, response, coef_mat, include_mean, exogen_lag, exogen, exogen_coef);
-	// auto forecaster = std::make_unique<bvhar::OlsForecastRun>(lag, step, response, coef_mat, include_mean, exogen, exogen_lag);
+	auto forecaster = std::make_unique<baecon::bvhar::OlsForecastRun>(lag, step, response, coef_mat, include_mean, exogen_lag, exogen, exogen_coef);
+	// auto forecaster = std::make_unique<baecon::bvhar::OlsForecastRun>(lag, step, response, coef_mat, include_mean, exogen, exogen_lag);
 	return forecaster->returnForecast();
 }
 
@@ -223,9 +291,9 @@ Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
   int month = object["month"];
 	bool include_mean = Rcpp::as<std::string>(object["type"]) == "const";
 	// bvhar::OlsFit ols_fit(coef_mat, month);
-	// std::unique_ptr<bvhar::VharForecaster> forecaster(new bvhar::VharForecaster(ols_fit, step, response_mat, HARtrans, include_mean));
+	// std::unique_ptr<baecon::bvhar::VharForecaster> forecaster(new bvhar::VharForecaster(ols_fit, step, response_mat, HARtrans, include_mean));
 	// return forecaster->forecastPoint();
-	auto forecaster = std::make_unique<bvhar::OlsForecastRun>(week, month, step, response_mat, coef_mat, include_mean);
+	auto forecaster = std::make_unique<baecon::bvhar::OlsForecastRun>(week, month, step, response_mat, coef_mat, include_mean);
 	return forecaster->returnForecast();
 }
 
@@ -233,7 +301,7 @@ Eigen::MatrixXd forecast_vhar(Rcpp::List object, int step) {
 // [[Rcpp::export]]
 Eigen::MatrixXd forecast_harx(Eigen::MatrixXd response, Eigen::MatrixXd coef_mat, int week, int month, int step,
 															bool include_mean, Eigen::MatrixXd exogen, Eigen::MatrixXd exogen_coef, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::OlsForecastRun>(week, month, step, response, coef_mat, include_mean, exogen_lag, exogen, exogen_coef);
+	auto forecaster = std::make_unique<baecon::bvhar::OlsForecastRun>(week, month, step, response, coef_mat, include_mean, exogen_lag, exogen, exogen_coef);
 	return forecaster->returnForecast();
 }
 
@@ -252,7 +320,7 @@ Eigen::MatrixXd forecast_harx(Eigen::MatrixXd response, Eigen::MatrixXd coef_mat
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::VarOutforecastRun<bvhar::OlsRollforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(
 		y, lag, include_mean, step, y_test,
 		method, nthreads
 	);
@@ -264,7 +332,7 @@ Eigen::MatrixXd roll_var(Eigen::MatrixXd y, int lag, bool include_mean, int step
 Eigen::MatrixXd roll_varx(Eigen::MatrixXd y, int lag, bool include_mean,
 												  int step, Eigen::MatrixXd y_test, int method, int nthreads,
 												  Eigen::MatrixXd exogen, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::VarOutforecastRun<bvhar::OlsRollforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(
 		y, lag, include_mean, step, y_test,
 		method, nthreads,
 		exogen, exogen_lag
@@ -288,7 +356,7 @@ Eigen::MatrixXd roll_varx(Eigen::MatrixXd y, int lag, bool include_mean,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::VharOutforecastRun<bvhar::OlsRollforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(
 		y, week, month, include_mean, step, y_test,
 		method, nthreads
 	);
@@ -300,7 +368,7 @@ Eigen::MatrixXd roll_vhar(Eigen::MatrixXd y, int week, int month, bool include_m
 Eigen::MatrixXd roll_vharx(Eigen::MatrixXd y, int week, int month, bool include_mean,
 													 int step, Eigen::MatrixXd y_test, int method, int nthreads,
 													 Eigen::MatrixXd exogen, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::VharOutforecastRun<bvhar::OlsRollforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsRollforecastRun>>(
 		y, week, month, include_mean, step, y_test,
 		method, nthreads,
 		exogen, exogen_lag
@@ -323,7 +391,7 @@ Eigen::MatrixXd roll_vharx(Eigen::MatrixXd y, int week, int month, bool include_
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::VarOutforecastRun<bvhar::OlsExpandforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(
 		y, lag, include_mean, step, y_test,
 		method, nthreads
 	);
@@ -335,7 +403,7 @@ Eigen::MatrixXd expand_var(Eigen::MatrixXd y, int lag, bool include_mean, int st
 Eigen::MatrixXd expand_varx(Eigen::MatrixXd y, int lag, bool include_mean,
 														int step, Eigen::MatrixXd y_test, int method, int nthreads,
 														Eigen::MatrixXd exogen, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::VarOutforecastRun<bvhar::OlsExpandforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VarOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(
 		y, lag, include_mean, step, y_test,
 		method, nthreads,
 		exogen, exogen_lag
@@ -359,7 +427,7 @@ Eigen::MatrixXd expand_varx(Eigen::MatrixXd y, int lag, bool include_mean,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd expand_vhar(Eigen::MatrixXd y, int week, int month, bool include_mean, int step, Eigen::MatrixXd y_test, int method, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::VharOutforecastRun<bvhar::OlsExpandforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(
 		y, week, month, include_mean, step, y_test,
 		method, nthreads
 	);
@@ -371,7 +439,7 @@ Eigen::MatrixXd expand_vhar(Eigen::MatrixXd y, int week, int month, bool include
 Eigen::MatrixXd expand_vharx(Eigen::MatrixXd y, int week, int month, bool include_mean,
 														 int step, Eigen::MatrixXd y_test, int method, int nthreads,
 														 Eigen::MatrixXd exogen, int exogen_lag) {
-	auto forecaster = std::make_unique<bvhar::VharOutforecastRun<bvhar::OlsExpandforecastRun>>(
+	auto forecaster = std::make_unique<baecon::bvhar::VharOutforecastRun<baecon::bvhar::OlsExpandforecastRun>>(
 		y, week, month, include_mean, step, y_test,
 		method, nthreads,
 		exogen, exogen_lag
@@ -387,14 +455,14 @@ Eigen::MatrixXd expand_vharx(Eigen::MatrixXd y, int week, int month, bool includ
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List compute_var_spillover(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step) {
-	auto spillover = std::make_unique<bvhar::OlsSpilloverRun>(lag, step, coef_mat, cov_mat);
+	auto spillover = std::make_unique<baecon::bvhar::OlsSpilloverRun>(lag, step, coef_mat, cov_mat);
 	return spillover->returnSpillover();
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List compute_vhar_spillover(Eigen::MatrixXd coef_mat, int week, int month, Eigen::MatrixXd cov_mat, int step) {
-	auto spillover = std::make_unique<bvhar::OlsSpilloverRun>(week, month, step, coef_mat, cov_mat);
+	auto spillover = std::make_unique<baecon::bvhar::OlsSpilloverRun>(week, month, step, coef_mat, cov_mat);
 	return spillover->returnSpillover();
 }
 
@@ -409,7 +477,7 @@ Rcpp::List compute_vhar_spillover(Eigen::MatrixXd coef_mat, int week, int month,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_var_spillover(Eigen::MatrixXd y, int window, int step, int lag, bool include_mean, int method, int nthreads) {
-	auto spillover = std::make_unique<bvhar::OlsDynamicSpillover>(y, window, step, lag, include_mean, method, nthreads);
+	auto spillover = std::make_unique<baecon::bvhar::OlsDynamicSpillover>(y, window, step, lag, include_mean, method, nthreads);
 	return spillover->returnSpillover();
 }
 
@@ -424,6 +492,6 @@ Rcpp::List dynamic_var_spillover(Eigen::MatrixXd y, int window, int step, int la
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_vhar_spillover(Eigen::MatrixXd y, int window, int step, int week, int month, bool include_mean, int method, int nthreads) {
-	auto spillover = std::make_unique<bvhar::OlsDynamicSpillover>(y, window, step, month, include_mean, method, nthreads, week);
+	auto spillover = std::make_unique<baecon::bvhar::OlsDynamicSpillover>(y, window, step, month, include_mean, method, nthreads, week);
 	return spillover->returnSpillover();
 }

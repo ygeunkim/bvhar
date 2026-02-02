@@ -12,8 +12,8 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, bool include_mean) {
-	bvhar::BvarSpec mn_spec(bayes_spec);
-	std::unique_ptr<bvhar::MinnBvar> mn_obj(new bvhar::MinnBvar(y, lag, mn_spec, include_mean));
+	baecon::bvhar::BvarSpec mn_spec(bayes_spec);
+	std::unique_ptr<baecon::bvhar::MinnBvar> mn_obj(new baecon::bvhar::MinnBvar(y, lag, mn_spec, include_mean));
 	return mn_obj->returnMinnRes();
 }
 
@@ -30,13 +30,13 @@ Rcpp::List estimate_bvar_mn(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List bayes_spec, bool include_mean) {
-	std::unique_ptr<bvhar::MinnBvhar> mn_obj;
+	std::unique_ptr<baecon::bvhar::MinnBvhar> mn_obj;
 	if (bayes_spec.containsElementNamed("delta")) {
-		bvhar::BvarSpec bvhar_spec(bayes_spec);
-		mn_obj.reset(new bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
+		baecon::bvhar::BvarSpec bvhar_spec(bayes_spec);
+		mn_obj.reset(new baecon::bvhar::MinnBvharS(y, week, month, bvhar_spec, include_mean));
 	} else {
-		bvhar::BvharSpec bvhar_spec(bayes_spec);
-		mn_obj.reset(new bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
+		baecon::bvhar::BvharSpec bvhar_spec(bayes_spec);
+		mn_obj.reset(new baecon::bvhar::MinnBvharL(y, week, month, bvhar_spec, include_mean));
 	}
 	return mn_obj->returnMinnRes();
 }
@@ -46,23 +46,57 @@ Rcpp::List estimate_bvhar_mn(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin,
 														Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy,
 														Rcpp::List param_prior, Rcpp::List param_init,
+														Eigen::VectorXd lower, Eigen::VectorXd upper,
+														int lag, bool include_mean,
 														Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	std::vector<std::unique_ptr<bvhar::MhMinnesota>> mn_objs(num_chains);
+	std::vector<std::unique_ptr<baecon::bvhar::MhMinnesota>> mn_objs(num_chains);
 	std::vector<Rcpp::List> res(num_chains);
 	Rcpp::List lambda_spec = param_prior["lambda"];
 	Rcpp::List psi_spec = param_prior["sigma"];
-	bvhar::MhMinnSpec mn_spec(lambda_spec, psi_spec);
+	int dim = y.cols();
+	Eigen::VectorXd hyperparam(dim + 1);
+	Eigen::VectorXd delta_vec = Eigen::VectorXd::Zero(3 * dim);
+	if (BVHAR_CONTAINS(param_prior, "delta")) {
+		delta_vec.head(dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["delta"]);
+	} else {
+		delta_vec.head(dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["daily"]);
+		delta_vec.segment(dim, dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["weekly"]);
+		delta_vec.segment(2 * dim, dim) = BVHAR_CAST<Eigen::VectorXd>(param_prior["monthly"]);
+	}
+	double eps = param_prior["eps"];
+	baecon::bvhar::MhMinnSpec mn_spec(lambda_spec, psi_spec);
   for (int i = 0; i < num_chains; ++i) {
+		std::unique_ptr<baecon::bvhar::FuncMin> logml_lik;
+		logml_lik = std::make_unique<baecon::bvhar::MhMinnLogLik>(x, y, delta_vec, lag, include_mean, eps);
 		Rcpp::List init_spec = param_init[i];
-		bvhar::MhMinnInits mn_init(init_spec);
-		mn_objs[i].reset(new bvhar::MhMinnesota(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+		baecon::bvhar::MhMinnInits mn_init(init_spec);
+		hyperparam.head(dim) = mn_init._psi;
+		hyperparam[dim - 1] = mn_init._lambda;
+		auto solver = std::make_unique<baecon::bvhar::OptimLbfgsb>(logml_lik, hyperparam, .01, 10, 100);
+		mn_init._psi = hyperparam.head(dim);
+		mn_init._lambda = hyperparam[dim - 1];
+		y_dummy = baecon::bvhar::build_ydummy(
+			lag, mn_init._psi, mn_init._lambda,
+			delta_vec.head(dim), delta_vec.segment(dim, dim), delta_vec.segment(2 * dim, dim),
+			include_mean
+		);
+		x_dummy = baecon::bvhar::build_xdummy(
+			Eigen::VectorXd::LinSpaced(lag, 1, lag),
+			mn_init._lambda, mn_init._psi,
+			eps, include_mean
+		);
+		// mn_objs[i].reset(new bvhar::MhMinnesota(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i])));
+		mn_objs[i] = std::make_unique<baecon::bvhar::MhMinnesota>(num_iter, mn_spec, mn_init, x, y, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain[i]));
 		mn_objs[i]->computePosterior();
 	}
 	auto run_mh = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
-		bvhar::bvharinterrupt();
+		// bvhar::bvharprogress bar(num_iter, display_progress);
+		// std::string log_name = fmt::format("Chain {}", chain + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1);
+		auto logger = std::make_unique<baecon::bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
+		baecon::bvhar::bvharinterrupt();
 		for (int i = 0; i < num_iter; i++) {
-			if (bvhar::bvharinterrupt::is_interrupted()) {
+			if (baecon::bvhar::bvharinterrupt::is_interrupted()) {
 			#ifdef _OPENMP
 				#pragma omp critical
 			#endif
@@ -71,11 +105,12 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 				}
 				break;
 			}
-			bar.increment();
-			if (display_progress) {
-				bar.update();
-			}
+			// bar.increment();
+			// if (display_progress) {
+			// 	bar.update();
+			// }
 			mn_objs[chain]->doPosteriorDraws();
+			logger->update(i + 1);
 		}
 	#ifdef _OPENMP
 		#pragma omp critical
@@ -83,6 +118,8 @@ Rcpp::List estimate_bvar_mh(int num_chains, int num_iter, int num_burn, int thin
 		{
 			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
 		}
+		logger->flush();
+		logger->drop();
 	};
 	if (num_chains == 1) {
 		run_mh(0);
@@ -121,7 +158,7 @@ Rcpp::List estimate_mn_flat(Eigen::MatrixXd x, Eigen::MatrixXd y, Eigen::MatrixX
   if (U.cols() != x.cols()) {
     Rcpp::stop("Wrong dimension: U");
   }
-	std::unique_ptr<bvhar::MinnFlat> mn_obj(new bvhar::MinnFlat(x, y, U));
+	std::unique_ptr<baecon::bvhar::MinnFlat> mn_obj(new baecon::bvhar::MinnFlat(x, y, U));
 	return mn_obj->returnMinnRes();
 }
 
@@ -131,17 +168,21 @@ Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
 												 const Eigen::MatrixXd& mn_mean, const Eigen::MatrixXd& mn_prec,
 												 const Eigen::MatrixXd& iw_scale, double iw_shape,
 												 Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	std::vector<std::unique_ptr<bvhar::McmcMniw>> mn_objs(num_chains);
+	std::vector<std::unique_ptr<baecon::bvhar::McmcMniw>> mn_objs(num_chains);
 	for (int i = 0; i < num_chains; ++i) {
-		bvhar::MinnFit mn_fit(mn_mean, mn_prec, iw_scale, iw_shape);
-		mn_objs[i].reset(new bvhar::McmcMniw(num_iter, mn_fit, static_cast<unsigned int>(seed_chain[i])));
+		baecon::bvhar::MinnFit mn_fit(mn_mean, mn_prec, iw_scale, iw_shape);
+		mn_objs[i].reset(new baecon::bvhar::McmcMniw(num_iter, mn_fit, static_cast<unsigned int>(seed_chain[i])));
 	}
 	std::vector<Rcpp::List> res(num_chains);
 	auto run_conj = [&](int chain) {
-		bvhar::bvharprogress bar(num_iter, display_progress);
+		// bvhar::bvharprogress bar(num_iter, display_progress);
+		// std::string log_name = fmt::format("Chain {}", chain + 1);
+		std::string log_name = "Chain " + std::to_string(chain + 1);
+		auto logger = std::make_unique<baecon::bvhar::BvharProgress>(num_iter, 50, display_progress, log_name, "Sampling", '-', "=>");
 		for (int i = 0; i < num_iter; ++i) {
-			bar.increment();
-			bar.update();
+			// bar.increment();
+			// bar.update();
+			logger->update(i + 1);
 			mn_objs[chain]->doPosteriorDraws();
 		}
 	#ifdef _OPENMP
@@ -150,6 +191,8 @@ Rcpp::List estimate_mniw(int num_chains, int num_iter, int num_burn, int thin,
 		{
 			res[chain] = mn_objs[chain]->returnRecords(num_burn, thin);
 		}
+		logger->flush();
+		logger->drop();
 	};
 	if (num_chains == 1) {
 		run_conj(0);
@@ -204,8 +247,8 @@ Rcpp::List forecast_bvar(Rcpp::List object, int step, int num_sim, unsigned int 
   double posterior_shape = object["iw_shape"]; // posterior shape of IW
   int var_lag = object["p"]; // VAR(p)
 	bool include_mean = Rcpp::as<std::string>(object["type"]) == "const";
-	bvhar::MinnFit mn_fit(posterior_mean_mat, posterior_prec_mat, posterior_scale, posterior_shape);
-	std::unique_ptr<bvhar::BvarForecaster> forecaster(new bvhar::BvarForecaster(mn_fit, step, response_mat, var_lag, num_sim, include_mean, seed));
+	baecon::bvhar::MinnFit mn_fit(posterior_mean_mat, posterior_prec_mat, posterior_scale, posterior_shape);
+	std::unique_ptr<baecon::bvhar::BvarForecaster> forecaster(new baecon::bvhar::BvarForecaster(mn_fit, step, response_mat, var_lag, num_sim, include_mean, seed));
 	forecaster->forecastDensity();
 	return forecaster->returnForecast();
 }
@@ -243,8 +286,8 @@ Rcpp::List forecast_bvharmn(Rcpp::List object, int step, int num_sim, unsigned i
   Eigen::MatrixXd transformed_prec_mat = HARtrans.transpose() * posterior_prec_mat.inverse() * HARtrans; // to compute SE: play a role V in BVAR
   int month = object["month"];
 	bool include_mean = Rcpp::as<std::string>(object["type"]) == "const";
-	bvhar::MinnFit mn_fit(posterior_mean_mat, posterior_prec_mat, posterior_scale, posterior_shape);
-	std::unique_ptr<bvhar::BvharForecaster> forecaster(new bvhar::BvharForecaster(mn_fit, step, response_mat, HARtrans, month, num_sim, include_mean, seed));
+	baecon::bvhar::MinnFit mn_fit(posterior_mean_mat, posterior_prec_mat, posterior_scale, posterior_shape);
+	std::unique_ptr<baecon::bvhar::BvharForecaster> forecaster(new baecon::bvhar::BvharForecaster(mn_fit, step, response_mat, HARtrans, month, num_sim, include_mean, seed));
 	forecaster->forecastDensity();
 	return forecaster->returnForecast();
 }
@@ -277,22 +320,22 @@ Eigen::MatrixXd roll_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, boo
 	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
 	for (int i = 0; i < num_horizon; i++) {
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
-		roll_y0[i] = bvhar::build_y0(roll_mat[i], lag, lag + 1);
+		roll_y0[i] = baecon::bvhar::build_y0(roll_mat[i], lag, lag + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnBvar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvar>> mn_objs(num_horizon);
 	for (int i = 0; i < num_horizon; ++i) {
-		bvhar::BvarSpec mn_spec(bayes_spec);
-		mn_objs[i] = std::unique_ptr<bvhar::MinnBvar>(new bvhar::MinnBvar(roll_mat[i], lag, mn_spec, include_mean));
+		baecon::bvhar::BvarSpec mn_spec(bayes_spec);
+		mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvar>(new baecon::bvhar::MinnBvar(roll_mat[i], lag, mn_spec, include_mean));
 	}
-	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvarForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -333,22 +376,22 @@ Eigen::MatrixXd roll_bvarflat(Eigen::MatrixXd y, int lag, Eigen::MatrixXd U, boo
 	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
 	for (int i = 0; i < num_horizon; i++) {
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
-		roll_y0[i] = bvhar::build_y0(roll_mat[i], lag, lag + 1);
+		roll_y0[i] = baecon::bvhar::build_y0(roll_mat[i], lag, lag + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnFlat>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnFlat>> mn_objs(num_horizon);
 	for (int i = 0; i < num_horizon; ++i) {
-		Eigen::MatrixXd x = bvhar::build_x0(roll_mat[i], lag, include_mean);
-		mn_objs[i].reset(new bvhar::MinnFlat(x, roll_y0[i], U));
+		Eigen::MatrixXd x = baecon::bvhar::build_x0(roll_mat[i], lag, include_mean);
+		mn_objs[i].reset(new baecon::bvhar::MinnFlat(x, roll_y0[i], U));
 	}
-	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvarForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 	#ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvarForecaster(mn_fit, step, roll_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -390,33 +433,33 @@ Eigen::MatrixXd roll_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List ba
 						y_test;
 	std::vector<Eigen::MatrixXd> roll_mat(num_horizon);
 	std::vector<Eigen::MatrixXd> roll_y0(num_horizon);
-	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	Eigen::MatrixXd har_trans = baecon::bvhar::build_vhar(dim, week, month, include_mean);
 	for (int i = 0; i < num_horizon; i++) {
 		roll_mat[i] = tot_mat.middleRows(i, num_window);
-		roll_y0[i] = bvhar::build_y0(roll_mat[i], month, month + 1);
+		roll_y0[i] = baecon::bvhar::build_y0(roll_mat[i], month, month + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnBvhar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvhar>> mn_objs(num_horizon);
 	if (bayes_spec.containsElementNamed("delta")) {
-		bvhar::BvarSpec mn_spec(bayes_spec);
+		baecon::bvhar::BvarSpec mn_spec(bayes_spec);
 		for (int i = 0; i < num_horizon; ++i) {
-			mn_objs[i].reset(new bvhar::MinnBvharS(roll_mat[i], week, month, mn_spec, include_mean));
+			mn_objs[i].reset(new baecon::bvhar::MinnBvharS(roll_mat[i], week, month, mn_spec, include_mean));
 		}
 	} else {
-		bvhar::BvharSpec mn_spec(bayes_spec);
+		baecon::bvhar::BvharSpec mn_spec(bayes_spec);
 		for (int i = 0; i < num_horizon; ++i) {
-			bvhar::BvharSpec mn_spec(bayes_spec);
-			mn_objs[i].reset(new bvhar::MinnBvharL(roll_mat[i], week, month, mn_spec, include_mean));
+			baecon::bvhar::BvharSpec mn_spec(bayes_spec);
+			mn_objs[i].reset(new baecon::bvhar::MinnBvharL(roll_mat[i], week, month, mn_spec, include_mean));
 		}
 	}
-	std::vector<std::unique_ptr<bvhar::BvharForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvharForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, roll_y0[window], har_trans, month, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvharForecaster(mn_fit, step, roll_y0[window], har_trans, month, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -460,22 +503,22 @@ Eigen::MatrixXd expand_bvar(Eigen::MatrixXd y, int lag, Rcpp::List bayes_spec, b
 	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
 	for (int i = 0; i < num_horizon; i++) {
 		expand_mat[i] = tot_mat.topRows(num_window + i);
-		expand_y0[i] = bvhar::build_y0(expand_mat[i], lag, lag + 1);
+		expand_y0[i] = baecon::bvhar::build_y0(expand_mat[i], lag, lag + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnBvar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvar>> mn_objs(num_horizon);
 	for (int i = 0; i < num_horizon; ++i) {
-		bvhar::BvarSpec mn_spec(bayes_spec);
-		mn_objs[i].reset(new bvhar::MinnBvar(expand_mat[i], lag, mn_spec, include_mean));
+		baecon::bvhar::BvarSpec mn_spec(bayes_spec);
+		mn_objs[i].reset(new baecon::bvhar::MinnBvar(expand_mat[i], lag, mn_spec, include_mean));
 	}
-	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvarForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -516,22 +559,22 @@ Eigen::MatrixXd expand_bvarflat(Eigen::MatrixXd y, int lag, Eigen::MatrixXd U, b
 	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
 	for (int i = 0; i < num_horizon; i++) {
 		expand_mat[i] = tot_mat.topRows(num_window + i);
-		expand_y0[i] = bvhar::build_y0(expand_mat[i], lag, lag + 1);
+		expand_y0[i] = baecon::bvhar::build_y0(expand_mat[i], lag, lag + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnFlat>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnFlat>> mn_objs(num_horizon);
 	for (int i = 0; i < num_horizon; ++i) {
-		Eigen::MatrixXd x = bvhar::build_x0(expand_mat[i], lag, include_mean);
-		mn_objs[i].reset(new bvhar::MinnFlat(x, expand_y0[i], U));
+		Eigen::MatrixXd x = baecon::bvhar::build_x0(expand_mat[i], lag, include_mean);
+		mn_objs[i].reset(new baecon::bvhar::MinnFlat(x, expand_y0[i], U));
 	}
-	std::vector<std::unique_ptr<bvhar::BvarForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvarForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvarForecaster(mn_fit, step, expand_y0[window], lag, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -573,32 +616,32 @@ Eigen::MatrixXd expand_bvhar(Eigen::MatrixXd y, int week, int month, Rcpp::List 
 						y_test;
 	std::vector<Eigen::MatrixXd> expand_mat(num_horizon);
 	std::vector<Eigen::MatrixXd> expand_y0(num_horizon);
-	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
+	Eigen::MatrixXd har_trans = baecon::bvhar::build_vhar(dim, week, month, include_mean);
 	for (int i = 0; i < num_horizon; i++) {
 		expand_mat[i] = tot_mat.topRows(num_window + i);
-		expand_y0[i] = bvhar::build_y0(expand_mat[i], month, month + 1);
+		expand_y0[i] = baecon::bvhar::build_y0(expand_mat[i], month, month + 1);
 	}
 	tot_mat.resize(0, 0); // free the memory
-	std::vector<std::unique_ptr<bvhar::MinnBvhar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvhar>> mn_objs(num_horizon);
 	if (bayes_spec.containsElementNamed("delta")) {
 		for (int i = 0; i < num_horizon; ++i) {
-			bvhar::BvarSpec mn_spec(bayes_spec);
-			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(expand_mat[i], week, month, mn_spec, include_mean));
+			baecon::bvhar::BvarSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new baecon::bvhar::MinnBvharS(expand_mat[i], week, month, mn_spec, include_mean));
 		}
 	} else {
 		for (int i = 0; i < num_horizon; ++i) {
-			bvhar::BvharSpec mn_spec(bayes_spec);
-			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(expand_mat[i], week, month, mn_spec, include_mean));
+			baecon::bvhar::BvharSpec mn_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new baecon::bvhar::MinnBvharL(expand_mat[i], week, month, mn_spec, include_mean));
 		}
 	}
-	std::vector<std::unique_ptr<bvhar::BvharForecaster>> forecaster(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::BvharForecaster>> forecaster(num_horizon);
 	std::vector<Eigen::MatrixXd> res(num_horizon);
 #ifdef _OPENMP
 	#pragma omp parallel for num_threads(nthreads)
 #endif
 	for (int window = 0; window < num_horizon; window++) {
-		bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
-		forecaster[window].reset(new bvhar::BvharForecaster(mn_fit, step, expand_y0[window], har_trans, month, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[window]->returnMinnFit();
+		forecaster[window].reset(new baecon::bvhar::BvharForecaster(mn_fit, step, expand_y0[window], har_trans, month, 1, include_mean, static_cast<unsigned int>(seed_forecast[window])));
 		res[window] = forecaster[window]->returnPoint().bottomRows(1);
 		mn_objs[window].reset(); // free the memory by making nullptr
 		forecaster[window].reset(); // free the memory by making nullptr
@@ -629,13 +672,13 @@ Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int n
 	if (!(object.inherits("bvarmn") || object.inherits("bvharmn"))) {
     Rcpp::stop("'object' must be bvarmn or bvharmn object.");
   }
-	std::unique_ptr<bvhar::MinnSpillover> spillover;
+	std::unique_ptr<baecon::bvhar::MinnSpillover> spillover;
 	if (object.inherits("bvharmn")) {
-		bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["covmat"]), object["iw_shape"]);
-		spillover.reset(new bvhar::BvharSpillover(fit, step, num_iter, num_burn, thin, object["month"], Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]), seed));
+		baecon::bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["covmat"]), object["iw_shape"]);
+		spillover.reset(new baecon::bvhar::BvharSpillover(fit, step, num_iter, num_burn, thin, object["month"], Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]), seed));
 	} else {
-		bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["covmat"]), object["iw_shape"]);
-		spillover.reset(new bvhar::MinnSpillover(fit, step, num_iter, num_burn, thin, object["p"], seed));
+		baecon::bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["covmat"]), object["iw_shape"]);
+		spillover.reset(new baecon::bvhar::MinnSpillover(fit, step, num_iter, num_burn, thin, object["p"], seed));
 	}
 	spillover->updateMniw();
 	spillover->computeSpillover();
@@ -656,8 +699,8 @@ Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int n
 //   //   Rcpp::stop("'object' must be bvarmn or bvharmn object.");
 //   // }
 // 	bvhar::MinnRecords mn_record(alpha_record, sig_record);
-// 	std::unique_ptr<bvhar::MinnSpillover> spillover(new bvhar::MinnSpillover(mn_record, step, lag));
-// 	// std::unique_ptr<bvhar::MinnSpillover> spillover;
+// 	std::unique_ptr<baecon::bvhar::MinnSpillover> spillover(new bvhar::MinnSpillover(mn_record, step, lag));
+// 	// std::unique_ptr<baecon::bvhar::MinnSpillover> spillover;
 // 	// if (object.inherits("bvharmn")) {
 // 	// 	bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["iw_scale"]), object["iw_shape"]);
 // 	// 	spillover.reset(new bvhar::BvharSpillover(fit, step, num_iter, num_burn, thin, object["month"], Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]), seed));
@@ -684,8 +727,8 @@ Rcpp::List compute_mn_spillover(Rcpp::List object, int step, int num_iter, int n
 //   //   Rcpp::stop("'object' must be bvarmn or bvharmn object.");
 //   // }
 // 	bvhar::MinnRecords mn_record(phi_record, sig_record);
-// 	std::unique_ptr<bvhar::BvharSpillover> spillover(new bvhar::BvharSpillover(mn_record, step, month, har_trans));
-// 	// std::unique_ptr<bvhar::MinnSpillover> spillover;
+// 	std::unique_ptr<baecon::bvhar::BvharSpillover> spillover(new bvhar::BvharSpillover(mn_record, step, month, har_trans));
+// 	// std::unique_ptr<baecon::bvhar::MinnSpillover> spillover;
 // 	// if (object.inherits("bvharmn")) {
 // 	// 	bvhar::MinnFit fit(Rcpp::as<Eigen::MatrixXd>(object["coefficients"]), Rcpp::as<Eigen::MatrixXd>(object["mn_prec"]), Rcpp::as<Eigen::MatrixXd>(object["iw_scale"]), object["iw_shape"]);
 // 	// 	spillover.reset(new bvhar::BvharSpillover(fit, step, num_iter, num_burn, thin, object["month"], Rcpp::as<Eigen::MatrixXd>(object["HARtrans"]), seed));
@@ -731,27 +774,27 @@ Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int n
 	if (num_horizon <= 0) {
 		Rcpp::stop("Window size is too large.");
 	}
-	// std::vector<std::vector<std::unique_ptr<bvhar::Minnesota>>> mn_objs(num_horizon);
+	// std::vector<std::vector<std::unique_ptr<baecon::bvhar::Minnesota>>> mn_objs(num_horizon);
 	// for (auto &mn_chain : mn_objs) {
 	// 	mn_chain.resize(num_chains);
 	// 	for (auto &ptr : mn_chain) {
 	// 		ptr = nullptr;
 	// 	}
 	// }
-	std::vector<std::unique_ptr<bvhar::MinnBvar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvar>> mn_objs(num_horizon);
 	int dim = y.cols();
 	for (int i = 0; i < num_horizon; ++i) {
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
-		// Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, lag, lag + 1);
-		// Eigen::MatrixXd roll_x0 = bvhar::build_x0(roll_mat, lag, include_mean);
-		bvhar::BvarSpec mn_spec(bayes_spec);
-		mn_objs[i] = std::unique_ptr<bvhar::MinnBvar>(new bvhar::MinnBvar(roll_mat, lag, mn_spec, include_mean));
-		// Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+		// Eigen::MatrixXd roll_y0 = baecon::bvhar::build_y0(roll_mat, lag, lag + 1);
+		// Eigen::MatrixXd roll_x0 = baecon::bvhar::build_x0(roll_mat, lag, include_mean);
+		baecon::bvhar::BvarSpec mn_spec(bayes_spec);
+		mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvar>(new baecon::bvhar::MinnBvar(roll_mat, lag, mn_spec, include_mean));
+		// Eigen::MatrixXd y_dummy = baecon::bvhar::build_ydummy(
 		// 	lag, mn_spec._sigma, mn_spec._lambda,
 		// 	mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
 		// 	include_mean
 		// );
-		// Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+		// Eigen::MatrixXd x_dummy = baecon::bvhar::build_xdummy(
 		// 	Eigen::VectorXd::LinSpaced(lag, 1, lag),
 		// 	mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
 		// );
@@ -760,16 +803,16 @@ Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int n
 		// 	mn_objs[i][j]->computePosterior();
 		// }
 	}
-	// std::vector<std::vector<bvhar::MinnRecords>> mn_recs(num_horizon);
+	// std::vector<std::vector<baecon::bvhar::MinnRecords>> mn_recs(num_horizon);
 	// for (auto &rec_chain : mn_recs) {
 	// 	rec_chain.resize(num_chains);
 	// 	for (auto &ptr : rec_chain) {
 	// 		ptr = nullptr;
 	// 	}
 	// }
-	// std::vector<bvhar::MinnRecords> mn_rec(num_chains);
-	std::vector<std::unique_ptr<bvhar::MinnSpillover>> spillover(num_horizon);
-	// std::vector<bvhar::MinnRecords> mn_recs(num_chains);
+	// std::vector<baecon::bvhar::MinnRecords> mn_rec(num_chains);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnSpillover>> spillover(num_horizon);
+	// std::vector<baecon::bvhar::MinnRecords> mn_recs(num_chains);
 	// std::vector<Eigen::MatrixXd> coef_record(num_chains);
 	// std::vector<Eigen::MatrixXd> sig_record(num_chains);
 	Eigen::VectorXd tot(num_horizon);
@@ -780,8 +823,8 @@ Rcpp::List dynamic_bvar_spillover(Eigen::MatrixXd y, int window, int step, int n
 #endif
 	for (int i = 0; i < num_horizon; ++i) {
 	// for (int win = 0; win < num_horizon; ++win) {
-		bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
-		spillover[i].reset(new bvhar::MinnSpillover(mn_fit, step, num_iter, num_burn, thin, lag, static_cast<unsigned int>(seed_chain[i])));
+		baecon::bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
+		spillover[i].reset(new baecon::bvhar::MinnSpillover(mn_fit, step, num_iter, num_burn, thin, lag, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		spillover[i]->computeSpillover();
 		to_sp.row(i) = spillover[i]->returnTo();
@@ -867,8 +910,8 @@ Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int 
 		Rcpp::stop("Window size is too large.");
 	}
 	int dim = y.cols();
-	Eigen::MatrixXd har_trans = bvhar::build_vhar(dim, week, month, include_mean);
-	// std::vector<std::vector<std::unique_ptr<bvhar::Minnesota>>> mn_objs(num_horizon);
+	Eigen::MatrixXd har_trans = baecon::bvhar::build_vhar(dim, week, month, include_mean);
+	// std::vector<std::vector<std::unique_ptr<baecon::bvhar::Minnesota>>> mn_objs(num_horizon);
 	// for (auto &mn_chain : mn_objs) {
 	// 	mn_chain.resize(num_chains);
 	// 	for (auto &ptr : mn_chain) {
@@ -877,31 +920,31 @@ Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int 
 	// }
 	// for (int i = 0; i < num_horizon; ++i) {
 	// 	Eigen::MatrixXd roll_mat = y.middleRows(i, window);
-	// 	Eigen::MatrixXd roll_y0 = bvhar::build_y0(roll_mat, month, month + 1);
-	// 	Eigen::MatrixXd roll_x0 = bvhar::build_x0(roll_mat, month, include_mean) * har_trans.transpose();
+	// 	Eigen::MatrixXd roll_y0 = baecon::bvhar::build_y0(roll_mat, month, month + 1);
+	// 	Eigen::MatrixXd roll_x0 = baecon::bvhar::build_x0(roll_mat, month, include_mean) * har_trans.transpose();
 		// bvhar::BvarSpec mn_spec(bayes_spec);
-		// Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+		// Eigen::MatrixXd y_dummy = baecon::bvhar::build_ydummy(
 		// 	lag, mn_spec._sigma, mn_spec._lambda,
 		// 	mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
 		// 	include_mean
 		// );
-		// Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+		// Eigen::MatrixXd x_dummy = baecon::bvhar::build_xdummy(
 		// 	Eigen::VectorXd::LinSpaced(lag, 1, lag),
 		// 	mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
 		// );
 	// 	if (bayes_spec.containsElementNamed("delta")) {
 	// 		// bvhar::BvarSpec bvhar_spec(bayes_spec);
 	// 		bvhar::BvarSpec mn_spec(bayes_spec);
-	// 		Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		Eigen::MatrixXd y_dummy = baecon::bvhar::build_ydummy(
 	// 			3, mn_spec._sigma, mn_spec._lambda,
 	// 			mn_spec._delta, Eigen::VectorXd::Zero(dim), Eigen::VectorXd::Zero(dim),
 	// 			include_mean
 	// 		);
-	// 		Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::MatrixXd x_dummy = baecon::bvhar::build_xdummy(
 	// 			Eigen::VectorXd::LinSpaced(3, 1, 3),
 	// 			mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
 	// 		);
-	// 		// mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(roll_mat, week, month, bvhar_spec, include_mean));
+	// 		// mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new bvhar::MinnBvharS(roll_mat, week, month, bvhar_spec, include_mean));
 	// 		for (int j = 0; j < num_chains; ++j) {
 	// 			mn_objs[i][j].reset(new bvhar::Minnesota(num_iter, roll_x0, roll_y0, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain(i, j))));
 	// 			mn_objs[i][j]->computePosterior();
@@ -909,35 +952,35 @@ Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int 
 	// 	} else {
 	// 		// bvhar::BvharSpec bvhar_spec(bayes_spec);
 	// 		bvhar::BvharSpec mn_spec(bayes_spec);
-	// 		Eigen::MatrixXd y_dummy = bvhar::build_ydummy(
+	// 		Eigen::MatrixXd y_dummy = baecon::bvhar::build_ydummy(
 	// 			3, mn_spec._sigma, mn_spec._lambda,
 	// 			mn_spec._daily, mn_spec._weekly, mn_spec._monthly,
 	// 			include_mean
 	// 		);
-	// 		Eigen::MatrixXd x_dummy = bvhar::build_xdummy(
+	// 		Eigen::MatrixXd x_dummy = baecon::bvhar::build_xdummy(
 	// 			Eigen::VectorXd::LinSpaced(3, 1, 3),
 	// 			mn_spec._lambda, mn_spec._sigma, mn_spec._eps, include_mean
 	// 		);
-	// 		// mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(roll_mat, week, month, bvhar_spec, include_mean));
+	// 		// mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new bvhar::MinnBvharL(roll_mat, week, month, bvhar_spec, include_mean));
 	// 		for (int j = 0; j < num_chains; ++j) {
 	// 			mn_objs[i][j].reset(new bvhar::Minnesota(num_iter, roll_x0, roll_y0, x_dummy, y_dummy, static_cast<unsigned int>(seed_chain(i, j))));
 	// 			mn_objs[i][j]->computePosterior();
 	// 		}
 	// 	}
 	// }
-	std::vector<std::unique_ptr<bvhar::MinnBvhar>> mn_objs(num_horizon);
+	std::vector<std::unique_ptr<baecon::bvhar::MinnBvhar>> mn_objs(num_horizon);
 	for (int i = 0; i < num_horizon; ++i) {
 		Eigen::MatrixXd roll_mat = y.middleRows(i, window);
 		if (bayes_spec.containsElementNamed("delta")) {
-			bvhar::BvarSpec bvhar_spec(bayes_spec);
-			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharS(roll_mat, week, month, bvhar_spec, include_mean));
+			baecon::bvhar::BvarSpec bvhar_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new baecon::bvhar::MinnBvharS(roll_mat, week, month, bvhar_spec, include_mean));
 		} else {
-			bvhar::BvharSpec bvhar_spec(bayes_spec);
-			mn_objs[i] = std::unique_ptr<bvhar::MinnBvhar>(new bvhar::MinnBvharL(roll_mat, week, month, bvhar_spec, include_mean));
+			baecon::bvhar::BvharSpec bvhar_spec(bayes_spec);
+			mn_objs[i] = std::unique_ptr<baecon::bvhar::MinnBvhar>(new baecon::bvhar::MinnBvharL(roll_mat, week, month, bvhar_spec, include_mean));
 		}
 	}
-	std::vector<std::unique_ptr<bvhar::BvharSpillover>> spillover(num_horizon);
-	// std::vector<bvhar::MinnRecords> mn_recs(num_chains);
+	std::vector<std::unique_ptr<baecon::bvhar::BvharSpillover>> spillover(num_horizon);
+	// std::vector<baecon::bvhar::MinnRecords> mn_recs(num_chains);
 	// std::vector<Eigen::MatrixXd> coef_record(num_chains);
 	// std::vector<Eigen::MatrixXd> sig_record(num_chains);
   Eigen::VectorXd tot(num_horizon);
@@ -978,9 +1021,9 @@ Rcpp::List dynamic_bvhar_spillover(Eigen::MatrixXd y, int window, int step, int 
 		// 	}
 		// );
 		// bvhar::MinnRecords mn_record(coef, sig);
-		bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
+		baecon::bvhar::MinnFit mn_fit = mn_objs[i]->returnMinnFit();
 		// spillover[i].reset(new bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, thin, month, har_trans, static_cast<unsigned int>(seed_chain[win])));
-		spillover[i].reset(new bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, thin, month, har_trans, static_cast<unsigned int>(seed_chain[i])));
+		spillover[i].reset(new baecon::bvhar::BvharSpillover(mn_fit, step, num_iter, num_burn, thin, month, har_trans, static_cast<unsigned int>(seed_chain[i])));
 		spillover[i]->updateMniw();
 		// spillover[win].reset(new bvhar::BvharSpillover(mn_record, step, month, har_trans));
 		spillover[i]->computeSpillover();

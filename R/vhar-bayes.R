@@ -9,6 +9,7 @@
 #' @param har Numeric vector for weekly and monthly order. By default, `c(5, 22)`.
 #' @param exogen Unmodeled variables
 #' @param s Lag of exogeneous variables in VARX(p, s). By default, `s = 0`.
+#' @param factor_spec `r lifecycle::badge("experimental")` Factor augmentation specification by [set_factor()].
 #' @param num_chains Number of MCMC chains
 #' @param num_iter MCMC iteration number
 #' @param num_burn Number of burn-in (warm-up). Half of the iteration is the default choice.
@@ -16,6 +17,7 @@
 #' @param coef_spec Coefficient prior specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
 #' @param contem_spec Contemporaneous coefficient prior specification by [set_bvar()], [set_ssvs()], or [set_horseshoe()].
 #' @param exogen_spec Exogenous coefficient prior specification.
+#' @param loading_spec `r lifecycle::badge("experimental")` Factor loading prior specification.
 #' @param cov_spec `r lifecycle::badge("experimental")` SV specification by [set_sv()].
 #' @param intercept `r lifecycle::badge("experimental")` Prior for the constant term by [set_intercept()].
 #' @param include_mean Add constant term (Default: `TRUE`) or not (`FALSE`)
@@ -80,6 +82,7 @@ vhar_bayes <- function(y,
                        har = c(5, 22),
                        exogen = NULL,
                        s = 0,
+                       factor_spec = set_factor(),
                        num_chains = 1,
                        num_iter = 1000,
                        num_burn = floor(num_iter / 2),
@@ -89,6 +92,7 @@ vhar_bayes <- function(y,
                        cov_spec = set_ldlt(),
                        intercept = set_intercept(),
                        exogen_spec = coef_spec,
+                       loading_spec = coef_spec,
                        include_mean = TRUE,
                        minnesota = c("longrun", "short", "no"),
                        ggl = TRUE,
@@ -140,11 +144,12 @@ vhar_bayes <- function(y,
     }
     dim_exogen <- ncol(exogen)
     exogen_prior_type <- enumerate_prior(exogen_spec$prior)
+    exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
     name_har <- c(
       name_har,
       concatenate_colnames(name_exogen, 0:s, FALSE)
     )
-    exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
+    # exogen_id <- length(name_har) + 1:((s + 1) * dim_exogen)
     dim_exogen_design <- length(exogen_id)
     num_exogen <- dim_data * dim_exogen_design
     # X0 <- build_exogen_design(y, exogen, month, s, include_mean)
@@ -167,6 +172,35 @@ vhar_bayes <- function(y,
   colnames(X1) <- name_har
   num_design <- nrow(Y0)
   dim_har <- ncol(X1) # 3 * dim_data + 1
+  size_factor <- factor_spec$size_factor
+  lag_factor <- factor_spec$lag
+  num_factor <- size_factor * dim_data
+  factor_prior_type <- 0
+  factor_prior <- list()
+  factor_init <- list()
+  if (size_factor > 0) {
+    validate_prior(loading_spec)
+    factor_prior_type <- enumerate_prior(loading_spec$prior)
+    loading_spec <- validate_spec(
+      bayes_spec = loading_spec,
+      y = NULL,
+      dim_data = num_factor,
+      process = "BVHAR"
+    )
+    factor_prior <- get_spec(
+      bayes_spec = loading_spec,
+      p = 0,
+      dim_data = num_factor
+    )
+    X1 <- cbind(X1, matrix(0L, nrow = num_design, ncol = size_factor))
+    dim_har <- ncol(X1)
+    factor_id <- length(name_har) + seq_len(size_factor)
+    name_har <- c(
+      name_har,
+      concatenate_colnames("factor", seq_len(size_factor), FALSE)
+    )
+    colnames(X1) <- name_har
+  }
   # model specification---------------
   validate_prior(coef_spec)
   validate_prior(contem_spec)
@@ -258,6 +292,14 @@ vhar_bayes <- function(y,
       num_grp = ifelse(exogen_spec$prior == "SSVS" || exogen_spec$prior == "GDP", num_exogen, 1)
     )
   }
+  if (size_factor > 0) {
+    factor_init <- get_init(
+      param_init = param_init,
+      prior_nm = loading_spec$prior,
+      num_alpha = num_factor,
+      num_grp = ifelse(loading_spec$prior == "SSVS" || loading_spec$prior == "GDP", num_factor, 1)
+    )
+  }
   param_init <- get_init(
     param_init = param_init,
     prior_nm = coef_spec$prior,
@@ -330,6 +372,10 @@ vhar_bayes <- function(y,
     exogen_init = exogen_init,
     exogen_prior_type = exogen_prior_type,
     exogen_cols = dim_exogen_design,
+    factor_prior = factor_prior,
+    factor_init = factor_init,
+    factor_prior_type = factor_prior_type,
+    size_factor = size_factor,
     grp_id = grp_id,
     own_id = own_id,
     cross_id = cross_id,
@@ -371,6 +417,16 @@ vhar_bayes <- function(y,
       matrix(colMeans(res$b_sparse_record), ncol = dim_data)
     )
   }
+  if (size_factor > 0) {
+    res$coefficients <- rbind(
+      res$coefficients,
+      matrix(colMeans(res$Lambda_record), ncol = dim_data)
+    )
+    res$sparse_coef <- rbind(
+      res$sparse_coef,
+      matrix(colMeans(res$Lambda_sparse_record), ncol = dim_data)
+    )
+  }
   mat_lower <- matrix(0L, nrow = dim_data, ncol = dim_data)
   diag(mat_lower) <- rep(1L, dim_data)
   mat_lower[lower.tri(mat_lower, diag = FALSE)] <- colMeans(res$a_record)
@@ -390,6 +446,12 @@ vhar_bayes <- function(y,
     res$pip <- rbind(
       res$pip,
       matrix(colMeans(res$b_sparse_record != 0), ncol = dim_data)
+    )
+  }
+  if (size_factor > 0) {
+    res$pip <- rbind(
+      res$pip,
+      matrix(colMeans(res$Lambda_sparse_record != 0), ncol = dim_data)
     )
   }
   colnames(res$pip) <- name_var
@@ -428,69 +490,70 @@ vhar_bayes <- function(y,
     )
   }
   res[rec_names] <- lapply(res[rec_names], as_draws_df)
+  res$param <- Reduce(bind_draws, res[rec_names])
   # res$param <- bind_draws(res[rec_names])
-  res$param <- bind_draws(
-    res$phi_record,
-    res$a_record,
-    res$phi_sparse_record,
-    res$a_sparse_record
-  )
-  if (is.svspec(cov_spec)) {
-    res$param <- bind_draws(
-      res$param,
-      res$h_record,
-      res$h0_record,
-      res$sigh_record
-    )
-  } else {
-    res$param <- bind_draws(
-      res$param,
-      res$d_record
-    )
-  }
-  if (include_mean) {
-    res$param <- bind_draws(
-      res$param,
-      res$c_record,
-      res$c_sparse_record
-    )
-  }
-  if (!is.null(exogen)) {
-    res$param <- bind_draws(
-      res$param,
-      res$b_record,
-      res$b_sparse_record
-    )
-  }
-  if (coef_spec$prior == "SSVS") {
-    res$param <- bind_draws(
-      res$param,
-      res$gamma_record
-    )
-  } else if (coef_spec$prior == "Horseshoe") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record,
-      res$kappa_record
-    )
-  } else if (coef_spec$prior == "NG") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$eta_record,
-      res$tau_record
-    )
-  } else if (coef_spec$prior == "DL") {
-    res$param <- bind_draws(
-      res$param,
-      res$lambda_record,
-      res$tau_record
-    )
-  } else if (coef_spec$prior == "GDP") {
-    # 
-  }
+  # res$param <- bind_draws(
+  #   res$phi_record,
+  #   res$a_record,
+  #   res$phi_sparse_record,
+  #   res$a_sparse_record
+  # )
+  # if (is.svspec(cov_spec)) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$h_record,
+  #     res$h0_record,
+  #     res$sigh_record
+  #   )
+  # } else {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$d_record
+  #   )
+  # }
+  # if (include_mean) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$c_record,
+  #     res$c_sparse_record
+  #   )
+  # }
+  # if (!is.null(exogen)) {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$b_record,
+  #     res$b_sparse_record
+  #   )
+  # }
+  # if (coef_spec$prior == "SSVS") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$gamma_record
+  #   )
+  # } else if (coef_spec$prior == "Horseshoe") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$eta_record,
+  #     res$tau_record,
+  #     res$kappa_record
+  #   )
+  # } else if (coef_spec$prior == "NG") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$eta_record,
+  #     res$tau_record
+  #   )
+  # } else if (coef_spec$prior == "DL") {
+  #   res$param <- bind_draws(
+  #     res$param,
+  #     res$lambda_record,
+  #     res$tau_record
+  #   )
+  # } else if (coef_spec$prior == "GDP") {
+  #   # 
+  # }
   res[rec_names] <- NULL
   res$param_names <- param_names
   # if (coef_spec$prior == "SSVS" || coef_spec$prior == "Horseshoe") {
@@ -551,6 +614,13 @@ vhar_bayes <- function(y,
     res$s <- s
     res$exogen_m <- dim_exogen
     res$exogen_id <- exogen_id
+  }
+  if (size_factor > 0) {
+    res$spec_factor <- loading_spec
+    res$init_factor <- factor_init
+    res$factor_size <- size_factor
+    res$factor_lag <- lag_factor
+    res$factor_id <- factor_id
   }
   res$HARtrans <- HARtrans
   res$y0 <- Y0

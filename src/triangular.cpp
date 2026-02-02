@@ -29,13 +29,110 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 												Rcpp::List param_init, int prior_type, bool ggl,
 												Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
 												Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type, int exogen_cols,
+												Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor,
                         Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
                         bool include_mean, Eigen::VectorXi seed_chain, bool display_progress, int nthreads) {
-	auto mcmc_run = [&]() -> std::unique_ptr<bvhar::McmcRun> {
+	auto mcmc_run = [&]() -> std::unique_ptr<baecon::bvhar::McmcRun> {
+		if (factor_prior_type != 0) {
+			if (exogen_prior_type != 0) {
+				if (param_reg.containsElementNamed("initial_mean")) {
+					if (ggl) {
+						return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, true>>(
+							num_chains, num_iter, num_burn, thin, x, y,
+							param_reg, param_prior, param_intercept, param_init, prior_type,
+							contem_prior, contem_init, contem_prior_type,
+							grp_id, own_id, cross_id, grp_mat,
+							include_mean, seed_chain,
+							display_progress, nthreads,
+							exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+							factor_prior, factor_init, factor_prior_type, size_factor
+						);
+					}
+					return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, false>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				if (ggl) {
+					return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, false>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			if (param_reg.containsElementNamed("initial_mean")) {
+				if (ggl) {
+					return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, true>>(
+						num_chains, num_iter, num_burn, thin, x, y,
+						param_reg, param_prior, param_intercept, param_init, prior_type,
+						contem_prior, contem_init, contem_prior_type,
+						grp_id, own_id, cross_id, grp_mat,
+						include_mean, seed_chain,
+						display_progress, nthreads,
+						BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+						factor_prior, factor_init, factor_prior_type, size_factor
+					);
+				}
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, false>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			if (ggl) {
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
+					num_chains, num_iter, num_burn, thin, x, y,
+					param_reg, param_prior, param_intercept, param_init, prior_type,
+					contem_prior, contem_init, contem_prior_type,
+					grp_id, own_id, cross_id, grp_mat,
+					include_mean, seed_chain,
+					display_progress, nthreads,
+					BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+					factor_prior, factor_init, factor_prior_type, size_factor
+				);
+			}
+			return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, false>>(
+				num_chains, num_iter, num_burn, thin, x, y,
+				param_reg, param_prior, param_intercept, param_init, prior_type,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat,
+				include_mean, seed_chain,
+				display_progress, nthreads,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor
+			);
+		}
 		if (exogen_prior_type != 0) {
 			if (param_reg.containsElementNamed("initial_mean")) {
 				if (ggl) {
-					return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, true>>(
+					return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, true>>(
 						num_chains, num_iter, num_burn, thin, x, y,
 						param_reg, param_prior, param_intercept, param_init, prior_type,
 						contem_prior, contem_init, contem_prior_type,
@@ -45,7 +142,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 						exogen_prior, exogen_init, exogen_prior_type, exogen_cols
 					);
 				}
-				return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, false>>(
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, false>>(
 					num_chains, num_iter, num_burn, thin, x, y,
 					param_reg, param_prior, param_intercept, param_init, prior_type,
 					contem_prior, contem_init, contem_prior_type,
@@ -56,7 +153,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 				);
 			}
 			if (ggl) {
-				return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, true>>(
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
 					num_chains, num_iter, num_burn, thin, x, y,
 					param_reg, param_prior, param_intercept, param_init, prior_type,
 					contem_prior, contem_init, contem_prior_type,
@@ -66,7 +163,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 					exogen_prior, exogen_init, exogen_prior_type, exogen_cols
 				);
 			}
-			return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, false>>(
+			return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, false>>(
 				num_chains, num_iter, num_burn, thin, x, y,
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				contem_prior, contem_init, contem_prior_type,
@@ -78,7 +175,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 		}
 		if (param_reg.containsElementNamed("initial_mean")) {
 			if (ggl) {
-				return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, true>>(
+				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, true>>(
 					num_chains, num_iter, num_burn, thin, x, y,
 					param_reg, param_prior, param_intercept, param_init, prior_type,
 					contem_prior, contem_init, contem_prior_type,
@@ -87,7 +184,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 					display_progress, nthreads
 				);
 			}
-			return std::make_unique<bvhar::CtaRun<bvhar::McmcSv, false>>(
+			return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, false>>(
 				num_chains, num_iter, num_burn, thin, x, y,
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				contem_prior, contem_init, contem_prior_type,
@@ -97,7 +194,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 			);
 		}
 		if (ggl) {
-			return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, true>>(
+			return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
 				num_chains, num_iter, num_burn, thin, x, y,
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				contem_prior, contem_init, contem_prior_type,
@@ -106,7 +203,7 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 				display_progress, nthreads
 			);
 		}
-		return std::make_unique<bvhar::CtaRun<bvhar::McmcReg, false>>(
+		return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, false>>(
 			num_chains, num_iter, num_burn, thin, x, y,
 			param_reg, param_prior, param_intercept, param_init, prior_type,
 			contem_prior, contem_init, contem_prior_type,
@@ -138,29 +235,74 @@ Rcpp::List estimate_sur(int num_chains, int num_iter, int num_burn, int thin,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+														 int size_factor, int factor_lag,
 													 	 bool sparse, double level, Rcpp::List fit_record,
-													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
+													 	 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+														 bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+															int size_factor, int factor_lag,
 													 	  bool sparse, double level, Rcpp::List fit_record,
 													 	  Eigen::VectorXi seed_chain, bool include_mean,
 															Eigen::MatrixXd exogen, int exogen_lag,
-															bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
+															bool stable, int nthreads,
+															bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	true, exogen, exogen_lag
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
@@ -184,29 +326,74 @@ Rcpp::List forecast_bvarxldlt(int num_chains, int var_lag, int step, Eigen::Matr
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+															int size_factor, int factor_lag,
 															bool sparse, double level, Rcpp::List fit_record,
-															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads
-	);
+															Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+															bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharxldlt(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+															 int size_factor, int factor_lag,
 													 	   bool sparse, double level, Rcpp::List fit_record,
 													 	   Eigen::VectorXi seed_chain, bool include_mean,
 															 Eigen::MatrixXd exogen, int exogen_lag,
-															 bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::RegForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		true, exogen, exogen_lag
-	);
+															 bool stable, int nthreads,
+															 bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				true, exogen, exogen_lag,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::RegForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	true, exogen, exogen_lag
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
@@ -242,17 +429,40 @@ Rcpp::List roll_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 											 	 bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	 Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+												 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 	 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::RegForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true
-	);
+											 	 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true
+		);
+	}();
+	// auto forecaster = baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+	// 	y, lag, num_chains, num_iter, num_burn, thinning,
+	// 	sparse, level, fit_record, run_mcmc,
+	// 	param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+	// 	contem_prior, contem_init, contem_prior_type,
+	// 	grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+	// 	get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true
+	// );
 	return forecaster->returnForecast();
 }
 
@@ -262,20 +472,35 @@ Rcpp::List roll_bvarxldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_it
 											 	  bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	  Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												  Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 	  bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											 	  bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 													Eigen::MatrixXd exogen, int exogen_lag,
 												  Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::RegForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -311,17 +536,32 @@ Rcpp::List roll_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chains
 													bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  	Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 													Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 													bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::RegForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true
-	);
+											  	bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -331,20 +571,44 @@ Rcpp::List roll_bvharxldlt(Eigen::MatrixXd y, int week, int month, int num_chain
 											 	   bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	   Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												   Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	   Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 	   bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	   bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											 	   bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 													 Eigen::MatrixXd exogen, int exogen_lag,
 												   Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::RegForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
+	// auto forecaster = baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::RegForecaster>(
+	// 	y, week, month, num_chains, num_iter, num_burn, thinning,
+	// 	sparse, level, fit_record, run_mcmc,
+	// 	param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+	// 	contem_prior, contem_init, contem_prior_type,
+	// 	grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+	// 	get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+	// 	exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+	// );
 	return forecaster->returnForecast();
 }
 
@@ -367,30 +631,76 @@ Rcpp::List roll_bvharxldlt(Eigen::MatrixXd y, int week, int month, int num_chain
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+													 int size_factor, int factor_lag,
 													 bool sv, bool sparse, double level, Rcpp::List fit_record,
-													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
+													 Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+													 bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::MatrixXd response_mat,
+														int size_factor, int factor_lag,
 													 	bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	Eigen::VectorXi seed_chain, bool include_mean,
 														Eigen::MatrixXd exogen, int exogen_lag,
-														bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, var_lag, step, response_mat,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
+														bool stable, int nthreads,
+														bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, var_lag, step, response_mat,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+	// 	num_chains, var_lag, step, response_mat,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv, exogen, exogen_lag
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
@@ -414,30 +724,76 @@ Rcpp::List forecast_bvarxsv(int num_chains, int var_lag, int step, Eigen::Matrix
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+														int size_factor, int factor_lag,
 														bool sv, bool sparse, double level, Rcpp::List fit_record,
-														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv
-	);
+														Eigen::VectorXi seed_chain, bool include_mean, bool stable, int nthreads,
+													  bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List forecast_bvharxsv(int num_chains, int month, int step, Eigen::MatrixXd response_mat, Eigen::MatrixXd HARtrans,
+														 int size_factor, int factor_lag,
 													 	 bool sv, bool sparse, double level, Rcpp::List fit_record,
 													 	 Eigen::VectorXi seed_chain, bool include_mean,
 														 Eigen::MatrixXd exogen, int exogen_lag,
-														 bool stable, int nthreads) {
-	auto forecaster = std::make_unique<bvhar::CtaForecastRun<bvhar::SvForecaster>>(
-		num_chains, month, step, response_mat, HARtrans,
-		sparse, level, fit_record,
-		seed_chain, include_mean, stable, nthreads,
-		sv, exogen, exogen_lag
-	);
+														 bool stable, int nthreads,
+														 bool insample) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>> {
+		if (size_factor == 0) {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag
+			);
+		} else {
+			return std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+				num_chains, month, step, response_mat, HARtrans,
+				sparse, level, fit_record,
+				seed_chain, include_mean, stable, nthreads,
+				sv, exogen, exogen_lag,
+				size_factor, factor_lag, insample
+			);
+		}
+	}();
+	// auto forecaster = std::make_unique<baecon::bvhar::CtaForecastRun<baecon::bvhar::SvForecaster>>(
+	// 	num_chains, month, step, response_mat, HARtrans,
+	// 	sparse, level, fit_record,
+	// 	seed_chain, include_mean, stable, nthreads,
+	// 	sv, exogen, exogen_lag
+	// );
+	if (insample) {
+		return Rcpp::wrap(forecaster->returnPredict());
+	}
 	return Rcpp::wrap(forecaster->returnForecast());
 }
 
@@ -473,17 +829,32 @@ Rcpp::List roll_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter,
 											 bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 											 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+											 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::SvForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
-	);
+											 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -493,20 +864,35 @@ Rcpp::List roll_bvarxsv(Eigen::MatrixXd y, int lag, int num_chains, int num_iter
 											  bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 											  Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+												Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 											  bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											  bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 												Eigen::MatrixXd exogen, int exogen_lag,
 												Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::SvForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -542,17 +928,32 @@ Rcpp::List roll_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains, 
 												bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+												Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::SvForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
-	);
+											  bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -562,20 +963,35 @@ Rcpp::List roll_bvharxsv(Eigen::MatrixXd y, int week, int month, int num_chains,
 												 bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											   Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+												 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											   Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											   bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											   bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 												 Eigen::MatrixXd exogen, int exogen_lag,
 												 Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaRollforecastRun, bvhar::SvForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaRollforecastRun, baecon::bvhar::SvForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -611,17 +1027,32 @@ Rcpp::List expand_bvarldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_i
 												 	 bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	 	 Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 													 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 	 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true
-	);
+											 	 	 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -631,20 +1062,35 @@ Rcpp::List expand_bvarxldlt(Eigen::MatrixXd y, int lag, int num_chains, int num_
 												 	  bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	 	  Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 													  Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+														Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	 	  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 	  bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	 	  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											 	 	  bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 													  Eigen::MatrixXd exogen, int exogen_lag,
 												    Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -680,17 +1126,32 @@ Rcpp::List expand_bvharldlt(Eigen::MatrixXd y, int week, int month, int num_chai
 														bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  		Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 														Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+														Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  		Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 														bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  		bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true
-	);
+											  		bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -700,20 +1161,35 @@ Rcpp::List expand_bvharxldlt(Eigen::MatrixXd y, int week, int month, int num_cha
 														 bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  		 Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 														 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+														 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  		 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 														 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  		 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											  		 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 														 Eigen::MatrixXd exogen, int exogen_lag,
 												  	 Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::RegForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, true,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::RegForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, true,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -749,17 +1225,32 @@ Rcpp::List expand_bvarsv(Eigen::MatrixXd y, int lag, int num_chains, int num_ite
 												 bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+												 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
-	);
+											 	 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -769,20 +1260,35 @@ Rcpp::List expand_bvarxsv(Eigen::MatrixXd y, int lag, int num_chains, int num_it
 												  bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											 	  Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 												  Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											 	  Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 												  bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											 	  bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											 	  bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 													Eigen::MatrixXd exogen, int exogen_lag,
 												  Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>(
-		y, lag, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+				y, lag, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+			y, lag, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -818,17 +1324,32 @@ Rcpp::List expand_bvharsv(Eigen::MatrixXd y, int week, int month, int num_chains
 													bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  	Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 													Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  	Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 													bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  	bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv
-	);
+											  	bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads) {
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT, BVHAR_NULLOPT,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
@@ -838,36 +1359,51 @@ Rcpp::List expand_bvharxsv(Eigen::MatrixXd y, int week, int month, int num_chain
 													 bool sv, bool sparse, double level, Rcpp::List fit_record, bool run_mcmc,
 											  	 Rcpp::List param_sv, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init, int prior_type, bool ggl,
 													 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
+													 Rcpp::List factor_prior, Rcpp::List factor_init, int factor_prior_type, int size_factor, int factor_lag,
 											  	 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 													 bool include_mean, bool stable, int step, Eigen::MatrixXd y_test,
-											  	 bool get_lpl, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
+											  	 bool get_lpl, bool use_fit, Eigen::MatrixXi seed_chain, Eigen::VectorXi seed_forecast, bool display_progress, int nthreads,
 													 Eigen::MatrixXd exogen, int exogen_lag,
 												   Rcpp::List exogen_prior, Rcpp::List exogen_init, int exogen_prior_type) {
-	auto forecaster = bvhar::initialize_ctaoutforecaster<bvhar::CtaExpandforecastRun, bvhar::SvForecaster>(
-		y, week, month, num_chains, num_iter, num_burn, thinning,
-		sparse, level, fit_record, run_mcmc,
-		param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
-		contem_prior, contem_init, contem_prior_type,
-		grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
-		get_lpl, seed_chain, seed_forecast, display_progress, nthreads, sv,
-		exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
-	);
+	auto forecaster = [&]() -> std::unique_ptr<baecon::bvhar::McmcOutforecastInterface> {
+		if (size_factor > 0) {
+			return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+				y, week, month, num_chains, num_iter, num_burn, thinning,
+				sparse, level, fit_record, run_mcmc,
+				param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+				contem_prior, contem_init, contem_prior_type,
+				grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+				get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+				exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag,
+				factor_prior, factor_init, factor_prior_type, size_factor, factor_lag
+			);
+		}
+		return baecon::bvhar::initialize_ctaoutforecaster<baecon::bvhar::CtaExpandforecastRun, baecon::bvhar::SvForecaster>(
+			y, week, month, num_chains, num_iter, num_burn, thinning,
+			sparse, level, fit_record, run_mcmc,
+			param_sv, param_prior, param_intercept, param_init, prior_type, ggl,
+			contem_prior, contem_init, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test,
+			get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, sv,
+			exogen_prior, exogen_init, exogen_prior_type, exogen, exogen_lag
+		);
+	}();
 	return forecaster->returnForecast();
 }
 
 // [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse) {
-	// auto spillover = bvhar::initialize_spillover<bvhar::LdltRecords>(0, lag, step, fit_record, sparse, 0);
+	// auto spillover = baecon::bvhar::initialize_spillover<baecon::bvhar::LdltRecords>(0, lag, step, fit_record, sparse, 0);
 	// return spillover->returnSpilloverDensity();
-	auto spillover = std::make_unique<bvhar::McmcSpilloverRun<bvhar::LdltRecords>>(lag, step, fit_record, sparse);
+	auto spillover = std::make_unique<baecon::bvhar::McmcSpilloverRun<baecon::bvhar::LdltRecords>>(lag, step, fit_record, sparse);
 	return spillover->returnSpillover();
 }
 
 // [[Rcpp::export]]
 Rcpp::List compute_vharldlt_spillover(int week, int month, int step, Rcpp::List fit_record, bool sparse) {
-	// auto spillover = bvhar::initialize_spillover<bvhar::LdltRecords>(0, month, step, fit_record, sparse, 0, NULLOPT, week);
+	// auto spillover = baecon::bvhar::initialize_spillover<baecon::bvhar::LdltRecords>(0, month, step, fit_record, sparse, 0, BVHAR_NULLOPT, week);
 	// return spillover->returnSpilloverDensity();
-	auto spillover = std::make_unique<bvhar::McmcSpilloverRun<bvhar::LdltRecords>>(week, month, step, fit_record, sparse);
+	auto spillover = std::make_unique<baecon::bvhar::McmcSpilloverRun<baecon::bvhar::LdltRecords>>(week, month, step, fit_record, sparse);
 	return spillover->returnSpillover();
 }
 
@@ -878,7 +1414,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 																			Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
 																			Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
-	auto spillover = std::make_unique<bvhar::DynamicLdltSpillover>(
+	auto spillover = std::make_unique<baecon::bvhar::DynamicLdltSpillover>(
 		y, window, step, lag, num_chains, num_iter, num_burn, thin, sparse,
 		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
 		contem_prior, contem_init, contem_prior_type,
@@ -895,7 +1431,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 																			 Rcpp::List contem_prior, Rcpp::List contem_init, int contem_prior_type,
 																			 Eigen::VectorXi grp_id, Eigen::VectorXi own_id, Eigen::VectorXi cross_id, Eigen::MatrixXi grp_mat,
 																			 bool include_mean, Eigen::MatrixXi seed_chain, int nthreads) {
-	auto spillover = std::make_unique<bvhar::DynamicLdltSpillover>(
+	auto spillover = std::make_unique<baecon::bvhar::DynamicLdltSpillover>(
 		y, window, step, week, month, num_chains, num_iter, num_burn, thin, sparse,
 		param_reg, param_prior, param_intercept, param_init, prior_type, ggl,
 		contem_prior, contem_init, contem_prior_type,
@@ -918,7 +1454,7 @@ Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, 
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design, Rcpp::List fit_record, bool sparse, bool include_mean, int nthreads) {
-	auto spillover = std::make_unique<bvhar::DynamicSvSpillover>(lag, step, num_design, fit_record, include_mean, sparse, nthreads);
+	auto spillover = std::make_unique<baecon::bvhar::DynamicSvSpillover>(lag, step, num_design, fit_record, include_mean, sparse, nthreads);
 	return spillover->returnSpillover();
 }
 
@@ -936,6 +1472,6 @@ Rcpp::List dynamic_bvarsv_spillover(int lag, int step, int num_design, Rcpp::Lis
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvharsv_spillover(int week, int month, int step, int num_design, Rcpp::List fit_record, bool sparse, bool include_mean, int nthreads) {
-	auto spillover = std::make_unique<bvhar::DynamicSvSpillover>(week, month, step, num_design, fit_record, include_mean, sparse, nthreads);
+	auto spillover = std::make_unique<baecon::bvhar::DynamicSvSpillover>(week, month, step, num_design, fit_record, include_mean, sparse, nthreads);
 	return spillover->returnSpillover();
 }

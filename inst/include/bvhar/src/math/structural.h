@@ -4,6 +4,7 @@
 // #include "../core/eigen.h"
 #include "../core/common.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Build coefficient in VAR(1) companion form of VAR(p)
@@ -59,7 +60,7 @@ inline bool is_stable(Eigen::Ref<const Eigen::MatrixXd> coef_mat, double thresho
 inline Eigen::MatrixXd convert_var_to_vma(Eigen::Ref<Eigen::MatrixXd> var_coef, int var_lag, int lag_max) {
   int dim = var_coef.cols(); // m
   if (lag_max < 1) {
-    STOP("'lag_max' must larger than 0");
+    BVHAR_STOP("'lag_max' must larger than 0");
   }
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
@@ -86,10 +87,10 @@ inline Eigen::MatrixXd convert_var_to_vma(Eigen::Ref<Eigen::MatrixXd> var_coef, 
 inline Eigen::MatrixXd convert_vma_ortho(Eigen::Ref<Eigen::MatrixXd> var_coef, Eigen::Ref<Eigen::MatrixXd> var_covmat, int var_lag, int lag_max) {
   int dim = var_covmat.cols(); // num_rows = num_cols
   if ((dim != var_covmat.rows()) && (dim != var_coef.cols())) {
-    STOP("Wrong covariance matrix format: `var_covmat`.");
+    BVHAR_STOP("Wrong covariance matrix format: `var_covmat`.");
   }
   if ((var_coef.rows() != var_lag * dim + 1) && (var_coef.rows() != var_lag * dim)) {
-    STOP("Wrong VAR coefficient format: `var_coef`.");
+    BVHAR_STOP("Wrong VAR coefficient format: `var_coef`.");
   }
   Eigen::MatrixXd ma = convert_var_to_vma(var_coef, var_lag, lag_max);
   Eigen::MatrixXd res(ma.rows(), dim);
@@ -119,7 +120,7 @@ inline Eigen::MatrixXd convert_vhar_to_vma(Eigen::Ref<Eigen::MatrixXd> vhar_coef
   // Eigen::MatrixXd coef_mat = HARtrans_mat.transpose() * vhar_coef; // bhat = tilde(T)^T * Phi
 	Eigen::MatrixXd coef_mat = harx_to_var(vhar_coef, HARtrans_mat);
   if (lag_max < 1) {
-    STOP("'lag_max' must larger than 0");
+    BVHAR_STOP("'lag_max' must larger than 0");
   }
   int ma_rows = dim * (lag_max + 1);
   int num_full_arows = ma_rows;
@@ -144,10 +145,10 @@ inline Eigen::MatrixXd convert_vhar_to_vma(Eigen::Ref<Eigen::MatrixXd> vhar_coef
 inline Eigen::MatrixXd convert_vhar_vma_ortho(Eigen::Ref<Eigen::MatrixXd> vhar_coef, Eigen::Ref<Eigen::MatrixXd> vhar_covmat, Eigen::Ref<Eigen::MatrixXd> HARtrans_mat, int lag_max, int month) {
   int dim = vhar_covmat.cols(); // num_rows = num_cols
   if ((dim != vhar_covmat.rows()) && (dim != vhar_coef.cols())) {
-    STOP("Wrong covariance matrix format: `vhar_covmat`.");
+    BVHAR_STOP("Wrong covariance matrix format: `vhar_covmat`.");
   }
   if ((vhar_coef.rows() != 3 * dim + 1) && (vhar_coef.rows() != 3 * dim)) {
-    STOP("Wrong VAR coefficient format: `vhar_coef`.");
+    BVHAR_STOP("Wrong VAR coefficient format: `vhar_coef`.");
   }
   Eigen::MatrixXd ma = convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
   Eigen::MatrixXd res(ma.rows(), dim);
@@ -220,5 +221,6 @@ inline Eigen::MatrixXd compute_net(Eigen::Ref<Eigen::MatrixXd> spillover) {
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_MATH_STRUCTURAL_H

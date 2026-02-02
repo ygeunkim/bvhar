@@ -54,7 +54,7 @@ remotes::install_github("ygeunkim/bvhar@develop")
 
 We started to develop a Python version in python directory.
 
-- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [bvhar for Python](https://bvhar.baeconverse.org/python/)
 - [Source code](https://github.com/ygeunkim/bvhar/tree/master/python)
 
 ## Models
@@ -67,19 +67,20 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model | function | prior |
-|:--:|:--:|:--:|
-| VAR | `var_lm()` |  |
-| VHAR | `vhar_lm()` |  |
-| BVAR | `bvar_minnesota()` and `choose_bvar()` | Minnesota (will move to `var_bayes()`) |
-| BVHAR | `bvhar_minnesota()` and `choose_bvhar()` | Minnesota (will move to `vhar_bayes()`) |
-| BVAR | `var_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
-| BVHAR | `vhar_bayes()` | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
+| Model |      function       |                  prior                  |
+|:-----:|:-------------------:|:---------------------------------------:|
+|  VAR  |     `var_lm()`      |                                         |
+| VHAR  |     `vhar_lm()`     |                                         |
+| BVAR  | `bvar_minnesota()`  | Minnesota (will move to `var_bayes()`)  |
+| BVHAR | `bvhar_minnesota()` | Minnesota (will move to `vhar_bayes()`) |
+| BVAR  |    `var_bayes()`    | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
+| BVHAR |   `vhar_bayes()`    | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
 
 This readme document shows forecasting procedure briefly. Details about
-each function are in vignettes and help documents. Note that each
-`bvar_minnesota()` and `bvhar_minnesota()` will be integrated into
-`var_bayes()` and `vhar_bayes()` and removed in the near future.
+each function are in vignettes and help documents.
+<!-- Note that each `bvar_minnesota()` and `bvhar_minnesota()` will be integrated into `var_bayes()` and `vhar_bayes()` and removed in the near future. -->
+Details will be updated after the function integration works are done.
+Until then, we remove Bayesian model sections here.
 
 h-step ahead forecasting:
 
@@ -133,153 +134,11 @@ forecast_vhar <- predict(mod_vhar, h)
 
 ### BVAR
 
-Minnesota prior:
-
-``` r
-lam <- .3
-delta <- rep(1, ncol(etf_vix)) # litterman
-sig <- apply(etf_tr, 2, sd)
-eps <- 1e-04
-(bvar_spec <- set_bvar(sig, lam, delta, eps))
-#> Model Specification for BVAR
-#> 
-#> Parameters: Coefficent matrice and Covariance matrix
-#> Prior: Minnesota
-#> ========================================================
-#> 
-#> Setting for 'sigma':
-#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
-#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
-#> VXEWZCLS  
-#>     7.03  
-#> 
-#> Setting for 'lambda':
-#> [1]  0.3
-#> 
-#> Setting for 'delta':
-#> [1]  1  1  1  1  1  1  1  1  1
-#> 
-#> Setting for 'eps':
-#> [1]  1e-04
-#> 
-#> Setting for 'hierarchical':
-#> [1]  FALSE
-```
-
-``` r
-mod_bvar <- bvar_minnesota(y = etf_tr, p = 5, bayes_spec = bvar_spec)
-```
-
-MSE:
-
-``` r
-forecast_bvar <- predict(mod_bvar, h)
-(msebvar <- mse(forecast_bvar, etf_te))
-#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>    4.651   13.248    1.845   10.356    9.894    0.667   21.040    6.262 
-#> VXEWZCLS 
-#>    8.864
-```
+<!-- var_bayes() -->
 
 ### BVHAR
 
-BVHAR-S:
-
-``` r
-(bvhar_spec_v1 <- set_bvhar(sig, lam, delta, eps))
-#> Model Specification for BVHAR
-#> 
-#> Parameters: Coefficent matrice and Covariance matrix
-#> Prior: MN_VAR
-#> ========================================================
-#> 
-#> Setting for 'sigma':
-#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
-#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
-#> VXEWZCLS  
-#>     7.03  
-#> 
-#> Setting for 'lambda':
-#> [1]  0.3
-#> 
-#> Setting for 'delta':
-#> [1]  1  1  1  1  1  1  1  1  1
-#> 
-#> Setting for 'eps':
-#> [1]  1e-04
-#> 
-#> Setting for 'hierarchical':
-#> [1]  FALSE
-```
-
-``` r
-mod_bvhar_v1 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v1)
-```
-
-MSE:
-
-``` r
-forecast_bvhar_v1 <- predict(mod_bvhar_v1, h)
-(msebvhar_v1 <- mse(forecast_bvhar_v1, etf_te))
-#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>    3.199    6.067    1.471    5.142    5.946    0.878   12.165    2.553 
-#> VXEWZCLS 
-#>    6.462
-```
-
-BVHAR-L:
-
-``` r
-day <- rep(.1, ncol(etf_vix))
-week <- rep(.1, ncol(etf_vix))
-month <- rep(.1, ncol(etf_vix))
-#----------------------------------
-(bvhar_spec_v2 <- set_weight_bvhar(sig, lam, eps, day, week, month))
-#> Model Specification for BVHAR
-#> 
-#> Parameters: Coefficent matrice and Covariance matrix
-#> Prior: MN_VHAR
-#> ========================================================
-#> 
-#> Setting for 'sigma':
-#>   GVZCLS    OVXCLS  VXFXICLS  VXEEMCLS  VXSLVCLS    EVZCLS  VXXLECLS  VXGDXCLS  
-#>     3.77     10.63      3.81      4.39      5.99      2.27      4.88      7.45  
-#> VXEWZCLS  
-#>     7.03  
-#> 
-#> Setting for 'lambda':
-#> [1]  0.3
-#> 
-#> Setting for 'eps':
-#> [1]  1e-04
-#> 
-#> Setting for 'daily':
-#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
-#> 
-#> Setting for 'weekly':
-#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
-#> 
-#> Setting for 'monthly':
-#> [1]  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1  0.1
-#> 
-#> Setting for 'hierarchical':
-#> [1]  FALSE
-```
-
-``` r
-mod_bvhar_v2 <- bvhar_minnesota(y = etf_tr, bayes_spec = bvhar_spec_v2)
-```
-
-MSE:
-
-``` r
-forecast_bvhar_v2 <- predict(mod_bvhar_v2, h)
-(msebvhar_v2 <- mse(forecast_bvhar_v2, etf_te))
-#>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
-#>     3.63     3.85     1.64     5.12     5.75     1.08    13.60     2.58 
-#> VXEWZCLS 
-#>     5.54
-```
+<!-- vhar_bayes() -->
 
 ## Citation
 
@@ -290,7 +149,7 @@ Please cite this package with following BibTeX:
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.3.0},
+      note = {R package version 2.4.0},
       url = {https://cran.r-project.org/package=bvhar},
     }
 

@@ -10,7 +10,7 @@ toc: false
 This is a Python version for [`bvhar`](https://cloud.r-project.org/web/packages/bvhar/index.html) package.
 
 The package implements C++ headers made in R package.
-Learn more about [`bvhar for R`](https://ygeunkim.github.io/package/bvhar/index.html).
+Learn more about [`bvhar for R`](https://bvhar.baeconverse.org).
 
 ::: {.callout-note}
 `bvhar` for Python is not ready to use. This page is rendered just for testing.
@@ -37,6 +37,12 @@ Otherwise, you should set their paths by yourself; at this stage.
 From GitHub:
 
 ```bash
+python -m pip install 'git+https://github.com/ygeunkim/bvhar.git#egg=bvhar&subdirectory=python'
+```
+
+Development version:
+
+```bash
 python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvhar&subdirectory=python'
 ```
 
@@ -55,7 +61,7 @@ python -m pip install 'git+https://github.com/ygeunkim/bvhar.git@develop#egg=bvh
 
 [Report a bug](https://github.com/ygeunkim/bvhar/issues)
 
-[bvhar in R](https://ygeunkim.github.io/package/bvhar/index.html)
+[bvhar in R](https://bvhar.baeconverse.org)
 
 ### License
 

@@ -45,7 +45,7 @@ bool is_omp() {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_response(Eigen::MatrixXd y, int var_lag, int index) {
-	return bvhar::build_y0(y, var_lag, index);
+	return baecon::bvhar::build_y0(y, var_lag, index);
 }
 
 //' Build Design Matrix of VAR(p)
@@ -66,13 +66,13 @@ Eigen::MatrixXd build_response(Eigen::MatrixXd y, int var_lag, int index) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_design(Eigen::MatrixXd y, int var_lag, bool include_mean) {
-	return bvhar::build_x0(y, var_lag, include_mean);
+	return baecon::bvhar::build_x0(y, var_lag, include_mean);
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_exogen_design(Eigen::MatrixXd y, Eigen::MatrixXd exogen, int var_lag, int exogen_lag, bool include_mean) {
-	return bvhar::build_x0(y, exogen, var_lag, exogen_lag, include_mean);
+	return baecon::bvhar::build_x0(y, exogen, var_lag, exogen_lag, include_mean);
 }
 
 //' Building a Linear Transformation Matrix for Vector HAR
@@ -97,7 +97,7 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
   if (week > month) {
     Rcpp::stop("'month' should be larger than 'week'.");
   }
-	return bvhar::build_vhar(dim, week, month, include_mean);
+	return baecon::bvhar::build_vhar(dim, week, month, include_mean);
 }
 
 //' Construct Dummy response for Minnesota Prior
@@ -123,7 +123,7 @@ Eigen::MatrixXd scale_har(int dim, int week, int month, bool include_mean) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda, Eigen::VectorXd daily, Eigen::VectorXd weekly, Eigen::VectorXd monthly, bool include_mean) {
-	return bvhar::build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean);
+	return baecon::bvhar::build_ydummy(p, sigma, lambda, daily, weekly, monthly, include_mean);
 }
 
 //' Construct Dummy design matrix for Minnesota Prior
@@ -146,7 +146,7 @@ Eigen::MatrixXd build_ydummy_export(int p, Eigen::VectorXd sigma, double lambda,
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd build_xdummy_export(Eigen::VectorXd lag_seq, double lambda, Eigen::VectorXd sigma, double eps, bool include_mean) {
-	return bvhar::build_xdummy(lag_seq, lambda, sigma, eps, include_mean);
+	return baecon::bvhar::build_xdummy(lag_seq, lambda, sigma, eps, include_mean);
 }
 
 //' Parameters of Normal Inverted Wishart Prior
@@ -199,7 +199,7 @@ Rcpp::List minnesota_prior(Eigen::MatrixXd x_dummy, Eigen::MatrixXd y_dummy) {
 //' @param sig Variance matrix
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
+Eigen::MatrixXd sim_mgaussian_export(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd sig) {
   int dim = sig.cols();
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
@@ -207,16 +207,17 @@ Eigen::MatrixXd sim_mgaussian(int num_sim, Eigen::VectorXd mu, Eigen::MatrixXd s
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
-  Eigen::MatrixXd standard_normal(num_sim, dim);
-  Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
-  for (int i = 0; i < num_sim; i++) {
-    for (int j = 0; j < standard_normal.cols(); j++) {
-      standard_normal(i, j) = norm_rand();
-    }
-  }
-  res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
-  res.rowwise() += mu.transpose();
-  return res;
+  // Eigen::MatrixXd standard_normal(num_sim, dim);
+  // Eigen::MatrixXd res(num_sim, dim); // result: each column indicates variable
+  // for (int i = 0; i < num_sim; i++) {
+  //   for (int j = 0; j < standard_normal.cols(); j++) {
+  //     standard_normal(i, j) = norm_rand();
+  //   }
+  // }
+  // res = standard_normal * sig.sqrt(); // epsilon(t) = Sigma^{1/2} Z(t)
+  // res.rowwise() += mu.transpose();
+  // return res;
+	return baecon::bvhar::sim_mgaussian_eigen(num_sim, mu, sig);
 }
 
 //' Generate Multivariate Normal Random Vector using Cholesky Decomposition
@@ -239,7 +240,7 @@ Eigen::MatrixXd sim_mgaussian_chol_export(int num_sim, Eigen::VectorXd mu, Eigen
   if (dim != mu.size()) {
     Rcpp::stop("Invalid 'mu' size.");
   }
-  return bvhar::sim_mgaussian_chol(num_sim, mu, sig);
+  return baecon::bvhar::sim_mgaussian_chol(num_sim, mu, sig);
 }
 
 //' Generate Multivariate t Random Vector
@@ -254,7 +255,7 @@ Eigen::MatrixXd sim_mgaussian_chol_export(int num_sim, Eigen::VectorXd mu, Eigen
 //' 
 //' @noRd
 // [[Rcpp::export]]
-Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
+Eigen::MatrixXd sim_mstudent_export(int num_sim, double df, Eigen::VectorXd mu, Eigen::MatrixXd sig, int method) {
   int dim = sig.cols();
   if (sig.rows() != dim) {
     Rcpp::stop("Invalid 'sig' dimension.");
@@ -265,18 +266,20 @@ Eigen::MatrixXd sim_mstudent(int num_sim, double df, Eigen::VectorXd mu, Eigen::
   Eigen::MatrixXd res(num_sim, dim);
   switch (method) {
   case 1:
-    res = sim_mgaussian(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    // res = baecon::bvhar::sim_mgaussian_eigen(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = baecon::bvhar::sim_mstudent_eigen(num_sim, df, mu, sig);
     break;
   case 2:
-    res = bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+    // res = baecon::bvhar::sim_mgaussian_chol(num_sim, Eigen::VectorXd::Zero(dim), sig);
+		res = baecon::bvhar::sim_mstudent_chol(num_sim, df, mu, sig);
     break;
   default:
     Rcpp::stop("Invalid 'method' option.");
   }
-  for (int i = 0; i < num_sim; i++) {
-    res.row(i) *= sqrt(df / bvhar::chisq_rand(df));
-  }
-  res.rowwise() += mu.transpose();
+  // for (int i = 0; i < num_sim; i++) {
+  //   res.row(i) *= sqrt(df / bvhar::chisq_rand(df));
+  // }
+  // res.rowwise() += mu.transpose();
   return res;
 }
 
@@ -312,7 +315,7 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_sc
   if (mat_mean.cols() != mat_scale_v.rows()) {
     Rcpp::stop("Invalid 'mat_scale_v' dimension.");
   }
-	return bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v, u_prec);
+	return baecon::bvhar::sim_mn(mat_mean, mat_scale_u, mat_scale_v, u_prec);
 }
 
 //' Generate Inverse-Wishart Random Matrix
@@ -334,10 +337,10 @@ Eigen::MatrixXd sim_matgaussian(Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_sc
 //' @export
 // [[Rcpp::export]]
 Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
-  // Eigen::MatrixXd chol_res = bvhar::sim_iw_tri(mat_scale, shape);
+  // Eigen::MatrixXd chol_res = baecon::bvhar::sim_iw_tri(mat_scale, shape);
   // Eigen::MatrixXd res = chol_res * chol_res.transpose(); // dim x dim
   // return res;
-	return bvhar::sim_inv_wishart(mat_scale, shape);
+	return baecon::bvhar::sim_inv_wishart(mat_scale, shape);
 }
 
 //' Generate Normal-IW Random Family
@@ -355,268 +358,15 @@ Eigen::MatrixXd sim_iw(Eigen::MatrixXd mat_scale, double shape) {
 Rcpp::List sim_mniw_export(int num_sim, Eigen::MatrixXd mat_mean, Eigen::MatrixXd mat_scale_u, Eigen::MatrixXd mat_scale, double shape, bool prec) {
 	std::vector<std::vector<Eigen::MatrixXd>> res(num_sim, std::vector<Eigen::MatrixXd>(2));
 	for (int i = 0; i < num_sim; i++) {
-		res[i] = bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape, prec);
+		res[i] = baecon::bvhar::sim_mn_iw(mat_mean, mat_scale_u, mat_scale, shape, prec);
   }
 	return Rcpp::wrap(res);
-}
-
-//' Generate Multivariate Time Series Process Following VAR(p)
-//' 
-//' This function generates multivariate time series dataset that follows VAR(p).
-//' 
-//' @param num_sim Number to generated process
-//' @param num_burn Number of burn-in
-//' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-//' @param var_lag Lag of VAR
-//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-//' @param process Process type. 1: Gaussian. 2: student-t.
-//' @param mvt_df DF of MVT
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd sim_var_eigen(int num_sim, 
-                              int num_burn, 
-                              Eigen::MatrixXd var_coef, 
-                              int var_lag, 
-                              Eigen::MatrixXd sig_error, 
-                              Eigen::MatrixXd init,
-                              int process,
-                              double mvt_df) {
-  int dim = sig_error.cols(); // m: dimension of time series
-  int dim_design = var_coef.rows(); // k = mp + 1 (const) or mp (none)
-  int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd obs_p(1, dim_design); // row vector of X0: yp^T, ..., y1^T, (1)
-  obs_p(0, dim_design - 1) = 1.0; // for constant term if exists
-  for (int i = 0; i < var_lag; i++) {
-    obs_p.block(0, i * dim, 1, dim) = init.row(var_lag - i - 1);
-  }
-  Eigen::MatrixXd res(num_rand, dim); // Output: from y(p + 1)^T to y(n + p)^T
-  // epsilon ~ N(0, sig_error)
-  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
-  // Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
-  Eigen::MatrixXd error_term(num_rand, dim);
-  switch (process) {
-  case 1:
-    error_term = sim_mgaussian(num_rand, sig_mean, sig_error);
-    break;
-  case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 1);
-    break;
-  default:
-    Rcpp::stop("Invalid 'process' option.");
-  }
-  res.row(0) = obs_p * var_coef + error_term.row(0); // y(p + 1) = [yp^T, ..., y1^T, 1] A + eps(T)
-  for (int i = 1; i < num_rand; i++) {
-    for (int t = 1; t < var_lag; t++) {
-      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
-    }
-    obs_p.topLeftCorner(1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * var_coef + error_term.row(i); // yi = [y(i-1), ..., y(i-p), 1] A + eps(i)
-  }
-  return res.bottomRows(num_rand - num_burn);
-}
-
-//' Generate Multivariate Time Series Process Following VAR(p) using Cholesky Decomposition
-//' 
-//' This function generates VAR(p) using Cholesky Decomposition.
-//' 
-//' @param num_sim Number to generated process
-//' @param num_burn Number of burn-in
-//' @param var_coef VAR coefficient. The format should be the same as the output of [coef()] from [var_lm()]
-//' @param var_lag Lag of VAR
-//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-//' @param init Initial y1, ..., yp matrix to simulate VAR model. Try `matrix(0L, nrow = var_lag, ncol = dim)`.
-//' @param process Process type. 1: Gaussian. 2: student-t.
-//' @param mvt_df DF of MVT
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd sim_var_chol(int num_sim, 
-                             int num_burn, 
-                             Eigen::MatrixXd var_coef, 
-                             int var_lag, 
-                             Eigen::MatrixXd sig_error, 
-                             Eigen::MatrixXd init,
-                             int process,
-                             double mvt_df) {
-  int dim = sig_error.cols();
-  int dim_design = var_coef.rows();
-  int num_rand = num_sim + num_burn;
-  Eigen::MatrixXd obs_p(1, dim_design);
-  obs_p(0, dim_design - 1) = 1.0;
-  for (int i = 0; i < var_lag; i++) {
-    obs_p.block(0, i * dim, 1, dim) = init.row(var_lag - i - 1);
-  }
-  Eigen::MatrixXd res(num_rand, dim);
-  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim);
-  // Eigen::MatrixXd error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error); // normal using cholesky
-  Eigen::MatrixXd error_term(num_rand, dim);
-  switch (process) {
-  case 1:
-    error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error);
-    break;
-  case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 2);
-    break;
-  default:
-    Rcpp::stop("Invalid 'process' option.");
-  }
-  res.row(0) = obs_p * var_coef + error_term.row(0);
-  for (int i = 1; i < num_rand; i++) {
-    for (int t = 1; t < var_lag; t++) {
-      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
-    }
-    obs_p.topLeftCorner(1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * var_coef + error_term.row(i);
-  }
-  return res.bottomRows(num_rand - num_burn);
-}
-
-//' Generate Multivariate Time Series Process Following VHAR
-//' 
-//' This function generates multivariate time series dataset that follows VHAR.
-//' 
-//' @param num_sim Number to generated process
-//' @param num_burn Number of burn-in
-//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-//' @param week Order for weekly term. Try `5L` by default.
-//' @param month Order for monthly term. Try `22L` by default.
-//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-//' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-//' @param process Process type. 1: Gaussian. 2: student-t.
-//' @param mvt_df DF of MVT
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd sim_vhar_eigen(int num_sim, 
-                               int num_burn, 
-                               Eigen::MatrixXd vhar_coef, 
-                               int week,
-                               int month,
-                               Eigen::MatrixXd sig_error, 
-                               Eigen::MatrixXd init,
-                               int process,
-                               double mvt_df) {
-  int dim = sig_error.cols(); // m: dimension of time series
-  int num_har = vhar_coef.rows(); // 3m + 1 (const) or 3m (none)
-  int dim_har = month * dim + 1; // 22m + 1 (const)
-  bool include_mean = true;
-  if (num_har == 3 * dim) {
-    dim_har -= 1;
-    include_mean = false;
-  } // 22m (none)
-  int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = bvhar::build_vhar(dim, week, month, include_mean).topLeftCorner(num_har, dim_har);
-  Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
-  obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
-  for (int i = 0; i < month; i++) {
-    obs_p.block(0, i * dim, 1, dim) = init.row(month - 1 - i);
-  }
-  Eigen::MatrixXd res(num_rand, dim); // Output: from y(23)^T to y(n + 22)^T
-  // epsilon ~ N(0, sig_error)
-  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
-  // Eigen::MatrixXd error_term = sim_mgaussian(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
-  Eigen::MatrixXd error_term(num_rand, dim);
-  switch (process) {
-  case 1:
-    error_term = sim_mgaussian(num_rand, sig_mean, sig_error);
-    break;
-  case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 1);
-    break;
-  default:
-    Rcpp::stop("Invalid 'process' option.");
-  }
-  res.row(0) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(0);
-  for (int i = 1; i < num_rand; i++) {
-    for (int t = 1; t < month; t++) {
-      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
-    }
-    obs_p.topLeftCorner(1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(i);
-  }
-  return res.bottomRows(num_rand - num_burn);
-}
-
-//' Generate Multivariate Time Series Process Following VHAR using Cholesky Decomposition
-//' 
-//' This function generates multivariate time series dataset that follows VHAR.
-//' 
-//' @param num_sim Number to generated process
-//' @param num_burn Number of burn-in
-//' @param vhar_coef VHAR coefficient. The format should be the same as the output of [coef.vharlse()] from [vhar_lm()]
-//' @param week Order for weekly term. Try `5L` by default.
-//' @param month Order for monthly term. Try `22L` by default.
-//' @param sig_error Variance matrix of the error term. Try `diag(dim)`.
-//' @param init Initial y1, ..., y_month matrix to simulate VHAR model. Try `matrix(0L, nrow = month, ncol = dim)`.
-//' @param process Process type. 1: Gaussian. 2: student-t.
-//' @param mvt_df DF of MVT
-//' @details
-//' Let \eqn{M} be the month order, e.g. \eqn{M = 22}.
-//' 
-//' 1. Generate \eqn{\epsilon_1, \epsilon_n \sim N(0, \Sigma)}
-//' 2. For i = 1, ... n,
-//' \deqn{y_{M + i} = (y_{M + i - 1}^T, \ldots, y_i^T, 1)^T C_{HAR}^T \Phi + \epsilon_i}
-//' 3. Then the output is \eqn{(y_{M + 1}, \ldots, y_{n + M})^T}
-//' 
-//' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing. doi:[10.1007/978-3-540-27752-1](https://doi.org/10.1007/978-3-540-27752-1)
-//' @noRd
-// [[Rcpp::export]]
-Eigen::MatrixXd sim_vhar_chol(int num_sim, 
-                              int num_burn, 
-                              Eigen::MatrixXd vhar_coef, 
-                              int week,
-                              int month,
-                              Eigen::MatrixXd sig_error, 
-                              Eigen::MatrixXd init,
-                              int process,
-                              double mvt_df) {
-  int dim = sig_error.cols(); // m: dimension of time series
-  int num_har = vhar_coef.rows(); // 3m + 1 (const) or 3m (none)
-  int dim_har = month * dim + 1; // 22m + 1 (const)
-  bool include_mean = true;
-  if (num_har == 3 * dim) {
-    dim_har -= 1;
-    include_mean = false;
-  } // 22m (none)
-  int num_rand = num_sim + num_burn; // sim + burnin
-  Eigen::MatrixXd hartrans_mat = bvhar::build_vhar(dim, week, month, include_mean).topLeftCorner(num_har, dim_har);
-  Eigen::MatrixXd obs_p(1, dim_har); // row vector of X0: y22^T, ..., y1^T, 1
-  obs_p(0, dim_har - 1) = 1.0; // for constant term if exists
-  for (int i = 0; i < month; i++) {
-    obs_p.block(0, i * dim, 1, dim) = init.row(month - 1 - i);
-  }
-  Eigen::MatrixXd res(num_rand, dim); // Output: from y(23)^T to y(n + 22)^T
-  // epsilon ~ N(0, sig_error)
-  Eigen::VectorXd sig_mean = Eigen::VectorXd::Zero(dim); // zero mean
-  // Eigen::MatrixXd error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error); // simulated error term: num_rand x m
-  Eigen::MatrixXd error_term(num_rand, dim);
-  switch (process) {
-  case 1:
-    error_term = bvhar::sim_mgaussian_chol(num_rand, sig_mean, sig_error);
-    break;
-  case 2:
-    error_term = sim_mstudent(num_rand, mvt_df, sig_mean, sig_error * (mvt_df - 2) / mvt_df, 2);
-    break;
-  default:
-    Rcpp::stop("Invalid 'process' option.");
-  }
-  res.row(0) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(0);
-  for (int i = 1; i < num_rand; i++) {
-    for (int t = 1; t < month; t++) {
-      obs_p.block(0, t * dim, 1, dim) = obs_p.block(0, (t - 1) * dim, 1, dim);
-    }
-    obs_p.topLeftCorner(1, dim) = res.row(i - 1);
-    res.row(i) = obs_p * hartrans_mat.transpose() * vhar_coef + error_term.row(i);
-  }
-  return res.bottomRows(num_rand - num_burn);
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA(Eigen::MatrixXd var_coef, int var_lag, int lag_max) {
-  return bvhar::convert_var_to_vma(var_coef, var_lag, lag_max);
+  return baecon::bvhar::convert_var_to_vma(var_coef, var_lag, lag_max);
 }
 
 //' Convert VAR to VMA(infinite)
@@ -645,7 +395,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
   }
   Eigen::MatrixXd coef_mat = object["coefficients"]; // bhat(k, m) = [B1^T, B2^T, ..., Bp^T, c^T]^T
   int var_lag = object["p"];
-  Eigen::MatrixXd ma = bvhar::convert_var_to_vma(coef_mat, var_lag, lag_max);
+  Eigen::MatrixXd ma = baecon::bvhar::convert_var_to_vma(coef_mat, var_lag, lag_max);
   return ma;
 }
 
@@ -653,7 +403,7 @@ Eigen::MatrixXd VARtoVMA(Rcpp::List object, int lag_max) {
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_var_mse_export(Eigen::MatrixXd cov_mat, Eigen::MatrixXd var_coef, int var_lag, int step) {
   // int dim = cov_mat.cols(); // dimension of time series
-  // Eigen::MatrixXd vma_mat = bvhar::convert_var_to_vma(var_coef, var_lag, step);
+  // Eigen::MatrixXd vma_mat = baecon::bvhar::convert_var_to_vma(var_coef, var_lag, step);
   // Eigen::MatrixXd innov_account = Eigen::MatrixXd::Zero(dim, dim);
   // Eigen::MatrixXd mse = Eigen::MatrixXd::Zero(dim * step, dim);
   // for (int i = 0; i < step; i++) {
@@ -661,7 +411,7 @@ Eigen::MatrixXd compute_var_mse_export(Eigen::MatrixXd cov_mat, Eigen::MatrixXd 
   //   mse.block(i * dim, 0, dim, dim) = innov_account;
   // }
   // return mse;
-	return bvhar::compute_var_mse(cov_mat, var_coef, var_lag, step);
+	return baecon::bvhar::compute_var_mse(cov_mat, var_coef, var_lag, step);
 }
 
 //' Compute Forecast MSE Matrices
@@ -699,13 +449,13 @@ Eigen::MatrixXd compute_covmse(Rcpp::List object, int step) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VARcoeftoVMA_ortho(Eigen::MatrixXd var_coef, Eigen::MatrixXd var_covmat, int var_lag, int lag_max) {
-  return bvhar::convert_vma_ortho(var_coef, var_covmat, var_lag, lag_max);
+  return baecon::bvhar::convert_vma_ortho(var_coef, var_covmat, var_lag, lag_max);
 }
 
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd VHARcoeftoVMA(Eigen::MatrixXd vhar_coef, Eigen::MatrixXd HARtrans_mat, int lag_max, int month) {
-  return bvhar::convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
+  return baecon::bvhar::convert_vhar_to_vma(vhar_coef, HARtrans_mat, lag_max, month);
 }
 
 //' Convert VHAR to VMA(infinite)
@@ -735,7 +485,7 @@ Eigen::MatrixXd VHARtoVMA(Rcpp::List object, int lag_max) {
   Eigen::MatrixXd har_mat = object["coefficients"]; // Phihat(3m + 1, m) = [Phi(d)^T, Phi(w)^T, Phi(m)^T, c^T]^T
   Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // tilde(T): (3m + 1, 22m + 1)
   int month = object["month"];
-  Eigen::MatrixXd ma = bvhar::convert_vhar_to_vma(har_mat, hartrans_mat, lag_max, month);
+  Eigen::MatrixXd ma = baecon::bvhar::convert_vhar_to_vma(har_mat, hartrans_mat, lag_max, month);
   return ma;
 }
 
@@ -746,7 +496,7 @@ Eigen::MatrixXd compute_vhar_mse_export(Eigen::MatrixXd cov_mat,
                                 				Eigen::MatrixXd har_trans,
                                 				int month,
                                 				int step) {
-	return bvhar::compute_vhar_mse(cov_mat, vhar_coef, har_trans, month, step);
+	return baecon::bvhar::compute_vhar_mse(cov_mat, vhar_coef, har_trans, month, step);
 }
 
 //' Compute Forecast MSE Matrices for VHAR
@@ -796,17 +546,17 @@ Eigen::MatrixXd VHARcoeftoVMA_ortho(Eigen::MatrixXd vhar_coef,
                                     Eigen::MatrixXd HARtrans_mat, 
                                     int lag_max, 
                                     int month) {
-  return bvhar::convert_vhar_vma_ortho(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month);
+  return baecon::bvhar::convert_vhar_vma_ortho(vhar_coef, vhar_covmat, HARtrans_mat, lag_max, month);
 }
 
 //' h-step ahead Forecast Error Variance Decomposition
 //' 
-//' [w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...]
+//' (w_(h = 1, ij)^T, w_(h = 2, ij)^T, ...)
 //'
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_fevd(Eigen::MatrixXd vma_coef, Eigen::MatrixXd cov_mat, bool normalize) {
-  return bvhar::compute_vma_fevd(vma_coef, cov_mat, normalize);
+  return baecon::bvhar::compute_vma_fevd(vma_coef, cov_mat, normalize);
 }
 
 //' h-step ahead Normalized Spillover
@@ -822,7 +572,7 @@ Eigen::MatrixXd compute_spillover(Eigen::MatrixXd fevd) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_to(spillover);
+  return baecon::bvhar::compute_to(spillover);
 }
 
 //' From-others Spillovers
@@ -830,7 +580,7 @@ Eigen::VectorXd compute_to_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_from(spillover);
+  return baecon::bvhar::compute_from(spillover);
 }
 
 //' Total Spillovers
@@ -838,7 +588,7 @@ Eigen::VectorXd compute_from_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 double compute_tot_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_tot(spillover);
+  return baecon::bvhar::compute_tot(spillover);
 }
 
 //' Net Pairwise Spillovers
@@ -846,7 +596,7 @@ double compute_tot_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
-  return bvhar::compute_net(spillover);
+  return baecon::bvhar::compute_net(spillover);
 }
 
 //' VAR(1) Representation Given VAR Coefficient Matrix
@@ -881,7 +631,7 @@ Eigen::MatrixXd compute_net_spillover(Eigen::MatrixXd spillover) {
 //' @noRd
 // [[Rcpp::export]]
 Eigen::MatrixXd compute_stablemat(Eigen::MatrixXd x) {
-  return bvhar::build_companion(x);
+  return baecon::bvhar::build_companion(x);
 }
 
 //' VAR(1) Representation of VAR(p)
@@ -902,7 +652,7 @@ Eigen::MatrixXd compute_var_stablemat(Eigen::MatrixXd coef_mat, int var_lag) {
   // int var_lag = object["p"]; // p
   // Eigen::MatrixXd coef_mat = object["coefficients"]; // Ahat
   Eigen::MatrixXd coef_without_const = coef_mat.topLeftCorner(dim * var_lag, dim);
-  Eigen::MatrixXd res = bvhar::build_companion(coef_without_const);
+  Eigen::MatrixXd res = baecon::bvhar::build_companion(coef_without_const);
   return res;
 }
 
@@ -928,7 +678,7 @@ Eigen::MatrixXd compute_vhar_stablemat(Eigen::MatrixXd coef_mat, Eigen::MatrixXd
   // Eigen::MatrixXd hartrans_mat = object["HARtrans"]; // HAR transformation: (3m + 1, 22m + 1)
   Eigen::MatrixXd coef_without_const = coef_mat.topLeftCorner(3 * dim, dim);
   Eigen::MatrixXd hartrans_without_const = hartrans_mat.topLeftCorner(3 * dim, 22 * dim); // 3m x 22m
-  Eigen::MatrixXd res = bvhar::build_companion(hartrans_without_const.transpose() * coef_without_const);
+  Eigen::MatrixXd res = baecon::bvhar::build_companion(hartrans_without_const.transpose() * coef_without_const);
   return res;
 }
 
@@ -948,12 +698,12 @@ double log_mgammafn(double x, int p) {
     Rcpp::stop("'x' should be larger than 0.");
   }
   if (p == 1) {
-    return bvhar::lgammafn(x);
+    return baecon::bvhar::lgammafn(x);
   }
   if (2 * x < p) {
     Rcpp::stop("'x / 2' should be larger than 'p'.");
   }
-  return bvhar::lmgammafn(x, p);
+  return baecon::bvhar::lmgammafn(x, p);
 }
 
 //' Numerically Stable Log ML Excluding Constant Term of BVAR and BVHAR
@@ -969,7 +719,7 @@ double logml_stable(Rcpp::List object) {
   if (!object.inherits("bvarmn") && !object.inherits("bvharmn")) {
     Rcpp::stop("'object' must be bvarmn or bvharmn object.");
   }
-  return bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["covmat"], object["iw_shape"]);
+  return baecon::bvhar::compute_logml(object["m"], object["obs"], object["prior_precision"], object["prior_scale"], object["mn_prec"], object["covmat"], object["iw_shape"]);
 }
 
 //' AIC of VAR(p) using RSS

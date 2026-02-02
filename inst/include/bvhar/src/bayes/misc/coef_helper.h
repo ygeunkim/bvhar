@@ -3,6 +3,7 @@
 
 #include "./helper.h"
 
+namespace baecon {
 namespace bvhar {
 
 // Generating the Equation-wise Coefficients Vector and Contemporaneous Coefficients
@@ -15,7 +16,7 @@ namespace bvhar {
 // @param prior_prec Prior precision matrix
 // @param innov_prec Stacked precision matrix of innovation
 inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::MatrixXd> x, Eigen::Ref<const Eigen::VectorXd> y,
-											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, BHRNG& rng) {
+											Eigen::Ref<Eigen::VectorXd> prior_mean, Eigen::Ref<Eigen::VectorXd> prior_prec, BVHAR_BHRNG& rng) {
   int dim = prior_mean.size();
   Eigen::VectorXd res(dim);
   for (int i = 0; i < dim; i++) {
@@ -92,7 +93,7 @@ inline void draw_mn_savs(Eigen::Ref<Eigen::VectorXd> sparse_coef, Eigen::Ref<Eig
 // @param ortho_latent Residual matrix of triangular equation
 // @param rng boost rng
 inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd& shape, Eigen::VectorXd& scl,
-													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, BHRNG& rng) {
+													Eigen::Ref<const Eigen::MatrixXd> ortho_latent, BVHAR_BHRNG& rng) {
 	int num_design = ortho_latent.rows();
 	for (int i = 0; i < diag_vec.size(); ++i) {
 		// diag_vec[i] = 1 / gamma_rand(
@@ -109,5 +110,6 @@ inline void reg_ldlt_diag(Eigen::Ref<Eigen::VectorXd> diag_vec, Eigen::VectorXd&
 }
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_MISC_COEF_HELPER_H_H_H

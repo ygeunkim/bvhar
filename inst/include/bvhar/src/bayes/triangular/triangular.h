@@ -8,8 +8,10 @@
 
 #include "./config.h"
 #include "../shrinkage/shrinkage.h"
+#include "../dfm/augment.h"
 #include <type_traits>
 
+namespace baecon {
 namespace bvhar {
 
 // MCMC algorithms
@@ -32,13 +34,18 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<FactorAugmenter>> favar = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_prior = BVHAR_NULLOPT
 	)
 	: McmcAlgo(params, seed),
 		include_mean(params._mean), x(params._x), y(params._y),
 		dim(params._dim), dim_design(params._dim_design), num_design(params._num_design),
 		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef), num_alpha(params._num_alpha), nrow_coef(params._nrow),
-		nrow_exogen(params._nrow_exogen), num_exogen(params._num_exogen), num_endog(num_coef - num_exogen),
+		nrow_exogen(params._nrow_exogen), num_exogen(params._num_exogen),// num_endog(num_coef - num_exogen), nrow_endog(num_endog / dim),
+		size_factor(params._size_factor), num_factor(params._num_factor),
+		num_endog(params._num_endog), nrow_endog(num_endog / dim),
+		nrow_varx(nrow_endog + nrow_exogen),
 		coef_updater(std::move(coef_prior)), contem_updater(std::move(contem_prior)),
 		own_id(params._own_id), grp_id(params._grp_id), grp_vec(params._grp_vec), num_grp(grp_id.size()),
 		// reg_record(std::make_unique<RegRecords>(num_iter, dim, num_design, num_coef, num_lowerchol)),
@@ -58,6 +65,24 @@ public:
 		response_contem(Eigen::VectorXd::Zero(num_design)),
 		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: dim={}, dim_design={}, num_design={}, num_lowerchol={}, num_coef={}, num_alpha={}, nrow_coef={}",
+			dim, dim_design, num_design, num_lowerchol, num_coef, num_alpha, nrow_coef
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: nrow_exogen={}, num_exogen={}, size_factor={}, num_factor={}, num_endog={}, nrow_endog={}, nrow_varx={}",
+			nrow_exogen, num_exogen,
+			size_factor, num_factor,
+			num_endog, nrow_endog, nrow_varx
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: coef_mat: {}x{}, prior_alpha_mean: {}, prior_alpha_prec: {}",
+			coef_mat.rows(), coef_mat.cols(),
+			prior_alpha_mean.size(), prior_alpha_prec.size()
+		);
 		if (include_mean) {
 			prior_alpha_mean.segment(num_alpha, dim) = params._mean_non;
 			prior_alpha_prec.segment(num_alpha, dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
@@ -68,7 +93,15 @@ public:
 		}
 		if (exogen_prior) {
 			exogen_updater = std::move(*exogen_prior);
-			coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+			// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+			coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
+		}
+		if (factor_prior) {
+			factor_updater = std::move(*factor_prior);
+			coef_vec.tail(num_factor) = coef_mat.bottomRows(size_factor).reshaped();
+		}
+		if (favar) {
+			favar_updater = std::move(*favar);
 		}
 		// reg_record->assignRecords(0, coef_vec, contem_coef, diag_vec);
 		sparse_record.assignRecords(0, sparse_coef, sparse_contem);
@@ -78,16 +111,20 @@ public:
 	virtual ~McmcTriangular() = default;
 
 	/**
-	 * @brief Append each class's additional record to the result `LIST`
+	 * @brief Append each class's additional record to the result `BVHAR_LIST`
 	 * 
-	 * @param list `LIST` containing MCMC record result
+	 * @param list `BVHAR_LIST` containing MCMC record result
 	 */
-	void appendRecords(LIST& list) {
+	void appendRecords(BVHAR_LIST& list) {
 		coef_updater->appendCoefRecords(list);
 		contem_updater->appendContemRecords(list);
+		if (favar_updater) {
+			favar_updater->appendRecords(list);
+		}
 	}
 
 	void doWarmUp() override {
+		BVHAR_DEBUG_LOG(debug_logger, "doWarmUp() called");
 		std::lock_guard<std::mutex> lock(mtx);
 		updateCoefPrec();
 		updatePenalty();
@@ -101,6 +138,7 @@ public:
 	}
 
 	void doPosteriorDraws() override {
+		BVHAR_DEBUG_LOG(debug_logger, "doPosteriorDraws() called");
 		std::lock_guard<std::mutex> lock(mtx);
 		addStep();
 		updateCoefPrec();
@@ -115,14 +153,15 @@ public:
 		updateRecords();
 	}
 
-	LIST returnRecords(int num_burn, int thin) override {
-		LIST res = gatherRecords();
+	BVHAR_LIST returnRecords(int num_burn, int thin) override {
+		BVHAR_DEBUG_LOG(debug_logger, "returnRecords(num_burn={}, thin={}) called", num_burn, thin);
+		BVHAR_LIST res = gatherRecords();
 		appendRecords(res);
 		for (auto& record : res) {
-			if (IS_MATRIX(ACCESS_LIST(record, res))) {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::MatrixXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+			if (BVHAR_IS_MATRIX(BVHAR_ACCESS_LIST(record, res))) {
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::MatrixXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			} else {
-				ACCESS_LIST(record, res) = thin_record(CAST<Eigen::VectorXd>(ACCESS_LIST(record, res)), num_iter, num_burn, thin);
+				BVHAR_ACCESS_LIST(record, res) = thin_record(BVHAR_CAST<Eigen::VectorXd>(BVHAR_ACCESS_LIST(record, res)), num_iter, num_burn, thin);
 			}
 		}
 		return res;
@@ -166,6 +205,12 @@ public:
 		return reg_record->returnRecords<RecordType>(sparse_record, num_iter, num_burn, thin, sparse);
 	}
 
+	template <typename RecordType>
+	RecordType returnFactorRecords(int num_burn, int thin) const {
+		BVHAR_DEBUG_LOG(debug_logger, "returnFactorRecords(num_burn={}, thin={}) called", num_burn, thin);
+		return favar_updater->returnStructRecords<RecordType>(num_burn, thin);
+	}
+
 protected:
 	bool include_mean;
 	Eigen::MatrixXd x;
@@ -177,10 +222,15 @@ protected:
   int num_coef;
 	int num_alpha;
 	int nrow_coef;
-	int nrow_exogen, num_exogen, num_endog;
+	// int nrow_exogen, num_exogen, num_endog;
+	int nrow_exogen, num_exogen;
+	int size_factor, num_factor, num_endog, nrow_endog, nrow_varx;
 	std::unique_ptr<ShrinkageUpdater> coef_updater;
 	std::unique_ptr<ShrinkageUpdater> contem_updater;
 	std::unique_ptr<ShrinkageUpdater> exogen_updater;
+	std::unique_ptr<ShrinkageUpdater> factor_updater;
+	std::unique_ptr<FactorAugmenter> favar_updater;
+	// std::unique_ptr<FactorAugmenter>
 	std::set<int> own_id;
 	Eigen::VectorXi grp_id;
 	Eigen::VectorXi grp_vec;
@@ -228,13 +278,18 @@ protected:
 	 * 
 	 */
 	void updateCoefPrec() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateCoefPrec() called");
 		coef_updater->updateCoefPrec(
 			prior_alpha_prec.head(num_alpha), coef_vec.head(num_alpha),
       num_grp, grp_vec, grp_id,
       rng
 		);
 		if (exogen_updater) {
-			exogen_updater->updateImpactPrec(prior_alpha_prec.tail(num_exogen), coef_vec.tail(num_exogen), rng);
+			// exogen_updater->updateImpactPrec(prior_alpha_prec.tail(num_exogen), coef_vec.tail(num_exogen), rng);
+			exogen_updater->updateImpactPrec(prior_alpha_prec.segment(num_endog, num_exogen), coef_vec.segment(num_endog, num_exogen), rng);
+		}
+		if (factor_updater) {
+			factor_updater->updateImpactPrec(prior_alpha_prec.tail(num_factor), coef_vec.tail(num_factor), rng);
 		}
 	}
 
@@ -243,6 +298,7 @@ protected:
 	 * 
 	 */
 	void updatePenalty() {
+		BVHAR_DEBUG_LOG(debug_logger, "updatePenalty() called");
 		for (int i = 0; i < num_alpha; ++i) {
 			if (own_id.find(grp_vec[i]) != own_id.end()) {
 				alpha_penalty[i] = 0;
@@ -258,6 +314,7 @@ protected:
 	 * 
 	 */
 	void updateImpactPrec() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateImpactPrec() called");
 		contem_updater->updateImpactPrec(prior_chol_prec, contem_coef, rng);
 	}
 
@@ -266,6 +323,7 @@ protected:
 	 * 
 	 */
 	void updateRecords() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateRecords() called");
 		updateCoefRecords();
 		coef_updater->updateRecords(mcmc_step);
 		contem_updater->updateRecords(mcmc_step);
@@ -277,6 +335,12 @@ protected:
 	 * 
 	 */
 	void updateCoef() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateCoef() called");
+		if (favar_updater) {
+			favar_updater->updateResid(x, y, coef_mat);
+			favar_updater->updateFactor(coef_mat, chol_lower, sqrt_sv, rng);
+			favar_updater->appendDesign(x);
+		}
 		for (int j = 0; j < dim; ++j) {
 			coef_mat.col(j).setZero(); // j-th column of A = 0
 			Eigen::MatrixXd chol_lower_j = chol_lower.bottomRows(dim - j); // L_(j:k) = a_jt to a_kt for t = 1, ..., j - 1
@@ -296,9 +360,15 @@ protected:
 				prior_mean_j[nrow_coef] = prior_alpha_mean.segment(num_alpha, dim)[j];
 				prior_prec_j[nrow_coef] = prior_alpha_prec.segment(num_alpha, dim)[j];
 				if (exogen_updater) {
-					prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
-					prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_mean_j.segment(nrow_endog, nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
 					// penalty_j.tail(nrow_exogen): current alpha_penalty only covers VAR
+				}
+				if (factor_updater) {
+					prior_mean_j.tail(size_factor) = prior_alpha_mean.segment(num_endog + num_exogen + j * size_factor, size_factor);
+					prior_prec_j.tail(size_factor) = prior_alpha_prec.segment(num_endog + num_exogen + j * size_factor, size_factor);
 				}
 				draw_coef(
 					coef_mat.col(j), design_coef,
@@ -312,8 +382,14 @@ protected:
 				// prior_prec_j = prior_alpha_prec.segment(dim_design * j, dim_design);
 				// penalty_j = alpha_penalty.segment(dim_design * j, dim_design);
 				if (exogen_updater) {
-					prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
-					prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_mean_j.tail(nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					// prior_prec_j.tail(nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_mean_j.segment(nrow_endog, nrow_exogen) = prior_alpha_mean.segment(num_endog + j * nrow_exogen, nrow_exogen);
+					prior_prec_j.segment(nrow_endog, nrow_exogen) = prior_alpha_prec.segment(num_endog + j * nrow_exogen, nrow_exogen);
+				}
+				if (factor_updater) {
+					prior_mean_j.tail(size_factor) = prior_alpha_mean.segment(num_endog + num_exogen + j * size_factor, size_factor);
+					prior_prec_j.tail(size_factor) = prior_alpha_prec.segment(num_endog + num_exogen + j * size_factor, size_factor);
 				}
 				draw_coef(
 					coef_mat.col(j),
@@ -325,7 +401,11 @@ protected:
 				coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
 			}
 			if (exogen_updater) {
-				coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+				// coef_vec.tail(num_exogen) = coef_mat.bottomRows(nrow_exogen).reshaped();
+				coef_vec.segment(num_endog, num_exogen) = coef_mat.middleRows(nrow_endog, nrow_exogen).reshaped();
+			}
+			if (factor_updater) {
+				coef_vec.tail(num_factor) = coef_mat.bottomRows(size_factor).reshaped();
 			}
 			draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		}
@@ -336,6 +416,7 @@ protected:
 	 * 
 	 */
 	void updateImpact() {
+		BVHAR_DEBUG_LOG(debug_logger, "updateImpact() called");
 		for (int j = 1; j < dim; ++j) {
 			response_contem = latent_innov.col(j).array() / sqrt_sv.col(j).array(); // n-dim
 			Eigen::MatrixXd design_contem = latent_innov.leftCols(j).array().colwise() / sqrt_sv.col(j).reshaped().array(); // n x (j - 1)
@@ -366,12 +447,12 @@ protected:
 	/**
 	 * @brief Gather MCMC records
 	 * 
-	 * @return LIST 
+	 * @return BVHAR_LIST 
 	 */
-	LIST gatherRecords() {
-		LIST res = reg_record->returnListRecords(dim, num_alpha, num_exogen, include_mean);
+	BVHAR_LIST gatherRecords() {
+		BVHAR_LIST res = reg_record->returnListRecords(dim, num_alpha, num_endog, num_exogen, num_factor, include_mean);
 		reg_record->appendRecords(res);
-		sparse_record.appendRecords(res, dim, num_alpha, num_exogen, include_mean);
+		sparse_record.appendRecords(res, dim, num_alpha, num_endog, num_exogen, num_factor, include_mean);
 		return res;
 	}
 };
@@ -387,9 +468,12 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<FactorAugmenter>> favar = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_prior = BVHAR_NULLOPT
 	)
-	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior)), diag_vec(inits._diag) {
+	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior), std::move(favar), std::move(factor_prior)),
+		diag_vec(inits._diag) {
 		reg_record = std::make_unique<LdltRecords>(num_iter, dim, num_design, num_coef, num_lowerchol);
 		reg_record->assignRecords(0, coef_vec, contem_coef, diag_vec);
 	}
@@ -418,9 +502,11 @@ public:
 		std::unique_ptr<ShrinkageUpdater> coef_prior,
 		std::unique_ptr<ShrinkageUpdater> contem_prior,
 		unsigned int seed,
-		Optional<std::unique_ptr<ShrinkageUpdater>> exogen_prior = NULLOPT
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_prior = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<FactorAugmenter>> favar = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_prior = BVHAR_NULLOPT
 	)
-	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior)),
+	: McmcTriangular(params, inits, std::move(coef_prior), std::move(contem_prior), seed, std::move(exogen_prior), std::move(favar), std::move(factor_prior)),
 		ortho_latent(Eigen::MatrixXd::Zero(num_design, dim)),
 		lvol_draw(inits._lvol), lvol_init(inits._lvol_init), lvol_sig(inits._lvol_sig),
 		prior_init_mean(params._init_mean), prior_init_prec(params._init_prec) {
@@ -488,56 +574,87 @@ private:
 template <typename BaseMcmc = McmcReg, bool isGroup = true>
 inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-	LIST& param_reg, LIST& param_prior, LIST& param_intercept, LIST_OF_LIST& param_init, int prior_type,
-	LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, BVHAR_LIST_OF_LIST& param_init, int prior_type,
+	BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
   const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
-  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, Optional<int> num_design = NULLOPT,
-	Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain, BVHAR_OPTIONAL<int> num_design = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
 ) {
 	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
 	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
-	PARAMS base_params = exogen_prior ? PARAMS(
+	// PARAMS base_params = exogen_prior ? PARAMS(
+	// 	num_iter, x, y,
+	// 	param_reg,
+	// 	own_id, cross_id,
+	// 	grp_id, grp_mat,
+	// 	param_intercept, include_mean,
+	// 	*exogen_cols
+	// ) : PARAMS(
+	// 	num_iter, x, y,
+	// 	param_reg,
+	// 	own_id, cross_id,
+	// 	grp_id, grp_mat,
+	// 	param_intercept, include_mean
+	// );
+	PARAMS base_params(
 		num_iter, x, y,
 		param_reg,
 		own_id, cross_id,
 		grp_id, grp_mat,
 		param_intercept, include_mean,
-		*exogen_cols
-	) : PARAMS(
-		num_iter, x, y,
-		param_reg,
-		own_id, cross_id,
-		grp_id, grp_mat,
-		param_intercept, include_mean
+		exogen_cols, size_factor
 	);
 	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr(num_chains);
 	for (int i = 0; i < num_chains; ++i) {
-		LIST init_spec = param_init[i];
+		BVHAR_LIST init_spec = param_init[i];
 		auto coef_updater = initialize_shrinkageupdater<isGroup>(num_iter, param_prior, init_spec, prior_type);
 		coef_updater->initCoefMean(base_params._alpha_mean.head(base_params._num_alpha));
 		coef_updater->initCoefPrec(base_params._alpha_prec.head(base_params._num_alpha), base_params._grp_vec, base_params._cross_id);
-		LIST contem_init_spec = contem_init[i];
+		BVHAR_LIST contem_init_spec = contem_init[i];
 		auto contem_updater = initialize_shrinkageupdater<false>(num_iter, contem_prior, contem_init_spec, contem_prior_type);
 		contem_updater->initImpactPrec(base_params._chol_prec);
 		INITS ldlt_inits = num_design ? INITS(init_spec, *num_design) : INITS(init_spec);
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_updater = BVHAR_NULLOPT;
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_updater = BVHAR_NULLOPT;
+		BVHAR_OPTIONAL<std::unique_ptr<FactorAugmenter>> favar_updater = BVHAR_NULLOPT;
 		if (exogen_prior) {
-			LIST exogen_init_spec = (*exogen_init)[i];
-			auto exogen_updater = initialize_shrinkageupdater<false>(num_iter, *exogen_prior, exogen_init_spec, *exogen_prior_type);
-			exogen_updater->initCoefMean(base_params._alpha_mean.tail(base_params._num_exogen));
-			exogen_updater->initImpactPrec(base_params._alpha_prec.tail(base_params._num_exogen));
-			mcmc_ptr[i] = std::make_unique<BaseMcmc>(
-				base_params, ldlt_inits,
-				std::move(coef_updater), std::move(contem_updater),
-				static_cast<unsigned int>(seed_chain[i]),
-				std::move(exogen_updater)
-			);
+			BVHAR_LIST exogen_init_spec = (*exogen_init)[i];
+			// auto exogen_updater = initialize_shrinkageupdater<false>(num_iter, *exogen_prior, exogen_init_spec, *exogen_prior_type);
+			// exogen_updater->initCoefMean(base_params._alpha_mean.tail(base_params._num_exogen));
+			// exogen_updater->initImpactPrec(base_params._alpha_prec.tail(base_params._num_exogen));
+			exogen_updater = initialize_shrinkageupdater<false>(num_iter, *exogen_prior, exogen_init_spec, *exogen_prior_type);
+			(*exogen_updater)->initCoefMean(base_params._alpha_mean.segment(base_params._num_endog, base_params._num_exogen));
+			(*exogen_updater)->initImpactPrec(base_params._alpha_prec.segment(base_params._num_endog, base_params._num_exogen));
+			// mcmc_ptr[i] = std::make_unique<BaseMcmc>(
+			// 	base_params, ldlt_inits,
+			// 	std::move(coef_updater), std::move(contem_updater),
+			// 	static_cast<unsigned int>(seed_chain[i]),
+			// 	std::move(exogen_updater)
+			// );
 		} else {
-			mcmc_ptr[i] = std::make_unique<BaseMcmc>(
-				base_params, ldlt_inits,
-				std::move(coef_updater), std::move(contem_updater),
-				static_cast<unsigned int>(seed_chain[i])
-			);
+			// mcmc_ptr[i] = std::make_unique<BaseMcmc>(
+			// 	base_params, ldlt_inits,
+			// 	std::move(coef_updater), std::move(contem_updater),
+			// 	static_cast<unsigned int>(seed_chain[i])
+			// );
 		}
+		if (factor_prior) {
+			BVHAR_LIST factor_init_spec = (*factor_init)[i];
+			factor_updater = initialize_shrinkageupdater<false>(num_iter, *factor_prior, factor_init_spec, *factor_prior_type);
+			(*factor_updater)->initCoefMean(base_params._alpha_mean.tail(base_params._num_factor));
+			(*factor_updater)->initImpactPrec(base_params._alpha_prec.tail(base_params._num_factor));
+			DfmParams dfm_params(0, *size_factor, base_params._dim);
+			favar_updater = std::make_unique<FactorNormalAugmenter>(num_iter, base_params._num_design, dfm_params);
+		}
+		mcmc_ptr[i] = std::make_unique<BaseMcmc>(
+			base_params, ldlt_inits,
+			std::move(coef_updater), std::move(contem_updater),
+			static_cast<unsigned int>(seed_chain[i]),
+			std::move(exogen_updater),
+			std::move(favar_updater), std::move(factor_updater)
+		);
 	}
 	return mcmc_ptr;
 }
@@ -554,12 +671,14 @@ public:
 	CtaRun(
 		int num_chains, int num_iter, int num_burn, int thin,
     const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
-		LIST& param_cov, LIST& param_prior, LIST& param_intercept,
-		LIST_OF_LIST& param_init, int prior_type,
-		LIST& contem_prior, LIST_OF_LIST& contem_init, int contem_prior_type,
+		BVHAR_LIST& param_cov, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept,
+		BVHAR_LIST_OF_LIST& param_init, int prior_type,
+		BVHAR_LIST& contem_prior, BVHAR_LIST_OF_LIST& contem_init, int contem_prior_type,
     const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
     bool include_mean, const Eigen::VectorXi& seed_chain, bool display_progress, int nthreads,
-		Optional<LIST> exogen_prior = NULLOPT, Optional<LIST_OF_LIST> exogen_init = NULLOPT, Optional<int> exogen_prior_type = NULLOPT, Optional<int> exogen_cols = NULLOPT
+		BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> exogen_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<BVHAR_LIST_OF_LIST> factor_init = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
 	)
 	: McmcRun(num_chains, num_iter, num_burn, thin, display_progress, nthreads) {
 		auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
@@ -568,7 +687,8 @@ public:
 			contem_prior, contem_init, contem_prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, seed_chain,
-			NULLOPT, exogen_prior, exogen_init, exogen_prior_type, exogen_cols
+			BVHAR_NULLOPT, exogen_prior, exogen_init, exogen_prior_type, exogen_cols,
+			factor_prior, factor_init, factor_prior_type, size_factor
 		);
 		for (int i = 0; i < num_chains; ++i) {
 			mcmc_ptr[i] = std::move(temp_mcmc[i]);
@@ -578,5 +698,6 @@ public:
 };
 
 } // namespace bvhar
+} // namespace baecon
 
 #endif // BVHAR_BAYES_TRIANGULAR_TRIANGULAR_H
