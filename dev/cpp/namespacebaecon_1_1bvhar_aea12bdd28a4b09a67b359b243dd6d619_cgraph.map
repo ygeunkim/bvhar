@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::minnesota_logml" name="baecon::bvhar::minnesota_logml">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,69,196,109"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#acc8385ec9ad245a99d51de958ca73a63" title=" " alt="" coords="256,5,411,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,67,246,46,248,52,175,72"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a8f02d8e2f634bdf634c40bdf7f9a02b4" title=" " alt="" coords="256,69,411,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,87,242,87,242,92,196,92"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5" title=" " alt="" coords="244,133,423,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="175,107,248,127,246,132,173,112"/>
+</map>

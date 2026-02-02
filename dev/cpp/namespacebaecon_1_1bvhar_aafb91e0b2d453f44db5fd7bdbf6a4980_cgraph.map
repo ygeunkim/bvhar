@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::dl_latent" name="baecon::bvhar::dl_latent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,184,38"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="427,5,569,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,20,232,19,379,19,413,19,413,25,379,24,232,24,184,25"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311" title=" " alt="" coords="232,33,379,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,35,218,39,218,44,184,40"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="379,40,413,35,414,40,379,45"/>
+</map>

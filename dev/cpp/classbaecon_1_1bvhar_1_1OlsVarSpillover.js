@@ -1,0 +1,27 @@
+var classbaecon_1_1bvhar_1_1OlsVarSpillover =
+[
+    [ "OlsVarSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#abbdea70ea72bd1633d402cd61ca91da1", null ],
+    [ "OlsVarSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a09275970d4bd3ded5a8a6e2d4861fd7c", null ],
+    [ "~OlsVarSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a61aff1e80ed7ef951f273297507334b8", null ],
+    [ "computeSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a21a349191d8197e453d7b9f7b9c49ad7", null ],
+    [ "returnSpilloverResult", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a3bdd48a38e373ace9dba75ca9db30baa", null ],
+    [ "returnFevd", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a78345f3ed98d625ec1c9bedb795395f8", null ],
+    [ "returnSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#aa8049678ae0ce377d94de46678b52848", null ],
+    [ "returnTo", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#afa793dc8e53e92e3290ad61c64a8ae07", null ],
+    [ "returnFrom", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#aadb2c27575d1a7138ebaacd37c0fb664", null ],
+    [ "returnTot", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a2b6479b9b8bb455430102fcdf7a00f41", null ],
+    [ "returnNet", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a84c458d8c63118717e26a9a49e70d32f", null ],
+    [ "computeVma", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a9a8d34c367755820443cd8ed4f39a4e1", null ],
+    [ "step", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#ae0741ce2038865fa02d8ebfc56a6df95", null ],
+    [ "dim", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a34de243d6eedf65839da5ada2e8dbb26", null ],
+    [ "lag", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#abbc3c639ed2e47ebc72a11fdcdb5c236", null ],
+    [ "coef", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#aa5038e28445f094e09aba0ab13118339", null ],
+    [ "cov", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a90cb81be4cc8c98ffe8a52b33d93b372", null ],
+    [ "vma_mat", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a2e92579e71b4109129af4effc971ed16", null ],
+    [ "fevd", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a88afa08b564853fdeef9f567733da983", null ],
+    [ "spillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a94b98158d99cdad4a7c89775a95d202c", null ],
+    [ "net_spillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a9003c2189ead20b6b2ececc89fb06e3d", null ],
+    [ "to_spillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#ac86433ca59f9c8d50d0db001fdfe43f8", null ],
+    [ "from_spillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a611f5bd6af713c495499c6321ec6b93d", null ],
+    [ "tot_spillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#aba61311092fbd306ca1e89ef586e1810", null ]
+];

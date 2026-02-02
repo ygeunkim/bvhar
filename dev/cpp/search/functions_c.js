@@ -1,0 +1,11 @@
+var searchData=
+[
+  ['ng_5fglobal_5fsparsity_0',['ng_global_sparsity',['../namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54',1,'baecon::bvhar::ng_global_sparsity(Eigen::Ref&lt; const Eigen::VectorXd &gt; local_param, double &amp;hyper_gamma, double &amp;shape, double &amp;scl, boost::random::mixmax &amp;rng)'],['../namespacebaecon_1_1bvhar.html#a99f0646af1ca661bc7fd15dffcc31158',1,'baecon::bvhar::ng_global_sparsity(Eigen::Ref&lt; const Eigen::VectorXd &gt; local_param, Eigen::VectorXd &amp;hyper_gamma, double &amp;shape, double &amp;scl, boost::random::mixmax &amp;rng)']]],
+  ['ng_5flocal_5fsparsity_1',['ng_local_sparsity',['../namespacebaecon_1_1bvhar.html#acfa9262b58e938856c51e680c3c1010f',1,'baecon::bvhar::ng_local_sparsity(Eigen::VectorXd &amp;local_param, double &amp;shape, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; const Eigen::VectorXd &gt; global_param, boost::random::mixmax &amp;rng)'],['../namespacebaecon_1_1bvhar.html#a80bc265394e844b01f2fed01dbb2d006',1,'baecon::bvhar::ng_local_sparsity(Eigen::VectorXd &amp;local_param, Eigen::VectorXd &amp;shape, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; const Eigen::VectorXd &gt; global_param, boost::random::mixmax &amp;rng)']]],
+  ['ng_5fmn_5fshape_5fjump_2',['ng_mn_shape_jump',['../namespacebaecon_1_1bvhar.html#a9c359f61f55567f8002d143ad7312f40',1,'baecon::bvhar']]],
+  ['ng_5fmn_5fsparsity_3',['ng_mn_sparsity',['../namespacebaecon_1_1bvhar.html#a8e077d93f5292412a3aa612a1b7beaef',1,'baecon::bvhar']]],
+  ['ng_5fshape_5fjump_4',['ng_shape_jump',['../namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171',1,'baecon::bvhar']]],
+  ['nginits_5',['nginits',['../structbaecon_1_1bvhar_1_1NgInits.html#aa5e5a583404d5a869400646170f1b7bd',1,'baecon::bvhar::NgInits::NgInits(Rcpp::List &amp;init)'],['../structbaecon_1_1bvhar_1_1NgInits.html#a787dab27a78729cbd77f0cd10437079d',1,'baecon::bvhar::NgInits::NgInits(Rcpp::List &amp;init, int num_design)']]],
+  ['ngparams_6',['NgParams',['../structbaecon_1_1bvhar_1_1NgParams.html#aaaf4c6674503e04ad4c70f1cda2acfce',1,'baecon::bvhar::NgParams']]],
+  ['ngupdater_7',['NgUpdater',['../classbaecon_1_1bvhar_1_1NgUpdater.html#a7ce1d5eea9054fede2557d3c1259f1de',1,'baecon::bvhar::NgUpdater']]]
+];

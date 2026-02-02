@@ -1,0 +1,15 @@
+<map id="baecon::bvhar::ShrinkageInits" name="baecon::bvhar::ShrinkageInits">
+<area shape="rect" id="Node000001" title="MCMC initial values for ShrinkageUpdater" alt="" coords="5,73,192,113"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1GdpInits.html" title="MCMC initial values for GdpUpdater" alt="" coords="257,5,433,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,65,239,39,283,28,284,33,241,45,164,70"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1GlInits.html" title="MCMC initial values for global&#45;local shrinkage prior." alt="" coords="263,55,427,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,79,263,73,263,78,206,84"/>
+<area shape="rect" id="Node000006" href="$structbaecon_1_1bvhar_1_1HierminnInits.html" title="MCMC initial values for HierminnUpdater" alt="" coords="240,104,451,129"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="206,100,240,104,240,109,206,106"/>
+<area shape="rect" id="Node000007" href="$structbaecon_1_1bvhar_1_1SsvsInits.html" title="MCMC initial values for SsvsUpdater" alt="" coords="255,153,435,179"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="169,115,241,138,288,151,287,156,239,143,167,120"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1HorseshoeInits.html" title="MCMC initial values for HorseshoeUpdater" alt="" coords="499,47,689,87"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="441,65,498,65,498,70,441,70"/>
+<area shape="rect" id="Node000005" href="$structbaecon_1_1bvhar_1_1NgInits.html" title="MCMC initial values for NgUpdater" alt="" coords="737,55,905,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="703,65,737,65,737,70,703,70"/>
+</map>

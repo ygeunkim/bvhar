@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::HorseshoeUpdater::updateImpactPrec" name="baecon::bvhar::HorseshoeUpdater::updateImpactPrec">
+<area shape="rect" id="Node000001" title="Draw precision of contemporaneous coefficient based on each shrinkage priors." alt="" coords="5,69,205,109"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a33007008c2898151a5a21e940de369f5" title=" " alt="" coords="253,5,443,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,67,258,46,259,51,183,72"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a24455367e038368878d3d9f7abf59191" title=" " alt="" coords="253,69,443,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,87,240,87,240,92,206,92"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#ae897a6c79d0d50080b6fbecc6c9a6a6a" title=" " alt="" coords="253,133,443,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="183,107,259,127,258,132,181,112"/>
+</map>

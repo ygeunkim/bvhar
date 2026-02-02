@@ -1,0 +1,6 @@
+<map id="baecon::bvhar::RegForecaster::RegForecaster" name="baecon::bvhar::RegForecaster::RegForecaster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,220,62"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="268,29,405,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,39,254,39,254,45,220,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="300,31,292,21,296,11,312,5,337,3,368,7,380,16,377,20,366,11,337,8,313,10,300,15,297,20,304,27"/>
+</map>

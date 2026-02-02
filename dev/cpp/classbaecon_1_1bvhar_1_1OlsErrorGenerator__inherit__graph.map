@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::OlsErrorGenerator" name="baecon::bvhar::OlsErrorGenerator">
+<area shape="rect" id="Node000001" title=" " alt="" coords="98,108,337,133"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1OlsGaussianGenerator.html" title=" " alt="" coords="5,181,208,221"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,143,135,183,132,179,188,139"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1OlsStudentGenerator.html" title=" " alt="" coords="233,181,426,221"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="247,139,304,179,301,183,244,143"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1AutoregGenerator.html" title=" " alt="" coords="98,5,337,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,74,220,108,215,108,215,74"/>
+</map>

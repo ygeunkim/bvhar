@@ -1,0 +1,18 @@
+<map id="baecon::bvhar::MinnForecaster::forecastDensity" name="baecon::bvhar::MinnForecaster::forecastDensity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,228,151"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1MinnForecaster.html#a9fbfd8a0edf75815783a553a76f5eeba" title=" " alt="" coords="276,15,499,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,109,275,65,299,57,301,62,277,70,165,114"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c" title=" " alt="" coords="314,79,461,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,116,300,107,301,112,228,121"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1MinnForecaster.html#ab37788a8ec93737945d647db8f8e84fa" title=" " alt="" coords="276,143,499,183"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="228,142,263,146,262,151,228,147"/>
+<area shape="rect" id="Node000008" href="$classbaecon_1_1bvhar_1_1MinnForecaster.html#a484e14145d50685f58638822d5a67434" title=" " alt="" coords="276,207,499,247"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="165,149,277,193,301,201,299,206,275,198,163,154"/>
+<area shape="rect" id="Node000004" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="565,29,703,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="461,80,565,55,566,60,462,85"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087" title=" " alt="" coords="561,79,707,119"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="461,97,547,97,547,102,461,102"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2" title=" " alt="" coords="547,144,721,169"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="462,114,566,138,565,144,461,119"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="594,31,586,21,590,11,607,5,634,3,669,7,679,11,682,17,678,20,675,15,667,12,634,8,608,10,594,15,591,20,598,27"/>
+</map>

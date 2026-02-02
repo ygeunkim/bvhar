@@ -1,0 +1,5 @@
+<map id="baecon::bvhar::BayesForecaster&lt; ReturnType, DataType &gt;" name="baecon::bvhar::BayesForecaster&lt; ReturnType, DataType &gt;">
+<area shape="rect" id="Node000001" title="Base class for forecaster of Bayesian methods." alt="" coords="5,108,236,148"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html" title="Base class for Recursive multi&#45;step forecasting." alt="" coords="29,5,212,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,74,123,108,118,108,118,74"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="baecon::bvhar::MinnBvhar::MinnBvhar" name="baecon::bvhar::MinnBvhar::MinnBvhar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,197,95"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#ae3af6fee9acda988da9d934f64c8be55" title=" " alt="" coords="245,13,436,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,52,264,38,265,43,198,57"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a790ed204db25c5c3ce3d5691f00175b8" title=" " alt="" coords="252,62,429,87"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="198,72,238,72,238,77,198,77"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ae25ab83d511c6e244b77b42d67358527" title=" " alt="" coords="484,91,661,117"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="198,91,246,97,362,104,471,104,471,110,362,109,245,103,197,96"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a1cc8b90f5ee5a3b9b02f0ead14875a09" title=" " alt="" coords="495,5,650,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="437,23,482,23,482,28,437,28"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="430,83,471,88,470,94,429,88"/>
+</map>

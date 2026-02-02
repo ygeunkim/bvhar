@@ -1,0 +1,11 @@
+<map id="baecon::bvhar::CtaOutforecastRun&lt; BaseForecaster, isPath, isUpdate &gt;" name="baecon::bvhar::CtaOutforecastRun&lt; BaseForecaster, isPath, isUpdate &gt;">
+<area shape="rect" id="Node000001" title="Out&#45;of&#45;sample forecasting class." alt="" coords="577,45,797,100"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1CtaExpandforecastRun.html" title="Expanding&#45;window forecast class." alt="" coords="845,5,1091,60"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="810,52,845,48,846,53,811,58"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1CtaRollforecastRun.html" title="Rolling&#45;window forecast class." alt="" coords="856,84,1080,139"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="811,87,856,93,855,99,811,92"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcOutForecastRun.html" title="Base class for pseudo out&#45;of&#45;sample forecasting." alt="" coords="291,45,529,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="543,70,577,70,577,75,543,75"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html" title=" " alt="" coords="5,53,243,93"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="257,70,290,70,290,75,257,75"/>
+</map>

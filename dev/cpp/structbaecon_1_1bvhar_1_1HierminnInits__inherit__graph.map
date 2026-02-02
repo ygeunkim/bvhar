@@ -1,0 +1,5 @@
+<map id="baecon::bvhar::HierminnInits" name="baecon::bvhar::HierminnInits">
+<area shape="rect" id="Node000001" title="MCMC initial values for HierminnUpdater" alt="" coords="5,93,216,119"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1ShrinkageInits.html" title="MCMC initial values for ShrinkageUpdater" alt="" coords="17,5,204,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,59,113,93,108,93,108,59"/>
+</map>

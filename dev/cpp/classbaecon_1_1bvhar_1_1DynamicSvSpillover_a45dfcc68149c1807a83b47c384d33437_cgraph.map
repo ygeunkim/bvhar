@@ -1,0 +1,12 @@
+<map id="baecon::bvhar::DynamicSvSpillover::DynamicSvSpillover" name="baecon::bvhar::DynamicSvSpillover::DynamicSvSpillover">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,224,87"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#ae3af6fee9acda988da9d934f64c8be55" title=" " alt="" coords="272,19,463,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,49,261,44,261,49,225,54"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a7b8cef9f4bf20e376af0816ef4e50e9c" title="Initialize MCMC record used in forecast classes." alt="" coords="278,75,457,115"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,76,265,81,264,86,224,81"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a1cc8b90f5ee5a3b9b02f0ead14875a09" title=" " alt="" coords="511,5,665,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,26,497,25,497,31,463,32"/>
+<area shape="rect" id="Node000005" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="519,94,657,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,97,506,100,505,105,457,102"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="552,96,545,86,549,76,563,70,588,67,618,71,630,80,627,84,616,76,588,73,565,75,552,80,550,85,556,92"/>
+</map>

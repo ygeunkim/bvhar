@@ -1,0 +1,5 @@
+<map id="baecon::bvhar::OlsForecaster::getLastForecast" name="baecon::bvhar::OlsForecaster::getLastForecast">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,216,53"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html#a930f382733b3aa3a99697e234f1f285b" title="Return the forecast result. Bayes methods return density forecast while frequentist methods return po..." alt="" coords="264,5,487,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,30,250,30,250,35,216,35"/>
+</map>

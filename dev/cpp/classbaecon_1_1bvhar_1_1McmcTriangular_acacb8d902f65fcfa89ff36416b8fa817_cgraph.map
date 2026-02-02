@@ -1,0 +1,39 @@
+<map id="baecon::bvhar::McmcTriangular::doPosteriorDraws" name="baecon::bvhar::McmcTriangular::doPosteriorDraws">
+<area shape="rect" id="Node000001" title="MCMC posterior sampling step." alt="" coords="5,368,231,408"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcAlgo.html#a86f59b4db6125c88eb193b049050fb7b" title="Increment the MCMC step." alt="" coords="296,5,487,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,367,135,306,165,222,185,177,211,133,241,91,277,55,283,50,287,55,280,59,245,95,215,135,190,179,170,224,141,308,126,368"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="323,94,460,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,367,142,318,174,254,218,186,246,156,277,130,308,115,310,119,280,134,250,160,223,190,178,256,147,320,128,369"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a3dd8c3c18b72df918ef2a2ae605f09fb" title="Compute L." alt="" coords="279,144,504,184"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="128,366,151,329,185,283,227,235,277,194,288,187,291,192,280,198,231,239,189,286,155,332,133,369"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#aabf9271b5e75b5503650bcc387f14ecc" title="Draw coefficients." alt="" coords="279,208,504,248"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="137,366,197,312,236,283,277,258,293,250,295,255,280,262,239,287,200,316,141,370"/>
+<area shape="rect" id="Node000009" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a07e82c88ba0ca88406cbc386f9f9e067" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="279,272,504,312"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="165,365,278,321,302,314,304,319,280,327,167,370"/>
+<area shape="rect" id="Node000010" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#ac16556f4bdcb41ff08d307426705581b" title="Draw contemporaneous coefficients." alt="" coords="279,336,504,376"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="231,372,265,368,266,373,231,377"/>
+<area shape="rect" id="Node000012" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a4a573d7f3a031e21c0be848e8d2e1267" title="Draw precision of contemporaneous coefficient based on each shrinkage priors." alt="" coords="279,400,504,440"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="231,399,266,403,265,408,231,404"/>
+<area shape="rect" id="Node000013" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a3a465d4040f2bb31a6c4251f4e6e8950" title="Compute residual matrix for orthogonalization." alt="" coords="279,464,504,504"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="167,406,280,449,304,457,302,462,278,455,165,411"/>
+<area shape="rect" id="Node000014" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a360d3ca704ec62798d4f62810d1c0fd3" title="Update SAVS penalty." alt="" coords="279,528,504,568"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="141,406,200,460,239,489,280,514,295,521,293,526,277,518,236,493,197,464,137,410"/>
+<area shape="rect" id="Node000015" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a476a78a911b282a40ed8967911d46abd" title="Save MCMC records." alt="" coords="279,592,504,632"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="133,407,155,444,189,490,231,537,280,578,291,584,288,589,277,582,227,541,185,493,151,447,128,410"/>
+<area shape="rect" id="Node000017" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#a29c8ef0d0bf49db8a6cf30b405d7d8da" title="Draw state vector." alt="" coords="279,656,504,696"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="129,407,148,455,179,519,224,585,250,616,280,642,288,647,285,651,277,646,247,619,219,589,175,522,143,457,124,409"/>
+<area shape="rect" id="Node000018" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#ad97dd7c6a4c3b5489a6697a7c6d22e54" title="Compute D." alt="" coords="279,720,504,760"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="126,407,141,466,171,547,191,590,216,633,246,672,280,706,287,711,284,715,277,710,242,675,212,635,187,593,166,549,136,468,121,409"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="348,96,338,86,343,76,361,69,391,67,430,71,441,76,445,82,440,85,437,80,429,77,391,73,362,75,346,80,343,85,351,92"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda" title=" " alt="" coords="587,144,742,184"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="504,161,573,161,573,167,504,167"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#ab9a1e4ef17279f33420594b69be34328" title=" " alt="" coords="570,283,759,309"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="473,245,600,277,599,283,472,251"/>
+<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#aefc01b2f02eb5ffd276a73f14557a9e2" title=" " alt="" coords="587,208,742,248"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="504,225,573,225,573,231,504,231"/>
+<area shape="poly" id="edge11_Node000010_Node000007" title=" " alt="" coords="483,333,592,309,593,314,484,339"/>
+<area shape="rect" id="Node000011" href="$namespacebaecon_1_1bvhar.html#a3cb51f7959767665867602959e1eb455" title=" " alt="" coords="569,343,760,369"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="504,353,556,353,556,359,504,359"/>
+<area shape="rect" id="Node000016" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html#adc40c98872a338272a24b1ac6a986d51" title="Save coefficient records." alt="" coords="552,592,777,632"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="504,609,539,609,539,615,504,615"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::VharForecaster" name="baecon::bvhar::VharForecaster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,181,225,207"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsForecaster.html" title=" " alt="" coords="10,108,221,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,147,118,181,113,181,113,147"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html" title=" " alt="" coords="9,5,221,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="118,74,118,108,113,108,113,74"/>
+</map>

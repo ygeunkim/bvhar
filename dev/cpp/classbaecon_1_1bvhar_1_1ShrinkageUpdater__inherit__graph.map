@@ -1,0 +1,17 @@
+<map id="baecon::bvhar::ShrinkageUpdater" name="baecon::bvhar::ShrinkageUpdater">
+<area shape="rect" id="Node000001" title="Draw class for shrinkage priors." alt="" coords="5,184,192,224"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1DlUpdater.html" title="Dirichlet&#45;Laplace prior." alt="" coords="263,5,451,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,171,170,112,202,81,239,55,264,43,266,48,241,60,206,85,173,115,124,174"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1GdpUpdater.html" title="Generalized Double Pareto (GDP) prior." alt="" coords="257,69,457,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,174,186,146,239,119,272,107,274,112,241,124,188,150,142,179"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1HierminnUpdater.html" title="Hierarchical Minnesota prior." alt="" coords="240,134,475,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,178,239,169,296,157,298,162,241,175,201,184"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1HorseshoeUpdater.html" title="Horseshoe prior." alt="" coords="262,184,453,224"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="205,201,262,201,262,207,205,207"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1MinnUpdater.html" title="Minnesota prior." alt="" coords="254,249,461,274"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="201,224,241,233,298,246,296,251,239,239,200,230"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1NgUpdater.html" title="Normal&#45;Gamma prior." alt="" coords="261,299,453,339"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="142,229,189,257,241,283,277,296,276,301,239,288,186,262,139,234"/>
+<area shape="rect" id="Node000008" href="$classbaecon_1_1bvhar_1_1SsvsUpdater.html" title="Stochastic Search Variable Selection (SSVS) prior." alt="" coords="255,363,459,389"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="123,234,173,293,205,323,241,348,271,361,269,366,239,353,202,327,169,297,119,237"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::CtaForecaster::updatePred" name="baecon::bvhar::CtaForecaster::updatePred">
+<area shape="rect" id="Node000001" title="Compute Linear predictor." alt="" coords="5,37,217,77"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html#a4e5f1ce28fe8dff5b2c5914b82991131" title="Compute Normal mean of the forecast density." alt="" coords="265,5,477,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,42,251,37,252,43,218,47"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html#ada17a15aa76b129b72993a6d594ee7f9" title="Draw innovation with D covariance matrix." alt="" coords="265,69,477,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,68,252,72,251,77,217,73"/>
+</map>

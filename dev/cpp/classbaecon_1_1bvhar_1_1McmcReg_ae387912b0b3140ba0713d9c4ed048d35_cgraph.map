@@ -1,0 +1,5 @@
+<map id="baecon::bvhar::McmcReg::updateCoefRecords" name="baecon::bvhar::McmcReg::updateCoefRecords">
+<area shape="rect" id="Node000001" title="Save coefficient records." alt="" coords="5,5,192,45"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1SparseRecords.html#a522a8fe46019a97e8db708fd40cf706e" title="Assign MCMC draw to the draw matrix." alt="" coords="240,5,459,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,23,226,23,226,28,192,28"/>
+</map>

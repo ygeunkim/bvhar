@@ -1,0 +1,7 @@
+<map id="baecon::bvhar::OlsGaussianGenerator::appendError" name="baecon::bvhar::OlsGaussianGenerator::appendError">
+<area shape="rect" id="Node000001" title="Add error term to point forecast." alt="" coords="5,37,208,77"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426" title=" " alt="" coords="256,5,403,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,40,242,35,242,40,209,45"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634" title=" " alt="" coords="256,69,403,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,69,242,74,242,79,208,75"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::SvForecaster" name="baecon::bvhar::SvForecaster">
+<area shape="rect" id="Node000001" title="Forecast class for McmcSv" alt="" coords="17,284,224,309"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html" title="Forecast class for McmcTriangular" alt="" coords="15,211,227,236"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,250,123,284,118,284,118,250"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html" title=" " alt="" coords="5,108,236,163"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,176,123,210,118,210,118,176"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html" title="Base class for Recursive multi&#45;step forecasting." alt="" coords="29,5,212,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="123,74,123,108,118,108,118,74"/>
+</map>

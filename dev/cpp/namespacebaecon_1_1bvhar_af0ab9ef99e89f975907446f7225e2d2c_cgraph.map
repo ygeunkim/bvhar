@@ -1,0 +1,10 @@
+<map id="baecon::bvhar::sim_mn_iw" name="baecon::bvhar::sim_mn_iw">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,152,119"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="219,29,356,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,77,226,56,228,61,153,82"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087" title=" " alt="" coords="214,79,361,119"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="152,97,201,97,201,102,152,102"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2" title=" " alt="" coords="200,144,375,169"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="153,117,228,138,226,143,151,122"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="253,31,246,21,250,11,264,5,287,3,316,6,328,15,324,20,314,11,287,8,265,10,253,15,251,20,257,28"/>
+</map>

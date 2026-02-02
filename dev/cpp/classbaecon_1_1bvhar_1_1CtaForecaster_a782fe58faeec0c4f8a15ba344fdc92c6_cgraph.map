@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::CtaForecaster::CtaForecaster" name="baecon::bvhar::CtaForecaster::CtaForecaster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,217,87"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html#aa203dc7bb44db143525502f437efddeb" title="Initialize lagged predictors &#39;point_forecast&#39;, &#39;last_pvec&#39; and &#39;tmp_vec&#39;." alt="" coords="265,5,477,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,47,251,42,252,47,218,52"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="303,94,440,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,80,289,91,288,97,217,86"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="330,96,320,86,325,76,342,69,371,67,408,71,418,76,422,82,418,85,415,80,406,76,371,73,344,75,329,80,326,85,333,92"/>
+</map>

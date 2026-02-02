@@ -1,0 +1,21 @@
+<map id="baecon::bvhar::OlsVarSpillover::returnSpilloverResult" name="baecon::bvhar::OlsVarSpillover::returnSpilloverResult">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,162,227,202"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a21a349191d8197e453d7b9f7b9c49ad7" title=" " alt="" coords="275,162,496,202"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,179,261,179,261,185,227,185"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a514b1d75671b93e1522f7f1628408b21" title=" " alt="" coords="546,5,763,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,160,459,100,499,67,543,40,559,33,561,37,545,44,502,71,463,104,405,164"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a86449262d1ca15bc132fb4e70eee38f7" title=" " alt="" coords="551,55,758,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="415,160,473,124,543,90,571,81,573,86,545,95,475,129,418,164"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#a9898a694bb3d1d5a0af0e19dbab372d9" title=" " alt="" coords="565,105,744,145"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="479,159,551,144,552,149,480,165"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ac33f25c14dc94265e99393bd85d53133" title=" " alt="" coords="555,169,754,195"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="496,179,542,179,542,185,496,185"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#a293496d02d596c310562cf3cc2eacffc" title=" " alt="" coords="553,219,757,244"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="496,199,572,214,571,219,495,205"/>
+<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#a0ace15e90c946f97544f058308fe1c9e" title=" " alt="" coords="565,269,744,309"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="427,200,545,253,570,262,569,267,543,258,425,205"/>
+<area shape="rect" id="Node000009" href="$classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a9a8d34c367755820443cd8ed4f39a4e1" title=" " alt="" coords="544,333,765,373"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="406,200,464,259,503,291,545,318,559,325,556,330,543,323,500,295,461,263,402,204"/>
+<area shape="rect" id="Node000010" href="$namespacebaecon_1_1bvhar.html#a36e0bc21618d2e34fea196bf2e850fbd" title=" " alt="" coords="813,333,984,373"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="765,350,800,350,800,355,765,355"/>
+</map>

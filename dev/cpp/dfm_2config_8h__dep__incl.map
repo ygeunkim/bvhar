@@ -1,0 +1,19 @@
+<map id="config.h" name="config.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="238,5,311,31"/>
+<area shape="rect" id="Node000002" href="$augment_8h.html" title="Header including factor augmenters." alt="" coords="229,79,321,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,44,277,79,272,79,272,44"/>
+<area shape="rect" id="Node000003" href="$triangular_8h.html" title="Header including MCMC algorithm." alt="" coords="227,152,323,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="277,118,277,152,272,152,272,118"/>
+<area shape="rect" id="Node000004" href="$bayes_2triangular_2forecaster_8h.html" title=" " alt="" coords="157,225,256,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="256,189,220,227,216,223,252,185"/>
+<area shape="rect" id="Node000007" href="$bayes_2triangular_2spillover_8h.html" title=" " alt="" coords="299,225,389,251"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="297,185,335,223,331,227,294,189"/>
+<area shape="rect" id="Node000005" href="$regforecaster_8h.html" title=" " alt="" coords="5,299,125,324"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="173,259,90,301,87,296,171,254"/>
+<area shape="rect" id="Node000006" href="$svforecaster_8h.html" title=" " alt="" coords="149,299,264,324"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="209,264,209,299,204,299,204,264"/>
+<area shape="rect" id="Node000008" href="$regspillover_8h.html" title=" " alt="" coords="289,299,399,324"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="347,264,347,299,341,299,341,264"/>
+<area shape="rect" id="Node000009" href="$svspillover_8h.html" title=" " alt="" coords="424,299,528,324"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="378,255,456,296,453,301,376,259"/>
+</map>

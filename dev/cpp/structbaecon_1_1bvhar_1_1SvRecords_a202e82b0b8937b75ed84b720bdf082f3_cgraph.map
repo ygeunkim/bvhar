@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::SvRecords::updateDiag" name="baecon::bvhar::SvRecords::updateDiag">
+<area shape="rect" id="Node000001" title="Update parameters in D." alt="" coords="5,5,196,45"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1SvRecords.html#aab9eb1b7dbd8a1158402eb851a44a44d" title="Get the dimension." alt="" coords="483,5,673,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,20,244,19,435,19,469,19,469,25,435,24,244,24,196,25"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1SvRecords.html#afb1f922a0e1c3ae346c26c83a3aff018" title="Update parameters in D." alt="" coords="244,33,435,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,34,231,38,230,43,196,39"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="435,39,469,35,470,41,435,45"/>
+</map>

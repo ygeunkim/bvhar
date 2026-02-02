@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::MinnSpillover::computeSpillover" name="baecon::bvhar::MinnSpillover::computeSpillover">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,69,216,109"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a9898a694bb3d1d5a0af0e19dbab372d9" title=" " alt="" coords="264,5,443,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,67,263,46,265,51,188,72"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a0ace15e90c946f97544f058308fe1c9e" title=" " alt="" coords="264,69,443,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,87,250,87,250,92,216,92"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a36e0bc21618d2e34fea196bf2e850fbd" title=" " alt="" coords="268,133,439,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="188,107,265,127,263,132,187,112"/>
+</map>

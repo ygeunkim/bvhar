@@ -1,0 +1,21 @@
+<map id="baecon::bvhar::McmcMniw::doPosteriorDraws" name="baecon::bvhar::McmcMniw::doPosteriorDraws">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,201,132"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcMniw.html#a04916d8b2a77098857fbc85ffd623ada" title=" " alt="" coords="249,5,445,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,89,276,48,278,53,162,94"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="767,70,904,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,105,753,83,753,89,202,111"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1McmcMniw.html#a8a7034004bbffb767bb14cabe9964c44" title=" " alt="" coords="249,120,445,160"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="202,121,236,125,236,130,201,126"/>
+<area shape="rect" id="Node000008" href="$classbaecon_1_1bvhar_1_1McmcMniw.html#a8e0922cc2a3cbee1478ce13c28461a3b" title=" " alt="" coords="249,184,445,224"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="152,130,250,170,271,177,269,182,248,174,150,135"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="797,72,788,62,793,52,809,46,835,43,869,47,881,57,878,61,867,52,835,49,810,51,796,56,794,61,801,68"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c" title=" " alt="" coords="523,120,670,160"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="445,137,510,137,510,143,445,143"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="669,120,768,96,769,101,671,125"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087" title=" " alt="" coords="762,120,909,160"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="670,137,748,137,748,143,670,143"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2" title=" " alt="" coords="748,185,923,210"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="671,155,769,179,768,184,669,160"/>
+<area shape="rect" id="Node000009" href="$structbaecon_1_1bvhar_1_1MinnRecords.html#ab7b7c0b127375c0b48c1b60ee22cfb2d" title=" " alt="" coords="493,184,700,224"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="445,201,480,201,480,207,445,207"/>
+</map>

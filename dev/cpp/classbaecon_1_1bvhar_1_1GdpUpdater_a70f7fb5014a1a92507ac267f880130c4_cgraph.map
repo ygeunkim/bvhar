@@ -1,0 +1,19 @@
+<map id="baecon::bvhar::GdpUpdater::updateCoefPrec" name="baecon::bvhar::GdpUpdater::updateCoefPrec">
+<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,101,205,141"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#acdc98eae88e50eb749d14243ba9fa051" title=" " alt="" coords="253,5,400,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,99,266,48,268,53,154,104"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a28893d8a459c5b6e1d536557527a4170" title=" " alt="" coords="253,69,400,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,104,239,99,240,105,206,109"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#af13bd1e0cce3b2e289218972145165d5" title=" " alt="" coords="253,133,400,173"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="206,133,240,138,239,143,205,138"/>
+<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#af785cee8c9aaa613db8156bf56995a45" title=" " alt="" coords="253,197,400,237"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="154,139,268,189,266,194,151,144"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311" title=" " alt="" coords="448,69,595,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="400,87,434,87,434,92,400,92"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="643,69,785,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="595,87,629,87,629,92,595,92"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07" title=" " alt="" coords="448,133,595,173"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="400,151,434,151,434,156,400,156"/>
+<area shape="rect" id="Node000009" href="$namespacebaecon_1_1bvhar.html#ac11bfbc02e10c6728147a4f4908920dc" title=" " alt="" coords="448,197,595,237"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="400,215,434,215,434,220,400,220"/>
+</map>
