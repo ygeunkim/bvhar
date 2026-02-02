@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main, master, develop, release/*]
   pull_request:
     branches: [main, master]
 
@@ -9,7 +9,10 @@ name: quartodoc
 jobs:
   quartodoc:
     runs-on: ubuntu-latest
-    
+    # Only restrict concurrency for non-PR jobs
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     
@@ -43,14 +46,23 @@ jobs:
         working-directory: python/docs
       
       - name: Main and develop
+        # run: |
+        #   BRANCH=${GITHUB_REF##*/}
+        #   if [ "$BRANCH" == "develop" ]; then
+        #     echo "TARGET_FOLDER=package/bvhar/dev/python" >> $GITHUB_ENV
+        #     sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/develop/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/dev/'|" _variables.yml
+        #   else
+        #     echo "TARGET_FOLDER=package/bvhar/python" >> $GITHUB_ENV
+        #     sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/master/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/'|" _variables.yml
+        #   fi
         run: |
           BRANCH=${GITHUB_REF##*/}
           if [ "$BRANCH" == "develop" ]; then
-            echo "TARGET_FOLDER=package/bvhar/dev/python" >> $GITHUB_ENV
-            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/develop/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/dev/'|" _variables.yml
+            echo "TARGET_FOLDER=dev/python" >> $GITHUB_ENV
+            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/develop/python/'|; s|R_VERSION_REF|'https://bvhar.baeconverse.org/bvhar/dev/'|" _variables.yml
           else
-            echo "TARGET_FOLDER=package/bvhar/python" >> $GITHUB_ENV
-            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/master/python/'|; s|R_VERSION_REF|'https://ygeunkim.github.io/package/bvhar/'|" _variables.yml
+            echo "TARGET_FOLDER=python" >> $GITHUB_ENV
+            sed -i "s|PY_VERSION_REF|'https://github.com/ygeunkim/bvhar/tree/master/python/'|; s|R_VERSION_REF|'bvhar.baeconverse.org/bvhar/'|" _variables.yml
           fi
         working-directory: python/docs
 
@@ -64,9 +76,10 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
-          token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
-          repository-name: ygeunkim/ygeunkim.github.io
+          # token: ${{ secrets.YGEUNKIM_PAGE_PAT }}
+          # repository-name: ygeunkim/ygeunkim.github.io
           clean: false
-          branch: master
+          # branch: master
+          branch: gh-pages
           folder: python/docs/_site
           target-folder: ${{ env.TARGET_FOLDER }}

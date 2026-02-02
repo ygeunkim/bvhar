@@ -3,8 +3,8 @@
 This package provides public `C++` header.
 It is used in both `R` and `Python`.
 
-- [bvhar for R](https://ygeunkim.github.io/package/bvhar/)
-- [bvhar for Python](https://ygeunkim.github.io/package/bvhar/python/)
+- [bvhar for R](https://bvhar.baeconverse.org)
+- [bvhar for Python](https://bvhar.baeconverse.org/python/)
 
 ## For R package developers
 

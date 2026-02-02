@@ -2,13 +2,12 @@
 
 In this version, we
 
-- Added `exogen` features.
-- Included some internal C++ changes.
-- Require `R >= 4.2` now.
+- Fixed C++20 error related to fmt library.
+- Added some features.
 
 ## Test environments
 
-- Local: macOS 15.5 (aarch64-apple-darwin20), R 4.5.1
+- Local: macOS 26.2 (x86_64-apple-darwin20), R 4.5.2
 - Github actions
     - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3
     - macOS-latest: R-release

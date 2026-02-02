@@ -184,7 +184,8 @@ reference:
 navbar:
   structure:
     left: [intro, reference, articles, tutorials, news, publication, research, accepted]
-    right: [github, goback]
+    # right: [github, goback]
+    right: [github]
   components:
     publication:
       icon: fa-newspaper
@@ -196,11 +197,11 @@ navbar:
       href: https://github.com/ygeunkim/paper-bvhar
       aria-label: Reproducible code
       text: Reproducible code
-    goback:
-      icon: fa-home
-      href: /software/
-      aria-label: Back to the page
-      text: Go back to the Software page
+    # goback:
+    #   icon: fa-home
+    #   href: /software/
+    #   aria-label: Back to the page
+    #   text: Go back to the Software page
 
 news:
   releases:
@@ -230,3 +231,5 @@ news:
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.2.2
   - text: "Version 2.3.0"
     href: https://github.com/ygeunkim/bvhar/releases/tag/v2.3.0
+  - text: "Version 2.4.0"
+    href: https://github.com/ygeunkim/bvhar/releases/tag/v2.4.0

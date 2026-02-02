@@ -28,7 +28,7 @@ Kim, Y. G., and Baek, C. (n.d.). Working paper.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://ygeunkim.github.io/package/bvhar/}
+  \item \url{https://bvhar.baeconverse.org}
   \item \url{https://github.com/ygeunkim/bvhar}
   \item Report bugs at \url{https://github.com/ygeunkim/bvhar/issues}
 }
