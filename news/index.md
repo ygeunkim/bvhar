@@ -2,6 +2,8 @@
 
 ## bvhar 2.4.0
 
+CRAN release: 2026-02-01
+
 ### Important changes
 
 - License has been changed to

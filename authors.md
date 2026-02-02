@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ygeunkim/bvhar/blob/release/v2.4.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/ygeunkim/bvhar/blob/master/inst/CITATION)
 
 Kim Y, Baek C (2023). *bvhar: Bayesian Vector Heterogeneous
 Autoregressive Modeling*.
