@@ -343,9 +343,10 @@ protected:
 		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
 	}
 
-	void updateLpl(int h, const Eigen::VectorXd& valid_vec) override {
+	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateLpl(h={}, valid_vec) called", h);
-		lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
+		// lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
+		lpl(h, i) += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
 	}
 };
 
@@ -403,9 +404,10 @@ protected:
 		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
 	}
 
-	void updateLpl(int h, const Eigen::VectorXd& valid_vec) override {
+	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateLpl(h={}, valid_vec) called", h);
-		lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
+		// lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
+		lpl(h, i) = sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
 	}
 
 private:

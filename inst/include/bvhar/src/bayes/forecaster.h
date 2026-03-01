@@ -23,7 +23,7 @@ class BayesForecaster : public MultistepForecaster<ReturnType, DataType> {
 public:
 	BayesForecaster(int step, const ReturnType& response, int lag, int num_sim, unsigned int seed, bool save_mean = false)
 	: MultistepForecaster<ReturnType, DataType>(step, response, lag, save_mean),
-		lpl(Eigen::VectorXd::Zero(step)), num_sim(num_sim), rng(seed) {
+		lpl(Eigen::MatrixXd::Zero(step, num_sim)), num_sim(num_sim), rng(seed) {
     BVHAR_DEBUG_LOG(debug_logger, "BayesForecaster Constructor: step={}, lag={}, num_sim={}", step, lag, num_sim);
 	}
 	virtual ~BayesForecaster() = default;
@@ -45,7 +45,7 @@ public:
 	 * 
 	 * @return Eigen::VectorXd LPL draws
 	 */
-	Eigen::VectorXd returnLplRecord() {
+	Eigen::MatrixXd returnLplRecord() {
 		return lpl;
 	}
 
@@ -69,7 +69,7 @@ protected:
 	using MultistepForecaster<ReturnType, DataType>::last_pvec;
 	using MultistepForecaster<ReturnType, DataType>::tmp_vec;
 	using MultistepForecaster<ReturnType, DataType>::debug_logger;
-	Eigen::VectorXd lpl;
+	Eigen::MatrixXd lpl;
 	std::mutex mtx;
 	int num_sim;
 	BVHAR_BHRNG rng;
@@ -96,7 +96,7 @@ protected:
 			updateParams(i);
 			forecastOut(i, valid_vec);
 		}
-		lpl.array() /= num_sim;
+		// lpl.array() /= num_sim;
 	}
 
 	/**
@@ -132,13 +132,13 @@ protected:
 	 * @param h Forecast step
 	 * @param valid_vec Validation vector
 	 */
-	virtual void updateLpl(int h, const DataType& valid_vec) = 0;
+	virtual void updateLpl(int h, int i, const DataType& valid_vec) = 0;
 
 	void forecastOut(const int i, const DataType& valid_vec) {
 		for (int h = 0; h < step; ++h) {
 			this->setRecursion();
 			this->updatePred(h, i);
-			updateLpl(h, valid_vec);
+			updateLpl(h, i, valid_vec);
 			this->updateRecursion();
 		}
 	}
@@ -290,13 +290,15 @@ public:
 		BVHAR_OPTIONAL<int> exogen_lag = BVHAR_NULLOPT
 	)
 	: num_window(num_window), num_test(num_test), num_horizon(num_test - step + 1), step(step),
-		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin), nthreads(nthreads),
+		lag(lag), num_chains(num_chains), num_iter(num_iter), num_burn(num_burn), thin(thin),
+		num_sim((num_iter - num_burn + thin - 1) / thin), nthreads(nthreads),
 		get_lpl(get_lpl), use_fit(use_fit), display_progress(display_progress),
 		seed_forecast(seed_forecast), roll_mat(num_horizon), roll_y0(num_horizon), y_test(y_test),
 		model(num_horizon), forecaster(num_horizon),
 		// out_forecast(num_horizon, std::vector<ReturnType>(num_chains)),
 		out_forecast(num_horizon, std::vector<ForecastType>(num_chains)),
-		lpl_record(Eigen::MatrixXd::Zero(num_horizon, num_chains)),
+		lpl_record(Eigen::MatrixXd::Zero(num_horizon, step)),
+		lpl_draws(num_horizon, Eigen::MatrixXd::Zero(step, num_chains * num_sim)),
 		roll_exogen_mat(num_horizon), roll_exogen(num_horizon), lag_exogen(exogen_lag),
 		debug_logger(BVHAR_DEBUG_LOGGER("McmcOutForecastRun")) {
 		BVHAR_INIT_DEBUG(debug_logger);
@@ -329,6 +331,7 @@ public:
 	 */
 	void forecast() override {
 		BVHAR_DEBUG_LOG(debug_logger, "forecast() called");
+		int num_draws = num_chains * num_sim;
 		if (num_chains == 1) {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
@@ -346,6 +349,12 @@ public:
 				}
 			}
 		}
+		if (get_lpl) {
+			for (int window = 0; window < num_horizon; ++window) {
+				Eigen::VectorXd pl_max = lpl_draws[window].rowwise().maxCoeff();
+				lpl_record.row(window) = (lpl_draws[window].colwise() - pl_max).array().exp().rowwise().sum().log() + pl_max.array() - log(num_draws);
+			}
+		}
 	}
 
 	/**
@@ -357,7 +366,7 @@ public:
 		forecast();
 		BVHAR_LIST res = BVHAR_CREATE_LIST(BVHAR_NAMED("forecast") = BVHAR_WRAP(out_forecast));
 		if (get_lpl) {
-			res["lpl"] = lpl_record;
+			res["lpl"] = BVHAR_CAST_MATRIX(lpl_record);
 		}
 		return res;
 	}
@@ -365,7 +374,7 @@ public:
 protected:
 	using ForecastType = typename std::conditional<isPath, ReturnType, DataType>::type;
 	int num_window, num_test, num_horizon, step;
-	int lag, num_chains, num_iter, num_burn, thin, nthreads;
+	int lag, num_chains, num_iter, num_burn, thin, num_sim, nthreads;
 	bool get_lpl, use_fit, display_progress;
 	Eigen::VectorXi seed_forecast;
 	std::vector<ReturnType> roll_mat;
@@ -376,6 +385,7 @@ protected:
 	// std::vector<std::vector<ReturnType>> out_forecast;
 	std::vector<std::vector<ForecastType>> out_forecast;
 	Eigen::MatrixXd lpl_record;
+	std::vector<Eigen::MatrixXd> lpl_draws;
 	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen_mat;
 	std::vector<BVHAR_OPTIONAL<ReturnType>> roll_exogen;
 	BVHAR_OPTIONAL<int> lag_exogen;
@@ -472,7 +482,10 @@ protected:
 		// out_forecast[window][chain] = forecaster[window][chain]->doForecast(valid_vec).bottomRows(1);
 		storeForecast(window, chain, valid_vec, std::integral_constant<bool, isPath>());
 		// out_forecast[window][chain] = forecaster[window][chain]->getLastForecast(valid_vec);
-		lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
+		// lpl_record(window, chain) = forecaster[window][chain]->returnLpl();
+		if (get_lpl) {
+			lpl_draws[window].middleCols(chain * num_sim, num_sim) = forecaster[window][chain]->returnLplRecord();
+		}
 		forecaster[window][chain].reset(); // free the memory by making nullptr
 	}
 
