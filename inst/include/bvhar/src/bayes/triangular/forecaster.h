@@ -346,7 +346,7 @@ protected:
 	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateLpl(h={}, valid_vec) called", h);
 		// lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
-		lpl(h, i) += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
+		lpl(h, i) = sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
 	}
 };
 
