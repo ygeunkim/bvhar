@@ -6,5 +6,6 @@ var classbaecon_1_1bvhar_1_1McmcForecastRun =
     [ "returnForecast", "classbaecon_1_1bvhar_1_1McmcForecastRun.html#a1bb349c7edd1bbdfd9f131f8d7efe0f2", null ],
     [ "predict", "classbaecon_1_1bvhar_1_1McmcForecastRun.html#acd45e83e94a14694fff7a022982b3ac4", null ],
     [ "returnPredict", "classbaecon_1_1bvhar_1_1McmcForecastRun.html#acf6f9128182c90570b1731f6fa107fb1", null ],
+    [ "returnMean", "classbaecon_1_1bvhar_1_1McmcForecastRun.html#a76823f4b004093159a0cb36a1a82bdc8", null ],
     [ "forecaster", "classbaecon_1_1bvhar_1_1McmcForecastRun.html#a6863afee3511930931ffe65f9093c6fb", null ]
 ];

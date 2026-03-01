@@ -61,16 +61,16 @@ var NAVTREEINDEX =
 "annotated.html",
 "classbaecon_1_1bvhar_1_1CtaForecaster.html#ada17a15aa76b129b72993a6d594ee7f9",
 "classbaecon_1_1bvhar_1_1ExogenForecaster.html#ad7d98ae00cbdc715eee8985897cd96e1",
-"classbaecon_1_1bvhar_1_1McmcReg.html#a450c2fc1a9bbe274ea56d31f718d0d48",
-"classbaecon_1_1bvhar_1_1McmcTriangular.html#afa628beed78ef49c540419d4bc6acb36",
-"classbaecon_1_1bvhar_1_1MinnSpillover.html#ac5d7e92ea74adb37a3d9fd35fb9d4b17",
-"classbaecon_1_1bvhar_1_1OlsForecaster.html",
-"classbaecon_1_1bvhar_1_1OlsVhar.html#ab96e38ad767afa5778d2368dcb500f3f",
-"classboost_1_1random_1_1inverse__gaussian__distribution_1_1param__type.html#afb239a2de6472713a54199eb5288b84e",
-"namespacebaecon_1_1bvhar.html#a58c1c6bd19018c8c7a576a024883542b",
-"structbaecon_1_1bvhar_1_1GdpInits.html#a7a1401cb170da3c00d09dd53d07266d9",
-"structbaecon_1_1bvhar_1_1RegParams.html#a4a2ec3c9f9916f168b45c977d0ba527e",
-"svforecaster_8h.html#a019c9bae0f5dc2468322f2224586e926"
+"classbaecon_1_1bvhar_1_1McmcReg.html",
+"classbaecon_1_1bvhar_1_1McmcTriangular.html#aee4c72172a996b153230a6e9e890cbd7",
+"classbaecon_1_1bvhar_1_1MinnSpillover.html#abc3ffb136d3f35edb17eeb385c1392db",
+"classbaecon_1_1bvhar_1_1OlsForecastRun.html#a835c90cb56b0f3ef11dcdea8fc444852",
+"classbaecon_1_1bvhar_1_1OlsVhar.html#a6a65ea74d30feb2f1f7fc2b658b6cf5e",
+"classboost_1_1random_1_1inverse__gaussian__distribution_1_1param__type.html#a10c337022b8af5ee18352975f7484af8",
+"namespacebaecon_1_1bvhar.html#a36697e6f2e30989c11bc9a2fc2bff113",
+"structbaecon_1_1bvhar_1_1DlParams.html#a517e9781c94424d24315752bb6f5fa7e",
+"structbaecon_1_1bvhar_1_1RegParams.html#a0add3cf513263825da2ba16857d9ece3",
+"structural_8h.html#ab77ef1a3fef4bb40bbbc69e6635d2d15"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

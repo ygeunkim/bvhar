@@ -6,9 +6,10 @@ var searchData=
   ['last_5fpvec_3',['last_pvec',['../classbaecon_1_1bvhar_1_1MinnForecaster.html#aece497fb6bce17e5234bc6583a018f11',1,'baecon::bvhar::MinnForecaster::last_pvec'],['../classbaecon_1_1bvhar_1_1MultistepForecaster.html#aefd6b0d6aac70f33076828be2143b7d8',1,'baecon::bvhar::MultistepForecaster::last_pvec'],['../classbaecon_1_1bvhar_1_1ExogenForecaster.html#a260c45c0dced7a0b3b4fd5f3c420f03c',1,'baecon::bvhar::ExogenForecaster::last_pvec']]],
   ['latent_5finnov_4',['latent_innov',['../classbaecon_1_1bvhar_1_1McmcTriangular.html#a98e1c78c4b7c706cb3bcb0dd1ad71b0d',1,'baecon::bvhar::McmcTriangular']]],
   ['level_5',['level',['../classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2149a3bb74df05fbcab964bf9329a527',1,'baecon::bvhar::CtaOutforecastRun']]],
-  ['lpl_6',['lpl',['../classbaecon_1_1bvhar_1_1BayesForecaster.html#a2afc09d45cb0d1eaf16e6117448b4434',1,'baecon::bvhar::BayesForecaster']]],
-  ['lpl_5frecord_7',['lpl_record',['../classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a6b0b129df0d0aef808b689cc762109f3',1,'baecon::bvhar::McmcOutForecastRun']]],
-  ['lvol_5finit_5frecord_8',['lvol_init_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#a8a28d1fbfbc1dc212743d6f158330d93',1,'baecon::bvhar::SvRecords']]],
-  ['lvol_5frecord_9',['lvol_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#a38b8550bd5d9fdd4ad58957b012ca3e0',1,'baecon::bvhar::SvRecords']]],
-  ['lvol_5fsig_5frecord_10',['lvol_sig_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#ad2afa964a65bc1d8b1004e480d594a90',1,'baecon::bvhar::SvRecords']]]
+  ['lpl_6',['lpl',['../classbaecon_1_1bvhar_1_1BayesForecaster.html#a035c98430259a9f21c312a05a959ce54',1,'baecon::bvhar::BayesForecaster']]],
+  ['lpl_5fdraws_7',['lpl_draws',['../classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ac6b5a6900f8fed300224ed4b0ade251e',1,'baecon::bvhar::McmcOutForecastRun']]],
+  ['lpl_5frecord_8',['lpl_record',['../classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a6b0b129df0d0aef808b689cc762109f3',1,'baecon::bvhar::McmcOutForecastRun']]],
+  ['lvol_5finit_5frecord_9',['lvol_init_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#a8a28d1fbfbc1dc212743d6f158330d93',1,'baecon::bvhar::SvRecords']]],
+  ['lvol_5frecord_10',['lvol_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#a38b8550bd5d9fdd4ad58957b012ca3e0',1,'baecon::bvhar::SvRecords']]],
+  ['lvol_5fsig_5frecord_11',['lvol_sig_record',['../structbaecon_1_1bvhar_1_1SvRecords.html#ad2afa964a65bc1d8b1004e480d594a90',1,'baecon::bvhar::SvRecords']]]
 ];

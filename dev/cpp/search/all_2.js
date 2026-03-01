@@ -14,7 +14,7 @@ var searchData=
   ['bayes_2fmniw_2fspillover_2eh_11',['spillover.h',['../bayes_2mniw_2spillover_8h.html',1,'']]],
   ['bayes_2ftriangular_2fforecaster_2eh_12',['forecaster.h',['../bayes_2triangular_2forecaster_8h.html',1,'']]],
   ['bayes_2ftriangular_2fspillover_2eh_13',['spillover.h',['../bayes_2triangular_2spillover_8h.html',1,'']]],
-  ['bayesforecaster_14',['bayesforecaster',['../classbaecon_1_1bvhar_1_1BayesForecaster.html#aed4f21507e5c8298bcc04cf70dd6c1a8',1,'baecon::bvhar::BayesForecaster::BayesForecaster()'],['../classbaecon_1_1bvhar_1_1BayesForecaster.html',1,'baecon::bvhar::BayesForecaster&lt; ReturnType, DataType &gt;']]],
+  ['bayesforecaster_14',['bayesforecaster',['../classbaecon_1_1bvhar_1_1BayesForecaster.html#abd4117035049e31ce4581d3885fce289',1,'baecon::bvhar::BayesForecaster::BayesForecaster()'],['../classbaecon_1_1bvhar_1_1BayesForecaster.html',1,'baecon::bvhar::BayesForecaster&lt; ReturnType, DataType &gt;']]],
   ['bayesforecaster_3c_20eigen_3a_3amatrixxd_2c_20eigen_3a_3avectorxd_20_3e_15',['BayesForecaster&lt; Eigen::MatrixXd, Eigen::VectorXd &gt;',['../classbaecon_1_1bvhar_1_1BayesForecaster.html',1,'baecon::bvhar']]],
   ['beta_16',['beta',['../classboost_1_1random_1_1inverse__gaussian__distribution.html#a6b60e329ed0cb94c84be3837628c7a56',1,'boost::random::inverse_gaussian_distribution::beta()'],['../classboost_1_1random_1_1inverse__gaussian__distribution_1_1param__type.html#a10c337022b8af5ee18352975f7484af8',1,'boost::random::inverse_gaussian_distribution::param_type::beta()']]],
   ['boost_17',['boost',['../namespaceboost.html',1,'']]],

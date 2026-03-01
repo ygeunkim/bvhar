@@ -39,6 +39,6 @@ var searchData=
   ['minnspillover_36',['MinnSpillover',['../classbaecon_1_1bvhar_1_1MinnSpillover.html#af7860e3bc16114a91b05d166b9462b90',1,'baecon::bvhar::MinnSpillover']]],
   ['minnupdater_37',['MinnUpdater',['../classbaecon_1_1bvhar_1_1MinnUpdater.html#ac5778f08068c8a861452eef4846794ff',1,'baecon::bvhar::MinnUpdater']]],
   ['multiols_38',['MultiOls',['../classbaecon_1_1bvhar_1_1MultiOls.html#aad9ac23966b249ee7d42c9462477d03f',1,'baecon::bvhar::MultiOls']]],
-  ['multistepforecaster_39',['MultistepForecaster',['../classbaecon_1_1bvhar_1_1MultistepForecaster.html#a159dd118ec744dc07df69bc1c5942d0f',1,'baecon::bvhar::MultistepForecaster']]],
+  ['multistepforecaster_39',['MultistepForecaster',['../classbaecon_1_1bvhar_1_1MultistepForecaster.html#a108c57a015741c9c9efa4675516d4d78',1,'baecon::bvhar::MultistepForecaster']]],
   ['multistepforecastrun_40',['MultistepForecastRun',['../classbaecon_1_1bvhar_1_1MultistepForecastRun.html#a4996246e9149914715fa8fd3841524ca',1,'baecon::bvhar::MultistepForecastRun']]]
 ];
