@@ -40,11 +40,6 @@ public:
 		return pred_save;
 	}
 	
-	ReturnType getPredMean() {
-		BVHAR_DEBUG_LOG(debug_logger, "getPredMean() called");
-		return mean_save;
-	}
-	
 	/**
 	 * @brief Return the draws of LPL
 	 * 
@@ -230,7 +225,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doPredict();
-			density_forecast[chain] = forecaster[chain]->getPredMean();
+			posterior_mean[chain] = forecaster[chain]->getMean();
 			// forecaster[chain].reset();
 		}
 	}
