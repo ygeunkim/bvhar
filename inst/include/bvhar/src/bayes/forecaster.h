@@ -21,8 +21,8 @@ template <typename, typename, bool, bool> class McmcOutforecastRun;
 template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
 class BayesForecaster : public MultistepForecaster<ReturnType, DataType> {
 public:
-	BayesForecaster(int step, const ReturnType& response, int lag, int num_sim, unsigned int seed)
-	: MultistepForecaster<ReturnType, DataType>(step, response, lag),
+	BayesForecaster(int step, const ReturnType& response, int lag, int num_sim, unsigned int seed, bool save_mean = false)
+	: MultistepForecaster<ReturnType, DataType>(step, response, lag, save_mean),
 		lpl(Eigen::VectorXd::Zero(step)), num_sim(num_sim), rng(seed) {
     BVHAR_DEBUG_LOG(debug_logger, "BayesForecaster Constructor: step={}, lag={}, num_sim={}", step, lag, num_sim);
 	}
@@ -38,6 +38,11 @@ public:
 		BVHAR_DEBUG_LOG(debug_logger, "doPredict() called");
 		forecastInsample();
 		return pred_save;
+	}
+	
+	ReturnType getPredMean() {
+		BVHAR_DEBUG_LOG(debug_logger, "getPredMean() called");
+		return mean_save;
 	}
 	
 	/**
@@ -61,8 +66,10 @@ public:
 protected:
 	using MultistepForecaster<ReturnType, DataType>::step;
 	using MultistepForecaster<ReturnType, DataType>::lag;
+	using MultistepForecaster<ReturnType, DataType>::save_mean;
 	using MultistepForecaster<ReturnType, DataType>::response;
 	using MultistepForecaster<ReturnType, DataType>::pred_save; // rbind(step), cbind(sims)
+	using MultistepForecaster<ReturnType, DataType>::mean_save; // only when augmented term exist
 	using MultistepForecaster<ReturnType, DataType>::point_forecast;
 	using MultistepForecaster<ReturnType, DataType>::last_pvec;
 	using MultistepForecaster<ReturnType, DataType>::tmp_vec;
@@ -179,7 +186,7 @@ class McmcForecastRun : public MultistepForecastRun<ReturnType, DataType> {
 public:
 	McmcForecastRun(int num_chains, int lag, int step, int nthreads)
 	: num_chains(num_chains), nthreads(nthreads),
-		density_forecast(num_chains), forecaster(num_chains) {
+		density_forecast(num_chains), posterior_mean(num_chains), forecaster(num_chains) {
 		BVHAR_DEBUG_LOG(
 			debug_logger,
 			"McmcForecastRun Constructor: num_chains={}, lag={}, step={}, nthreads={}",
@@ -200,6 +207,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doForecast();
+			posterior_mean[chain] = forecaster[chain]->getMean();
 			// forecaster[chain].reset();
 		}
 	}
@@ -222,6 +230,7 @@ public:
 		for (int chain = 0; chain < num_chains; ++chain) {
 			BVHAR_DEBUG_LOG(debug_logger, "[Thread {}] chain={} / num_chains={}", std::to_string(omp_get_thread_num()), chain, num_chains);
 			density_forecast[chain] = forecaster[chain]->doPredict();
+			density_forecast[chain] = forecaster[chain]->getPredMean();
 			// forecaster[chain].reset();
 		}
 	}
@@ -236,9 +245,14 @@ public:
 		return density_forecast;
 	}
 
+	std::vector<ReturnType> returnMean() {
+		return posterior_mean;
+	}
+
 private:
 	int num_chains, nthreads;
 	std::vector<ReturnType> density_forecast;
+	std::vector<ReturnType> posterior_mean;
 
 protected:
 	std::vector<std::unique_ptr<BayesForecaster<ReturnType, DataType>>> forecaster;

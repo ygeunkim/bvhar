@@ -21,8 +21,9 @@ template <typename ReturnType, typename DataType> class AutoregGenerator;
 template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
 class MultistepForecaster {
 public:
-	MultistepForecaster(int step, const ReturnType& response, int lag)
-	: step(step), lag(lag), response(response), debug_logger(BVHAR_DEBUG_LOGGER("MultistepForecaster")) {
+	MultistepForecaster(int step, const ReturnType& response, int lag, bool save_mean = false)
+	: step(step), lag(lag), save_mean(save_mean), response(response),
+		debug_logger(BVHAR_DEBUG_LOGGER("MultistepForecaster")) {
 		BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger, "Constructor: step={}, lag={}", step, lag);
 	}
@@ -48,13 +49,20 @@ public:
 		return pred_save;
 	}
 
+	ReturnType getMean() {
+		BVHAR_DEBUG_LOG(debug_logger, "getMean() called");
+		return mean_save;
+	}
+
 	virtual DataType getLastForecast() = 0;
 	virtual DataType getLastForecast(const DataType& valid_vec) { return getLastForecast(); }
 
 protected:
 	int step, lag;
+	bool save_mean;
 	ReturnType response;
 	ReturnType pred_save; // when Point: rbind(step) or when Density: rbind(step), cbind(sims)
+	ReturnType mean_save; // Save only Phi x_T only when augmented terms exist
 	DataType point_forecast; // y_(T + h - 1)
 	DataType last_pvec; // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 	DataType tmp_vec; // y_(T + h - 2), ... y_(T + h - lag)

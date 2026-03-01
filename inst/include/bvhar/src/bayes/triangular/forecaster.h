@@ -215,6 +215,9 @@ protected:
 		last_pvec = Eigen::VectorXd::Zero(dim_design);
 		point_forecast = Eigen::VectorXd::Zero(dim);
 		pred_save = Eigen::MatrixXd::Zero(step, num_sim * dim);
+		if (save_mean) {
+			mean_save = Eigen::MatrixXd::Zero(step, num_sim * dim);
+		}
 		tmp_vec = Eigen::VectorXd::Zero((lag - 1) * dim);
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
@@ -237,6 +240,9 @@ protected:
 		BVHAR_DEBUG_LOG(debug_logger, "updatePred(h={}, i={}) called", h, i);
 		computeMean();
 		updateVariance();
+		if (save_mean) {
+			mean_save.block(h, i * dim, 1, dim) = point_forecast.transpose();
+		}
 		if (exogen_updater) {
 			exogen_updater->appendForecast(point_forecast, h);
 		}
@@ -255,6 +261,9 @@ protected:
 	void forecastIn(const int i, const Eigen::MatrixXd& design) override {
 		BVHAR_DEBUG_LOG(debug_logger, "forecastIn(i={}, design) called", i);
 		Eigen::MatrixXd point_pred = design.leftCols(num_coef / dim) * coef_mat;
+		if (save_mean) {
+			mean_save.middleCols(i * dim, dim) = point_pred;
+		}
 		for (int h = 0; h < this->step; ++h) {
 			updateVariance();
 			point_pred.row(h) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
