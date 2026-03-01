@@ -331,7 +331,6 @@ public:
 	 */
 	void forecast() override {
 		BVHAR_DEBUG_LOG(debug_logger, "forecast() called");
-		int num_draws = num_chains * num_sim;
 		if (num_chains == 1) {
 		#ifdef _OPENMP
 			#pragma omp parallel for num_threads(nthreads)
@@ -349,12 +348,6 @@ public:
 				}
 			}
 		}
-		if (get_lpl) {
-			for (int window = 0; window < num_horizon; ++window) {
-				Eigen::VectorXd pl_max = lpl_draws[window].rowwise().maxCoeff();
-				lpl_record.row(window) = (lpl_draws[window].colwise() - pl_max).array().exp().rowwise().sum().log() + pl_max.array() - log(num_draws);
-			}
-		}
 	}
 
 	/**
@@ -366,7 +359,12 @@ public:
 		forecast();
 		BVHAR_LIST res = BVHAR_CREATE_LIST(BVHAR_NAMED("forecast") = BVHAR_WRAP(out_forecast));
 		if (get_lpl) {
-			res["lpl"] = BVHAR_CAST_MATRIX(lpl_record);
+			Eigen::VectorXd pl_max(step);
+			for (int window = 0; window < num_horizon; ++window) {
+				pl_max = lpl_draws[window].rowwise().maxCoeff();
+				lpl_record.row(window) = (lpl_draws[window].colwise() - pl_max).array().exp().rowwise().mean().log() + pl_max.array();
+			}
+			res["lpl"] = lpl_record;
 		}
 		return res;
 	}
