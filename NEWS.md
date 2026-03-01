@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Fixed Average LPL computation process in pseudo out-of-sample forecasting.
+
 # bvhar 2.4.0
 
 ## Important changes
