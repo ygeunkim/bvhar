@@ -422,9 +422,9 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
   if (lpl) {
     # lpl_val <- res_mat$lpl
     if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
+      lpl_val <- apply(res_mat$lpl, 2, median)
     } else {
-      lpl_val <- rowMeans(res_mat$lpl)
+      lpl_val <- colMeans(res_mat$lpl)
     }
     res_mat$lpl <- NULL
   }
@@ -660,9 +660,9 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
   if (lpl) {
     # lpl_val <- res_mat$lpl
     if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
+      lpl_val <- apply(res_mat$lpl, 2, median)
     } else {
-      lpl_val <- rowMeans(res_mat$lpl)
+      lpl_val <- colMeans(res_mat$lpl)
     }
     res_mat$lpl <- NULL
   }
@@ -1060,9 +1060,9 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
   if (lpl) {
     # lpl_val <- res_mat$lpl
     if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
+      lpl_val <- apply(res_mat$lpl, 2, median)
     } else {
-      lpl_val <- rowMeans(res_mat$lpl)
+      lpl_val <- colMeans(res_mat$lpl)
     }
     res_mat$lpl <- NULL
   }
@@ -1285,9 +1285,9 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
   if (lpl) {
     # lpl_val <- res_mat$lpl
     if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
+      lpl_val <- apply(res_mat$lpl, 2, median)
     } else {
-      lpl_val <- rowMeans(res_mat$lpl)
+      lpl_val <- colMeans(res_mat$lpl)
     }
     res_mat$lpl <- NULL
   }
