@@ -64,6 +64,7 @@ protected:
 	ReturnType pred_save; // when Point: rbind(step) or when Density: rbind(step), cbind(sims)
 	ReturnType mean_save; // Save only Phi x_T only when augmented terms exist
 	DataType point_forecast; // y_(T + h - 1)
+	DataType forecast_mean; // Phi x_T when needed
 	DataType last_pvec; // [ y_(T + h - 1)^T, y_(T + h - 2)^T, ..., y_(T + h - p)^T, 1 ] (1 when constant term)
 	DataType tmp_vec; // y_(T + h - 2), ... y_(T + h - lag)
 	std::shared_ptr<spdlog::logger> debug_logger;

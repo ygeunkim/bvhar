@@ -66,6 +66,7 @@ protected:
 	using MultistepForecaster<ReturnType, DataType>::pred_save; // rbind(step), cbind(sims)
 	using MultistepForecaster<ReturnType, DataType>::mean_save; // only when augmented term exist
 	using MultistepForecaster<ReturnType, DataType>::point_forecast;
+	using MultistepForecaster<ReturnType, DataType>::forecast_mean;
 	using MultistepForecaster<ReturnType, DataType>::last_pvec;
 	using MultistepForecaster<ReturnType, DataType>::tmp_vec;
 	using MultistepForecaster<ReturnType, DataType>::debug_logger;
