@@ -1392,6 +1392,18 @@ Rcpp::List expand_bvharxsv(Eigen::MatrixXd y, int week, int month, int num_chain
 }
 
 // [[Rcpp::export]]
+Rcpp::List compute_varldlt_irf(int num_chains, int lag, int step, Rcpp::List fit_record, bool sparse, int nthreads) {
+	auto irf = std::make_unique<baecon::bvhar::CtaIrfRun<baecon::bvhar::LdltRecords>>(num_chains, lag, step, fit_record, sparse, nthreads);
+	return Rcpp::wrap(irf->returnIrf());
+}
+
+// [[Rcpp::export]]
+Rcpp::List compute_vharldlt_irf(int num_chains, int week, int month, int step, Rcpp::List fit_record, bool sparse, int nthreads) {
+	auto irf = std::make_unique<baecon::bvhar::CtaIrfRun<baecon::bvhar::LdltRecords>>(num_chains, week, month, step, fit_record, sparse, nthreads);
+	return Rcpp::wrap(irf->returnIrf());
+}
+
+// [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse) {
 	// auto spillover = baecon::bvhar::initialize_spillover<baecon::bvhar::LdltRecords>(0, lag, step, fit_record, sparse, 0);
 	// return spillover->returnSpilloverDensity();

@@ -2,7 +2,9 @@
 #define BVHAR_BASE_H
 
 #include "src/core/forecaster.h"
+#include "src/core/irf.h"
 #include "src/bayes/bayes.h"
 #include "src/bayes/forecaster.h"
+#include "src/bayes/irf.h"
 
 #endif // BVHAR_BASE_H

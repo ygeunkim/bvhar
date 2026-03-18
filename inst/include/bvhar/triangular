@@ -3,6 +3,7 @@
 
 #include "src/bayes/triangular/triangular.h"
 #include "src/bayes/triangular/forecaster.h"
+#include "src/bayes/triangular/irf.h"
 #include "src/bayes/triangular/spillover.h"
 
 #endif // BVHAR_TRIANGULAR_H

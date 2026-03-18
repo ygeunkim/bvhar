@@ -991,6 +991,14 @@ expand_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thin
     .Call(`_bvhar_expand_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
+compute_varldlt_irf <- function(num_chains, lag, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_varldlt_irf`, num_chains, lag, step, fit_record, sparse, nthreads)
+}
+
+compute_vharldlt_irf <- function(num_chains, week, month, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_vharldlt_irf`, num_chains, week, month, step, fit_record, sparse, nthreads)
+}
+
 compute_varldlt_spillover <- function(lag, step, fit_record, sparse) {
     .Call(`_bvhar_compute_varldlt_spillover`, lag, step, fit_record, sparse)
 }

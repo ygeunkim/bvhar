@@ -61,7 +61,7 @@ public:
 		return density_irf;
 	}
 
-private:
+protected:
 	int num_chains, nthreads;
 	std::vector<std::unique_ptr<McmcIrf>> irf_ptr;
 	std::vector<Eigen::MatrixXd> density_irf;
