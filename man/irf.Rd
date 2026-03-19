@@ -11,20 +11,34 @@
 \alias{knit_print.bvharirf}
 \title{Impulse Response Analysis}
 \usage{
-\method{irf}{varlse}(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+\method{irf}{varlse}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
 
-\method{irf}{vharlse}(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+\method{irf}{vharlse}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
 
 \method{irf}{bvarldlt}(
   object,
   lag_max = 10,
   orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
   level = 0.05,
   num_thread = 1,
   sparse = FALSE,
   med = FALSE,
-  impulse_var,
-  response_var,
   ...
 )
 
@@ -32,12 +46,12 @@
   object,
   lag_max = 10,
   orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
   level = 0.05,
   num_thread = 1,
   sparse = FALSE,
   med = FALSE,
-  impulse_var,
-  response_var,
   ...
 )
 

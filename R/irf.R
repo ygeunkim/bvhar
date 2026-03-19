@@ -37,8 +37,8 @@ irf <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
 irf.varlse <- function(object,
                        lag_max = 10,
                        orthogonal = TRUE,
-                       impulse_var,
-                       response_var,
+                       impulse_var = NULL,
+                       response_var = NULL,
                        ...) {
   mat_coef <- object$coefficients
   mat_irf <- matrix()
@@ -58,10 +58,10 @@ irf.varlse <- function(object,
   }
   # preprocess-------------------
   name_var <- colnames(mat_coef)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
@@ -104,8 +104,8 @@ irf.varlse <- function(object,
 irf.vharlse <- function(object, 
                         lag_max = 10,
                         orthogonal = TRUE,
-                        impulse_var,
-                        response_var,
+                        impulse_var = NULL,
+                        response_var = NULL,
                         ...) {
   mat_coef <- object$coefficients
   mat_irf <- matrix()
@@ -127,10 +127,10 @@ irf.vharlse <- function(object,
   }
   # preprocess-------------------
   name_var <- colnames(mat_coef)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
@@ -177,12 +177,12 @@ irf.vharlse <- function(object,
 irf.bvarldlt <- function(object,
                          lag_max = 10,
                          orthogonal = TRUE,
+                         impulse_var = NULL,
+                         response_var = NULL,
                          level = .05,
                          num_thread = 1,
                          sparse = FALSE,
                          med = FALSE,
-                         impulse_var,
-                         response_var,
                          ...) {
   num_chains <- object$chain
   dim_data <- object$m
@@ -204,10 +204,10 @@ irf.bvarldlt <- function(object,
   ) # list of dim * step x num_draw * dim
   # preprocess-------------------
   name_var <- colnames(object$coefficients)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
@@ -253,12 +253,12 @@ irf.bvarldlt <- function(object,
 irf.bvharldlt <- function(object,
                          lag_max = 10,
                          orthogonal = TRUE,
+                         impulse_var = NULL,
+                         response_var = NULL,
                          level = .05,
                          num_thread = 1,
                          sparse = FALSE,
                          med = FALSE,
-                         impulse_var,
-                         response_var,
                          ...) {
   num_chains <- object$chain
   dim_data <- object$m
@@ -281,10 +281,10 @@ irf.bvharldlt <- function(object,
   ) # list of dim * step x num_draw * dim
   # preprocess-------------------
   name_var <- colnames(object$coefficients)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
