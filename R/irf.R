@@ -163,3 +163,163 @@ irf.vharlse <- function(object,
   class(res) <- "bvharirf"
   res
 }
+
+#' @rdname irf
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
+#' @importFrom tidyr separate
+#' @importFrom dplyr rename
+#' @order 1
+#' @export
+irf.bvarldlt <- function(object,
+                         lag_max = 10,
+                         orthogonal = TRUE,
+                         level = .05,
+                         num_thread = 1,
+                         sparse = FALSE,
+                         med = FALSE,
+                         impulse_var,
+                         response_var,
+                         ...) {
+  num_chains <- object$chain
+  dim_data <- object$m
+  num_draw <- nrow(object$param)
+  # ci_lev <- 0
+  # if (is.numeric(sparse)) {
+  #   ci_lev <- sparse
+  #   sparse <- FALSE
+  # }
+  fit_ls <- get_records(object, TRUE)
+  # mat_irf <- compute_mar_irf(num_chains, object$p, lag_max, num_row, num_col, fit_record, num_thread, TRUE)
+  irf_res <- compute_varldlt_irf(
+    num_chains = num_chains,
+    lag = object$p,
+    step = lag_max + 1,
+    fit_record = fit_ls,
+    sparse = sparse,
+    nthreads = num_thread
+  ) # list of dim * step x num_draw * dim
+  # preprocess-------------------
+  name_var <- colnames(object$coefficients)
+  if (missing(impulse_var)) {
+    impulse_var <- name_var
+  }
+  if (missing(response_var)) {
+    response_var <- name_var
+  }
+  impulse_name <- rep(name_var, lag_max + 1)
+  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
+  irf_distn <- process_forecast_draws(
+    irf_res,
+    n_ahead = dim_data * (lag_max + 1),
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = name_var,
+    level = level,
+    roll = FALSE,
+    med = med
+  )
+  irf_distn <-
+    lapply(irf_distn, function(mat) {
+      rownames(mat) <- paste(impulse_name, period_name, sep = "_")
+      mat
+    })
+  irf_long <-
+    join_long_spillover(irf_distn, prefix = "value") |>
+    separate(series, into = c("series", "period"), sep = "_", convert = TRUE) |>
+    rename(c(impulse = "series", response = "shock")) |> 
+    filter(impulse %in% impulse_var, response %in% response_var)
+  res <- list(
+    coefficients = irf_distn$mean,
+    se = irf_distn$sd,
+    lower = irf_distn$lower,
+    upper = irf_distn$upper,
+    df_long = irf_long
+  )
+  # return----------------------
+  res$lag_max <- lag_max
+  res$orthogonal <- orthogonal
+  res$process <- object$process
+  class(res) <- "bvharirf"
+  res
+}
+
+#' @rdname irf
+#' @order 1
+#' @export
+irf.bvharldlt <- function(object,
+                         lag_max = 10,
+                         orthogonal = TRUE,
+                         level = .05,
+                         num_thread = 1,
+                         sparse = FALSE,
+                         med = FALSE,
+                         impulse_var,
+                         response_var,
+                         ...) {
+  num_chains <- object$chain
+  dim_data <- object$m
+  num_draw <- nrow(object$param)
+  # ci_lev <- 0
+  # if (is.numeric(sparse)) {
+  #   ci_lev <- sparse
+  #   sparse <- FALSE
+  # }
+  fit_ls <- get_records(object, TRUE)
+  # mat_irf <- compute_mar_irf(num_chains, object$p, lag_max, num_row, num_col, fit_record, num_thread, TRUE)
+  irf_res <- compute_vharldlt_irf(
+    num_chains = num_chains,
+    week = object$week,
+    month = object$month,
+    step = lag_max + 1,
+    fit_record = fit_ls,
+    sparse = sparse,
+    nthreads = num_thread
+  ) # list of dim * step x num_draw * dim
+  # preprocess-------------------
+  name_var <- colnames(object$coefficients)
+  if (missing(impulse_var)) {
+    impulse_var <- name_var
+  }
+  if (missing(response_var)) {
+    response_var <- name_var
+  }
+  impulse_name <- rep(name_var, lag_max + 1)
+  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
+  irf_distn <- process_forecast_draws(
+    irf_res,
+    n_ahead = dim_data * (lag_max + 1),
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = name_var,
+    level = level,
+    roll = FALSE,
+    med = med
+  )
+  irf_distn <-
+    lapply(irf_distn, function(mat) {
+      rownames(mat) <- paste(impulse_name, period_name, sep = "_")
+      mat
+    })
+  irf_long <-
+    join_long_spillover(irf_distn, prefix = "value") |>
+    separate(series, into = c("series", "period"), sep = "_", convert = TRUE) |>
+    rename(c(impulse = "series", response = "shock")) |>
+    filter(impulse %in% impulse_var, response %in% response_var)
+  res <- list(
+    coefficients = irf_distn$mean,
+    se = irf_distn$sd,
+    lower = irf_distn$lower,
+    upper = irf_distn$upper,
+    df_long = irf_long
+  )
+  # return----------------------
+  res$lag_max <- lag_max
+  res$orthogonal <- orthogonal
+  res$process <- object$process
+  class(res) <- "bvharirf"
+  res
+}
