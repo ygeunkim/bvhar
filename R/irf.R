@@ -29,7 +29,6 @@ irf <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
 #' \deqn{\Theta_i = W_i P}
 #' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @seealso [VARtoVMA()]
 #' @importFrom dplyr mutate filter
 #' @importFrom tidyr pivot_longer
 #' @order 1
@@ -41,21 +40,13 @@ irf.varlse <- function(object,
                        response_var = NULL,
                        ...) {
   mat_coef <- object$coefficients
-  mat_irf <- matrix()
-  if (orthogonal) {
-    mat_irf <- VARcoeftoVMA_ortho(
-      var_coef = mat_coef, 
-      var_covmat = object$covmat, 
-      var_lag = object$p,
-      lag_max = lag_max
-    )
-  } else {
-    mat_irf <- VARcoeftoVMA(
-      var_coef = mat_coef,
-      var_lag = object$p,
-      lag_max = lag_max
-    )
-  }
+  mat_irf <- compute_var_irf(
+    coef_mat = mat_coef,
+    lag = object$p,
+    cov_mat = object$covmat,
+    step = lag_max + 1,
+    orthogonal = orthogonal
+  )
   # preprocess-------------------
   name_var <- colnames(mat_coef)
   if (is.null(impulse_var)) {
@@ -96,7 +87,6 @@ irf.varlse <- function(object,
 }
 
 #' @rdname irf
-#' @seealso [VHARtoVMA()]
 #' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
 #' @order 1
@@ -108,23 +98,14 @@ irf.vharlse <- function(object,
                         response_var = NULL,
                         ...) {
   mat_coef <- object$coefficients
-  mat_irf <- matrix()
-  if (orthogonal) {
-    mat_irf <- VHARcoeftoVMA_ortho(
-      vhar_coef = mat_coef, 
-      vhar_covmat = object$covmat, 
-      HARtrans_mat = object$HARtrans,
-      lag_max = lag_max,
-      month = object$month
-    )
-  } else {
-    mat_irf <- VHARcoeftoVMA(
-      vhar_coef = mat_coef,
-      HARtrans_mat = object$HARtrans,
-      lag_max = lag_max,
-      month = object$month
-    )
-  }
+  mat_irf <- compute_vhar_irf(
+    coef_mat = mat_coef,
+    week = object$week,
+    month = object$month,
+    cov_mat = object$covmat,
+    step = lag_max + 1,
+    orthogonal = orthogonal
+  )
   # preprocess-------------------
   name_var <- colnames(mat_coef)
   if (is.null(impulse_var)) {
@@ -193,7 +174,6 @@ irf.bvarldlt <- function(object,
   #   sparse <- FALSE
   # }
   fit_ls <- get_records(object, TRUE)
-  # mat_irf <- compute_mar_irf(num_chains, object$p, lag_max, num_row, num_col, fit_record, num_thread, TRUE)
   irf_res <- compute_varldlt_irf(
     num_chains = num_chains,
     lag = object$p,
@@ -269,7 +249,6 @@ irf.bvharldlt <- function(object,
   #   sparse <- FALSE
   # }
   fit_ls <- get_records(object, TRUE)
-  # mat_irf <- compute_mar_irf(num_chains, object$p, lag_max, num_row, num_col, fit_record, num_thread, TRUE)
   irf_res <- compute_vharldlt_irf(
     num_chains = num_chains,
     week = object$week,

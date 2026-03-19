@@ -447,6 +447,20 @@ Eigen::MatrixXd expand_vharx(Eigen::MatrixXd y, int week, int month, bool includ
 	return forecaster->returnForecast();
 }
 
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_var_irf(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step, bool orthogonal) {
+	auto irf = std::make_unique<baecon::bvhar::OlsIrfRun>(lag, step, coef_mat, cov_mat, orthogonal);
+	return irf->returnIrf();
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Eigen::MatrixXd compute_vhar_irf(Eigen::MatrixXd coef_mat, int week, int month, Eigen::MatrixXd cov_mat, int step, bool orthogonal) {
+	auto irf = std::make_unique<baecon::bvhar::OlsIrfRun>(week, month, step, coef_mat, cov_mat, orthogonal);
+	return irf->returnIrf();
+}
+
 //' Generalized Spillover of VAR
 //' 
 //' @param object varlse or vharlse object.

@@ -646,6 +646,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_var_irf
+Eigen::MatrixXd compute_var_irf(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step, bool orthogonal);
+RcppExport SEXP _bvhar_compute_var_irf(SEXP coef_matSEXP, SEXP lagSEXP, SEXP cov_matSEXP, SEXP stepSEXP, SEXP orthogonalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type orthogonal(orthogonalSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_var_irf(coef_mat, lag, cov_mat, step, orthogonal));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_vhar_irf
+Eigen::MatrixXd compute_vhar_irf(Eigen::MatrixXd coef_mat, int week, int month, Eigen::MatrixXd cov_mat, int step, bool orthogonal);
+RcppExport SEXP _bvhar_compute_vhar_irf(SEXP coef_matSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP cov_matSEXP, SEXP stepSEXP, SEXP orthogonalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type orthogonal(orthogonalSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_vhar_irf(coef_mat, week, month, cov_mat, step, orthogonal));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_var_spillover
 Rcpp::List compute_var_spillover(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step);
 RcppExport SEXP _bvhar_compute_var_spillover(SEXP coef_matSEXP, SEXP lagSEXP, SEXP cov_matSEXP, SEXP stepSEXP) {
@@ -2517,6 +2548,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_expand_varx", (DL_FUNC) &_bvhar_expand_varx, 9},
     {"_bvhar_expand_vhar", (DL_FUNC) &_bvhar_expand_vhar, 8},
     {"_bvhar_expand_vharx", (DL_FUNC) &_bvhar_expand_vharx, 10},
+    {"_bvhar_compute_var_irf", (DL_FUNC) &_bvhar_compute_var_irf, 5},
+    {"_bvhar_compute_vhar_irf", (DL_FUNC) &_bvhar_compute_vhar_irf, 6},
     {"_bvhar_compute_var_spillover", (DL_FUNC) &_bvhar_compute_var_spillover, 4},
     {"_bvhar_compute_vhar_spillover", (DL_FUNC) &_bvhar_compute_vhar_spillover, 5},
     {"_bvhar_dynamic_var_spillover", (DL_FUNC) &_bvhar_dynamic_var_spillover, 7},

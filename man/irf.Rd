@@ -117,8 +117,3 @@ and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
 }
-\seealso{
-\code{\link[=VARtoVMA]{VARtoVMA()}}
-
-\code{\link[=VHARtoVMA]{VHARtoVMA()}}
-}
