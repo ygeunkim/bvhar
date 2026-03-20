@@ -28,20 +28,20 @@ public:
 
 	virtual ~CtaIrf() = default;
 	
-	void computeIrf() override {
-		for (int i = 0; i < num_sim; ++i) {
-			reg_record->updateDiag(i, time_id, sv_update);
-			sqrt_sig = build_inv_lower(
-				dim,
-				reg_record->contem_coef_record.row(i)
-			).triangularView<Eigen::UnitLower>().solve(sv_update.asDiagonal().toDenseMatrix());
-			cov = sqrt_sig * sqrt_sig.transpose();
-			coef_mat = unvectorize(reg_record->coef_record.row(i).transpose(), dim);
-			computeVma();
-			// fevd.middleCols(i * dim, dim) = compute_vma_fevd(vma_mat, cov, true);
-			vma_record.middleCols(i * dim, dim) = vma_mat;
-		}
-	}
+	// void computeIrf() override {
+	// 	for (int i = 0; i < num_sim; ++i) {
+	// 		reg_record->updateDiag(i, time_id, sv_update);
+	// 		sqrt_sig = build_inv_lower(
+	// 			dim,
+	// 			reg_record->contem_coef_record.row(i)
+	// 		).triangularView<Eigen::UnitLower>().solve(sv_update.asDiagonal().toDenseMatrix());
+	// 		cov = sqrt_sig * sqrt_sig.transpose();
+	// 		coef_mat = unvectorize(reg_record->coef_record.row(i).transpose(), dim);
+	// 		computeVma();
+	// 		// fevd.middleCols(i * dim, dim) = compute_vma_fevd(vma_mat, cov, true);
+	// 		vma_record.middleCols(i * dim, dim) = vma_mat;
+	// 	}
+	// }
 
 protected:
 	int time_id, dim, num_coef;
@@ -53,7 +53,17 @@ protected:
 	Eigen::MatrixXd cov; // Sigma_t
 	Eigen::MatrixXd vma_mat;
 
-	virtual void computeVma() = 0;
+	void updateParams(const int i) override {
+		reg_record->updateDiag(i, time_id, sv_update);
+		sqrt_sig = build_inv_lower(
+			dim,
+			reg_record->contem_coef_record.row(i)
+		).triangularView<Eigen::UnitLower>().solve(sv_update.asDiagonal().toDenseMatrix());
+		cov = sqrt_sig * sqrt_sig.transpose();
+		coef_mat = unvectorize(reg_record->coef_record.row(i).transpose(), dim);
+	}
+
+	// virtual void computeVma() = 0;
 };
 
 template <typename RecordType = LdltRecords>
@@ -66,12 +76,13 @@ public:
 	virtual ~CtaVarIrf() = default;
 
 protected:
-	void computeVma() override {
+	void updateMovingAverage(const int i) override {
 		if (orthogonal) {
 			vma_mat = convert_vma_ortho(coef_mat, cov, lag, step - 1);
 		} else {
 			vma_mat = convert_var_to_vma(coef_mat, lag, step - 1);
 		}
+		vma_record.middleCols(i * dim, dim) = vma_mat;
 	}
 };
 
@@ -92,12 +103,13 @@ public:
 	virtual ~CtaVharIrf() = default;
 
 protected:
-	void computeVma() override {
+	void updateMovingAverage(const int i) override {
 		if (orthogonal) {
 			vma_mat = convert_vhar_vma_ortho(coef_mat, cov, har_trans, step - 1, lag);
 		} else {
 			vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
 		}
+		vma_record.middleCols(i * dim, dim) = vma_mat;
 	}
 
 private:

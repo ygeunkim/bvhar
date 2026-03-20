@@ -22,7 +22,10 @@ public:
 	virtual ~McmcIrf() = default;
 	
 	void computeIrf() override {
-		// 
+		for (int i = 0; i < num_sim; ++i) {
+			updateParams(i);
+			updateMovingAverage(i);
+		}
 	}
 
 	Eigen::MatrixXd returnIrfDensity() {
@@ -33,6 +36,10 @@ public:
 protected:
 	int num_sim;
 	Eigen::MatrixXd vma_record;
+
+	virtual void updateParams(const int i) = 0;
+
+	virtual void updateMovingAverage(const int i) = 0;
 };
 
 /**
