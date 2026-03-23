@@ -55,6 +55,9 @@ protected:
 
 	void updateParams(const int i) override {
 		reg_record->updateDiag(i, time_id, sv_update); // D^{1/2} -> Should fix to get D_{T + h}^(1/2) in SV
+		// Y_t = \sum_{i = 0}^\infty \Psi_i L^{-1} D_{t - i}^{1/2} u_{t - i}
+		// Time-varying IRF_t(j) when SV: \frac{\partial Y_t}{\partial u_{t - j}} = \Psi_j L^{-1} D_{t - j}^{1/2}
+		// => different size of vma_record when SV
 		sqrt_sig = build_inv_lower(
 			dim,
 			reg_record->contem_coef_record.row(i)
