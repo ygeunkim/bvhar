@@ -80,7 +80,8 @@ protected:
 		vma_mat = convert_var_to_vma(coef_mat, lag, step - 1);
 		if (orthogonal) {
 			for (int j = 0; j < step; ++j) {
-				vma_mat.middleRows(j * dim, dim) *= sqrt_sig.transpose();
+				// vma_mat.middleRows(j * dim, dim) = sqrt_sig.transpose() * vma_mat.middleRows(j * dim, dim);
+				vma_mat.middleRows(j * dim, dim).applyOnTheLeft(sqrt_sig.transpose());
 			}
 		}
 		vma_record.middleCols(i * dim, dim) = vma_mat;
@@ -108,7 +109,8 @@ protected:
 		vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
 		if (orthogonal) {
 			for (int j = 0; j < step; ++j) {
-				vma_mat.middleRows(j * dim, dim) *= sqrt_sig.transpose();
+				// vma_mat.middleRows(j * dim, dim) = sqrt_sig.transpose() * vma_mat.middleRows(j * dim, dim);
+				vma_mat.middleRows(j * dim, dim).applyOnTheLeft(sqrt_sig.transpose());
 			}
 		}
 		vma_record.middleCols(i * dim, dim) = vma_mat;
