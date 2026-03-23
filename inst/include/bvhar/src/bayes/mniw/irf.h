@@ -19,11 +19,10 @@ public:
 		bool orthogonal = true
 	)
 	: McmcIrf(lag_max, ord, static_cast<int>((num_iter - num_burn + thin - 1) / thin), orthogonal),
-		coef_mat(fit._coef),
+		coef_mat(fit._coef), dim(coef_mat.cols()),
 		cov(fit._prec.selfadjointView<Eigen::Lower>().llt().solve(Eigen::MatrixXd::Identity(dim, dim))),
-		iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
-		dim(coef_mat.cols()), num_iter(num_iter), num_burn(num_burn), thin(thin),
-		vma_mat(Eigen::MatrixXd::Zero(dim * step, dim)),
+		iw_scale(fit._iw_scale), vma_mat(Eigen::MatrixXd::Zero(dim * step, dim)), iw_shape(fit._iw_shape),
+		num_iter(num_iter), num_burn(num_burn), thin(thin),
 		record_warm(num_burn, std::vector<Eigen::MatrixXd>(2)),
 		record(num_iter - num_burn, std::vector<Eigen::MatrixXd>(2)),
 		rng(seed) {
@@ -47,9 +46,11 @@ public:
 	virtual ~MinnIrf() = default;
 
 protected:
-	Eigen::MatrixXd coef_mat, cov, iw_scale, vma_mat;
-	int dim, num_iter, num_burn, thin;
+	Eigen::MatrixXd coef_mat;
+	int dim;
+	Eigen::MatrixXd cov, iw_scale, vma_mat;
 	double iw_shape;
+	int num_iter, num_burn, thin;
 	// MinnRecords mn_record;
 	std::vector<std::vector<Eigen::MatrixXd>> record_warm;
 	std::vector<std::vector<Eigen::MatrixXd>> record;
