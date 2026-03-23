@@ -337,10 +337,11 @@ protected:
 
 	void updateVariance() override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateVariance() called");
-		for (int j = 0; j < dim; ++j) {
-			standard_normal[j] = normal_rand(rng);
-		}
-		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
+		// for (int j = 0; j < dim; ++j) {
+		// 	standard_normal[j] = normal_rand(rng);
+		// }
+		// standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
+		reg_record->forecastInnov(dim, standard_normal, sv_update, rng);
 	}
 
 	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
@@ -391,17 +392,18 @@ protected:
 
 	void updateVariance() override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateVariance() called");
-		if (sv) {
-			for (int j = 0; j < dim; j++) {
-				standard_normal[j] = normal_rand(rng);
-			}
-			standard_normal.array() *= sv_sig.array(); // sig_h Z ~ N(0, sig_h^2)
-			sv_update.array() += standard_normal.array();
-		}
-		for (int j = 0; j < dim; j++) {
-			standard_normal[j] = normal_rand(rng);
-		}
-		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+		// if (sv) {
+		// 	for (int j = 0; j < dim; j++) {
+		// 		standard_normal[j] = normal_rand(rng);
+		// 	}
+		// 	standard_normal.array() *= sv_sig.array(); // sig_h Z ~ N(0, sig_h^2)
+		// 	sv_update.array() += standard_normal.array();
+		// }
+		// for (int j = 0; j < dim; j++) {
+		// 	standard_normal[j] = normal_rand(rng);
+		// }
+		// standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+		reg_record->forecastInnov(dim, standard_normal, sv_update, sv_sig, rng);
 	}
 
 	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {

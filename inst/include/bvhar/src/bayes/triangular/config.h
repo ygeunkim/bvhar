@@ -252,6 +252,51 @@ struct RegRecords {
 	}
 
 	/**
+	 * @brief Forecast the next innovation with diagonal covariance
+	 * 
+	 * @param dim 
+	 * @param standard_normal 
+	 * @param sv_update 
+	 * @param rng 
+	 */
+	void forecastInnov(
+		int dim,
+		Eigen::Ref<Eigen::VectorXd> standard_normal, Eigen::Ref<Eigen::VectorXd> sv_update,
+		BVHAR_BHRNG& rng
+	) {
+		for (int i = 0; i < dim; ++i) {
+			standard_normal[i] = normal_rand(rng);
+		}
+		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+	}
+
+	/**
+	 * @brief Forecast the next innovation with time-varying diagonal covariance
+	 * 
+	 * @param dim 
+	 * @param standard_normal 
+	 * @param sv_update 
+	 * @param sv_sig 
+	 * @param rng 
+	 */
+	void forecastInnov(
+		int dim,
+		Eigen::Ref<Eigen::VectorXd> standard_normal,
+		Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig,
+		BVHAR_BHRNG& rng
+	) {
+		for (int i = 0; i < dim; ++i) {
+			standard_normal[i] = normal_rand(rng);
+		}
+		standard_normal.array() *= sv_sig.array(); // sig_h Z ~ N(0, sig_h^2)
+		sv_update.array() += standard_normal.array();
+		for (int i = 0; i < dim; ++i) {
+			standard_normal[i] = normal_rand(rng);
+		}
+		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+	}
+
+	/**
 	 * @brief Append records to the MCMC record `BVHAR_LIST`
 	 * 
 	 * @param list MCMC record `BVHAR_LIST`
@@ -513,9 +558,11 @@ struct LdltRecords : public RegRecords {
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update) override {
 		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 	}
+
 	void updateDiag(int i, int id, Eigen::Ref<Eigen::VectorXd> sv_update) override {
 		sv_update = fac_record.row(i).transpose().cwiseSqrt(); // D^1/2
 	}
+
 	void updateDiag(int i, Eigen::Ref<Eigen::VectorXd> sv_update, Eigen::Ref<Eigen::VectorXd> sv_sig) override {}
 
 	void subsetStable(int num_alpha, double threshold) override {
