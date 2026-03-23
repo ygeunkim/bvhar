@@ -50,7 +50,13 @@ class McmcIrfRun : public IrfRun {
 public:
 	McmcIrfRun(int num_chains, int nthreads)
 	: num_chains(num_chains), nthreads(nthreads),
-		irf_ptr(num_chains), density_irf(num_chains) {}
+		irf_ptr(num_chains), density_irf(num_chains) {
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcIrfRun Constructor: num_chains={}, nthreads={}",
+			num_chains, nthreads
+		);
+	}
 	
 	virtual ~McmcIrfRun() = default;
 

@@ -21,7 +21,7 @@ public:
 		contem_mat(Eigen::MatrixXd::Identity(dim, dim)),
 		sv_update(Eigen::VectorXd::Zero(dim)),
 		sqrt_sig(Eigen::MatrixXd::Zero(dim, dim)),
-		cov(Eigen::MatrixXd::Zero(dim, dim)),
+		// cov(Eigen::MatrixXd::Zero(dim, dim)),
 		vma_mat(Eigen::MatrixXd::Zero(dim * step, dim)) {
 		vma_record = Eigen::MatrixXd::Zero(dim * step, num_sim * dim);
 	}
@@ -50,16 +50,16 @@ protected:
 	Eigen::MatrixXd contem_mat; // L
 	Eigen::VectorXd sv_update; // D_t^(1 / 2)
 	Eigen::MatrixXd sqrt_sig; // L^(-1) D_t(1 / 2)
-	Eigen::MatrixXd cov; // Sigma_t
+	// Eigen::MatrixXd cov; // Sigma_t
 	Eigen::MatrixXd vma_mat;
 
 	void updateParams(const int i) override {
-		reg_record->updateDiag(i, time_id, sv_update);
+		reg_record->updateDiag(i, time_id, sv_update); // D^{1/2} -> Should fix to get D_{T + h}^(1/2) in SV
 		sqrt_sig = build_inv_lower(
 			dim,
 			reg_record->contem_coef_record.row(i)
 		).triangularView<Eigen::UnitLower>().solve(sv_update.asDiagonal().toDenseMatrix());
-		cov = sqrt_sig * sqrt_sig.transpose();
+		// cov = sqrt_sig * sqrt_sig.transpose();
 		coef_mat = unvectorize(reg_record->coef_record.row(i).transpose(), dim);
 	}
 
@@ -77,10 +77,11 @@ public:
 
 protected:
 	void updateMovingAverage(const int i) override {
+		vma_mat = convert_var_to_vma(coef_mat, lag, step - 1);
 		if (orthogonal) {
-			vma_mat = convert_vma_ortho(coef_mat, cov, lag, step - 1);
-		} else {
-			vma_mat = convert_var_to_vma(coef_mat, lag, step - 1);
+			for (int j = 0; j < step; ++j) {
+				vma_mat.middleRows(j * dim, dim) *= sqrt_sig.transpose();
+			}
 		}
 		vma_record.middleCols(i * dim, dim) = vma_mat;
 	}
@@ -104,10 +105,11 @@ public:
 
 protected:
 	void updateMovingAverage(const int i) override {
+		vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
 		if (orthogonal) {
-			vma_mat = convert_vhar_vma_ortho(coef_mat, cov, har_trans, step - 1, lag);
-		} else {
-			vma_mat = convert_vhar_to_vma(coef_mat, har_trans, step - 1, lag);
+			for (int j = 0; j < step; ++j) {
+				vma_mat.middleRows(j * dim, dim) *= sqrt_sig.transpose();
+			}
 		}
 		vma_record.middleCols(i * dim, dim) = vma_mat;
 	}
@@ -142,6 +144,11 @@ class CtaIrfRun : public McmcIrfRun {
 public:
 	CtaIrfRun(int num_chains, int lag, int step, BVHAR_LIST& fit_record, bool sparse, int nthreads)
 	: McmcIrfRun(num_chains, nthreads) {
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"CtaIrfRun Constructor: num_chains={}, lag={}, step={}, sparse={}, nthreads={}",
+			num_chains, lag, step, sparse, nthreads
+		);
 		for (int i = 0; i < num_chains; ++i) {
 			irf_ptr[i] = initialize_ctairf<RecordType>(i, lag, step, fit_record, sparse, -1);
 		}
