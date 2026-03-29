@@ -190,34 +190,16 @@ irf.bvarldlt <- function(object,
   if (is.null(response_var)) {
     response_var <- name_var
   }
-  impulse_name <- rep(name_var, lag_max + 1)
-  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
-  irf_distn <- process_forecast_draws(
+  res <- process_irf_draws(
     irf_res,
-    n_ahead = dim_data * (lag_max + 1),
     dim_data = dim_data,
+    lag_max = lag_max,
     num_draw = num_draw,
     var_names = name_var,
+    impulse_var = impulse_var,
+    response_var = response_var,
     level = level,
-    roll = FALSE,
     med = med
-  )
-  irf_distn <-
-    lapply(irf_distn, function(mat) {
-      rownames(mat) <- paste(impulse_name, period_name, sep = "_")
-      mat
-    })
-  irf_long <-
-    join_long_spillover(irf_distn, prefix = "value") |>
-    separate(series, into = c("series", "period"), sep = "_", convert = TRUE) |>
-    rename(c(impulse = "series", response = "shock")) |> 
-    filter(impulse %in% impulse_var, response %in% response_var)
-  res <- list(
-    coefficients = irf_distn$mean,
-    se = irf_distn$sd,
-    lower = irf_distn$lower,
-    upper = irf_distn$upper,
-    df_long = irf_long
   )
   # return----------------------
   res$lag_max <- lag_max
@@ -266,34 +248,16 @@ irf.bvharldlt <- function(object,
   if (is.null(response_var)) {
     response_var <- name_var
   }
-  impulse_name <- rep(name_var, lag_max + 1)
-  period_name <- rep(seq_len(lag_max + 1) - 1, each = object$m)
-  irf_distn <- process_forecast_draws(
+  res <- process_irf_draws(
     irf_res,
-    n_ahead = dim_data * (lag_max + 1),
     dim_data = dim_data,
+    lag_max = lag_max,
     num_draw = num_draw,
     var_names = name_var,
+    impulse_var = impulse_var,
+    response_var = response_var,
     level = level,
-    roll = FALSE,
     med = med
-  )
-  irf_distn <-
-    lapply(irf_distn, function(mat) {
-      rownames(mat) <- paste(impulse_name, period_name, sep = "_")
-      mat
-    })
-  irf_long <-
-    join_long_spillover(irf_distn, prefix = "value") |>
-    separate(series, into = c("series", "period"), sep = "_", convert = TRUE) |>
-    rename(c(impulse = "series", response = "shock")) |>
-    filter(impulse %in% impulse_var, response %in% response_var)
-  res <- list(
-    coefficients = irf_distn$mean,
-    se = irf_distn$sd,
-    lower = irf_distn$lower,
-    upper = irf_distn$upper,
-    df_long = irf_long
   )
   # return----------------------
   res$lag_max <- lag_max
