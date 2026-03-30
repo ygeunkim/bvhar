@@ -5,6 +5,8 @@
 - Fixed Average LPL computation process in pseudo out-of-sample
   forecasting.
 
+- Added IRF classes in C++.
+
 ## bvhar 2.4.0
 
 CRAN release: 2026-02-01
