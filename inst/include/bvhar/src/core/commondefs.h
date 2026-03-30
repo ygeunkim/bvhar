@@ -7,7 +7,7 @@
 #ifndef BVHAR_CORE_COMMONDEFS_H
 #define BVHAR_CORE_COMMONDEFS_H
 
-#ifdef BVHAR_USE_RCPP
+#if defined(BVHAR_USE_RCPP)
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
 	#include <cmath>
@@ -51,7 +51,7 @@
 	#define BVHAR_IS_LOGICAL(element) Rcpp::is<Rcpp::LogicalVector>(element)
 	#define BVHAR_CAST_VECTOR(element) element
 	#define BVHAR_CAST_MATRIX(element) element
-#else
+#elif defined(BVHAR_USE_PYBIND11)
 	#include <pybind11/pybind11.h>
 	#include <cmath>
 	#include <string>
@@ -111,6 +111,14 @@
 		// Some platform does not have M_PI defined - to the same value as in Rmath.h
 		#define M_PI 3.141592653589793238462643383280
 	#endif
+#else
+	// Pure C++
+	#include <map>
+  #include <string>
+  #include <any>
+  #include <vector>
+  #include <iostream>
+  #include <stdexcept>
 #endif
 
 #include <memory>

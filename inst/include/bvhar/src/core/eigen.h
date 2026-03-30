@@ -12,7 +12,9 @@
 #else
 	#include <Eigen/Eigen>
 	#include <unsupported/Eigen/KroneckerProduct>
-	#include <pybind11/eigen.h>
+	#ifdef BVHAR_USE_PYBIND11
+		#include <pybind11/eigen.h>
+	#endif
 #endif
 
 #endif // BVHAR_CORE_EIGEN_H
