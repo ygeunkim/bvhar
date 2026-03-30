@@ -1002,13 +1002,13 @@ expand_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thin
 }
 
 #' @noRd
-compute_varldlt_irf <- function(num_chains, lag, step, fit_record, sparse, nthreads) {
-    .Call(`_bvhar_compute_varldlt_irf`, num_chains, lag, step, fit_record, sparse, nthreads)
+compute_bvarldlt_irf <- function(num_chains, lag, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_bvarldlt_irf`, num_chains, lag, step, fit_record, sparse, nthreads)
 }
 
 #' @noRd
-compute_vharldlt_irf <- function(num_chains, week, month, step, fit_record, sparse, nthreads) {
-    .Call(`_bvhar_compute_vharldlt_irf`, num_chains, week, month, step, fit_record, sparse, nthreads)
+compute_bvharldlt_irf <- function(num_chains, week, month, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_bvharldlt_irf`, num_chains, week, month, step, fit_record, sparse, nthreads)
 }
 
 #' @noRd

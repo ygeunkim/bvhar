@@ -174,7 +174,7 @@ irf.bvarldlt <- function(object,
   #   sparse <- FALSE
   # }
   fit_ls <- get_records(object, TRUE)
-  irf_res <- compute_varldlt_irf(
+  irf_res <- compute_bvarldlt_irf(
     num_chains = num_chains,
     lag = object$p,
     step = lag_max + 1,
@@ -231,7 +231,7 @@ irf.bvharldlt <- function(object,
   #   sparse <- FALSE
   # }
   fit_ls <- get_records(object, TRUE)
-  irf_res <- compute_vharldlt_irf(
+  irf_res <- compute_bvharldlt_irf(
     num_chains = num_chains,
     week = object$week,
     month = object$month,
