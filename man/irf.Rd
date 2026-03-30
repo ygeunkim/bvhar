@@ -3,15 +3,57 @@
 \name{irf.varlse}
 \alias{irf.varlse}
 \alias{irf.vharlse}
+\alias{irf.bvarldlt}
+\alias{irf.bvharldlt}
 \alias{print.bvharirf}
 \alias{irf}
 \alias{is.bvharirf}
 \alias{knit_print.bvharirf}
 \title{Impulse Response Analysis}
 \usage{
-\method{irf}{varlse}(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+\method{irf}{varlse}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
 
-\method{irf}{vharlse}(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+\method{irf}{vharlse}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
+
+\method{irf}{bvarldlt}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  med = FALSE,
+  ...
+)
+
+\method{irf}{bvharldlt}(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  med = FALSE,
+  ...
+)
 
 \method{print}{bvharirf}(x, digits = max(3L, getOption("digits") - 3L), ...)
 
@@ -33,6 +75,15 @@ is.bvharirf(x)
 \item{response_var}{Response variables character vector. If not specified, use every variable.}
 
 \item{...}{not used}
+
+\item{level}{Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.}
+
+\item{num_thread}{Number of threads}
+
+\item{sparse}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Apply restriction. By default, \code{FALSE}.
+Give CI level (e.g. \code{.05}) instead of \code{TRUE} to use credible interval across MCMC for restriction.}
+
+\item{med}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} If \code{TRUE}, use median of forecast draws instead of mean (default).}
 
 \item{x}{Any object}
 
@@ -65,9 +116,4 @@ and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 
 \references{
 Lütkepohl, H. (2007). \emph{New Introduction to Multiple Time Series Analysis}. Springer Publishing.
-}
-\seealso{
-\code{\link[=VARtoVMA]{VARtoVMA()}}
-
-\code{\link[=VHARtoVMA]{VHARtoVMA()}}
 }

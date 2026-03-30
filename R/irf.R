@@ -29,7 +29,6 @@ irf <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
 #' \deqn{\Theta_i = W_i P}
 #' and \eqn{v_t = P^{-1} \epsilon_t} are orthogonal.
 #' @references Lütkepohl, H. (2007). *New Introduction to Multiple Time Series Analysis*. Springer Publishing.
-#' @seealso [VARtoVMA()]
 #' @importFrom dplyr mutate filter
 #' @importFrom tidyr pivot_longer
 #' @order 1
@@ -37,31 +36,23 @@ irf <- function(object, lag_max, orthogonal, impulse_var, response_var, ...) {
 irf.varlse <- function(object,
                        lag_max = 10,
                        orthogonal = TRUE,
-                       impulse_var,
-                       response_var,
+                       impulse_var = NULL,
+                       response_var = NULL,
                        ...) {
   mat_coef <- object$coefficients
-  mat_irf <- matrix()
-  if (orthogonal) {
-    mat_irf <- VARcoeftoVMA_ortho(
-      var_coef = mat_coef, 
-      var_covmat = object$covmat, 
-      var_lag = object$p,
-      lag_max = lag_max
-    )
-  } else {
-    mat_irf <- VARcoeftoVMA(
-      var_coef = mat_coef,
-      var_lag = object$p,
-      lag_max = lag_max
-    )
-  }
+  mat_irf <- compute_var_irf(
+    coef_mat = mat_coef,
+    lag = object$p,
+    cov_mat = object$covmat,
+    step = lag_max + 1,
+    orthogonal = orthogonal
+  )
   # preprocess-------------------
   name_var <- colnames(mat_coef)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
@@ -96,7 +87,6 @@ irf.varlse <- function(object,
 }
 
 #' @rdname irf
-#' @seealso [VHARtoVMA()]
 #' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
 #' @order 1
@@ -104,33 +94,24 @@ irf.varlse <- function(object,
 irf.vharlse <- function(object, 
                         lag_max = 10,
                         orthogonal = TRUE,
-                        impulse_var,
-                        response_var,
+                        impulse_var = NULL,
+                        response_var = NULL,
                         ...) {
   mat_coef <- object$coefficients
-  mat_irf <- matrix()
-  if (orthogonal) {
-    mat_irf <- VHARcoeftoVMA_ortho(
-      vhar_coef = mat_coef, 
-      vhar_covmat = object$covmat, 
-      HARtrans_mat = object$HARtrans,
-      lag_max = lag_max,
-      month = object$month
-    )
-  } else {
-    mat_irf <- VHARcoeftoVMA(
-      vhar_coef = mat_coef,
-      HARtrans_mat = object$HARtrans,
-      lag_max = lag_max,
-      month = object$month
-    )
-  }
+  mat_irf <- compute_vhar_irf(
+    coef_mat = mat_coef,
+    week = object$week,
+    month = object$month,
+    cov_mat = object$covmat,
+    step = lag_max + 1,
+    orthogonal = orthogonal
+  )
   # preprocess-------------------
   name_var <- colnames(mat_coef)
-  if (missing(impulse_var)) {
+  if (is.null(impulse_var)) {
     impulse_var <- name_var
   }
-  if (missing(response_var)) {
+  if (is.null(response_var)) {
     response_var <- name_var
   }
   impulse_name <- rep(name_var, lag_max + 1)
@@ -156,6 +137,128 @@ irf.vharlse <- function(object,
       values_to = "value"
     ) |> 
     filter(impulse %in% impulse_var, response %in% response_var)
+  # return----------------------
+  res$lag_max <- lag_max
+  res$orthogonal <- orthogonal
+  res$process <- object$process
+  class(res) <- "bvharirf"
+  res
+}
+
+#' @rdname irf
+#' @param level Specify alpha of confidence interval level 100(1 - alpha) percentage. By default, .05.
+#' @param num_thread Number of threads
+#' @param sparse `r lifecycle::badge("experimental")` Apply restriction. By default, `FALSE`.
+#' Give CI level (e.g. `.05`) instead of `TRUE` to use credible interval across MCMC for restriction.
+#' @param med `r lifecycle::badge("experimental")` If `TRUE`, use median of forecast draws instead of mean (default).
+#' @importFrom tidyr separate
+#' @importFrom dplyr rename
+#' @order 1
+#' @export
+irf.bvarldlt <- function(object,
+                         lag_max = 10,
+                         orthogonal = TRUE,
+                         impulse_var = NULL,
+                         response_var = NULL,
+                         level = .05,
+                         num_thread = 1,
+                         sparse = FALSE,
+                         med = FALSE,
+                         ...) {
+  num_chains <- object$chain
+  dim_data <- object$m
+  num_draw <- nrow(object$param)
+  # ci_lev <- 0
+  # if (is.numeric(sparse)) {
+  #   ci_lev <- sparse
+  #   sparse <- FALSE
+  # }
+  fit_ls <- get_records(object, TRUE)
+  irf_res <- compute_bvarldlt_irf(
+    num_chains = num_chains,
+    lag = object$p,
+    step = lag_max + 1,
+    fit_record = fit_ls,
+    sparse = sparse,
+    nthreads = num_thread
+  ) # list of dim * step x num_draw * dim
+  # preprocess-------------------
+  name_var <- colnames(object$coefficients)
+  if (is.null(impulse_var)) {
+    impulse_var <- name_var
+  }
+  if (is.null(response_var)) {
+    response_var <- name_var
+  }
+  res <- process_irf_draws(
+    irf_res,
+    dim_data = dim_data,
+    lag_max = lag_max,
+    num_draw = num_draw,
+    var_names = name_var,
+    impulse_var = impulse_var,
+    response_var = response_var,
+    level = level,
+    med = med
+  )
+  # return----------------------
+  res$lag_max <- lag_max
+  res$orthogonal <- orthogonal
+  res$process <- object$process
+  class(res) <- "bvharirf"
+  res
+}
+
+#' @rdname irf
+#' @order 1
+#' @export
+irf.bvharldlt <- function(object,
+                         lag_max = 10,
+                         orthogonal = TRUE,
+                         impulse_var = NULL,
+                         response_var = NULL,
+                         level = .05,
+                         num_thread = 1,
+                         sparse = FALSE,
+                         med = FALSE,
+                         ...) {
+  num_chains <- object$chain
+  dim_data <- object$m
+  num_draw <- nrow(object$param)
+  # ci_lev <- 0
+  # if (is.numeric(sparse)) {
+  #   ci_lev <- sparse
+  #   sparse <- FALSE
+  # }
+  fit_ls <- get_records(object, TRUE)
+  irf_res <- compute_bvharldlt_irf(
+    num_chains = num_chains,
+    week = object$week,
+    month = object$month,
+    step = lag_max + 1,
+    fit_record = fit_ls,
+    sparse = sparse,
+    nthreads = num_thread
+  ) # list of dim * step x num_draw * dim
+  # preprocess-------------------
+  name_var <- colnames(object$coefficients)
+  if (is.null(impulse_var)) {
+    impulse_var <- name_var
+  }
+  if (is.null(response_var)) {
+    response_var <- name_var
+  }
+  res <- process_irf_draws(
+    irf_res,
+    dim_data = dim_data,
+    lag_max = lag_max,
+    num_draw = num_draw,
+    var_names = name_var,
+    impulse_var = impulse_var,
+    response_var = response_var,
+    level = level,
+    med = med
+  )
   # return----------------------
   res$lag_max <- lag_max
   res$orthogonal <- orthogonal

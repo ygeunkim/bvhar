@@ -530,6 +530,16 @@ expand_vharx <- function(y, week, month, include_mean, step, y_test, method, nth
     .Call(`_bvhar_expand_vharx`, y, week, month, include_mean, step, y_test, method, nthreads, exogen, exogen_lag)
 }
 
+#' @noRd
+compute_var_irf <- function(coef_mat, lag, cov_mat, step, orthogonal) {
+    .Call(`_bvhar_compute_var_irf`, coef_mat, lag, cov_mat, step, orthogonal)
+}
+
+#' @noRd
+compute_vhar_irf <- function(coef_mat, week, month, cov_mat, step, orthogonal) {
+    .Call(`_bvhar_compute_vhar_irf`, coef_mat, week, month, cov_mat, step, orthogonal)
+}
+
 #' Generalized Spillover of VAR
 #' 
 #' @param object varlse or vharlse object.
@@ -991,18 +1001,32 @@ expand_bvharxsv <- function(y, week, month, num_chains, num_iter, num_burn, thin
     .Call(`_bvhar_expand_bvharxsv`, y, week, month, num_chains, num_iter, num_burn, thinning, sv, sparse, level, fit_record, run_mcmc, param_sv, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, factor_prior, factor_init, factor_prior_type, size_factor, factor_lag, grp_id, own_id, cross_id, grp_mat, include_mean, stable, step, y_test, get_lpl, use_fit, seed_chain, seed_forecast, display_progress, nthreads, exogen, exogen_lag, exogen_prior, exogen_init, exogen_prior_type)
 }
 
+#' @noRd
+compute_bvarldlt_irf <- function(num_chains, lag, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_bvarldlt_irf`, num_chains, lag, step, fit_record, sparse, nthreads)
+}
+
+#' @noRd
+compute_bvharldlt_irf <- function(num_chains, week, month, step, fit_record, sparse, nthreads) {
+    .Call(`_bvhar_compute_bvharldlt_irf`, num_chains, week, month, step, fit_record, sparse, nthreads)
+}
+
+#' @noRd
 compute_varldlt_spillover <- function(lag, step, fit_record, sparse) {
     .Call(`_bvhar_compute_varldlt_spillover`, lag, step, fit_record, sparse)
 }
 
+#' @noRd
 compute_vharldlt_spillover <- function(week, month, step, fit_record, sparse) {
     .Call(`_bvhar_compute_vharldlt_spillover`, week, month, step, fit_record, sparse)
 }
 
+#' @noRd
 dynamic_bvarldlt_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, sparse, lag, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
     .Call(`_bvhar_dynamic_bvarldlt_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, sparse, lag, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
 }
 
+#' @noRd
 dynamic_bvharldlt_spillover <- function(y, window, step, num_chains, num_iter, num_burn, thin, sparse, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads) {
     .Call(`_bvhar_dynamic_bvharldlt_spillover`, y, window, step, num_chains, num_iter, num_burn, thin, sparse, week, month, param_reg, param_prior, param_intercept, param_init, prior_type, ggl, contem_prior, contem_init, contem_prior_type, grp_id, own_id, cross_id, grp_mat, include_mean, seed_chain, nthreads)
 }
