@@ -127,4 +127,12 @@ unique_ptr<T> make_unique(Args&&... args) {
 } // namespace std
 #endif
 
+#ifdef __cpp_if_constexpr
+	#define BVHAR_IF_CONSTEXPR(element) \
+		if constexpr (element) 
+#else
+  #define BVHAR_IF_CONSTEXPR(element) \
+		if (std::integral_constant<bool, element>::value)
+#endif
+
 #endif // BVHAR_CORE_COMMONDEFS_H

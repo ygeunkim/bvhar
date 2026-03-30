@@ -991,8 +991,9 @@ protected:
 		if (use_fit) {
 			initForecaster(fit_record);
 		}
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			initMcmc(
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				contem_prior, contem_init, contem_prior_type,
@@ -1335,8 +1336,9 @@ protected:
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			auto temp_forecaster = initialize_ctaforecaster<BaseForecaster>(
 				num_chains, lag, step, roll_y0[0], sparse, level,
 				fit_record, seed_forecast, include_mean,
@@ -1497,8 +1499,9 @@ protected:
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			auto temp_forecaster = initialize_ctaforecaster<BaseForecaster>(
 				num_chains, lag, step, roll_y0[0], sparse, level,
 				fit_record, seed_forecast, include_mean,

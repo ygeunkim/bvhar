@@ -472,9 +472,14 @@ protected:
 	 */
 	void forecastWindow(int window, int chain) {
 		BVHAR_DEBUG_LOG(debug_logger, "forecastWindow(window={}, chain={}) called", window, chain);
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if ((!use_fit || window != 0) && is_mcmc::value) {
-			runGibbs(window, chain);
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if ((!use_fit || window != 0) && is_mcmc::value) {
+		// 	runGibbs(window, chain);
+		// }
+		BVHAR_IF_CONSTEXPR(isUpdate) {
+			if (!use_fit || window != 0) {
+				runGibbs(window, chain);
+			}
 		}
 		// Eigen::VectorXd valid_vec = y_test.row(step);
 		DataType valid_vec = getValid();

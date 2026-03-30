@@ -299,8 +299,9 @@ public:
 			);
 		}
 		horseshoe_latent(latent_local, local_lev, rng);
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
 			horseshoe_latent(latent_global, global_lev, rng);
 			global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec, 1, rng);
 		}
@@ -390,8 +391,9 @@ public:
 				local_shape_fac
 			);
 		}
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
 			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		}
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec, global_lev * coef_var, rng);
@@ -466,8 +468,9 @@ public:
 		}
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
 		dl_local_sparsity(local_lev, dir_concen, coef_vec.array() / coef_var.array(), rng);
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
 			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec, rng);
 		}
 		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec, rng);
