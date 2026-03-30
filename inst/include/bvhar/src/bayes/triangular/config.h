@@ -574,9 +574,9 @@ struct LdltRecords : public RegRecords {
 				stable_id.push_back(i);
 			}
 		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		fac_record = std::move(fac_record(stable_id, Eigen::all));
+		coef_record = std::move(coef_record(stable_id, Eigen::indexing::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::indexing::all));
+		fac_record = std::move(fac_record(stable_id, Eigen::indexing::all));
 	}
 
 	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) override {
@@ -592,9 +592,9 @@ struct LdltRecords : public RegRecords {
 				stable_id.push_back(i);
 			}
 		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		fac_record = std::move(fac_record(stable_id, Eigen::all));
+		coef_record = std::move(coef_record(stable_id, Eigen::indexing::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::indexing::all));
+		fac_record = std::move(fac_record(stable_id, Eigen::indexing::all));
 	}
 };
 
@@ -713,11 +713,11 @@ struct SvRecords : public RegRecords {
 				stable_id.push_back(i);
 			}
 		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
-		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
-		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
+		coef_record = std::move(coef_record(stable_id, Eigen::indexing::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::indexing::all));
+		lvol_record = std::move(lvol_record(stable_id, Eigen::indexing::all));
+		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::indexing::all));
+		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::indexing::all));
 	}
 
 	void subsetStable(int num_alpha, double threshold, Eigen::Ref<const Eigen::MatrixXd> har_trans) override {
@@ -730,11 +730,11 @@ struct SvRecords : public RegRecords {
 				stable_id.push_back(i);
 			}
 		}
-		coef_record = std::move(coef_record(stable_id, Eigen::all));
-		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::all));
-		lvol_record = std::move(lvol_record(stable_id, Eigen::all));
-		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::all));
-		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::all));
+		coef_record = std::move(coef_record(stable_id, Eigen::indexing::all));
+		contem_coef_record = std::move(contem_coef_record(stable_id, Eigen::indexing::all));
+		lvol_record = std::move(lvol_record(stable_id, Eigen::indexing::all));
+		lvol_sig_record = std::move(lvol_sig_record(stable_id, Eigen::indexing::all));
+		lvol_init_record = std::move(lvol_init_record(stable_id, Eigen::indexing::all));
 	}
 };
 
