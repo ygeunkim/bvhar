@@ -1,17 +1,15 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1ShrinkageUpdater.html" title="Draw class for shrinkage priors." alt="" coords="5,184,192,224"/>
-<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1DlUpdater.html" title="Dirichlet&#45;Laplace prior." alt="" coords="263,5,451,45"/>
-<area shape="poly" id="edge81_Node000000_Node000001" title=" " alt="" coords="120,171,170,112,202,81,239,55,264,43,266,48,241,60,206,85,173,115,124,174"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1GdpUpdater.html" title="Generalized Double Pareto (GDP) prior." alt="" coords="257,69,457,109"/>
-<area shape="poly" id="edge82_Node000000_Node000002" title=" " alt="" coords="139,174,186,146,239,119,272,107,274,112,241,124,188,150,142,179"/>
-<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1HierminnUpdater.html" title="Hierarchical Minnesota prior." alt="" coords="240,134,475,159"/>
-<area shape="poly" id="edge83_Node000000_Node000003" title=" " alt="" coords="200,178,239,169,296,157,298,162,241,175,201,184"/>
-<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1HorseshoeUpdater.html" title="Horseshoe prior." alt="" coords="262,184,453,224"/>
-<area shape="poly" id="edge84_Node000000_Node000004" title=" " alt="" coords="205,201,262,201,262,207,205,207"/>
-<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1MinnUpdater.html" title="Minnesota prior." alt="" coords="254,249,461,274"/>
-<area shape="poly" id="edge85_Node000000_Node000005" title=" " alt="" coords="201,224,241,233,298,246,296,251,239,239,200,230"/>
-<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1NgUpdater.html" title="Normal&#45;Gamma prior." alt="" coords="261,299,453,339"/>
-<area shape="poly" id="edge86_Node000000_Node000006" title=" " alt="" coords="142,229,189,257,241,283,277,296,276,301,239,288,186,262,139,234"/>
-<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1SsvsUpdater.html" title="Stochastic Search Variable Selection (SSVS) prior." alt="" coords="255,363,459,389"/>
-<area shape="poly" id="edge87_Node000000_Node000007" title=" " alt="" coords="123,234,173,293,205,323,241,348,271,361,269,366,239,353,202,327,169,297,119,237"/>
+<area shape="rect" id="Node000000" href="$structbaecon_1_1bvhar_1_1ShrinkageInits.html" title="MCMC initial values for ShrinkageUpdater" alt="" coords="5,73,192,113"/>
+<area shape="rect" id="Node000001" href="$structbaecon_1_1bvhar_1_1GdpInits.html" title="MCMC initial values for GdpUpdater" alt="" coords="257,5,433,31"/>
+<area shape="poly" id="edge80_Node000000_Node000001" title=" " alt="" coords="163,65,239,39,283,28,284,33,241,45,164,70"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1GlInits.html" title="MCMC initial values for global&#45;local shrinkage prior." alt="" coords="263,55,427,80"/>
+<area shape="poly" id="edge81_Node000000_Node000002" title=" " alt="" coords="205,79,263,73,263,78,206,84"/>
+<area shape="rect" id="Node000005" href="$structbaecon_1_1bvhar_1_1HierminnInits.html" title="MCMC initial values for HierminnUpdater" alt="" coords="240,104,451,129"/>
+<area shape="poly" id="edge84_Node000000_Node000005" title=" " alt="" coords="206,100,240,104,240,109,206,106"/>
+<area shape="rect" id="Node000006" href="$structbaecon_1_1bvhar_1_1SsvsInits.html" title="MCMC initial values for SsvsUpdater" alt="" coords="255,153,435,179"/>
+<area shape="poly" id="edge85_Node000000_Node000006" title=" " alt="" coords="169,115,241,138,288,151,287,156,239,143,167,120"/>
+<area shape="rect" id="Node000003" href="$structbaecon_1_1bvhar_1_1HorseshoeInits.html" title="MCMC initial values for HorseshoeUpdater" alt="" coords="499,47,689,87"/>
+<area shape="poly" id="edge82_Node000002_Node000003" title=" " alt="" coords="441,65,498,65,498,70,441,70"/>
+<area shape="rect" id="Node000004" href="$structbaecon_1_1bvhar_1_1NgInits.html" title="MCMC initial values for NgUpdater" alt="" coords="737,55,905,80"/>
+<area shape="poly" id="edge83_Node000003_Node000004" title=" " alt="" coords="703,65,737,65,737,70,703,70"/>
 </map>

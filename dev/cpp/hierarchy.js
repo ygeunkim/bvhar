@@ -32,7 +32,27 @@ var hierarchy =
       [ "baecon::bvhar::MhMinnLogLik", "classbaecon_1_1bvhar_1_1MhMinnLogLik.html", null ],
       [ "baecon::bvhar::MinnesotaLogLik", "classbaecon_1_1bvhar_1_1MinnesotaLogLik.html", null ]
     ] ],
+    [ "baecon::bvhar::ImpulseResponse", "classbaecon_1_1bvhar_1_1ImpulseResponse.html", [
+      [ "baecon::bvhar::McmcIrf", "classbaecon_1_1bvhar_1_1McmcIrf.html", [
+        [ "baecon::bvhar::CtaIrf", "classbaecon_1_1bvhar_1_1CtaIrf.html", [
+          [ "baecon::bvhar::CtaVarIrf< RecordType >", "classbaecon_1_1bvhar_1_1CtaVarIrf.html", null ],
+          [ "baecon::bvhar::CtaVharIrf< RecordType >", "classbaecon_1_1bvhar_1_1CtaVharIrf.html", null ]
+        ] ],
+        [ "baecon::bvhar::MinnIrf", "classbaecon_1_1bvhar_1_1MinnIrf.html", [
+          [ "baecon::bvhar::MinnVharIrf", "classbaecon_1_1bvhar_1_1MinnVharIrf.html", null ]
+        ] ]
+      ] ],
+      [ "baecon::bvhar::OlsVarIrf", "classbaecon_1_1bvhar_1_1OlsVarIrf.html", [
+        [ "baecon::bvhar::OlsVharIrf", "classbaecon_1_1bvhar_1_1OlsVharIrf.html", null ]
+      ] ]
+    ] ],
     [ "boost::random::inverse_gaussian_distribution< RealType >", "classboost_1_1random_1_1inverse__gaussian__distribution.html", null ],
+    [ "baecon::bvhar::IrfRun", "classbaecon_1_1bvhar_1_1IrfRun.html", [
+      [ "baecon::bvhar::McmcIrfRun", "classbaecon_1_1bvhar_1_1McmcIrfRun.html", [
+        [ "baecon::bvhar::CtaIrfRun< RecordType >", "classbaecon_1_1bvhar_1_1CtaIrfRun.html", null ]
+      ] ],
+      [ "baecon::bvhar::OlsIrfRun", "classbaecon_1_1bvhar_1_1OlsIrfRun.html", null ]
+    ] ],
     [ "baecon::bvhar::McmcAlgo", "classbaecon_1_1bvhar_1_1McmcAlgo.html", [
       [ "baecon::bvhar::McmcTriangular", "classbaecon_1_1bvhar_1_1McmcTriangular.html", [
         [ "baecon::bvhar::McmcReg", "classbaecon_1_1bvhar_1_1McmcReg.html", null ],

@@ -1,0 +1,19 @@
+<map id="baecon::bvhar::ImpulseResponse" name="baecon::bvhar::ImpulseResponse">
+<area shape="rect" id="Node000001" title="Base class for impulse response function." alt="" coords="5,155,243,181"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcIrf.html" title="IRF class for MCMC." alt="" coords="293,130,467,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,152,292,149,293,154,256,158"/>
+<area shape="rect" id="Node000008" href="$classbaecon_1_1bvhar_1_1OlsVarIrf.html" title=" " alt="" coords="291,179,469,205"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="257,178,291,181,290,186,256,183"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaIrf.html" title=" " alt="" coords="531,77,690,102"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,124,555,99,556,105,450,129"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1MinnIrf.html" title=" " alt="" coords="527,130,695,155"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="481,140,526,140,526,145,481,145"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1CtaVarIrf.html" title=" " alt="" coords="762,5,941,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="672,70,775,43,776,48,673,76"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1CtaVharIrf.html" title=" " alt="" coords="757,69,945,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="704,87,757,87,757,92,704,92"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1MinnVharIrf.html" title=" " alt="" coords="752,134,951,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="708,142,752,142,752,148,708,147"/>
+<area shape="rect" id="Node000009" href="$classbaecon_1_1bvhar_1_1OlsVharIrf.html" title=" " alt="" coords="517,179,704,205"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="483,189,517,189,517,195,483,195"/>
+</map>

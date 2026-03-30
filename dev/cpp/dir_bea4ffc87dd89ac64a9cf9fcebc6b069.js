@@ -6,5 +6,6 @@ var dir_bea4ffc87dd89ac64a9cf9fcebc6b069 =
     [ "shrinkage", "dir_b65aad47b98118905953bf4a77823e5f.html", "dir_b65aad47b98118905953bf4a77823e5f" ],
     [ "triangular", "dir_5601b00f21de027c828f2fe3dcbb552c.html", "dir_5601b00f21de027c828f2fe3dcbb552c" ],
     [ "bayes.h", "bayes_8h.html", "bayes_8h" ],
-    [ "forecaster.h", "bayes_2forecaster_8h.html", "bayes_2forecaster_8h" ]
+    [ "forecaster.h", "bayes_2forecaster_8h.html", "bayes_2forecaster_8h" ],
+    [ "irf.h", "bayes_2irf_8h.html", "bayes_2irf_8h" ]
 ];

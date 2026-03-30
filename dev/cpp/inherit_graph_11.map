@@ -1,9 +1,19 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1McmcAlgo.html" title="Base class for MCMC algorithm." alt="" coords="5,31,196,56"/>
-<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1McmcTriangular.html" title="Corrected Triangular Algorithm (CTA)" alt="" coords="244,31,469,56"/>
-<area shape="poly" id="edge11_Node000000_Node000001" title=" " alt="" coords="210,41,244,41,244,46,210,46"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcReg.html" title="MCMC for homoskedastic LDLT parameterization." alt="" coords="517,5,704,31"/>
-<area shape="poly" id="edge12_Node000001_Node000002" title=" " alt="" coords="483,28,517,25,518,30,483,33"/>
-<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcSv.html" title="MCMC for stochastic volatility." alt="" coords="522,55,699,80"/>
-<area shape="poly" id="edge13_Node000001_Node000003" title=" " alt="" coords="483,53,522,56,522,62,483,58"/>
+<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1ImpulseResponse.html" title="Base class for impulse response function." alt="" coords="5,155,243,181"/>
+<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1McmcIrf.html" title="IRF class for MCMC." alt="" coords="293,130,467,155"/>
+<area shape="poly" id="edge11_Node000000_Node000001" title=" " alt="" coords="256,152,292,149,293,154,256,158"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1OlsVarIrf.html" title=" " alt="" coords="291,179,469,205"/>
+<area shape="poly" id="edge17_Node000000_Node000007" title=" " alt="" coords="257,178,291,181,290,186,256,183"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaIrf.html" title=" " alt="" coords="531,77,690,102"/>
+<area shape="poly" id="edge12_Node000001_Node000002" title=" " alt="" coords="448,124,555,99,556,105,450,129"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1MinnIrf.html" title=" " alt="" coords="527,130,695,155"/>
+<area shape="poly" id="edge15_Node000001_Node000005" title=" " alt="" coords="481,140,526,140,526,145,481,145"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaVarIrf.html" title=" " alt="" coords="762,5,941,45"/>
+<area shape="poly" id="edge13_Node000002_Node000003" title=" " alt="" coords="672,70,775,43,776,48,673,76"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1CtaVharIrf.html" title=" " alt="" coords="757,69,945,109"/>
+<area shape="poly" id="edge14_Node000002_Node000004" title=" " alt="" coords="704,87,757,87,757,92,704,92"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1MinnVharIrf.html" title=" " alt="" coords="752,134,951,159"/>
+<area shape="poly" id="edge16_Node000005_Node000006" title=" " alt="" coords="708,142,752,142,752,148,708,147"/>
+<area shape="rect" id="Node000008" href="$classbaecon_1_1bvhar_1_1OlsVharIrf.html" title=" " alt="" coords="517,179,704,205"/>
+<area shape="poly" id="edge18_Node000007_Node000008" title=" " alt="" coords="483,189,517,189,517,195,483,195"/>
 </map>

@@ -8,6 +8,8 @@ var structbaecon_1_1bvhar_1_1RegRecords =
     [ "assignRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#a05366d31818ad92c1cc299cd634c9398", null ],
     [ "assignRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#a4cee55548c10f0b90a01ef31fd5e026f", null ],
     [ "returnListRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#ac340280214b802d1201322eeb3ffe2bc", null ],
+    [ "forecastInnov", "structbaecon_1_1bvhar_1_1RegRecords.html#aa4ff480929d170c0a0cf952984a00b24", null ],
+    [ "forecastInnov", "structbaecon_1_1bvhar_1_1RegRecords.html#acdb604bf0fcb4f87e3d9309dab4eb64a", null ],
     [ "appendRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#a39440d3adadc3b49e6a152e83fc887db", null ],
     [ "returnLdltRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#a6783358aa758362ba1eb1094496de70a", null ],
     [ "returnSvRecords", "structbaecon_1_1bvhar_1_1RegRecords.html#a23c7b6bbbf0dbe7fef1bce9e55f9b943", null ],

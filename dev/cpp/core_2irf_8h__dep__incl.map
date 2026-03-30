@@ -1,0 +1,11 @@
+<map id="irf.h" name="irf.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="75,5,121,31"/>
+<area shape="rect" id="Node000002" href="$bayes_2irf_8h.html" title=" " alt="" coords="40,79,87,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,44,71,80,67,77,84,42"/>
+<area shape="rect" id="Node000005" href="$ols_2irf_8h.html" title=" " alt="" coords="111,79,157,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="112,42,131,77,126,80,108,44"/>
+<area shape="rect" id="Node000003" href="$bayes_2mniw_2irf_8h.html" title=" " alt="" coords="5,152,52,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="54,118,37,153,32,151,49,115"/>
+<area shape="rect" id="Node000004" href="$bayes_2triangular_2irf_8h.html" title=" " alt="" coords="76,152,123,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="78,115,96,151,91,153,73,117"/>
+</map>

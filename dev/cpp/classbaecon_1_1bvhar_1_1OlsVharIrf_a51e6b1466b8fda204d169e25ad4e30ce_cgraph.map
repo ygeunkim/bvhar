@@ -1,0 +1,10 @@
+<map id="baecon::bvhar::OlsVharIrf::computeVma" name="baecon::bvhar::OlsVharIrf::computeVma">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,192,45"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#af7075daadb72c6837392f76fd8ad3f4c" title=" " alt="" coords="459,5,629,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,20,240,19,411,19,445,19,445,25,411,24,240,24,192,25"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a2c7737f5d734bde9f26e8675c2151cdc" title=" " alt="" coords="240,33,411,73"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,34,226,38,226,44,192,40"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a0d564c6e40ce6ce4d0d62da32a781377" title=" " alt="" coords="677,5,828,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="630,23,664,23,664,28,630,28"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="410,40,445,35,445,41,411,45"/>
+</map>

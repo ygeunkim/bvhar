@@ -20,6 +20,7 @@ var classbaecon_1_1bvhar_1_1MultistepForecaster =
     [ "pred_save", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#ab4f1356c6e41ad2e766a2e9e67238d5f", null ],
     [ "mean_save", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#a0bfa9cf5d71fcc3cf04d5f15f7d8c154", null ],
     [ "point_forecast", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#aca2f374e28237677748d02d958d0cff0", null ],
+    [ "forecast_mean", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#ada490b7d6838ad2f6b9bccadefeae396", null ],
     [ "last_pvec", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#aefd6b0d6aac70f33076828be2143b7d8", null ],
     [ "tmp_vec", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#a87f9d6385724f6b8ea197ce4379c3d07", null ],
     [ "debug_logger", "classbaecon_1_1bvhar_1_1MultistepForecaster.html#a34f10e553b14b6807373e3fc93fe28b7", null ]
