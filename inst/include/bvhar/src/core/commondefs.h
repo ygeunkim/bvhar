@@ -42,7 +42,9 @@
 	#define BVHAR_CAST_DOUBLE(value) value
 	#define BVHAR_CAST_INT(value) value
 	#define BVHAR_CAST_BOOL(value) value
+	#define BVHAR_CAST_LIST(value) value
 	#define BVHAR_CAST_PY_LIST(value) value
+	#define BVHAR_CAST_LIST_OF_LIST(value) value
 	#define BVHAR_CONTAINS(container, key) container.containsElementNamed(key)
 	#define BVHAR_CREATE_LIST(...) Rcpp::List::create(__VA_ARGS__)
 	#define BVHAR_NAMED Rcpp::Named
@@ -98,7 +100,9 @@
 	#define BVHAR_CAST_DOUBLE(value) py::cast<double>(value)
 	#define BVHAR_CAST_INT(value) py::int_(value)
 	#define BVHAR_CAST_BOOL(value) py::cast<bool>(value)
+	#define BVHAR_CAST_LIST(value) value
 	#define BVHAR_CAST_PY_LIST(value) value
+	#define BVHAR_CAST_LIST_OF_LIST(value) value
 	#define BVHAR_CONTAINS(container, key) container.contains(key)
 	#define BVHAR_CREATE_LIST(...) py::dict(__VA_ARGS__)
 	#define BVHAR_NAMED py::arg
@@ -148,7 +152,9 @@
   #define BVHAR_CAST_DOUBLE(value) std::any_cast<double>(value)
   #define BVHAR_CAST_INT(value) std::any_cast<int>(value)
   #define BVHAR_CAST_BOOL(value) std::any_cast<bool>(value)
+	#define BVHAR_CAST_LIST(value) std::any_cast<BVHAR_LIST>(value)
 	#define BVHAR_CAST_PY_LIST(value) std::any_cast<BVHAR_PY_LIST>(value)
+	#define BVHAR_CAST_LIST_OF_LIST(value) std::any_cast<BVHAR_LIST_OF_LIST>(value)
 	#define BVHAR_CONTAINS(container, key) (container.find(key) != container.end())
 	#define BVHAR_CREATE_LIST(...) create_bvhar_list(__VA_ARGS__)
   #define BVHAR_NAMED BvharNamed
