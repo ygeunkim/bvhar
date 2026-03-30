@@ -22,5 +22,6 @@ var commondefs_8h =
     [ "BVHAR_IS_LOGICAL", "commondefs_8h.html#affdb7e50a6321b4947a418498dc0bc31", null ],
     [ "BVHAR_CAST_VECTOR", "commondefs_8h.html#a2e3e36388a5650c7b3a36170c13cb9eb", null ],
     [ "BVHAR_CAST_MATRIX", "commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9", null ],
+    [ "BVHAR_IF_CONSTEXPR", "commondefs_8h.html#a6e11279b1fbe99dd8fbd6dfc6a3222bd", null ],
     [ "make_unique", "commondefs_8h.html#a03d5ca705e3360c607bf2586e9a9de3b", null ]
 ];
