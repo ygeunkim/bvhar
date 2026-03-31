@@ -200,8 +200,8 @@
   #define BVHAR_IS_VECTOR(element) (element.type() == typeid(Eigen::VectorXd) || element.type() == typeid(Eigen::VectorXi) || element.type() == typeid(Eigen::Matrix<bool, Eigen::Dynamic, 1>))
   #define BVHAR_IS_LOGICAL(element) (element.type() == typeid(bool))
   
-  #define BVHAR_CAST_VECTOR(element) std::any_cast<Eigen::VectorXd>(element)
-  #define BVHAR_CAST_MATRIX(element) std::any_cast<Eigen::MatrixXd>(element)
+  #define BVHAR_CAST_VECTOR(element) std::any_cast<Eigen::VectorXd>(element.eval())
+  #define BVHAR_CAST_MATRIX(element) std::any_cast<Eigen::MatrixXd>(element.eval())
 #endif
 
 #ifndef M_PI
