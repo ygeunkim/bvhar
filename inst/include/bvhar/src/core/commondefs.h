@@ -122,6 +122,8 @@
   #include <vector>
   #include <iostream>
   #include <stdexcept>
+	#include <type_traits>
+	#include <utility>
 
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
@@ -129,12 +131,24 @@
 
 	using BvharList = std::map<std::string, std::any>;
 
+	template <typename T, typename = void>
+	struct bvhar_has_eval : std::false_type {};
+
+	template <typename T>
+	struct bvhar_has_eval<T, std::void_t<decltype(std::declval<T>().eval())>> : std::true_type {};
+
+	template <typename T>
+	inline constexpr bool bvhar_has_eval_v = bvhar_has_eval<T>::value;
+
 	struct BvharNamed {
     std::string name;
     explicit BvharNamed(const std::string& n) : name(n) {}
     
     template <typename T>
     std::pair<const std::string, std::any> operator=(T&& val) {
+			if constexpr (bvhar_has_eval_v<T>) {
+        return {name, val.eval()};
+      }
       return {name, std::forward<T>(val)};
     }
   };
