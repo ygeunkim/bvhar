@@ -67,11 +67,11 @@ var NAVTREEINDEX =
 "classbaecon_1_1bvhar_1_1Minnesota.html#af04dd5fe32cb6df739b5629463f8268b",
 "classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#a01c5380af8d78ddbc7f35ae7f6caa28a",
 "classbaecon_1_1bvhar_1_1OptimLbfgsb.html#a413d5fa58dfd72a2d0a198f00575ed4f",
-"commondefs_8h.html#a6e11279b1fbe99dd8fbd6dfc6a3222bd",
-"namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07",
-"structbaecon_1_1bvhar_1_1GlInits.html#a34352b28227bbb479400d6fb91733050",
-"structbaecon_1_1bvhar_1_1RegParams.html#aa18c34d27ce5502db55c928234ff97ad",
-"triangular_8h_source.html"
+"commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9",
+"namespacebaecon_1_1bvhar.html#a7f4b613caa7123e9c464041b4d60b8e8",
+"structbaecon_1_1bvhar_1_1GdpParams.html#ad4ceb1696e3dc366a5963ef675d21bad",
+"structbaecon_1_1bvhar_1_1RegParams.html#a98eb997d167f50c7c334ed0fd9318070",
+"triangular_2config_8h.html#af73dc8890db915f782c2995ac75ca895"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

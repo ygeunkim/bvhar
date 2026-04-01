@@ -13,6 +13,9 @@ var commondefs_8h =
     [ "BVHAR_CAST_DOUBLE", "commondefs_8h.html#a1ab9da36aa44cd6602e514bb03acef34", null ],
     [ "BVHAR_CAST_INT", "commondefs_8h.html#a4177c18b0400e151ad1994b45506d2e3", null ],
     [ "BVHAR_CAST_BOOL", "commondefs_8h.html#ad859f58a56e1b35247f8342b67353d10", null ],
+    [ "BVHAR_CAST_LIST", "commondefs_8h.html#af1f7c04972b6cddafa5fb03529eacb75", null ],
+    [ "BVHAR_CAST_PY_LIST", "commondefs_8h.html#a0c1476b8a888ca9d680d34768ad147f8", null ],
+    [ "BVHAR_CAST_LIST_OF_LIST", "commondefs_8h.html#a9543a73b97369dccc2d027ad4b6b6059", null ],
     [ "BVHAR_CONTAINS", "commondefs_8h.html#ad8138fd8acb764be09d80aa5e1ca8555", null ],
     [ "BVHAR_CREATE_LIST", "commondefs_8h.html#a86293af7aa3cf903fa9801c05372fb3d", null ],
     [ "BVHAR_NAMED", "commondefs_8h.html#a4dbf403a74e6329e48a04990858204ac", null ],
@@ -22,6 +25,7 @@ var commondefs_8h =
     [ "BVHAR_IS_LOGICAL", "commondefs_8h.html#affdb7e50a6321b4947a418498dc0bc31", null ],
     [ "BVHAR_CAST_VECTOR", "commondefs_8h.html#a2e3e36388a5650c7b3a36170c13cb9eb", null ],
     [ "BVHAR_CAST_MATRIX", "commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9", null ],
+    [ "M_PI", "commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3", null ],
     [ "BVHAR_IF_CONSTEXPR", "commondefs_8h.html#a6e11279b1fbe99dd8fbd6dfc6a3222bd", null ],
     [ "make_unique", "commondefs_8h.html#a03d5ca705e3360c607bf2586e9a9de3b", null ]
 ];

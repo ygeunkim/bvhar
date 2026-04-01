@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9002</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9003</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -165,7 +165,7 @@ $(document).ready(function(){initNavTree('minn__helper_8h_source.html',''); init
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                   Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                                   <span class="keywordtype">int</span> posterior_shape, <span class="keywordtype">double</span> gamma_shp, <span class="keywordtype">double</span> gamma_rate, <span class="keywordtype">double</span> invgam_shp, <span class="keywordtype">double</span> invgam_scl) {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keywordtype">double</span> res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">compute_logml</a>(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  res += -dim * num_design / 2.0 * log(M_PI) +</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  res += -dim * num_design / 2.0 * log(<a class="code hl_define" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>) +</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    lmgammafn((prior_shape + num_design) / 2.0, dim) -</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    lmgammafn(prior_shape / 2.0, dim); <span class="comment">// constant term</span></div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, <span class="keyword">true</span>); <span class="comment">// gamma distribution</span></div>
@@ -287,6 +287,7 @@ $(document).ready(function(){initNavTree('minn__helper_8h_source.html',''); init
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_MINN_HELPER_H_H</span></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
+<div class="ttc" id="acommondefs_8h_html_ae71449b1cc6e6250b91f539153a7a0d3"><div class="ttname"><a href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a></div><div class="ttdeci">#define M_PI</div><div class="ttdef"><b>Definition</b> commondefs.h:209</div></div>
 <div class="ttc" id="ahelper_8h_html"><div class="ttname"><a href="helper_8h.html">helper.h</a></div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a1a20dbdb75296732edb89ef6ad712c95"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">baecon::bvhar::minnesota_logdens_scl</a></div><div class="ttdeci">double minnesota_logdens_scl(double &amp;cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id)</div><div class="ttdef"><b>Definition</b> minn_helper.h:94</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a4ca9e10ea5a85ef402ce7174349b9e64"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">baecon::bvhar::jointdens_hyperparam</a></div><div class="ttdeci">double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl)</div><div class="ttdef"><b>Definition</b> minn_helper.h:59</div></div>
@@ -296,7 +297,7 @@ $(document).ready(function(){initNavTree('minn__helper_8h_source.html',''); init
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af424963d16635b52e64f8bbc9165f09b"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">baecon::bvhar::minnesota_nu_griddy</a></div><div class="ttdeci">void minnesota_nu_griddy(double &amp;nu, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> minn_helper.h:127</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af7bc4252ab994b7a89c6924961f852cc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">baecon::bvhar::sim_gig</a></div><div class="ttdeci">double sim_gig(double lambda, double psi, double chi, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:316</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:219</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
