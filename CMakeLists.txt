@@ -6,7 +6,18 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-project(bvhar LANGUAGES CXX)
+# Get version number for DESCRIPTION
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION" DESC_CONTENT)
+string(REGEX MATCH "Version:[ \t]*([0-9.]+)" _ "${DESC_CONTENT}")
+if(CMAKE_MATCH_1)
+    set(BVHAR_VERSION "${CMAKE_MATCH_1}")
+    message(STATUS "Detected bvhar version from DESCRIPTION: ${BVHAR_VERSION}")
+else()
+    message(WARNING "Could not parse version from DESCRIPTION file. Defaulting to 0.0.0.9000")
+    set(BVHAR_VERSION "0.0.0.9000")
+endif()
+
+project(bvhar VERSION ${BVHAR_VERSION} LANGUAGES CXX)
 
 # Required libraries
 find_package(Eigen3 REQUIRED)
@@ -36,6 +47,7 @@ target_compile_definitions(bvhar INTERFACE
     EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
     BOOST_ENABLE_ASSERT_HANDLER
     FMT_HEADER_ONLY
+    BVHAR_VERSION="${PROJECT_VERSION}"
 )
 
 target_include_directories(bvhar INTERFACE
