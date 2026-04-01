@@ -30,7 +30,7 @@ message(STATUS "Found lbfgspp")
 
 # Header-only library
 add_library(bvhar INTERFACE)
-# add_library(bvhar::bvhar ALIAS bvhar)
+add_library(bvhar::bvhar ALIAS bvhar)
 
 target_compile_definitions(bvhar INTERFACE
     EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS

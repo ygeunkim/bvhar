@@ -1,4 +1,4 @@
-file(GLOB_RECURSE CPP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 if(NOT CPP_SOURCES)
     message(FATAL_ERROR "No C++ source files found in examples/")
@@ -14,6 +14,5 @@ foreach(CPP_FILE ${CPP_SOURCES})
     add_executable(${example} ${CPP_FILE})
     set_property(TARGET ${example} PROPERTY CXX_STANDARD 17)
     
-    target_link_libraries(${example} PRIVATE bvhar)
-    # target_link_libraries(${example} PRIVATE bvhar::bvhar)
+    target_link_libraries(${example} PRIVATE bvhar::bvhar)
 endforeach()
