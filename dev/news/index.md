@@ -7,6 +7,17 @@
 
 - Added IRF classes in C++.
 
+### R
+
+### Python
+
+- `-DBVHAR_USE_PYBIND11` macro is required to use the header with
+  Pybind11.
+
+### C++
+
+- Now header-only C++ library is available.
+
 ## bvhar 2.4.0
 
 CRAN release: 2026-02-01

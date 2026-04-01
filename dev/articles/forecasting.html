@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bvhar</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.4.0.9002</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -325,31 +325,31 @@ called <code>predbvhar</code> to use some methods,</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">pred_bvar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">model_bvar</span>, n_ahead <span class="op">=</span> <span class="va">h</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         y1   y2   y3   y4</span></span>
-<span><span class="co">#&gt;  [1,] 20.1 21.1 10.7 26.4</span></span>
-<span><span class="co">#&gt;  [2,] 20.1 19.2 10.7 25.0</span></span>
-<span><span class="co">#&gt;  [3,] 20.1 18.4 10.7 24.5</span></span>
-<span><span class="co">#&gt;  [4,] 20.1 17.9 10.7 24.3</span></span>
-<span><span class="co">#&gt;  [5,] 20.1 17.6 10.7 24.2</span></span>
-<span><span class="co">#&gt;  [6,] 20.1 17.5 10.7 24.1</span></span>
-<span><span class="co">#&gt;  [7,] 20.1 17.4 10.7 24.1</span></span>
-<span><span class="co">#&gt;  [8,] 20.1 17.3 10.7 24.1</span></span>
-<span><span class="co">#&gt;  [9,] 20.1 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [10,] 20.0 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [11,] 20.0 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [12,] 20.0 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [13,] 20.0 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [14,] 20.0 17.3 10.8 24.1</span></span>
-<span><span class="co">#&gt; [15,] 20.0 17.3 10.9 24.1</span></span>
-<span><span class="co">#&gt; [16,] 20.0 17.3 10.9 24.1</span></span>
-<span><span class="co">#&gt; [17,] 20.0 17.3 10.9 24.1</span></span>
-<span><span class="co">#&gt; [18,] 20.0 17.3 10.9 24.1</span></span>
-<span><span class="co">#&gt; [19,] 20.0 17.3 10.9 24.1</span></span>
-<span><span class="co">#&gt; [20,] 20.0 17.3 10.9 24.1</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1,] 19.9 22.4 8.94 26.9</span></span>
+<span><span class="co">#&gt;  [2,] 19.4 19.9 8.03 25.2</span></span>
+<span><span class="co">#&gt;  [3,] 19.1 18.5 7.52 24.6</span></span>
+<span><span class="co">#&gt;  [4,] 18.9 17.5 7.21 24.2</span></span>
+<span><span class="co">#&gt;  [5,] 18.7 16.9 7.01 23.9</span></span>
+<span><span class="co">#&gt;  [6,] 18.6 16.4 6.87 23.8</span></span>
+<span><span class="co">#&gt;  [7,] 18.5 16.2 6.78 23.7</span></span>
+<span><span class="co">#&gt;  [8,] 18.5 16.0 6.73 23.6</span></span>
+<span><span class="co">#&gt;  [9,] 18.4 15.9 6.70 23.6</span></span>
+<span><span class="co">#&gt; [10,] 18.4 15.8 6.68 23.5</span></span>
+<span><span class="co">#&gt; [11,] 18.4 15.7 6.66 23.5</span></span>
+<span><span class="co">#&gt; [12,] 18.4 15.7 6.66 23.5</span></span>
+<span><span class="co">#&gt; [13,] 18.4 15.7 6.65 23.5</span></span>
+<span><span class="co">#&gt; [14,] 18.4 15.7 6.65 23.5</span></span>
+<span><span class="co">#&gt; [15,] 18.4 15.7 6.64 23.5</span></span>
+<span><span class="co">#&gt; [16,] 18.4 15.7 6.64 23.5</span></span>
+<span><span class="co">#&gt; [17,] 18.4 15.7 6.64 23.5</span></span>
+<span><span class="co">#&gt; [18,] 18.4 15.7 6.64 23.5</span></span>
+<span><span class="co">#&gt; [19,] 18.4 15.7 6.64 23.5</span></span>
+<span><span class="co">#&gt; [20,] 18.4 15.7 6.64 23.5</span></span></code></pre></div>
 <p>MSE:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">mse_bvar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mse.html">mse</a></span><span class="op">(</span><span class="va">pred_bvar</span>, <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     y1     y2     y3     y4 </span></span>
-<span><span class="co">#&gt;  3.129 95.020  0.404 50.066</span></span></code></pre></div>
+<span><span class="co">#&gt;   7.81 120.89  11.55  55.51</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="bvhar-1">BVHAR<a class="anchor" aria-label="anchor" href="#bvhar-1"></a>
@@ -359,64 +359,64 @@ called <code>predbvhar</code> to use some methods,</p>
 </h4>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">pred_bvhar_v1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">model_bvhar_v1</span>, n_ahead <span class="op">=</span> <span class="va">h</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           y1     y2      y3    y4</span></span>
-<span><span class="co">#&gt;  [1,]   20.7   19.2    12.4  25.0</span></span>
-<span><span class="co">#&gt;  [2,]   21.6   17.7    15.3  24.2</span></span>
-<span><span class="co">#&gt;  [3,]   23.1   17.8    20.0  24.3</span></span>
-<span><span class="co">#&gt;  [4,]   25.3   18.4    27.1  24.5</span></span>
-<span><span class="co">#&gt;  [5,]   28.7   19.5    38.3  24.8</span></span>
-<span><span class="co">#&gt;  [6,]   33.5   21.2    55.5  25.4</span></span>
-<span><span class="co">#&gt;  [7,]   40.7   24.0    82.2  26.4</span></span>
-<span><span class="co">#&gt;  [8,]   51.3   28.3   123.5  28.0</span></span>
-<span><span class="co">#&gt;  [9,]   66.8   34.9   187.4  30.3</span></span>
-<span><span class="co">#&gt; [10,]   89.4   45.2   286.3  34.0</span></span>
-<span><span class="co">#&gt; [11,]  122.3   60.9   439.4  39.5</span></span>
-<span><span class="co">#&gt; [12,]  170.1   85.1   676.2  48.1</span></span>
-<span><span class="co">#&gt; [13,]  239.3  122.2  1042.8  61.3</span></span>
-<span><span class="co">#&gt; [14,]  338.8  179.3  1610.4  81.6</span></span>
-<span><span class="co">#&gt; [15,]  481.3  267.0  2489.0 112.8</span></span>
-<span><span class="co">#&gt; [16,]  684.4  401.7  3849.6 160.8</span></span>
-<span><span class="co">#&gt; [17,]  971.7  608.8  5956.5 234.5</span></span>
-<span><span class="co">#&gt; [18,] 1375.0  927.0  9219.6 348.0</span></span>
-<span><span class="co">#&gt; [19,] 1935.7 1416.1 14273.9 522.5</span></span>
-<span><span class="co">#&gt; [20,] 2706.0 2168.0 22103.3 791.0</span></span></code></pre></div>
+<span><span class="co">#&gt;         y1   y2   y3   y4</span></span>
+<span><span class="co">#&gt;  [1,] 19.8 21.6 8.65 27.6</span></span>
+<span><span class="co">#&gt;  [2,] 19.3 19.0 7.73 25.3</span></span>
+<span><span class="co">#&gt;  [3,] 19.0 17.8 7.31 24.5</span></span>
+<span><span class="co">#&gt;  [4,] 18.8 17.1 7.10 24.1</span></span>
+<span><span class="co">#&gt;  [5,] 18.7 16.7 6.97 23.9</span></span>
+<span><span class="co">#&gt;  [6,] 18.6 16.4 6.87 23.8</span></span>
+<span><span class="co">#&gt;  [7,] 18.6 16.2 6.81 23.7</span></span>
+<span><span class="co">#&gt;  [8,] 18.5 16.1 6.77 23.7</span></span>
+<span><span class="co">#&gt;  [9,] 18.5 16.0 6.75 23.6</span></span>
+<span><span class="co">#&gt; [10,] 18.5 15.9 6.73 23.6</span></span>
+<span><span class="co">#&gt; [11,] 18.5 15.9 6.72 23.6</span></span>
+<span><span class="co">#&gt; [12,] 18.5 15.9 6.71 23.6</span></span>
+<span><span class="co">#&gt; [13,] 18.5 15.8 6.70 23.6</span></span>
+<span><span class="co">#&gt; [14,] 18.5 15.8 6.70 23.6</span></span>
+<span><span class="co">#&gt; [15,] 18.5 15.8 6.69 23.6</span></span>
+<span><span class="co">#&gt; [16,] 18.4 15.8 6.68 23.6</span></span>
+<span><span class="co">#&gt; [17,] 18.4 15.8 6.68 23.5</span></span>
+<span><span class="co">#&gt; [18,] 18.4 15.8 6.67 23.5</span></span>
+<span><span class="co">#&gt; [19,] 18.4 15.7 6.67 23.5</span></span>
+<span><span class="co">#&gt; [20,] 18.4 15.7 6.66 23.5</span></span></code></pre></div>
 <p>MSE:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">mse_bvhar_v1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mse.html">mse</a></span><span class="op">(</span><span class="va">pred_bvhar_v1</span>, <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       y1       y2       y3       y4 </span></span>
-<span><span class="co">#&gt;   721027   393603 41845775    49322</span></span></code></pre></div>
+<span><span class="co">#&gt;     y1     y2     y3     y4 </span></span>
+<span><span class="co">#&gt;   7.43 121.14  11.53  54.52</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="vhar-type-minnesota">VHAR-type Minnesota<a class="anchor" aria-label="anchor" href="#vhar-type-minnesota"></a>
 </h4>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">pred_bvhar_v2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">model_bvhar_v2</span>, n_ahead <span class="op">=</span> <span class="va">h</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;             y1        y2       y3       y4</span></span>
-<span><span class="co">#&gt;  [1,] 2.40e+01  2.88e+01 7.87e+00 2.57e+01</span></span>
-<span><span class="co">#&gt;  [2,] 3.99e+01  2.92e+01 7.41e+00 2.44e+01</span></span>
-<span><span class="co">#&gt;  [3,] 1.02e+02  2.94e+01 7.52e+00 2.45e+01</span></span>
-<span><span class="co">#&gt;  [4,] 3.42e+02  2.96e+01 8.32e+00 2.55e+01</span></span>
-<span><span class="co">#&gt;  [5,] 1.28e+03  2.96e+01 1.16e+01 2.97e+01</span></span>
-<span><span class="co">#&gt;  [6,] 4.91e+03  2.91e+01 2.42e+01 4.60e+01</span></span>
-<span><span class="co">#&gt;  [7,] 1.90e+04  2.68e+01 7.33e+01 1.10e+02</span></span>
-<span><span class="co">#&gt;  [8,] 7.40e+04  1.76e+01 2.65e+02 3.58e+02</span></span>
-<span><span class="co">#&gt;  [9,] 2.88e+05 -1.92e+01 1.01e+03 1.32e+03</span></span>
-<span><span class="co">#&gt; [10,] 1.12e+06 -1.63e+02 3.90e+03 5.07e+03</span></span>
-<span><span class="co">#&gt; [11,] 4.35e+06 -7.21e+02 1.52e+04 1.97e+04</span></span>
-<span><span class="co">#&gt; [12,] 1.69e+07 -2.89e+03 5.90e+04 7.64e+04</span></span>
-<span><span class="co">#&gt; [13,] 6.59e+07 -1.13e+04 2.29e+05 2.97e+05</span></span>
-<span><span class="co">#&gt; [14,] 2.56e+08 -4.42e+04 8.92e+05 1.16e+06</span></span>
-<span><span class="co">#&gt; [15,] 9.97e+08 -1.72e+05 3.47e+06 4.50e+06</span></span>
-<span><span class="co">#&gt; [16,] 3.88e+09 -6.70e+05 1.35e+07 1.75e+07</span></span>
-<span><span class="co">#&gt; [17,] 1.51e+10 -2.60e+06 5.25e+07 6.81e+07</span></span>
-<span><span class="co">#&gt; [18,] 5.87e+10 -1.01e+07 2.04e+08 2.65e+08</span></span>
-<span><span class="co">#&gt; [19,] 2.28e+11 -3.94e+07 7.95e+08 1.03e+09</span></span>
-<span><span class="co">#&gt; [20,] 8.88e+11 -1.53e+08 3.09e+09 4.01e+09</span></span></code></pre></div>
+<span><span class="co">#&gt;             y1       y2       y3       y4</span></span>
+<span><span class="co">#&gt;  [1,] 2.91e+01 1.90e+01 7.67e+00 2.57e+01</span></span>
+<span><span class="co">#&gt;  [2,] 9.16e+01 1.73e+01 7.10e+00 2.43e+01</span></span>
+<span><span class="co">#&gt;  [3,] 5.09e+02 1.88e+01 7.48e+00 2.47e+01</span></span>
+<span><span class="co">#&gt;  [4,] 3.30e+03 3.26e+01 1.10e+01 2.91e+01</span></span>
+<span><span class="co">#&gt;  [5,] 2.19e+04 1.26e+02 3.52e+01 5.92e+01</span></span>
+<span><span class="co">#&gt;  [6,] 1.46e+05 7.49e+02 1.97e+02 2.61e+02</span></span>
+<span><span class="co">#&gt;  [7,] 9.77e+05 4.91e+03 1.28e+03 1.61e+03</span></span>
+<span><span class="co">#&gt;  [8,] 6.53e+06 3.27e+04 8.48e+03 1.06e+04</span></span>
+<span><span class="co">#&gt;  [9,] 4.36e+07 2.18e+05 5.66e+04 7.07e+04</span></span>
+<span><span class="co">#&gt; [10,] 2.91e+08 1.46e+06 3.78e+05 4.72e+05</span></span>
+<span><span class="co">#&gt; [11,] 1.95e+09 9.74e+06 2.52e+06 3.15e+06</span></span>
+<span><span class="co">#&gt; [12,] 1.30e+10 6.51e+07 1.69e+07 2.10e+07</span></span>
+<span><span class="co">#&gt; [13,] 8.68e+10 4.35e+08 1.13e+08 1.41e+08</span></span>
+<span><span class="co">#&gt; [14,] 5.80e+11 2.90e+09 7.52e+08 9.39e+08</span></span>
+<span><span class="co">#&gt; [15,] 3.87e+12 1.94e+10 5.02e+09 6.27e+09</span></span>
+<span><span class="co">#&gt; [16,] 2.59e+13 1.29e+11 3.36e+10 4.19e+10</span></span>
+<span><span class="co">#&gt; [17,] 1.73e+14 8.65e+11 2.24e+11 2.80e+11</span></span>
+<span><span class="co">#&gt; [18,] 1.15e+15 5.78e+12 1.50e+12 1.87e+12</span></span>
+<span><span class="co">#&gt; [19,] 7.70e+15 3.86e+13 1.00e+13 1.25e+13</span></span>
+<span><span class="co">#&gt; [20,] 5.14e+16 2.58e+14 6.68e+13 8.33e+13</span></span></code></pre></div>
 <p>MSE:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">mse_bvhar_v2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mse.html">mse</a></span><span class="op">(</span><span class="va">pred_bvhar_v2</span>, <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       y1       y2       y3       y4 </span></span>
-<span><span class="co">#&gt; 4.22e+22 1.26e+15 5.12e+17 8.59e+17</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.35e+32 3.39e+27 2.28e+26 3.55e+26</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -454,8 +454,8 @@ forecasting.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     VHAR      VAR     BVAR   BVHAR1   BVHAR2 </span></span>
-<span><span class="co">#&gt; 3.36e+00 3.36e+00 3.72e+01 1.08e+07 1.06e+22</span></span></code></pre></div>
+<span><span class="co">#&gt;     VHAR      VAR   BVHAR1     BVAR   BVHAR2 </span></span>
+<span><span class="co">#&gt; 3.36e+00 3.36e+00 4.87e+01 4.89e+01 3.38e+31</span></span></code></pre></div>
 <p>For each variable, we can see the error with plot.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -481,7 +481,7 @@ forecasting.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">rmape</span>, pred_bench <span class="op">=</span> <span class="va">pred_var</span>, y <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      VAR     VHAR     BVAR   BVHAR1   BVHAR2 </span></span>
-<span><span class="co">#&gt; 1.00e+00 9.66e-01 3.01e+00 1.40e+03 1.10e+10</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.00e+00 9.66e-01 4.58e+00 4.58e+00 5.48e+14</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -562,7 +562,7 @@ above.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">rmape</span>, pred_bench <span class="op">=</span> <span class="va">var_roll</span>, y <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      VAR     VHAR     BVAR   BVHAR1   BVHAR2 </span></span>
-<span><span class="co">#&gt; 1.00e+00 9.87e-01 1.96e+04 2.54e+05 3.48e+04</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.00e+00 9.87e-01 9.58e+02 6.58e+04 2.16e+04</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="expanding-windows">Expanding Windows<a class="anchor" aria-label="anchor" href="#expanding-windows"></a>
@@ -613,7 +613,7 @@ starting point. The other is same.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">rmape</span>, pred_bench <span class="op">=</span> <span class="va">var_expand</span>, y <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      VAR     VHAR     BVAR   BVHAR1   BVHAR2 </span></span>
-<span><span class="co">#&gt;     1.00     0.98 33374.27 37607.77  5021.15</span></span></code></pre></div>
+<span><span class="co">#&gt;     1.00     0.98 12886.65 38026.74 16507.10</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
