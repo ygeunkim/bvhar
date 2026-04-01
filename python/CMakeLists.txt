@@ -93,6 +93,8 @@ find_package(OpenMP QUIET)
 
 add_library(bvhar INTERFACE)
 
+add_compile_definitions(BVHAR_USE_PYBIND11)
+
 target_include_directories(bvhar INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../inst/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

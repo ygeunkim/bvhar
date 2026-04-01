@@ -17,5 +17,8 @@
 ^revdep$
 ^python$
 inst/doxygen
+CMakeLists.txt
+inst/examples
+build
 ^logo$
 ^vignettes/forecasting\.Rmd$

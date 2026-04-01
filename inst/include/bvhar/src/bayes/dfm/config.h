@@ -61,7 +61,7 @@ inline void initialize_dfmrecord(
 	std::unique_ptr<DfmRecords>& record, int chain_id, BVHAR_LIST& fit_record,
 	BVHAR_STRING& f_name
 ) {
-	BVHAR_PY_LIST f_list = fit_record[f_name];
+	BVHAR_PY_LIST f_list = BVHAR_CAST_PY_LIST(fit_record[f_name]);
 	record = std::make_unique<DfmRecords>(BVHAR_CAST<Eigen::MatrixXd>(f_list[chain_id]));
 }
 
