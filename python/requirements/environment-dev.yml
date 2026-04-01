@@ -17,4 +17,4 @@ dependencies:
   - jupyter
   - pip:
       - quartodoc
-      - griffe
+      - griffe<2
