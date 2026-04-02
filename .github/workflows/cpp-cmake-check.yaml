@@ -1,0 +1,62 @@
+on:
+  push:
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/cpp-*', 'feature/*-withci']
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/examples/**'
+      - 'inst/tests/**'
+      - '.github/workflows/cmake-check.yaml'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/examples/**'
+      - 'inst/tests/**'
+
+name: cpp-cmake-check
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    if: ${{ !contains(github.event.head_commit.message, '[skip cpp]') && !contains(github.event.head_commit.message, '[only pages]') }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx_std: [11, 14, 17, 20]
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        compiler:
+          - llvm
+          - gcc
+        include:
+          - os: windows-latest
+            compiler: msvc
+    
+    name: ${{ matrix.os }} (${{ matrix.compiler }}-C++${{ matrix.cxx_std }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ matrix.compiler == 'msvc' }}
+          cmake: true
+          ninja: true
+        
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          run-build: true
+          generator: Ninja
+          options: |
+            CMAKE_CXX_STANDARD=${{ matrix.cxx_std }}
+            BVHAR_BUILD_EXAMPLES=ON
+            BVHAR_BUILD_TESTS=OFF
+            BVHAR_ENABLE_COVERAGE=OFF
