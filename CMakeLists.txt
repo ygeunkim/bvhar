@@ -19,25 +19,72 @@ endif()
 
 project(bvhar VERSION ${BVHAR_VERSION} LANGUAGES CXX)
 
+# External libraries
+include(FetchContent)
+
+function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
+    find_package(${PackageName} ${version} QUIET)
+    if(NOT ${PackageName}_FOUND)
+        message(STATUS "Could not find ${PackageName}, fetching from ${GIT_REPOSITORY}")
+        FetchContent_Declare(
+            ${PackageName}
+            GIT_REPOSITORY ${GIT_REPOSITORY}
+            GIT_TAG ${GIT_TAG}
+            GIT_SHALLOW TRUE
+            OVERRIDE_FIND_PACKAGE
+        )
+        # FetchContent_MakeAvailable(${PackageName})
+        # lbfgspp uses find_package(Eigen3 3.0 REQUIRED)
+        if(${PackageName} STREQUAL "lbfgspp")
+            FetchContent_GetProperties(lbfgspp)
+            if(NOT lbfgspp_POPULATED)
+                # FetchContent_Populate is deprecated in the recent cmake
+                cmake_policy(PUSH)
+                if(POLICY CMP0169)
+                    cmake_policy(SET CMP0169 OLD)
+                endif()
+                FetchContent_Populate(${PackageName})
+                cmake_policy(POP)
+
+                add_library(lbfgspp INTERFACE)
+                target_include_directories(lbfgspp INTERFACE ${lbfgspp_SOURCE_DIR}/include)
+                target_link_libraries(lbfgspp INTERFACE Eigen3::Eigen)
+            endif()
+        else()
+            FetchContent_MakeAvailable(${PackageName})
+        endif()
+    else()
+        message(STATUS "Found ${PackageName}")
+    endif()
+endfunction()
+
 # Required libraries
-find_package(Eigen3 REQUIRED)
-message(STATUS "Found Eigen3")
-find_package(Boost REQUIRED)
-message(STATUS "Found Boost")
-# find_package(lbfgspp REQUIRED)
-find_package(spdlog REQUIRED)
-message(STATUS "Found spdlog")
+find_or_fetch_package(
+    Eigen3
+    3.4
+    https://gitlab.com/libeigen/eigen.git
+    "3.4.1"
+)
+find_or_fetch_package(
+    Boost
+    1.88.0
+    https://github.com/boostorg/boost.git
+    "boost-1.88.0"
+)
+find_or_fetch_package(
+    lbfgspp
+    0.4.0
+    https://github.com/yixuan/LBFGSpp.git
+    "v0.4.0"
+)
+find_or_fetch_package(
+    spdlog
+    1.15.3
+    https://github.com/gabime/spdlog.git
+    "v1.15.3"
+)
 # Optional OpenMP
 find_package(OpenMP QUIET)
-
-# Manually find lbfgs
-find_path(LBFGSPP_INCLUDE_DIR NAMES LBFGS.h PATH_SUFFIXES lbfgspp)
-if(NOT LBFGSPP_INCLUDE_DIR)
-    message(FATAL_ERROR "lbfgspp headers not found.")
-endif()
-add_library(lbfgspp INTERFACE IMPORTED)
-target_include_directories(lbfgspp INTERFACE ${LBFGSPP_INCLUDE_DIR})
-message(STATUS "Found lbfgspp")
 
 # Header-only library
 add_library(bvhar INTERFACE)
@@ -81,10 +128,25 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(BVHAR_BUILD_EXAMPLES "Build example C++ programs" OFF)
+option(BVHAR_BUILD_TESTS "Build test C++ programs" OFF)
+option(BVHAR_ENABLE_COVERAGE "Enable C++ test coverage" OFF)
+
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to use")
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require the specified C++ standard")
 
 if(BVHAR_BUILD_EXAMPLES)
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    
+    # set(CMAKE_CXX_STANDARD 17)
+    # set(CMAKE_CXX_STANDARD_REQUIRED ON)
     add_subdirectory(inst/examples examples)
+endif()
+
+if(BVHAR_BUILD_TESTS)
+    add_subdirectory(inst/tests tests)
+endif()
+
+if(BVHAR_ENABLE_COVERAGE)
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
 endif()

@@ -12,7 +12,7 @@ foreach(CPP_FILE ${CPP_SOURCES})
     message(STATUS "    Source: ${REL_PATH}")
 
     add_executable(${example} ${CPP_FILE})
-    set_property(TARGET ${example} PROPERTY CXX_STANDARD 17)
+    # set_property(TARGET ${example} PROPERTY CXX_STANDARD 17)
     
     target_link_libraries(${example} PRIVATE bvhar::bvhar)
 endforeach()
