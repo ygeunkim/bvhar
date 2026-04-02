@@ -19,7 +19,7 @@ var searchData=
   ['convert_5fvhar_5fto_5fvma_16',['convert_vhar_to_vma',['../namespacebaecon_1_1bvhar.html#af7075daadb72c6837392f76fd8ad3f4c',1,'baecon::bvhar']]],
   ['convert_5fvhar_5fvma_5fortho_17',['convert_vhar_vma_ortho',['../namespacebaecon_1_1bvhar.html#a2c7737f5d734bde9f26e8675c2151cdc',1,'baecon::bvhar']]],
   ['convert_5fvma_5fortho_18',['convert_vma_ortho',['../namespacebaecon_1_1bvhar.html#a36697e6f2e30989c11bc9a2fc2bff113',1,'baecon::bvhar']]],
-  ['create_5fbvhar_5flist_19',['create_bvhar_list',['../commondefs_8h.html#ac842ea2dba6bb003c7e424a64b8b9cd7',1,'commondefs.h']]],
+  ['create_5fbvhar_5flist_19',['create_bvhar_list',['../commoncpp_8h.html#ac842ea2dba6bb003c7e424a64b8b9cd7',1,'commoncpp.h']]],
   ['ctaexogenforecaster_20',['ctaexogenforecaster',['../classbaecon_1_1bvhar_1_1CtaExogenForecaster.html#a5d6e3712c13f193628095e22a6823da4',1,'baecon::bvhar::CtaExogenForecaster::CtaExogenForecaster(int lag, const Eigen::MatrixXd &amp;exogen, int dim)'],['../classbaecon_1_1bvhar_1_1CtaExogenForecaster.html#a749d9aaa16a9f094ac1aa356d370c1ac',1,'baecon::bvhar::CtaExogenForecaster::CtaExogenForecaster()']]],
   ['ctaexpandforecastrun_21',['CtaExpandforecastRun',['../classbaecon_1_1bvhar_1_1CtaExpandforecastRun.html#a151870c2158825cb234130585a21d6b1',1,'baecon::bvhar::CtaExpandforecastRun']]],
   ['ctafactorforecaster_22',['CtaFactorForecaster',['../classbaecon_1_1bvhar_1_1CtaFactorForecaster.html#a2d288c4f5a5188c00507ba69f7723949',1,'baecon::bvhar::CtaFactorForecaster']]],

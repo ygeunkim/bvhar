@@ -1,0 +1,6 @@
+<map id="stop_fmt" name="stop_fmt">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,85,55"/>
+<area shape="rect" id="Node000002" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="133,29,271,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,39,120,39,120,45,86,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="176,31,170,21,173,11,184,5,202,3,223,6,232,15,229,19,221,11,202,8,186,10,178,15,176,20,180,28"/>
+</map>
