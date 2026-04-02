@@ -90,6 +90,8 @@ find_package(OpenMP QUIET)
 add_library(bvhar INTERFACE)
 add_library(bvhar::bvhar ALIAS bvhar)
 
+target_compile_features(bvhar INTERFACE cxx_std_17)
+
 target_compile_definitions(bvhar INTERFACE
     EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
     BOOST_ENABLE_ASSERT_HANDLER

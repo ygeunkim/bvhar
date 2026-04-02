@@ -26,14 +26,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cxx_std: [11, 14, 17, 20]
-        os:
-          - windows-latest
-          - ubuntu-latest
-          - macos-latest
-        compiler:
-          - llvm
-          - gcc
+        cxx_std: [17, 20, 23]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        compiler: [llvm, gcc]
         include:
           - os: windows-latest
             compiler: msvc
@@ -47,7 +42,7 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          vcvarsall: ${{ matrix.compiler == 'msvc' }}
+          vcvarsall: ${{ runner.os == 'Windows' }}
           cmake: true
           ninja: true
         
