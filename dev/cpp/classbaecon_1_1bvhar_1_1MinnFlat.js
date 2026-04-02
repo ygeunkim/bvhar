@@ -5,7 +5,7 @@ var classbaecon_1_1bvhar_1_1MinnFlat =
     [ "estimateCoef", "classbaecon_1_1bvhar_1_1MinnFlat.html#a3b1f71b3a3d77a01c49efdf3bca7fccc", null ],
     [ "fitObs", "classbaecon_1_1bvhar_1_1MinnFlat.html#a5a88d8928d786429487da8b250d3d953", null ],
     [ "estimateCov", "classbaecon_1_1bvhar_1_1MinnFlat.html#a018e65490816cc1b11b275a538f12f11", null ],
-    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1MinnFlat.html#ae24ec27b7fe581fd699001688447fbd2", null ],
+    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1MinnFlat.html#ad27e0914aa574d336264284ea5f722ef", null ],
     [ "returnMinnFit", "classbaecon_1_1bvhar_1_1MinnFlat.html#a336f81b0bf22b8fe177fa7f061cee624", null ],
     [ "design", "classbaecon_1_1bvhar_1_1MinnFlat.html#a5de175b9f540fcb30f3eec3276fd2a81", null ],
     [ "response", "classbaecon_1_1bvhar_1_1MinnFlat.html#aa577041ccd6937bea8cfeab66039b849", null ],

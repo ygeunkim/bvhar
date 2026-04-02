@@ -1,0 +1,12 @@
+<map id="baecon::bvhar::McmcRun::returnRecords" name="baecon::bvhar::McmcRun::returnRecords">
+<area shape="rect" id="Node000001" title="Conduct multi&#45;chain MCMC and return MCMC records of every chain." alt="" coords="5,47,192,87"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1McmcRun.html#a56c9de36cc6fe761888c312875fca851" title="Conduct multi&#45;chain MCMC." alt="" coords="240,54,447,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,64,227,64,227,69,192,69"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcRun.html#a522e8e6382d0b017d218fdffee2c15a1" title="Single chain MCMC." alt="" coords="495,47,681,87"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,64,481,64,481,69,447,69"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1bvharinterrupt.html#ac26925990b6337326d0f974eb38ca871" title=" " alt="" coords="729,5,944,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="681,49,715,43,716,48,682,54"/>
+<area shape="rect" id="Node000005" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="768,94,905,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="682,79,755,91,754,96,681,84"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="796,96,788,86,792,76,809,70,837,67,872,71,882,76,885,82,881,85,878,80,870,76,837,73,810,75,796,80,793,85,800,92"/>
+</map>

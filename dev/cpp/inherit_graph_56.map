@@ -1,5 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,13,160,38"/>
-<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink.html" title=" " alt="" coords="208,5,380,45"/>
-<area shape="poly" id="edge101_Node000000_Node000001" title=" " alt="" coords="174,23,208,23,208,28,174,28"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,60,152,85"/>
+<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1CtaVarforecastRun.html" title="Out&#45;of&#45;sample forecast class for Bayesian VAR." alt="" coords="200,5,484,60"/>
+<area shape="poly" id="edge99_Node000000_Node000001" title=" " alt="" coords="165,57,199,52,200,57,166,62"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaVharforecastRun.html" title="Out&#45;of&#45;sample forecast class for Bayesian VHAR." alt="" coords="200,84,484,139"/>
+<area shape="poly" id="edge100_Node000000_Node000002" title=" " alt="" coords="166,83,200,88,199,93,165,88"/>
 </map>

@@ -94,14 +94,17 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
   <div class="headertitle"><div class="title">Overview </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_inst_2doxygen_2index"></a> This package provides public <code>C++</code> header. It is used in both <code>R</code> and <code>Python</code>.</p>
+<div class="textblock"><p><a class="anchor" id="md_inst_2doxygen_2index"></a> <code>bvhar</code> is header-only <code>C++</code> library for multivariate time series analysis. It is used in both <code>R</code> and <code>Python</code>.</p>
 <ul>
 <li><a href="https://bvhar.baeconverse.org">bvhar for R</a></li>
 <li><a href="https://bvhar.baeconverse.org/python/">bvhar for Python</a></li>
 </ul>
 <h1><a class="anchor" id="autotoc_md1"></a>
-For R package developers</h1>
-<p><code>R</code> package developers can use the headers through <a href="https://www.rcpp.org"><code>Rcpp</code></a>. You can use these by writing in your R package <code>DESCRIPTION</code>.</p>
+For C++ developers</h1>
+<p>(In preparation)</p>
+<h1><a class="anchor" id="autotoc_md2"></a>
+For R developers</h1>
+<p><code>R</code> developers can use the headers through <a href="https://www.rcpp.org"><code>Rcpp</code></a>. You can use these by writing in your R package <code>DESCRIPTION</code>.</p>
 <div class="fragment"><div class="line">LinkingTo: </div>
 <div class="line">    BH,</div>
 <div class="line">    Rcpp,</div>
@@ -115,9 +118,10 @@ For R package developers</h1>
 <div class="line"> </div>
 <div class="line"><span class="comment">// [[Rcpp::export]]</span></div>
 <div class="line"><span class="comment">// Your C++ code</span></div>
-</div><!-- fragment --><p>You need to add <code>plugins</code> attribute because the header in this package should define <code>BVHAR_USE_RCPP</code> macro. Or you can use instead:</p>
-<div class="fragment"><div class="line">Sys.setenv(&quot;PKG_CPPFLAGS&quot; = &quot;-DBVHAR_USE_RCPP&quot;)</div>
-</div><!-- fragment --><p>If the <code>BVHAR_USE_RCPP</code> macro is not defined, the headers are compiled for <a href="https://pybind11.readthedocs.io/en/stable/index.html"><code>pybind11</code></a> of <code>Python</code>. </p>
+</div><!-- fragment --><p>You need to add <code>plugins</code> attribute because the header in this package should define <code>BVHAR_USE_RCPP</code> macro. If the <code>BVHAR_USE_RCPP</code> macro is not defined, the headers does not import <code>Rcpp</code>.</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
+For Python developers</h1>
+<p>(In preparation) </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

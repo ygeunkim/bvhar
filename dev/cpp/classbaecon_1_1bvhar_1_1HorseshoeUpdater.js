@@ -5,5 +5,5 @@ var classbaecon_1_1bvhar_1_1HorseshoeUpdater =
     [ "updateCoefPrec", "classbaecon_1_1bvhar_1_1HorseshoeUpdater.html#ac9c281b63fc2764334382b949497b479", null ],
     [ "updateImpactPrec", "classbaecon_1_1bvhar_1_1HorseshoeUpdater.html#a587091cc1d1431ad7811b19e64f5e5d8", null ],
     [ "updateRecords", "classbaecon_1_1bvhar_1_1HorseshoeUpdater.html#a3a532d33c6211a05dbfc37781d031cc3", null ],
-    [ "appendCoefRecords", "classbaecon_1_1bvhar_1_1HorseshoeUpdater.html#a50664e3317901db1bfe3c0d392b1d1c3", null ]
+    [ "appendCoefRecords", "classbaecon_1_1bvhar_1_1HorseshoeUpdater.html#a312264f707a2b49d231f8bb4821af2de", null ]
 ];

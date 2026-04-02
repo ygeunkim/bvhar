@@ -1,0 +1,9 @@
+<map id="baecon::bvhar::CtaOutforecastRun::initialize" name="baecon::bvhar::CtaOutforecastRun::initialize">
+<area shape="rect" id="Node000001" title="Initialize every member of CtaOutforecastRun" alt="" coords="5,69,225,109"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a978110d56d67b96494059f9bfc028b74" title="Define input in each window." alt="" coords="273,5,493,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,67,285,46,287,51,201,72"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a8248d698c3c63d5010315acfa86aad9a" title="Initialize forecaster." alt="" coords="273,69,493,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,87,260,87,260,92,225,92"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a12359a9ad4c07287b654c2bc4607e003" title="Initialize CTA." alt="" coords="273,133,493,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,107,287,128,285,133,199,112"/>
+</map>

@@ -131,9 +131,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abd340c0f5b64ff8fcf98e30113b37911" id="r_abd340c0f5b64ff8fcf98e30113b37911"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html#abd340c0f5b64ff8fcf98e30113b37911">forecast</a> ()=0</td></tr>
 <tr class="memdesc:abd340c0f5b64ff8fcf98e30113b37911"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out-of-sample forecasting.  <br /></td></tr>
 <tr class="separator:abd340c0f5b64ff8fcf98e30113b37911"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a6dd826e3859aa75fe2f686f84c7032" id="r_a7a6dd826e3859aa75fe2f686f84c7032"><td class="memItemLeft" align="right" valign="top">virtual Rcpp::List&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html#a7a6dd826e3859aa75fe2f686f84c7032">returnForecast</a> ()=0</td></tr>
-<tr class="memdesc:a7a6dd826e3859aa75fe2f686f84c7032"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return out-of-sample forecasting draws.  <br /></td></tr>
-<tr class="separator:a7a6dd826e3859aa75fe2f686f84c7032"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48361d52e5b88d34b27d09293cd877f0" id="r_a48361d52e5b88d34b27d09293cd877f0"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="commondefs_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html#a48361d52e5b88d34b27d09293cd877f0">returnForecast</a> ()=0</td></tr>
+<tr class="memdesc:a48361d52e5b88d34b27d09293cd877f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return out-of-sample forecasting draws.  <br /></td></tr>
+<tr class="separator:a48361d52e5b88d34b27d09293cd877f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a85c3c8d4a0e1953f98207a16a7520658" name="a85c3c8d4a0e1953f98207a16a7520658"></a>
@@ -216,8 +216,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a7a6dd826e3859aa75fe2f686f84c7032" name="a7a6dd826e3859aa75fe2f686f84c7032"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a6dd826e3859aa75fe2f686f84c7032">&#9670;&#160;</a></span>returnForecast()</h2>
+<a id="a48361d52e5b88d34b27d09293cd877f0" name="a48361d52e5b88d34b27d09293cd877f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48361d52e5b88d34b27d09293cd877f0">&#9670;&#160;</a></span>returnForecast()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -226,7 +226,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual Rcpp::List baecon::bvhar::McmcOutforecastInterface::returnForecast </td>
+          <td class="memname">virtual <a class="el" href="commondefs_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> baecon::bvhar::McmcOutforecastInterface::returnForecast </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -242,7 +242,7 @@ Public Member Functions</h2></td></tr>
 <p>Return out-of-sample forecasting draws. </p>
 <dl class="section return"><dt>Returns</dt><dd>BVHAR_LIST <code>BVHAR_LIST</code> containing forecast draws. Include ALPL when <code>get_lpl</code> is <code>true</code>. </dd></dl>
 
-<p>Implemented in <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa98149ddd38a3c40f3b3a28cf2783aec">baecon::bvhar::McmcOutForecastRun&lt; ReturnType, DataType, isPath, isUpdate &gt;</a>, <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa98149ddd38a3c40f3b3a28cf2783aec">baecon::bvhar::McmcOutForecastRun&lt; Eigen::MatrixXd, Eigen::VectorXd, false, true &gt;</a>, and <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa98149ddd38a3c40f3b3a28cf2783aec">baecon::bvhar::McmcOutForecastRun&lt; Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#adc7a65dc9a1e2408bb4f8ac79a1d8734">baecon::bvhar::McmcOutForecastRun&lt; ReturnType, DataType, isPath, isUpdate &gt;</a>, <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#adc7a65dc9a1e2408bb4f8ac79a1d8734">baecon::bvhar::McmcOutForecastRun&lt; Eigen::MatrixXd, Eigen::VectorXd, false, true &gt;</a>, and <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#adc7a65dc9a1e2408bb4f8ac79a1d8734">baecon::bvhar::McmcOutForecastRun&lt; Eigen::MatrixXd, Eigen::VectorXd, isPath, isUpdate &gt;</a>.</p>
 
 </div>
 </div>

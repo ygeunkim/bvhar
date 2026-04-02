@@ -6,5 +6,5 @@ var classbaecon_1_1bvhar_1_1McmcMniw =
     [ "updateRecords", "classbaecon_1_1bvhar_1_1McmcMniw.html#a8e0922cc2a3cbee1478ce13c28461a3b", null ],
     [ "updateMniw", "classbaecon_1_1bvhar_1_1McmcMniw.html#a8a7034004bbffb767bb14cabe9964c44", null ],
     [ "doPosteriorDraws", "classbaecon_1_1bvhar_1_1McmcMniw.html#aa1463e963f4bc0d5c6e946b8a41c4629", null ],
-    [ "returnRecords", "classbaecon_1_1bvhar_1_1McmcMniw.html#a1bdcef2b56a0d255819789658b8b59f5", null ]
+    [ "returnRecords", "classbaecon_1_1bvhar_1_1McmcMniw.html#a25333a139646b4bce092db885363b98d", null ]
 ];

@@ -4,7 +4,7 @@ var classbaecon_1_1bvhar_1_1OlsVarSpillover =
     [ "OlsVarSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a09275970d4bd3ded5a8a6e2d4861fd7c", null ],
     [ "~OlsVarSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a61aff1e80ed7ef951f273297507334b8", null ],
     [ "computeSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a21a349191d8197e453d7b9f7b9c49ad7", null ],
-    [ "returnSpilloverResult", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a3bdd48a38e373ace9dba75ca9db30baa", null ],
+    [ "returnSpilloverResult", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a92bc3015a43a9886cfc5b70a2d72663f", null ],
     [ "returnFevd", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#a78345f3ed98d625ec1c9bedb795395f8", null ],
     [ "returnSpillover", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#aa8049678ae0ce377d94de46678b52848", null ],
     [ "returnTo", "classbaecon_1_1bvhar_1_1OlsVarSpillover.html#afa793dc8e53e92e3290ad61c64a8ae07", null ],

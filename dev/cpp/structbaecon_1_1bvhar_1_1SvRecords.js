@@ -9,7 +9,7 @@ var structbaecon_1_1bvhar_1_1SvRecords =
     [ "~SvRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#a8e5a33b367cddeeb1760d33b89986dfb", null ],
     [ "assignRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#afd7ce9dbb35967764b26a9fac9c9b141", null ],
     [ "assignRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#a7e267c22a2f105bc98b2d6f98d1c6f72", null ],
-    [ "appendRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#aa7cba1c6874a446884914eea7ea8021d", null ],
+    [ "appendRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#a005200d078d93430284e7cbce70b1b90", null ],
     [ "returnLdltRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#a59de46795f9d99f74b5640c05a6876c3", null ],
     [ "returnSvRecords", "structbaecon_1_1bvhar_1_1SvRecords.html#a3696cac66f2a0e53fc721987d1928f7a", null ],
     [ "getDim", "structbaecon_1_1bvhar_1_1SvRecords.html#aab9eb1b7dbd8a1158402eb851a44a44d", null ],

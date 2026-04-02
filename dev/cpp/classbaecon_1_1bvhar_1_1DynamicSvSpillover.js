@@ -1,9 +1,9 @@
 var classbaecon_1_1bvhar_1_1DynamicSvSpillover =
 [
-    [ "DynamicSvSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#af1bbeb35331b7d268f5e28d7bf9bff3c", null ],
-    [ "DynamicSvSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a45dfcc68149c1807a83b47c384d33437", null ],
+    [ "DynamicSvSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a0dccec5f06b956c11000575b56938c49", null ],
+    [ "DynamicSvSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#af73ee3adc3cc84358a0f6419779f5113", null ],
     [ "~DynamicSvSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a6fe853cdcf524bba7b173414fffbe2c2", null ],
-    [ "returnSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a455602caacad2bd2f8dae013855d4271", null ],
+    [ "returnSpillover", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#aa00cbe0965bfb2675807e5e6d543ef92", null ],
     [ "fit", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a7cd342de31f2c6a87efa22ec1f517866", null ],
     [ "num_horizon", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#a1491edc1226c974af95cd031a4ea5a93", null ],
     [ "lag", "classbaecon_1_1bvhar_1_1DynamicSvSpillover.html#aa5ff580c27cfdb2b843211ecbe2c515c", null ],

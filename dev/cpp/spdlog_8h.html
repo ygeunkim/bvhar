@@ -92,48 +92,56 @@ $(document).ready(function(){initNavTree('spdlog_8h.html',''); initResizable(); 
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Macros</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle"><div class="title">spdlog.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="commondefs_8h_source.html">./commondefs.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="omp_8h_source.html">./omp.h</a>&quot;</code><br />
-<code>#include &lt;RcppSpdlog&gt;</code><br />
+<code>#include &lt;spdlog/spdlog.h&gt;</code><br />
+<code>#include &lt;spdlog/sinks/stdout_sinks.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for spdlog.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="spdlog_8h__incl.png" border="0" usemap="#aspdlog_8h" alt=""/></div>
 <map name="aspdlog_8h" id="aspdlog_8h">
-<area shape="rect" title=" " alt="" coords="716,5,793,31"/>
-<area shape="rect" href="commondefs_8h.html" title="Common header." alt="" coords="287,79,414,104"/>
-<area shape="poly" title=" " alt="" coords="716,29,428,79,427,74,715,23"/>
-<area shape="rect" href="omp_8h.html" title=" " alt="" coords="719,79,790,104"/>
-<area shape="poly" title=" " alt="" coords="757,31,757,65,752,65,752,31"/>
-<area shape="rect" title=" " alt="" coords="839,79,937,104"/>
-<area shape="poly" title=" " alt="" coords="777,28,855,70,853,74,775,33"/>
-<area shape="rect" title=" " alt="" coords="5,152,72,177"/>
-<area shape="poly" title=" " alt="" coords="298,107,86,154,85,149,297,101"/>
-<area shape="rect" title=" " alt="" coords="97,152,159,177"/>
-<area shape="poly" title=" " alt="" coords="316,107,173,152,171,147,314,101"/>
-<area shape="rect" title=" " alt="" coords="184,152,243,177"/>
-<area shape="poly" title=" " alt="" coords="330,106,249,148,247,143,327,102"/>
-<area shape="rect" title=" " alt="" coords="267,152,435,177"/>
-<area shape="poly" title=" " alt="" coords="353,104,353,138,348,138,348,104"/>
-<area shape="rect" title=" " alt="" coords="459,152,536,177"/>
-<area shape="poly" title=" " alt="" coords="375,102,462,144,460,148,373,106"/>
-<area shape="rect" title=" " alt="" coords="561,152,653,177"/>
-<area shape="poly" title=" " alt="" coords="393,101,553,146,552,151,391,107"/>
-<area shape="poly" title=" " alt="" coords="783,76,805,77,813,83,817,92,811,103,797,107,795,102,807,99,811,91,809,86,804,82,783,81"/>
-<area shape="rect" title=" " alt="" coords="677,152,744,177"/>
-<area shape="poly" title=" " alt="" coords="750,106,727,142,723,139,745,103"/>
-<area shape="rect" title=" " alt="" coords="768,152,832,177"/>
-<area shape="poly" title=" " alt="" coords="764,103,788,139,783,142,760,106"/>
-<area shape="rect" title=" " alt="" coords="857,152,919,177"/>
-<area shape="poly" title=" " alt="" coords="777,102,855,143,853,148,775,106"/>
+<area shape="rect" title=" " alt="" coords="1034,5,1111,31"/>
+<area shape="rect" href="commondefs_8h.html" title="Common header." alt="" coords="439,86,565,111"/>
+<area shape="poly" title=" " alt="" coords="1034,27,579,89,579,84,1034,22"/>
+<area shape="rect" href="omp_8h.html" title=" " alt="" coords="965,86,1036,111"/>
+<area shape="poly" title=" " alt="" coords="1064,33,1023,77,1019,74,1060,29"/>
+<area shape="rect" title=" " alt="" coords="1084,86,1208,111"/>
+<area shape="poly" title=" " alt="" coords="1085,29,1128,74,1124,77,1082,33"/>
+<area shape="rect" title=" " alt="" coords="1232,79,1380,119"/>
+<area shape="poly" title=" " alt="" coords="1107,28,1238,72,1236,77,1106,33"/>
+<area shape="rect" title=" " alt="" coords="5,167,68,192"/>
+<area shape="poly" title=" " alt="" coords="439,111,281,134,82,169,81,164,280,128,438,105"/>
+<area shape="rect" title=" " alt="" coords="93,167,154,192"/>
+<area shape="poly" title=" " alt="" coords="439,114,168,169,167,164,438,109"/>
+<area shape="rect" title=" " alt="" coords="178,167,229,192"/>
+<area shape="poly" title=" " alt="" coords="455,114,243,169,241,164,454,109"/>
+<area shape="rect" title=" " alt="" coords="253,167,311,192"/>
+<area shape="poly" title=" " alt="" coords="471,114,325,165,324,160,469,109"/>
+<area shape="rect" title=" " alt="" coords="336,167,383,192"/>
+<area shape="poly" title=" " alt="" coords="482,114,393,162,391,158,480,109"/>
+<area shape="rect" title=" " alt="" coords="925,167,988,192"/>
+<area shape="poly" title=" " alt="" coords="566,106,720,129,912,164,911,169,719,134,565,111"/>
+<area shape="rect" title=" " alt="" coords="407,167,487,192"/>
+<area shape="poly" title=" " alt="" coords="496,113,465,157,461,154,492,110"/>
+<area shape="rect" title=" " alt="" coords="512,167,599,192"/>
+<area shape="poly" title=" " alt="" coords="512,110,542,154,537,157,508,113"/>
+<area shape="rect" title=" " alt="" coords="623,167,715,192"/>
+<area shape="poly" title=" " alt="" coords="527,109,633,158,631,163,525,114"/>
+<area shape="rect" title=" " alt="" coords="739,167,799,192"/>
+<area shape="poly" title=" " alt="" coords="542,109,726,163,725,168,540,114"/>
+<area shape="rect" title=" " alt="" coords="823,167,901,192"/>
+<area shape="poly" title=" " alt="" coords="555,109,810,164,809,169,554,114"/>
+<area shape="poly" title=" " alt="" coords="996,113,972,156,968,153,992,110"/>
+<area shape="poly" title=" " alt="" coords="1022,83,1049,82,1059,88,1063,99,1060,107,1054,113,1036,116,1035,111,1052,108,1056,104,1057,99,1055,92,1048,88,1023,89"/>
+<area shape="rect" title=" " alt="" coords="1013,167,1079,192"/>
+<area shape="poly" title=" " alt="" coords="1010,110,1035,153,1030,156,1005,113"/>
+<area shape="rect" title=" " alt="" coords="1103,167,1167,192"/>
+<area shape="poly" title=" " alt="" coords="1022,109,1105,157,1102,162,1019,114"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -262,23 +270,9 @@ This graph shows which files directly or indirectly include this file:</div>
 </div>
 <p><a href="spdlog_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink.html">baecon::bvhar::sinks::bvhar_sink&lt; Mutex &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:namespacebaecon" id="r_namespacebaecon"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon.html">baecon</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacebaecon_1_1bvhar" id="r_namespacebaecon_1_1bvhar"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html">baecon::bvhar</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacebaecon_1_1bvhar_1_1sinks" id="r_namespacebaecon_1_1bvhar_1_1sinks"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar_1_1sinks.html">baecon::bvhar::sinks</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a2958a9ec85797516760cb610c3a32c9b" id="r_a2958a9ec85797516760cb610c3a32c9b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spdlog_8h.html#a2958a9ec85797516760cb610c3a32c9b">BVHAR_SPDLOG_SINK_MT</a>(value)&#160;&#160;&#160;<a class="el" href="namespacebaecon_1_1bvhar.html#a55ad7c74f7c5ffa89cadca0a5033bf00">baecon::bvhar::bvhar_sink_mt</a>(value)</td></tr>
+<tr class="memitem:a2958a9ec85797516760cb610c3a32c9b" id="r_a2958a9ec85797516760cb610c3a32c9b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spdlog_8h.html#a2958a9ec85797516760cb610c3a32c9b">BVHAR_SPDLOG_SINK_MT</a>(value)&#160;&#160;&#160;spdlog::stdout_logger_mt(value)</td></tr>
 <tr class="separator:a2958a9ec85797516760cb610c3a32c9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd58570a9bb5144e0b7c4822151621f8" id="r_acd58570a9bb5144e0b7c4822151621f8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spdlog_8h.html#acd58570a9bb5144e0b7c4822151621f8">BVHAR_DEBUG_LOGGER</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::shared_ptr</a>&lt;spdlog::logger&gt;(nullptr)</td></tr>
 <tr class="separator:acd58570a9bb5144e0b7c4822151621f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -288,17 +282,6 @@ Macros</h2></td></tr>
 <tr class="separator:afca36798c70bcf95dd2ec673771064e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f64103c67a47c67dbea72a75e667793" id="r_a9f64103c67a47c67dbea72a75e667793"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spdlog_8h.html#a9f64103c67a47c67dbea72a75e667793">BVHAR_DEBUG_DROP</a>(value)&#160;&#160;&#160;(void)0</td></tr>
 <tr class="separator:a9f64103c67a47c67dbea72a75e667793"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:a627fef2322ecd863198012471bb73ea6" id="r_a627fef2322ecd863198012471bb73ea6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar_1_1sinks.html#a627fef2322ecd863198012471bb73ea6">baecon::bvhar::sinks::bvhar_sink_mt</a> = <a class="el" href="classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink.html">bvhar_sink</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::mutex</a> &gt;</td></tr>
-<tr class="separator:a627fef2322ecd863198012471bb73ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a55ad7c74f7c5ffa89cadca0a5033bf00" id="r_a55ad7c74f7c5ffa89cadca0a5033bf00"><td class="memTemplParams" colspan="2">template&lt;typename Factory  = spdlog::synchronous_factory&gt; </td></tr>
-<tr class="memitem:a55ad7c74f7c5ffa89cadca0a5033bf00"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::shared_ptr</a>&lt; spdlog::logger &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a55ad7c74f7c5ffa89cadca0a5033bf00">baecon::bvhar::bvhar_sink_mt</a> (const <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &amp;logger_name)</td></tr>
-<tr class="separator:a55ad7c74f7c5ffa89cadca0a5033bf00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a2958a9ec85797516760cb610c3a32c9b" name="a2958a9ec85797516760cb610c3a32c9b"></a>
@@ -312,7 +295,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">value</td><td>)</td>
-          <td>&#160;&#160;&#160;<a class="el" href="namespacebaecon_1_1bvhar.html#a55ad7c74f7c5ffa89cadca0a5033bf00">baecon::bvhar::bvhar_sink_mt</a>(value)</td>
+          <td>&#160;&#160;&#160;spdlog::stdout_logger_mt(value)</td>
         </tr>
       </table>
 </div><div class="memdoc">

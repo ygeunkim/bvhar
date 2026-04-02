@@ -5,7 +5,7 @@ var classbaecon_1_1bvhar_1_1Minnesota =
     [ "estimateCoef", "classbaecon_1_1bvhar_1_1Minnesota.html#aa3ddc0da350a5b5de21aeaed9c3b437a", null ],
     [ "fitObs", "classbaecon_1_1bvhar_1_1Minnesota.html#a40b111035e96dae7fd51ca9f2e604e36", null ],
     [ "estimateCov", "classbaecon_1_1bvhar_1_1Minnesota.html#a96edb9c9e66316a29808fa2129b13963", null ],
-    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1Minnesota.html#a01fdd5782df2737ff6e0a31a3f32e802", null ],
+    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1Minnesota.html#add3f60d6c1c374f8dd875bc875b561c0", null ],
     [ "returnMinnFit", "classbaecon_1_1bvhar_1_1Minnesota.html#af04dd5fe32cb6df739b5629463f8268b", null ],
     [ "design", "classbaecon_1_1bvhar_1_1Minnesota.html#ae70f462d6112d5c4e6776db52ddb36d6", null ],
     [ "response", "classbaecon_1_1bvhar_1_1Minnesota.html#a8540a75f775ceebf955e2ece0b54462b", null ],

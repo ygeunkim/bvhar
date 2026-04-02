@@ -4,7 +4,7 @@ var classbaecon_1_1bvhar_1_1McmcOutForecastRun =
     [ "McmcOutForecastRun", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a85403c52184c3f35d406a481fccf91d2", null ],
     [ "~McmcOutForecastRun", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a7afaf6bfa37fcbb58d52ab702a619e02", null ],
     [ "forecast", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a9773be4455debc184fb804f7374112a5", null ],
-    [ "returnForecast", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa98149ddd38a3c40f3b3a28cf2783aec", null ],
+    [ "returnForecast", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#adc7a65dc9a1e2408bb4f8ac79a1d8734", null ],
     [ "updateForecaster", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ad8939fc92796392f699c5a3cfe817325", null ],
     [ "getValid", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ac3aa680b1c791fb6ade8abeae7bb94d6", null ],
     [ "runGibbs", "classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa1420ab4fe116bd0814ea0879c42baf5", null ],

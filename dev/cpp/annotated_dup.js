@@ -2,9 +2,6 @@ var annotated_dup =
 [
     [ "baecon", "namespacebaecon.html", [
       [ "bvhar", "namespacebaecon_1_1bvhar.html", [
-        [ "sinks", "namespacebaecon_1_1bvhar_1_1sinks.html", [
-          [ "bvhar_sink", "classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink.html", "classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink" ]
-        ] ],
         [ "AutoregGenerator", "classbaecon_1_1bvhar_1_1AutoregGenerator.html", "classbaecon_1_1bvhar_1_1AutoregGenerator" ],
         [ "BarProgress", "classbaecon_1_1bvhar_1_1BarProgress.html", "classbaecon_1_1bvhar_1_1BarProgress" ],
         [ "BayesForecaster", "classbaecon_1_1bvhar_1_1BayesForecaster.html", "classbaecon_1_1bvhar_1_1BayesForecaster" ],
@@ -152,5 +149,8 @@ var annotated_dup =
       [ "random", "namespaceboost_1_1random.html", [
         [ "inverse_gaussian_distribution", "classboost_1_1random_1_1inverse__gaussian__distribution.html", "classboost_1_1random_1_1inverse__gaussian__distribution" ]
       ] ]
-    ] ]
+    ] ],
+    [ "bvhar_has_eval", "structbvhar__has__eval.html", null ],
+    [ "bvhar_has_eval< T, std::void_t< decltype(std::declval< T >().eval())> >", "structbvhar__has__eval_3_01T_00_01std_1_1void__t_3_01decltype_07std_1_1declval_3_01T_01_4_07_08_8eval_07_08_08_4_01_4.html", null ],
+    [ "BvharNamed", "structBvharNamed.html", "structBvharNamed" ]
 ];

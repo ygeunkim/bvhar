@@ -5,7 +5,7 @@ var classbaecon_1_1bvhar_1_1FactorAugmenter =
     [ "appendDesign", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#a3fca1f9af412f49de51a65b85aa3c79f", null ],
     [ "updateResid", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#a68e2c4d69526de1805c20933a29adf3c", null ],
     [ "updateFactor", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#aa227657182e73821fcd55e007936a94c", null ],
-    [ "appendRecords", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#a694850e9fc962c0c113a6960ecc2d4fb", null ],
+    [ "appendRecords", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#aefe89b1cab2adcacb64e51f50e518e44", null ],
     [ "returnStructRecords", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#a1bc98280731159a505eb680c5b035f62", null ],
     [ "updateRecords", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#aa5744e9ff34321782ad250c0f1568cfe", null ],
     [ "num_iter", "classbaecon_1_1bvhar_1_1FactorAugmenter.html#a4b021c4ee4c865500952f58d0e167cf4", null ],

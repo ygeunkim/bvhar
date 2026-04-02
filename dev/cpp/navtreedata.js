@@ -49,6 +49,8 @@ var NAVTREE =
       [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
+        [ "Functions", "globals_func.html", null ],
+        [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
@@ -60,18 +62,17 @@ var NAVTREEINDEX =
 [
 "annotated.html",
 "classbaecon_1_1bvhar_1_1CtaForecaster.html#aa9e72925db4fc669cf6ecde4f311ca4b",
-"classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#ae8d71d64d7df1ed15a1d2897a4787a8c",
+"classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#adb3d94dec4a6cdb635613b57d5bbdb88",
 "classbaecon_1_1bvhar_1_1McmcIrfRun.html",
 "classbaecon_1_1bvhar_1_1McmcTriangular.html#a0b08c7de8ea0d790e36dd85f61828e27",
 "classbaecon_1_1bvhar_1_1MinnFlat.html#a45727c5e42b6f1b70f9da88d04769186",
 "classbaecon_1_1bvhar_1_1Minnesota.html#af04dd5fe32cb6df739b5629463f8268b",
 "classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#a01c5380af8d78ddbc7f35ae7f6caa28a",
 "classbaecon_1_1bvhar_1_1OptimLbfgsb.html#a413d5fa58dfd72a2d0a198f00575ed4f",
-"commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9",
-"namespacebaecon_1_1bvhar.html#a7f4b613caa7123e9c464041b4d60b8e8",
-"structbaecon_1_1bvhar_1_1GdpParams.html#ad4ceb1696e3dc366a5963ef675d21bad",
-"structbaecon_1_1bvhar_1_1RegParams.html#a98eb997d167f50c7c334ed0fd9318070",
-"triangular_2config_8h.html#af73dc8890db915f782c2995ac75ca895"
+"commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500",
+"namespacebaecon_1_1bvhar.html#a7f7029c4af72f4c70e932ad105d3585a",
+"structbaecon_1_1bvhar_1_1HierminnInits.html#a62fc65d5eaf5768b0c9209a80d257d77",
+"structbaecon_1_1bvhar_1_1RegParams.html#adb470ce6dedc8bdd3d03b92047918943"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

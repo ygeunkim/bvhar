@@ -1,14 +1,14 @@
 var searchData=
 [
-  ['gatherrecords_0',['gatherRecords',['../classbaecon_1_1bvhar_1_1McmcTriangular.html#ad780bc6601d0903cf55011978c8a87f1',1,'baecon::bvhar::McmcTriangular']]],
+  ['gatherrecords_0',['gatherRecords',['../classbaecon_1_1bvhar_1_1McmcTriangular.html#a4e0d9c4b438ef70264a9b3027e04b34e',1,'baecon::bvhar::McmcTriangular']]],
   ['gdp_5fexp_5frate_1',['gdp_exp_rate',['../namespacebaecon_1_1bvhar.html#a0ad1ac948cc27d6d07a8311dd01a45fa',1,'baecon::bvhar::gdp_exp_rate(Eigen::Ref&lt; Eigen::VectorXd &gt; group_rate, double prior_shape, double prior_rate, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::VectorXi &amp;grp_vec, Eigen::VectorXi &amp;grp_id, boost::random::mixmax &amp;rng)'],['../namespacebaecon_1_1bvhar.html#acdc98eae88e50eb749d14243ba9fa051',1,'baecon::bvhar::gdp_exp_rate(Eigen::Ref&lt; Eigen::VectorXd &gt; rate_hyper, double prior_shape, double prior_rate, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, boost::random::mixmax &amp;rng)']]],
   ['gdp_5flocal_5fsparsity_2',['gdp_local_sparsity',['../namespacebaecon_1_1bvhar.html#a28893d8a459c5b6e1d536557527a4170',1,'baecon::bvhar']]],
   ['gdp_5flogdens_5frate_3',['gdp_logdens_rate',['../namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07',1,'baecon::bvhar']]],
   ['gdp_5flogdens_5fshape_4',['gdp_logdens_shape',['../namespacebaecon_1_1bvhar.html#ac11bfbc02e10c6728147a4f4908920dc',1,'baecon::bvhar']]],
   ['gdp_5frate_5fgriddy_5',['gdp_rate_griddy',['../namespacebaecon_1_1bvhar.html#af13bd1e0cce3b2e289218972145165d5',1,'baecon::bvhar']]],
   ['gdp_5fshape_5fgriddy_6',['gdp_shape_griddy',['../namespacebaecon_1_1bvhar.html#af785cee8c9aaa613db8156bf56995a45',1,'baecon::bvhar']]],
-  ['gdpinits_7',['gdpinits',['../structbaecon_1_1bvhar_1_1GdpInits.html#aa99f58c34ccd9d78771d20f2331c540e',1,'baecon::bvhar::GdpInits::GdpInits(Rcpp::List &amp;init)'],['../structbaecon_1_1bvhar_1_1GdpInits.html#a7a1401cb170da3c00d09dd53d07266d9',1,'baecon::bvhar::GdpInits::GdpInits(Rcpp::List &amp;init, int num_design)']]],
-  ['gdpparams_8',['GdpParams',['../structbaecon_1_1bvhar_1_1GdpParams.html#a7b617185d47e7f4f718997ef4b3608f7',1,'baecon::bvhar::GdpParams']]],
+  ['gdpinits_7',['gdpinits',['../structbaecon_1_1bvhar_1_1GdpInits.html#aeb010986be4f38f93bd8bf91f5ee8167',1,'baecon::bvhar::GdpInits::GdpInits(BvharList &amp;init)'],['../structbaecon_1_1bvhar_1_1GdpInits.html#a5288e31ec91f362ffb1fc09fa213ea3e',1,'baecon::bvhar::GdpInits::GdpInits(BvharList &amp;init, int num_design)']]],
+  ['gdpparams_8',['GdpParams',['../structbaecon_1_1bvhar_1_1GdpParams.html#a0be7c7d2905456d148e37c870aa4f935',1,'baecon::bvhar::GdpParams']]],
   ['gdpupdater_9',['GdpUpdater',['../classbaecon_1_1bvhar_1_1GdpUpdater.html#ac6b92c5bfc5ae0e3c17ba928c3e6f510',1,'baecon::bvhar::GdpUpdater']]],
   ['getdesign_10',['getdesign',['../classbaecon_1_1bvhar_1_1BayesForecaster.html#acaa63a9ce09b32c615a80beab351271d',1,'baecon::bvhar::BayesForecaster::getDesign()'],['../classbaecon_1_1bvhar_1_1CtaVarForecaster.html#af03804a0cf346c7086a670b093389571',1,'baecon::bvhar::CtaVarForecaster::getDesign()'],['../classbaecon_1_1bvhar_1_1CtaVharForecaster.html#a751c74b197f2f8beff7b52790841092e',1,'baecon::bvhar::CtaVharForecaster::getDesign()']]],
   ['getdim_11',['getdim',['../structbaecon_1_1bvhar_1_1SvRecords.html#aab9eb1b7dbd8a1158402eb851a44a44d',1,'baecon::bvhar::SvRecords::getDim()'],['../structbaecon_1_1bvhar_1_1RegRecords.html#a8a8c145398e203cf43ba6bf778232b47',1,'baecon::bvhar::RegRecords::getDim()'],['../structbaecon_1_1bvhar_1_1LdltRecords.html#adaf818dc94ea5b46fa50dc317b46e441',1,'baecon::bvhar::LdltRecords::getDim()']]],
@@ -23,5 +23,5 @@ var searchData=
   ['getstatus_20',['getStatus',['../classbaecon_1_1bvhar_1_1OptimLbfgsb.html#ac9bb8f120e91fc6ff5bb04b7cec84974',1,'baecon::bvhar::OptimLbfgsb']]],
   ['getvalid_21',['getvalid',['../classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#acb1266264065c7f9e7452fb96a507ab7',1,'baecon::bvhar::CtaOutforecastRun::getValid()'],['../classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ac3aa680b1c791fb6ade8abeae7bb94d6',1,'baecon::bvhar::McmcOutForecastRun::getValid()']]],
   ['getvalue_22',['getValue',['../classbaecon_1_1bvhar_1_1OptimLbfgsb.html#a1af7c7caa9a7beae0fc1727f9ac43833',1,'baecon::bvhar::OptimLbfgsb']]],
-  ['glinits_23',['glinits',['../structbaecon_1_1bvhar_1_1GlInits.html#a99d9583a70aa9c1eb50209283bcc7cf5',1,'baecon::bvhar::GlInits::GlInits(Rcpp::List &amp;init)'],['../structbaecon_1_1bvhar_1_1GlInits.html#a5d8763ed39f6a69e4e093211f6e72466',1,'baecon::bvhar::GlInits::GlInits(Rcpp::List &amp;init, int num_design)']]]
+  ['glinits_23',['glinits',['../structbaecon_1_1bvhar_1_1GlInits.html#a39400ee3d95ad4e47e83c5b974ad398d',1,'baecon::bvhar::GlInits::GlInits(BvharList &amp;init)'],['../structbaecon_1_1bvhar_1_1GlInits.html#a327edb530b2fdf116f6c2f37d5cb7f98',1,'baecon::bvhar::GlInits::GlInits(BvharList &amp;init, int num_design)']]]
 ];

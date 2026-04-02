@@ -3,7 +3,7 @@ var classbaecon_1_1bvhar_1_1OlsVar =
     [ "OlsVar", "classbaecon_1_1bvhar_1_1OlsVar.html#a3b97d5a5865c050a9d09860e931f5911", null ],
     [ "OlsVar", "classbaecon_1_1bvhar_1_1OlsVar.html#a8f1998916e52081576a420897f2b5fef", null ],
     [ "~OlsVar", "classbaecon_1_1bvhar_1_1OlsVar.html#a179dd76f07478f0146e3ed5764b876d2", null ],
-    [ "returnOlsRes", "classbaecon_1_1bvhar_1_1OlsVar.html#a4dd508a859973b10a1754c1531c6304c", null ],
+    [ "returnOlsRes", "classbaecon_1_1bvhar_1_1OlsVar.html#aa679160084b985183cfe8eea03801407", null ],
     [ "returnCoef", "classbaecon_1_1bvhar_1_1OlsVar.html#aba8a0d25ce4395cdaccef170ea5a6b68", null ],
     [ "returnOlsFit", "classbaecon_1_1bvhar_1_1OlsVar.html#a15adc13f38cbce93d88ff7b03713755c", null ],
     [ "returnStructuralFit", "classbaecon_1_1bvhar_1_1OlsVar.html#a37700aa9e051e6587ccbd01ada1894f3", null ],

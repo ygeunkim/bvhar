@@ -1,10 +1,10 @@
 var classbaecon_1_1bvhar_1_1DynamicLdltSpillover =
 [
-    [ "DynamicLdltSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a287c6ceb13cba450c7d7a0e5f245146b", null ],
-    [ "DynamicLdltSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a8365a1413195e650afd86faa5a122405", null ],
+    [ "DynamicLdltSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#aa9d9a2f72517ae4c9f06d12ae15c53b0", null ],
+    [ "DynamicLdltSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a1f7957b0d40728431e0aab16cb08dc9d", null ],
     [ "~DynamicLdltSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#ac94c6ef3936e63c159888736387e57c7", null ],
-    [ "returnSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#af767552f2a4c564a9b31de52cd562cea", null ],
-    [ "initialize", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#aa75d3a9ed791e7523679f47e526811f7", null ],
+    [ "returnSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a955f55e09df549e21d1f144e160f38da", null ],
+    [ "initialize", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a9e83119dfa57dc4c5e63cdccba26bd70", null ],
     [ "buildDesign", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a72accf076c0d8ac9f81435f0773647b5", null ],
     [ "runGibbs", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a5eda83617f01fdefbdc73398fbf407cf", null ],
     [ "getSpillover", "classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#a8a0aae114063570279d2f7b711ccc39d", null ],

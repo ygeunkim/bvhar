@@ -8,6 +8,7 @@ var hierarchy =
       ] ]
     ] ],
     [ "baecon::bvhar::bvharinterrupt", "classbaecon_1_1bvhar_1_1bvharinterrupt.html", null ],
+    [ "BvharNamed", "structBvharNamed.html", null ],
     [ "CtaRollforecastRun", null, [
       [ "baecon::bvhar::CtaVarforecastRun< BaseOutForecast, BaseForecaster, isGroup, isPath, isUpdate >", "classbaecon_1_1bvhar_1_1CtaVarforecastRun.html", null ],
       [ "baecon::bvhar::CtaVharforecastRun< BaseOutForecast, BaseForecaster, isGroup, isPath, isUpdate >", "classbaecon_1_1bvhar_1_1CtaVharforecastRun.html", null ]
@@ -27,6 +28,9 @@ var hierarchy =
     ] ],
     [ "baecon::bvhar::FactorAugmenter", "classbaecon_1_1bvhar_1_1FactorAugmenter.html", [
       [ "baecon::bvhar::FactorNormalAugmenter", "classbaecon_1_1bvhar_1_1FactorNormalAugmenter.html", null ]
+    ] ],
+    [ "std::false_type", null, [
+      [ "bvhar_has_eval< T, typename >", "structbvhar__has__eval.html", null ]
     ] ],
     [ "baecon::bvhar::FuncMin", "classbaecon_1_1bvhar_1_1FuncMin.html", [
       [ "baecon::bvhar::MhMinnLogLik", "classbaecon_1_1bvhar_1_1MhMinnLogLik.html", null ],
@@ -175,9 +179,6 @@ var hierarchy =
       [ "baecon::bvhar::BarProgress", "classbaecon_1_1bvhar_1_1BarProgress.html", null ],
       [ "baecon::bvhar::SpdlogProgress", "classbaecon_1_1bvhar_1_1SpdlogProgress.html", null ]
     ] ],
-    [ "spdlog::sinks::r_sink", null, [
-      [ "baecon::bvhar::sinks::bvhar_sink< Mutex >", "classbaecon_1_1bvhar_1_1sinks_1_1bvhar__sink.html", null ]
-    ] ],
     [ "baecon::bvhar::RegInits", "structbaecon_1_1bvhar_1_1RegInits.html", [
       [ "baecon::bvhar::LdltInits", "structbaecon_1_1bvhar_1_1LdltInits.html", null ],
       [ "baecon::bvhar::SvInits", "structbaecon_1_1bvhar_1_1SvInits.html", null ]
@@ -214,5 +215,8 @@ var hierarchy =
       [ "baecon::bvhar::NgUpdater< isGroup >", "classbaecon_1_1bvhar_1_1NgUpdater.html", null ],
       [ "baecon::bvhar::SsvsUpdater", "classbaecon_1_1bvhar_1_1SsvsUpdater.html", null ]
     ] ],
-    [ "baecon::bvhar::SparseRecords", "structbaecon_1_1bvhar_1_1SparseRecords.html", null ]
+    [ "baecon::bvhar::SparseRecords", "structbaecon_1_1bvhar_1_1SparseRecords.html", null ],
+    [ "std::true_type", null, [
+      [ "bvhar_has_eval< T, std::void_t< decltype(std::declval< T >().eval())> >", "structbvhar__has__eval_3_01T_00_01std_1_1void__t_3_01decltype_07std_1_1declval_3_01T_01_4_07_08_8eval_07_08_08_4_01_4.html", null ]
+    ] ]
 ];

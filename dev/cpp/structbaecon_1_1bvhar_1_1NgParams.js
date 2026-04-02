@@ -1,6 +1,6 @@
 var structbaecon_1_1bvhar_1_1NgParams =
 [
-    [ "NgParams", "structbaecon_1_1bvhar_1_1NgParams.html#aaaf4c6674503e04ad4c70f1cda2acfce", null ],
+    [ "NgParams", "structbaecon_1_1bvhar_1_1NgParams.html#a835891a97bc65bd35900cfde11175c92", null ],
     [ "_mh_sd", "structbaecon_1_1bvhar_1_1NgParams.html#a378036b1ca2941d8c79af19ae259582d", null ],
     [ "_group_shape", "structbaecon_1_1bvhar_1_1NgParams.html#a563e355142e2732946e8feb18d424d9f", null ],
     [ "_group_scl", "structbaecon_1_1bvhar_1_1NgParams.html#a49ff7c2c8bc49ea9a96fb220046188b3", null ],

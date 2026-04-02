@@ -581,7 +581,7 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span> </div>
 <div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span><span class="comment">// Gamma function</span></div>
 <div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gammafn(<span class="keywordtype">double</span> x) {</div>
-<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  <span class="keywordflow">return</span> Rf_gammafn(x);</div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a86aa4061d061f75e13a9eadc4d7db3c7">Rf_gammafn</a>(x);</div>
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>}</div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span> </div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span><span class="keyword">inline</span> <span class="keywordtype">double</span> mgammafn(<span class="keywordtype">double</span> x, <span class="keywordtype">int</span> p) {</div>
@@ -606,11 +606,11 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span> </div>
 <div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span><span class="comment">// Density functions--------------------------</span></div>
 <div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span><span class="keyword">inline</span> <span class="keywordtype">double</span> lgammafn(<span class="keywordtype">double</span> x) {</div>
-<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>  <span class="keywordflow">return</span> Rf_lgammafn(x);</div>
+<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a330f36e7dab4d2671359ce7f8e4f6b8a">Rf_lgammafn</a>(x);</div>
 <div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>}</div>
 <div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span> </div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_dens(<span class="keywordtype">double</span> x, <span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl, <span class="keywordtype">bool</span> lg) {</div>
-<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>  <span class="keywordflow">return</span> Rf_dgamma(x, shp, scl, lg);</div>
+<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500">Rf_dgamma</a>(x, shp, scl, lg);</div>
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>}</div>
 <div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span> </div>
 <div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span><span class="comment">// Log of Multivariate Gamma Function</span></div>
@@ -797,7 +797,10 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="ttc" id="aclassboost_1_1random_1_1inverse__gaussian__distribution_html_af37a9347ab1a7ed27f858bbf1fb33624"><div class="ttname"><a href="classboost_1_1random_1_1inverse__gaussian__distribution.html#af37a9347ab1a7ed27f858bbf1fb33624">boost::random::inverse_gaussian_distribution::BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR</a></div><div class="ttdeci">BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, inverse_gaussian_distribution, wd)</div><div class="ttdef"><b>Definition</b> common.h:139</div></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
 <div class="ttc" id="acommon_8h_html_a86a80d5eec2ef849167f34308b38dea2"><div class="ttname"><a href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a></div><div class="ttdeci">boost::optional&lt; T &gt; BVHAR_OPTIONAL</div><div class="ttdef"><b>Definition</b> common.h:427</div></div>
-<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
+<div class="ttc" id="acommondefs_8h_html_a330f36e7dab4d2671359ce7f8e4f6b8a"><div class="ttname"><a href="commondefs_8h.html#a330f36e7dab4d2671359ce7f8e4f6b8a">Rf_lgammafn</a></div><div class="ttdeci">#define Rf_lgammafn(x)</div><div class="ttdef"><b>Definition</b> commondefs.h:129</div></div>
+<div class="ttc" id="acommondefs_8h_html_a80355d2cc0a255b1c7e7183a2076e500"><div class="ttname"><a href="commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500">Rf_dgamma</a></div><div class="ttdeci">#define Rf_dgamma(x, shp, scl, lg)</div><div class="ttdef"><b>Definition</b> commondefs.h:130</div></div>
+<div class="ttc" id="acommondefs_8h_html_a86aa4061d061f75e13a9eadc4d7db3c7"><div class="ttname"><a href="commondefs_8h.html#a86aa4061d061f75e13a9eadc4d7db3c7">Rf_gammafn</a></div><div class="ttdeci">#define Rf_gammafn(x)</div><div class="ttdef"><b>Definition</b> commondefs.h:128</div></div>
+<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:193</div></div>
 <div class="ttc" id="acommondefs_8h_html_ae71449b1cc6e6250b91f539153a7a0d3"><div class="ttname"><a href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a></div><div class="ttdeci">#define M_PI</div><div class="ttdef"><b>Definition</b> commondefs.h:209</div></div>
 <div class="ttc" id="aeigen_8h_html"><div class="ttname"><a href="eigen_8h.html">eigen.h</a></div></div>
 <div class="ttc" id="albfgspp_8h_html"><div class="ttname"><a href="lbfgspp_8h.html">lbfgspp.h</a></div></div>
