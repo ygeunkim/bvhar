@@ -56,7 +56,6 @@
 	#define BVHAR_CAST_MATRIX(element) element
 #elif defined(BVHAR_USE_PYBIND11)
 	#include <pybind11/pybind11.h>
-	#include <cmath>
 	#include <string>
 	#include <stdexcept>
 	#include <iostream>
@@ -68,10 +67,6 @@
 	// #include <pybind11/eigen.h>
 	// #include <spdlog/spdlog.h>
 	// #include <spdlog/sinks/stdout_sinks.h>
-
-	#define Rf_gammafn(x) std::tgamma(x)
-	#define Rf_lgammafn(x) std::lgamma(x)
-	#define Rf_dgamma(x, shp, scl, lg) (lg ? log((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)) : exp((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)))
 	
 	namespace py = pybind11;
 
@@ -113,50 +108,7 @@
 	#define BVHAR_CAST_VECTOR(element) py::cast<Eigen::VectorXd>(element)
 	#define BVHAR_CAST_MATRIX(element) py::cast<Eigen::MatrixXd>(element)
 #else
-	// Pure C++
-	#include <cmath>
-	#include <cstdio>
-	#include <map>
-  #include <string>
-  #include <any>
-  #include <vector>
-  #include <iostream>
-  #include <stdexcept>
-	#include <type_traits>
-	#include <utility>
-
-	#define Rf_gammafn(x) std::tgamma(x)
-	#define Rf_lgammafn(x) std::lgamma(x)
-	#define Rf_dgamma(x, shp, scl, lg) (lg ? log((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)) : exp((shp - 1) * log(x) - x / scl - std::lgamma(shp) - shp * log(scl)))
-
-	using BvharList = std::map<std::string, std::any>;
-
-	template <typename T, typename = void>
-	struct bvhar_has_eval : std::false_type {};
-
-	template <typename T>
-	struct bvhar_has_eval<T, std::void_t<decltype(std::declval<T>().eval())>> : std::true_type {};
-
-	template <typename T>
-	inline constexpr bool bvhar_has_eval_v = bvhar_has_eval<T>::value;
-
-	struct BvharNamed {
-    std::string name;
-    explicit BvharNamed(const std::string& n) : name(n) {}
-    
-    template <typename T>
-    std::pair<const std::string, std::any> operator=(T&& val) {
-			if constexpr (bvhar_has_eval_v<T>) {
-        return {name, val.eval()};
-      }
-      return {name, std::forward<T>(val)};
-    }
-  };
-
-  template <typename... Args>
-  BvharList create_bvhar_list(Args&&... args) {
-    return BvharList{ std::forward<Args>(args)... };
-  }
+	#include "./commoncpp.h"
 
 	#define BVHAR_LIST BvharList
 	#define BVHAR_LIST_OF_LIST std::vector<BvharList>
@@ -173,22 +125,6 @@
 	#define BVHAR_CREATE_LIST(...) create_bvhar_list(__VA_ARGS__)
   #define BVHAR_NAMED BvharNamed
   #define BVHAR_ACCESS_LIST(iterator, list) iterator.second
-
-	inline void stop_fmt(const std::string& msg) {
-		throw std::runtime_error(msg);
-	}
-
-	// Use .c_str() instead of passing std::string
-	template <typename... Args>
-	inline void stop_fmt(const char* fmt, Args... args) {
-		int n = std::snprintf(nullptr, 0, fmt, std::forward<Args>(args)...);
-		if (n < 0) {
-			throw std::runtime_error("BVHAR_STOP formatting failed");
-		}
-		std::string buf(static_cast<size_t>(n), '\0');
-		std::snprintf(buf.data(), static_cast<size_t>(n) + 1, fmt, std::forward<Args>(args)...);
-		throw std::runtime_error(buf);
-	}
 
   #define BVHAR_STOP(...) stop_fmt(__VA_ARGS__)
   #define BVHAR_COUT std::cout
@@ -207,6 +143,14 @@
 #ifndef M_PI
 	// Some platform does not have M_PI defined - to the same value as in Rmath.h
 	#define M_PI 3.141592653589793238462643383280
+#endif
+
+#if !defined(BVHAR_USE_RCPP)
+	#include <cmath>
+
+	#define Rf_gammafn(x) std::tgamma(x)
+	#define Rf_lgammafn(x) std::lgamma(x)
+	#define Rf_dgamma(x, shp, scl, lg) (lg ? std::log((shp - 1) * std::log(x) - x / scl - std::lgamma(shp) - shp * std::log(scl)) : std::exp((shp - 1) * std::log(x) - x / scl - std::lgamma(shp) - shp * std::log(scl)))
 #endif
 
 #include <memory>
