@@ -109,15 +109,15 @@ option(BVHAR_BUILD_EXAMPLES "Build example C++ programs" OFF)
 option(BVHAR_BUILD_TESTS "Build test C++ programs" OFF)
 option(BVHAR_ENABLE_COVERAGE "Enable C++ test coverage" OFF)
 
+if(BVHAR_ENABLE_COVERAGE)
+    target_compile_options(bvhar INTERFACE --coverage -O0 -g)
+    target_link_libraries(bvhar INTERFACE --coverage)
+endif()
+
 if(BVHAR_BUILD_EXAMPLES)
     add_subdirectory(inst/examples examples)
 endif()
 
 if(BVHAR_BUILD_TESTS)
     add_subdirectory(inst/tests tests)
-endif()
-
-if(BVHAR_ENABLE_COVERAGE)
-    add_compile_options(--coverage -O0 -g)
-    add_link_options(--coverage)
 endif()
