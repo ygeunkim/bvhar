@@ -58,6 +58,11 @@ function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
     endif()
 endfunction()
 
+# atomic linking issue in macos
+if (APPLE)
+    add_library(atomic INTERFACE)
+endif()
+
 # Required libraries
 find_or_fetch_package(
     Eigen3
@@ -113,17 +118,14 @@ if(TARGET Boost::boost)
     target_link_libraries(bvhar INTERFACE Boost::boost)
 endif()
 
-# # Boost::boost does not work on linux and windows
-# if(TARGET Boost::random)
-#     target_link_libraries(bvhar INTERFACE
-#         Boost::random
-#         Boost::math
-#         Boost::accumulators
-#         Boost::optional
-#     )
-# endif()
-if(TARGET Boost::boost)
-    target_link_libraries(bvhar INTERFACE Boost::boost)
+# Boost::boost does not work
+if(TARGET Boost::random)
+    target_link_libraries(bvhar INTERFACE
+        Boost::random
+        Boost::math
+        Boost::accumulators
+        Boost::optional
+    )
 endif()
 
 if(OpenMP_CXX_FOUND)

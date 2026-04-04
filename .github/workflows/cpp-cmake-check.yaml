@@ -6,7 +6,7 @@ on:
       - 'inst/include/**'
       - 'inst/examples/**'
       - 'inst/tests/**'
-      - '.github/workflows/cmake-check.yaml'
+      - '.github/workflows/cpp-cmake-check.yaml'
   pull_request:
     branches: [main, master, develop]
     paths:
@@ -26,8 +26,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cxx_std: [17, 20, 23]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        cxx_std: [17, 20, 23]
         compiler: [llvm, gcc]
         include:
           - os: windows-latest
