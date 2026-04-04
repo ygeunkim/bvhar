@@ -113,14 +113,17 @@ if(TARGET Boost::boost)
     target_link_libraries(bvhar INTERFACE Boost::boost)
 endif()
 
-# Boost::boost does not work on linux and windows
-if(TARGET Boost::random)
-    target_link_libraries(bvhar INTERFACE
-        Boost::random
-        Boost::math
-        Boost::accumulators
-        Boost::optional
-    )
+# # Boost::boost does not work on linux and windows
+# if(TARGET Boost::random)
+#     target_link_libraries(bvhar INTERFACE
+#         Boost::random
+#         Boost::math
+#         Boost::accumulators
+#         Boost::optional
+#     )
+# endif()
+if(TARGET Boost::boost)
+    target_link_libraries(bvhar INTERFACE Boost::boost)
 endif()
 
 if(OpenMP_CXX_FOUND)
