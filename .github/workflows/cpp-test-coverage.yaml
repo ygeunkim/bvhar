@@ -52,6 +52,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           codecov_yml_path: codecov.yml
           flags: cpp
+        
+      - name: Temporary
+        run: |
+          echo "Searching for notes files (.gcno):"
+          find build -name "*.gcno"
+          echo "Searching for data files (.gcda):"
+          find build -name "*.gcda"
 
       - name: Show ctest output
         if: always()
