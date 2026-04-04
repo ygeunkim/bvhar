@@ -63,10 +63,8 @@ if ((APPLE OR WIN32) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_library(atomic INTERFACE)
 endif()
 
-# Fix dlfcn.h error on windows-gcc
-if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_definitions(BOOST_STACKTRACE_USE_NOOP)
-endif()
+# Specify boost components before fetching
+set(BOOST_INCLUDE_LIBRARIES random math accumulators optional)
 
 # Required libraries
 find_or_fetch_package(
