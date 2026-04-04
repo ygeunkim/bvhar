@@ -1,0 +1,66 @@
+on:
+  push:
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/cpp-*', 'feature/*-withci']
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/examples/**'
+      - 'inst/tests/**'
+      - '.github/workflows/cpp-cmake-check.yaml'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/examples/**'
+      - 'inst/tests/**'
+
+name: cpp-cmake-check
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    if: ${{ !contains(github.event.head_commit.message, '[skip cpp]') && !contains(github.event.head_commit.message, '[only pages]') }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        cxx_std: [17, 20, 23]
+        compiler: [llvm, gcc, msvc, apple-clang]
+        exclude:
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: ubuntu-latest
+            compiler: apple-clang
+          - os: windows-latest
+            compiler: apple-clang
+          - os: macos-latest
+            compiler: msvc
+    
+    name: ${{ matrix.os }} (${{ matrix.compiler }}-C++${{ matrix.cxx_std }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ runner.os == 'Windows' }}
+          cmake: true
+          ninja: true
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          run-build: true
+          generator: Ninja
+          options: |
+            CMAKE_CXX_STANDARD=${{ matrix.cxx_std }}
+            BVHAR_BUILD_EXAMPLES=ON
+            BVHAR_BUILD_TESTS=ON
+            BVHAR_ENABLE_COVERAGE=OFF
+
+      - uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: build/tests

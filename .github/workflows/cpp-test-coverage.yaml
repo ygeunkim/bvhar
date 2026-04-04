@@ -1,0 +1,61 @@
+on:
+  push:
+    branches: [main, master, 'hotfix/*', 'release/*', develop, 'feature/cpp-*']
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/tests/**'
+      - '.github/workflows/cpp-test-coverage.yaml'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'CMakeLists.txt'
+      - 'inst/include/**'
+      - 'inst/tests/**'
+
+name: cpp-test-coverage
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    if: ${{ !contains(github.event.head_commit.message, '[only pages]') }}
+    
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aminya/setup-cpp@v1
+        with:
+          compiler: gcc
+          cmake: true
+          ninja: true
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          run-build: true
+          generator: Ninja
+          options: |
+            BVHAR_BUILD_EXAMPLES=OFF
+            BVHAR_BUILD_TESTS=ON
+            BVHAR_ENABLE_COVERAGE=ON
+    
+      - uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: build/tests
+    
+      - uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          codecov_yml_path: codecov.yml
+          flags: cpp
+
+      - name: Show ctest output
+        if: always()
+        run: |
+          ## --------------------------------------------------------------------
+          find build/tests/Testing/Temporary -name 'LastTest.log' -exec cat '{}' \; || true
+        shell: bash
