@@ -63,6 +63,11 @@ if ((APPLE OR WIN32) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_library(atomic INTERFACE)
 endif()
 
+# Fix dlfcn.h error on windows-gcc
+if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_definitions(BOOST_STACKTRACE_USE_NOOP)
+endif()
+
 # Required libraries
 find_or_fetch_package(
     Eigen3
@@ -107,7 +112,6 @@ target_compile_definitions(bvhar INTERFACE
     BOOST_ENABLE_ASSERT_HANDLER
     FMT_HEADER_ONLY
     BVHAR_VERSION="${PROJECT_VERSION}"
-    $<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:GNU>>:BOOST_STACKTRACE_USE_NOOP> # Fix dlfcn.h error on windows-gcc
 )
 
 target_include_directories(bvhar INTERFACE
