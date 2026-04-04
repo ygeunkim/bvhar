@@ -18,6 +18,8 @@
 
 - Now header-only C++ library is available.
 
+- Use [`Catch2`](https://github.com/catchorg/Catch2) for C++ unit tests.
+
 ## bvhar 2.4.0
 
 CRAN release: 2026-02-01
