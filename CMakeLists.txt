@@ -97,11 +97,17 @@ add_library(bvhar::bvhar ALIAS bvhar)
 
 target_compile_features(bvhar INTERFACE cxx_std_17)
 
+# Add /bigobj for MSVC to handle large object files
+target_compile_options(bvhar INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
+)
+
 target_compile_definitions(bvhar INTERFACE
     EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
     BOOST_ENABLE_ASSERT_HANDLER
     FMT_HEADER_ONLY
     BVHAR_VERSION="${PROJECT_VERSION}"
+    $<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:GNU>>:BOOST_STACKTRACE_USE_NOOP> # Fix dlfcn.h error on windows-gcc
 )
 
 target_include_directories(bvhar INTERFACE
