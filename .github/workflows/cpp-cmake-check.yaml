@@ -32,14 +32,15 @@ jobs:
         include:
           - os: windows-latest
             compiler: msvc
+          - os: macos-latest
+            compiler: apple-clang
     
     name: ${{ matrix.os }} (${{ matrix.compiler }}-C++${{ matrix.cxx_std }})
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup C++
-        uses: aminya/setup-cpp@v1
+      - uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
           vcvarsall: ${{ runner.os == 'Windows' }}
