@@ -41,6 +41,13 @@ jobs:
             BVHAR_BUILD_EXAMPLES=OFF
             BVHAR_BUILD_TESTS=ON
             BVHAR_ENABLE_COVERAGE=ON
+
+      - name: Temporary check
+        run: |
+          echo "Searching for notes files (.gcno):"
+          find build -name "*.gcno"
+          echo "Searching for data files (.gcda):"
+          find build -name "*.gcda"
     
       - uses: threeal/ctest-action@v1.1.0
         with:
@@ -57,5 +64,5 @@ jobs:
         if: always()
         run: |
           ## --------------------------------------------------------------------
-          find build/Testing/Temporary -name 'LastTest.log' -exec cat '{}' \; || true
+          find build/tests/Testing/Temporary -name 'LastTest.log' -exec cat '{}' \; || true
         shell: bash
