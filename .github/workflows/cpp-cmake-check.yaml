@@ -28,14 +28,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         cxx_std: [17, 20, 23]
-        compiler: [llvm, gcc]
-        include:
-          - os: windows-latest
-            cxx_std: [17, 20, 23]
+        compiler: [llvm, gcc, msvc, apple-clang]
+        exclude:
+          - os: ubuntu-latest
             compiler: msvc
-          - os: macos-latest
-            cxx_std: [17, 20, 23]
+          - os: ubuntu-latest
             compiler: apple-clang
+          - os: windows-latest
+            compiler: apple-clang
+          - os: macos-latest
+            compiler: msvc
     
     name: ${{ matrix.os }} (${{ matrix.compiler }}-C++${{ matrix.cxx_std }})
 
