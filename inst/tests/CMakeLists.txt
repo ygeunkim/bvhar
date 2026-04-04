@@ -14,6 +14,7 @@ find_or_fetch_package(
     "v3.5.3"
 )
 
+include(CTest)
 enable_testing()
 
 foreach(CPP_FILE ${CPP_SOURCES})
@@ -24,11 +25,11 @@ foreach(CPP_FILE ${CPP_SOURCES})
     message(STATUS "    Source: ${REL_PATH}")
 
     add_executable(${test} ${CPP_FILE})
-    # set_property(TARGET ${test} PROPERTY CXX_STANDARD 17)
     
-    target_link_libraries(${test} PRIVATE bvhar::bvhar)
-    target_link_libraries(${test} PRIVATE Catch2::Catch2WithMain)
+    target_link_libraries(${test} PRIVATE
+        bvhar::bvhar
+        Catch2::Catch2WithMain
+    )
     
-    add_test(NAME ${test} COMMAND ${test} --order decl)
-    set_tests_properties(${test} PROPERTIES RUN_SERIAL ON)
+    add_test(NAME ${test} COMMAND ${test})
 endforeach()

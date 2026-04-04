@@ -52,7 +52,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           codecov_yml_path: codecov.yml
           flags: cpp
-      
+
       - name: Show ctest output
         if: always()
         run: |
