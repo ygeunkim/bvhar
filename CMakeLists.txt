@@ -138,14 +138,7 @@ option(BVHAR_BUILD_EXAMPLES "Build example C++ programs" OFF)
 option(BVHAR_BUILD_TESTS "Build test C++ programs" OFF)
 option(BVHAR_ENABLE_COVERAGE "Enable C++ test coverage" OFF)
 
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to use")
-endif()
-set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require the specified C++ standard")
-
 if(BVHAR_BUILD_EXAMPLES)
-    # set(CMAKE_CXX_STANDARD 17)
-    # set(CMAKE_CXX_STANDARD_REQUIRED ON)
     add_subdirectory(inst/examples examples)
 endif()
 

@@ -31,8 +31,10 @@ jobs:
         compiler: [llvm, gcc]
         include:
           - os: windows-latest
+            cxx_std: [17, 20, 23]
             compiler: msvc
           - os: macos-latest
+            cxx_std: [17, 20, 23]
             compiler: apple-clang
     
     name: ${{ matrix.os }} (${{ matrix.compiler }}-C++${{ matrix.cxx_std }})
