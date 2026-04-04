@@ -58,8 +58,8 @@ function(find_or_fetch_package PackageName version GIT_REPOSITORY GIT_TAG)
     endif()
 endfunction()
 
-# atomic linking issue in macos
-if (APPLE)
+# atomic linking issue in llvm (macos, windows): dummy atomic
+if ((APPLE OR WIN32) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_library(atomic INTERFACE)
 endif()
 
@@ -72,9 +72,9 @@ find_or_fetch_package(
 )
 find_or_fetch_package(
     Boost
-    1.88.0
+    1.87.0
     https://github.com/boostorg/boost.git
-    "boost-1.88.0"
+    "boost-1.87.0"
 )
 find_or_fetch_package(
     lbfgspp
