@@ -9,7 +9,7 @@
 #ifndef BVHAR_BAYES_BAYES_H
 #define BVHAR_BAYES_BAYES_H
 
-#include "../core/common.h"
+#include "../math/rng.h"
 #include "../core/progress.h"
 #include "../core/interrupt.h"
 
@@ -37,10 +37,10 @@ struct McmcParams {
  * This class is a base class for various MCMC algorithms.
  * 
  */
-class McmcAlgo {
+class McmcAlgo : public RngState {
 public:
 	McmcAlgo(const McmcParams& params, unsigned int seed)
-	: num_iter(params._iter), mcmc_step(0), rng(seed), debug_logger(BVHAR_DEBUG_LOGGER("McmcAlgo")) {
+	: RngState(seed), num_iter(params._iter), mcmc_step(0), debug_logger(BVHAR_DEBUG_LOGGER("McmcAlgo")) {
     BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger,"Constructor: num_iter={}", num_iter);
 	}
@@ -73,7 +73,6 @@ protected:
 	std::mutex mtx;
 	int num_iter;
 	std::atomic<int> mcmc_step; // MCMC step
-	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::shared_ptr<spdlog::logger> debug_logger;
 
 	/**

@@ -1,6 +1,7 @@
 #ifndef BVHAR_BAYES_FORECASTER_H
 #define BVHAR_BAYES_FORECASTER_H
 
+#include "../math/rng.h"
 #include "../core/forecaster.h"
 #include "./bayes.h"
 
@@ -19,11 +20,11 @@ template <typename, typename, bool, bool> class McmcOutforecastRun;
  * @tparam DataType 
  */
 template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
-class BayesForecaster : public MultistepForecaster<ReturnType, DataType> {
+class BayesForecaster : public MultistepForecaster<ReturnType, DataType>, public RngState {
 public:
 	BayesForecaster(int step, const ReturnType& response, int lag, int num_sim, unsigned int seed, bool save_mean = false)
-	: MultistepForecaster<ReturnType, DataType>(step, response, lag, save_mean),
-		lpl(Eigen::MatrixXd::Zero(step, num_sim)), num_sim(num_sim), rng(seed) {
+	: MultistepForecaster<ReturnType, DataType>(step, response, lag, save_mean), RngState(seed),
+		lpl(Eigen::MatrixXd::Zero(step, num_sim)), num_sim(num_sim) {
     BVHAR_DEBUG_LOG(debug_logger, "BayesForecaster Constructor: step={}, lag={}, num_sim={}", step, lag, num_sim);
 	}
 	virtual ~BayesForecaster() = default;
@@ -73,7 +74,6 @@ protected:
 	Eigen::MatrixXd lpl;
 	std::mutex mtx;
 	int num_sim;
-	BVHAR_BHRNG rng;
 
 	void forecast() override {
 		std::lock_guard<std::mutex> lock(mtx);

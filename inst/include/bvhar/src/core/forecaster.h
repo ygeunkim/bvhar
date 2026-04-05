@@ -1,7 +1,8 @@
 #ifndef BVHAR_CORE_FORECASTER_H
 #define BVHAR_CORE_FORECASTER_H
 
-#include "./common.h"
+// #include "./common.h"
+#include "../math/rng.h"
 #include "./omp.h"
 
 namespace baecon {
@@ -192,14 +193,14 @@ protected:
  * @tparam DataType 
  */
 template <typename ReturnType = Eigen::MatrixXd, typename DataType = Eigen::VectorXd>
-class AutoregGenerator {
+class AutoregGenerator : public RngState {
 public:
 	AutoregGenerator() : debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
 		BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger, "Default Constructor");
 	}
 	AutoregGenerator(unsigned int seed)
-	: rng(seed), debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
+	: RngState(seed), debug_logger(BVHAR_DEBUG_LOGGER("AutoregGenerator")) {
 		BVHAR_INIT_DEBUG(debug_logger);
     BVHAR_DEBUG_LOG(debug_logger, "Constructor: seed={}", seed);
 	}
@@ -214,7 +215,6 @@ public:
 	virtual void appendError(DataType& point_forecast) {}
 
 protected:
-	BVHAR_BHRNG rng;
 	DataType error_term;
 	std::shared_ptr<spdlog::logger> debug_logger;
 };

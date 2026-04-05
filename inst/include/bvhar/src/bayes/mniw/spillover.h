@@ -11,10 +11,10 @@ namespace bvhar {
 class MinnSpillover;
 class BvharSpillover;
 
-class MinnSpillover {
+class MinnSpillover : public RngState {
 public:
 	MinnSpillover(const MinnFit& fit, int lag_max, int num_iter, int num_burn, int thin, int ord, unsigned int seed)
-	: coef(fit._coef), prec(fit._prec), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
+	: RngState(seed), coef(fit._coef), prec(fit._prec), iw_scale(fit._iw_scale), iw_shape(fit._iw_shape),
 	// MinnSpillover(const MinnRecords& records, int lag_max, int ord)
 	// : mn_record(records),
 		step(lag_max), dim(coef.cols()),
@@ -27,8 +27,7 @@ public:
 		fevd(Eigen::MatrixXd::Zero(dim * step, dim)),
 		spillover(Eigen::MatrixXd::Zero(dim, dim)),
 		record_warm(num_burn, std::vector<Eigen::MatrixXd>(2)),
-		record(num_iter - num_burn, std::vector<Eigen::MatrixXd>(2)),
-		rng(seed) {}
+		record(num_iter - num_burn, std::vector<Eigen::MatrixXd>(2)) {}
 	virtual ~MinnSpillover() = default;
 	void updateMniw() {
 		for (int i = 0; i < num_burn; ++i) {
@@ -103,7 +102,6 @@ protected:
 	Eigen::MatrixXd spillover;
 	std::vector<std::vector<Eigen::MatrixXd>> record_warm;
 	std::vector<std::vector<Eigen::MatrixXd>> record;
-	BVHAR_BHRNG rng;
 };
 
 class BvharSpillover : public MinnSpillover {
