@@ -3,7 +3,6 @@
 
 #include "../../math/random.h"
 #include "../../math/structural.h"
-#include <set>
 #include <limits>
 
 namespace baecon {

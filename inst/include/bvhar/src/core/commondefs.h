@@ -12,6 +12,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <set>
 
 #if defined(BVHAR_USE_RCPP)
 	// #include <RcppEigen.h>

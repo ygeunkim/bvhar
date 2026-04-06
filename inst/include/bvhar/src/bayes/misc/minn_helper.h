@@ -2,7 +2,6 @@
 #define BVHAR_BAYES_MISC_MINN_HELPER_H_H
 
 #include "./helper.h"
-#include <set>
 
 namespace baecon {
 namespace bvhar {

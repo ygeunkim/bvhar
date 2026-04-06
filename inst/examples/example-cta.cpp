@@ -96,20 +96,12 @@ int main() {
   try {
 		Eigen::MatrixXd x = baecon::bvhar::build_x0(time_series, lag, include_mean);
 		Eigen::MatrixXd y = baecon::bvhar::build_y0(time_series, lag, lag + 1);
-		Eigen::MatrixXi grp_mat = Eigen::MatrixXi::Zero(dim * lag, dim);
-		for (int i = 0; i < lag; ++i) {
-			grp_mat.middleRows(i * dim, dim).setIdentity();
-			grp_mat.middleRows(i * dim, dim).array() += 2 * i + 1;
-		}
-		std::set<int> unique_grp(grp_mat.data(), grp_mat.data() + grp_mat.size());
-		int num_grp = unique_grp.size();
-		Eigen::VectorXi grp_id(num_grp);
-		int unique_id = 0;
-		for (int id : unique_grp) {
-			grp_id[unique_id++] = id;
-		}
-		Eigen::VectorXi own_id = Eigen::VectorXi::LinSpaced(lag, 2, 2 * lag);
-		Eigen::VectorXi cross_id = Eigen::VectorXi::LinSpaced(lag, 1, 2 * lag);
+		int group_type = 3;
+		Eigen::MatrixXi grp_mat = baecon::bvhar::build_grpmat(lag, dim, group_type);
+		Eigen::VectorXi grp_id = grp_mat.unique();
+		int num_grp = grp_id.size();
+		Eigen::VectorXi own_id = baecon::bvhar::build_own_id(lag, group_type);
+		Eigen::VectorXi cross_id = baecon::bvhar::build_cross_id(lag, group_type);
 		std::cout << "Group:\n" << grp_mat << "\n"
 			<< "Group id: " << grp_id.transpose() << "\n"
 			<< "Own id: " << own_id.transpose() << "\n"
@@ -126,24 +118,6 @@ int main() {
 			BVHAR_NAMED("mean_non") = Eigen::VectorXd::Zero(dim),
 			BVHAR_NAMED("sd_non") = .1
 		);
-		// BVHAR_LIST_OF_LIST param_init(num_chains);
-		// BVHAR_LIST_OF_LIST contem_init(num_chains);
-		// srand(1);
-		// for (int i = 0; i < num_chains; ++i) {
-		// 	param_init[i] = BVHAR_CREATE_LIST(
-		// 		BVHAR_NAMED("init_coef") = Eigen::MatrixXd::Random(dim_design, dim),
-		// 		BVHAR_NAMED("init_contem") = Eigen::VectorXd::Random(num_eta),
-		// 		BVHAR_NAMED("init_diag") = Eigen::VectorXd::Random(dim).array().exp().matrix(),
-		// 		BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_alpha).array().exp().matrix(),
-		// 		BVHAR_NAMED("global_sparsity") = 1.0,
-		// 		BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(num_grp).array().exp().matrix()
-		// 	);
-		// 	contem_init[i] = BVHAR_CREATE_LIST(
-		// 		BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_eta).array().exp().matrix(),
-		// 		BVHAR_NAMED("global_sparsity") = 1.0,
-		// 		BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(1).array().exp().matrix()
-		// 	);
-		// }
 		Eigen::VectorXi seed_chain = Eigen::VectorXi::Random(num_chains);
 		std::cout << "Initialzing MCMC..." << std::endl;
 		auto mcmc_run = std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
