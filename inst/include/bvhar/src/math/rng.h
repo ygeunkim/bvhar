@@ -2,7 +2,6 @@
 #define BVHAR_MATH_RNG_H
 
 #include "../core/common.h"
-#include <utility>
 
 namespace baecon {
 namespace bvhar {

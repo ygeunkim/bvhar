@@ -10,8 +10,6 @@
 #include "../misc/draw.h"
 #include "../bayes.h"
 #include "../../math/design.h"
-#include <utility>
-#include <algorithm>
 
 namespace baecon {
 namespace bvhar {

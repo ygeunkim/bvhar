@@ -7,6 +7,9 @@
 #define eigen_assert(x) \
   if (!(x)) { BVHAR_STOP("Eigen assertion failed: " #x); }
 
+// Add a method to Eigen's MatrixBase
+#define EIGEN_MATRIXBASE_PLUGIN "bvhar/src/core/eigen_plugins.h"
+
 #ifdef BVHAR_USE_RCPP
 	#include <RcppEigen.h>
 #else
