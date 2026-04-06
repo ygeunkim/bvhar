@@ -35,7 +35,6 @@ inline std::ostream& operator<<(std::ostream& os, const BvharList& dict) {
     } else if (val.type() == typeid(std::vector<BvharList>)) {
       os << "<BVHAR_LIST_OF_LIST length " << std::any_cast<std::vector<BvharList>>(val).size() << ">";
     } else {
-      // Fallback for types we haven't explicitly handled
       os << "<Unknown C++ Type: " << val.type().name() << ">";
     }
     os << "\n";
@@ -48,11 +47,6 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<BvharList>& 
   os << "BVHAR_LIST_OF_LIST (Total Chains: " << chains.size() << ") [\n";
   for (size_t i = 0; i < chains.size(); ++i) {
     os << "  === CHAIN " << (i + 1) << " ===\n";
-    
-    // We can leverage the previous BvharList printer here!
-    // But let's add some indentation for readability
-    std::string dict_str;
-    // You could just do `os << chains[i] << "\n";`, but to make it look clean:
     os << chains[i] << "\n";
   }
   os << "]";
@@ -132,30 +126,30 @@ int main() {
 			BVHAR_NAMED("mean_non") = Eigen::VectorXd::Zero(dim),
 			BVHAR_NAMED("sd_non") = .1
 		);
-		BVHAR_LIST_OF_LIST param_init(num_chains);
-		BVHAR_LIST_OF_LIST contem_init(num_chains);
-		srand(1);
-		for (int i = 0; i < num_chains; ++i) {
-			param_init[i] = BVHAR_CREATE_LIST(
-				BVHAR_NAMED("init_coef") = Eigen::MatrixXd::Random(dim_design, dim),
-				BVHAR_NAMED("init_contem") = Eigen::VectorXd::Random(num_eta),
-				BVHAR_NAMED("init_diag") = Eigen::VectorXd::Random(dim).array().exp().matrix(),
-				BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_alpha).array().exp().matrix(),
-				BVHAR_NAMED("global_sparsity") = 1.0,
-				BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(num_grp).array().exp().matrix()
-			);
-			contem_init[i] = BVHAR_CREATE_LIST(
-				BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_eta).array().exp().matrix(),
-				BVHAR_NAMED("global_sparsity") = 1.0,
-				BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(1).array().exp().matrix()
-			);
-		}
+		// BVHAR_LIST_OF_LIST param_init(num_chains);
+		// BVHAR_LIST_OF_LIST contem_init(num_chains);
+		// srand(1);
+		// for (int i = 0; i < num_chains; ++i) {
+		// 	param_init[i] = BVHAR_CREATE_LIST(
+		// 		BVHAR_NAMED("init_coef") = Eigen::MatrixXd::Random(dim_design, dim),
+		// 		BVHAR_NAMED("init_contem") = Eigen::VectorXd::Random(num_eta),
+		// 		BVHAR_NAMED("init_diag") = Eigen::VectorXd::Random(dim).array().exp().matrix(),
+		// 		BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_alpha).array().exp().matrix(),
+		// 		BVHAR_NAMED("global_sparsity") = 1.0,
+		// 		BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(num_grp).array().exp().matrix()
+		// 	);
+		// 	contem_init[i] = BVHAR_CREATE_LIST(
+		// 		BVHAR_NAMED("local_sparsity") = Eigen::VectorXd::Random(num_eta).array().exp().matrix(),
+		// 		BVHAR_NAMED("global_sparsity") = 1.0,
+		// 		BVHAR_NAMED("group_sparsity") = Eigen::VectorXd::Random(1).array().exp().matrix()
+		// 	);
+		// }
 		Eigen::VectorXi seed_chain = Eigen::VectorXi::Random(num_chains);
 		std::cout << "Initialzing MCMC..." << std::endl;
 		auto mcmc_run = std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
 			num_chains, num_iter, num_burn, thin, x, y,
-			param_reg, param_prior, param_intercept, param_init, prior_type,
-			contem_prior, contem_init, contem_prior_type,
+			param_reg, param_prior, param_intercept, prior_type,
+			contem_prior, contem_prior_type,
 			grp_id, own_id, cross_id, grp_mat,
 			include_mean, seed_chain, true, nthreads
 		);

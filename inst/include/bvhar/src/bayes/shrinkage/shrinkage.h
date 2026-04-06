@@ -640,6 +640,71 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_ite
 	return shrinkage_ptr;
 }
 
+template <bool isGroup = true>
+inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(
+	int num_iter, int num_param, int num_grp, BVHAR_LIST& param_prior, int prior_type,
+	BVHAR_BHRNG& rng
+) {
+	std::unique_ptr<ShrinkageUpdater> shrinkage_ptr;
+	switch (prior_type) {
+		case 1: {
+			std::unique_ptr<MinnParams> params_ptr;
+			if (BVHAR_CONTAINS(param_prior, "p")) {
+				// p is only in coef_prior
+				params_ptr = std::make_unique<MinnParams>(param_prior);
+			} else {
+				// append num_lowerchol to param_prior when contem
+				params_ptr = std::make_unique<MinnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
+			}
+			ShrinkageInits inits;
+			shrinkage_ptr = std::make_unique<MinnUpdater>(num_iter, *params_ptr, inits);
+			return shrinkage_ptr;
+		}
+		case 2: {
+			SsvsParams params(param_prior);
+			SsvsInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<SsvsUpdater>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 3: {
+			ShrinkageParams params(param_prior);
+			HorseshoeInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<HorseshoeUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 4: {
+			std::unique_ptr<HierminnParams> params_ptr;
+			if (BVHAR_CONTAINS(param_prior, "p")) {
+				params_ptr = std::make_unique<HierminnParams>(param_prior);
+			} else {
+				params_ptr = std::make_unique<HierminnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
+			}
+			HierminnInits inits(rng);
+			shrinkage_ptr = std::make_unique<HierminnUpdater>(num_iter, *params_ptr, inits);
+			return shrinkage_ptr;
+		}
+		case 5: {
+			NgParams params(param_prior);
+			NgInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<NgUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 6: {
+			DlParams params(param_prior);
+			HorseshoeInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<DlUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 7: {
+			GdpParams params(param_prior);
+			GdpInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<GdpUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+	}
+	return shrinkage_ptr;
+}
+
 } // namespace bvhar
 } // namespace baecon
 

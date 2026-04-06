@@ -159,7 +159,7 @@ struct LdltInits : public RegInits {
 	: RegInits(init),
 		_diag(BVHAR_CAST<Eigen::VectorXd>(init["init_diag"])) {}
 	
-	LdltInits(int dim, int dim_design, int num_lowerchol, BVHAR_BHRNG& rng)
+	LdltInits(int dim, int dim_design, int num_lowerchol, int num_design, BVHAR_BHRNG& rng)
 	: RegInits(dim, dim_design, num_lowerchol, rng),
 		_diag(Eigen::VectorXd::Zero(dim)) {
 		std::generate_n(
