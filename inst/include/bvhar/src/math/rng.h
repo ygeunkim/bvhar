@@ -2,6 +2,7 @@
 #define BVHAR_MATH_RNG_H
 
 #include "../core/common.h"
+#include <utility>
 
 namespace baecon {
 namespace bvhar {
@@ -55,47 +56,59 @@ protected:
 	BVHAR_BHRNG rng; // RNG instance
 };
 
-// template <typename PtrVec>
-// inline void update_rngbatch(PtrVec& models, const std::vector<BVHAR_BHRNG>& rng_vec) {
-//   int num_rng = models.size();
-//   for (size_t i = 0; i < num_rng; ++i) {
-//     models[i]->updateRng(rng_vec[i]);
-//   }
-// }
+/**
+ * @brief Update the rng batch recursively for nested containers
+ * 
+ * @tparam Ptr Type of the model container including smart pointer
+ * @param model_ptr 
+ * @param rng 
+ */
+template <typename Ptr>
+inline void update_rng_batch(Ptr& model_ptr, const BVHAR_BHRNG& rng) {
+  model_ptr->updateRng(rng);
+}
 
-// template <typename PtrVec>
-// inline std::vector<BVHAR_BHRNG> get_rngbatch(const PtrVec& models) {
-//   std::vector<BVHAR_BHRNG> out;
-//   out.reserve(models.size());
-//   for (const auto& p : models) {
-//     out.push_back(p->getRng());
-//   }
-//   return out;
-// }
+/**
+ * @overload template <typename Ptr> void update_rng_batch(Ptr&, const BVHAR_BHRNG&)
+ * @tparam RngVec Type of rng vector.
+ */
+template <typename Ptr, typename RngVec>
+inline void update_rng_batch(std::vector<Ptr>& models, const std::vector<RngVec>& rngs) {
+	int outer_size = models.size();
+	// Add size check here
+  for (int i = 0; i < outer_size; ++i) {
+    update_rng_batch(models[i], rngs[i]);
+  }
+}
 
-// template <typename PtrVec>
-// inline void update_rngbatch_2d(PtrVec& models, const std::vector<std::vector<BVHAR_BHRNG>>& rng_vec) {
-//   int num_outer = models.size();
-//   for (size_t i = 0; i < num_outer; ++i) {
-// 		int num_inner = models[i].size();
-// 		for (int j = 0; j < num_inner; ++j) {
-// 			models[i][j]->updateRng(rng_vec[i][j]);
-// 		}
-//   }
-// }
+/**
+ * @brief Get the rng batch recursively from nested containers
+ * 
+ * @tparam Ptr Type of the model container including smart pointer
+ * @param model_ptr 
+ * @return BVHAR_BHRNG 
+ */
+template <typename Ptr>
+inline BVHAR_BHRNG get_rng_batch(const Ptr& model_ptr) {
+  return model_ptr->getRng();
+}
 
-// template <typename PtrVec>
-// inline std::vector<std::vector<BVHAR_BHRNG>> get_rngbatch_2d(const PtrVec& models) {
-// 	int num_outer = models.size();
-//   std::vector<std::vector<BVHAR_BHRNG>> out(num_outer);
-// 	for (size_t i = 0; i < num_outer; ++i) {
-// 		out[i].reserve(models[i].size());
-// 		for (const auto& p : models[i]) {
-// 			out[i].push_back(p->getRng());
-// 		}
-//   }
-//   return out;
-// }
+/**
+ * @overload template <typename Ptr> BVHAR_BHRNG get_rng_batch(const Ptr&)
+ */
+template <typename Ptr>
+inline auto get_rng_batch(const std::vector<Ptr>& models)
+#if defined(BVHAR_USE_RCPP) || defined(BVHAR_USE_PYBIND11)
+	-> std::vector<decltype(get_rng_batch(std::declval<Ptr>()))>
+#endif
+	{ // Return type can be skipped in C++14 and C++17
+  std::vector<decltype(get_rng_batch(std::declval<Ptr>()))> rng_vec;
+  rng_vec.reserve(models.size());
+  for (const auto& p : models) {
+    rng_vec.push_back(get_rng_batch(p));
+  }
+  return rng_vec;
+}
 
 } // namespace bvhar
 } // namespace baecon
