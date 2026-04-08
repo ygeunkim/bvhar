@@ -118,7 +118,7 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 					param_reg, param_prior, param_intercept, prior_type,
 					contem_prior, contem_prior_type,
 					grp_id, own_id, cross_id, grp_mat,
-					include_mean, seed_chain, true, nthreads
+					include_mean, seed_chain, false, nthreads
 				);
 			} else {
 				return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcSv, false>>(
@@ -126,7 +126,7 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 					param_reg, param_prior, param_intercept, prior_type,
 					contem_prior, contem_prior_type,
 					grp_id, own_id, cross_id, grp_mat,
-					include_mean, seed_chain, true, nthreads
+					include_mean, seed_chain, false, nthreads
 				); 
 			}
 		}
@@ -136,7 +136,7 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 				param_reg, param_prior, param_intercept, prior_type,
 				contem_prior, contem_prior_type,
 				grp_id, own_id, cross_id, grp_mat,
-				include_mean, seed_chain, true, nthreads
+				include_mean, seed_chain, false, nthreads
 			);
 		}
 		return std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, false>>(
@@ -144,7 +144,7 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 			param_reg, param_prior, param_intercept, prior_type,
 			contem_prior, contem_prior_type,
 			grp_id, own_id, cross_id, grp_mat,
-			include_mean, seed_chain, true, nthreads
+			include_mean, seed_chain, false, nthreads
 		);
 	}();
 	return mcmc_run->returnRecords();
