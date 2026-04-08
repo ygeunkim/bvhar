@@ -247,7 +247,7 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["gamma_record"] = dummy_record;
+		list["gamma_record"] = BVHAR_CAST_MATRIX(dummy_record);
 	}
 
 private:
@@ -332,10 +332,10 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = local_record;
-		list["eta_record"] = group_record;
-		list["tau_record"] = global_record;
-		list["kappa_record"] = shrink_record;
+		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
+		list["eta_record"] = BVHAR_CAST_MATRIX(group_record);
+		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
+		list["kappa_record"] = BVHAR_CAST_MATRIX(shrink_record);
 	}
 
 private:
@@ -418,9 +418,9 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = local_record;
-		list["eta_record"] = group_record;
-		list["tau_record"] = global_record;
+		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
+		list["eta_record"] = BVHAR_CAST_MATRIX(group_record);
+		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
 	}
 
 private:
@@ -496,8 +496,8 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = local_record;
-		list["tau_record"] = global_record;
+		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
+		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
 	}
 
 private:
@@ -654,7 +654,7 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(
 				params_ptr = std::make_unique<MinnParams>(param_prior);
 			} else {
 				// append num_lowerchol to param_prior when contem
-				params_ptr = std::make_unique<MinnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
+				params_ptr = std::make_unique<MinnParams>(param_prior, num_param);
 			}
 			ShrinkageInits inits;
 			shrinkage_ptr = std::make_unique<MinnUpdater>(num_iter, *params_ptr, inits);
@@ -677,7 +677,7 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(
 			if (BVHAR_CONTAINS(param_prior, "p")) {
 				params_ptr = std::make_unique<HierminnParams>(param_prior);
 			} else {
-				params_ptr = std::make_unique<HierminnParams>(param_prior, BVHAR_CAST_INT(param_prior["num"]));
+				params_ptr = std::make_unique<HierminnParams>(param_prior, num_param);
 			}
 			HierminnInits inits(rng);
 			shrinkage_ptr = std::make_unique<HierminnUpdater>(num_iter, *params_ptr, inits);
