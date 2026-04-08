@@ -1,57 +1,5 @@
 #include <bvhar/ols>
 #include <bvhar/triangular>
-#include <cstdlib>
-
-inline std::ostream& operator<<(std::ostream& os, const BvharList& dict) {
-  os << "BVHAR_LIST (size: " << dict.size() << ") {\n";
-  for (const auto& kv : dict) {
-    os << "  $ " << kv.first << "\t: ";
-    const std::any& val = kv.second;
-    
-    if (!val.has_value()) {
-      os << "NULL";
-    } else if (val.type() == typeid(int)) {
-      os << std::any_cast<int>(val);
-    } else if (val.type() == typeid(double)) {
-      os << std::any_cast<double>(val);
-    } else if (val.type() == typeid(bool)) {
-      os << (std::any_cast<bool>(val) ? "TRUE" : "FALSE");
-    } else if (val.type() == typeid(std::string)) {
-      os << "\"" << std::any_cast<std::string>(val) << "\"";
-    } else if (val.type() == typeid(Eigen::MatrixXd)) {
-      auto mat = std::any_cast<Eigen::MatrixXd>(val);
-      os << "<Eigen::MatrixXd " << mat.rows() << "x" << mat.cols() << ">";
-    } else if (val.type() == typeid(Eigen::VectorXd)) {
-      auto vec = std::any_cast<Eigen::VectorXd>(val);
-      os << "<Eigen::VectorXd length " << vec.size() << ">";
-    } else if (val.type() == typeid(Eigen::MatrixXi)) {
-      auto mat = std::any_cast<Eigen::MatrixXi>(val);
-      os << "<Eigen::MatrixXi " << mat.rows() << "x" << mat.cols() << ">";
-    } else if (val.type() == typeid(Eigen::VectorXi)) {
-      auto vec = std::any_cast<Eigen::VectorXi>(val);
-      os << "<Eigen::VectorXi length " << vec.size() << ">";
-    } else if (val.type() == typeid(std::vector<std::any>)) {
-      os << "<BVHAR_PY_LIST length " << std::any_cast<std::vector<std::any>>(val).size() << ">";
-    } else if (val.type() == typeid(std::vector<BvharList>)) {
-      os << "<BVHAR_LIST_OF_LIST length " << std::any_cast<std::vector<BvharList>>(val).size() << ">";
-    } else {
-      os << "<Unknown C++ Type: " << val.type().name() << ">";
-    }
-    os << "\n";
-  }
-  os << "}";
-  return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const std::vector<BvharList>& chains) {
-  os << "BVHAR_LIST_OF_LIST (Total Chains: " << chains.size() << ") [\n";
-  for (size_t i = 0; i < chains.size(); ++i) {
-    os << "  === CHAIN " << (i + 1) << " ===\n";
-    os << chains[i] << "\n";
-  }
-  os << "]";
-  return os;
-}
 
 int main() {
 #ifdef _OPENMP
@@ -132,7 +80,7 @@ int main() {
 		BVHAR_LIST_OF_LIST result = mcmc_run->returnRecords();
 		std::cout << "MCMC result:\n" << result << std::endl;
   } catch (const std::exception& e) {
-    std::cerr << "Caught an error: " << e.what() << "\n";
+    std::cerr << "Caught an error: " << e.what() << std::endl;
     return 1;
   }
 	return 0;
