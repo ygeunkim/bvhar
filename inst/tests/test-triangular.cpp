@@ -85,8 +85,10 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 	int num_eta = dim * (dim - 1) / 2;
 	BVHAR_BHRNG dgp_rng(1);
 	Eigen::MatrixXd time_series(num_data, dim);
-	for (int i = 0; i < num_data * dim; ++i) {
-		time_series(i) = baecon::bvhar::normal_rand(dgp_rng);
+	for (int i = 0; i < num_data; ++i) {
+		for (int j = 0; j < dim; ++j) {
+			time_series(i, j) = baecon::bvhar::normal_rand(dgp_rng);
+		}
 	}
 	Eigen::MatrixXd x = baecon::bvhar::build_x0(time_series, lag, include_mean);
 	Eigen::MatrixXd y = baecon::bvhar::build_y0(time_series, lag, lag + 1);
@@ -153,18 +155,18 @@ BVHAR_LIST_OF_LIST run_bvar_cta(
 TEST_CASE("BVAR: Corrected Triangular Algorithm", "[triangular]") {
 	int num_chains = 1;
 	int nthreads = 1;
-	int num_iter = 10;
-	int num_burn = 5;
+	int num_iter = 5;
+	int num_burn = 1;
 	int thin = 2;
-	int dim = 5;
-	int num_data = 50;
+	int dim = 3;
+	int num_data = 30;
 	int lag = 2;
 	bool include_mean = true;
 	for (bool ggl : {true, false}) {
-		for (int group_type = 2; group_type <= 3; ++group_type) {
+		for (int group_type = 1; group_type <= 3; ++group_type) {
 			for (int cov_type = 1; cov_type <= 2; ++cov_type) {
 				for (int prior_type = 1; prior_type <= 7; ++prior_type) {
-					for (int contem_prior_type = 2; contem_prior_type <= 2; ++contem_prior_type) {
+					for (int contem_prior_type = 1; contem_prior_type <= 7; ++contem_prior_type) {
 						DYNAMIC_SECTION(
 							"ggl=" << ggl
 								<< ", group_type=" << group_type
