@@ -638,7 +638,7 @@ inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) 
 } // namespace bvhar
 } // namespace baecon
 
-#if !defined(BVHAR_USE_RCPP)
+#if !defined(BVHAR_USE_RCPP) && !defined(BVHAR_USE_PYBIND11)
 
 inline std::ostream& operator<<(std::ostream& os, const BVHAR_LIST& dict) {
   os << "List of " << dict.size() << "\n";
