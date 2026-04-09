@@ -12,6 +12,8 @@
 
 ## C++
 
+* Added boost.Random-based constructor for each MCMC initial values struct.
+
 * Now header-only C++ library is available.
 
 * Use [`Catch2`](https://github.com/catchorg/Catch2) for C++ unit tests.
