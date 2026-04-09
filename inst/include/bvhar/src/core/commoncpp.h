@@ -7,6 +7,7 @@
 #define BVHAR_CORE_COMMONCPP_H
 
 #include <cstdio>
+#include <cstdlib>
 #include <map>
 #include <string>
 #include <any>

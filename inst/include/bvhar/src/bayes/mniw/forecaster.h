@@ -2,6 +2,7 @@
 #define BVHAR_BAYES_MNIW_FORECASTER_H
 
 #include "./minnesota.h"
+#include "../../math/rng.h"
 #include "../../math/random.h"
 
 namespace baecon {
@@ -11,10 +12,10 @@ class MinnForecaster;
 class BvarForecaster;
 class BvharForecaster;
 
-class MinnForecaster {
+class MinnForecaster : public RngState {
 public:
 	MinnForecaster(const MinnFit& fit, int step, const Eigen::MatrixXd& response_mat, int ord, int num_sim, bool include_mean, unsigned int seed)
-	: rng(seed), response(response_mat),
+	: RngState(seed), response(response_mat),
 		posterior_mean(fit._coef), posterior_sig(fit._prec.inverse()),
 		posterior_iw_scale(fit._iw_scale), posterior_iw_shape(fit._iw_shape),
 	// MinnForecaster(const MinnRecords& records, int step, const Eigen::MatrixXd& response_mat, int ord, bool include_mean)
@@ -95,7 +96,6 @@ public:
 protected:
 	// MinnRecords mn_record;
 	// std::mutex mtx;
-	BVHAR_BHRNG rng;
 	Eigen::MatrixXd response;
 	Eigen::MatrixXd posterior_mean;
 	Eigen::MatrixXd posterior_sig;

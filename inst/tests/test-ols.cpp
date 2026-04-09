@@ -5,8 +5,10 @@
 static Eigen::MatrixXd gen_ts(int num_data, int dim, unsigned int seed = 1) {
 	BVHAR_BHRNG rng(seed);
 	Eigen::MatrixXd time_series(num_data, dim);
-	for (int i = 0; i < num_data * dim; ++i) {
-		time_series(i) = baecon::bvhar::normal_rand(rng);
+	for (int i = 0; i < num_data; ++i) {
+		for (int j = 0; j < dim; ++j) {
+			time_series(i, j) = baecon::bvhar::normal_rand(rng);
+		}
 	}
 	return time_series;
 }

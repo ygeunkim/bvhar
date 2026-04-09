@@ -7,11 +7,16 @@
 #ifndef BVHAR_CORE_COMMONDEFS_H
 #define BVHAR_CORE_COMMONDEFS_H
 
+#include <cmath>
+#include <string>
+#include <vector>
+#include <utility>
+#include <algorithm>
+#include <set>
+
 #if defined(BVHAR_USE_RCPP)
 	// #include <RcppEigen.h>
 	#include <Rcpp.h>
-	#include <cmath>
-	#include <string>
 	// #include <RcppSpdlog>
 	// #include <RcppThread.h>
 	#include <RcppThread/Rcout.hpp>
@@ -56,7 +61,6 @@
 	#define BVHAR_CAST_MATRIX(element) element
 #elif defined(BVHAR_USE_PYBIND11)
 	#include <pybind11/pybind11.h>
-	#include <string>
 	#include <stdexcept>
 	#include <iostream>
 	// #include <Eigen/Dense>
@@ -146,8 +150,6 @@
 #endif
 
 #if !defined(BVHAR_USE_RCPP)
-	#include <cmath>
-
 	#define Rf_gammafn(x) std::tgamma(x)
 	#define Rf_lgammafn(x) std::lgamma(x)
 	#define Rf_dgamma(x, shp, scl, lg) (lg ? std::log((shp - 1) * std::log(x) - x / scl - std::lgamma(shp) - shp * std::log(scl)) : std::exp((shp - 1) * std::log(x) - x / scl - std::lgamma(shp) - shp * std::log(scl)))

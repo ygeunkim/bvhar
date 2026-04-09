@@ -10,7 +10,6 @@
 #include "../misc/draw.h"
 #include "../bayes.h"
 #include "../../math/design.h"
-#include <utility>
 
 namespace baecon {
 namespace bvhar {
@@ -122,6 +121,25 @@ struct RegInits {
 	RegInits(BVHAR_LIST& init)
 	: _coef(BVHAR_CAST<Eigen::MatrixXd>(init["init_coef"])),
 		_contem(BVHAR_CAST<Eigen::VectorXd>(init["init_contem"])) {}
+	
+	RegInits(int dim, int dim_design, int num_lowerchol, BVHAR_BHRNG& rng)
+	: _coef(Eigen::MatrixXd::Zero(dim_design, dim)),
+		_contem(Eigen::VectorXd::Zero(num_lowerchol)) {
+		std::generate_n(
+			_coef.data(),
+			dim_design * dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_contem.data(),
+			num_lowerchol,
+			[&]() {
+				return exp(unif_rand(-1, 0, rng));
+			}
+		);
+	}
 };
 
 /**
@@ -138,6 +156,18 @@ struct LdltInits : public RegInits {
 	LdltInits(BVHAR_LIST& init, int num_design)
 	: RegInits(init),
 		_diag(BVHAR_CAST<Eigen::VectorXd>(init["init_diag"])) {}
+	
+	LdltInits(int dim, int dim_design, int num_lowerchol, int num_design, BVHAR_BHRNG& rng)
+	: RegInits(dim, dim_design, num_lowerchol, rng),
+		_diag(Eigen::VectorXd::Zero(dim)) {
+		std::generate_n(
+			_diag.data(),
+			dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 /**
@@ -169,6 +199,34 @@ struct SvInits : public RegInits {
 		_lvol_init(BVHAR_CAST<Eigen::VectorXd>(init["lvol_init"])),
 		_lvol(_lvol_init.transpose().replicate(num_design, 1)),
 		_lvol_sig(BVHAR_CAST<Eigen::VectorXd>(init["lvol_sig"])) {}
+	
+	SvInits(int dim, int dim_design, int num_lowerchol, int num_design, BVHAR_BHRNG& rng)
+	: RegInits(dim, dim_design, num_lowerchol, rng),
+		_lvol_init(Eigen::VectorXd::Zero(dim)),
+		_lvol(Eigen::MatrixXd::Zero(num_design, dim)),
+		_lvol_sig(Eigen::VectorXd::Zero(dim)) {
+		std::generate_n(
+			_lvol_init.data(),
+			dim,
+			[&]() {
+				return unif_rand(-1, 1, rng);
+			}
+		);
+		std::generate_n(
+			_lvol.data(),
+			dim * num_design,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_lvol_sig.data(),
+			dim,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 /**
