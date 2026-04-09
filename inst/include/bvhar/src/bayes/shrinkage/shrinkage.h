@@ -247,7 +247,7 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["gamma_record"] = BVHAR_CAST_MATRIX(dummy_record);
+		list["gamma_record"] = dummy_record;
 	}
 
 private:
@@ -332,10 +332,10 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
-		list["eta_record"] = BVHAR_CAST_MATRIX(group_record);
-		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
-		list["kappa_record"] = BVHAR_CAST_MATRIX(shrink_record);
+		list["lambda_record"] = local_record;
+		list["eta_record"] = group_record;
+		list["tau_record"] = global_record;
+		list["kappa_record"] = shrink_record;
 	}
 
 private:
@@ -418,9 +418,9 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
-		list["eta_record"] = BVHAR_CAST_MATRIX(group_record);
-		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
+		list["lambda_record"] = local_record;
+		list["eta_record"] = group_record;
+		list["tau_record"] = global_record;
 	}
 
 private:
@@ -496,8 +496,8 @@ public:
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
-		list["lambda_record"] = BVHAR_CAST_MATRIX(local_record);
-		list["tau_record"] = BVHAR_CAST_VECTOR(global_record);
+		list["lambda_record"] = local_record;
+		list["tau_record"] = global_record;
 	}
 
 private:
