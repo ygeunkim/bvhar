@@ -126,6 +126,7 @@ var annotated_dup =
         [ "RegInits", "structbaecon_1_1bvhar_1_1RegInits.html", "structbaecon_1_1bvhar_1_1RegInits" ],
         [ "RegParams", "structbaecon_1_1bvhar_1_1RegParams.html", "structbaecon_1_1bvhar_1_1RegParams" ],
         [ "RegRecords", "structbaecon_1_1bvhar_1_1RegRecords.html", "structbaecon_1_1bvhar_1_1RegRecords" ],
+        [ "RngState", "classbaecon_1_1bvhar_1_1RngState.html", "classbaecon_1_1bvhar_1_1RngState" ],
         [ "ShrinkageInits", "structbaecon_1_1bvhar_1_1ShrinkageInits.html", "structbaecon_1_1bvhar_1_1ShrinkageInits" ],
         [ "ShrinkageParams", "structbaecon_1_1bvhar_1_1ShrinkageParams.html", "structbaecon_1_1bvhar_1_1ShrinkageParams" ],
         [ "ShrinkageUpdater", "classbaecon_1_1bvhar_1_1ShrinkageUpdater.html", "classbaecon_1_1bvhar_1_1ShrinkageUpdater" ],

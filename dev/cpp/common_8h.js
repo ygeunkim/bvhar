@@ -7,5 +7,7 @@ var common_8h =
     [ "BVHAR_NULLOPT", "common_8h.html#aad28bfb79c3118088572c1f3da9f83dd", null ],
     [ "BVHAR_OPTIONAL", "common_8h.html#a86a80d5eec2ef849167f34308b38dea2", null ],
     [ "assertion_failed", "common_8h.html#a6ea615b0e29a9b35870fb8662f0e1291", null ],
-    [ "assertion_failed_msg", "common_8h.html#afbd4a259de77230355c3c2de9ce6d6c9", null ]
+    [ "assertion_failed_msg", "common_8h.html#afbd4a259de77230355c3c2de9ce6d6c9", null ],
+    [ "operator<<", "common_8h.html#a785845cf32dceb77de45ad3996d2785e", null ],
+    [ "operator<<", "common_8h.html#ae87bbdb2a909754e30d409843f1da509", null ]
 ];

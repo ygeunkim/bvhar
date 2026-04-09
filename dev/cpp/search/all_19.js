@@ -99,13 +99,14 @@ var searchData=
   ['_7eqrols_96',['~QrOls',['../classbaecon_1_1bvhar_1_1QrOls.html#a00feea90490ba6ab60989ede648d38f8',1,'baecon::bvhar::QrOls']]],
   ['_7eregforecaster_97',['~RegForecaster',['../classbaecon_1_1bvhar_1_1RegForecaster.html#a0f349f7f987387dee4f7f1ab1e664981',1,'baecon::bvhar::RegForecaster']]],
   ['_7eregrecords_98',['~RegRecords',['../structbaecon_1_1bvhar_1_1RegRecords.html#ac51beadf2e8bd9fa7e92e1692cc708d0',1,'baecon::bvhar::RegRecords']]],
-  ['_7eshrinkageupdater_99',['~ShrinkageUpdater',['../classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a7363171f5fd1c04aec3f673fd8281794',1,'baecon::bvhar::ShrinkageUpdater']]],
-  ['_7espdlogprogress_100',['~SpdlogProgress',['../classbaecon_1_1bvhar_1_1SpdlogProgress.html#ae4310a7e3e032dc9ed290cf7202f5e06',1,'baecon::bvhar::SpdlogProgress']]],
-  ['_7essvsupdater_101',['~SsvsUpdater',['../classbaecon_1_1bvhar_1_1SsvsUpdater.html#ab2b4c21c5985734347107b3748ebd6ca',1,'baecon::bvhar::SsvsUpdater']]],
-  ['_7esvforecaster_102',['~SvForecaster',['../classbaecon_1_1bvhar_1_1SvForecaster.html#a9e21b1151c6a5b024f3638dd898c241f',1,'baecon::bvhar::SvForecaster']]],
-  ['_7esvrecords_103',['~SvRecords',['../structbaecon_1_1bvhar_1_1SvRecords.html#a8e5a33b367cddeeb1760d33b89986dfb',1,'baecon::bvhar::SvRecords']]],
-  ['_7evarforecaster_104',['~VarForecaster',['../classbaecon_1_1bvhar_1_1VarForecaster.html#aa43796d760e2c00098266369c897a6f9',1,'baecon::bvhar::VarForecaster']]],
-  ['_7evaroutforecastrun_105',['~VarOutforecastRun',['../classbaecon_1_1bvhar_1_1VarOutforecastRun.html#a05b7e6de36c3df898e27a552f3d417ab',1,'baecon::bvhar::VarOutforecastRun']]],
-  ['_7evharforecaster_106',['~VharForecaster',['../classbaecon_1_1bvhar_1_1VharForecaster.html#a72a8dc49e007d3e7747ff52f7cd4b2a7',1,'baecon::bvhar::VharForecaster']]],
-  ['_7evharoutforecastrun_107',['~VharOutforecastRun',['../classbaecon_1_1bvhar_1_1VharOutforecastRun.html#add893c9d64e975892e97598e301e0a78',1,'baecon::bvhar::VharOutforecastRun']]]
+  ['_7erngstate_99',['~RngState',['../classbaecon_1_1bvhar_1_1RngState.html#a3ebff40a3b98f6762b7b312ad3614033',1,'baecon::bvhar::RngState']]],
+  ['_7eshrinkageupdater_100',['~ShrinkageUpdater',['../classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a7363171f5fd1c04aec3f673fd8281794',1,'baecon::bvhar::ShrinkageUpdater']]],
+  ['_7espdlogprogress_101',['~SpdlogProgress',['../classbaecon_1_1bvhar_1_1SpdlogProgress.html#ae4310a7e3e032dc9ed290cf7202f5e06',1,'baecon::bvhar::SpdlogProgress']]],
+  ['_7essvsupdater_102',['~SsvsUpdater',['../classbaecon_1_1bvhar_1_1SsvsUpdater.html#ab2b4c21c5985734347107b3748ebd6ca',1,'baecon::bvhar::SsvsUpdater']]],
+  ['_7esvforecaster_103',['~SvForecaster',['../classbaecon_1_1bvhar_1_1SvForecaster.html#a9e21b1151c6a5b024f3638dd898c241f',1,'baecon::bvhar::SvForecaster']]],
+  ['_7esvrecords_104',['~SvRecords',['../structbaecon_1_1bvhar_1_1SvRecords.html#a8e5a33b367cddeeb1760d33b89986dfb',1,'baecon::bvhar::SvRecords']]],
+  ['_7evarforecaster_105',['~VarForecaster',['../classbaecon_1_1bvhar_1_1VarForecaster.html#aa43796d760e2c00098266369c897a6f9',1,'baecon::bvhar::VarForecaster']]],
+  ['_7evaroutforecastrun_106',['~VarOutforecastRun',['../classbaecon_1_1bvhar_1_1VarOutforecastRun.html#a05b7e6de36c3df898e27a552f3d417ab',1,'baecon::bvhar::VarOutforecastRun']]],
+  ['_7evharforecaster_107',['~VharForecaster',['../classbaecon_1_1bvhar_1_1VharForecaster.html#a72a8dc49e007d3e7747ff52f7cd4b2a7',1,'baecon::bvhar::VharForecaster']]],
+  ['_7evharoutforecastrun_108',['~VharOutforecastRun',['../classbaecon_1_1bvhar_1_1VharOutforecastRun.html#add893c9d64e975892e97598e301e0a78',1,'baecon::bvhar::VharOutforecastRun']]]
 ];

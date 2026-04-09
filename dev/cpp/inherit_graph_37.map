@@ -1,9 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1MultistepForecastRun.html" title="Base class for multi&#45;step forecasting runner." alt="" coords="5,41,200,96"/>
-<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1McmcForecastRun.html" title=" " alt="" coords="249,5,465,60"/>
-<area shape="poly" id="edge63_Node000000_Node000001" title=" " alt="" coords="213,50,249,45,250,51,214,56"/>
-<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1McmcForecastRun.html" title="Base runner class for MCMC forecaster." alt="" coords="248,85,467,125"/>
-<area shape="poly" id="edge65_Node000000_Node000003" title=" " alt="" coords="214,82,248,87,248,92,213,87"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaForecastRun.html" title="CTA forecasting class." alt="" coords="515,13,713,53"/>
-<area shape="poly" id="edge64_Node000001_Node000002" title=" " alt="" coords="479,30,514,30,514,35,479,35"/>
+<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1ProgressInterface.html" title=" " alt="" coords="5,31,241,56"/>
+<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1BarProgress.html" title=" " alt="" coords="301,5,501,31"/>
+<area shape="poly" id="edge84_Node000000_Node000001" title=" " alt="" coords="255,29,300,24,301,30,255,34"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1SpdlogProgress.html" title=" " alt="" coords="289,55,512,80"/>
+<area shape="poly" id="edge85_Node000000_Node000002" title=" " alt="" coords="255,52,289,55,289,60,255,57"/>
 </map>

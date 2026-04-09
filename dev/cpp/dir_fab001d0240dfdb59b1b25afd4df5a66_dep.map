@@ -1,15 +1,15 @@
 <map id="src" name="src">
 <area shape="rect" id="node2" href="dir_bea4ffc87dd89ac64a9cf9fcebc6b069.html" title="bayes" alt="" coords="104,63,165,88"/>
 <area shape="rect" id="node3" href="dir_894d1e86b72abacdd7e7a4f293f67b95.html" title="core" alt="" coords="73,136,124,161"/>
-<area shape="poly" id="edge1" href="dir_000000_000002.html" alt="" coords="131,90,113,125,108,122,126,87"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000000_000002.html" title="6" alt="" coords="116,116,125,131"/>
+<area shape="poly" id="edge2" href="dir_000000_000002.html" alt="" coords="131,90,113,125,108,122,126,87"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000000_000002.html" title="5" alt="" coords="116,116,125,131"/>
 <area shape="rect" id="node4" href="dir_78bdd71cf25aa7493f0614b49d9d5d07.html" title="math" alt="" coords="71,209,127,235"/>
-<area shape="poly" id="edge2" href="dir_000000_000007.html" alt="" coords="140,88,143,122,139,162,130,182,119,200,115,197,125,180,133,161,138,122,134,89"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000000_000007.html" title="13" alt="" coords="118,192,135,207"/>
+<area shape="poly" id="edge1" href="dir_000000_000007.html" alt="" coords="140,88,143,122,139,162,130,182,119,200,115,197,125,180,133,161,138,122,134,89"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000000_000007.html" title="17" alt="" coords="118,192,135,207"/>
 <area shape="poly" id="edge3" href="dir_000002_000007.html" alt="" coords="94,162,93,196,87,196,89,162"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000002_000007.html" title="1" alt="" coords="93,183,102,197"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000002_000007.html" title="2" alt="" coords="93,183,102,197"/>
 <area shape="poly" id="edge4" href="dir_000007_000002.html" alt="" coords="103,209,105,175,110,175,108,209"/>
-<area shape="rect" id="edge4-headlabel" href="dir_000007_000002.html" title="4" alt="" coords="95,173,104,188"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000007_000002.html" title="5" alt="" coords="95,173,104,188"/>
 <area shape="rect" id="node5" href="dir_6b456e8a4e4614310ac2c362f12dfb5c.html" title="ols" alt="" coords="38,63,79,88"/>
 <area shape="poly" id="edge6" href="dir_000010_000002.html" alt="" coords="68,87,88,123,83,125,63,90"/>
 <area shape="rect" id="edge6-headlabel" href="dir_000010_000002.html" title="2" alt="" coords="86,109,95,123"/>

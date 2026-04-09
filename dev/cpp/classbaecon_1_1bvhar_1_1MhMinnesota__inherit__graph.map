@@ -1,5 +1,7 @@
 <map id="baecon::bvhar::MhMinnesota" name="baecon::bvhar::MhMinnesota">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,216,104"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1Minnesota.html" title=" " alt="" coords="15,5,206,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,44,113,79,108,79,108,44"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="101,79,311,104"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1Minnesota.html" title=" " alt="" coords="5,5,196,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,36,190,76,187,81,128,41"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1RngState.html" title="RNG state." alt="" coords="221,5,402,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="284,41,225,81,222,76,281,36"/>
 </map>

@@ -8,5 +8,6 @@ var shrinkage_8h =
     [ "baecon::bvhar::NgUpdater< isGroup >", "classbaecon_1_1bvhar_1_1NgUpdater.html", "classbaecon_1_1bvhar_1_1NgUpdater" ],
     [ "baecon::bvhar::DlUpdater< isGroup >", "classbaecon_1_1bvhar_1_1DlUpdater.html", "classbaecon_1_1bvhar_1_1DlUpdater" ],
     [ "baecon::bvhar::GdpUpdater< isGroup >", "classbaecon_1_1bvhar_1_1GdpUpdater.html", "classbaecon_1_1bvhar_1_1GdpUpdater" ],
-    [ "initialize_shrinkageupdater", "shrinkage_8h.html#ae227241db41c3611c85e6f07826f5834", null ]
+    [ "initialize_shrinkageupdater", "shrinkage_8h.html#ae227241db41c3611c85e6f07826f5834", null ],
+    [ "initialize_shrinkageupdater", "shrinkage_8h.html#a1ebcbd9546d11266ae2f90823b29f486", null ]
 ];

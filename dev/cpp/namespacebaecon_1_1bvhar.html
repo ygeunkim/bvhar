@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9004</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9005</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -406,6 +406,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbaecon_1_1bvhar_1_1RegRecords.html">RegRecords</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">MCMC records for <code><a class="el" href="classbaecon_1_1bvhar_1_1McmcTriangular.html" title="Corrected Triangular Algorithm (CTA)">McmcTriangular</a></code>  <a href="structbaecon_1_1bvhar_1_1RegRecords.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1RngState.html">RngState</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RNG state.  <a href="classbaecon_1_1bvhar_1_1RngState.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbaecon_1_1bvhar_1_1ShrinkageInits.html">ShrinkageInits</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">MCMC initial values for <code><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html" title="Draw class for shrinkage priors.">ShrinkageUpdater</a></code>  <a href="structbaecon_1_1bvhar_1_1ShrinkageInits.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -599,6 +602,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ae227241db41c3611c85e6f07826f5834"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html">ShrinkageUpdater</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ae227241db41c3611c85e6f07826f5834">initialize_shrinkageupdater</a> (int num_iter, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_init, int prior_type)</td></tr>
 <tr class="memdesc:ae227241db41c3611c85e6f07826f5834"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to initialize <code><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html" title="Draw class for shrinkage priors.">ShrinkageUpdater</a></code>  <br /></td></tr>
 <tr class="separator:ae227241db41c3611c85e6f07826f5834"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ebcbd9546d11266ae2f90823b29f486" id="r_a1ebcbd9546d11266ae2f90823b29f486"><td class="memTemplParams" colspan="2">template&lt;bool isGroup = true&gt; </td></tr>
+<tr class="memitem:a1ebcbd9546d11266ae2f90823b29f486"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html">ShrinkageUpdater</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a1ebcbd9546d11266ae2f90823b29f486">initialize_shrinkageupdater</a> (int num_iter, int num_param, int num_grp, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, int prior_type, boost::random::mixmax &amp;rng)</td></tr>
+<tr class="separator:a1ebcbd9546d11266ae2f90823b29f486"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ef5f90631596dddb979d92adc290fef" id="r_a9ef5f90631596dddb979d92adc290fef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a9ef5f90631596dddb979d92adc290fef">initialize_record</a> (<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; <a class="el" href="structbaecon_1_1bvhar_1_1LdltRecords.html">LdltRecords</a> &gt; &amp;record, int chain_id, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;fit_record, bool include_mean, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &amp;coef_name, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &amp;a_name, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &amp;c_name, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &gt; b_name=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a> &gt; lam_name=boost::none)</td></tr>
 <tr class="memdesc:a9ef5f90631596dddb979d92adc290fef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize MCMC record used in forecast classes.  <br /></td></tr>
 <tr class="separator:a9ef5f90631596dddb979d92adc290fef"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -627,6 +633,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a42057ee6e3ab02cca50545f68301559b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; BaseMcmc &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a42057ee6e3ab02cca50545f68301559b">initialize_mcmc</a> (int num_chains, int num_iter, const Eigen::MatrixXd &amp;x, const Eigen::MatrixXd &amp;y, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_reg, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_intercept, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;param_init, int prior_type, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;contem_prior, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, bool include_mean, Eigen::Ref&lt; const Eigen::VectorXi &gt; seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; num_design=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_cols=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; size_factor=boost::none)</td></tr>
 <tr class="memdesc:a42057ee6e3ab02cca50545f68301559b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to initialize <code><a class="el" href="classbaecon_1_1bvhar_1_1McmcReg.html" title="MCMC for homoskedastic LDLT parameterization.">McmcReg</a></code> or <code><a class="el" href="classbaecon_1_1bvhar_1_1McmcSv.html" title="MCMC for stochastic volatility.">McmcSv</a></code>  <br /></td></tr>
 <tr class="separator:a42057ee6e3ab02cca50545f68301559b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d5001b422e57fb0692647f98824926d" id="r_a6d5001b422e57fb0692647f98824926d"><td class="memTemplParams" colspan="2">template&lt;typename BaseMcmc  = McmcReg, bool isGroup = true&gt; </td></tr>
+<tr class="memitem:a6d5001b422e57fb0692647f98824926d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; BaseMcmc &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a6d5001b422e57fb0692647f98824926d">initialize_mcmc</a> (int num_chains, int num_iter, const Eigen::MatrixXd &amp;x, const Eigen::MatrixXd &amp;y, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_reg, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_intercept, int prior_type, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;contem_prior, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, bool include_mean, Eigen::Ref&lt; const Eigen::VectorXi &gt; seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_cols=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; size_factor=boost::none)</td></tr>
+<tr class="separator:a6d5001b422e57fb0692647f98824926d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae25ab83d511c6e244b77b42d67358527" id="r_ae25ab83d511c6e244b77b42d67358527"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ae25ab83d511c6e244b77b42d67358527">build_y0</a> (const Eigen::MatrixXd &amp;y, int var_lag, int index)</td></tr>
 <tr class="separator:ae25ab83d511c6e244b77b42d67358527"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a790ed204db25c5c3ce3d5691f00175b8" id="r_a790ed204db25c5c3ce3d5691f00175b8"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a790ed204db25c5c3ce3d5691f00175b8">build_x0</a> (const Eigen::MatrixXd &amp;y, int var_lag, bool include_mean)</td></tr>
@@ -639,6 +648,13 @@ Functions</h2></td></tr>
 <tr class="separator:a1cc8b90f5ee5a3b9b02f0ead14875a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3af6fee9acda988da9d934f64c8be55" id="r_ae3af6fee9acda988da9d934f64c8be55"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ae3af6fee9acda988da9d934f64c8be55">build_vhar</a> (int dim, int week, int month, bool include_mean)</td></tr>
 <tr class="separator:ae3af6fee9acda988da9d934f64c8be55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97e505140f374ac118a2a7a227113142" id="r_a97e505140f374ac118a2a7a227113142"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a97e505140f374ac118a2a7a227113142">build_grpmat</a> (int lag, int dim, int group_type=3)</td></tr>
+<tr class="memdesc:a97e505140f374ac118a2a7a227113142"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build Minnesota-type Group Matrix.  <br /></td></tr>
+<tr class="separator:a97e505140f374ac118a2a7a227113142"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41c64f9a2afda84324bb36ec22631c4e" id="r_a41c64f9a2afda84324bb36ec22631c4e"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a41c64f9a2afda84324bb36ec22631c4e">build_own_id</a> (int lag, int group_type=3)</td></tr>
+<tr class="separator:a41c64f9a2afda84324bb36ec22631c4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2f93ca0430adac1fc29d7473e07b775" id="r_ab2f93ca0430adac1fc29d7473e07b775"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ab2f93ca0430adac1fc29d7473e07b775">build_cross_id</a> (int lag, int group_type=3)</td></tr>
+<tr class="separator:ab2f93ca0430adac1fc29d7473e07b775"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f02d8e2f634bdf634c40bdf7f9a02b4" id="r_a8f02d8e2f634bdf634c40bdf7f9a02b4"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a8f02d8e2f634bdf634c40bdf7f9a02b4">build_ydummy</a> (int p, const Eigen::VectorXd &amp;sigma, double lambda, const Eigen::VectorXd &amp;daily, const Eigen::VectorXd &amp;weekly, const Eigen::VectorXd &amp;monthly, bool include_mean)</td></tr>
 <tr class="separator:a8f02d8e2f634bdf634c40bdf7f9a02b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc8385ec9ad245a99d51de958ca73a63" id="r_acc8385ec9ad245a99d51de958ca73a63"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#acc8385ec9ad245a99d51de958ca73a63">build_xdummy</a> (const Eigen::VectorXd &amp;lag_seq, double lambda, const Eigen::VectorXd &amp;sigma, double eps, bool include_mean)</td></tr>
@@ -665,6 +681,20 @@ Functions</h2></td></tr>
 <tr class="separator:af7bc4252ab994b7a89c6924961f852cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebaafb66c81b30da5c6e5e168ad8f311" id="r_aebaafb66c81b30da5c6e5e168ad8f311"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a> (double mean, double shape, boost::random::mixmax &amp;rng)</td></tr>
 <tr class="separator:aebaafb66c81b30da5c6e5e168ad8f311"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63b5021b10488dd816175bc2caa4764d" id="r_a63b5021b10488dd816175bc2caa4764d"><td class="memTemplParams" colspan="2">template&lt;typename Ptr &gt; </td></tr>
+<tr class="memitem:a63b5021b10488dd816175bc2caa4764d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a63b5021b10488dd816175bc2caa4764d">update_rng_batch</a> (Ptr &amp;model_ptr, const boost::random::mixmax &amp;rng)</td></tr>
+<tr class="memdesc:a63b5021b10488dd816175bc2caa4764d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the rng batch recursively for nested containers.  <br /></td></tr>
+<tr class="separator:a63b5021b10488dd816175bc2caa4764d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a333467e7d61117b693d7d2cb8def0e23" id="r_a333467e7d61117b693d7d2cb8def0e23"><td class="memTemplParams" colspan="2">template&lt;typename Ptr , typename RngVec &gt; </td></tr>
+<tr class="memitem:a333467e7d61117b693d7d2cb8def0e23"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a333467e7d61117b693d7d2cb8def0e23">update_rng_batch</a> (<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; Ptr &gt; &amp;models, const <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; RngVec &gt; &amp;rngs)</td></tr>
+<tr class="separator:a333467e7d61117b693d7d2cb8def0e23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b30073b7835591e1eda3527c11e6c12" id="r_a7b30073b7835591e1eda3527c11e6c12"><td class="memTemplParams" colspan="2">template&lt;typename Ptr &gt; </td></tr>
+<tr class="memitem:a7b30073b7835591e1eda3527c11e6c12"><td class="memTemplItemLeft" align="right" valign="top">boost::random::mixmax&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a7b30073b7835591e1eda3527c11e6c12">get_rng_batch</a> (const Ptr &amp;model_ptr)</td></tr>
+<tr class="memdesc:a7b30073b7835591e1eda3527c11e6c12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the rng batch recursively from nested containers.  <br /></td></tr>
+<tr class="separator:a7b30073b7835591e1eda3527c11e6c12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2aaac26af0514686b74677753b0f5feb" id="r_a2aaac26af0514686b74677753b0f5feb"><td class="memTemplParams" colspan="2">template&lt;typename Ptr &gt; </td></tr>
+<tr class="memitem:a2aaac26af0514686b74677753b0f5feb"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a2aaac26af0514686b74677753b0f5feb">get_rng_batch</a> (const <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; Ptr &gt; &amp;models)</td></tr>
+<tr class="separator:a2aaac26af0514686b74677753b0f5feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab77ef1a3fef4bb40bbbc69e6635d2d15" id="r_ab77ef1a3fef4bb40bbbc69e6635d2d15"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ab77ef1a3fef4bb40bbbc69e6635d2d15">build_companion</a> (Eigen::Ref&lt; const Eigen::MatrixXd &gt; coef_mat)</td></tr>
 <tr class="separator:ab77ef1a3fef4bb40bbbc69e6635d2d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d564c6e40ce6ce4d0d62da32a781377" id="r_a0d564c6e40ce6ce4d0d62da32a781377"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a0d564c6e40ce6ce4d0d62da32a781377">harx_to_var</a> (Eigen::Ref&lt; Eigen::MatrixXd &gt; coef_mat, Eigen::Ref&lt; Eigen::MatrixXd &gt; har_trans)</td></tr>
@@ -4365,7 +4395,7 @@ Here is the call graph for this function:</div>
 </div>
 </div>
 <a id="ae227241db41c3611c85e6f07826f5834" name="ae227241db41c3611c85e6f07826f5834"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae227241db41c3611c85e6f07826f5834">&#9670;&#160;</a></span>initialize_shrinkageupdater()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae227241db41c3611c85e6f07826f5834">&#9670;&#160;</a></span>initialize_shrinkageupdater() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -4437,6 +4467,79 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="namespacebaecon_1_1bvhar_ae227241db41c3611c85e6f07826f5834_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_ae227241db41c3611c85e6f07826f5834_cgraph" alt=""/></div>
 <map name="anamespacebaecon_1_1bvhar_ae227241db41c3611c85e6f07826f5834_cgraph" id="anamespacebaecon_1_1bvhar_ae227241db41c3611c85e6f07826f5834_cgraph">
 <area shape="rect" title="Function to initialize ShrinkageUpdater" alt="" coords="5,22,184,62"/>
+<area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="232,29,369,55"/>
+<area shape="poly" title=" " alt="" coords="184,39,218,39,218,45,184,45"/>
+<area shape="poly" title=" " alt="" coords="267,31,260,21,263,11,277,5,301,3,329,6,341,15,337,20,327,11,301,8,279,10,267,15,265,20,271,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a1ebcbd9546d11266ae2f90823b29f486" name="a1ebcbd9546d11266ae2f90823b29f486"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ebcbd9546d11266ae2f90823b29f486">&#9670;&#160;</a></span>initialize_shrinkageupdater() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool isGroup = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html">ShrinkageUpdater</a> &gt; baecon::bvhar::initialize_shrinkageupdater </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_iter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_param</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_grp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>param_prior</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>prior_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::random::mixmax &amp;&#160;</td>
+          <td class="paramname"><em>rng</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacebaecon_1_1bvhar_a1ebcbd9546d11266ae2f90823b29f486_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_a1ebcbd9546d11266ae2f90823b29f486_cgraph" alt=""/></div>
+<map name="anamespacebaecon_1_1bvhar_a1ebcbd9546d11266ae2f90823b29f486_cgraph" id="anamespacebaecon_1_1bvhar_a1ebcbd9546d11266ae2f90823b29f486_cgraph">
+<area shape="rect" title=" " alt="" coords="5,22,184,62"/>
 <area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="232,29,369,55"/>
 <area shape="poly" title=" " alt="" coords="184,39,218,39,218,45,184,45"/>
 <area shape="poly" title=" " alt="" coords="267,31,260,21,263,11,277,5,301,3,329,6,341,15,337,20,327,11,301,8,279,10,267,15,265,20,271,28"/>
@@ -5675,7 +5778,7 @@ Here is the call graph for this function:</div>
 </div>
 </div>
 <a id="a42057ee6e3ab02cca50545f68301559b" name="a42057ee6e3ab02cca50545f68301559b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42057ee6e3ab02cca50545f68301559b">&#9670;&#160;</a></span>initialize_mcmc()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a42057ee6e3ab02cca50545f68301559b">&#9670;&#160;</a></span>initialize_mcmc() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5903,6 +6006,175 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="namespacebaecon_1_1bvhar_a42057ee6e3ab02cca50545f68301559b_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_a42057ee6e3ab02cca50545f68301559b_cgraph" alt=""/></div>
 <map name="anamespacebaecon_1_1bvhar_a42057ee6e3ab02cca50545f68301559b_cgraph" id="anamespacebaecon_1_1bvhar_a42057ee6e3ab02cca50545f68301559b_cgraph">
 <area shape="rect" title="Function to initialize McmcReg or McmcSv" alt="" coords="5,29,231,55"/>
+<area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="279,29,416,55"/>
+<area shape="poly" title=" " alt="" coords="231,39,265,39,265,45,231,45"/>
+<area shape="poly" title=" " alt="" coords="310,31,302,21,306,11,322,5,347,3,380,7,392,16,389,20,378,11,347,8,323,10,310,15,307,20,314,27"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6d5001b422e57fb0692647f98824926d" name="a6d5001b422e57fb0692647f98824926d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5001b422e57fb0692647f98824926d">&#9670;&#160;</a></span>initialize_mcmc() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename BaseMcmc  = McmcReg, bool isGroup = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::unique_ptr</a>&lt; BaseMcmc &gt; &gt; baecon::bvhar::initialize_mcmc </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_chains</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_iter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::MatrixXd &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::MatrixXd &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>param_reg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>param_prior</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>param_intercept</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>prior_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>contem_prior</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>contem_prior_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXi &amp;&#160;</td>
+          <td class="paramname"><em>grp_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXi &amp;&#160;</td>
+          <td class="paramname"><em>own_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXi &amp;&#160;</td>
+          <td class="paramname"><em>cross_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::MatrixXi &amp;&#160;</td>
+          <td class="paramname"><em>grp_mat</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>include_mean</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::Ref&lt; const Eigen::VectorXi &gt;&#160;</td>
+          <td class="paramname"><em>seed_chain</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
+          <td class="paramname"><em>exogen_prior</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>exogen_prior_type</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>exogen_cols</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
+          <td class="paramname"><em>factor_prior</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>factor_prior_type</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>size_factor</em> = <code>boost::none</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacebaecon_1_1bvhar_a6d5001b422e57fb0692647f98824926d_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_a6d5001b422e57fb0692647f98824926d_cgraph" alt=""/></div>
+<map name="anamespacebaecon_1_1bvhar_a6d5001b422e57fb0692647f98824926d_cgraph" id="anamespacebaecon_1_1bvhar_a6d5001b422e57fb0692647f98824926d_cgraph">
+<area shape="rect" title=" " alt="" coords="5,29,231,55"/>
 <area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="279,29,416,55"/>
 <area shape="poly" title=" " alt="" coords="231,39,265,39,265,45,231,45"/>
 <area shape="poly" title=" " alt="" coords="310,31,302,21,306,11,322,5,347,3,380,7,392,16,389,20,378,11,347,8,323,10,310,15,307,20,314,27"/>
@@ -6198,6 +6470,131 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="196,23,230,23,230,28,196,28"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a97e505140f374ac118a2a7a227113142" name="a97e505140f374ac118a2a7a227113142"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97e505140f374ac118a2a7a227113142">&#9670;&#160;</a></span>build_grpmat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXi baecon::bvhar::build_grpmat </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>lag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group_type</em> = <code>3</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build Minnesota-type Group Matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lag</td><td></td></tr>
+    <tr><td class="paramname">dim</td><td></td></tr>
+    <tr><td class="paramname">group_type</td><td>1: no group, 2: short-run 3: long-run </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Eigen::MatrixXi </dd></dl>
+
+</div>
+</div>
+<a id="a41c64f9a2afda84324bb36ec22631c4e" name="a41c64f9a2afda84324bb36ec22631c4e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41c64f9a2afda84324bb36ec22631c4e">&#9670;&#160;</a></span>build_own_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::VectorXi baecon::bvhar::build_own_id </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>lag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group_type</em> = <code>3</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab2f93ca0430adac1fc29d7473e07b775" name="ab2f93ca0430adac1fc29d7473e07b775"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2f93ca0430adac1fc29d7473e07b775">&#9670;&#160;</a></span>build_cross_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::VectorXi baecon::bvhar::build_cross_id </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>lag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group_type</em> = <code>3</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -6915,6 +7312,191 @@ Here is the call graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="5,5,152,45"/>
 <area shape="rect" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="200,5,343,45"/>
 <area shape="poly" title=" " alt="" coords="152,23,186,23,186,28,152,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a63b5021b10488dd816175bc2caa4764d" name="a63b5021b10488dd816175bc2caa4764d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63b5021b10488dd816175bc2caa4764d">&#9670;&#160;</a></span>update_rng_batch() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Ptr &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void baecon::bvhar::update_rng_batch </td>
+          <td>(</td>
+          <td class="paramtype">Ptr &amp;&#160;</td>
+          <td class="paramname"><em>model_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const boost::random::mixmax &amp;&#160;</td>
+          <td class="paramname"><em>rng</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Update the rng batch recursively for nested containers. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Ptr</td><td>Type of the model container including smart pointer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">model_ptr</td><td></td></tr>
+    <tr><td class="paramname">rng</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a333467e7d61117b693d7d2cb8def0e23" name="a333467e7d61117b693d7d2cb8def0e23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a333467e7d61117b693d7d2cb8def0e23">&#9670;&#160;</a></span>update_rng_batch() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Ptr , typename RngVec &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void baecon::bvhar::update_rng_batch </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; Ptr &gt; &amp;&#160;</td>
+          <td class="paramname"><em>models</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; RngVec &gt; &amp;&#160;</td>
+          <td class="paramname"><em>rngs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacebaecon_1_1bvhar_a333467e7d61117b693d7d2cb8def0e23_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_a333467e7d61117b693d7d2cb8def0e23_cgraph" alt=""/></div>
+<map name="anamespacebaecon_1_1bvhar_a333467e7d61117b693d7d2cb8def0e23_cgraph" id="anamespacebaecon_1_1bvhar_a333467e7d61117b693d7d2cb8def0e23_cgraph">
+<area shape="rect" title=" " alt="" coords="5,5,172,45"/>
+<area shape="rect" href="namespacebaecon_1_1bvhar.html#a63b5021b10488dd816175bc2caa4764d" title="Update the rng batch recursively for nested containers." alt="" coords="220,5,387,45"/>
+<area shape="poly" title=" " alt="" coords="173,23,206,23,206,28,173,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a7b30073b7835591e1eda3527c11e6c12" name="a7b30073b7835591e1eda3527c11e6c12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b30073b7835591e1eda3527c11e6c12">&#9670;&#160;</a></span>get_rng_batch() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Ptr &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">template&lt; typename Ptr &gt; <a class="el" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a> baecon::bvhar::get_rng_batch </td>
+          <td>(</td>
+          <td class="paramtype">const Ptr &amp;&#160;</td>
+          <td class="paramname"><em>model_ptr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the rng batch recursively from nested containers. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Ptr</td><td>Type of the model container including smart pointer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">model_ptr</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>BVHAR_BHRNG</dd></dl>
+
+</div>
+</div>
+<a id="a2aaac26af0514686b74677753b0f5feb" name="a2aaac26af0514686b74677753b0f5feb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2aaac26af0514686b74677753b0f5feb">&#9670;&#160;</a></span>get_rng_batch() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Ptr &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto baecon::bvhar::get_rng_batch </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; Ptr &gt; &amp;&#160;</td>
+          <td class="paramname"><em>models</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="namespacebaecon_1_1bvhar_a2aaac26af0514686b74677753b0f5feb_cgraph.png" border="0" usemap="#anamespacebaecon_1_1bvhar_a2aaac26af0514686b74677753b0f5feb_cgraph" alt=""/></div>
+<map name="anamespacebaecon_1_1bvhar_a2aaac26af0514686b74677753b0f5feb_cgraph" id="anamespacebaecon_1_1bvhar_a2aaac26af0514686b74677753b0f5feb_cgraph">
+<area shape="rect" title=" " alt="" coords="5,47,148,87"/>
+<area shape="rect" href="namespacebaecon_1_1bvhar.html#a7b30073b7835591e1eda3527c11e6c12" title="Get the rng batch recursively from nested containers." alt="" coords="196,5,339,45"/>
+<area shape="poly" title=" " alt="" coords="147,49,182,41,183,46,149,54"/>
+<area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="199,94,336,119"/>
+<area shape="poly" title=" " alt="" coords="149,79,194,89,193,94,147,84"/>
+<area shape="poly" title=" " alt="" coords="236,95,229,86,233,76,246,70,267,67,293,71,304,80,301,84,291,76,267,73,247,75,237,79,235,85,240,92"/>
 </map>
 </div>
 

@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::get_rng_batch" name="baecon::bvhar::get_rng_batch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,148,87"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a7b30073b7835591e1eda3527c11e6c12" title="Get the rng batch recursively from nested containers." alt="" coords="196,5,339,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,49,182,41,183,46,149,54"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="199,94,336,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,79,194,89,193,94,147,84"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="236,95,229,86,233,76,246,70,267,67,293,71,304,80,301,84,291,76,267,73,247,75,237,79,235,85,240,92"/>
+</map>

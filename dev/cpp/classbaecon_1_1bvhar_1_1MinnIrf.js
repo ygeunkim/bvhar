@@ -14,6 +14,5 @@ var classbaecon_1_1bvhar_1_1MinnIrf =
     [ "num_burn", "classbaecon_1_1bvhar_1_1MinnIrf.html#ab4ad7e9f8d6cf92efeb4db2cf1c42530", null ],
     [ "thin", "classbaecon_1_1bvhar_1_1MinnIrf.html#ad048bbc4d268e5bb99cefb54285dd640", null ],
     [ "record_warm", "classbaecon_1_1bvhar_1_1MinnIrf.html#a2f8d58214a635e4432137ca2c0a69c6b", null ],
-    [ "record", "classbaecon_1_1bvhar_1_1MinnIrf.html#a3903ae7596545ed161a4d0e80faf3246", null ],
-    [ "rng", "classbaecon_1_1bvhar_1_1MinnIrf.html#a045c97b749f60b441e1b4b196dcfd454", null ]
+    [ "record", "classbaecon_1_1bvhar_1_1MinnIrf.html#a3903ae7596545ed161a4d0e80faf3246", null ]
 ];
