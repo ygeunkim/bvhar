@@ -671,11 +671,13 @@ inline std::ostream& operator<<(std::ostream& os, const BVHAR_LIST& dict) {
       auto vec = std::any_cast<baecon::bvhar::VectorXb>(val);
       os << "Eigen::Matrix<bool, Eigen::Dynamic, 1>(" << vec.size() << ")";
     } else if (val.type() == typeid(std::vector<std::any>)) {
-      os << "BVHAR_PY_LIST " << std::any_cast<std::vector<std::any>>(val).size() << ">";
+      os << "BVHAR_PY_LIST " << std::any_cast<std::vector<std::any>>(val).size();
+    } else if (val.type() == typeid(BvharList)) {
+      os << "BVHAR_LIST " << std::any_cast<BvharList>(val).size();
     } else if (val.type() == typeid(std::vector<BvharList>)) {
-      os << "BVHAR_LIST_OF_LIST " << std::any_cast<std::vector<BvharList>>(val).size() << ">";
+      os << "BVHAR_LIST_OF_LIST " << std::any_cast<std::vector<BvharList>>(val).size();
     } else {
-      os << "Unknown C++ Type " << val.type().name() << ">";
+      os << "Unknown C++ Type " << val.type().name();
     }
     os << "\n";
   }
