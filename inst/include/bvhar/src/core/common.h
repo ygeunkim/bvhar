@@ -693,6 +693,28 @@ inline std::ostream& operator<<(std::ostream& os, const BVHAR_LIST_OF_LIST& dict
   return os;
 }
 
+namespace baecon {
+namespace bvhar {
+
+// BVHAR_LIST_OF_LIST into BVHAR_LIST of BVHAR_PY_LIST
+// Will be used when changing MCMC records format into forecaster input
+inline BVHAR_LIST transpose_dict(BVHAR_LIST_OF_LIST& dict_vec) {
+	std::map<std::string, std::vector<std::any>> py_list;
+  for (const auto& row : dict_vec) {
+    for (const auto& [key, value] : row) {
+      py_list[key].push_back(value);
+    }
+  }
+  BVHAR_LIST res;
+  for (auto& [key, vec_of_any] : py_list) {
+    res[key] = std::move(vec_of_any);
+  }
+	return res;
+}
+
+} // namespace bvhar
+} // namespace baecon
+
 #endif
 
 #endif // BVHAR_CORE_COMMON_H
