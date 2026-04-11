@@ -20,6 +20,7 @@ endif()
 project(bvhar VERSION ${BVHAR_VERSION} LANGUAGES CXX)
 
 include(cmake/utils.cmake)
+include(GNUInstallDirs)
 
 # atomic linking issue in llvm (macos, windows): dummy atomic
 if ((APPLE OR WIN32) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -77,6 +78,7 @@ target_compile_definitions(bvhar INTERFACE
 
 target_include_directories(bvhar INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inst/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(bvhar INTERFACE
@@ -121,3 +123,46 @@ endif()
 if(BVHAR_BUILD_TESTS)
     add_subdirectory(inst/tests tests)
 endif()
+
+# Install header files
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/inst/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+# Install the target
+install(TARGETS bvhar EXPORT bvharTargets)
+
+# Generate config files
+include(CMakePackageConfigHelpers)
+# Version
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/bvharConfigVersion.cmake
+    VERSION ${BVHAR_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+# Package configuration file from a template (.in)
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/bvharConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/bvharConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bvhar
+)
+
+# Export for find_package
+# export(TARGETS bvhar
+#     NAMESPACE bvhar::
+#     FILE bvharTargets.cmake
+# )
+export(PACKAGE bvhar)
+# install(EXPORT bvharTargets
+#     NAMESPACE bvhar::
+#     FILE bvharTargets.cmake
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bvhar
+# )
+
+# Install the generated config files
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/bvharConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/bvharConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bvhar
+)
