@@ -31,11 +31,11 @@ inline void ssvs_dummy(Eigen::VectorXd& dummy, Eigen::VectorXd param_obs,
 											 Eigen::VectorXd& sd_numer, Eigen::Ref<const Eigen::VectorXd> sd_denom,
 											 Eigen::VectorXd& slab_weight, BVHAR_BHRNG& rng) {
   int num_latent = slab_weight.size();
-	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array().square());
-	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array().square());
+	Eigen::VectorXd exp_u1 = -param_obs.array().square() / (2 * sd_numer.array());
+	Eigen::VectorXd exp_u2 = -param_obs.array().square() / (2 * sd_denom.array());
 	Eigen::VectorXd max_exp = exp_u1.cwiseMax(exp_u2); // use log-sum-exp against overflow
-	exp_u1 = slab_weight.array() * (exp_u1 - max_exp).array().exp() / sd_numer.array();
-	exp_u2 = (1 - slab_weight.array()) * (exp_u2 - max_exp).array().exp() / sd_denom.array();
+	exp_u1 = slab_weight.array() * (exp_u1 - max_exp).array().exp() / sd_numer.cwiseSqrt().array();
+	exp_u2 = (1 - slab_weight.array()) * (exp_u2 - max_exp).array().exp() / sd_denom.cwiseSqrt().array();
   for (int i = 0; i < num_latent; i++) {
 		dummy[i] = ber_rand(exp_u1[i] / (exp_u1[i] + exp_u2[i]), rng);
   }
@@ -97,16 +97,17 @@ inline void ssvs_mn_weight(Eigen::VectorXd& weight, Eigen::VectorXi& grp_vec, Ei
 inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_param, Eigen::Ref<Eigen::VectorXd> coef_vec,
 														double& shp, double& scl, double& spike_scl, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef_vec.size(); ++i) {
-		slab_param[i] = sqrt(1 / gamma_rand(
+		slab_param[i] = 1 / gamma_rand(
 			shp + .5,
 			1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),
 			rng
-		));
+		);
 	}
 }
 
 inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_sd) {
-	return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);
+	// return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);
+	return -(coef_vec.array().square() / slab_sd.array()).sum() / (2 * cand) - coef_vec.size() * log(cand) / 2;
 }
 
 inline void ssvs_scl_griddy(double& spike_scl, int grid_size,

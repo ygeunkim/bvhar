@@ -24,7 +24,6 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
-		cut_param(latent_param[i]);
 	}
 }
 
@@ -38,10 +37,8 @@ inline void dl_local_sparsity(Eigen::VectorXd& local_param, double& dir_concen,
 															Eigen::Ref<const Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(dir_concen - 1, 1, 2 * abs(coef[i]), rng);
-		cut_param(local_param[i]);
 	}
 	local_param /= local_param.sum();
-	cut_param(local_param);
 }
 
 // Generating Global Parameter of Dirichlet-Laplace Prior
@@ -54,7 +51,6 @@ inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 										 						 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 	double tau = sim_gig(coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng);
-	cut_param(tau);
 	return tau;
 }
 
@@ -89,7 +85,6 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			1 / (rate + mn_scl.sum()),
 			rng
 		);
-		cut_param(group_param[i]);
   }
 }
 

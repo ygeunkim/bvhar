@@ -238,7 +238,8 @@ public:
 		ssvs_scl_griddy(spike_scl, grid_size, contem_coef, slab, rng);
 		ssvs_dummy(dummy, contem_coef, slab, spike_scl * slab, weight, rng);
 		ssvs_weight(weight, dummy, s1[0], s2[0], rng);
-		prior_chol_prec = 1 / build_ssvs_sd(spike_scl * slab, slab, dummy).array().square();
+		// prior_chol_prec = 1 / build_ssvs_sd(spike_scl * slab, slab, dummy).array().square();
+		prior_chol_prec = 1 / (spike_scl * (1 - dummy.array()) * slab.array() + dummy.array() * slab.array());
 	}
 
 	void updateRecords(int id) override {
@@ -305,8 +306,8 @@ public:
 			horseshoe_latent(latent_global, global_lev, rng);
 			global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec, 1, rng);
 		}
-		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, global_lev * global_lev, rng);
-		prior_alpha_prec = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
+		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, global_lev, rng);
+		prior_alpha_prec = 1 / (global_lev * coef_var.array() * local_lev.array());
 		shrink_fac = 1 / (1 + prior_alpha_prec.array());
 	}
 
@@ -321,7 +322,7 @@ public:
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, contem_coef, 1, rng);
 		group_lev[0] = horseshoe_global_sparsity(latent_group[0], latent_local, contem_coef, 1, rng);
 		prior_chol_prec.setZero();
-		prior_chol_prec = 1 / (coef_var.array() * local_lev.array()).square();
+		prior_chol_prec = 1 / (coef_var.array() * local_lev.array());
 	}
 
 	void updateRecords(int id) override {
@@ -397,7 +398,7 @@ public:
 			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		}
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec, global_lev * coef_var, rng);
-		prior_alpha_prec = 1 / local_lev.array().square();
+		prior_alpha_prec = 1 / local_lev.array();
 	}
 
 	void updateImpactPrec(
@@ -408,7 +409,7 @@ public:
 		local_shape[0] = ng_shape_jump(local_shape[0], local_lev, group_lev[0], mh_sd, rng);
 		group_lev[0] = ng_global_sparsity(local_lev, local_shape[0], group_shape, group_scl, rng);
 		ng_local_sparsity(coef_var, local_shape[0], contem_coef, group_lev.replicate(1, prior_chol_prec.size()).reshaped(), rng);
-		prior_chol_prec = 1 / local_lev.array().square();
+		prior_chol_prec = 1 / local_lev.array();
 	}
 
 	void updateRecords(int id) override {

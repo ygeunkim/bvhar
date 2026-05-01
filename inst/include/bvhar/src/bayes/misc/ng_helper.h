@@ -17,12 +17,11 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sqrt(sim_gig(
+		local_param[i] = sim_gig(
 			shape - .5,
-			2 * shape / (global_param[i] * global_param[i]),
+			2 * shape / global_param[i],
 			coef[i] * coef[i], rng
-		));
-		cut_param(local_param[i]);
+		);
 	}
 }
 // overloading
@@ -30,12 +29,11 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 										 					Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::VectorXd> global_param,
 										 					BVHAR_BHRNG& rng) {
 	for (int i = 0; i < coef.size(); ++i) {
-		local_param[i] = sqrt(sim_gig(
+		local_param[i] = sim_gig(
 			shape[i] - .5,
-			2 * shape[i] / (global_param[i] * global_param[i]),
+			2 * shape[i] / global_param[i],
 			coef[i] * coef[i], rng
-		));
-		cut_param(local_param[i]);
+		);
 	}
 }
 
@@ -53,12 +51,11 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// 	1 / (hyper_gamma * local_param.squaredNorm() + scl),
 	// 	rng
 	// ));
-	double tau = sqrt(1 / gamma_rand(
+	double tau = 1 / gamma_rand(
 		shape + local_param.size() * hyper_gamma,
-		1 / (hyper_gamma * local_param.squaredNorm() + scl),
+		1 / (hyper_gamma * local_param.lpNorm<1>() + scl),
 		rng
-	));
-	cut_param(tau);
+	);
 	return tau;
 }
 // overloading
@@ -69,12 +66,11 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// 	1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
 	// 	rng
 	// ));
-	double tau = sqrt(1 / gamma_rand(
+	double tau = 1 / gamma_rand(
 		shape + hyper_gamma.sum(),
-		1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
+		1 / ((hyper_gamma.array() * local_param.array()).sum() + scl),
 		rng
-	));
-	cut_param(tau);
+	);
 	return tau;
 }
 
@@ -99,7 +95,6 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			}
 		}
 		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
-		cut_param(group_param[i]);
   }
 }
 
@@ -109,10 +104,10 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
   int num_coef = local_param.size();
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
-	log_ratio += num_coef * cand * (log(cand) - 2 * log(global_param));
-	log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));
-	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
-	log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);
+	log_ratio += num_coef * cand * (log(cand) - log(global_param));
+	log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - log(global_param));
+	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum() / 2;
+	log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (2 * global_param);
 	if (log(unif_rand(rng)) < std::min(log_ratio, 0.0)) {
 		return cand;
 	}
