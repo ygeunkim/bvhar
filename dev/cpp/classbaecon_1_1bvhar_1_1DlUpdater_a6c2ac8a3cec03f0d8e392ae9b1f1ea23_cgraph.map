@@ -1,27 +1,23 @@
 <map id="baecon::bvhar::DlUpdater::updateCoefPrec" name="baecon::bvhar::DlUpdater::updateCoefPrec">
-<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,141,193,181"/>
+<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,133,193,173"/>
 <area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a6c3c48c71628e44cf35f6df65068935a" title=" " alt="" coords="253,5,411,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,139,240,71,279,49,281,54,243,76,133,143"/>
-<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a31b50ca3f8bb822fa2d0efa6ce2c9262" title=" " alt="" coords="241,224,423,264"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="157,179,263,217,261,222,155,184"/>
-<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#aafb91e0b2d453f44db5fd7bdbf6a4980" title=" " alt="" coords="243,149,421,174"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="194,159,229,159,229,164,194,164"/>
-<area shape="rect" id="Node000009" href="$namespacebaecon_1_1bvhar.html#a96055d0d67b0ef0ce25216b42c0b9f36" title=" " alt="" coords="246,288,418,328"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="123,180,175,226,243,274,255,280,253,285,240,278,172,230,119,184"/>
-<area shape="rect" id="Node000010" href="$namespacebaecon_1_1bvhar.html#aa105b15419c68f09e8de5cdb3a58fc47" title=" " alt="" coords="497,57,660,97"/>
-<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="193,142,241,133,483,91,484,96,242,139,194,147"/>
-<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a374a80c12987b6754b05fe2ada3080bc" title=" " alt="" coords="471,7,687,33"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,21,457,20,457,25,412,26"/>
-<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="735,204,877,244"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="423,238,721,225,721,230,423,243"/>
-<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="492,287,665,313"/>
-<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="421,261,510,282,508,287,420,267"/>
-<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="624,285,686,265,739,246,741,251,688,271,626,290"/>
-<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="422,170,721,210,721,216,421,176"/>
-<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311" title=" " alt="" coords="505,121,652,161"/>
-<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="421,151,491,146,491,151,422,157"/>
-<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="637,159,688,177,740,197,738,202,686,183,635,164"/>
-<area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="407,325,469,337,540,343,614,340,651,333,686,323,713,310,738,292,778,253,782,257,741,296,715,314,688,328,652,338,615,345,540,348,468,342,406,331"/>
-<area shape="poly" id="edge13_Node000009_Node000006" title=" " alt="" coords="418,303,478,301,478,306,418,308"/>
-<area shape="poly" id="edge15_Node000010_Node000005" title=" " alt="" coords="662,94,688,107,716,126,741,148,783,192,779,195,738,152,712,130,685,112,659,99"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,131,176,93,240,55,255,48,257,53,243,60,179,98,127,135"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a31b50ca3f8bb822fa2d0efa6ce2c9262" title=" " alt="" coords="241,69,423,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="172,131,245,110,246,116,174,136"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#aafb91e0b2d453f44db5fd7bdbf6a4980" title=" " alt="" coords="243,198,421,223"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="182,171,267,192,266,197,180,176"/>
+<area shape="rect" id="Node000009" href="$namespacebaecon_1_1bvhar.html#a96055d0d67b0ef0ce25216b42c0b9f36" title=" " alt="" coords="246,133,418,173"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="194,151,233,151,233,156,194,156"/>
+<area shape="rect" id="Node000010" href="$namespacebaecon_1_1bvhar.html#aa105b15419c68f09e8de5cdb3a58fc47" title=" " alt="" coords="251,248,413,288"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="132,171,183,202,242,234,258,241,256,245,240,238,181,207,130,176"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a374a80c12987b6754b05fe2ada3080bc" title=" " alt="" coords="471,13,687,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,23,457,23,457,28,412,28"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="492,141,665,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="411,107,516,135,515,140,409,112"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="735,163,877,203"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="666,162,721,169,721,174,665,167"/>
+<area shape="rect" id="Node000008" href="$namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311" title=" " alt="" coords="505,191,652,231"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="421,208,491,208,491,213,421,213"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="652,199,720,190,721,196,653,204"/>
+<area shape="poly" id="edge10_Node000009_Node000005" title=" " alt="" coords="418,151,478,151,478,156,418,156"/>
 </map>

@@ -1,24 +1,21 @@
 <map id="baecon::bvhar::NgUpdater::updateCoefPrec" name="baecon::bvhar::NgUpdater::updateCoefPrec">
-<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,129,197,169"/>
-<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54" title=" " alt="" coords="489,157,674,197"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,152,475,168,475,173,197,157"/>
-<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#acfa9262b58e938856c51e680c3c1010f" title=" " alt="" coords="245,35,421,75"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,126,244,85,263,78,265,83,246,90,149,131"/>
-<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#a9c359f61f55567f8002d143ad7312f40" title=" " alt="" coords="250,214,417,254"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="157,166,266,207,264,212,156,171"/>
-<area shape="rect" id="Node000009" href="$namespacebaecon_1_1bvhar.html#a8e077d93f5292412a3aa612a1b7beaef" title=" " alt="" coords="250,99,417,139"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="198,134,236,129,237,134,198,139"/>
-<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="741,74,884,114"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="640,154,692,135,744,116,746,121,694,141,642,159"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="422,60,728,85,728,90,421,65"/>
-<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="495,5,668,31"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="421,39,483,30,484,35,422,45"/>
-<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="631,28,694,47,748,67,746,72,693,53,629,33"/>
-<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171" title=" " alt="" coords="469,221,693,247"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="417,231,456,231,456,237,417,237"/>
-<area shape="rect" id="Node000008" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="744,221,881,247"/>
-<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="694,231,730,231,730,237,694,237"/>
-<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="775,223,767,213,771,203,787,197,813,195,845,199,857,208,854,212,843,203,813,200,788,202,775,207,772,212,779,219"/>
-<area shape="poly" id="edge13_Node000009_Node000002" title=" " alt="" coords="417,136,482,151,481,156,416,141"/>
-<area shape="poly" id="edge12_Node000009_Node000003" title=" " alt="" coords="417,112,727,96,728,101,417,118"/>
+<area shape="rect" id="Node000001" title="Draw precision of coefficient based on each shrinkage priors." alt="" coords="5,65,197,105"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54" title=" " alt="" coords="489,5,674,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,63,186,38,245,19,303,10,363,6,475,10,475,15,364,11,304,15,246,24,188,43,138,68"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#acfa9262b58e938856c51e680c3c1010f" title=" " alt="" coords="245,97,421,137"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,96,232,101,231,106,198,101"/>
+<area shape="rect" id="Node000006" href="$namespacebaecon_1_1bvhar.html#a9c359f61f55567f8002d143ad7312f40" title=" " alt="" coords="250,164,417,204"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="147,103,246,147,269,156,267,161,244,152,145,108"/>
+<area shape="rect" id="Node000009" href="$namespacebaecon_1_1bvhar.html#a8e077d93f5292412a3aa612a1b7beaef" title=" " alt="" coords="250,33,417,73"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="198,69,236,64,237,69,198,75"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="495,103,668,129"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="421,114,481,114,481,119,422,120"/>
+<area shape="rect" id="Node000005" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="741,95,884,135"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="668,113,727,112,727,118,668,118"/>
+<area shape="rect" id="Node000007" href="$namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171" title=" " alt="" coords="469,175,693,201"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="417,183,456,183,455,189,417,188"/>
+<area shape="rect" id="Node000008" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="744,183,881,209"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="694,189,730,190,730,196,694,195"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="775,185,767,175,771,165,787,159,813,157,845,161,857,170,854,174,843,165,813,162,788,164,775,169,772,174,779,181"/>
+<area shape="poly" id="edge10_Node000009_Node000002" title=" " alt="" coords="416,41,475,35,475,40,417,47"/>
 </map>
