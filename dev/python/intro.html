@@ -215,11 +215,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
 <p>This package includes the same CBOE ETF volatility index series.</p>
-<div id="fedde1ec" class="cell" data-execution_count="2">
+<div id="d275b971" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bvhar.datasets <span class="im">import</span> load_vix</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>etf_vix <span class="op">=</span> load_vix()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="92d52745" class="cell" data-execution_count="3">
+<div id="9da34f03" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -382,12 +382,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="models" class="level1">
 <h1>Models</h1>
-<div id="aba2d770" class="cell" data-execution_count="4">
+<div id="308e1013" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bvhar.model <span class="im">import</span> VarOls, VharOls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="var" class="level2">
 <h2 class="anchored" data-anchor-id="var">VAR</h2>
-<div id="fa0a5fc8" class="cell" data-execution_count="5">
+<div id="d7d333a7" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_var <span class="op">=</span> VarOls(etf_vix, <span class="dv">1</span>, <span class="va">True</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_var.fit()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
