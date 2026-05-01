@@ -1,10 +1,12 @@
 # Stochastic Volatility Models
 
 ``` r
+
 library(bvhar)
 ```
 
 ``` r
+
 etf <- etf_vix[1:55, 1:3]
 # Split-------------------------------
 h <- 5
@@ -36,6 +38,7 @@ with shrinkage priors, respectively.
   [`set_intercept()`](../reference/set_intercept.md)
 
 ``` r
+
 set_sv()
 #> Model Specification for SV with Cholesky Prior
 #> 
@@ -58,6 +61,7 @@ set_sv()
 ### SSVS
 
 ``` r
+
 (fit_ssvs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ssvs(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ssvs(), 
@@ -90,6 +94,7 @@ set_sv()
 ### Horseshoe
 
 ``` r
+
 (fit_hs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_horseshoe(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_horseshoe(), 
@@ -133,6 +138,7 @@ set_sv()
 ### Normal-Gamma prior
 
 ``` r
+
 (fit_ng <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ng(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ng(), 
@@ -165,6 +171,7 @@ set_sv()
 ### Dirichlet-Laplace prior
 
 ``` r
+
 (fit_dl <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_dl(), cov_spec = set_sv(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_dl(), 
@@ -212,6 +219,7 @@ also provides Bayesian visualization. `type = "trace"` gives MCMC trace
 plot.
 
 ``` r
+
 autoplot(fit_hs, type = "trace", regex_pars = "tau")
 ```
 
@@ -220,6 +228,7 @@ autoplot(fit_hs, type = "trace", regex_pars = "tau")
 `type = "dens"` draws MCMC density plot.
 
 ``` r
+
 autoplot(fit_hs, type = "dens", regex_pars = "tau")
 ```
 

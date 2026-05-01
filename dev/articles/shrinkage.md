@@ -1,10 +1,12 @@
 # Bayesian VAR and VHAR Models
 
 ``` r
+
 library(bvhar)
 ```
 
 ``` r
+
 etf <- etf_vix[1:55, 1:3]
 # Split-------------------------------
 h <- 5
@@ -33,7 +35,7 @@ with various priors.
     - BVAR: [`set_bvar()`](../reference/set_bvar.md)
     - BVHAR: [`set_bvhar()`](../reference/set_bvar.md) and
       [`set_weight_bvhar()`](../reference/set_bvar.md)
-    - Can induce prior on $\lambda$ using `lambda = set_lambda()`
+    - Can induce prior on $`\lambda`$ using `lambda = set_lambda()`
   - SSVS prior: [`set_ssvs()`](../reference/set_ssvs.md)
   - Horseshoe prior: [`set_horseshoe()`](../reference/set_horseshoe.md)
   - NG prior: [`set_ng()`](../reference/set_ng.md)
@@ -52,6 +54,7 @@ with various priors.
 ### Stochastic Search Variable Selection (SSVS) Prior
 
 ``` r
+
 (fit_ssvs <- vhar_bayes(etf_train, num_chains = 1, num_iter = 20, coef_spec = set_ssvs(), contem_spec = set_ssvs(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 1, num_iter = 20, coef_spec = set_ssvs(), 
@@ -86,6 +89,7 @@ for the fit (`bvharsp` object) provides coefficients heatmap. There is
 `type` argument, and the default `type = "coef"` draws the heatmap.
 
 ``` r
+
 autoplot(fit_ssvs)
 #> Warning: `label` cannot be a <ggplot2::element_blank> object.
 #> `label` cannot be a <ggplot2::element_blank> object.
@@ -100,6 +104,7 @@ autoplot(fit_ssvs)
 [`set_horseshoe()`](../reference/set_horseshoe.md). Others are the same.
 
 ``` r
+
 (fit_hs <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_horseshoe(), contem_spec = set_horseshoe(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_horseshoe(), 
@@ -131,6 +136,7 @@ autoplot(fit_ssvs)
 ```
 
 ``` r
+
 autoplot(fit_hs)
 #> Warning: `label` cannot be a <ggplot2::element_blank> object.
 #> `label` cannot be a <ggplot2::element_blank> object.
@@ -142,6 +148,7 @@ autoplot(fit_hs)
 ### Minnesota Prior
 
 ``` r
+
 (fit_mn <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_bvhar(lambda = set_lambda()), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_bvhar(lambda = set_lambda()), 
@@ -174,6 +181,7 @@ autoplot(fit_hs)
 ### Normal-Gamma prior
 
 ``` r
+
 (fit_ng <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ng(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_ng(), 
@@ -206,6 +214,7 @@ autoplot(fit_hs)
 ### Dirichlet-Laplace prior
 
 ``` r
+
 (fit_dl <- vhar_bayes(etf_train, num_chains = 2, num_iter = 20, coef_spec = set_dl(), cov_spec = set_ldlt(), include_mean = FALSE, minnesota = "longrun"))
 #> Call:
 #> vhar_bayes(y = etf_train, num_chains = 2, num_iter = 20, coef_spec = set_dl(), 
@@ -253,6 +262,7 @@ also provides Bayesian visualization. `type = "trace"` gives MCMC trace
 plot.
 
 ``` r
+
 autoplot(fit_hs, type = "trace", regex_pars = "tau")
 ```
 
@@ -263,6 +273,7 @@ argument `facet_args = list(dir = "v")` of `bayesplot`, you can see plot
 as the same format with coefficient matrix.
 
 ``` r
+
 autoplot(fit_hs, type = "dens", regex_pars = "kappa", facet_args = list(dir = "v", nrow = nrow(fit_hs$coefficients)))
 ```
 

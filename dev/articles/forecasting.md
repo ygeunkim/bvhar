@@ -1,6 +1,7 @@
 # Forecasting
 
 ``` r
+
 library(bvhar)
 ```
 
@@ -18,6 +19,7 @@ We use coefficient matrix estimated by VAR(5) in introduction vignette.
 Consider
 
 ``` r
+
 coef(ex_fit)
 #>              GVZCLS   OVXCLS    EVZCLS VXFXICLS
 #> GVZCLS_1    0.93302 -0.02332 -0.007712 -0.03853
@@ -52,6 +54,7 @@ ex_fit$covmat
 Then
 
 ``` r
+
 m <- ncol(ex_fit$coefficients)
 # generate VAR(5)-----------------
 y <- sim_var(
@@ -75,6 +78,7 @@ head(y)
 ```
 
 ``` r
+
 h <- 20
 y_eval <- divide_ts(y, h)
 y_train <- y_eval$train # train
@@ -86,6 +90,7 @@ y_test <- y_eval$test # test
 ### VAR(5) and VHAR
 
 ``` r
+
 # VAR(5)
 model_var <- var_lm(y_train, 5)
 # VHAR
@@ -97,6 +102,7 @@ model_vhar <- vhar_lm(y_train)
 Minnesota prior
 
 ``` r
+
 # hyper parameters---------------------------
 y_sig <- apply(y_train, 2, sd) # sigma vector
 y_lam <- .2 # lambda
@@ -112,6 +118,7 @@ model_bvar <- bvar_minnesota(y_train, p = 5, bayes_spec = spec_bvar)
 BVHAR-S
 
 ``` r
+
 spec_bvhar_v1 <- set_bvhar(y_sig, y_lam, y_delta, eps)
 # fit---------------------------------------
 model_bvhar_v1 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v1)
@@ -120,6 +127,7 @@ model_bvhar_v1 <- bvhar_minnesota(y_train, bayes_spec = spec_bvhar_v1)
 BVHAR-L
 
 ``` r
+
 # weights----------------------------------
 y_day <- rep(.1, m)
 y_week <- rep(.01, m)
@@ -162,6 +170,7 @@ called `predbvhar` to use some methods,
 ### VAR
 
 ``` r
+
 (pred_var <- predict(model_var, n_ahead = h))
 #>         y1   y2   y3   y4
 #>  [1,] 20.1 26.8 10.7 34.1
@@ -187,6 +196,7 @@ called `predbvhar` to use some methods,
 ```
 
 ``` r
+
 class(pred_var)
 #> [1] "predbvhar"
 names(pred_var)
@@ -200,6 +210,7 @@ The package provides the evaluation function
 - `mape(predbvhar, test)`: MAPE
 
 ``` r
+
 (mse_var <- mse(pred_var, y_test))
 #>    y1    y2    y3    y4 
 #> 4.924 6.479 0.301 1.749
@@ -208,6 +219,7 @@ The package provides the evaluation function
 ### VHAR
 
 ``` r
+
 (pred_vhar <- predict(model_vhar, n_ahead = h))
 #>         y1   y2   y3   y4
 #>  [1,] 19.9 26.5 10.6 34.0
@@ -235,6 +247,7 @@ The package provides the evaluation function
 MSE:
 
 ``` r
+
 (mse_vhar <- mse(pred_vhar, y_test))
 #>    y1    y2    y3    y4 
 #> 4.002 6.965 0.246 2.235
@@ -243,36 +256,38 @@ MSE:
 ### BVAR
 
 ``` r
+
 (pred_bvar <- predict(model_bvar, n_ahead = h))
-#>         y1   y2   y3   y4
-#>  [1,] 19.9 22.3 9.29 27.9
-#>  [2,] 19.6 20.0 8.39 25.7
-#>  [3,] 19.2 18.6 7.81 24.8
-#>  [4,] 19.0 17.7 7.42 24.3
-#>  [5,] 18.8 17.0 7.16 24.0
-#>  [6,] 18.7 16.6 6.98 23.8
-#>  [7,] 18.6 16.3 6.86 23.7
-#>  [8,] 18.5 16.1 6.79 23.6
-#>  [9,] 18.5 15.9 6.74 23.6
-#> [10,] 18.4 15.8 6.70 23.6
-#> [11,] 18.4 15.8 6.68 23.5
-#> [12,] 18.4 15.7 6.67 23.5
-#> [13,] 18.4 15.7 6.66 23.5
-#> [14,] 18.4 15.7 6.65 23.5
-#> [15,] 18.4 15.7 6.65 23.5
-#> [16,] 18.4 15.7 6.65 23.5
-#> [17,] 18.4 15.7 6.64 23.5
-#> [18,] 18.4 15.7 6.64 23.5
-#> [19,] 18.4 15.7 6.64 23.5
-#> [20,] 18.4 15.7 6.64 23.5
+#>             y1       y2       y3       y4
+#>  [1,] 2.21e+01 2.06e+01 1.77e+01 2.56e+01
+#>  [2,] 2.96e+01 1.92e+01 4.31e+01 2.47e+01
+#>  [3,] 5.44e+01 2.04e+01 1.32e+02 2.52e+01
+#>  [4,] 1.36e+02 2.74e+01 4.37e+02 2.80e+01
+#>  [5,] 4.00e+02 5.32e+01 1.49e+03 3.80e+01
+#>  [6,] 1.26e+03 1.42e+02 5.13e+03 7.28e+01
+#>  [7,] 4.03e+03 4.48e+02 1.77e+04 1.92e+02
+#>  [8,] 1.30e+04 1.49e+03 6.10e+04 6.00e+02
+#>  [9,] 4.16e+04 5.07e+03 2.11e+05 2.00e+03
+#> [10,] 1.33e+05 1.73e+04 7.27e+05 6.79e+03
+#> [11,] 4.22e+05 5.92e+04 2.51e+06 2.32e+04
+#> [12,] 1.33e+06 2.03e+05 8.67e+06 7.94e+04
+#> [13,] 4.18e+06 6.94e+05 3.00e+07 2.72e+05
+#> [14,] 1.30e+07 2.38e+06 1.03e+08 9.32e+05
+#> [15,] 4.00e+07 8.14e+06 3.57e+08 3.20e+06
+#> [16,] 1.21e+08 2.79e+07 1.24e+09 1.10e+07
+#> [17,] 3.61e+08 9.55e+07 4.27e+09 3.76e+07
+#> [18,] 1.05e+09 3.27e+08 1.48e+10 1.29e+08
+#> [19,] 2.96e+09 1.12e+09 5.10e+10 4.42e+08
+#> [20,] 7.95e+09 3.84e+09 1.76e+11 1.52e+09
 ```
 
 MSE:
 
 ``` r
+
 (mse_bvar <- mse(pred_bvar, y_test))
-#>     y1     y2     y3     y4 
-#>   7.76 119.87  11.16  53.90
+#>       y1       y2       y3       y4 
+#> 3.67e+18 8.07e+17 1.70e+21 1.26e+17
 ```
 
 ### BVHAR
@@ -280,71 +295,75 @@ MSE:
 #### VAR-type Minnesota
 
 ``` r
+
 (pred_bvhar_v1 <- predict(model_bvhar_v1, n_ahead = h))
 #>             y1       y2       y3       y4
-#>  [1,] 2.31e+01 2.34e+01 2.28e+01 2.71e+01
-#>  [2,] 3.95e+01 2.14e+01 8.97e+01 2.52e+01
-#>  [3,] 1.25e+02 2.19e+01 4.52e+02 2.57e+01
-#>  [4,] 5.65e+02 3.14e+01 2.41e+03 3.12e+01
-#>  [5,] 2.83e+03 8.71e+01 1.30e+04 6.22e+01
-#>  [6,] 1.45e+04 3.89e+02 7.01e+04 2.29e+02
-#>  [7,] 7.43e+04 2.01e+03 3.78e+05 1.13e+03
-#>  [8,] 3.80e+05 1.07e+04 2.04e+06 5.95e+03
-#>  [9,] 1.94e+06 5.73e+04 1.10e+07 3.18e+04
-#> [10,] 9.89e+06 3.07e+05 5.96e+07 1.71e+05
-#> [11,] 5.03e+07 1.65e+06 3.22e+08 9.17e+05
-#> [12,] 2.55e+08 8.85e+06 1.74e+09 4.92e+06
-#> [13,] 1.29e+09 4.75e+07 9.39e+09 2.64e+07
-#> [14,] 6.47e+09 2.55e+08 5.07e+10 1.42e+08
-#> [15,] 3.24e+10 1.37e+09 2.74e+11 7.63e+08
-#> [16,] 1.61e+11 7.34e+09 1.48e+12 4.10e+09
-#> [17,] 7.98e+11 3.94e+10 8.00e+12 2.20e+10
-#> [18,] 3.92e+12 2.11e+11 4.32e+13 1.18e+11
-#> [19,] 1.91e+13 1.14e+12 2.34e+14 6.35e+11
-#> [20,] 9.22e+13 6.10e+12 1.26e+15 3.42e+12
+#>  [1,] 2.23e+01 1.91e+01 1.75e+01 2.48e+01
+#>  [2,] 2.95e+01 1.80e+01 4.00e+01 2.43e+01
+#>  [3,] 5.11e+01 1.98e+01 1.11e+02 2.50e+01
+#>  [4,] 1.16e+02 2.68e+01 3.36e+02 2.75e+01
+#>  [5,] 3.08e+02 4.92e+01 1.04e+03 3.57e+01
+#>  [6,] 8.77e+02 1.19e+02 3.28e+03 6.13e+01
+#>  [7,] 2.56e+03 3.39e+02 1.03e+04 1.41e+02
+#>  [8,] 7.50e+03 1.02e+03 3.25e+04 3.92e+02
+#>  [9,] 2.20e+04 3.16e+03 1.02e+05 1.17e+03
+#> [10,] 6.41e+04 9.85e+03 3.23e+05 3.62e+03
+#> [11,] 1.86e+05 3.07e+04 1.02e+06 1.13e+04
+#> [12,] 5.38e+05 9.60e+04 3.21e+06 3.52e+04
+#> [13,] 1.54e+06 3.00e+05 1.01e+07 1.10e+05
+#> [14,] 4.38e+06 9.37e+05 3.20e+07 3.44e+05
+#> [15,] 1.23e+07 2.93e+06 1.01e+08 1.08e+06
+#> [16,] 3.42e+07 9.16e+06 3.18e+08 3.37e+06
+#> [17,] 9.32e+07 2.86e+07 1.01e+09 1.05e+07
+#> [18,] 2.48e+08 8.96e+07 3.17e+09 3.30e+07
+#> [19,] 6.42e+08 2.80e+08 1.00e+10 1.03e+08
+#> [20,] 1.58e+09 8.77e+08 3.16e+10 3.24e+08
 ```
 
 MSE:
 
 ``` r
+
 (mse_bvhar_v1 <- mse(pred_bvhar_v1, y_test))
 #>       y1       y2       y3       y4 
-#> 4.44e+26 1.92e+24 8.25e+28 6.04e+23
+#> 1.49e+17 4.28e+16 5.56e+19 5.84e+15
 ```
 
 #### VHAR-type Minnesota
 
 ``` r
+
 (pred_bvhar_v2 <- predict(model_bvhar_v2, n_ahead = h))
-#>             y1       y2       y3       y4
-#>  [1,] 3.29e+01 1.88e+01 7.60e+00 2.53e+01
-#>  [2,] 1.47e+02 1.72e+01 7.06e+00 2.41e+01
-#>  [3,] 1.14e+03 1.95e+01 7.66e+00 2.48e+01
-#>  [4,] 9.75e+03 4.43e+01 1.41e+01 3.31e+01
-#>  [5,] 8.45e+04 2.61e+02 7.04e+01 1.05e+02
-#>  [6,] 7.33e+05 2.14e+03 5.59e+02 7.34e+02
-#>  [7,] 6.36e+06 1.85e+04 4.80e+03 6.19e+03
-#>  [8,] 5.52e+07 1.60e+05 4.16e+04 5.35e+04
-#>  [9,] 4.79e+08 1.39e+06 3.61e+05 4.64e+05
-#> [10,] 4.15e+09 1.21e+07 3.13e+06 4.03e+06
-#> [11,] 3.60e+10 1.05e+08 2.72e+07 3.49e+07
-#> [12,] 3.13e+11 9.07e+08 2.36e+08 3.03e+08
-#> [13,] 2.71e+12 7.87e+09 2.05e+09 2.63e+09
-#> [14,] 2.36e+13 6.83e+10 1.78e+10 2.28e+10
-#> [15,] 2.04e+14 5.93e+11 1.54e+11 1.98e+11
-#> [16,] 1.77e+15 5.14e+12 1.34e+12 1.72e+12
-#> [17,] 1.54e+16 4.46e+13 1.16e+13 1.49e+13
-#> [18,] 1.34e+17 3.87e+14 1.01e+14 1.29e+14
-#> [19,] 1.16e+18 3.36e+15 8.74e+14 1.12e+15
-#> [20,] 1.01e+19 2.92e+16 7.58e+15 9.75e+15
+#>              y1        y2       y3       y4
+#>  [1,]  3.61e+01  1.75e+02 7.20e+01 1.91e+02
+#>  [2,]  1.23e+02  1.35e+03 6.30e+02 1.75e+03
+#>  [3,]  3.54e+02  1.07e+04 5.82e+03 1.76e+04
+#>  [4,] -3.07e+03  8.34e+04 5.48e+04 1.80e+05
+#>  [5,] -9.00e+04  6.36e+05 5.22e+05 1.85e+06
+#>  [6,] -1.45e+06  4.67e+06 5.03e+06 1.91e+07
+#>  [7,] -1.97e+07  3.22e+07 4.89e+07 1.98e+08
+#>  [8,] -2.47e+08  1.96e+08 4.81e+08 2.07e+09
+#>  [9,] -2.95e+09  8.64e+08 4.76e+09 2.16e+10
+#> [10,] -3.43e+10 -9.70e+08 4.75e+10 2.26e+11
+#> [11,] -3.90e+11 -9.46e+10 4.76e+11 2.37e+12
+#> [12,] -4.38e+12 -1.70e+12 4.81e+12 2.50e+13
+#> [13,] -4.88e+13 -2.38e+13 4.87e+13 2.63e+14
+#> [14,] -5.38e+14 -3.00e+14 4.96e+14 2.77e+15
+#> [15,] -5.91e+15 -3.58e+15 5.06e+15 2.92e+16
+#> [16,] -6.46e+16 -4.11e+16 5.18e+16 3.08e+17
+#> [17,] -7.04e+17 -4.61e+17 5.31e+17 3.25e+18
+#> [18,] -7.64e+18 -5.09e+18 5.44e+18 3.43e+19
+#> [19,] -8.29e+19 -5.55e+19 5.59e+19 3.63e+20
+#> [20,] -8.97e+20 -6.00e+20 5.74e+20 3.83e+21
 ```
 
 MSE:
 
 ``` r
+
 (mse_bvhar_v2 <- mse(pred_bvhar_v2, y_test))
 #>       y1       y2       y3       y4 
-#> 5.12e+36 4.31e+31 2.91e+30 4.81e+30
+#> 4.06e+40 1.82e+40 1.67e+40 7.41e+41
 ```
 
 ### Compare
@@ -355,6 +374,7 @@ MSE:
 the forecasting.
 
 ``` r
+
 autoplot(pred_var, x_cut = 1470, ci_alpha = .7, type = "wrap") +
   autolayer(pred_vhar, ci_alpha = .5) +
   autolayer(pred_bvar, ci_alpha = .4) +
@@ -372,6 +392,7 @@ autoplot(pred_var, x_cut = 1470, ci_alpha = .7, type = "wrap") +
 Mean of MSE
 
 ``` r
+
 list(
   VAR = mse_var,
   VHAR = mse_vhar,
@@ -382,13 +403,14 @@ list(
   lapply(mean) |> 
   unlist() |> 
   sort()
-#>     VHAR      VAR     BVAR   BVHAR1   BVHAR2 
-#> 3.36e+00 3.36e+00 4.82e+01 2.07e+28 1.28e+36
+#>     VHAR      VAR   BVHAR1     BVAR   BVHAR2 
+#> 3.36e+00 3.36e+00 1.40e+19 4.25e+20 2.04e+41
 ```
 
 For each variable, we can see the error with plot.
 
 ``` r
+
 list(
   pred_var,
   pred_vhar,
@@ -406,6 +428,7 @@ list(
 Relative MAPE (MAPE), benchmark model: VAR
 
 ``` r
+
 list(
   VAR = pred_var,
   VHAR = pred_vhar,
@@ -416,7 +439,7 @@ list(
   lapply(rmape, pred_bench = pred_var, y = y_test) |> 
   unlist()
 #>      VAR     VHAR     BVAR   BVHAR1   BVHAR2 
-#> 1.00e+00 9.66e-01 4.52e+00 3.12e+13 1.02e+17
+#> 1.00e+00 9.66e-01 5.02e+09 9.44e+08 5.38e+19
 ```
 
 ## Out-of-Sample Forecasting
@@ -446,6 +469,7 @@ Iterating the step
 5-step out-of-sample:
 
 ``` r
+
 (var_roll <- forecast_roll(model_var, 5, y_test))
 #>         y1   y2    y3   y4
 #>  [1,] 19.7 26.0 10.58 32.3
@@ -469,6 +493,7 @@ Iterating the step
 Denote that the nrow is longest forecast horizon.
 
 ``` r
+
 class(var_roll)
 #> [1] "predbvhar_roll" "bvharcv"
 names(var_roll)
@@ -479,6 +504,7 @@ To apply the same evaluation methods, a class named `bvharcv` has been
 defined. You can use the functions above.
 
 ``` r
+
 vhar_roll <- forecast_roll(model_vhar, 5, y_test)
 bvar_roll <- forecast_roll(model_bvar, 5, y_test)
 bvhar_roll_v1 <- forecast_roll(model_bvhar_v1, 5, y_test)
@@ -488,6 +514,7 @@ bvhar_roll_v2 <- forecast_roll(model_bvhar_v2, 5, y_test)
 Relative MAPE, benchmark model: VAR
 
 ``` r
+
 list(
   VAR = var_roll,
   VHAR = vhar_roll,
@@ -498,7 +525,7 @@ list(
   lapply(rmape, pred_bench = var_roll, y = y_test) |> 
   unlist()
 #>      VAR     VHAR     BVAR   BVHAR1   BVHAR2 
-#> 1.00e+00 9.87e-01 8.75e+03 6.18e+04 1.59e+04
+#> 1.00e+00 9.87e-01 9.70e+03 1.27e+05 4.50e+05
 ```
 
 ### Expanding Windows
@@ -510,6 +537,7 @@ Different with rolling windows, expanding windows method fixes the
 starting point. The other is same.
 
 ``` r
+
 (var_expand <- forecast_expand(model_var, 5, y_test))
 #>         y1   y2    y3   y4
 #>  [1,] 19.7 26.0 10.58 32.3
@@ -533,6 +561,7 @@ starting point. The other is same.
 The class is `bvharcv`.
 
 ``` r
+
 class(var_expand)
 #> [1] "predbvhar_expand" "bvharcv"
 names(var_expand)
@@ -540,6 +569,7 @@ names(var_expand)
 ```
 
 ``` r
+
 vhar_expand <- forecast_expand(model_vhar, 5, y_test)
 bvar_expand <- forecast_expand(model_bvar, 5, y_test)
 bvhar_expand_v1 <- forecast_expand(model_bvhar_v1, 5, y_test)
@@ -549,6 +579,7 @@ bvhar_expand_v2 <- forecast_expand(model_bvhar_v2, 5, y_test)
 Relative MAPE, benchmark model: VAR
 
 ``` r
+
 list(
   VAR = var_expand,
   VHAR = vhar_expand,
@@ -559,5 +590,5 @@ list(
   lapply(rmape, pred_bench = var_expand, y = y_test) |> 
   unlist()
 #>      VAR     VHAR     BVAR   BVHAR1   BVHAR2 
-#>     1.00     0.98 14070.34 15568.89 42394.85
+#> 1.00e+00 9.80e-01 8.19e+02 5.85e+02 4.34e+05
 ```
