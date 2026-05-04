@@ -446,7 +446,7 @@ class DlUpdater : public ShrinkageUpdater {
 public:
 	DlUpdater(int num_iter, const DlParams& params, const HorseshoeInits& inits)
 	: ShrinkageUpdater(num_iter, params, inits),
-		dir_concen(0.0), shape(params._shape), scl(params._scl), grid_size(params._grid_size),
+		dir_concen(.5), shape(params._shape), scl(params._scl), grid_size(params._grid_size),
 		local_lev(inits._local), group_lev(inits._group), global_lev(isGroup ? inits._global : 1.0),
 		latent_local(Eigen::VectorXd::Zero(local_lev.size())),
 		coef_var(Eigen::VectorXd::Zero(local_lev.size())),
@@ -476,7 +476,8 @@ public:
 		}
 		dl_latent(latent_local, global_lev * local_lev.array() / coef_var.array(), coef_vec, rng);
 		// prior_alpha_prec = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
-		prior_alpha_prec = (latent_local.array() * coef_var.array().square()) / (global_lev * local_lev.array()).square();
+		// prior_alpha_prec = (latent_local.array() * coef_var.array().square()) / (global_lev * local_lev.array()).square();
+		prior_alpha_prec = latent_local.array() * (coef_var.array() / (global_lev * local_lev.array())).square();
 	}
 
 	void updateImpactPrec(

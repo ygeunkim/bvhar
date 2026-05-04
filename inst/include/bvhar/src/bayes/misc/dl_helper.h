@@ -82,7 +82,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
 		group_param[i] = gamma_rand(
 			shape + mn_size,
-			1 / (rate + mn_scl.sum()),
+			rate + mn_scl.sum(),
 			rng
 		);
   }
