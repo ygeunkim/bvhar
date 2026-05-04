@@ -372,7 +372,7 @@ public:
 			prevprior[0], prevprior.segment(1, dim), dim, num_design,
 			prior_prec, prior_scale, prior_shape, prec, scale, prior_shape + num_design, gamma_shp, gamma_rate, invgam_shp, invgam_scl
 		);
-		is_accept = ( log(unif_rand(rng)) < std::min(numerator - denom, 0.0) );
+		is_accept = ( log(1 - unif_rand(rng)) < std::min(numerator - denom, 0.0) );
 		if (is_accept) {
 			lambda = candprior[0];
 			psi = candprior.tail(dim);
