@@ -181,7 +181,7 @@ struct HierminnInits : public ShrinkageInits {
 	: ShrinkageInits(init, num_design), _own_lambda(BVHAR_CAST_DOUBLE(init["own_lambda"])), _cross_lambda(BVHAR_CAST_DOUBLE(init["cross_lambda"])) {}
 
 	HierminnInits(BVHAR_BHRNG& rng)
-	: _own_lambda(unif_rand(0, 1, rng)), _cross_lambda(unif_rand(0, 1, rng)) {}
+	: _own_lambda(1 - unif_rand(0, 1, rng)), _cross_lambda(1 - unif_rand(0, 1, rng)) {}
 };
 
 /**
@@ -210,7 +210,7 @@ struct SsvsInits : public ShrinkageInits {
 	: _dummy(Eigen::VectorXd::Zero(num_param)),
 		_weight(Eigen::VectorXd::Zero(num_grp)),
 		_slab(Eigen::VectorXd::Zero(num_param)),
-		_spike_scl(unif_rand(0, 1, rng)) {
+		_spike_scl(1 - unif_rand(0, 1, rng)) {
 		std::generate_n(
 			_dummy.data(),
 			num_param,
@@ -317,7 +317,7 @@ struct NgInits : public HorseshoeInits {
 			_local_shape.data(),
 			num_grp,
 			[&]() {
-				return unif_rand(0, 1, rng);
+				return 1 - unif_rand(0, 1, rng);
 			}
 		);
 	}
@@ -346,8 +346,8 @@ struct GdpInits : public ShrinkageInits {
 	GdpInits(int num_param, int num_grp, BVHAR_BHRNG& rng)
 	: _local(Eigen::VectorXd::Zero(num_param)),
 		_group_rate(Eigen::VectorXd::Zero(num_grp)),
-		_gamma_shape(unif_rand(0, 1, rng)),
-		_gamma_rate(unif_rand(0, 1, rng)) {
+		_gamma_shape(1 - unif_rand(0, 1, rng)),
+		_gamma_rate(1 - unif_rand(0, 1, rng)) {
 		std::generate_n(
 			_local.data(),
 			num_param,

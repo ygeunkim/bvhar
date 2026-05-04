@@ -101,6 +101,9 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 // MH for shape parameter of Normal-Gamma Prior
 inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 														double global_param, double lognormal_sd, BVHAR_BHRNG& rng) {
+	if (gamma_hyper == 0) {
+		gamma_hyper = std::numeric_limits<double>::min();
+	}
   int num_coef = local_param.size();
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
