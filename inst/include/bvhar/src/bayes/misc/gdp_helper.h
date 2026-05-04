@@ -15,7 +15,7 @@ namespace bvhar {
 inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<const Eigen::VectorXd> local_shape,
 															 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < local_param.size(); ++i) {
-		local_param[i] = 1 / sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
+		local_param[i] = sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
 		// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));
 	}
 }

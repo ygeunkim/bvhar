@@ -472,10 +472,11 @@ public:
 		// using is_group = std::integral_constant<bool, isGroup>;
 		// if (is_group::value) {
 		BVHAR_IF_CONSTEXPR(isGroup) {
-			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec, rng);
+			global_lev = dl_global_sparsity(local_lev.array() / coef_var.array(), dir_concen, coef_vec, rng);
 		}
-		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec, rng);
-		prior_alpha_prec = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		dl_latent(latent_local, global_lev * local_lev.array() / coef_var.array(), coef_vec, rng);
+		// prior_alpha_prec = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		prior_alpha_prec = (latent_local.array() * coef_var.array().square()) / (global_lev * local_lev.array()).square();
 	}
 
 	void updateImpactPrec(
@@ -488,7 +489,8 @@ public:
 		group_lev[0] = dl_global_sparsity(local_lev, dir_concen, contem_coef, rng);
 		// dl_latent(latent_local, local_lev, contem_coef, rng);
 		dl_latent(latent_local, group_lev[0] * local_lev, contem_coef, rng);
-		prior_chol_prec = 1 / ((group_lev[0] * local_lev.array()).square() * latent_local.array());
+		// prior_chol_prec = 1 / ((group_lev[0] * local_lev.array()).square() * latent_local.array());
+		prior_chol_prec =  latent_local.array() / (group_lev[0] * local_lev.array()).square();
 	}
 
 	void updateRecords(int id) override {
@@ -545,7 +547,7 @@ public:
 			);
 		}
 		gdp_local_sparsity(local_lev, group_rate_fac, coef_vec, rng);
-		prior_alpha_prec = 1 / local_lev.array();
+		prior_alpha_prec = local_lev.array();
 	}
 
 	void updateImpactPrec(
@@ -557,7 +559,7 @@ public:
 		gdp_rate_griddy(gamma_rate, gamma_shape, rate_grid, contem_coef, rng);
 		gdp_exp_rate(group_rate, gamma_shape, gamma_rate, contem_coef, rng);
 		gdp_local_sparsity(local_lev, group_rate, contem_coef, rng);
-		prior_chol_prec = 1 / local_lev.array();
+		prior_chol_prec = local_lev.array();
 	}
 
 private:

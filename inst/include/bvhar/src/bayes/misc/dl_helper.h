@@ -21,7 +21,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		// 	1, .5,
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
-		latent_param[i] = 1 / sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
+		latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
 	}
@@ -80,7 +80,7 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			}
 		}
 		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
-		group_param[i] = 1 / gamma_rand(
+		group_param[i] = gamma_rand(
 			shape + mn_size,
 			1 / (rate + mn_scl.sum()),
 			rng
@@ -88,28 +88,28 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
   }
 }
 
-inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
-													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
-													 double& shape, double& rate,
-													 Eigen::Ref<Eigen::VectorXd> coef_vec, BVHAR_BHRNG& rng) {
-	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
-  int mn_size = 0;
-  for (int i = 0; i < grp_id.size(); i++) {
-		group_id = grp_vec.array() == grp_id[i];
-		mn_size = group_id.count();
-		Eigen::VectorXd mn_scl(mn_size);
-		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
-			if (group_id[j]) {
-				mn_scl[k++] = coef_vec[j] * coef_vec[j] / (global_param * global_param * local_param[j] * local_param[j] * latent_param[j]);
-			}
-		}
-		group_param[i] = sqrt(1 / gamma_rand(
-			shape + mn_size / 2,
-			1 / (rate + mn_scl.sum() / 2),
-			rng
-		));
-  }
-}
+// inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_vec, Eigen::VectorXi& grp_id,
+// 													 double& global_param, Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<Eigen::VectorXd> latent_param,
+// 													 double& shape, double& rate,
+// 													 Eigen::Ref<Eigen::VectorXd> coef_vec, BVHAR_BHRNG& rng) {
+// 	Eigen::Array<bool, Eigen::Dynamic, 1> group_id;
+//   int mn_size = 0;
+//   for (int i = 0; i < grp_id.size(); i++) {
+// 		group_id = grp_vec.array() == grp_id[i];
+// 		mn_size = group_id.count();
+// 		Eigen::VectorXd mn_scl(mn_size);
+// 		for (int j = 0, k = 0; j < coef_vec.size(); ++j) {
+// 			if (group_id[j]) {
+// 				mn_scl[k++] = coef_vec[j] * coef_vec[j] / (global_param * global_param * local_param[j] * local_param[j] * latent_param[j]);
+// 			}
+// 		}
+// 		group_param[i] = sqrt(1 / gamma_rand(
+// 			shape + mn_size / 2,
+// 			1 / (rate + mn_scl.sum() / 2),
+// 			rng
+// 		));
+//   }
+// }
 
 // Log-density for Dirichlet Hyperparameter in DL
 // 
