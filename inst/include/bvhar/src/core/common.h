@@ -544,6 +544,14 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
 }
 
 // RNG----------------------------------------
+inline void cut_positive_param(double& param) {
+	if (param < BVHAR_DBL_TOL || std::isnan(param)) {
+		param = BVHAR_DBL_TOL;
+	} else if (param > BVHAR_DBL_MAX || std::isinf(param)) {
+		param = BVHAR_DBL_MAX;
+	}
+}
+
 inline void cut_param(double& param) {
 	if (abs(param) < BVHAR_DBL_TOL || std::isnan(param)) {
 		param = param >= 0 ? BVHAR_DBL_TOL : -BVHAR_DBL_TOL;
@@ -585,7 +593,8 @@ inline double chisq_rand(double df, BVHAR_BHRNG& rng) {
 }
 
 inline double gamma_rand(double shp, double scl, BVHAR_BHRNG& rng) {
-	cut_param(scl);
+	cut_positive_param(shp);
+	cut_positive_param(scl);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }

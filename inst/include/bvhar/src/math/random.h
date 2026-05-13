@@ -328,8 +328,8 @@ inline double sim_gig(double lambda, double psi, double chi, BVHAR_BHRNG& rng) {
 			return gamma_rand(lambda, 2 / psi, rng);
 		}
 	}
-	cut_param(psi);
-	cut_param(chi);
+	cut_positive_param(psi);
+	cut_positive_param(chi);
 	boost::random::generalized_inverse_gaussian_distribution<> rdist(lambda, psi, chi);
 	return rdist(rng);
 }
@@ -344,8 +344,8 @@ inline double sim_invgauss(double mean, double shape, BVHAR_BHRNG& rng) {
 		double sd = std::pow(mean, 3 / 2) / sqrt(shape);
 		return mean + sd * normal_rand(rng);
 	}
-	cut_param(mean);
-	cut_param(shape);
+	cut_positive_param(mean);
+	cut_positive_param(shape);
 	boost::random::inverse_gaussian_distribution<> rdist(mean, shape);
 	return rdist(rng);
 }
