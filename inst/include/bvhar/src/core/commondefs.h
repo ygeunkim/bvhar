@@ -13,10 +13,11 @@
 #include <utility>
 #include <algorithm>
 #include <set>
-#include <limits>
+// #include <limits>
 
-#define BVHAR_DBL_TOL (11 * std::numeric_limits<double>::epsilon())
-#define BVHAR_DBL_MAX 1e+100
+// #define BVHAR_DBL_TOL (11 * std::numeric_limits<double>::epsilon())
+#define BVHAR_DBL_TOL 1e-8
+#define BVHAR_DBL_MAX 1e+8
 
 #if defined(BVHAR_USE_RCPP)
 	// #include <RcppEigen.h>
