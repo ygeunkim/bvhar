@@ -314,6 +314,20 @@ inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, c
 // @param psi Second parameter of GIG
 // @param chi Third parameter of GIG
 inline double sim_gig(double lambda, double psi, double chi, BVHAR_BHRNG& rng) {
+	if (chi < BVHAR_DBL_TOL) {
+		if (lambda > 0) {
+			return gamma_rand(lambda, 2 / psi, rng);
+		} else if (lambda < 0) {
+			return 1 / gamma_rand(-lambda, 2 / chi, rng);
+		}
+	}
+	if (psi < BVHAR_DBL_TOL) {
+		if (lambda < 0) {
+			return 1 / gamma_rand(-lambda, 2 / chi, rng);
+		} else if (lambda > 0) {
+			return gamma_rand(lambda, 2 / psi, rng);
+		}
+	}
 	cut_param(psi);
 	cut_param(chi);
 	boost::random::generalized_inverse_gaussian_distribution<> rdist(lambda, psi, chi);
@@ -323,6 +337,13 @@ inline double sim_gig(double lambda, double psi, double chi, BVHAR_BHRNG& rng) {
 // Generate Inverse Gaussian Distribution
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
 inline double sim_invgauss(double mean, double shape, BVHAR_BHRNG& rng) {
+	if (shape < BVHAR_DBL_TOL || mean > BVHAR_DBL_MAX) {
+		return 1 / gamma_rand(.5, 2 / shape, rng);
+	}
+	if (shape > BVHAR_DBL_MAX) {
+		double sd = std::pow(mean, 3 / 2) / sqrt(shape);
+		return mean + sd * normal_rand(rng);
+	}
 	cut_param(mean);
 	cut_param(shape);
 	boost::random::inverse_gaussian_distribution<> rdist(mean, shape);

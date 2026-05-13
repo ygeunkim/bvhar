@@ -545,10 +545,10 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
 
 // RNG----------------------------------------
 inline void cut_param(double& param) {
-	if (abs(param) < 1e-8 || std::isnan(param)) {
-		param = param > 0 ? 1e-8 : -1e-8;
-	} else if (abs(param) > 1e+8 || std::isinf(param)) {
-		param = param > 0 ? 1e+8 : -1e+8;
+	if (abs(param) < BVHAR_DBL_TOL || std::isnan(param)) {
+		param = param > 0 ? BVHAR_DBL_TOL : -BVHAR_DBL_TOL;
+	} else if (abs(param) > BVHAR_DBL_MAX || std::isinf(param)) {
+		param = param > 0 ? BVHAR_DBL_MAX : -BVHAR_DBL_MAX;
 	}
 }
 
