@@ -314,17 +314,19 @@ inline std::vector<Eigen::MatrixXd> sim_mn_iw(const Eigen::MatrixXd& mat_mean, c
 // @param psi Second parameter of GIG
 // @param chi Third parameter of GIG
 inline double sim_gig(double lambda, double psi, double chi, BVHAR_BHRNG& rng) {
-	if (chi < BVHAR_DBL_TOL) {
+	if (chi < BVHAR_DBL_TOL || std::isnan(chi)) {
 		if (lambda > 0) {
 			return gamma_rand(lambda, 2 / psi, rng);
 		} else if (lambda < 0) {
+			cut_positive_param(chi);
 			return 1 / gamma_rand(-lambda, 2 / chi, rng);
 		}
 	}
-	if (psi < BVHAR_DBL_TOL) {
+	if (psi < BVHAR_DBL_TOL || std::isnan(psi)) {
 		if (lambda < 0) {
 			return 1 / gamma_rand(-lambda, 2 / chi, rng);
 		} else if (lambda > 0) {
+			cut_positive_param(psi);
 			return gamma_rand(lambda, 2 / psi, rng);
 		}
 	}
@@ -338,9 +340,11 @@ inline double sim_gig(double lambda, double psi, double chi, BVHAR_BHRNG& rng) {
 // This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).
 inline double sim_invgauss(double mean, double shape, BVHAR_BHRNG& rng) {
 	if (shape < BVHAR_DBL_TOL || mean > BVHAR_DBL_MAX) {
+		cut_positive_param(shape);
 		return 1 / gamma_rand(.5, 2 / shape, rng);
 	}
 	if (shape > BVHAR_DBL_MAX) {
+		cut_positive_param(shape);
 		double sd = std::pow(mean, 3 / 2) / sqrt(shape);
 		return mean + sd * normal_rand(rng);
 	}
