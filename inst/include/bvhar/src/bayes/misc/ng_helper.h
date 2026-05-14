@@ -22,6 +22,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 			2 * shape / global_param[i],
 			coef[i] * coef[i], rng
 		);
+		cut_positive_param(local_param[i]);
 	}
 }
 // overloading
@@ -34,6 +35,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 			2 * shape[i] / global_param[i],
 			coef[i] * coef[i], rng
 		);
+		cut_positive_param(local_param[i]);
 	}
 }
 
@@ -56,6 +58,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 		1 / (hyper_gamma * local_param.lpNorm<1>() + scl),
 		rng
 	);
+	cut_positive_param(tau);
 	return tau;
 }
 // overloading
@@ -71,6 +74,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 		1 / ((hyper_gamma.array() * local_param.array()).sum() + scl),
 		rng
 	);
+	cut_positive_param(tau);
 	return tau;
 }
 
@@ -95,6 +99,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 			}
 		}
 		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
+		cut_positive_param(group_param[i]);
   }
 }
 
