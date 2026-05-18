@@ -55,7 +55,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// ));
 	double tau = 1 / gamma_rand(
 		shape + local_param.size() * hyper_gamma,
-		1 / (hyper_gamma * local_param.lpNorm<1>() + scl),
+		1 / (2 * hyper_gamma * local_param.lpNorm<1>() + scl),
 		rng
 	);
 	cut_positive_param(tau);
@@ -71,7 +71,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// ));
 	double tau = 1 / gamma_rand(
 		shape + hyper_gamma.sum(),
-		1 / ((hyper_gamma.array() * local_param.array()).sum() + scl),
+		1 / (2 * (hyper_gamma.array() * local_param.array()).sum() + scl),
 		rng
 	);
 	cut_positive_param(tau);
