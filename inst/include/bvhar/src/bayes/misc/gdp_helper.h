@@ -64,12 +64,12 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_sh
 // @param rate
 inline double gdp_logdens_shape(double cand, Eigen::Ref<Eigen::VectorXd> coef, double rate) {
 	int num_coef = coef.size();
-	return num_coef * (log(1 - cand) - log(cand)) - (coef.array() / rate).log1p().sum() / cand;
+	return num_coef * (log(1 - cand) - log(cand)) - (coef.cwiseAbs().array() / rate).log1p().sum() / cand;
 }
 
 inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, double shape) {
 	int num_coef = coef.size();
-	return num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.array() * cand / (1 - cand)).log1p().sum();
+	return num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.cwiseAbs().array() * cand / (1 - cand)).log1p().sum();
 }
 
 // Griddy Gibbs for Hyperparameter of Gamma Prior in GDP
