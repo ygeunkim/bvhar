@@ -468,7 +468,7 @@ public:
 			);
 		}
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
-		dl_local_sparsity(local_lev, dir_concen, coef_vec.array() / coef_var.array(), rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.array() * coef_var.array(), rng);
 		// using is_group = std::integral_constant<bool, isGroup>;
 		// if (is_group::value) {
 		BVHAR_IF_CONSTEXPR(isGroup) {

@@ -22,7 +22,7 @@ inline void dl_latent(Eigen::VectorXd& latent_param, Eigen::Ref<const Eigen::Vec
 		// 	1, coef_vec[i] * coef_vec[i] / (local_param[i] * local_param[i]), rng
 		// )[0];
 		latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
-		cut_positive_param(latent_param[i]);
+		// cut_positive_param(latent_param[i]);
 		// latent_param[i] = sim_invgauss(local_param[i] / abs(coef_vec[i]), 1, rng);
 		// latent_param[i] = abs(coef_vec[i]) / sim_invgauss(local_param[i], abs(coef_vec[i]), rng);
 	}
@@ -52,7 +52,7 @@ inline double dl_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 										 						 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	// return sim_gig(1, coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng)[0];
 	double tau = sim_gig(coef.size() * (dir_concen - 1), 1, 2 * (coef.cwiseAbs().array() / local_param.array()).sum(), rng);
-	cut_positive_param(tau);
+	// cut_positive_param(tau);
 	return tau;
 }
 
@@ -84,10 +84,10 @@ inline void dl_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
 		// group_param[i] = sim_gig(1, shape - mn_size, 2 * rate, 2 * mn_scl.sum(), rng)[0];
 		group_param[i] = gamma_rand(
 			shape + mn_size,
-			rate + mn_scl.sum(),
+			1 / (rate + mn_scl.sum()),
 			rng
 		);
-		cut_positive_param(group_param[i]);
+		// cut_positive_param(group_param[i]);
   }
 }
 
