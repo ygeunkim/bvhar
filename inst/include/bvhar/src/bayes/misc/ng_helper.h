@@ -19,7 +19,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, double& shape,
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(
 			shape - .5,
-			2 * shape * global_param[i],
+			2 * shape / global_param[i],
 			coef[i] * coef[i], rng
 		);
 		cut_positive_param(local_param[i]);
@@ -32,7 +32,7 @@ inline void ng_local_sparsity(Eigen::VectorXd& local_param, Eigen::VectorXd& sha
 	for (int i = 0; i < coef.size(); ++i) {
 		local_param[i] = sim_gig(
 			shape[i] - .5,
-			2 * shape[i] * global_param[i],
+			2 * shape[i] / global_param[i],
 			coef[i] * coef[i], rng
 		);
 		cut_positive_param(local_param[i]);
@@ -53,7 +53,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// 	1 / (hyper_gamma * local_param.squaredNorm() + scl),
 	// 	rng
 	// ));
-	double tau = gamma_rand(
+	double tau = 1 / gamma_rand(
 		shape + local_param.size() * hyper_gamma,
 		1 / (2 * hyper_gamma * local_param.lpNorm<1>() + scl),
 		rng
@@ -69,7 +69,7 @@ inline double ng_global_sparsity(Eigen::Ref<const Eigen::VectorXd> local_param, 
 	// 	1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),
 	// 	rng
 	// ));
-	double tau = gamma_rand(
+	double tau = 1 / gamma_rand(
 		shape + hyper_gamma.sum(),
 		1 / (2 * (hyper_gamma.array() * local_param.array()).sum() + scl),
 		rng
@@ -95,7 +95,7 @@ inline void ng_mn_sparsity(Eigen::VectorXd& group_param, Eigen::VectorXi& grp_ve
     Eigen::VectorXd mn_local(mn_size);
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
-				mn_local[k++] = local_param[j] * global_param;
+				mn_local[k++] = local_param[j] / global_param;
 			}
 		}
 		group_param[i] = ng_global_sparsity(mn_local, hyper_gamma[i], shape, scl, rng);
@@ -109,10 +109,10 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 	double cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
 	log_ratio += num_coef * (cand * log(cand) - gamma_hyper * log(gamma_hyper));
-	log_ratio += num_coef * (cand - gamma_hyper) * log(global_param);
+	log_ratio -= num_coef * (cand - gamma_hyper) * log(global_param);
 	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum() / 2;
 	// log_ratio += (gamma_hyper - cand) * local_param.array().sum() / (2 * global_param);
-	log_ratio += (gamma_hyper - cand) * local_param.array().sum() * global_param;
+	log_ratio += (gamma_hyper - cand) * local_param.array().sum() / global_param;
 	if (log(1 - unif_rand(rng)) < std::min(log_ratio, 0.0)) { // unif_rand has [0, 1) -> change to (0, 1]
 		return cand;
 	}
